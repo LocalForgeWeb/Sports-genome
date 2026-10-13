@@ -1,9 +1,20 @@
 {
  "A": {
   "aggregationVersion": "sg_muscle_benchmark_v3:directness_weighted_benchmark_score_bounded",
+  "selectionRule": "best_placed_per_exercise_v2",
+  "rankSchemeVersion": "sg_capability_rank_v2",
+  "scoreKind": "weighted_benchmark_score",
   "lats": {
+   "muscleId": "ebcf52e6-1a4f-4a30-8d2e-477881bbe5d3",
+   "canonicalName": "latissimus_dorsi",
+   "name": "Latissimus dorsi",
    "percentile": 91.24886246565927,
+   "scoreBound": "range",
+   "lowerBound": 91.24886246565927,
+   "upperBound": 92.84492640908873,
    "confidence01": 0.783,
+   "evidenceCount": 2,
+   "movementPatternCount": 2,
    "evidence": [
     {
      "exerciseName": "Lat Pulldown",
@@ -15,6 +26,11 @@
      "observedValue": 1.65818,
      "benchmarkValue": null,
      "valueUnit": "x_bodyweight",
+     "ageScaled": true,
+     "selectedLift": {
+      "loadKg": 84.822,
+      "repetitions": 6
+     },
      "directness": 0.21939953810623555,
      "weightShare": 0.6807872113141071
     },
@@ -28,17 +44,39 @@
      "observedValue": 6.41397,
      "benchmarkValue": 1.75,
      "valueUnit": "x_bodyweight",
+     "ageScaled": true,
+     "selectedLift": {
+      "loadKg": 272.155,
+      "repetitions": 12
+     },
      "directness": 0.15441176470588236,
      "weightShare": 0.31921278868589287
+    }
+   ],
+   "referenceGroups": [
+    {
+     "label": "Self-selected Strength Level community lifters (not general population)",
+     "sex": "male"
     }
    ]
   }
  },
  "B": {
   "aggregationVersion": "sg_muscle_benchmark_v3:directness_weighted_benchmark_score_bounded",
+  "selectionRule": "best_placed_per_exercise_v2",
+  "rankSchemeVersion": "sg_capability_rank_v2",
+  "scoreKind": "weighted_benchmark_score",
   "lats": {
+   "muscleId": "ebcf52e6-1a4f-4a30-8d2e-477881bbe5d3",
+   "canonicalName": "latissimus_dorsi",
+   "name": "Latissimus dorsi",
    "percentile": 95,
+   "scoreBound": "at_least",
+   "lowerBound": 95,
+   "upperBound": 100,
    "confidence01": 0.783,
+   "evidenceCount": 2,
+   "movementPatternCount": 2,
    "evidence": [
     {
      "exerciseName": "Lat Pulldown",
@@ -50,6 +88,11 @@
      "observedValue": 2.67249,
      "benchmarkValue": 1.75,
      "valueUnit": "x_bodyweight",
+     "ageScaled": true,
+     "selectedLift": {
+      "loadKg": 158.757,
+      "repetitions": 1
+     },
      "directness": 0.21939953810623555,
      "weightShare": 0.6807872113141071
     },
@@ -63,8 +106,19 @@
      "observedValue": 3.08062,
      "benchmarkValue": 1.75,
      "valueUnit": "x_bodyweight",
+     "ageScaled": true,
+     "selectedLift": {
+      "loadKg": 147.418,
+      "repetitions": 8
+     },
      "directness": 0.15441176470588236,
      "weightShare": 0.31921278868589287
+    }
+   ],
+   "referenceGroups": [
+    {
+     "label": "Self-selected Strength Level community lifters (not general population)",
+     "sex": "male"
     }
    ]
   }

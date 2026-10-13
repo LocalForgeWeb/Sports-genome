@@ -9,7 +9,6 @@ import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 import { anatomySides, defaultAnatomySide, sideForSelection, sideLabel, turnToSideLabel, type AnatomySide } from "@/lib/anatomySide";
 import { confidenceLabel, type RankId, type RegionRank } from "@shared/capabilityRank";
 import { RankLegend, muscleScoreValue, rankScoreText } from "@/components/CapabilityRank";
-import { ordinal } from "@/lib/strengthPercentileCard";
 
 type RegionState = "OBSERVED_TEST_CONTEXT" | "INSUFFICIENT_DATA";
 

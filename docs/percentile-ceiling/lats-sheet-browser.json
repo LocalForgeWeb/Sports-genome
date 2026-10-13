@@ -1,0 +1,132 @@
+[
+  {
+    "name": "A 390: the Lats sheet shows a rank card",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "A 390: State Circuit, benchmark score 91–92",
+    "pass": true,
+    "detail": "State Circuit · Benchmark score 91–92"
+  },
+  {
+    "name": "A 390: the row is above the 95th-percentile benchmark, the pulldown 89th",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "A 390: placed 6.41× against the 1.75× benchmark",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "A 390: the excluded pulldown is still named, with its reason",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "A 390: no sideways scroll",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "A 390: the arithmetic is shown",
+    "pass": true,
+    "detail": "89.4 × 68% + above 95 × 32% = 91.2 to 92.8"
+  },
+  {
+    "name": "A 320: the Lats sheet shows a rank card",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "A 320: State Circuit, benchmark score 91–92",
+    "pass": true,
+    "detail": "State Circuit · Benchmark score 91–92"
+  },
+  {
+    "name": "A 320: the row is above the 95th-percentile benchmark, the pulldown 89th",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "A 320: placed 6.41× against the 1.75× benchmark",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "A 320: the excluded pulldown is still named, with its reason",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "A 320: no sideways scroll",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "A 320: the arithmetic is shown",
+    "pass": true,
+    "detail": "89.4 × 68% + above 95 × 32% = 91.2 to 92.8"
+  },
+  {
+    "name": "B 390: the Lats sheet shows a rank card",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "B 390: National Circuit at least, benchmark score above 95",
+    "pass": true,
+    "detail": "National Circuit · Benchmark score above 95"
+  },
+  {
+    "name": "B 390: no 94 and no exact 95th anywhere on the card",
+    "pass": true,
+    "detail": "National CircuitBenchmark score above 95Compared with Self-selected Strength Level community lifters (not general population), men.EstimatedModerate confidenceMinimum rank2 lifts are above the highest"
+  },
+  {
+    "name": "B 390: the excluded pulldown is still named, with its reason",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "B 390: no sideways scroll",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "B 390: the arithmetic is shown",
+    "pass": true,
+    "detail": "above 95 × 68% + above 95 × 32% = above 95"
+  },
+  {
+    "name": "B 320: the Lats sheet shows a rank card",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "B 320: National Circuit at least, benchmark score above 95",
+    "pass": true,
+    "detail": "National Circuit · Benchmark score above 95"
+  },
+  {
+    "name": "B 320: no 94 and no exact 95th anywhere on the card",
+    "pass": true,
+    "detail": "National CircuitBenchmark score above 95Compared with Self-selected Strength Level community lifters (not general population), men.EstimatedModerate confidenceMinimum rank2 lifts are above the highest"
+  },
+  {
+    "name": "B 320: the excluded pulldown is still named, with its reason",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "B 320: no sideways scroll",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "B 320: the arithmetic is shown",
+    "pass": true,
+    "detail": "above 95 × 68% + above 95 × 32% = above 95"
+  }
+]

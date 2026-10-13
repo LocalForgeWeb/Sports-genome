@@ -1,0 +1,331 @@
+exercise,canonical_name,route,reference_exercise,male_top_percentile,female_top_percentile,units
+45-Degree Back Extension,45_degree_back_extension__catalog_200,none,,,,
+Ab-Wheel Rollout,ab_wheel_rollout__catalog_237,none,,,,
+Alternating Dumbbell Bench Press,alternating_dumbbell_bench_press__catalog_9,alias,Dumbbell Bench Press,95,95,
+Alternating Dumbbell Curl,alternating_dumbbell_curl__catalog_124,alias,Dumbbell Curl,95,95,
+Archer Pull-Up,archer_pull_up__catalog_73,none,,,,
+Archer Push-Up,archer_push_up__catalog_31,none,,,,
+Arnold Press,arnold_press__catalog_105,direct,Arnold Press,95,95,x_bodyweight
+Assisted Nordic Curl,assisted_nordic_curl__catalog_193,none,,,,
+Assisted Pistol Squat,assisted_pistol_squat__catalog_185,none,,,,
+B-Stance Romanian Deadlift,b_stance_romanian_deadlift__catalog_205,alias,Romanian Deadlift,95,95,
+Back Squat,back_squat__catalog_161,direct,Back Squat,95,95,x_bodyweight
+Backward Sled Drag,backward_sled_drag__catalog_297,none,,,,
+Band Pull-Apart,band_pull_apart__catalog_100,none,,,,
+Barbell Bench Press,barbell_bench_press__catalog_1,direct,Barbell Bench Press,95,95,x_bodyweight
+Barbell Bent-Over Row,barbell_bent_over_row__catalog_43,direct,Barbell Bent-Over Row,95,95,lb_1rm/x_bodyweight
+Barbell Curl,barbell_curl__catalog_121,direct,Barbell Curl,95,95,x_bodyweight
+Barbell Hip Hinge,barbell_hip_hinge__catalog_204,alias,Romanian Deadlift,95,95,
+Barbell Hip Thrust,barbell_hip_thrust__catalog_206,direct,Barbell Hip Thrust,95,95,lb_1rm/x_bodyweight
+Barbell Overhead Press,barbell_overhead_press__catalog_101,direct,Barbell Overhead Press,95,95,x_bodyweight
+Barbell Rollout,barbell_rollout__catalog_238,none,,,,
+Barbell Shrug,barbell_shrug__catalog_81,direct,Barbell Shrug,95,95,x_bodyweight
+Bayesian Cable Curl,bayesian_cable_curl__catalog_129,alias,Cable Curl,95,95,
+Behind-the-Back Cable Lateral Raise,behind_the_back_cable_lateral_raise__catalog_115,alias,Cable Lateral Raise,95,95,
+Bench Dip,bench_dip__catalog_158,none,,,,
+Bent-Over Rear-Delt Fly,bent_over_rear_delt_fly__catalog_90,alias,Reverse Pec Deck,95,95,
+Bodyweight Triceps Extension,bodyweight_triceps_extension__catalog_160,none,,,,
+Box Jump,box_jump__catalog_286,none,,,,
+Broad Jump,broad_jump__catalog_288,none,,,,
+Bulgarian Split Squat,bulgarian_split_squat__catalog_173,direct,Bulgarian Split Squat,95,95,lb_1rm/x_bodyweight
+Cable Anti-Rotation Walkout,cable_anti_rotation_walkout__catalog_380,none,,,,
+Cable Belt Squat,cable_belt_squat__catalog_351,none,,,,
+Cable Calf Raise,cable_calf_raise__catalog_369,none,,,,
+Cable Chest Press,cable_chest_press__catalog_16,alias,Machine Chest Press,95,95,
+Cable Crossover Step Lunge,cable_crossover_step_lunge__catalog_373,alias,Walking Lunge,95,95,
+Cable Crunch,cable_crunch__catalog_239,direct,Cable Crunch,95,95,x_bodyweight
+Cable Curl,cable_curl__catalog_128,direct,Cable Curl,95,95,x_bodyweight
+Cable Dead Bug,cable_dead_bug__catalog_376,none,,,,
+Cable Deadlift,cable_deadlift__catalog_354,alias,Cable Pull-Through,95,95,
+Cable Donkey Kick,cable_donkey_kick__catalog_362,alias,Cable Pull-Through,95,95,
+Cable Fire Hydrant,cable_fire_hydrant__catalog_363,alias,Hip Abduction Machine,95,95,
+Cable Fly,cable_fly__catalog_18,direct,Cable Fly,95,95,lb_1rm/x_bodyweight
+Cable Forward March,cable_forward_march__catalog_374,none,,,,
+Cable Front Raise,cable_front_raise__catalog_118,alias,Cable Lateral Raise,95,95,
+Cable Front Squat,cable_front_squat__catalog_353,alias,Front Squat,95,95,
+Cable Glute Kickback,cable_glute_kickback__catalog_212,alias,Cable Pull-Through,95,95,
+Cable Goblet Squat,cable_goblet_squat__catalog_352,alias,Goblet Squat,95,95,
+Cable Good Morning,cable_good_morning__catalog_355,alias,Cable Pull-Through,95,95,
+Cable Hamstring Curl,cable_hamstring_curl__catalog_366,alias,Lying Leg Curl,95,95,
+Cable Hip Abduction,cable_hip_abduction__catalog_215,alias,Hip Abduction Machine,95,95,
+Cable Hip Adduction,cable_hip_adduction__catalog_218,alias,Hip Adduction Machine,95,95,
+Cable Hip Thrust,cable_hip_thrust__catalog_360,alias,Cable Pull-Through,95,95,
+Cable Horizontal Chop,cable_horizontal_chop__catalog_378,alias,Cable Wood Chop,95,95,
+Cable Lateral Lunge,cable_lateral_lunge__catalog_372,alias,Walking Lunge,95,95,
+Cable Lateral Raise,cable_lateral_raise__catalog_112,direct,Cable Lateral Raise,95,95,x_bodyweight
+Cable Lateral Step-Up,cable_lateral_step_up__catalog_358,alias,Walking Lunge,95,95,
+Cable Leg Extension,cable_leg_extension__catalog_368,direct,Cable Leg Extension,95,95,lb_1rm/x_bodyweight
+Cable Pull-Through,cable_pull_through__catalog_202,direct,Cable Pull-Through,95,95,x_bodyweight
+Cable Pullover,cable_pullover__catalog_63,alias,Cable Straight-Arm Pulldown,95,95,
+Cable Quadruped Hip Extension,cable_quadruped_hip_extension__catalog_361,alias,Cable Pull-Through,95,95,
+Cable Rear-Delt Fly,cable_rear_delt_fly__catalog_92,direct,Cable Rear-Delt Fly,95,95,lb/x_bodyweight
+Cable Reverse Chop,cable_reverse_chop__catalog_377,alias,Cable Wood Chop,95,95,
+Cable Reverse Lunge,cable_reverse_lunge__catalog_371,alias,Walking Lunge,95,95,
+Cable Rotational Row,cable_rotational_row__catalog_379,alias,Seated Cable Row,95,95,
+Cable Shrug,cable_shrug__catalog_84,direct,Cable Shrug,95,95,x_bodyweight
+Cable Single-Leg Deadlift,cable_single_leg_deadlift__catalog_356,alias,Single-Leg Romanian Deadlift,95,95,
+Cable Skater Squat,cable_skater_squat__catalog_359,alias,Walking Lunge,95,95,
+Cable Standing Hip Abduction,cable_standing_hip_abduction__catalog_365,alias,Hip Abduction Machine,95,95,
+Cable Standing Hip Adduction,cable_standing_hip_adduction__catalog_364,alias,Hip Adduction Machine,95,95,
+Cable Standing Knee Drive,cable_standing_knee_drive__catalog_375,none,,,,
+Cable Standing Leg Curl,cable_standing_leg_curl__catalog_367,alias,Standing Single-Leg Curl,95,95,
+Cable Step-Up,cable_step_up__catalog_357,alias,Walking Lunge,95,95,
+Cable Tibialis Raise,cable_tibialis_raise__catalog_370,none,,,,
+Cable Triceps Pushdown,cable_triceps_pushdown__catalog_150,direct,Cable Triceps Pushdown,95,95,x_bodyweight
+Cable Wood Chop,cable_wood_chop__catalog_250,direct,Cable Wood Chop,95,95,x_bodyweight
+Cable Y-Raise,cable_y_raise__catalog_95,alias,Cable Lateral Raise,95,95,
+Captainâs-Chair Leg Raise,captain_s_chair_leg_raise__catalog_233,none,,,,
+Chest-Supported Dumbbell Row,chest_supported_dumbbell_row__catalog_47,direct,Chest-Supported Dumbbell Row,95,95,x_bodyweight
+Chest-Supported Rear-Delt Raise,chest_supported_rear_delt_raise__catalog_91,alias,Reverse Pec Deck,95,95,
+Chest-Supported T-Bar Row,chest_supported_t_bar_row__catalog_51,alias,T-Bar Row,95,95,
+Chin-Up,chin_up__catalog_67,none,,,,
+Chin-Up Curl,chin_up_curl__catalog_138,none,,,,
+Clap Push-Up,clap_push_up__catalog_33,none,,,,
+Close-Grip Bench Press,close_grip_bench_press__catalog_146,direct,Close-Grip Bench Press,95,95,x_bodyweight
+Commando Pull-Up,commando_pull_up__catalog_72,none,,,,
+Concentration Curl,concentration_curl__catalog_131,alias,Dumbbell Curl,95,95,
+Conventional Deadlift,conventional_deadlift__catalog_41,direct,Conventional Deadlift,95,95,x_bodyweight
+Copenhagen Plank,copenhagen_plank__catalog_217,none,,,,
+Cossack Squat,cossack_squat__catalog_220,alias,Goblet Squat,95,95,
+Cross-Body Hammer Curl,cross_body_hammer_curl__catalog_133,alias,Hammer Curl,95,95,
+Cyclist Squat,cyclist_squat__catalog_181,alias,Front Squat,95,95,
+Dead Bug,dead_bug__catalog_244,none,,,,
+Dead Hang,dead_hang__catalog_143,none,,,,
+Decline Barbell Bench Press,decline_barbell_bench_press__catalog_3,direct,Decline Barbell Bench Press,95,95,x_bodyweight
+Decline Dumbbell Bench Press,decline_dumbbell_bench_press__catalog_6,direct,Decline Dumbbell Bench Press,95,95,x_bodyweight
+Decline Push-Up,decline_push_up__catalog_29,none,,,,
+Decline Sit-Up,decline_sit_up__catalog_241,none,,,,
+Deficit Push-Up,deficit_push_up__catalog_35,none,,,,
+Deficit Reverse Lunge,deficit_reverse_lunge__catalog_178,none,,,,
+Depth Jump,depth_jump__catalog_287,none,,,,
+Diamond Push-Up,diamond_push_up__catalog_28,none,,,,
+Donkey Calf Raise,donkey_calf_raise__catalog_225,none,,,,
+Drag Curl,drag_curl__catalog_137,alias,Barbell Curl,95,95,
+Dumbbell Bench Press,dumbbell_bench_press__catalog_4,direct,Dumbbell Bench Press,95,95,x_bodyweight
+Dumbbell Curl,dumbbell_curl__catalog_123,direct,Dumbbell Curl,95,95,x_bodyweight
+Dumbbell Floor Press,dumbbell_floor_press__catalog_7,direct,Dumbbell Floor Press,95,95,x_bodyweight
+Dumbbell Fly,dumbbell_fly__catalog_22,direct,Dumbbell Fly,95,95,x_bodyweight
+Dumbbell Front Raise,dumbbell_front_raise__catalog_117,direct,Dumbbell Front Raise,95,95,x_bodyweight
+Dumbbell Hip Thrust,dumbbell_hip_thrust__catalog_208,alias,Barbell Hip Thrust,95,95,
+Dumbbell Lateral Raise,dumbbell_lateral_raise__catalog_111,direct,Dumbbell Lateral Raise,95,95,x_bodyweight
+Dumbbell Overhead Triceps Extension,dumbbell_overhead_triceps_extension__catalog_155,direct,Dumbbell Overhead Triceps Extension,95,95,x_bodyweight
+Dumbbell Pullover,dumbbell_pullover__catalog_65,direct,Dumbbell Pullover,95,95,x_bodyweight
+Dumbbell Pullover,dumbbell_pullover__catalog_24,alias,Dumbbell Pullover,95,95,
+Dumbbell Romanian Deadlift,dumbbell_romanian_deadlift__catalog_189,direct,Dumbbell Romanian Deadlift,95,95,x_bodyweight
+Dumbbell Row,dumbbell_row__catalog_46,direct,Dumbbell Row,95,95,x_bodyweight
+Dumbbell Shoulder Press,dumbbell_shoulder_press__catalog_103,direct,Dumbbell Shoulder Press,95,95,x_bodyweight
+Dumbbell Shrug,dumbbell_shrug__catalog_82,direct,Dumbbell Shrug,95,95,x_bodyweight
+Dumbbell Skull Crusher,dumbbell_skull_crusher__catalog_149,alias,Skull Crusher,95,95,
+Dumbbell Squeeze Press,dumbbell_squeeze_press__catalog_8,alias,Dumbbell Bench Press,95,95,
+Dumbbell Y-Raise,dumbbell_y_raise__catalog_94,none,,,,
+Explosive Depth Push-Up,explosive_depth_push_up__catalog_34,none,,,,
+Explosive Medicine-Ball Push-Up,explosive_medicine_ball_push_up__catalog_272,none,,,,
+Explosive Step-Up,explosive_step_up__catalog_295,alias,Walking Lunge,95,95,
+EZ-Bar Curl,ez_bar_curl__catalog_122,direct,EZ-Bar Curl,95,95,x_bodyweight
+Face Pull,face_pull__catalog_87,direct,Face Pull,95,95,x_bodyweight
+Farmer Hold,farmer_hold__catalog_145,none,,,,
+Farmerâs Walk,farmer_s_walk__catalog_299,none,,,,
+Feet-Elevated Inverted Row,feet_elevated_inverted_row__catalog_76,none,,,,
+Forward Lunge,forward_lunge__catalog_176,alias,Walking Lunge,95,95,
+Front Squat,front_squat__catalog_163,direct,Front Squat,95,95,lb_1rm/x_bodyweight
+Front-Foot-Elevated Split Squat,front_foot_elevated_split_squat__catalog_174,alias,Bulgarian Split Squat,95,95,
+Glute Bridge,glute_bridge__catalog_210,none,,,,
+Glute-Ham Raise,glute_ham_raise__catalog_199,none,,,,
+Goblet Squat,goblet_squat__catalog_165,direct,Goblet Squat,95,95,x_bodyweight
+Good Morning,good_morning__catalog_190,direct,Good Morning,95,95,x_bodyweight
+Hack Squat,hack_squat__catalog_166,direct,Hack Squat,95,95,x_bodyweight
+Half-Kneeling Landmine Press,half_kneeling_landmine_press__catalog_252,alias,Landmine Press,95,95,
+Half-Kneeling Rotational Throw,half_kneeling_rotational_throw__catalog_282,none,,,,
+Hammer Curl,hammer_curl__catalog_132,direct,Hammer Curl,95,95,x_bodyweight
+Handstand Push-Up,handstand_push_up__catalog_120,none,,,,
+Hanging Knee Raise,hanging_knee_raise__catalog_232,none,,,,
+Hanging Leg Raise,hanging_leg_raise__catalog_231,none,,,,
+Heavy Sled Push,heavy_sled_push__catalog_296,none,,,,
+Heel Walk,heel_walk__catalog_230,none,,,,
+High-Bar Back Squat,high_bar_back_squat__catalog_162,alias,Back Squat,95,95,
+High-to-Low Cable Fly,high_to_low_cable_fly__catalog_20,alias,Cable Fly,95,95,
+Hip Abduction Machine,hip_abduction_machine__catalog_214,direct,Hip Abduction Machine,95,95,x_bodyweight
+Hip Adduction Machine,hip_adduction_machine__catalog_219,direct,Hip Adduction Machine,95,95,x_bodyweight
+Hollow-Body Hold,hollow_body_hold__catalog_245,none,,,,
+Incline Barbell Bench Press,incline_barbell_bench_press__catalog_2,direct,Incline Barbell Bench Press,95,95,x_bodyweight
+Incline Dumbbell Bench Press,incline_dumbbell_bench_press__catalog_5,direct,Incline Dumbbell Bench Press,95,95,x_bodyweight
+Incline Dumbbell Curl,incline_dumbbell_curl__catalog_125,direct,Incline Dumbbell Curl,95,95,x_bodyweight
+Incline Dumbbell Fly,incline_dumbbell_fly__catalog_23,alias,Dumbbell Fly,95,95,
+Incline Dumbbell Lateral Raise,incline_dumbbell_lateral_raise__catalog_116,alias,Dumbbell Lateral Raise,95,95,
+Incline Dumbbell Shrug,incline_dumbbell_shrug__catalog_86,alias,Dumbbell Shrug,95,95,
+Incline Machine Chest Press,incline_machine_chest_press__catalog_12,alias,Machine Chest Press,95,95,
+Incline Push-Up,incline_push_up__catalog_30,none,,,,
+Inverted Row,inverted_row__catalog_75,none,,,,
+JM Press,jm_press__catalog_147,direct,JM Press,95,95,lb/x_bodyweight
+Jump Squat,jump_squat__catalog_293,none,,,,
+Kettlebell Swing,kettlebell_swing__catalog_203,none,,,,
+Kneeling Medicine-Ball Chest Pass,kneeling_medicine_ball_chest_pass__catalog_281,none,,,,
+L-Sit,l_sit__catalog_235,none,,,,
+L-Sit Pull-Up,l_sit_pull_up__catalog_74,none,,,,
+Landmine 180,landmine_180__catalog_266,none,,,,
+Landmine Anti-Rotation Press,landmine_anti_rotation_press__catalog_267,none,,,,
+Landmine Clean and Press,landmine_clean_and_press__catalog_269,none,,,,
+Landmine Hack Squat,landmine_hack_squat__catalog_260,alias,Landmine Squat,95,95,
+Landmine Lateral Lunge,landmine_lateral_lunge__catalog_262,alias,Walking Lunge,95,95,
+Landmine Press,landmine_press__catalog_251,direct,Landmine Press,95,95,lb_1rm/x_bodyweight
+Landmine Push Press,landmine_push_press__catalog_254,alias,Landmine Press,95,95,
+Landmine Reverse Lunge,landmine_reverse_lunge__catalog_261,alias,Walking Lunge,95,95,
+Landmine Romanian Deadlift,landmine_romanian_deadlift__catalog_263,alias,Romanian Deadlift,95,95,
+Landmine Rotation,landmine_rotation__catalog_265,none,,,,
+Landmine Row,landmine_row__catalog_256,alias,T-Bar Row,95,95,
+Landmine Single-Leg Romanian Deadlift,landmine_single_leg_romanian_deadlift__catalog_264,alias,Single-Leg Romanian Deadlift,95,95,
+Landmine Split Jerk,landmine_split_jerk__catalog_270,none,,,,
+Landmine Squat,landmine_squat__catalog_259,direct,Landmine Squat,95,95,lb_1rm/x_bodyweight
+Landmine Squat-to-Press,landmine_squat_to_press__catalog_255,none,,,,
+Landmine T-Bar Row,landmine_t_bar_row__catalog_258,alias,T-Bar Row,95,95,
+Landmine Thruster,landmine_thruster__catalog_268,none,,,,
+Lat Pulldown,lat_pulldown__catalog_57,direct,Lat Pulldown,95,95,x_bodyweight
+Lateral Band Walk,lateral_band_walk__catalog_216,none,,,,
+Lateral Bound,lateral_bound__catalog_290,none,,,,
+Leaning Cable Lateral Raise,leaning_cable_lateral_raise__catalog_114,alias,Cable Lateral Raise,95,95,
+Leg Extension,leg_extension__catalog_171,direct,Leg Extension,95,95,x_bodyweight
+Leg Press,leg_press__catalog_169,direct,Leg Press,95,95,x_bodyweight
+Leg-Press Calf Raise,leg_press_calf_raise__catalog_223,none,,,,
+Low-to-High Cable Fly,low_to_high_cable_fly__catalog_19,alias,Cable Fly,95,95,
+Lying Leg Curl,lying_leg_curl__catalog_194,direct,Lying Leg Curl,95,95,x_bodyweight
+Machine Chest Press,machine_chest_press__catalog_11,direct,Machine Chest Press,95,95,x_bodyweight
+Machine Crunch,machine_crunch__catalog_240,alias,Cable Crunch,95,95,
+Machine Glute Kickback,machine_glute_kickback__catalog_213,alias,Barbell Hip Thrust,95,95,
+Machine High Row,machine_high_row__catalog_52,alias,Seated Cable Row,95,95,
+Machine Lateral Raise,machine_lateral_raise__catalog_113,direct,Machine Lateral Raise,95,95,lb/x_bodyweight
+Machine Low Row,machine_low_row__catalog_53,alias,Seated Cable Row,95,95,
+Machine Preacher Curl,machine_preacher_curl__catalog_127,alias,Preacher Curl,95,95,
+Machine Pullover,machine_pullover__catalog_64,none,,,,
+Machine Shoulder Press,machine_shoulder_press__catalog_106,direct,Machine Shoulder Press,95,95,x_bodyweight
+Machine Shrug,machine_shrug__catalog_85,direct,Machine Shrug,95,95,x_bodyweight
+Machine Triceps Extension,machine_triceps_extension__catalog_157,direct,Machine Triceps Extension,95,95,x_bodyweight
+Meadows Landmine Row,meadows_landmine_row__catalog_257,direct,Meadows Landmine Row,95,95,lb_1rm/x_bodyweight
+Meadows Row,meadows_row__catalog_49,direct,Meadows Row,95,95,lb/x_bodyweight
+Medicine-Ball Chest Pass,medicine_ball_chest_pass__catalog_271,none,,,,
+Medicine-Ball Forward Overhead Throw,medicine_ball_forward_overhead_throw__catalog_280,none,,,,
+Medicine-Ball Overhead Backward Throw,medicine_ball_overhead_backward_throw__catalog_279,none,,,,
+Medicine-Ball Overhead Slam,medicine_ball_overhead_slam__catalog_273,none,,,,
+Medicine-Ball Rotational Slam,medicine_ball_rotational_slam__catalog_274,none,,,,
+Medicine-Ball Rotational Wall Throw,medicine_ball_rotational_wall_throw__catalog_276,none,,,,
+Medicine-Ball Scoop Toss,medicine_ball_scoop_toss__catalog_277,none,,,,
+Medicine-Ball Shot-Put Throw,medicine_ball_shot_put_throw__catalog_278,none,,,,
+Medicine-Ball Side Throw,medicine_ball_side_throw__catalog_275,none,,,,
+Medicine-Ball Sit-Up Throw,medicine_ball_sit_up_throw__catalog_283,none,,,,
+Medicine-Ball Slam-to-Sprint,medicine_ball_slam_to_sprint__catalog_285,none,,,,
+Medicine-Ball Sprawl-to-Slam,medicine_ball_sprawl_to_slam__catalog_284,none,,,,
+Neutral-Grip Lat Pulldown,neutral_grip_lat_pulldown__catalog_59,alias,Lat Pulldown,95,95,
+Neutral-Grip Pull-Up,neutral_grip_pull_up__catalog_68,none,,,,
+Nordic Hamstring Curl,nordic_hamstring_curl__catalog_192,none,,,,
+Overhead Cable Triceps Extension,overhead_cable_triceps_extension__catalog_154,alias,Cable Overhead Triceps Extension,95,95,
+Pallof Press,pallof_press__catalog_249,none,,,,
+Parallel-Bar Dip,parallel_bar_dip__catalog_40,none,,,,
+Pec Deck Fly,pec_deck_fly__catalog_21,direct,Pec Deck Fly,95,95,x_bodyweight
+Pendlay Row,pendlay_row__catalog_44,alias,Barbell Bent-Over Row,95,95,
+Pendulum Squat,pendulum_squat__catalog_167,alias,Hack Squat,95,95,
+Peterson Step-Up,peterson_step_up__catalog_180,alias,Walking Lunge,95,95,
+Pistol Squat,pistol_squat__catalog_184,none,,,,
+Plate Front Raise,plate_front_raise__catalog_119,none,,,,
+Plate Pinch,plate_pinch__catalog_142,none,,,,
+Plate Squeeze Press,plate_squeeze_press__catalog_25,alias,Dumbbell Bench Press,95,95,
+Plate-Loaded Chest Press,plate_loaded_chest_press__catalog_13,alias,Machine Chest Press,95,95,
+Plyometric Push-Up,plyometric_push_up__catalog_32,none,,,,
+Pogo Jump,pogo_jump__catalog_292,none,,,,
+Preacher Curl,preacher_curl__catalog_126,direct,Preacher Curl,95,95,x_bodyweight
+Prone T-Raise,prone_t_raise__catalog_97,none,,,,
+Prone W-Raise,prone_w_raise__catalog_98,none,,,,
+Prone Y-Raise,prone_y_raise__catalog_96,none,,,,
+Pull-Up,pull_up__catalog_66,none,,,,
+Push Press,push_press__catalog_110,direct,Push Press,95,95,x_bodyweight
+Reverse Crunch,reverse_crunch__catalog_243,none,,,,
+Reverse Curl,reverse_curl__catalog_135,alias,Barbell Curl,95,95,
+Reverse Hyperextension,reverse_hyperextension__catalog_201,none,,,,
+Reverse Lunge,reverse_lunge__catalog_175,none,,,,
+Reverse Pec Deck,reverse_pec_deck__catalog_89,direct,Reverse Pec Deck,95,95,x_bodyweight
+Reverse Wrist Curl,reverse_wrist_curl__catalog_140,direct,Reverse Wrist Curl,95,95,x_bodyweight
+Reverse-Grip Pushdown,reverse_grip_pushdown__catalog_152,alias,Cable Triceps Pushdown,95,95,
+Ring Dip,ring_dip__catalog_159,none,,,,
+Ring Push-Up,ring_push_up__catalog_36,none,,,,
+Ring Row,ring_row__catalog_77,none,,,,
+RKC Plank,rkc_plank__catalog_246,none,,,,
+Romanian Deadlift,romanian_deadlift__catalog_186,direct,Romanian Deadlift,95,95,x_bodyweight
+Romanian Deadlift,romanian_deadlift__catalog_42,alias,Romanian Deadlift,95,95,
+Rope Climb,rope_climb__catalog_80,none,,,,
+Rope Face Pull with External Rotation,rope_face_pull_with_external_rotation__catalog_88,alias,Face Pull,95,95,
+Rope Hammer Curl,rope_hammer_curl__catalog_134,alias,Hammer Curl,95,95,
+Rope Triceps Pushdown,rope_triceps_pushdown__catalog_151,direct,Rope Triceps Pushdown,95,95,x_bodyweight
+Scapular Pull-Up,scapular_pull_up__catalog_79,none,,,,
+Scapular Wall Slide,scapular_wall_slide__catalog_99,none,,,,
+Seal Row,seal_row__catalog_48,alias,Barbell Bent-Over Row,95,95,
+Seated Barbell Overhead Press,seated_barbell_overhead_press__catalog_102,alias,Barbell Overhead Press,95,95,
+Seated Cable Row,seated_cable_row__catalog_54,direct,Seated Cable Row,95,95,lb_1rm/x_bodyweight
+Seated Calf Raise,seated_calf_raise__catalog_222,direct,Seated Calf Raise,95,95,x_bodyweight
+Seated Dumbbell Shoulder Press,seated_dumbbell_shoulder_press__catalog_104,direct,Seated Dumbbell Shoulder Press,95,95,x_bodyweight
+Seated Good Morning,seated_good_morning__catalog_191,alias,Good Morning,95,95,
+Seated Leg Curl,seated_leg_curl__catalog_195,direct,Seated Leg Curl,95,95,lb_1rm/x_bodyweight
+Side Plank,side_plank__catalog_247,none,,,,
+Single-Arm Cable Chest Press,single_arm_cable_chest_press__catalog_17,alias,Machine Chest Press,95,95,
+Single-Arm Cable Pushdown,single_arm_cable_pushdown__catalog_153,alias,Cable Triceps Pushdown,95,95,
+Single-Arm Cable Rear-Delt Fly,single_arm_cable_rear_delt_fly__catalog_93,alias,Cable Rear-Delt Fly,95,95,
+Single-Arm Cable Row,single_arm_cable_row__catalog_56,direct,Single-Arm Cable Row,95,95,x_bodyweight
+Single-Arm Dumbbell Bench Press,single_arm_dumbbell_bench_press__catalog_10,alias,Dumbbell Bench Press,95,95,
+Single-Arm Dumbbell Overhead Press,single_arm_dumbbell_overhead_press__catalog_108,alias,Dumbbell Shoulder Press,95,95,
+Single-Arm Dumbbell Triceps Extension,single_arm_dumbbell_triceps_extension__catalog_156,alias,Dumbbell Overhead Triceps Extension,95,95,
+Single-Arm Lat Pulldown,single_arm_lat_pulldown__catalog_61,direct,Single-Arm Lat Pulldown,95,95,lb/x_bodyweight
+Single-Arm Standing Landmine Press,single_arm_standing_landmine_press__catalog_253,alias,Landmine Press,95,95,
+Single-Leg Broad Jump,single_leg_broad_jump__catalog_291,none,,,,
+Single-Leg Calf Raise,single_leg_calf_raise__catalog_224,none,,,,
+Single-Leg Glute Bridge,single_leg_glute_bridge__catalog_211,none,,,,
+Single-Leg Hip Thrust,single_leg_hip_thrust__catalog_209,alias,Barbell Hip Thrust,95,95,
+Single-Leg Leg Extension,single_leg_leg_extension__catalog_172,alias,Leg Extension,95,95,
+Single-Leg Leg Press,single_leg_leg_press__catalog_170,direct,Single-Leg Leg Press,95,95,x_bodyweight
+Single-Leg Romanian Deadlift,single_leg_romanian_deadlift__catalog_188,direct,Single-Leg Romanian Deadlift,95,95,lb_1rm/x_bodyweight
+Sissy Squat,sissy_squat__catalog_182,none,,,,
+Skull Crusher,skull_crusher__catalog_148,direct,Skull Crusher,95,95,x_bodyweight
+Sled Sprint,sled_sprint__catalog_298,none,,,,
+Slider Hamstring Curl,slider_hamstring_curl__catalog_198,none,,,,
+Smith Machine Bench Press,smith_machine_bench_press__catalog_14,direct,Smith Machine Bench Press,95,95,x_bodyweight
+Smith Machine Calf Raise,smith_machine_calf_raise__catalog_226,none,,,,
+Smith Machine Hip Thrust,smith_machine_hip_thrust__catalog_207,alias,Barbell Hip Thrust,95,95,
+Smith Machine Incline Press,smith_machine_incline_press__catalog_15,alias,Incline Barbell Bench Press,95,95,
+Smith Machine Shoulder Press,smith_machine_shoulder_press__catalog_107,alias,Machine Shoulder Press,95,95,
+Smith Machine Squat,smith_machine_squat__catalog_168,direct,Smith Machine Squat,95,95,lb_1rm/x_bodyweight
+Spanish Squat,spanish_squat__catalog_183,none,,,,
+Spider Curl,spider_curl__catalog_130,direct,Spider Curl,95,95,lb/x_bodyweight
+Spiderman Push-Up,spiderman_push_up__catalog_38,none,,,,
+Split-Squat Jump,split_squat_jump__catalog_294,none,,,,
+Stability-Ball Hamstring Curl,stability_ball_hamstring_curl__catalog_197,none,,,,
+Standard Push-Up,standard_push_up__catalog_26,none,,,,
+Standing Calf Raise,standing_calf_raise__catalog_221,none,,,,
+Standing Single-Leg Curl,standing_single_leg_curl__catalog_196,direct,Standing Single-Leg Curl,95,95,x_bodyweight
+Step-Up,step_up__catalog_179,alias,Walking Lunge,95,95,
+Stiff-Leg Deadlift,stiff_leg_deadlift__catalog_187,alias,Romanian Deadlift,95,95,
+Straight-Arm Cable Pulldown,straight_arm_cable_pulldown__catalog_62,alias,Cable Straight-Arm Pulldown,95,95,
+T-Bar Row,t_bar_row__catalog_50,direct,T-Bar Row,95,95,x_bodyweight
+Tibialis Raise,tibialis_raise__catalog_227,none,,,,
+Toe Walk,toe_walk__catalog_229,none,,,,
+Toes-to-Bar,toes_to_bar__catalog_234,none,,,,
+Towel Dead Hang,towel_dead_hang__catalog_144,none,,,,
+Towel Pull-Up,towel_pull_up__catalog_78,none,,,,
+Trap-Bar Shrug,trap_bar_shrug__catalog_83,alias,Barbell Shrug,95,95,
+Typewriter Push-Up,typewriter_push_up__catalog_39,none,,,,
+Underhand Barbell Row,underhand_barbell_row__catalog_45,alias,Barbell Bent-Over Row,95,95,
+Underhand Lat Pulldown,underhand_lat_pulldown__catalog_60,alias,Lat Pulldown,95,95,
+V-Up,v_up__catalog_236,none,,,,
+Walking Lunge,walking_lunge__catalog_177,direct,Walking Lunge,95,95,x_bodyweight
+Weighted Box Jump,weighted_box_jump__catalog_289,none,,,,
+Weighted Chin-Up,weighted_chin_up__catalog_71,none,,,,
+Weighted Decline Sit-Up,weighted_decline_sit_up__catalog_242,none,,,,
+Weighted Plank,weighted_plank__catalog_248,none,,,,
+Weighted Pull-Up,weighted_pull_up__catalog_70,none,,,,
+Weighted Push-Up,weighted_push_up__catalog_37,none,,,,
+Weighted Tibialis Raise,weighted_tibialis_raise__catalog_228,none,,,,
+Wide-Grip Cable Row,wide_grip_cable_row__catalog_55,alias,Seated Cable Row,95,95,
+Wide-Grip Lat Pulldown,wide_grip_lat_pulldown__catalog_58,alias,Lat Pulldown,95,95,
+Wide-Grip Pull-Up,wide_grip_pull_up__catalog_69,none,,,,
+Wide-Grip Push-Up,wide_grip_push_up__catalog_27,none,,,,
+Wrist Curl,wrist_curl__catalog_139,direct,Wrist Curl,95,95,x_bodyweight
+Wrist Roller,wrist_roller__catalog_141,none,,,,
+Z-Press,z_press__catalog_109,direct,Z-Press,95,95,x_bodyweight
+Zercher Carry,zercher_carry__catalog_300,none,,,,
+Zercher Squat,zercher_squat__catalog_164,direct,Zercher Squat,95,95,x_bodyweight
+Zottman Curl,zottman_curl__catalog_136,direct,Zottman Curl,95,95,x_bodyweight

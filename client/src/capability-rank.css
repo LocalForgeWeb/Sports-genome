@@ -117,6 +117,9 @@
 .rank-percentile { margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-md); font-weight: 700; font-variant-numeric: tabular-nums; }
 .rank-body { grid-column: 1 / -1; display: grid; gap: .45rem; }
 .rank-cohort { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+/* A lift past the reference's top anchor, said once beside the rank (percentile-ceiling brief). */
+.rank-beyond { margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.rank-provenance-beyond { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); }
 .rank-states { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
 .rank-states li { border: 1px solid rgb(195 215 234 / .35); padding: .18rem .45rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .rank-card details summary { color: #9fc8f4; cursor: pointer; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; min-height: 2.75rem; display: flex; align-items: center; }
