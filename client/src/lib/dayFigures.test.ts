@@ -28,16 +28,25 @@ describe("Home's training-day figures", () => {
     }
   });
 
-  it("names a figure only for the five days the artwork was specified for", () => {
-    expect(Object.keys(dayFigureMuscles).sort()).toEqual(["Legs", "Pull", "Push", "Sport Transfer", "Upper"]);
-    for (const split of Object.keys(dayFigures)) expect(dayFigureMuscles).toHaveProperty(split);
+  it("draws every split, each from its own file, except Lower, which trains the Legs muscles", () => {
+    const splits = ["Push", "Pull", "Legs", "Upper", "Lower", "Full Body", "Sport Transfer"] as const;
+    expect(Object.keys(dayFigures).sort()).toEqual([...splits].sort());
+    for (const split of splits) expect(dayFigureFor(split)?.split).toBe(split);
+    const files = splits.filter((split) => split !== "Lower").map((split) => dayFigures[split].src);
+    expect(new Set(files).size).toBe(files.length);
+    expect(dayFigures.Lower.src).toBe(dayFigures.Legs.src);
+    expect(dayFigureMuscles.Lower).toBe(dayFigureMuscles.Legs);
   });
 
-  it("says what the Push figure shows, and lends it to no other day", () => {
+  it("says what each figure shows in the owner's words, and lends none to a day that is not a split", () => {
     expect(dayFigureFor("Push")).toMatchObject({ src: "/day-figures/push.webp", muscles: "Chest · delts · triceps" });
     expect(dayFigureFor("Push")?.alt).toBe("Push day: chest, delts, triceps highlighted on a front and a back figure.");
-    // No artwork yet for these, and never a stand-in: the picture says which muscles a day trains.
-    for (const day of ["Lower", "Full Body", "Rest", ""]) expect(dayFigureFor(day)).toBeNull();
-    for (const day of ["Pull", "Legs", "Upper", "Sport Transfer"]) if (!dayFigures[day as keyof typeof dayFigures]) expect(dayFigureFor(day)).toBeNull();
+    expect(dayFigureFor("Pull")).toMatchObject({ src: "/day-figures/pull.webp", muscles: "Lats · traps and mid-back · rear delts · biceps" });
+    expect(dayFigureFor("Pull")?.alt).toBe("Pull day: lats, traps and mid-back, rear delts, biceps highlighted on a front and a back figure.");
+    expect(dayFigureFor("Legs")?.muscles).toBe("Quads · glutes · hamstrings · calves");
+    expect(dayFigureFor("Upper")?.muscles).toBe("Chest · shoulders · arms · upper back · abs");
+    expect(dayFigureFor("Sport Transfer")).toMatchObject({ src: "/day-figures/sport-transfer.webp", muscles: "Obliques and core · hips · glutes · posterior chain · shoulder stabilisation" });
+    expect(dayFigureFor("Full Body")).toMatchObject({ src: "/day-figures/full-body.webp", muscles: "Chest · back · shoulders · arms · core · legs" });
+    for (const day of ["Rest", "", "push", "constructor", "toString"]) expect(dayFigureFor(day)).toBeNull();
   });
 });

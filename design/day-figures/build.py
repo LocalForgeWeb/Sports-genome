@@ -1,33 +1,38 @@
 #!/usr/bin/env python3
 """
-Builds Home's training-day figures from the supplied artwork.
+Builds Home's training-day figures.
 
-    python3 design/day-figures/build.py            # writes client/public/day-figures/<split>.webp
-    python3 design/day-figures/build.py --preview  # also writes a lineup on navy and on paper for inspection
+    python3 design/day-figures/build.py                        # writes client/public/day-figures/<split>.webp
+    python3 design/day-figures/build.py --preview <lineup.png> # also writes a lineup on navy and on paper for inspection
 
-Reads  design/day-figures/source/<split>.png   the artwork as supplied: a front and a back figure
-                                               side by side, the day's muscles in orange, transparent
-                                               around them (push.png, pull.png, legs.png, upper.png,
-                                               sport-transfer.png)
+Reads  design/day-figures/source/<split>.png   artwork as supplied: a front and a back figure side by
+                                               side, the day's muscles in orange, transparent around
+                                               them. Push is supplied (push.png).
+       derive.py                                every split with no supplied master is drawn from the
+                                               Push master by derive.py: the same figures with that
+                                               day's muscle panels painted instead (pull, legs, upper,
+                                               sport-transfer, full-body). A master saved in source/
+                                               later replaces its derived figure.
 Writes client/public/day-figures/<split>.webp  720 px wide, for the Home hero (drawn at 152 CSS px,
                                                so 3x displays are covered) and anything larger later
        client/public/day-figures/<split>-360.webp  360 px wide, for compact rows
 
-What it does, and only this:
+What it does with each master, and only this:
   1. Finds the artwork's visible bounds (alpha > 8) and crops to them, with a 2% margin so a glow
      is not cut flat.
   2. Resizes to the runtime widths on premultiplied alpha, so edges keep their antialiasing
      without dark fringes. Proportions are kept.
-  3. Encodes WebP with the alpha channel carried through as is. Nothing is recoloured.
-A split whose master is missing is skipped with a note, never substituted with another split's
-figure: a Pull day drawn with the Push artwork would teach the wrong muscles.
+  3. Encodes WebP with the alpha channel carried through as is.
+A split is never drawn with another split's figure: a Pull day drawn with the Push artwork would
+teach the wrong muscles.
 
-Needs Pillow and numpy.
+Needs Pillow, numpy and scipy.
 """
 from __future__ import annotations
 
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -38,7 +43,7 @@ SOURCE = ROOT / "design" / "day-figures" / "source"
 OUT = ROOT / "client" / "public" / "day-figures"
 
 # The file name is the split written in lower case with "-" for a space.
-SPLITS = ["push", "pull", "legs", "upper", "sport-transfer"]
+SPLITS = ["push", "pull", "legs", "upper", "sport-transfer", "full-body"]
 RUNTIME = [(720, ""), (360, "-360")]
 MARGIN = 0.02
 
@@ -68,7 +73,7 @@ def encode(crop: Image.Image, split: str) -> list[tuple[Path, tuple[int, int]]]:
     return written
 
 
-def preview(crops: dict[str, Image.Image]) -> Path:
+def preview(crops: dict[str, Image.Image], path: Path) -> Path:
     """Every figure that exists, at the hero's size, on the app's navy and on paper."""
     size = 152 * 3
     gap = 24
@@ -87,29 +92,38 @@ def preview(crops: dict[str, Image.Image]) -> Path:
     for tile in tiles:
         sheet.alpha_composite(tile, (x, gap))
         x += tile.width + gap
-    path = Path("/tmp/claude-0/-home-user-Sports-genome/d1d9bfed-a6f9-5d87-9151-3620e8194516/scratchpad/day-figures-lineup.png")
     path.parent.mkdir(parents=True, exist_ok=True)
     sheet.save(path)
     return path
 
 
 def main() -> None:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import derive
+
+    supplied = {split for split in SPLITS if (SOURCE / f"{split}.png").exists()}
+    derived = derive.derive([split for split in SPLITS if split not in supplied])
     crops: dict[str, Image.Image] = {}
     manifest: dict[str, dict] = {}
     for split in SPLITS:
-        master = SOURCE / f"{split}.png"
-        if not master.exists():
-            print(f"skip   {split}: no artwork at {master.relative_to(ROOT)}", file=sys.stderr)
+        if split in supplied:
+            master, origin = Image.open(SOURCE / f"{split}.png"), "supplied"
+        elif split in derived:
+            master, origin = derived[split], "derived from push.png"
+        else:
+            print(f"skip   {split}: no artwork at {(SOURCE / f'{split}.png').relative_to(ROOT)} and none derived", file=sys.stderr)
             continue
-        crop, report = trim(Image.open(master))
+        crop, report = trim(master)
         written = encode(crop, split)
         crops[split] = crop
         manifest[split] = {"width": written[0][1][0], "height": written[0][1][1]}
         sizes = ", ".join(f"{p.name} {p.stat().st_size // 1024} KB" for p, _ in written)
-        print(f"wrote  {split}: {report} -> {sizes}")
+        print(f"wrote  {split} ({origin}): {report} -> {sizes}")
     print("sizes  " + json.dumps(manifest))
     if "--preview" in sys.argv and crops:
-        print(f"lineup {preview(crops)}")
+        at = sys.argv.index("--preview") + 1
+        target = Path(sys.argv[at]) if at < len(sys.argv) else Path(tempfile.gettempdir()) / "day-figures-lineup.png"
+        print(f"lineup {preview(crops, target)}")
 
 
 if __name__ == "__main__":

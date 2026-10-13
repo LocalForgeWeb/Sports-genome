@@ -14,11 +14,16 @@ import "./surfaces.css";
  * source of that notice. Every other failure is handled where it happens, beside the control.
  */
 const onError = (error: unknown) => sessionNotice()?.onError(error);
+const isThrottled = (error: unknown) => {
+  const data = (error as { data?: { code?: string; httpStatus?: number } } | null)?.data;
+  return data?.code === "TOO_MANY_REQUESTS" || data?.httpStatus === 429;
+};
 const queryClient = new QueryClient({
   queryCache: new QueryCache({ onError }),
   mutationCache: new MutationCache({ onError }),
-  // A lapsed sign-in does not get better on the third try; say so at once.
-  defaultOptions: { queries: { retry: (count, error) => !isUnauthorized(error) && count < 3 } },
+  // A lapsed sign-in does not get better on the third try; say so at once. A throttled call
+  // (429) is the server asking for less traffic, so it is not retried either (Infrastructure V2, RL07).
+  defaultOptions: { queries: { retry: (count, error) => !isUnauthorized(error) && !isThrottled(error) && count < 3 } },
 });
 installSessionNotice(queryClient);
 

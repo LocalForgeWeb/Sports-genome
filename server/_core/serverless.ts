@@ -1,6 +1,8 @@
-import express, { type Request, type Response } from "express";
+import express from "express";
 import { requireJsonMutations, trpcHandler } from "./apiHandler";
 import { serveSharePage } from "../sharePage";
+import { BODY_LIMIT, apiErrorHandler, apiNotFound, mountHealth, noStore, requestContext } from "./http";
+import { warnOnMissingConfig } from "./config";
 
 /**
  * The API as a serverless request handler.
@@ -22,10 +24,15 @@ export const app = express();
 // TLS terminates upstream, so the original protocol arrives in x-forwarded-proto.
 // Without this, secure-cookie decisions read the internal hop instead.
 app.set("trust proxy", 1);
+app.disable("x-powered-by");
+
+warnOnMissingConfig();
+// Identified and timed before anything can fail, so even a parser error carries an id.
+app.use(requestContext);
 
 // The platform caps request bodies well below this; the limit only guards the parser.
-app.use(express.json({ limit: "4mb" }));
-app.use(express.urlencoded({ limit: "4mb", extended: true }));
+app.use(express.json({ limit: BODY_LIMIT }));
+app.use(express.urlencoded({ limit: BODY_LIMIT, extended: true }));
 
 /**
  * Restores the tRPC path when the platform routes through a rewrite.
@@ -61,12 +68,12 @@ app.get("*", (req, res, next) => {
   serveSharePage(token, req.headers, res).catch(next);
 });
 
-app.use("/api/trpc", requireJsonMutations, trpcHandler());
+mountHealth(app);
+app.use("/api/trpc", noStore, requireJsonMutations, trpcHandler());
 
 // Anything else under /api is a genuine 404. Answering in JSON stops a client from
 // parsing an HTML error page as if it were a tRPC response.
-app.use((req: Request, res: Response) => {
-  res.status(404).json({ error: "Not found", path: req.originalUrl });
-});
+app.use(apiNotFound);
+app.use(apiErrorHandler);
 
 export default app;

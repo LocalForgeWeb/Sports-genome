@@ -1,0 +1,18 @@
+{
+  "instances": 4,
+  "callsSent": 80,
+  "passedLimiter": 30,
+  "throttled": 50,
+  "perInstancePassed": {
+    "43101": 8,
+    "43102": 7,
+    "43103": 8,
+    "43104": 7
+  },
+  "sharedCounterCalls": 48,
+  "rpcCalls": 128,
+  "retryAfterOnThrottle": true,
+  "failOpenEvents": 0,
+  "expectation": "passedLimiter === 30 (shared), not 48 (4 x 12 per instance)",
+  "pass": true
+}

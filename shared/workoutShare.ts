@@ -1,4 +1,9 @@
 import { z } from "zod";
+
+// No code generated at run time: zod 4 otherwise probes `new Function("")` to decide whether it
+// can compile validators, and a Content-Security-Policy without 'unsafe-eval' reports that probe
+// as a violation (Infrastructure V2, SEC10). Interpreted validation is fast enough for a share.
+z.config({ jitless: true });
 import { orderedSnapshot } from "./workoutShareFormat";
 
 /**
