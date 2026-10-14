@@ -33,6 +33,10 @@ const body = await health.json().catch(() => null);
 check('/api/health reaches the backend (JSON, not the shell)', health.status === 200 && body?.status === 'ok', body ? `release ${body.release?.commit} (${body.release?.environment})` : `status ${health.status}`);
 check('API responses are not cacheable', health.headers.get('cache-control') === 'no-store');
 check('responses carry a request id', Boolean(health.headers.get('x-request-id')));
+// Without the token readiness is hidden - but by the function (JSON), not by the platform's own
+// text 404, which is what a deeper /api path got before vercel.json carried it to the function.
+const hidden = await get('/api/health/ready');
+check('/api/health/ready reaches the function (JSON 404 without its token)', hidden.status === 404 && /json/.test(hidden.headers.get('content-type') || ''), `${hidden.status} ${hidden.headers.get('content-type')}`);
 if (process.env.HEALTH_CHECK_TOKEN) {
   const ready = await get('/api/health/ready', { headers: { 'x-health-token': process.env.HEALTH_CHECK_TOKEN } });
   const readyBody = await ready.json().catch(() => null);

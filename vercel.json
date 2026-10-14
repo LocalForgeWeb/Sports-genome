@@ -9,6 +9,10 @@
       "destination": "/api/[...path]?__trpc=:path*"
     },
     {
+      "source": "/api/:first/:rest+",
+      "destination": "/api/[...path]?__api=:first/:rest+"
+    },
+    {
       "source": "/s/:token",
       "destination": "/api/[...path]?__sharePage=:token"
     },
