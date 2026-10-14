@@ -1,0 +1,75 @@
+name: Production monitor
+
+# OBS07/OBS09/OBS10: a read-only synthetic check of the live site, with one alert per incident.
+# It runs scripts/ops/smoke-deploy.mjs (it writes nothing) against production. When a check fails
+# it opens ONE issue labelled `production-monitor`, comments on that issue while the failure lasts
+# (at most once every six hours), and closes it with a recovery note when the checks pass again.
+# GitHub notifies watchers of the repository about the issue: that is the alert.
+#
+# STAGED, NOT RUNNING: only `workflow_dispatch` is on. To start monitoring, the owner uncomments
+# `schedule` below (see docs/infrastructure-v2/operations.md for the cost and the steps).
+# Optional secret HEALTH_CHECK_TOKEN (same value as the Vercel variable) adds the dependency check.
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Deployment to check
+        default: https://sports-genome-local-b96d.vercel.app
+  # schedule:
+  #   - cron: "7,37 * * * *"
+
+concurrency:
+  group: production-monitor
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ops
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - id: smoke
+        continue-on-error: true
+        env:
+          HEALTH_CHECK_TOKEN: ${{ secrets.HEALTH_CHECK_TOKEN }}
+          BASE_URL: ${{ inputs.base_url || 'https://sports-genome-local-b96d.vercel.app' }}
+        run: |
+          set -o pipefail
+          node scripts/ops/smoke-deploy.mjs "$BASE_URL" | tee smoke.txt
+      - uses: actions/github-script@v7
+        env:
+          OUTCOME: ${{ steps.smoke.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          script: |
+            const fs = require('fs');
+            const label = 'production-monitor';
+            const report = fs.existsSync('smoke.txt') ? fs.readFileSync('smoke.txt', 'utf8').slice(0, 6000) : '(no output)';
+            const failed = report.split('\n').filter((line) => line.startsWith('FAIL')).join('\n') || '(the check did not finish)';
+            const runbook = 'Runbook: docs/infrastructure-v2/operations.md#incident-steps';
+            const { owner, repo } = context.repo;
+            const open = (await github.rest.issues.listForRepo({ owner, repo, labels: label, state: 'open', per_page: 1 })).data[0];
+            if (process.env.OUTCOME === 'success') {
+              if (open) {
+                await github.rest.issues.createComment({ owner, repo, issue_number: open.number, body: `Recovered: every check passes again.\n\n${process.env.RUN_URL}` });
+                await github.rest.issues.update({ owner, repo, issue_number: open.number, state: 'closed' });
+              }
+              return;
+            }
+            const body = `Failing checks:\n\n\`\`\`\n${failed}\n\`\`\`\n\nRun: ${process.env.RUN_URL}\n${runbook}`;
+            if (!open) {
+              await github.rest.issues.create({ owner, repo, title: 'Production check failing', labels: [label], body });
+            } else if (Date.now() - new Date(open.updated_at).getTime() > 6 * 3600 * 1000) {
+              await github.rest.issues.createComment({ owner, repo, issue_number: open.number, body: `Still failing.\n\n${body}` });
+            }
+            core.setFailed('Production check failing');

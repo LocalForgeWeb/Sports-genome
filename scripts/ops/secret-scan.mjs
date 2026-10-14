@@ -54,6 +54,11 @@ await new Promise((resolve) => {
     else if (line.startsWith('+') && !line.startsWith('+++')) scan(line, `${commit} ${file}`, findings.history);
   }).on('close', resolve);
 });
+// A shallow clone has no early history, and its oldest commit shows every file as newly added:
+// the history section would be incomplete and mis-attributed. Say so rather than look clean.
+if (execFileSync('git', ['rev-parse', '--is-shallow-repository'], { encoding: 'utf8' }).trim() === 'true') {
+  console.log('WARNING: shallow clone - history is incomplete. Run `git fetch --unshallow` and scan again.');
+}
 let total = 0;
 for (const [area, set] of Object.entries(findings)) {
   console.log(`== ${area}: ${set.size ? '' : 'none'}`);

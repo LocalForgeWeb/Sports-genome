@@ -1,0 +1,19 @@
+{
+  "note": "REC01/REC04: the public media bucket's objects (names and sizes only), read from storage.objects on 2026-10-14. None of these files is in the repository, so this bucket is their only copy until scripts/ops/storage-backup.mjs runs. Refresh when an asset is added: select name, (metadata->>'size')::bigint from storage.objects where bucket_id = 'sports-genome-assets' order by name;",
+  "project": "https://qiccnqkypbhlwpmjcsri.supabase.co",
+  "bucket": "sports-genome-assets",
+  "objects": [
+    { "name": "gym-optimizer-performance-lab_fc8df71f.jpg", "bytes": 141294 },
+    { "name": "sports-genome-circular-header-badge_8450998e.jpg", "bytes": 238968 },
+    { "name": "sports-genome-intro-source_07000a26.mp4", "bytes": 2267214 },
+    { "name": "sports-genome-official-logo-180_8085dfd8.png", "bytes": 42279 },
+    { "name": "sports-genome-upright-dna-detail-exact_8e94e37f.png", "bytes": 124616 },
+    { "name": "sports-genome-upright-s-dna-180_c496e9d0.png", "bytes": 29596 },
+    { "name": "sports-genome-upright-s-dna-192_979589c2.png", "bytes": 32960 },
+    { "name": "sports-genome-upright-s-dna-512_1a0f292a.png", "bytes": 172956 },
+    { "name": "sports-genome-upright-s-dna-64_904d4b7b.png", "bytes": 5260 },
+    { "name": "sports-genome-upright-s-silhouette-exact_349405db.png", "bytes": 251215 },
+    { "name": "strength-qualified-reference-state_3ccc4f09.png", "bytes": 57522 },
+    { "name": "strength-reference-unavailable-state_f08bbf9c.png", "bytes": 53756 }
+  ]
+}
