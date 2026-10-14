@@ -9,6 +9,7 @@ import {
   type MuscleScore,
 } from "../shared/capabilityRank";
 import { upstreamFetch } from "./_core/http";
+import { estimateAboveTopAnchor, type TailEstimate } from "../shared/strengthPercentile";
 
 /**
  * Per-muscle strength percentiles for Body Lab's Strength/Rank mode.
@@ -70,6 +71,26 @@ export function bestObservationPerExercise<T extends { exercise_id: string; perc
     if (!current || score.percentile > current.percentile || (score.percentile === current.percentile && score.confidence > current.confidence)) best.set(score.exercise_id, score);
   }
   return Array.from(best.values());
+}
+
+/**
+ * A lift the database held at the top anchor, placed on the curve's estimated tail instead.
+ *
+ * Past the top anchor `get_beta_strength_percentile_v1_core` answers `above_range` and enters the
+ * lift at that anchor (the 95th), so a lift far past it ranked exactly like one just reaching it.
+ * The answer carries everything the estimate needs - the placed value and the whole curve - so
+ * the same `estimateAboveTopAnchor` the single-lift card uses runs on it here, and one lift reads
+ * one number on the card and in the ranks. Anything else, including `below_range`, is left as the
+ * database scored it.
+ */
+export function tailEstimateForPlacement(placement: unknown): { percentile: number; tail: TailEstimate } | null {
+  if (!placement || typeof placement !== "object") return null;
+  const row = placement as Record<string, unknown>;
+  if (row.status !== "above_range") return null;
+  const observed = numberOf(row.observed_norm_value);
+  const curve = Array.isArray(row.curve) ? row.curve as { percentile?: unknown; value?: unknown }[] : [];
+  if (observed === null || curve.length === 0) return null;
+  return estimateAboveTopAnchor(curve.map((point) => ({ percentile: point?.percentile, value: point?.value })), observed);
 }
 
 /** Mirrors `score_strength_profile_v1`'s own statuses; they stay visible rather than collapsing to ok. */
@@ -158,7 +179,7 @@ const numberOf = (value: unknown): number | null => {
  * The scale is checked, not assumed: a percentile outside 0-100 or a confidence outside 0-1
  * is refused rather than clamped, since either is a sign the contract moved underneath.
  */
-export function validateMuscle(raw: unknown, referenceByExerciseId: ReadonlyMap<string, ReferenceGroup>): MuscleScore | null {
+export function validateMuscle(raw: unknown, referenceByExerciseId: ReadonlyMap<string, ReferenceGroup>, tailByExerciseId: ReadonlyMap<string, TailEstimate> = new Map()): MuscleScore | null {
   if (!raw || typeof raw !== "object") return null;
   const row = raw as Record<string, unknown>;
   const percentile = numberOf(row.strength_percentile);
@@ -168,13 +189,24 @@ export function validateMuscle(raw: unknown, referenceByExerciseId: ReadonlyMap<
   if (!isFiniteIn(percentile, 0, 100) || !isFiniteIn(confidence01, 0, 1)) return null;
   if (evidenceCount === null || evidenceCount < 1) return null;
   const evidenceRows = Array.isArray(row.evidence) ? row.evidence as Record<string, unknown>[] : [];
-  const evidence: MuscleEvidence[] = evidenceRows.map((item) => ({
-    exerciseName: typeof item.exercise_name === "string" ? item.exercise_name : "Logged lift",
-    role: typeof item.role === "string" ? item.role : null,
-    exercisePercentile: numberOf(item.exercise_percentile),
-    directness: numberOf(item.directness),
-    weightShare: numberOf(item.weight_share),
-  }));
+  const evidence: MuscleEvidence[] = evidenceRows.map((item) => {
+    const tail = typeof item.exercise_id === "string" ? tailByExerciseId.get(item.exercise_id) : undefined;
+    return {
+      exerciseName: typeof item.exercise_name === "string" ? item.exercise_name : "Logged lift",
+      role: typeof item.role === "string" ? item.role : null,
+      exercisePercentile: numberOf(item.exercise_percentile),
+      directness: numberOf(item.directness),
+      weightShare: numberOf(item.weight_share),
+      ...(tail ? { estimated: true } : {}),
+    };
+  });
+  // A muscle can only pass the top anchor through a lift that did, and its percentile is then as
+  // much an estimate as that lift's: said so wherever it is shown.
+  const tails = evidenceRows.flatMap((item) => {
+    const tail = typeof item.exercise_id === "string" ? tailByExerciseId.get(item.exercise_id) : undefined;
+    return tail ? [tail] : [];
+  });
+  const estimated = tails.length > 0 && percentile > Math.min(...tails.map((tail) => tail.aboveAnchorPercentile));
   const groups = new Map<string, ReferenceGroup>();
   evidenceRows.forEach((item) => {
     const group = typeof item.exercise_id === "string" ? referenceByExerciseId.get(item.exercise_id) : undefined;
@@ -190,6 +222,7 @@ export function validateMuscle(raw: unknown, referenceByExerciseId: ReadonlyMap<
     movementPatternCount: numberOf(row.movement_pattern_count) ?? evidenceCount,
     evidence,
     referenceGroups: Array.from(groups.values()),
+    ...(estimated ? { estimated: true } : {}),
   };
 }
 
@@ -291,7 +324,7 @@ export async function scoreMuscleProfile(client: ProfileClient, catalog: Profile
   let scored = 0;
   let estimatedOnly = 0;
   let failed = failures.length;
-  const compact: { exercise_id: string; percentile: number; confidence: number }[] = [];
+  const compact: { exercise_id: string; percentile: number; confidence: number; tail?: TailEstimate }[] = [];
   const scoringVersions = new Set<string>();
   const referenceByExerciseId = new Map<string, ReferenceGroup>();
   const ageAdjustment: AgeAdjustmentSummary = { applied: 0, outsideTable: 0, noAge: 0 };
@@ -317,10 +350,12 @@ export async function scoreMuscleProfile(client: ProfileClient, catalog: Profile
     }
     const scores = Array.isArray(body.exercise_scores) ? body.exercise_scores as Record<string, any>[] : [];
     for (const score of scores) {
-      const percentile = numberOf(score?.percentile?.percentile_estimate);
+      // The placement after any age adjustment, which replaces it whole - curve and value included.
+      const tail = tailEstimateForPlacement(score?.percentile);
+      const percentile = tail ? tail.percentile : numberOf(score?.percentile?.percentile_estimate);
       const exerciseId = typeof score?.exercise_id === "string" ? score.exercise_id : score?.input_observation?.exercise_id;
       if (typeof exerciseId !== "string" || !isFiniteIn(percentile, 0, 100)) continue;
-      compact.push({ exercise_id: exerciseId, percentile, confidence: numberOf(score?.overall_confidence) ?? 0.5 });
+      compact.push({ exercise_id: exerciseId, percentile, confidence: numberOf(score?.overall_confidence) ?? 0.5, ...(tail ? { tail: tail.tail } : {}) });
       if (typeof score?.scoring_version === "string") scoringVersions.add(score.scoring_version);
       if (ageYears === null) ageAdjustment.noAge += 1;
       else if (score?.age_adjustment?.applied === true) ageAdjustment.applied += 1;
@@ -345,7 +380,8 @@ export async function scoreMuscleProfile(client: ProfileClient, catalog: Profile
   // the exercise index come with the catalog. Then the aggregation runs here (D-016).
   const mappings = evidence.length ? await client.getMuscleMappings(evidence.map((item) => item.exercise_id)) : [];
   const aggregate = aggregateMuscleStrength(evidence, { mappings, muscles: catalog.muscles, exercises: index });
-  const muscles = aggregate.muscles.map((raw) => validateMuscle(raw, referenceByExerciseId)).filter((m): m is NonNullable<typeof m> => m !== null);
+  const tailByExerciseId = new Map(evidence.flatMap((item) => item.tail ? [[item.exercise_id, item.tail] as const] : []));
+  const muscles = aggregate.muscles.map((raw) => validateMuscle(raw, referenceByExerciseId, tailByExerciseId)).filter((m): m is NonNullable<typeof m> => m !== null);
 
   return {
     status: profileStatus(scored, estimatedOnly, failed),

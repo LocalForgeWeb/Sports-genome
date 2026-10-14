@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { STRENGTH_LEVEL_SOURCE_STUDY_ID, resolveStrengthPercentile, type StrengthCurve } from "../shared/strengthPercentile";
 import { estimateOneRepMaxKg } from "../shared/oneRepMaxEstimation";
+import { tailEstimateForPlacement } from "./supabaseStrengthProfile";
 
 /**
  * One lift, one answer (Backend V1 EN-03, B017, B056, B057, B075).
@@ -56,11 +57,26 @@ describe("The card places a lift where the muscle ranks place it", () => {
   });
 
   /**
-   * Past the top anchor the database enters the lift at the 95th with `above_range`; the card
-   * reports the same edge as a bound rather than a placement. Both say "at least the 95th".
+   * Past the top anchor the database enters the lift at the 95th with `above_range`, and the
+   * muscle ranks estimate it from that answer (`tailEstimateForPlacement`) while the card
+   * estimates it here. Both must land on one number. The placement below is the shape
+   * `get_beta_strength_percentile_v1_core` returned in production on 14 Oct 2026, with this
+   * lift's placed value (2.12863x).
    */
-  it("reads a lift past the top anchor at the same edge the database does", () => {
-    expect(resolveStrengthPercentile(bench, { loadKg: 140, repetitions: 1 }, context)).toEqual({ status: "unavailable", reason: "above_highest_anchor", censoredAt: 95 });
+  it("estimates a lift past the top anchor exactly where the muscle ranks do", () => {
+    const card = resolveStrengthPercentile(bench, { loadKg: 140, repetitions: 1 }, context);
+    if (card.status !== "resolved") throw new Error(`expected an estimate, got ${JSON.stringify(card)}`);
+    expect(card.tailEstimate).toEqual({ version: "lognormal_upper_tail_v1", aboveAnchorPercentile: 95, capped: false });
+    expect(card.percentile).toBeCloseTo(96.88, 2);
+
+    const databasePlacement = {
+      status: "above_range", censored: true, percentile_estimate: 95, observed_norm_value: 2.12863, norm_unit: "x_bodyweight",
+      supported_percentile_min: 5, supported_percentile_max: 95,
+      curve: bench.anchors.map((anchor) => ({ percentile: anchor.percentile, value: anchor.value })),
+    };
+    const ranks = tailEstimateForPlacement(databasePlacement);
+    expect(ranks?.percentile).toBe(card.percentile);
+    expect(ranks?.tail).toEqual(card.tailEstimate);
   });
 
   it("gives trends and the declared competition comparison the same e1RM as the card", () => {

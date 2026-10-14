@@ -281,6 +281,8 @@ export type MuscleEvidence = {
   directness: number | null;
   /** The share of the muscle's evidence weight this lift carried, 0-1: what it did for the rank. */
   weightShare: number | null;
+  /** The lift is past its curve's top anchor and `exercisePercentile` is the estimated tail. */
+  estimated?: boolean;
 };
 
 /** One scored muscle, as the aggregation returned it, validated. */
@@ -301,6 +303,11 @@ export type MuscleScore = {
    * has to say, rather than naming one group for a number that blends several.
    */
   referenceGroups: { label: string; sex: "male" | "female" }[];
+  /**
+   * The percentile is above the top anchor the comparison data measures, reached only through an
+   * estimated lift: shown as "≈ … (estimated)" wherever it is printed, rank name included.
+   */
+  estimated?: boolean;
 };
 
 export type RegionRank = {

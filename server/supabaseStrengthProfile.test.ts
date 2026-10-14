@@ -120,6 +120,60 @@ describe("Scoring a muscle profile", () => {
   });
 });
 
+describe("A lift past the top anchor in the muscle ranks (14 Oct 2026)", () => {
+  /** The live bench anchors, relative to body weight, as the database returns them in `curve`. */
+  const curve = [
+    { percentile: 5, value: 0.5 }, { percentile: 20, value: 1.0 }, { percentile: 50, value: 1.25 },
+    { percentile: 80, value: 1.5 }, { percentile: 95, value: 2.0 },
+  ];
+  /** Shaped as production answered for a 230 kg bench at 80 kg: held at the 95th, `above_range`. */
+  const heldAtTop = (exerciseId: string, name: string, observed: number) => ({
+    ...exerciseScore(exerciseId, 95, name, 0.82),
+    percentile: {
+      status: "above_range", censored: true, percentile_estimate: 95, observed_norm_value: observed, curve,
+      norm_source: { population_label: communityLabel, source_role: "beta_fallback" },
+    },
+  });
+  const scoreWith = (score: unknown) => vi.fn(async () => ({ status: "ok", exercise_scores: [score], estimated_only: [], failures: [] }));
+
+  it("ranks the lift on its estimated tail and marks the lift and the muscle estimated", async () => {
+    const client = fakeClient({ scoreProfile: scoreWith(heldAtTop(BENCH, "Barbell Bench Press", 2.3)) });
+    const result = await scoreMuscleProfile(client, catalog, { sex: "male", lifts: [lift("Barbell Bench Press", 1, 80, 184, 1)] });
+    if (!("muscles" in result)) throw new Error(`expected muscles, got ${JSON.stringify(result)}`);
+    const chest = result.muscles.find((muscle) => muscle.evidence.some((item) => item.exerciseName === "Barbell Bench Press" && item.role === "primary"));
+    expect(chest).toBeTruthy();
+    const benchEvidence = chest!.evidence.find((item) => item.exerciseName === "Barbell Bench Press")!;
+    expect(benchEvidence.exercisePercentile).toBeCloseTo(98.36, 2);
+    expect(benchEvidence.estimated).toBe(true);
+    // Above the 95th, and only because of the estimated lift: marked, so it is printed "≈ … (estimated)".
+    expect(chest!.percentile).toBeGreaterThan(95);
+    expect(chest!.estimated).toBe(true);
+    // A muscle the lift reaches only weakly stays under the top anchor and is not marked.
+    for (const muscle of result.muscles) if (muscle.percentile <= 95) expect(muscle.estimated).toBeUndefined();
+  });
+
+  it("leaves a lift inside the curve exactly as the database scored it", async () => {
+    const client = fakeClient({ scoreProfile: scoreWith(exerciseScore(BENCH, 68.75, "Barbell Bench Press")) });
+    const result = await scoreMuscleProfile(client, catalog, { sex: "male", lifts: [lift("Barbell Bench Press", 1, 80)] });
+    if (!("muscles" in result)) throw new Error("expected muscles");
+    for (const muscle of result.muscles) {
+      expect(muscle.estimated).toBeUndefined();
+      for (const item of muscle.evidence) expect(item.estimated).toBeUndefined();
+    }
+    expect(result.muscles.flatMap((muscle) => muscle.evidence).find((item) => item.exerciseName === "Barbell Bench Press")?.exercisePercentile).toBe(68.75);
+  });
+
+  it("estimates from the age-adjusted placement, which replaces the original whole", async () => {
+    const original = exerciseScore(BENCH, 88, "Barbell Bench Press", 0.82);
+    const client = { ...fakeClient({ scoreProfile: scoreWith(original) }), adjustForAge: vi.fn(async () => heldAtTop(BENCH, "Barbell Bench Press", 2.1)) };
+    const result = await scoreMuscleProfile(client, catalog, { sex: "male", lifts: [{ ...lift("Barbell Bench Press", 1, 80), ageYears: 16 }] });
+    if (!("muscles" in result)) throw new Error("expected muscles");
+    const benchEvidence = result.muscles.flatMap((muscle) => muscle.evidence).find((item) => item.exerciseName === "Barbell Bench Press")!;
+    expect(benchEvidence.exercisePercentile).toBeCloseTo(96.53, 2);
+    expect(benchEvidence.estimated).toBe(true);
+  });
+});
+
 describe("Validating what the aggregation returns", () => {
   const refs = new Map();
   const base = {

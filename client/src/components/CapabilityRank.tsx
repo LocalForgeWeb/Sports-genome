@@ -16,9 +16,21 @@ export function displayPercentile(percentile: number): number {
   return Math.max(1, Math.floor(percentile));
 }
 
-/** "41st percentile", or "About 41st percentile" where the evidence is thin. */
+/**
+ * A percentile as a rank surface prints it: "96th", or "≈ 96th (estimated)" when it is past the
+ * top anchor the comparison data measures and rests on the estimated tail. `noun` goes between
+ * the number and the label: "96th percentile", "≈ 96th percentile (estimated)".
+ */
+export function rankOrdinal(percentile: number, estimated?: boolean, noun = ""): string {
+  const text = `${ordinal(displayPercentile(percentile))}${noun ? ` ${noun}` : ""}`;
+  return estimated ? `≈ ${text} (estimated)` : text;
+}
+
+/** "41st percentile", "About 41st percentile" where the evidence is thin, or "≈ 97th percentile (estimated)" past the top anchor. */
 export function rankPercentileText(regionRank: Pick<RegionRank, "representative" | "confidence">): string {
-  const text = `${ordinal(displayPercentile(regionRank.representative.percentile))} percentile`;
+  const { percentile, estimated } = regionRank.representative;
+  if (estimated) return rankOrdinal(percentile, true, "percentile");
+  const text = rankOrdinal(percentile, false, "percentile");
   return regionRank.confidence === "low" ? `About ${text}` : text;
 }
 
@@ -123,7 +135,7 @@ export function RankCard({ regionRank, provenance }: { regionRank: RegionRank; p
             <ul aria-label="Lifts behind this rank">
               {representative.evidence.map((item, index) => (
                 <li key={`${item.exerciseName}-${index}`}>
-                  {item.exerciseName}{item.role ? ` · ${item.role}` : ""}{item.exercisePercentile != null ? ` · ${ordinal(displayPercentile(item.exercisePercentile))} percentile on its own` : ""}{shared && item.weightShare != null ? ` · ${Math.round(item.weightShare * 100)}% of this rank` : ""}
+                  {item.exerciseName}{item.role ? ` · ${item.role}` : ""}{item.exercisePercentile != null ? ` · ${rankOrdinal(item.exercisePercentile, item.estimated, "percentile on its own")}` : ""}{shared && item.weightShare != null ? ` · ${Math.round(item.weightShare * 100)}% of this rank` : ""}
                 </li>
               ))}
             </ul>
@@ -144,7 +156,7 @@ export function RankCard({ regionRank, provenance }: { regionRank: RegionRank; p
                   return (
                     <li key={muscle.muscleId}>
                       <span>{muscle.name}</span>
-                      <span>{own && <RankIcon rankId={own.id} size={32} />}{own?.shortName} · {ordinal(displayPercentile(muscle.percentile))}</span>
+                      <span>{own && <RankIcon rankId={own.id} size={32} />}{own?.shortName} · {rankOrdinal(muscle.percentile, muscle.estimated)}</span>
                     </li>
                   );
                 })}

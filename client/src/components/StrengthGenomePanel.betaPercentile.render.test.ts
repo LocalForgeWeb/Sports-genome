@@ -148,14 +148,17 @@ describe("a logged lift gets a percentile from the community curves", () => {
   });
 
   /**
-   * EN-16: the scale lists National and World Stage, but a muscle score tops out near 94.9
-   * (anchors stop at the 95th percentile, and no lift passes its whole signal to a muscle).
-   * The legend says so rather than offering bands a muscle cannot reach.
+   * EN-16, revised 14 Oct 2026: anchors stop at the 95th, and past it a lift is estimated up to
+   * the 99th. A muscle can therefore reach National, but only on an estimate; World Stage (99+)
+   * stays out of reach because no lift passes its whole signal to a muscle (the strongest
+   * transfer in the mappings is 0.994, so a 99th lift gives at most about 98.97). The legend
+   * says so rather than offering a band a muscle cannot reach.
    */
-  it("says muscle groups cannot reach the top two bands yet", () => {
+  it("says National is reached only on an estimate and World Stage not yet", () => {
     render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
     const note = document.querySelector("[data-muscle-rank-ceiling]");
-    expect(note?.textContent).toMatch(/no muscle group can reach National or World Stage/);
+    expect(note?.textContent).toMatch(/reaches National only on an estimate/);
+    expect(note?.textContent).toMatch(/World Stage stays out of reach/);
     expect(note?.textContent).toMatch(/only steady are not ranked/);
   });
 });

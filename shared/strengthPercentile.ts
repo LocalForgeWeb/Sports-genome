@@ -129,6 +129,11 @@ export type StrengthPercentileResult =
       aliasOfExerciseId: string | null;
       /** True when the curve belongs to a variant rather than the logged exercise. */
       borrowedCurve: boolean;
+      /**
+       * Set when the lift is past the curve's top anchor and `percentile` is the estimated tail
+       * (`estimateAboveTopAnchor`), not a placement between measured points. Absent otherwise.
+       */
+      tailEstimate?: TailEstimate;
     }
   | {
       status: "unavailable";
@@ -230,10 +235,10 @@ export function estimateOneRepMax(input: OneRepMaxInput, estimator: OneRepMaxEst
 /**
  * Places a value on a curve.
  *
- * Interpolates linearly between the two anchors it falls between. Outside the stored range it
- * returns a censored state rather than an extrapolated number: a lift below the 5th or above the
- * 95th anchor is off the end of what the curve actually measured, and inventing a 2nd or 99th
- * percentile there would be the false precision this version exists to avoid.
+ * Interpolates linearly between the two anchors it falls between, exactly as the database does.
+ * Outside the stored range it returns a censored state: a lift below the 5th or above the 95th
+ * anchor is off the end of what the curve actually measured. Past the top, the route then asks
+ * `estimateAboveTopAnchor` for a labelled estimate; this function itself never extrapolates.
  */
 export function placeOnCurve(anchors: readonly CurveAnchor[], observedValue: number): { percentile: number } | { reason: StrengthPercentileUnavailableReason; censoredAt: number } {
   const ordered = [...anchors]
@@ -258,6 +263,111 @@ export function placeOnCurve(anchors: readonly CurveAnchor[], observedValue: num
   const upper = ordered.find((anchor) => anchor.value > observedValue)!;
   const share = (observedValue - lower.value) / (upper.value - lower.value);
   return { percentile: lower.percentile + share * (upper.percentile - lower.percentile) };
+}
+
+/* -------------------------------------------------------------------------------------------
+ * Past the top anchor: the curve's shape carried on (owner decision, 14 October 2026)
+ * ---------------------------------------------------------------------------------------- */
+
+/**
+ * Every stored curve stops at the 95th percentile, so until now a lift past that point could
+ * only be "above the 95th" - never 97th, never 99th - and no muscle could rank above it. The
+ * owner chose to estimate that end rather than leave it blank, on three conditions this keeps:
+ * the shape comes from the curve's own upper points (50th, 80th, 95th), it stops at the 99th,
+ * and the result says it is an estimate wherever it is shown.
+ *
+ * The model: strength above the median is treated as log-normal. ln(value) is fitted against the
+ * normal quantile of each anchor at or above the 50th by least squares, and that slope is carried
+ * on from the top anchor, so the estimate starts exactly where the measured curve ends and rises
+ * smoothly from there. A curve without three upper anchors, or whose upper anchors do not climb,
+ * gets no estimate and stays "above the top anchor".
+ */
+export const tailEstimateVersion = "lognormal_upper_tail_v1" as const;
+/** The highest percentile an estimate may report. */
+export const tailEstimateCapPercentile = 99;
+/** The anchors the tail's shape is read from: this one and every one above it. */
+const TAIL_FIT_FROM_PERCENTILE = 50;
+
+export type TailEstimate = {
+  version: typeof tailEstimateVersion;
+  /** The top anchor the curve actually measures; the estimate starts there. */
+  aboveAnchorPercentile: number;
+  /** The estimate reached the cap: the lift is at least this high. */
+  capped: boolean;
+};
+
+/**
+ * Where a value past the top anchor would sit if the curve kept its shape, or null when it
+ * cannot be estimated (the value is not past the top, or the curve has too little shape to read).
+ *
+ * The value is taken to 5 decimals first, as the database reports a placed value, so a lift
+ * estimated here and one the muscle ranks estimate from the database's answer land on the
+ * same number.
+ */
+export function estimateAboveTopAnchor(anchors: readonly { percentile: unknown; value: unknown }[], observedValue: number): { percentile: number; tail: TailEstimate } | null {
+  if (!Number.isFinite(observedValue)) return null;
+  const value = Number(observedValue.toFixed(5));
+  const upper = new Map<number, number>();
+  for (const anchor of anchors) {
+    const percentile = numberOrNull(anchor.percentile);
+    const anchorValue = numberOrNull(anchor.value);
+    if (percentile === null || anchorValue === null || anchorValue <= 0 || percentile < TAIL_FIT_FROM_PERCENTILE || percentile >= 100) continue;
+    // Two values at one percentile leave the shape ambiguous; no estimate is better than a guess at which.
+    if (upper.has(percentile) && upper.get(percentile) !== anchorValue) return null;
+    upper.set(percentile, anchorValue);
+  }
+  const points = Array.from(upper, ([percentile, anchorValue]) => ({ percentile, value: anchorValue })).sort((a, b) => a.percentile - b.percentile);
+  if (points.length < 3) return null;
+  if (points.some((point, index) => index > 0 && point.value <= points[index - 1].value)) return null;
+  const top = points[points.length - 1];
+  if (top.percentile >= tailEstimateCapPercentile || !(value > top.value)) return null;
+
+  const z = points.map((point) => normalQuantile(point.percentile / 100));
+  const y = points.map((point) => Math.log(point.value));
+  const zMean = z.reduce((sum, item) => sum + item, 0) / z.length;
+  const yMean = y.reduce((sum, item) => sum + item, 0) / y.length;
+  let covariance = 0;
+  let variance = 0;
+  z.forEach((item, index) => { covariance += (item - zMean) * (y[index] - yMean); variance += (item - zMean) ** 2; });
+  const slope = covariance / variance;
+  if (!Number.isFinite(slope) || slope <= 0) return null;
+
+  const zValue = normalQuantile(top.percentile / 100) + (Math.log(value) - Math.log(top.value)) / slope;
+  const raw = 100 * normalCdf(zValue);
+  const capped = raw >= tailEstimateCapPercentile;
+  return {
+    percentile: capped ? tailEstimateCapPercentile : Math.max(top.percentile, raw),
+    tail: { version: tailEstimateVersion, aboveAnchorPercentile: top.percentile, capped },
+  };
+}
+
+/** The standard normal distribution function, from the complementary error function (error < 1.2e-7). */
+export function normalCdf(z: number): number {
+  const x = Math.abs(z) / Math.SQRT2;
+  const t = 1 / (1 + 0.5 * x);
+  const erfc = t * Math.exp(-x * x - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
+  return z >= 0 ? 1 - erfc / 2 : erfc / 2;
+}
+
+/** The standard normal quantile (Acklam's rational approximation, relative error < 1.2e-9). */
+export function normalQuantile(p: number): number {
+  if (!(p > 0 && p < 1)) return Number.NaN;
+  const a = [-3.969683028665376e1, 2.209460984245205e2, -2.759285104469687e2, 1.38357751867269e2, -3.066479806614716e1, 2.506628277459239];
+  const b = [-5.447609879822406e1, 1.615858368580409e2, -1.556989798598866e2, 6.680131188771972e1, -1.328068155288572e1];
+  const c = [-7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783];
+  const d = [7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996, 3.754408661907416];
+  const low = 0.02425;
+  if (p < low) {
+    const q = Math.sqrt(-2 * Math.log(p));
+    return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+  }
+  if (p > 1 - low) {
+    const q = Math.sqrt(-2 * Math.log(1 - p));
+    return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+  }
+  const q = p - 0.5;
+  const r = q * q;
+  return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
 }
 
 export type PercentileContext = {
@@ -387,7 +497,11 @@ export function resolveStrengthPercentile(
         ? { status: "applied", version: ageFactorVersion, ageYears: ageYears!, factor: ageFactor.factor, placedValue }
         : { status: "not_applied", reason: "outside_published_age_range", ageYears };
 
-  const placed = placeOnCurve(curve.anchors, placedValue);
+  // Past the top anchor the measured curve has nothing to say; its estimated tail does, labelled
+  // as such. Below the bottom anchor nothing is estimated - that end stays a bound.
+  const measured = placeOnCurve(curve.anchors, placedValue);
+  const estimatedTail = "reason" in measured && measured.reason === "above_highest_anchor" ? estimateAboveTopAnchor(curve.anchors, placedValue) : null;
+  const placed = estimatedTail ?? measured;
   if ("reason" in placed) return { status: "unavailable", reason: placed.reason, censoredAt: placed.censoredAt };
 
   // Confidence is the estimate's own, held under the source's ceiling and, when age scaled the
@@ -415,6 +529,7 @@ export function resolveStrengthPercentile(
     exerciseId: curve.exerciseId,
     aliasOfExerciseId: curve.aliasOfExerciseId ?? null,
     borrowedCurve: Boolean(curve.aliasOfExerciseId),
+    ...(estimatedTail ? { tailEstimate: estimatedTail.tail } : {}),
   };
 }
 

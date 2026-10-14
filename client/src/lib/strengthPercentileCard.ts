@@ -63,14 +63,25 @@ export function strengthPercentileCard(
     : result.unit === "reps"
       ? `${Math.round(result.observedValue)} reps`
       : `${Math.round(result.observedValue)} ${result.unit === "kg" ? "kg" : "lb"}`;
-  const placement = `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}`;
+  const placement = `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}${tailEstimateNote(result.tailEstimate)}`;
   const effort = effortNote(result.estimate);
   return {
-    headline: `${ordinal(result.percentile)} percentile`,
+    headline: result.tailEstimate ? `≈ ${ordinal(result.percentile)} percentile (estimated)` : `${ordinal(result.percentile)} percentile`,
     detail: `${placement}${effort}`,
     placement,
     effort: effort.trim(),
   };
+}
+
+/**
+ * Why a percentile past the top anchor is an estimate. The comparison data stops at its top
+ * anchor (the 95th for every curve today); beyond it the place is the curve's shape carried on,
+ * and the estimate itself stops at the 99th.
+ */
+export function tailEstimateNote(tail: Extract<StrengthPercentileResult, { status: "resolved" }>["tailEstimate"]): string {
+  if (!tail) return "";
+  const where = ` Past the ${ordinal(tail.aboveAnchorPercentile)} percentile, where the comparison data stops, so this is estimated from the curve's shape.`;
+  return tail.capped ? `${where} Estimates stop at the 99th.` : where;
 }
 
 /**

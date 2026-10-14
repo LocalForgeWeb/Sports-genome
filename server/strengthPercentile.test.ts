@@ -289,8 +289,25 @@ describe("Against the real barbell bench press curve", () => {
     expect(midBand).toMatchObject({ status: "resolved", percentile: 65 });
   });
 
-  it("censors a lift stronger than the 95th anchor rather than inventing a 99th", () => {
+  /**
+   * Past the 95th anchor the curve's shape is carried on and the result says so (owner decision,
+   * 14 Oct 2026): 2.1x body weight reads about the 96.5th, and 2.5x reaches the 99th cap.
+   */
+  it("estimates a lift stronger than the 95th anchor, marked estimated and capped at the 99th", () => {
+    const strong = resolveStrengthPercentile(benchPress, { measuredOneRmKg: 168 }, { sex: "male", bodyMassKg: 80 });
+    expect(strong).toMatchObject({ status: "resolved", observedValue: 2.1, tailEstimate: { version: "lognormal_upper_tail_v1", aboveAnchorPercentile: 95, capped: false } });
+    if (strong.status === "resolved") expect(strong.percentile).toBeCloseTo(96.531, 3);
     const veryStrong = resolveStrengthPercentile(benchPress, { measuredOneRmKg: 200 }, { sex: "male", bodyMassKg: 80 });
-    expect(veryStrong).toEqual({ status: "unavailable", reason: "above_highest_anchor", censoredAt: 95 });
+    expect(veryStrong).toMatchObject({ status: "resolved", percentile: 99, observedValue: 2.5, tailEstimate: { aboveAnchorPercentile: 95, capped: true } });
+    // Confidence is the lift's and the source's, as for any placement: the estimate does not raise it.
+    if (veryStrong.status === "resolved") expect(veryStrong.confidence).toBeLessThanOrEqual(0.82);
+  });
+
+  it("marks only placements past the top anchor as estimated", () => {
+    const middle = resolveStrengthPercentile(benchPress, { measuredOneRmKg: 110 }, { sex: "male", bodyMassKg: 80 });
+    expect(middle.status === "resolved" && "tailEstimate" in middle).toBe(false);
+    const onTop = resolveStrengthPercentile(benchPress, { measuredOneRmKg: 160 }, { sex: "male", bodyMassKg: 80 });
+    expect(onTop).toMatchObject({ status: "resolved", percentile: 95 });
+    expect(onTop.status === "resolved" && "tailEstimate" in onTop).toBe(false);
   });
 });

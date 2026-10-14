@@ -31,7 +31,7 @@ import { strengthRegionIdsForExerciseName, workoutStrengthObservations, compareR
 import { bodyWeightEntryAt, bodyWeightKgAt, bodyWeightLogEvent, loadBodyWeightLog, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { catalogExerciseIdForName, ordinal, strengthPercentileCard, strengthPercentileGapCopy } from "@/lib/strengthPercentileCard";
 import { regionRanksFromMuscles, type RegionRank } from "@shared/capabilityRank";
-import { PendingRankCard, RankCard, UnscoredRankCard, displayPercentile } from "@/components/CapabilityRank";
+import { PendingRankCard, RankCard, UnscoredRankCard, rankOrdinal } from "@/components/CapabilityRank";
 import { RankingLiftSuggestions } from "@/components/RankingLiftSuggestions";
 import { RankIcon } from "@/components/RankIcon";
 import { RANKS, rankRangeLabel } from "@shared/capabilityRank";
@@ -202,7 +202,7 @@ function RankProvenanceList({ entries, unplaced, muscleName, weightUnit }: { ent
   return <div className="rank-provenance" data-rank-provenance>
     <p className="rank-provenance-label">{entries.length === 1 ? "From this exercise" : `Blended from ${entries.length} exercises`}</p>
     <ul>{entries.map((entry) => <li key={entry.exerciseName}>
-      <p><strong>{entry.exerciseName}</strong>{` · ${ordinal(displayPercentile(entry.exercisePercentile))} percentile on its own`}{entry.role ? ` · ${entry.role}` : ""}{entries.length > 1 && entry.weightShare !== null ? ` · ${Math.round(entry.weightShare * 100)}% of this rank` : ""}</p>
+      <p><strong>{entry.exerciseName}</strong>{` · ${rankOrdinal(entry.exercisePercentile, entry.estimated, "percentile on its own")}`}{entry.role ? ` · ${entry.role}` : ""}{entries.length > 1 && entry.weightShare !== null ? ` · ${Math.round(entry.weightShare * 100)}% of this rank` : ""}</p>
       {entry.lifts.length > 1 && <p className="rank-provenance-best">Best of {entry.lifts.length} lifts:</p>}
       {entry.lifts.map((lift, index) => <p key={`${lift.observationId ?? "lift"}-${index}`} className="rank-provenance-lift">{rankLiftLine(lift, weightUnit)}</p>)}
     </li>)}</ul>
@@ -1391,7 +1391,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
           {RANKS.map((rank) => <li key={rank.id}><RankIcon rankId={rank.id} size={36} /><span><b>{rank.fullName}</b><small>{rankRangeLabel(rank)} percentile</small></span></li>)}
         </ol>
         <p>Sports Genome ranks, not competition titles. Percentiles put lifts in order; the gap between two percentiles is not an equal step in strength. Groups with no percentile yet are hatched and labelled Not scored.</p>
-        <p data-muscle-rank-ceiling>A muscle group is read through the lifts that train it. A lift counts for more the more of its work the muscle does, so an isolation lift says more about it than a compound lift it shares with other muscles; and each lift is scaled by how much it relies on the muscle, so a group sits a little below the lifts behind it. The comparison curves stop at the 95th percentile, so for now no muscle group can reach National or World Stage. Muscles your lifts only steady are not ranked.</p>
+        <p data-muscle-rank-ceiling>A muscle group is read through the lifts that train it. A lift counts for more the more of its work the muscle does, so an isolation lift says more about it than a compound lift it shares with other muscles; and each lift is scaled by how much it relies on the muscle, so a group sits a little below the lifts behind it. The comparison curves stop at the 95th percentile. Past it, a lift's place is estimated from the curve's shape, up to the 99th, and marked estimated — so a muscle group reaches National only on an estimate. World Stage stays out of reach for now: no lift passes all of its strength to one muscle, so a group stays just under the 99th. Muscles your lifts only steady are not ranked.</p>
         {registryOfflineNotice && <p className="strength-profile-reference-offline" role="status">{registryOfflineNotice}</p>}
         <p>Your own progress is always tracked from your logs. A comparison against published numbers only appears when your exact lift, setup, and body weight line up with a study — most everyday gym lifts will not, and that is normal.</p>
         {supabaseEvidenceInventory.data?.status === "connected" && <p>Research on file: {supabaseEvidenceInventory.data.strengthNorms} strength norms, {supabaseEvidenceInventory.data.performanceNorms} performance norms, and {supabaseEvidenceInventory.data.performanceTests} test protocols. Having them on file does not by itself create a rank for you.</p>}

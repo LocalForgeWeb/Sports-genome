@@ -88,3 +88,27 @@ describe("Finding the curve's exercise from a logged lift", () => {
     expect(catalogExerciseIdForName("Interpretive Deadlift")).toBeUndefined();
   });
 });
+
+describe("A percentile past the top anchor (14 Oct 2026)", () => {
+  const tail = { version: "lognormal_upper_tail_v1" as const, aboveAnchorPercentile: 95, capped: false };
+
+  it("says it is an estimate in the headline and why in the sentence", () => {
+    const card = strengthPercentileCard(resolved({ percentile: 96.88, tailEstimate: tail }), { sex: "male", bodyMassKg: 80 })!;
+    expect(card.headline).toBe("≈ 97th percentile (estimated)");
+    expect(card.detail).toContain("Past the 95th percentile, where the comparison data stops, so this is estimated from the curve's shape.");
+    expect(card.placement).toContain("estimated from the curve's shape");
+    expect(card.detail).not.toContain("Estimates stop");
+  });
+
+  it("says where the estimate stops when it reached the cap", () => {
+    const card = strengthPercentileCard(resolved({ percentile: 99, tailEstimate: { ...tail, capped: true } }), { sex: "female" })!;
+    expect(card.headline).toBe("≈ 99th percentile (estimated)");
+    expect(card.detail).toMatch(/Estimates stop at the 99th\.$/);
+  });
+
+  it("leaves a placement between measured anchors exactly as before", () => {
+    const card = strengthPercentileCard(resolved({ percentile: 63 }), { sex: "male", bodyMassKg: 80 })!;
+    expect(card.headline).toBe("63rd percentile");
+    expect(card.detail).not.toContain("estimated");
+  });
+});
