@@ -30,32 +30,46 @@ export function isRepCountLift(exerciseName: string, loadKg: number | string | n
 }
 
 /**
- * A percentile from the 99th up, as printed: to a tenth from the 99th (99.2), to a hundredth
- * from the 99.9th (99.95). The estimated tail runs on to the 99.99th, and whole numbers would
- * show 99.2 and 99.99 alike. Floored, never rounded up, so the figure never claims more than the
- * value and never reads 100.
+ * The figure a percentile is printed as - on a lift's card and in the ranks alike, so one lift
+ * never reads two numbers.
+ *
+ * Floored, not rounded, so the printed number always sits inside the band its colour and name
+ * come from: 19.6 rounds to "20th", which the legend files under JV, while the rank - read on the
+ * raw value - is Prospect. Flooring keeps "Prospect · 19th" true to the legend's 0-19, and nothing
+ * reads as "0th". From the 99th up, where the estimated tail runs on to the 99.99th, whole numbers
+ * would print 99.2 and 99.99 alike, so it keeps a tenth (99.2) and from the 99.9th a hundredth
+ * (99.95) - still floored, so it never reads 100.
  */
-export function topPercentileFigure(value: number): number {
-  const places = value >= 99.9 ? 100 : 10;
-  // The small allowance keeps 99.99, stored as 99.98999…, from flooring to 99.98.
-  return Math.min(99.99, Math.floor(value * places + 1e-6) / places);
+export function percentileFigure(value: number): number {
+  if (value >= 99) {
+    const places = value >= 99.9 ? 100 : 10;
+    // The small allowance keeps 99.99, stored as 99.98999…, from flooring to 99.98.
+    return Math.min(99.99, Math.floor(value * places + 1e-6) / places);
+  }
+  return Math.max(1, Math.floor(value));
 }
 
 /**
- * 63 -> "63rd". English ordinals, with the teens exception that catches every naive version:
- * 11, 12 and 13 take "th" despite ending in 1, 2 and 3. From the 99th up the figure keeps its
- * decimals (`topPercentileFigure`) and the suffix follows the last digit, read one by one:
- * "99.2nd", "99.95th", "99.99th".
+ * A lift's percentile to 2 decimals, as the ranks report it (`exercise_percentile`, rounded in
+ * server/muscleAggregation.ts). The card prints this, not the unrounded placement, so 57.996 reads
+ * "58th" on the card exactly as the ranks' 58.00 does.
+ */
+export function reportedPercentile(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+/**
+ * A percentile as an English ordinal, at its printed figure (`percentileFigure`): "63rd", with
+ * the teens exception that catches every naive version - 11, 12 and 13 take "th" despite ending in
+ * 1, 2 and 3. From the 99th up the figure keeps its decimals and the suffix follows the last digit,
+ * read one by one: "99.2nd", "99.95th", "99.99th".
  */
 export function ordinal(value: number): string {
-  if (value >= 99) {
-    const figure = topPercentileFigure(value);
-    if (!Number.isInteger(figure)) return `${figure}${suffix(Number(String(figure).slice(-1)))}`;
-  }
-  const whole = Math.round(value);
-  const lastTwo = whole % 100;
-  if (lastTwo >= 11 && lastTwo <= 13) return `${whole}th`;
-  return `${whole}${suffix(whole % 10)}`;
+  const figure = percentileFigure(value);
+  if (!Number.isInteger(figure)) return `${figure}${suffix(Number(String(figure).slice(-1)))}`;
+  const lastTwo = figure % 100;
+  if (lastTwo >= 11 && lastTwo <= 13) return `${figure}th`;
+  return `${figure}${suffix(figure % 10)}`;
 }
 
 function suffix(lastDigit: number): string {
@@ -100,8 +114,10 @@ export function strengthPercentileCard(
       : `${Math.round(result.observedValue)} ${result.unit === "kg" ? "kg" : "lb"}`;
   const placement = `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}${borrowedCurveNote(result)}${tailEstimateNote(result.tailEstimate)}`;
   const effort = effortNote(result.estimate);
+  // Printed as the ranks print the same lift: to 2 decimals, then floored.
+  const shown = ordinal(reportedPercentile(result.percentile));
   return {
-    headline: result.tailEstimate ? `≈ ${ordinal(result.percentile)} percentile (estimated)` : `${ordinal(result.percentile)} percentile`,
+    headline: result.tailEstimate ? `≈ ${shown} percentile (estimated)` : `${shown} percentile`,
     detail: `${placement}${effort}`,
     placement,
     effort: effort.trim(),

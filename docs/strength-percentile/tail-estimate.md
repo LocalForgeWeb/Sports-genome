@@ -29,13 +29,17 @@ So until now:
    - ranks and their evidence: "≈ 96th (estimated)".
 5. There is no estimate when the curve has fewer than three points at or above the 50th, when those points do not climb, or when the curve already reaches the 99.99th. The lift then stays "above the top point", as before.
 
-### How the top end is printed
+### How a percentile is printed
 
-Whole numbers would print 99.2 and 99.99 the same, so from the 99th up a figure keeps decimals (`topPercentileFigure` in `client/src/lib/strengthPercentileCard.ts`):
-- a tenth from the 99th: "≈ 99.2nd";
-- a hundredth from the 99.9th: "≈ 99.95th", "≈ 99.99th".
+One rule, on a lift's card and in the ranks alike (`percentileFigure` in `client/src/lib/strengthPercentileCard.ts`; owner, 14 Oct 2026: "make them match"):
+- A lift is taken to 2 decimals, as the ranks report it (`exercise_percentile`).
+- It is then floored, never rounded up. The card used to round (96.53 read "97th") while the ranks floored the same lift ("96th"); both now read "96th".
+- Below the 99th it is a whole number. Whole numbers would print 99.2 and 99.99 the same, so from the 99th up it keeps decimals:
+  - a tenth from the 99th: "≈ 99.2nd";
+  - a hundredth from the 99.9th: "≈ 99.95th", "≈ 99.99th".
+- It never reads "0th" or "100th".
 
-It is always floored, never rounded up, so it never claims more than the value and never reads "100th". Below the 99th nothing changed.
+Pinned in `client/src/components/CapabilityRank.estimated.test.ts`.
 
 ## Every exercise
 
@@ -78,14 +82,14 @@ Male Barbell Bench Press anchors: 50th = 1.25×, 80th = 1.5×, 95th = 2.0× body
 | Lift (× body weight) | Before | Now |
 |---|---|---|
 | 2.0 | 95th | 95th (measured point) |
-| 2.1 | above the 95th / ranked at 95 | ≈ 96.5 (estimated) |
-| 2.3 | same | ≈ 98.4 (estimated) |
+| 2.1 | above the 95th / ranked at 95 | ≈ 96th (96.53, estimated) |
+| 2.3 | same | ≈ 98th (98.36, estimated) |
 | 2.5 | same | ≈ 99.2nd (estimated) |
 | 3.0 | same | ≈ 99.8th (estimated) |
 | 3.5 | same | ≈ 99.98th (estimated) |
 | ≥ about 3.61 | same | ≈ 99.99th (estimated; the cap) |
 
-The live male Ab-Wheel Rollout rep curve (55 reps at the 95th): 60 reps ≈ 96.3; 80 ≈ 98.8; 120 ≈ 99.8th; 200 reaches the cap.
+The live male Ab-Wheel Rollout rep curve (55 reps at the 95th): 60 reps ≈ 96th (96.30); 80 ≈ 98th (98.79); 120 ≈ 99.8th; 200 reaches the cap.
 
 ## Ranks
 

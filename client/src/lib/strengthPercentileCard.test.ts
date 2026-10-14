@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { catalogExerciseIdForName, isRepCountLift, ordinal, strengthPercentileCard, strengthPercentileGapCopy, topPercentileFigure } from "./strengthPercentileCard";
+import { catalogExerciseIdForName, isRepCountLift, ordinal, percentileFigure, strengthPercentileCard, strengthPercentileGapCopy } from "./strengthPercentileCard";
 import type { StrengthPercentileResult } from "@shared/strengthPercentile";
 
 const resolved = (overrides: Partial<Extract<StrengthPercentileResult, { status: "resolved" }>> = {}): StrengthPercentileResult => ({
@@ -81,7 +81,7 @@ describe("What the athlete can do about a missing percentile", () => {
 describe("Ordinals at the top end", () => {
   it("are whole below the 99th and keep a tenth, then a hundredth, above it", () => {
     expect(ordinal(63)).toBe("63rd");
-    expect(ordinal(96.531)).toBe("97th");
+    expect(ordinal(96.531)).toBe("96th");
     expect(ordinal(99)).toBe("99th");
     expect(ordinal(99.239)).toBe("99.2nd");
     expect(ordinal(99.5)).toBe("99.5th");
@@ -94,7 +94,7 @@ describe("Ordinals at the top end", () => {
   it("never round up to 100", () => {
     expect(ordinal(99.996)).toBe("99.99th");
     expect(ordinal(100)).toBe("99.99th");
-    expect(topPercentileFigure(99.95999)).toBe(99.95);
+    expect(percentileFigure(99.95999)).toBe(99.95);
   });
 });
 
@@ -130,7 +130,7 @@ describe("A percentile past the top anchor (14 Oct 2026)", () => {
 
   it("says it is an estimate in the headline and why in the sentence", () => {
     const card = strengthPercentileCard(resolved({ percentile: 96.88, tailEstimate: tail }), { sex: "male", bodyMassKg: 80 })!;
-    expect(card.headline).toBe("≈ 97th percentile (estimated)");
+    expect(card.headline).toBe("≈ 96th percentile (estimated)");
     expect(card.detail).toContain("Past the 95th percentile, where the comparison data stops, so this is estimated from the curve's shape.");
     expect(card.placement).toContain("estimated from the curve's shape");
     expect(card.detail).not.toContain("Estimates stop");
@@ -144,7 +144,7 @@ describe("A percentile past the top anchor (14 Oct 2026)", () => {
 
   it("keeps the decimals that tell the top end apart, floored", () => {
     expect(strengthPercentileCard(resolved({ percentile: 99.239, tailEstimate: tail }), { sex: "male", bodyMassKg: 80 })!.headline).toBe("≈ 99.2nd percentile (estimated)");
-    expect(strengthPercentileCard(resolved({ percentile: 99.985, tailEstimate: tail }), { sex: "male", bodyMassKg: 80 })!.headline).toBe("≈ 99.98th percentile (estimated)");
+    expect(strengthPercentileCard(resolved({ percentile: 99.984, tailEstimate: tail }), { sex: "male", bodyMassKg: 80 })!.headline).toBe("≈ 99.98th percentile (estimated)");
   });
 
   it("says when the lift was compared through a related one", () => {
