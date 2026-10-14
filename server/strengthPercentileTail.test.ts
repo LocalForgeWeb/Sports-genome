@@ -4,7 +4,8 @@ import { tailEstimateForPlacement } from "./supabaseStrengthProfile";
 
 /**
  * Past the top anchor (owner decision, 14 Oct 2026): the curve's shape from its 50th, 80th and
- * 95th points is carried on, capped at the 99th, and always marked as an estimate.
+ * 95th points is carried on, capped at the 99.99th, and always marked as an estimate - for every
+ * kind of curve, rep counts included.
  */
 
 /** The live male Barbell Bench Press anchors, relative to body weight. */
@@ -42,11 +43,24 @@ describe("Estimating past the top anchor", () => {
     expect(percentiles[3]).toBeCloseTo(98.362, 3);
   });
 
-  it("stops at the 99th and says it did", () => {
-    const capped = estimateAboveTopAnchor(bench, 2.6);
+  it("climbs past the 99th to the 99.99th and says when it stopped there", () => {
+    expect(tailEstimateCapPercentile).toBe(99.99);
+    expect(estimateAboveTopAnchor(bench, 2.5)?.percentile).toBeCloseTo(99.239, 3);
+    expect(estimateAboveTopAnchor(bench, 3.0)?.percentile).toBeCloseTo(99.892, 3);
+    expect(estimateAboveTopAnchor(bench, 3.5)?.percentile).toBeCloseTo(99.985, 3);
+    expect(estimateAboveTopAnchor(bench, 3.5)?.tail.capped).toBe(false);
+    const capped = estimateAboveTopAnchor(bench, 4);
     expect(capped).toEqual({ percentile: tailEstimateCapPercentile, tail: { version: "lognormal_upper_tail_v1", aboveAnchorPercentile: 95, capped: true } });
-    expect(estimateAboveTopAnchor(bench, 40)?.percentile).toBe(99);
-    expect(estimateAboveTopAnchor(bench, 2.3)?.tail.capped).toBe(false);
+    expect(estimateAboveTopAnchor(bench, 40)?.percentile).toBe(99.99);
+  });
+
+  /** The live male Ab-Wheel Rollout rep curve: 0 reps at the 5th, 55 at the 95th. */
+  it("reads a rep curve the same way", () => {
+    const abWheel = [{ percentile: 5, value: 0 }, { percentile: 20, value: 7 }, { percentile: 50, value: 20 }, { percentile: 80, value: 37 }, { percentile: 95, value: 55 }];
+    expect(estimateAboveTopAnchor(abWheel, 60)?.percentile).toBeCloseTo(96.296, 3);
+    expect(estimateAboveTopAnchor(abWheel, 80)?.percentile).toBeCloseTo(98.788, 3);
+    expect(estimateAboveTopAnchor(abWheel, 120)?.percentile).toBeCloseTo(99.82, 2);
+    expect(estimateAboveTopAnchor(abWheel, 200)).toMatchObject({ percentile: 99.99, tail: { capped: true } });
   });
 
   it("reads the shape from the 50th and above only", () => {
@@ -65,7 +79,7 @@ describe("Estimating past the top anchor", () => {
     expect(estimateAboveTopAnchor(bench.filter((anchor) => anchor.percentile !== 80), 2.2)).toBeNull(); // two upper points: no shape
     expect(estimateAboveTopAnchor(bench.map((anchor) => anchor.percentile === 80 ? { ...anchor, value: 2.0 } : anchor), 2.2)).toBeNull(); // flat top
     expect(estimateAboveTopAnchor([...bench, { percentile: 80, value: 1.6 }], 2.2)).toBeNull(); // two values at one percentile
-    expect(estimateAboveTopAnchor([...bench, { percentile: 99, value: 3 }], 3.2)).toBeNull(); // the curve already reaches the cap
+    expect(estimateAboveTopAnchor([...bench, { percentile: 99.99, value: 3 }], 3.2)).toBeNull(); // the curve already reaches the cap
   });
 
   it("reads the database's own types, numbers as strings included", () => {

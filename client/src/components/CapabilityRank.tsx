@@ -2,17 +2,19 @@ import "@/capability-rank.css";
 import type { ReactNode } from "react";
 import { RANKS, confidenceLabel, rankForPercentile, rankColorToken, rankRangeLabel, type RankId, type RegionRank } from "@shared/capabilityRank";
 import { RankIcon } from "@/components/RankIcon";
-import { ordinal } from "@/lib/strengthPercentileCard";
+import { ordinal, topPercentileFigure } from "@/lib/strengthPercentileCard";
 
 /**
- * The integer a percentile is shown as.
+ * The number a percentile is shown as.
  *
  * Floored, not rounded, so the printed number always sits inside the band its colour and
  * name come from: 19.6 rounds to "20th", which the legend files under JV, while the rank -
  * read on the raw value - is Prospect. Flooring keeps "Prospect · 19th" true to the legend's
- * 0-19. The source clamps muscle scores to 1-99, and nothing reads as "0th".
+ * 0-19, and nothing reads as "0th". From the 99th up, where the estimated tail runs on to the
+ * 99.99th, it keeps a tenth or a hundredth (`topPercentileFigure`), still floored.
  */
 export function displayPercentile(percentile: number): number {
+  if (percentile >= 99) return topPercentileFigure(percentile);
   return Math.max(1, Math.floor(percentile));
 }
 

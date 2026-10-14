@@ -12,6 +12,7 @@ import {
   type StrengthSourceRole,
 } from "../shared/strengthPercentile";
 import { upstreamFetch } from "./_core/http";
+import { loadConventionFor } from "../shared/loadConventions";
 
 /**
  * Server-only read of the beta percentile curves.
@@ -48,6 +49,14 @@ export type CurveExerciseRow = {
   displayName: string;
 };
 
+/**
+ * A link from an exercise with no curve of its own to a related exercise's curve, as the
+ * database's `strength_norm_curve_aliases` (loads) and `strength_rep_curve_aliases` (rep counts)
+ * hold it for scoring version `strength_beta_v1`.
+ */
+export type CurveAlias = { sourceExerciseId: string; multiplier: number; confidenceModifier: number };
+export type CurveAliases = Record<CurveKind, ReadonlyMap<string, CurveAlias>>;
+
 const CACHE_TTL_MS = 5 * 60 * 1000;
 // Bounded: the key comes from the caller (exercise id and sex).
 const curveCache = new BoundedCache<string, StrengthCurve | null>(500, CACHE_TTL_MS);
@@ -74,7 +83,13 @@ const CURVE_SELECT = "exercise_id,sex,normalization_method,unit,source_role,conf
  * would place a lift against the wrong scale — so the most common method wins and the rest are
  * dropped rather than blended.
  */
-export function assembleCurve(rows: readonly CurveRow[], exerciseId: string, sex: "male" | "female"): StrengthCurve | null {
+/**
+ * Which ladder a request needs: a load's (one-rep-max curves first), or a rep count's - the rep
+ * curve only, for a movement scored on reps done without added load.
+ */
+export type CurveKind = "load" | "reps";
+
+export function assembleCurve(rows: readonly CurveRow[], exerciseId: string, sex: "male" | "female", kind: CurveKind = "load"): StrengthCurve | null {
   const usable = rows
     .map(row => ({
       method: textOrNull(row.normalization_method),
@@ -110,7 +125,12 @@ export function assembleCurve(rows: readonly CurveRow[], exerciseId: string, sex
   }
 
   const ladders: (typeof usable)[] = [];
-  byLadder.forEach(bucket => { if (bucket.length >= 2) ladders.push(bucket); });
+  byLadder.forEach(bucket => {
+    if (bucket.length < 2) return;
+    // A rep count belongs on a rep ladder and nowhere else; a load may fall back to one only to be refused by name.
+    if (kind === "reps" && curvePlacement({ unit: bucket[0].unit as StrengthCurveUnit }) !== "not_one_rep_max") return;
+    ladders.push(bucket);
+  });
   if (!ladders.length) return null;
 
   /**
@@ -181,6 +201,26 @@ export function findCurveExercise(
     ?? null;
 }
 
+/**
+ * Active aliases by the exercise they answer for. A row without a usable multiplier or with a
+ * confidence modifier outside 0-1 is dropped rather than repaired; the first row for a target
+ * wins, as the database's own lookup takes one.
+ */
+export function aliasesFrom(rows: readonly Record<string, unknown>[], multiplierColumn: "e1rm_multiplier" | "reps_multiplier"): Map<string, CurveAlias> {
+  const aliases = new Map<string, CurveAlias>();
+  for (const row of rows) {
+    const target = textOrNull(row.target_exercise_id);
+    const source = textOrNull(row.source_exercise_id);
+    const multiplier = numberOrNull(row[multiplierColumn]);
+    const confidenceModifier = numberOrNull(row.confidence_modifier);
+    if (!target || !source || target === source || aliases.has(target)) continue;
+    if (row.is_active === false) continue;
+    if (multiplier === null || multiplier <= 0 || confidenceModifier === null || confidenceModifier < 0 || confidenceModifier > 1) continue;
+    aliases.set(target, { sourceExerciseId: source, multiplier, confidenceModifier });
+  }
+  return aliases;
+}
+
 export function createSupabaseStrengthCurveClient({
   url,
   serviceRoleKey,
@@ -190,7 +230,7 @@ export function createSupabaseStrengthCurveClient({
   const headers = supabaseServiceHeaders(serviceRoleKey);
 
   return {
-    async getCurve(exerciseId: string, sex: "male" | "female"): Promise<StrengthCurve | null> {
+    async getCurve(exerciseId: string, sex: "male" | "female", kind: CurveKind = "load"): Promise<StrengthCurve | null> {
       const requestUrl = new URL("/rest/v1/app_strength_beta_curves_v1", baseUrl);
       requestUrl.searchParams.set("select", CURVE_SELECT);
       requestUrl.searchParams.set("exercise_id", `eq.${exerciseId}`);
@@ -199,7 +239,7 @@ export function createSupabaseStrengthCurveClient({
       const response = await fetchImplementation(requestUrl, withTimeout({ headers }));
       if (!response.ok) throw new Error(`Supabase strength curve request failed (${response.status})`);
       const rows = (await response.json()) as CurveRow[];
-      return assembleCurve(rows, exerciseId, sex);
+      return assembleCurve(rows, exerciseId, sex, kind);
     },
 
     /**
@@ -229,8 +269,44 @@ export function createSupabaseStrengthCurveClient({
       seen.forEach(row => index.push(row));
       return index;
     },
+
+    /**
+     * Every catalog exercise, curve or not - the same rows the muscle ranks look a lift up in -
+     * so a lift scored through a related exercise's curve is found too.
+     */
+    async getCatalogExercises(): Promise<CurveExerciseRow[]> {
+      const requestUrl = new URL("/rest/v1/exercises", baseUrl);
+      requestUrl.searchParams.set("select", "id,name,canonical_name");
+      requestUrl.searchParams.set("canonical_name", "like.*__catalog_*");
+      const response = await fetchImplementation(requestUrl, withTimeout({ headers }));
+      if (!response.ok) throw new Error(`Supabase exercise catalog request failed (${response.status})`);
+      const rows = (await response.json()) as Record<string, unknown>[];
+      return rows.flatMap(row => {
+        const exerciseId = textOrNull(row.id);
+        const canonicalName = textOrNull(row.canonical_name);
+        return exerciseId && canonicalName ? [{ exerciseId, canonicalName, displayName: textOrNull(row.name) || canonicalName }] : [];
+      });
+    },
+
+    /** The active aliases of both kinds, read whole: a few hundred rows at most. */
+    async getAliases(): Promise<CurveAliases> {
+      const read = async (table: string, multiplierColumn: "e1rm_multiplier" | "reps_multiplier") => {
+        const requestUrl = new URL(`/rest/v1/${table}`, baseUrl);
+        requestUrl.searchParams.set("select", `target_exercise_id,source_exercise_id,${multiplierColumn},confidence_modifier,is_active`);
+        requestUrl.searchParams.set("scoring_version", "eq.strength_beta_v1");
+        requestUrl.searchParams.set("is_active", "is.true");
+        const response = await fetchImplementation(requestUrl, withTimeout({ headers }));
+        if (!response.ok) throw new Error(`Supabase ${table} request failed (${response.status})`);
+        const rows = (await response.json()) as Record<string, unknown>[];
+        return aliasesFrom(Array.isArray(rows) ? rows : [], multiplierColumn);
+      };
+      const [load, reps] = await Promise.all([read("strength_norm_curve_aliases", "e1rm_multiplier"), read("strength_rep_curve_aliases", "reps_multiplier")]);
+      return { load, reps };
+    },
   };
 }
+
+type StrengthCurveClient = ReturnType<typeof createSupabaseStrengthCurveClient>;
 
 function getRuntimeClient() {
   const url = process.env.VITE_SUPABASE_URL?.trim();
@@ -239,8 +315,8 @@ function getRuntimeClient() {
   return createSupabaseStrengthCurveClient({ url, serviceRoleKey });
 }
 
-export async function getStrengthCurve(exerciseId: string, sex: "male" | "female"): Promise<StrengthCurve | null> {
-  const key = `${exerciseId}:${sex}`;
+export async function getStrengthCurve(exerciseId: string, sex: "male" | "female", kind: CurveKind = "load"): Promise<StrengthCurve | null> {
+  const key = `${exerciseId}:${sex}:${kind}`;
   const cached = curveCache.get(key);
   if (cached !== undefined) return cached;
   const client = getRuntimeClient();
@@ -249,7 +325,7 @@ export async function getStrengthCurve(exerciseId: string, sex: "male" | "female
   if (pending) return pending;
   const request = (async () => {
     try {
-      const value = await client.getCurve(exerciseId, sex);
+      const value = await client.getCurve(exerciseId, sex, kind);
       curveCache.set(key, value);
       return value;
     } catch (error) {
@@ -266,34 +342,89 @@ export async function getStrengthCurve(exerciseId: string, sex: "male" | "female
   return request;
 }
 
-const indexCache: { expiresAt: number; value: CurveExerciseRow[] } = { expiresAt: 0, value: [] };
-// The index fetch in flight, shared the same way. It never rejects, and a failure is not cached,
-// so the next request after an outage tries again.
-let pendingIndex: Promise<CurveExerciseRow[]> | null = null;
+/**
+ * A whole table, read once and kept for the cache window. Requests that miss together share one
+ * fetch. A failure is not cached and answers `empty`, so the next request after an outage tries
+ * again. `read` is async, so it cannot throw before the shared fetch is recorded.
+ */
+function cachedRead<T>(what: string, empty: T, read: (client: StrengthCurveClient) => Promise<T>) {
+  const state: { expiresAt: number; value: T; pending: Promise<T> | null } = { expiresAt: 0, value: empty, pending: null };
+  return {
+    async get(): Promise<T> {
+      if (state.expiresAt > Date.now()) return state.value;
+      const client = getRuntimeClient();
+      if (!client) return empty;
+      if (state.pending) return state.pending;
+      const request = (async () => {
+        try {
+          const value = await read(client);
+          state.expiresAt = Date.now() + CACHE_TTL_MS;
+          state.value = value;
+          return value;
+        } catch (error) {
+          console.warn(`[Supabase strength curve] ${what} unavailable`, {
+            message: error instanceof Error ? error.message : "Unknown error",
+          });
+          return empty;
+        } finally {
+          state.pending = null;
+        }
+      })();
+      state.pending = request;
+      return request;
+    },
+    reset() {
+      state.expiresAt = 0;
+      state.value = empty;
+      state.pending = null;
+    },
+  };
+}
+
+const curveIndex = cachedRead<CurveExerciseRow[]>("index", [], client => client.getExerciseIndex());
+const catalogIndex = cachedRead<CurveExerciseRow[]>("exercise catalog", [], client => client.getCatalogExercises());
+const curveAliases = cachedRead<CurveAliases>("aliases", { load: new Map(), reps: new Map() }, client => client.getAliases());
 
 /** The exercise index, cached like the curves themselves; an outage returns an empty index. */
-export async function getCurveExerciseIndex(): Promise<CurveExerciseRow[]> {
-  if (indexCache.expiresAt > Date.now()) return indexCache.value;
-  const client = getRuntimeClient();
-  if (!client) return [];
-  if (pendingIndex) return pendingIndex;
-  const request = (async () => {
-    try {
-      const value = await client.getExerciseIndex();
-      indexCache.expiresAt = Date.now() + CACHE_TTL_MS;
-      indexCache.value = value;
-      return value;
-    } catch (error) {
-      console.warn("[Supabase strength curve] index unavailable", {
-        message: error instanceof Error ? error.message : "Unknown error",
-      });
-      return [];
-    } finally {
-      pendingIndex = null;
-    }
-  })();
-  pendingIndex = request;
-  return request;
+export function getCurveExerciseIndex(): Promise<CurveExerciseRow[]> {
+  return curveIndex.get();
+}
+
+/**
+ * The exercise a logged lift names, and its catalog id.
+ *
+ * The catalog id first, because it cannot be wrong: among the exercises with a curve of their
+ * own, then across the whole catalog, which also holds the ones scored through a related lift.
+ * The name is the fallback, in the same order. The catalog is read only when the curve index
+ * has no answer.
+ */
+export async function findLoggedExercise(request: Pick<StrengthPercentileRequest, "catalogExerciseId" | "exerciseName">): Promise<{ exerciseId: string; catalogId: number | null } | null> {
+  const byIdOnly = { catalogExerciseId: request.catalogExerciseId, exerciseName: null };
+  const withCurve = await getCurveExerciseIndex();
+  let found = findCurveExercise(withCurve, byIdOnly);
+  if (!found) {
+    const catalog = await catalogIndex.get();
+    found = findCurveExercise(catalog, byIdOnly) ?? findCurveExercise(withCurve, request) ?? findCurveExercise(catalog, request);
+  }
+  return found ? { exerciseId: found.exerciseId, catalogId: catalogIdFromCanonicalName(found.canonicalName) } : null;
+}
+
+/**
+ * A related exercise's curve, for an exercise with none of its own, carrying the alias's
+ * multiplier and confidence modifier - the database's alias step in `get_beta_strength_percentile_v1`
+ * and `get_beta_rep_percentile_v1`, so the card and the ranks read the lift the same way.
+ */
+export async function getAliasedCurve(exerciseId: string, sex: "male" | "female", kind: CurveKind = "load"): Promise<StrengthCurve | null> {
+  const alias = (await curveAliases.get())[kind].get(exerciseId);
+  if (!alias) return null;
+  const source = await getStrengthCurve(alias.sourceExerciseId, sex, kind);
+  if (!source) return null;
+  return {
+    ...source,
+    exerciseId,
+    aliasOfExerciseId: alias.sourceExerciseId,
+    alias: { multiplier: alias.multiplier, confidenceModifier: alias.confidenceModifier },
+  };
 }
 
 export type StrengthPercentileRequest = {
@@ -311,16 +442,34 @@ export type StrengthPercentileRequest = {
 /**
  * The whole beta route for one lift: fetch the curve, then resolve in the shared engine.
  *
- * A missing curve is an ordinary answer rather than an error, so a catalog exercise with no
- * community data returns `no_curve_for_exercise` and the caller can say so plainly.
+ * An exercise with no curve of its own is read on a related exercise's, where the database links
+ * one. A missing curve is an ordinary answer rather than an error, so a catalog exercise with no
+ * community data and no link returns `no_curve_for_exercise` and the caller can say so plainly.
  */
 export async function getStrengthPercentile(request: StrengthPercentileRequest): Promise<StrengthPercentileResult> {
   if (!request.sex) return { status: "unavailable", reason: "sex_required" };
-  const exerciseId = request.exerciseId?.trim()
-    || (await getCurveExerciseIndex().then(index => findCurveExercise(index, request)?.exerciseId));
-  if (!exerciseId) return { status: "unavailable", reason: "no_curve_for_exercise" };
-  const curve = await getStrengthCurve(exerciseId, request.sex);
-  return resolveStrengthPercentile(curve, request, { sex: request.sex, bodyMassKg: request.bodyMassKg ?? null, ageYears: request.ageYears ?? null });
+  const given = request.exerciseId?.trim();
+  const exercise = given ? { exerciseId: given, catalogId: null } : await findLoggedExercise(request);
+  if (!exercise) return { status: "unavailable", reason: "no_curve_for_exercise" };
+  const repsOnly = isRepCountRequest(request, exercise.catalogId);
+  const kind: CurveKind = repsOnly ? "reps" : "load";
+  // Its own curve, or else a related exercise's through the database's alias, as the ranks read it.
+  const curve = await getStrengthCurve(exercise.exerciseId, request.sex, kind) ?? await getAliasedCurve(exercise.exerciseId, request.sex, kind);
+  // `repsOnly` comes from the exercise's own convention, never from the caller.
+  const { repsOnly: _ignored, ...lift } = request;
+  return resolveStrengthPercentile(curve, { ...lift, repsOnly }, { sex: request.sex, bodyMassKg: request.bodyMassKg ?? null, ageYears: request.ageYears ?? null });
+}
+
+/**
+ * A set the muscle ranks would score on reps: a movement whose convention is `bodyweight_reps`
+ * (shared/loadConventions.ts, the scoring policy's), done for reps without added load or a
+ * measured max. A loaded set of the same movement keeps its old route.
+ */
+export function isRepCountRequest(request: Pick<StrengthPercentileRequest, "catalogExerciseId" | "loadKg" | "measuredOneRmKg" | "repetitions">, curveCatalogId: number | null): boolean {
+  const catalogId = curveCatalogId ?? request.catalogExerciseId ?? null;
+  if (loadConventionFor(catalogId) !== "bodyweight_reps") return false;
+  if ((request.loadKg ?? 0) > 0 || (request.measuredOneRmKg ?? 0) > 0) return false;
+  return (request.repetitions ?? 0) >= 1;
 }
 
 /**
@@ -339,7 +488,7 @@ export async function getStrengthPercentiles(requests: readonly StrengthPercenti
 export function resetStrengthCurveCache() {
   curveCache.clear();
   pendingCurves.clear();
-  indexCache.expiresAt = 0;
-  indexCache.value = [];
-  pendingIndex = null;
+  curveIndex.reset();
+  catalogIndex.reset();
+  curveAliases.reset();
 }

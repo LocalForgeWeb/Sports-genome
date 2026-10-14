@@ -94,7 +94,7 @@ const strengthPercentileLiftInput = z.object({
   bodyMassKg: z.number().positive().max(500).nullable().optional(),
   measuredOneRmKg: z.number().positive().max(1000).nullable().optional(),
   loadKg: z.number().positive().max(1000).nullable().optional(),
-  repetitions: z.number().int().min(1).max(100).nullable().optional(),
+  repetitions: z.number().int().min(1).max(1000).nullable().optional(),
   repsInReserve: z.number().int().min(0).max(10).nullable().optional(),
   /** Age on the day of the lift. The engine applies the published age table from 15 to 90. */
   ageYears: z.number().min(0).max(120).nullable().optional(),
@@ -494,7 +494,8 @@ export const appRouter = router({
           exerciseName: z.string().trim().min(1).max(255),
           /** 0 for a bodyweight movement done without added load; those are scored on reps. */
           loadKg: z.number().min(0).max(1000),
-          repetitions: z.number().int().min(1).max(100),
+          /** Up to 1000: a set scored on reps (a push-up, a sit-up) can run long; a loaded set is refused past 15 by the scoring. */
+          repetitions: z.number().int().min(1).max(1000),
           bodyMassKg: z.number().positive().max(500).nullable(),
           /** Age on the day of this lift, so a birth year given later re-reads every earlier lift. */
           ageYears: z.number().min(0).max(120).nullable().optional(),

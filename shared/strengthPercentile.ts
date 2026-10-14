@@ -55,6 +55,13 @@ export type StrengthCurve = {
   /** Set when the curve is borrowed from a variant, so the result can say whose curve it is. */
   aliasOfExerciseId?: string | null;
   /**
+   * How a lift on the logged exercise is read on the borrowed curve, as the database's aliases
+   * (`strength_norm_curve_aliases`, `strength_rep_curve_aliases`) say: the one-rep max or the rep
+   * count is multiplied by `multiplier` before it is placed, and confidence by
+   * `confidenceModifier`. Absent for an exercise's own curve.
+   */
+  alias?: { multiplier: number; confidenceModifier: number } | null;
+  /**
    * The study the anchors come from. Only the Strength Level family publishes an age table,
    * so this decides whether an age adjustment can be made at all.
    */
@@ -107,7 +114,23 @@ export type StrengthPercentileUnavailableReason =
  */
 export type AgeAdjustment =
   | { status: "applied"; version: typeof ageFactorVersion; ageYears: number; factor: number; placedValue: number }
-  | { status: "not_applied"; reason: "age_missing" | "outside_published_age_range" | "not_age_scalable_source"; ageYears: number | null };
+  /** `rep_count`: a rep count is placed as counted. The age table scales a load, and the database's ranks do not scale reps either. */
+  | { status: "not_applied"; reason: "age_missing" | "outside_published_age_range" | "not_age_scalable_source" | "rep_count"; ageYears: number | null };
+
+/**
+ * A rep count placed on a rep curve. Nothing is estimated - the athlete did that many reps -
+ * so there is no one-rep max, and the result says so rather than carrying a made-up one.
+ */
+export type RepetitionCount = {
+  valueKg: null;
+  basis: "measured";
+  confidence: number;
+  /** The reps placed. */
+  effectiveReps: number;
+  method: "bodyweight_reps";
+  estimator: "measured";
+  repsInReserve: null;
+};
 
 export type StrengthPercentileResult =
   | {
@@ -117,7 +140,8 @@ export type StrengthPercentileResult =
       observedValue: number;
       /** Age scaling, applied or not and why. The percentile already includes it. */
       ageAdjustment: AgeAdjustment;
-      estimate: OneRepMaxEstimate;
+      /** The one-rep max the lift was placed as, or the rep count for a movement scored on reps. */
+      estimate: OneRepMaxEstimate | RepetitionCount;
       confidence: number;
       scoringVersion: typeof strengthScoringVersion;
       route: "beta_community_curve";
@@ -182,6 +206,12 @@ export type OneRepMaxInput = {
   repetitions?: number | null;
   /** Reps in reserve, if reported. Counts toward effective reps. */
   repsInReserve?: number | null;
+  /**
+   * A movement scored on reps (`bodyweight_reps` in shared/loadConventions.ts) done without added
+   * load: `repetitions` is placed as a count on the exercise's rep curve, as the muscle ranks score
+   * it. Set by the route from the exercise's convention, never taken from the caller.
+   */
+  repsOnly?: boolean;
 };
 
 /**
@@ -273,8 +303,10 @@ export function placeOnCurve(anchors: readonly CurveAnchor[], observedValue: num
  * Every stored curve stops at the 95th percentile, so until now a lift past that point could
  * only be "above the 95th" - never 97th, never 99th - and no muscle could rank above it. The
  * owner chose to estimate that end rather than leave it blank, on three conditions this keeps:
- * the shape comes from the curve's own upper points (50th, 80th, 95th), it stops at the 99th,
- * and the result says it is an estimate wherever it is shown.
+ * the shape comes from the curve's own upper points (50th, 80th, 95th), it stops at the 99.99th
+ * (raised from the 99th the same day, at the owner's request: estimated up there is acceptable),
+ * and the result says it is an estimate wherever it is shown. It applies to every curve: body
+ * weight multiples, kilograms, pounds and rep counts alike.
  *
  * The model: strength above the median is treated as log-normal. ln(value) is fitted against the
  * normal quantile of each anchor at or above the 50th by least squares, and that slope is carried
@@ -284,7 +316,7 @@ export function placeOnCurve(anchors: readonly CurveAnchor[], observedValue: num
  */
 export const tailEstimateVersion = "lognormal_upper_tail_v1" as const;
 /** The highest percentile an estimate may report. */
-export const tailEstimateCapPercentile = 99;
+export const tailEstimateCapPercentile = 99.99;
 /** The anchors the tail's shape is read from: this one and every one above it. */
 const TAIL_FIT_FROM_PERCENTILE = 50;
 
@@ -464,6 +496,7 @@ export function resolveStrengthPercentile(
   if (curve.sex !== context.sex) return { status: "unavailable", reason: "no_curve_for_exercise" };
 
   const placement = curvePlacement(curve);
+  if (input.repsOnly) return resolveRepCount(curve, input);
   if (placement === "not_one_rep_max") return { status: "unavailable", reason: "curve_is_not_one_rep_max" };
 
   // The formula the curve's source calls for, as the database resolves it.
@@ -482,13 +515,17 @@ export function resolveStrengthPercentile(
       ? kilograms / kilogramsPerPound
       : kilograms;
   const observedValue = Number(inCurveUnit(estimate.valueKg).toFixed(5));
+  // A related lift's curve is read with the lift scaled onto it, as `get_beta_strength_percentile_v1`
+  // places `e1rm × e1rm_multiplier` on the alias source; the recorded lift stays as it was.
+  const scale = aliasScale(curve);
+  const placedAsLogged = scale === 1 ? observedValue : Number(inCurveUnit(estimate.valueKg * scale).toFixed(5));
 
   // Age scales the comparison, never the lift: a 16-year-old's bench is placed as the
   // 25-40 equivalent the published table gives it, and the recorded lift stays as it was.
   const ageYears = numberOrNull(context.ageYears);
   const ageFactor = strengthLevelAgeFactor(ageYears);
   const ageScalable = curve.sourceStudyId === STRENGTH_LEVEL_SOURCE_STUDY_ID;
-  const placedValue = ageScalable && ageFactor.status === "ok" ? inCurveUnit(estimate.valueKg / ageFactor.factor) : observedValue;
+  const placedValue = ageScalable && ageFactor.status === "ok" ? inCurveUnit(estimate.valueKg / ageFactor.factor * scale) : placedAsLogged;
   const ageAdjustment: AgeAdjustment = ageFactor.status === "age_missing"
     ? { status: "not_applied", reason: "age_missing", ageYears: null }
     : !ageScalable
@@ -508,11 +545,12 @@ export function resolveStrengthPercentile(
   // comparison, under the age table's own confidence too - the same three the database takes
   // the least of. It never changes the percentile: how sure we are and how strong the lift is
   // are separate answers.
+  // A borrowed curve answers for a related lift, so it is trusted less, by the alias's own modifier.
   const capped = Math.min(
     estimate.confidence,
     curve.confidenceCap ?? 1,
     ageAdjustment.status === "applied" && ageFactor.status === "ok" ? ageFactor.confidence : 1,
-  );
+  ) * aliasConfidence(curve);
 
   return {
     status: "resolved",
@@ -521,6 +559,59 @@ export function resolveStrengthPercentile(
     ageAdjustment,
     estimate,
     confidence: Number(capped.toFixed(4)),
+    scoringVersion: strengthScoringVersion,
+    route: "beta_community_curve",
+    normalizationMethod: curve.normalizationMethod,
+    unit: curve.unit,
+    sourceRole: curve.sourceRole,
+    exerciseId: curve.exerciseId,
+    aliasOfExerciseId: curve.aliasOfExerciseId ?? null,
+    borrowedCurve: Boolean(curve.aliasOfExerciseId),
+    ...(estimatedTail ? { tailEstimate: estimatedTail.tail } : {}),
+  };
+}
+
+/** The alias's multiplier, or 1 for an exercise's own curve (or an alias that gives no usable one). */
+function aliasScale(curve: StrengthCurve): number {
+  const multiplier = numberOrNull(curve.alias?.multiplier);
+  return multiplier !== null && multiplier > 0 ? multiplier : 1;
+}
+
+/** The alias's confidence modifier, held to 0-1; 1 for an exercise's own curve. */
+function aliasConfidence(curve: StrengthCurve): number {
+  const modifier = numberOrNull(curve.alias?.confidenceModifier);
+  return modifier === null ? 1 : Math.min(1, Math.max(0, modifier));
+}
+
+/**
+ * A movement scored on reps, done without added load: its rep count placed on its rep curve,
+ * the way `score_strength_input_v1` scores it for the muscle ranks (`bodyweight_reps` mode).
+ * Nothing is estimated and nothing is scaled for age - the count is the measurement - and past
+ * the top anchor the same tail estimate applies as for a load.
+ */
+function resolveRepCount(curve: StrengthCurve, input: OneRepMaxInput): StrengthPercentileResult {
+  if (curvePlacement(curve) !== "not_one_rep_max") return { status: "unavailable", reason: "no_curve_for_exercise" };
+  const raw = numberOrNull(input.repetitions);
+  const reps = raw === null ? null : Math.round(raw);
+  if (reps === null || reps < 1) return { status: "unavailable", reason: "repetitions_out_of_range" };
+
+  // On a related exercise's rep curve the count is placed as its equivalent there, rounded to a
+  // whole rep, as `get_beta_rep_percentile_v1` does (`equivalent_source_reps`).
+  const scale = aliasScale(curve);
+  const placedReps = scale === 1 ? reps : Math.max(0, Math.round(Number((reps * scale).toFixed(6))));
+  const measured = placeOnCurve(curve.anchors, placedReps);
+  const estimatedTail = "reason" in measured && measured.reason === "above_highest_anchor" ? estimateAboveTopAnchor(curve.anchors, placedReps) : null;
+  const placed = estimatedTail ?? measured;
+  if ("reason" in placed) return { status: "unavailable", reason: placed.reason, censoredAt: placed.censoredAt };
+
+  const confidence = Math.min(1, curve.confidenceCap ?? 1) * aliasConfidence(curve);
+  return {
+    status: "resolved",
+    percentile: placed.percentile,
+    observedValue: reps,
+    ageAdjustment: { status: "not_applied", reason: "rep_count", ageYears: null },
+    estimate: { valueKg: null, basis: "measured", confidence: 1, effectiveReps: reps, method: "bodyweight_reps", estimator: "measured", repsInReserve: null },
+    confidence: Number(confidence.toFixed(4)),
     scoringVersion: strengthScoringVersion,
     route: "beta_community_curve",
     normalizationMethod: curve.normalizationMethod,

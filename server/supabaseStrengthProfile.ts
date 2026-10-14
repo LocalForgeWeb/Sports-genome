@@ -87,7 +87,9 @@ export function tailEstimateForPlacement(placement: unknown): { percentile: numb
   if (!placement || typeof placement !== "object") return null;
   const row = placement as Record<string, unknown>;
   if (row.status !== "above_range") return null;
-  const observed = numberOf(row.observed_norm_value);
+  // A load's placement names its placed value; a rep count's (`bodyweight_reps`) names the reps,
+  // and a rep count read on a related exercise's curve names the reps it was placed as.
+  const observed = numberOf(row.observed_norm_value) ?? numberOf(row.equivalent_source_reps) ?? numberOf(row.reps);
   const curve = Array.isArray(row.curve) ? row.curve as { percentile?: unknown; value?: unknown }[] : [];
   if (observed === null || curve.length === 0) return null;
   return estimateAboveTopAnchor(curve.map((point) => ({ percentile: point?.percentile, value: point?.value })), observed);

@@ -116,8 +116,9 @@ export function muscleRankLiftSelection(observations: readonly RankableObservati
     if (!Number.isFinite(loadKg) || loadKg < 0 || loadKg > 1000) continue;
     if (loadKg === 0 && !scoredOnReps) continue;
     const repetitions = observation.measurementType === "MEASURED_1RM" ? 1 : Math.round(Number(observation.repetitions));
-    if (!Number.isFinite(repetitions) || repetitions < 1 || repetitions > 100) continue;
     const repsOnly = scoredOnReps && loadKg === 0;
+    // A rep count can run long - 150 push-ups is a count, not a typo - so it may reach 1000, as a record can.
+    if (!Number.isFinite(repetitions) || repetitions < 1 || repetitions > (repsOnly ? 1000 : 100)) continue;
     const e1rmKg = repsOnly ? null : estimateOneRepMaxKg(loadKg, repetitions);
     if (!repsOnly && e1rmKg === null) continue;
     const bodyMass = liftBodyMass(observation, history, profileBodyMassKg);

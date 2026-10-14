@@ -1,5 +1,6 @@
 import { exercises } from "@/lib/exerciseCatalog";
-import type { OneRepMaxEstimate, StrengthPercentileResult } from "@shared/strengthPercentile";
+import { loadConventionFor } from "@shared/loadConventions";
+import { tailEstimateCapPercentile, type OneRepMaxEstimate, type StrengthPercentileResult } from "@shared/strengthPercentile";
 
 /**
  * Turning a beta percentile into the one line an athlete reads.
@@ -17,18 +18,52 @@ export function catalogExerciseIdForName(exerciseName: string): number | undefin
 }
 
 /**
+ * A set placed as a rep count: a movement scored on reps (`bodyweight_reps`, such as a pull-up or
+ * a push-up) done with no added load, from 1 to 1000 reps - the same sets the muscle ranks score
+ * on reps, and the route reads the same way.
+ */
+export function isRepCountLift(exerciseName: string, loadKg: number | string | null | undefined, repetitions: number | string | null | undefined): boolean {
+  if (loadConventionFor(catalogExerciseIdForName(exerciseName)) !== "bodyweight_reps") return false;
+  const load = loadKg == null || loadKg === "" ? 0 : Number(loadKg);
+  const reps = repetitions == null || repetitions === "" ? Number.NaN : Math.round(Number(repetitions));
+  return load === 0 && reps >= 1 && reps <= 1000;
+}
+
+/**
+ * A percentile from the 99th up, as printed: to a tenth from the 99th (99.2), to a hundredth
+ * from the 99.9th (99.95). The estimated tail runs on to the 99.99th, and whole numbers would
+ * show 99.2 and 99.99 alike. Floored, never rounded up, so the figure never claims more than the
+ * value and never reads 100.
+ */
+export function topPercentileFigure(value: number): number {
+  const places = value >= 99.9 ? 100 : 10;
+  // The small allowance keeps 99.99, stored as 99.98999…, from flooring to 99.98.
+  return Math.min(99.99, Math.floor(value * places + 1e-6) / places);
+}
+
+/**
  * 63 -> "63rd". English ordinals, with the teens exception that catches every naive version:
- * 11, 12 and 13 take "th" despite ending in 1, 2 and 3.
+ * 11, 12 and 13 take "th" despite ending in 1, 2 and 3. From the 99th up the figure keeps its
+ * decimals (`topPercentileFigure`) and the suffix follows the last digit, read one by one:
+ * "99.2nd", "99.95th", "99.99th".
  */
 export function ordinal(value: number): string {
+  if (value >= 99) {
+    const figure = topPercentileFigure(value);
+    if (!Number.isInteger(figure)) return `${figure}${suffix(Number(String(figure).slice(-1)))}`;
+  }
   const whole = Math.round(value);
   const lastTwo = whole % 100;
   if (lastTwo >= 11 && lastTwo <= 13) return `${whole}th`;
-  switch (whole % 10) {
-    case 1: return `${whole}st`;
-    case 2: return `${whole}nd`;
-    case 3: return `${whole}rd`;
-    default: return `${whole}th`;
+  return `${whole}${suffix(whole % 10)}`;
+}
+
+function suffix(lastDigit: number): string {
+  switch (lastDigit) {
+    case 1: return "st";
+    case 2: return "nd";
+    case 3: return "rd";
+    default: return "th";
   }
 }
 
@@ -63,7 +98,7 @@ export function strengthPercentileCard(
     : result.unit === "reps"
       ? `${Math.round(result.observedValue)} reps`
       : `${Math.round(result.observedValue)} ${result.unit === "kg" ? "kg" : "lb"}`;
-  const placement = `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}${tailEstimateNote(result.tailEstimate)}`;
+  const placement = `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}${borrowedCurveNote(result)}${tailEstimateNote(result.tailEstimate)}`;
   const effort = effortNote(result.estimate);
   return {
     headline: result.tailEstimate ? `≈ ${ordinal(result.percentile)} percentile (estimated)` : `${ordinal(result.percentile)} percentile`,
@@ -76,12 +111,17 @@ export function strengthPercentileCard(
 /**
  * Why a percentile past the top anchor is an estimate. The comparison data stops at its top
  * anchor (the 95th for every curve today); beyond it the place is the curve's shape carried on,
- * and the estimate itself stops at the 99th.
+ * and the estimate itself stops at the 99.99th.
  */
 export function tailEstimateNote(tail: Extract<StrengthPercentileResult, { status: "resolved" }>["tailEstimate"]): string {
   if (!tail) return "";
   const where = ` Past the ${ordinal(tail.aboveAnchorPercentile)} percentile, where the comparison data stops, so this is estimated from the curve's shape.`;
-  return tail.capped ? `${where} Estimates stop at the 99th.` : where;
+  return tail.capped ? `${where} Estimates stop at the ${ordinal(tailEstimateCapPercentile)}.` : where;
+}
+
+/** Said when the lift was read on a related exercise's curve, because the logged one has none. */
+export function borrowedCurveNote(result: Extract<StrengthPercentileResult, { status: "resolved" }>): string {
+  return result.borrowedCurve ? " Compared through a closely related lift, which has the community data this one lacks." : "";
 }
 
 /**

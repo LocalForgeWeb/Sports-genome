@@ -120,9 +120,21 @@ const ROLE_WEIGHT = { primary: 1.0, secondary: 0.75, other: 0.35 } as const;
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
-/** `sg_percentile_to_latent_v1`: the logit of the percentile, clamped to [1, 99], over 1.702. */
-export function percentileToLatent(percentile: number): number {
-  const p = clamp(percentile, 1, 99) / 100;
+/**
+ * The range a lift's percentile enters the aggregation in. The database's `sg_percentile_to_latent_v1`
+ * clamps to [1, 99]; every measured placement lies in [5, 95], so neither bound ever bit until the
+ * estimated tail (shared/strengthPercentile.ts) reached past the 99th. The top is raised to that
+ * estimate's own cap, 99.99, so a lift estimated there keeps its place in the ranks (owner, 14 Oct 2026).
+ */
+export const LIFT_PERCENTILE_FLOOR = 1;
+export const LIFT_PERCENTILE_CEILING = 99.99;
+
+/**
+ * `sg_percentile_to_latent_v1`: the logit of the percentile, clamped to [1, ceiling], over 1.702.
+ * The database's ceiling is 99; the app's is `LIFT_PERCENTILE_CEILING`.
+ */
+export function percentileToLatent(percentile: number, ceiling: number = LIFT_PERCENTILE_CEILING): number {
+  const p = clamp(percentile, LIFT_PERCENTILE_FLOOR, ceiling) / 100;
   return Math.log(p / (1 - p)) / LATENT_SCALE;
 }
 
@@ -216,15 +228,17 @@ type Mapped = {
  * the database's own rule applies (the more confident, then the better placed), so the
  * transcription is complete.
  */
-export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], tables: AggregationTables, options: { directness?: boolean } = {}): AggregationResult {
+export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], tables: AggregationTables, options: { directness?: boolean; liftPercentileCeiling?: number } = {}): AggregationResult {
   const directness = options.directness ?? true;
+  // 99 reproduces the database's own clamp exactly (the parity tests use it); the app's default lets an estimated lift past the 99th count as placed.
+  const ceiling = options.liftPercentileCeiling ?? LIFT_PERCENTILE_CEILING;
 
   // raw + dedup
   const best = new Map<string, { percentile: number; confidence: number }>();
   for (const score of scores) {
     const percentile = numberOf(score?.percentile);
     if (typeof score?.exercise_id !== "string" || percentile === null) continue;
-    const entry = { percentile: clamp(percentile, 1, 99), confidence: clamp(numberOf(score.confidence) ?? DEFAULT_OBSERVATION_CONFIDENCE, 0, 1) };
+    const entry = { percentile: clamp(percentile, LIFT_PERCENTILE_FLOOR, ceiling), confidence: clamp(numberOf(score.confidence) ?? DEFAULT_OBSERVATION_CONFIDENCE, 0, 1) };
     const current = best.get(score.exercise_id);
     if (!current || entry.confidence > current.confidence || (entry.confidence === current.confidence && entry.percentile > current.percentile)) best.set(score.exercise_id, entry);
   }
@@ -250,7 +264,7 @@ export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], t
         muscle, exercise, key: movementKey(exercise), role: mapping.role,
         percentile: score.percentile, observationConfidence: score.confidence,
         contribution, mappingConfidence,
-        latent: percentileToLatent(score.percentile),
+        latent: percentileToLatent(score.percentile, ceiling),
         transfer: signalTransfer(mapping.contribution_weight, kind),
         baseWeight: mappingConfidence * score.confidence * Math.sqrt(Math.max(0.05, contribution)) * ROLE_WEIGHT[kind],
         directness: directness ? directnessOf(mapping, exerciseMappings) : 1,

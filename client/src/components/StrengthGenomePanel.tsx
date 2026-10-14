@@ -29,7 +29,7 @@ import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
 import { deviceWorkoutHistoryEvent, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { strengthRegionIdsForExerciseName, workoutStrengthObservations, compareRegionRecordRelevance } from "@/lib/workoutStrengthRecord";
 import { bodyWeightEntryAt, bodyWeightKgAt, bodyWeightLogEvent, loadBodyWeightLog, type BodyWeightEntry } from "@/lib/bodyWeightLog";
-import { catalogExerciseIdForName, ordinal, strengthPercentileCard, strengthPercentileGapCopy } from "@/lib/strengthPercentileCard";
+import { catalogExerciseIdForName, isRepCountLift, ordinal, strengthPercentileCard, strengthPercentileGapCopy } from "@/lib/strengthPercentileCard";
 import { regionRanksFromMuscles, type RegionRank } from "@shared/capabilityRank";
 import { PendingRankCard, RankCard, UnscoredRankCard, rankOrdinal } from "@/components/CapabilityRank";
 import { RankingLiftSuggestions } from "@/components/RankingLiftSuggestions";
@@ -307,20 +307,24 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
       ? athleteProfile.sexForReference
       : null;
   const measuredOneRm = latestRecord?.measurementType === "MEASURED_1RM";
-  const percentileAsked = Boolean(latestRecord?.loadKg);
+  const loggedLoadKg = latestRecord?.loadKg == null ? null : Number(latestRecord.loadKg);
+  const loaded = loggedLoadKg != null && Number.isFinite(loggedLoadKg) && loggedLoadKg > 0;
+  // A pull-up or a push-up with no added load is placed on its rep count, as the ranks score it.
+  const repCountLift = Boolean(latestRecord) && !measuredOneRm && isRepCountLift(latestRecord!.exerciseName, latestRecord!.loadKg, latestRecord!.repetitions);
+  const percentileAsked = loaded || repCountLift;
   const betaPercentile = trpc.strengthPercentile.forLift.useQuery(
     {
       catalogExerciseId: latestRecord ? catalogExerciseIdForName(latestRecord.exerciseName) ?? null : null,
       exerciseName: latestRecord?.exerciseName ?? null,
       sex: percentileSex,
       bodyMassKg: effectiveBodyMassKg ?? null,
-      measuredOneRmKg: measuredOneRm && latestRecord?.loadKg != null ? Number(latestRecord.loadKg) : null,
-      loadKg: !measuredOneRm && latestRecord?.loadKg != null ? Number(latestRecord.loadKg) : null,
+      measuredOneRmKg: measuredOneRm && loaded ? loggedLoadKg : null,
+      loadKg: !measuredOneRm && loaded ? loggedLoadKg : null,
       repetitions: !measuredOneRm && latestRecord?.repetitions ? Number(latestRecord.repetitions) : null,
       // Age on the day of this lift, so a birth year given after it still counts.
       ageYears: latestRecord ? ageAtLift(athleteProfile?.birthYear ?? undefined, latestRecord.observedAt) ?? null : null,
     },
-    // Nothing to place without a load, and the route would only answer `load_required`.
+    // Nothing to place without a load or a rep count, and the route would only answer `load_required`.
     { enabled: percentileAsked, staleTime: 5 * 60 * 1000, retry: false }
   );
   const percentileCard = betaPercentile.data && percentileSex
@@ -1391,7 +1395,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
           {RANKS.map((rank) => <li key={rank.id}><RankIcon rankId={rank.id} size={36} /><span><b>{rank.fullName}</b><small>{rankRangeLabel(rank)} percentile</small></span></li>)}
         </ol>
         <p>Sports Genome ranks, not competition titles. Percentiles put lifts in order; the gap between two percentiles is not an equal step in strength. Groups with no percentile yet are hatched and labelled Not scored.</p>
-        <p data-muscle-rank-ceiling>A muscle group is read through the lifts that train it. A lift counts for more the more of its work the muscle does, so an isolation lift says more about it than a compound lift it shares with other muscles; and each lift is scaled by how much it relies on the muscle, so a group sits a little below the lifts behind it. The comparison curves stop at the 95th percentile. Past it, a lift's place is estimated from the curve's shape, up to the 99th, and marked estimated — so a muscle group reaches National only on an estimate. World Stage stays out of reach for now: no lift passes all of its strength to one muscle, so a group stays just under the 99th. Muscles your lifts only steady are not ranked.</p>
+        <p data-muscle-rank-ceiling>A muscle group is read through the lifts that train it. A lift counts for more the more of its work the muscle does, so an isolation lift says more about it than a compound lift it shares with other muscles; and each lift is scaled by how much it relies on the muscle, so a group sits a little below the lifts behind it. The comparison curves stop at the 95th percentile. Past it, a lift's place — a load or a rep count, on any exercise — is estimated from the curve's shape, up to the 99.99th, and marked estimated. So a muscle group reaches National or World Stage only on an estimate, and World Stage takes a lift far past the top of the data, since no lift passes all of its strength to one muscle. Muscles your lifts only steady are not ranked.</p>
         {registryOfflineNotice && <p className="strength-profile-reference-offline" role="status">{registryOfflineNotice}</p>}
         <p>Your own progress is always tracked from your logs. A comparison against published numbers only appears when your exact lift, setup, and body weight line up with a study — most everyday gym lifts will not, and that is normal.</p>
         {supabaseEvidenceInventory.data?.status === "connected" && <p>Research on file: {supabaseEvidenceInventory.data.strengthNorms} strength norms, {supabaseEvidenceInventory.data.performanceNorms} performance norms, and {supabaseEvidenceInventory.data.performanceTests} test protocols. Having them on file does not by itself create a rank for you.</p>}

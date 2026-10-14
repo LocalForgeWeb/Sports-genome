@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { catalogExerciseIdForName, ordinal, strengthPercentileCard, strengthPercentileGapCopy } from "./strengthPercentileCard";
+import { catalogExerciseIdForName, isRepCountLift, ordinal, strengthPercentileCard, strengthPercentileGapCopy, topPercentileFigure } from "./strengthPercentileCard";
 import type { StrengthPercentileResult } from "@shared/strengthPercentile";
 
 const resolved = (overrides: Partial<Extract<StrengthPercentileResult, { status: "resolved" }>> = {}): StrengthPercentileResult => ({
@@ -78,6 +78,42 @@ describe("What the athlete can do about a missing percentile", () => {
   });
 });
 
+describe("Ordinals at the top end", () => {
+  it("are whole below the 99th and keep a tenth, then a hundredth, above it", () => {
+    expect(ordinal(63)).toBe("63rd");
+    expect(ordinal(96.531)).toBe("97th");
+    expect(ordinal(99)).toBe("99th");
+    expect(ordinal(99.239)).toBe("99.2nd");
+    expect(ordinal(99.5)).toBe("99.5th");
+    expect(ordinal(99.892)).toBe("99.8th");
+    expect(ordinal(99.91)).toBe("99.91st");
+    expect(ordinal(99.93)).toBe("99.93rd");
+    expect(ordinal(99.99)).toBe("99.99th");
+  });
+
+  it("never round up to 100", () => {
+    expect(ordinal(99.996)).toBe("99.99th");
+    expect(ordinal(100)).toBe("99.99th");
+    expect(topPercentileFigure(99.95999)).toBe(99.95);
+  });
+});
+
+describe("Which sets are placed as a rep count", () => {
+  it("is a rep-scored movement done with no added load", () => {
+    expect(isRepCountLift("Pull-Up", 0, 12)).toBe(true);
+    expect(isRepCountLift("Standard Push-Up", null, 150)).toBe(true);
+    expect(isRepCountLift("Standard Push-Up", "", "40")).toBe(true);
+  });
+
+  it("is not a loaded set, a load-scored lift, or a set with no reps", () => {
+    expect(isRepCountLift("Pull-Up", 20, 8)).toBe(false);
+    expect(isRepCountLift("Barbell Bench Press", 0, 10)).toBe(false);
+    expect(isRepCountLift("Pull-Up", 0, 0)).toBe(false);
+    expect(isRepCountLift("Pull-Up", 0, null)).toBe(false);
+    expect(isRepCountLift("Pull-Up", 0, 1001)).toBe(false);
+  });
+});
+
 describe("Finding the curve's exercise from a logged lift", () => {
   it("matches a catalog exercise by the name the athlete saw", () => {
     expect(catalogExerciseIdForName("Barbell Bench Press")).toBe(1);
@@ -101,9 +137,20 @@ describe("A percentile past the top anchor (14 Oct 2026)", () => {
   });
 
   it("says where the estimate stops when it reached the cap", () => {
-    const card = strengthPercentileCard(resolved({ percentile: 99, tailEstimate: { ...tail, capped: true } }), { sex: "female" })!;
-    expect(card.headline).toBe("≈ 99th percentile (estimated)");
-    expect(card.detail).toMatch(/Estimates stop at the 99th\.$/);
+    const card = strengthPercentileCard(resolved({ percentile: 99.99, tailEstimate: { ...tail, capped: true } }), { sex: "female" })!;
+    expect(card.headline).toBe("≈ 99.99th percentile (estimated)");
+    expect(card.detail).toMatch(/Estimates stop at the 99\.99th\.$/);
+  });
+
+  it("keeps the decimals that tell the top end apart, floored", () => {
+    expect(strengthPercentileCard(resolved({ percentile: 99.239, tailEstimate: tail }), { sex: "male", bodyMassKg: 80 })!.headline).toBe("≈ 99.2nd percentile (estimated)");
+    expect(strengthPercentileCard(resolved({ percentile: 99.985, tailEstimate: tail }), { sex: "male", bodyMassKg: 80 })!.headline).toBe("≈ 99.98th percentile (estimated)");
+  });
+
+  it("says when the lift was compared through a related one", () => {
+    const card = strengthPercentileCard(resolved({ percentile: 70, borrowedCurve: true, aliasOfExerciseId: "source" }), { sex: "male", bodyMassKg: 80 })!;
+    expect(card.detail).toContain("Compared through a closely related lift");
+    expect(strengthPercentileCard(resolved({ percentile: 70 }), { sex: "male", bodyMassKg: 80 })!.detail).not.toContain("related lift");
   });
 
   it("leaves a placement between measured anchors exactly as before", () => {
