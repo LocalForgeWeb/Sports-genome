@@ -1,6 +1,7 @@
 import { exercises } from "@/lib/exerciseCatalog";
 import { loadConventionFor } from "@shared/loadConventions";
 import { tailEstimateCapPercentile, type OneRepMaxEstimate, type StrengthPercentileResult } from "@shared/strengthPercentile";
+import type { SetEffort } from "@shared/setEffort";
 
 /**
  * Turning a beta percentile into the one line an athlete reads.
@@ -104,7 +105,15 @@ const populationLabel: Record<"male" | "female", string> = {
  */
 export function strengthPercentileCard(
   result: StrengthPercentileResult,
-  context: { sex: "male" | "female"; bodyMassKg?: number | null }
+  context: {
+    sex: "male" | "female";
+    bodyMassKg?: number | null;
+    /**
+     * How hard the set was taken (shared/setEffort.ts `effectiveEffort`): said by the athlete, or
+     * assumed for a usually-light exercise left unmarked. Absent reads as before - not recorded.
+     */
+    effort?: { effort: SetEffort | null; assumed: boolean };
+  }
 ): StrengthPercentileCard | null {
   if (result.status !== "resolved") return null;
   const placedAs = result.unit === "x_bodyweight"
@@ -113,11 +122,13 @@ export function strengthPercentileCard(
       ? `${Math.round(result.observedValue)} reps`
       : `${Math.round(result.observedValue)} ${result.unit === "kg" ? "kg" : "lb"}`;
   const placement = `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}${borrowedCurveNote(result)}${tailEstimateNote(result.tailEstimate)}`;
-  const effort = effortNote(result.estimate);
+  const floor = context.effort?.effort === "not_to_failure";
+  const effort = floor ? floorNote(Boolean(context.effort?.assumed)) : context.effort?.effort === "failure" ? "" : effortNote(result.estimate);
   // Printed as the ranks print the same lift: to 2 decimals, then floored.
   const shown = ordinal(reportedPercentile(result.percentile));
+  const placed = result.tailEstimate ? `≈ ${shown} percentile (estimated)` : `${shown} percentile`;
   return {
-    headline: result.tailEstimate ? `≈ ${shown} percentile (estimated)` : `${shown} percentile`,
+    headline: floor ? `At least ${placed}` : placed,
     detail: `${placement}${effort}`,
     placement,
     effort: effort.trim(),
@@ -138,6 +149,17 @@ export function tailEstimateNote(tail: Extract<StrengthPercentileResult, { statu
 /** Said when the lift was read on a related exercise's curve, because the logged one has none. */
 export function borrowedCurveNote(result: Extract<StrengthPercentileResult, { status: "resolved" }>): string {
   return result.borrowedCurve ? " Compared through a closely related lift, which has the community data this one lacks." : "";
+}
+
+/**
+ * A set stopped short of failure is a floor: the lift shows the least the athlete can do, and in the
+ * ranks it may raise a muscle, never lower it. An unmarked set of a usually-light exercise is read
+ * that way too, and the card says so, so it can be marked otherwise.
+ */
+export function floorNote(assumed: boolean): string {
+  return assumed
+    ? " Usually done light, so read as not to failure - the least this lift shows. It can raise a rank, never lower it; mark the set to failure if it was."
+    : " Not taken to failure, so this is the least the lift shows. It can raise a rank, never lower it.";
 }
 
 /**

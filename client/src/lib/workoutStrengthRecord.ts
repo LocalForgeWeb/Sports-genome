@@ -1,4 +1,5 @@
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
+import type { SetEffort } from "@shared/setEffort";
 import { bodyWeightKgAt, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
 import { setWeightKg, setWeightUnit, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
@@ -48,6 +49,8 @@ export type WorkoutStrengthObservation = {
    * weight change cannot rewrite what this lift was measured against.
    */
   bodyMassKgAtTest?: number;
+  /** How hard the set read here was taken, when the athlete said (shared/setEffort.ts). */
+  effort?: SetEffort;
   source: "workout";
 };
 
@@ -158,7 +161,7 @@ export function workoutStrengthObservations(
       const logged = exercise.sets
         .filter((set) => set.completed && !set.skipped)
         .map((set) => (set.type === "drop" && set.stages?.length ? { ...set, weight: set.stages[0].weight, reps: set.stages[0].reps, unit: set.stages[0].unit ?? set.unit } : set))
-        .map((set) => ({ weightKg: setWeightKg(set, session, fallbackUnit), weight: numeric(set.weight), unit: setWeightUnit(set, session, fallbackUnit), reps: numeric(set.reps) }))
+        .map((set) => ({ weightKg: setWeightKg(set, session, fallbackUnit), weight: numeric(set.weight), unit: setWeightUnit(set, session, fallbackUnit), reps: numeric(set.reps), effort: set.effort }))
         .filter((set) => set.reps !== undefined);
       if (!logged.length) return;
       const withE1rm = logged.map((set) => ({ ...set, e1rmKg: set.weightKg === undefined || set.reps === undefined ? null : estimateOneRepMaxKg(set.weightKg, set.reps) }));
@@ -189,6 +192,8 @@ export function workoutStrengthObservations(
         sessionId: session.id,
         setCount: logged.length,
         bodyMassKgAtTest,
+        // The effort of the set read here: a heavier set stopped short of failure is still a floor.
+        ...(best.effort ? { effort: best.effort } : {}),
         source: "workout",
       });
     });

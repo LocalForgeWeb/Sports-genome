@@ -265,3 +265,11 @@
 }
 /* The plan row's photograph: the dense 72px frame, top-aligned with the name. */
 .custom-prescription > summary.custom-row .exercise-media-thumb { margin-top: .1rem; }
+
+/* Remove on the row (15 Oct): top right, where Reorder's arrows sit while reordering, so the two
+   never show together. The summary keeps clear of it at every width. */
+.day-row-remove { position: absolute; z-index: 2; top: .65rem; right: .7rem; display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); border-radius: 10px; color: var(--sg-text-muted-on-dark); }
+.day-row-remove:hover { border-color: var(--sg-action); background: rgb(228 81 46 / .16); color: #fff; }
+.day-row-remove:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.day-plan-list.is-reordering .day-row-remove { display: none; }
+.day-plan-list:not(.is-reordering) .custom-prescription > summary.custom-row { padding-right: calc(.7rem + 44px + .6rem); }

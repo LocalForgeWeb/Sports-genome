@@ -13,6 +13,8 @@ export type ComparableStrengthObservation = {
   catalogExerciseId?: number | null;
   /** What the weight means (EN-07): only "additional_load" - weight added to a bodyweight movement - changes the series. */
   loadSemantics?: string | null;
+  /** How hard the set was taken, when the athlete said (shared/setEffort.ts). */
+  effort?: string | null;
 };
 
 export type ChangeState = "insufficient_history" | "stable" | "directional_signal_emerging" | "meaningful_change_supported";

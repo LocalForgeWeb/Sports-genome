@@ -24,9 +24,15 @@ export type SwapPlanOption = { available: true; slot: string } | { available: fa
 
 export type ExerciseSwapChoice = { target: Exercise; draft: DraftChoice; partialDrop: PartialDropChoice; alsoPlan: boolean };
 
-export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment, inWorkout, lastLoggedFor, planOptionFor, onConfirm, onAdd, onClose }: {
-  /** The session exercise being replaced. */
+export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment, inWorkout, lastLoggedFor, planOptionFor, onConfirm, onAdd, onClose, addOnly = false }: {
+  /** The session exercise being replaced - or, with `addOnly`, the one the new exercise goes after. */
   exercise: DeviceWorkoutExercise;
+  /**
+   * Opened from "Add exercise" rather than "Swap": the sheet only adds, straight after `exercise`,
+   * whatever is logged on it. Adding used to be reachable only through Swap, once every set of the
+   * exercise was done.
+   */
+  addOnly?: boolean;
   catalogEntry: Exercise | undefined;
   catalog: readonly Exercise[];
   assessment: SwapAssessment;
@@ -81,8 +87,11 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
   const planOption = selected && planOptionFor ? planOptionFor(selected) : null;
   const notes = selected ? swapMeasurementNotes(catalogEntry, selected, exercise.plannedPrescription) : [];
   const nothingLeft = assessment.kind === "nothing_left";
+  const adding = addOnly || nothingLeft;
 
-  const what = nothingLeft
+  const what = addOnly
+    ? `It goes in straight after ${name}, starting from the same sets and reps. Nothing logged changes.`
+    : nothingLeft
     ? `Every set of ${name} is logged, so there is nothing left to swap. You can add another exercise straight after it instead.`
     : assessment.kind === "replace"
       ? `Nothing is logged for ${name} yet, so the exercise you choose takes its place with the same ${assessment.openSets} ${assessment.openSets === 1 ? "set" : "sets"}.`
@@ -91,7 +100,7 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
   const confirm = () => {
     if (!selected || confirmed.current) return;
     confirmed.current = true;
-    if (nothingLeft) onAdd(selected);
+    if (adding) onAdd(selected);
     else onConfirm({ target: selected, draft, partialDrop, alsoPlan: Boolean(alsoPlan && planOption?.available) });
   };
 
@@ -111,10 +120,10 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
       <div ref={layerRef} className="swap-sheet sg-surface-dark" tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="swap-title" aria-describedby="swap-what">
         <header className="swap-head">
           <div>
-            <p className="metric-label">Swap exercise</p>
-            <h2 id="swap-title">Replace {name}</h2>
+            <p className="metric-label">{addOnly ? "Add exercise" : "Swap exercise"}</p>
+            <h2 id="swap-title">{addOnly ? "Add an exercise" : `Replace ${name}`}</h2>
           </div>
-          <button type="button" className="swap-close" onClick={onClose} aria-label="Close without swapping"><X aria-hidden="true" /></button>
+          <button type="button" className="swap-close" onClick={onClose} aria-label={addOnly ? "Close without adding" : "Close without swapping"}><X aria-hidden="true" /></button>
         </header>
         <p id="swap-what" className="swap-what">{what}</p>
 
@@ -128,18 +137,18 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
           {equipmentChoices.map((value) => <button key={value} type="button" aria-pressed={equipment === value} onClick={() => setEquipment(value)}>{value}</button>)}
         </div>
 
-        <div className="swap-lists" role="group" aria-label={`Exercise to use instead of ${name}`}>
-          {!query.trim() && suggestions.length > 0 && <section aria-label="Suggested">
+        <div className="swap-lists" role="group" aria-label={addOnly ? "Exercise to add" : `Exercise to use instead of ${name}`}>
+          {!addOnly && !query.trim() && suggestions.length > 0 && <section aria-label="Suggested">
             <h3>Suggested · same movement or muscles</h3>
             <ul>{suggestions.map(row)}</ul>
           </section>}
           <section aria-label={query.trim() ? "Results" : "All exercises"}>
             <h3>{query.trim() ? `${results.length} ${results.length === 1 ? "match" : "matches"}` : "All exercises"}</h3>
-            {results.length ? <ul>{results.filter((item) => query.trim() || !suggestions.includes(item)).map(row)}</ul> : <p className="swap-empty">Nothing matches “{query}”{equipment !== "All" ? ` in ${equipment}` : ""}.</p>}
+            {results.length ? <ul>{results.filter((item) => query.trim() || addOnly || !suggestions.includes(item)).map(row)}</ul> : <p className="swap-empty">Nothing matches “{query}”{equipment !== "All" ? ` in ${equipment}` : ""}.</p>}
           </section>
         </div>
 
-        {selected && !nothingLeft && <div className="swap-details">
+        {selected && !adding && <div className="swap-details">
           {assessment.partialDrop && <fieldset className="swap-choice">
             <legend>Your drop set on {name} has {assessment.partialDrop.stages} {assessment.partialDrop.stages === 1 ? "stage" : "stages"} so far</legend>
             <label className={partialDrop === "keep" ? "is-on" : ""}><input type="radio" name="swap-drop" checked={partialDrop === "keep"} onChange={() => setPartialDrop("keep")} /><span><b>Keep it with {name}</b><small>{assessment.partialDrop.stages >= 2 ? "Logged as a drop set of the stages done." : "One stage is logged as an ordinary set."}</small></span></label>
@@ -176,7 +185,7 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
         <footer className="swap-actions">
           <button type="button" className="swap-cancel" onClick={onClose}>Cancel</button>
           <button type="button" className="swap-confirm" onClick={confirm} disabled={!selected}>
-            {selected ? (nothingLeft ? `Add ${selected.name}` : `Use ${selected.name}`) : "Choose an exercise"}
+            {selected ? (adding ? `Add ${selected.name}` : `Use ${selected.name}`) : "Choose an exercise"}
           </button>
         </footer>
       </div>

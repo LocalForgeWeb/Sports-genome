@@ -352,3 +352,37 @@ export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], t
     muscles,
   };
 }
+
+/**
+ * Lifts stopped short of failure are floors (shared/setEffort.ts; owner, 15 Oct 2026): each says
+ * the athlete can do at least that much, so it may raise a muscle's score but never lower it.
+ *
+ * The measured lifts are aggregated as always. Then, muscle by muscle, the floors that read it are
+ * tried strongest first and kept only where they raise that muscle - so a light set of good
+ * mornings leaves a lower back that heavier lifts rank as it was, and still counts where it is all
+ * there is. Each try is the full aggregation, so a kept floor weighs exactly as a measured lift
+ * would; only the decision to keep it differs.
+ */
+export function aggregateMuscleStrengthWithFloors(measured: readonly ExerciseScoreInput[], floors: readonly ExerciseScoreInput[], tables: AggregationTables, options: { directness?: boolean; liftPercentileCeiling?: number } = {}): AggregationResult {
+  const base = aggregateMuscleStrength(measured, tables, options);
+  if (floors.length === 0) return base;
+  const muscles = new Map(base.muscles.map((muscle) => [muscle.muscle_id, muscle]));
+  const reads = (exerciseId: string, muscleId: string) => tables.mappings.some((mapping) => mapping.exercise_id === exerciseId && mapping.muscle_id === muscleId);
+  const ordered = [...floors].sort((a, b) => (numberOf(b.percentile) ?? 0) - (numberOf(a.percentile) ?? 0) || a.exercise_id.localeCompare(b.exercise_id));
+  const touched = new Set(tables.mappings.filter((mapping) => floors.some((floor) => floor.exercise_id === mapping.exercise_id)).map((mapping) => mapping.muscle_id));
+  touched.forEach((muscleId) => {
+    const kept: ExerciseScoreInput[] = [];
+    let current = muscles.get(muscleId) ?? null;
+    for (const floor of ordered) {
+      if (!reads(floor.exercise_id, muscleId)) continue;
+      const trial = aggregateMuscleStrength([...measured, ...kept, floor], tables, options).muscles.find((muscle) => muscle.muscle_id === muscleId);
+      if (trial && (current === null || trial.strength_percentile > current.strength_percentile)) {
+        kept.push(floor);
+        current = trial;
+      }
+    }
+    if (current) muscles.set(muscleId, current);
+  });
+  const list = Array.from(muscles.values()).sort((a, b) => b.strength_percentile - a.strength_percentile || a.muscle_canonical_name.localeCompare(b.muscle_canonical_name));
+  return { ...base, status: list.length === 0 ? "no_evidence" : "ok", muscles: list };
+}

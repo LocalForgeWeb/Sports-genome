@@ -499,6 +499,8 @@ export const appRouter = router({
           bodyMassKg: z.number().positive().max(500).nullable(),
           /** Age on the day of this lift, so a birth year given later re-reads every earlier lift. */
           ageYears: z.number().min(0).max(120).nullable().optional(),
+          /** Stopped short of failure: a floor that may raise a rank, never lower it (shared/setEffort.ts). */
+          notToFailure: z.boolean().optional(),
         // Each distinct saved weight and age at the lift is one scoring call, each scored lift with an
         // age one adjustment call, plus one read of the muscle mappings: 30 lifts bound a request to 61
         // Supabase calls, run at most four at a time. The client sends at most 30 - each exercise's strongest lifts - duplicates removed.

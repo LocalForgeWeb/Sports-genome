@@ -55,3 +55,16 @@ describe("A lift's card and its line in the ranks", () => {
     expect(card(57.996, false)).toBe("58th percentile");
   });
 });
+
+/** Owner, 15 Oct 2026: a set stopped short of failure may raise a rank, never lower it - a floor. */
+describe("A rank read from sets stopped short of failure", () => {
+  it("reads as at least that much", () => {
+    expect(rankPercentileText({ representative: { ...muscle(41.2), atLeast: true }, confidence: "low" })).toBe("At least 41st percentile");
+    expect(rankOrdinal(30.4, false, "percentile on its own", true)).toBe("at least 30th percentile on its own");
+    expect(rankOrdinal(96.9, true, "", true)).toBe("at least ≈ 96th (estimated)");
+  });
+
+  it("is not changed when the muscle has a measured lift too", () => {
+    expect(rankPercentileText({ representative: muscle(41.2), confidence: "high" })).toBe("41st percentile");
+  });
+});

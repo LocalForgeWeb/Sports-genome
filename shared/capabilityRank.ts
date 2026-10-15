@@ -283,6 +283,11 @@ export type MuscleEvidence = {
   weightShare: number | null;
   /** The lift is past its curve's top anchor and `exercisePercentile` is the estimated tail. */
   estimated?: boolean;
+  /**
+   * The lift was stopped short of failure, so it is a floor (shared/setEffort.ts). It is here
+   * because it raised this muscle; one that would have lowered it is left out.
+   */
+  notToFailure?: boolean;
 };
 
 /** One scored muscle, as the aggregation returned it, validated. */
@@ -308,6 +313,11 @@ export type MuscleScore = {
    * estimated lift: shown as "≈ … (estimated)" wherever it is printed, rank name included.
    */
   estimated?: boolean;
+  /**
+   * Read from nothing but sets stopped short of failure, so the muscle can do at least this much:
+   * shown as "At least …" wherever it is printed.
+   */
+  atLeast?: boolean;
 };
 
 export type RegionRank = {

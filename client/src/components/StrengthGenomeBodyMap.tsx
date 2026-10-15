@@ -99,7 +99,7 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
         id: region.id,
         label: region.label,
         muscleKeys: regionToMuscles[region.id] ?? [],
-        state: regionRank ? `${regionRank.rank.shortName} · ${rankOrdinal(regionRank.representative.percentile, regionRank.representative.estimated)}` : "Not scored",
+        state: regionRank ? `${regionRank.rank.shortName} · ${rankOrdinal(regionRank.representative.percentile, regionRank.representative.estimated, "", regionRank.representative.atLeast)}` : "Not scored",
         active: Boolean(regionRank),
         rankId: regionRank?.rank.id,
         unscored: !regionRank,

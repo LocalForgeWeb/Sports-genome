@@ -182,3 +182,13 @@ describe("a logged lift gets a percentile from the community curves", () => {
     expect(note?.textContent).toMatch(/only steady are not ranked/);
   });
 });
+
+describe("How ranks work, on sets not taken to failure", () => {
+  it("says such a set can raise a rank, never lower it, and that a 1RM always counts", () => {
+    render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
+    const note = document.querySelector("[data-rank-effort]");
+    expect(note?.textContent).toMatch(/counts only where it raises a rank and never pulls one down/);
+    expect(note?.textContent).toMatch(/like good mornings/);
+    expect(note?.textContent).toMatch(/one-rep max always counts in full/);
+  });
+});

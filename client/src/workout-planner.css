@@ -1261,3 +1261,22 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .live-finish-confirm .live-finish-confirm-go { border-color: transparent; background: var(--sg-action-fill); color: var(--sg-action-on); }
 .live-finish-confirm button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 .device-workout-tracker.session-saved { padding: clamp(1rem, 3vw, 1.5rem); }
+
+/* Adding and removing mid-workout (15 Oct): "Add exercise" opens the add sheet straight after the
+   current exercise; the full workout ends with the same action, and each exercise can be removed. */
+.live-set-card-done .live-set-add { display: flex; margin: .6rem auto 0; }
+.session-add-exercise { display: flex; width: 100%; min-height: 2.75rem; align-items: center; justify-content: center; gap: .4rem; margin-top: .75rem; border: 1px dashed rgb(176 214 247 / .4); border-radius: 12px; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.session-add-exercise:hover { border-color: var(--sg-info); }
+.session-add-exercise:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.session-exercise-remove:hover { border-color: rgb(255 140 120 / .7); }
+/* With Remove beside Swap and Skip, three stacked buttons squeezed the name into a column: on a
+   phone they take their own row under the exercise instead. */
+@media (max-width: 640px) {
+  .device-workout-tracker .session-exercise > div:first-child { flex-wrap: wrap; }
+  .device-workout-tracker .session-exercise-actions { flex: 1 1 100%; justify-content: flex-start; margin-left: 0; }
+}
+/* A logged set's effort is a state, not another action: a quiet chip under the set's buttons. */
+.device-workout-tracker .session-set-row button.set-effort-chip,
+.destination-train .device-workout-tracker .session-set-row button.set-effort-chip { grid-column: 1 / -1; justify-self: start; min-width: 0; min-height: 2.5rem; border: 1px dashed rgb(176 214 247 / .4); border-radius: 999px; background: transparent; padding: 0 .8rem; color: var(--sg-text-muted-on-dark); letter-spacing: 0; text-transform: none; }
+.device-workout-tracker .session-set-row button.set-effort-chip[aria-pressed="true"],
+.destination-train .device-workout-tracker .session-set-row button.set-effort-chip[aria-pressed="true"] { border-style: solid; border-color: rgb(176 214 247 / .6); background: rgb(255 255 255 / .08); color: var(--sg-text-on-dark); }

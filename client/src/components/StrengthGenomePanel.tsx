@@ -1,5 +1,7 @@
 import { plural } from "@/lib/plural";
 import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
+import { effectiveEffort, type SetEffort } from "@shared/setEffort";
+import { SetEffortChoice } from "@/components/SetEffortChoice";
 import React, { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { Activity, ArrowRight, ChevronDown, CircleHelp, Dumbbell, Info, Plus, Trash2, X } from "lucide-react";
@@ -63,7 +65,9 @@ type ObservationDataQuality = "SELF_REPORTED" | "STANDARDIZED" | "VERIFIED" | "U
 
 type StrengthObservationRecord = { id: string | number; exerciseName: string; observedAt: Date | string; measurementType: string; loadKg?: number | null; repetitions?: number | null; bodyMassKgAtTest?: number | null; equipment?: string | null; romStandard?: string | null; dataQuality?: string | null; referenceContextJson?: string | null; laterality?: string | null;
   /** Present when the entry was carried across from a finished workout rather than typed into the log form. */
-  source?: "workout"; sessionLabel?: string; setCount?: number };
+  source?: "workout"; sessionLabel?: string; setCount?: number;
+  /** How hard the set was taken, when the athlete said (shared/setEffort.ts). */
+  effort?: SetEffort };
 
 type PiperReferenceDeclaration = Pick<Piper2021PreacherCurlContext, "sex" | "ageYears" | "collegeStudentConfirmed" | "preTrainingConfirmed" | "exactProtocolConfirmed" | "directlyObservedConfirmed">;
 
@@ -202,7 +206,7 @@ function RankProvenanceList({ entries, unplaced, muscleName, weightUnit }: { ent
   return <div className="rank-provenance" data-rank-provenance>
     <p className="rank-provenance-label">{entries.length === 1 ? "From this exercise" : `Blended from ${entries.length} exercises`}</p>
     <ul>{entries.map((entry) => <li key={entry.exerciseName}>
-      <p><strong>{entry.exerciseName}</strong>{` · ${rankOrdinal(entry.exercisePercentile, entry.estimated, "percentile on its own")}`}{entry.role ? ` · ${entry.role}` : ""}{entries.length > 1 && entry.weightShare !== null ? ` · ${Math.round(entry.weightShare * 100)}% of this rank` : ""}</p>
+      <p><strong>{entry.exerciseName}</strong>{` · ${rankOrdinal(entry.exercisePercentile, entry.estimated, "percentile on its own", entry.notToFailure)}`}{entry.notToFailure ? " · not to failure" : ""}{entry.role ? ` · ${entry.role}` : ""}{entries.length > 1 && entry.weightShare !== null ? ` · ${Math.round(entry.weightShare * 100)}% of this rank` : ""}</p>
       {entry.lifts.length > 1 && <p className="rank-provenance-best">Best of {entry.lifts.length} lifts:</p>}
       {entry.lifts.map((lift, index) => <p key={`${lift.observationId ?? "lift"}-${index}`} className="rank-provenance-lift">{rankLiftLine(lift, weightUnit)}</p>)}
     </li>)}</ul>
@@ -327,8 +331,10 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
     // Nothing to place without a load or a rep count, and the route would only answer `load_required`.
     { enabled: percentileAsked, staleTime: 5 * 60 * 1000, retry: false }
   );
+  // A set stopped short of failure - said, or a usually-light exercise left unmarked - reads as a floor.
+  const recordEffort = latestRecord ? effectiveEffort({ catalogExerciseId: catalogExerciseIdForName(latestRecord.exerciseName), measurementType: latestRecord.measurementType, effort: latestRecord.effort }) : undefined;
   const percentileCard = betaPercentile.data && percentileSex
-    ? strengthPercentileCard(betaPercentile.data, { sex: percentileSex, bodyMassKg: effectiveBodyMassKg })
+    ? strengthPercentileCard(betaPercentile.data, { sex: percentileSex, bodyMassKg: effectiveBodyMassKg, effort: recordEffort })
     : null;
   const percentileGap = betaPercentile.data?.status === "unavailable"
     ? strengthPercentileGapCopy[betaPercentile.data.reason] ?? null
@@ -741,6 +747,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const [measurementType, setMeasurementType] = useState<MeasurementType>("MEASURED_1RM");
   const [loadKg, setLoadKg] = useState("");
   const [repetitions, setRepetitions] = useState("");
+  /** How hard the set was taken, when said (shared/setEffort.ts); a measured max needs nothing said. */
+  const [setEffort, setSetEffort] = useState<SetEffort | undefined>(undefined);
   const [observedDate, setObservedDate] = useState(() => localDateKey());
   const [bodyMassKg, setBodyMassKg] = useState(() => baselineBodyWeight != null ? String(baselineBodyWeight) : "");
   // The profile weight is an input default, so it only fills a box the athlete has
@@ -1297,6 +1305,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       dataQuality,
       referenceContextJson: powerliftingCaptureAvailable && powerliftingReferenceOpen ? JSON.stringify({ referenceId: vanDenHoek2024ReferenceId, ...powerliftingDeclaration }) : piperCaptureAvailable && piperReferenceOpen ? JSON.stringify({ referenceId: piper2021PreacherCurlReferenceId, ...piperDeclaration }) : undefined,
       notes: notes.trim() || undefined,
+      // Kept with the lift on this device; the account route (off in this build) takes no effort and drops it.
+      effort: measurementType === "MEASURED_1RM" ? undefined : setEffort,
     };
     if (directAccess) {
       const saved = { ...nextObservation, id: `device-strength-${Date.now()}`, observedAt: nextObservation.observedAt.toISOString() };
@@ -1307,7 +1317,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         return;
       }
       setSaveError(null);
-      setExerciseName(""); setExerciseSearch(""); setSelectedExercise(null); setLoadKg(""); setRepetitions(""); setBodyMassKg(baselineBodyWeight != null ? String(baselineBodyWeight) : ""); setBodyMassTouched(false); setEquipment(""); setRomStandard(""); setTechniqueVariant(""); setTempo(""); setLaterality("BILATERAL"); setExternalAssistance(""); setDataQuality("SELF_REPORTED"); setPiperReferenceOpen(false); setPiperDeclaration(prefilledPiperDeclaration); setPowerliftingReferenceOpen(false); setPowerliftingDeclaration(prefilledPowerliftingDeclaration); setNotes("");
+      setExerciseName(""); setExerciseSearch(""); setSelectedExercise(null); setLoadKg(""); setRepetitions(""); setBodyMassKg(baselineBodyWeight != null ? String(baselineBodyWeight) : ""); setBodyMassTouched(false); setEquipment(""); setRomStandard(""); setTechniqueVariant(""); setTempo(""); setLaterality("BILATERAL"); setExternalAssistance(""); setDataQuality("SELF_REPORTED"); setPiperReferenceOpen(false); setPiperDeclaration(prefilledPiperDeclaration); setPowerliftingReferenceOpen(false); setPowerliftingDeclaration(prefilledPowerliftingDeclaration); setNotes(""); setSetEffort(undefined);
       emitInteractionFeedback([10, 30, 10]); toast.success("Lift saved on this device.", savedLiftToastOptions(saved));
       return;
     }
@@ -1349,11 +1359,13 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       <div className="strength-log-form">
         <div className="strength-log-form-head"><div><p className="metric-label !text-[var(--sg-text-subtle-on-dark)]">Add to your record</p><p className="strength-log-form-note">For a lift the tracker did not record — a max you tested, or a session you did not log.</p></div><Dumbbell className="h-6 w-6 shrink-0 text-[var(--sg-focus-on-dark)]" aria-hidden="true" /></div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <div className="grid gap-1.5 sm:col-span-2"><label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Choose exercise</span><input aria-label="Search and choose a catalog exercise" value={exerciseSearch} onChange={(event) => { setExerciseSearch(event.target.value); setSelectedExercise(null); setExerciseName(""); }} placeholder="Search catalog, then select" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label><LocalSearchScope scope="Searching the exercise catalog for a lift to record." query={exerciseSearch} />{exerciseSearch.trim() && !selectedExercise && <div className="strength-exercise-picker" role="listbox" aria-label="Catalog exercise results">{exerciseMatches.length ? exerciseMatches.map((exercise) => <button type="button" role="option" key={exercise.id} onClick={() => { emitInteractionFeedback(); setSelectedExercise(exercise); setExerciseName(exercise.name); setExerciseSearch(exercise.name); }}><strong>{exercise.name}</strong><span>{exercise.primaryMuscles.join(" · ")}</span></button>) : <p>No matching catalog exercise.</p>}</div>}{selectedExerciseContext && <StrengthCatalogSelectionPreview context={selectedExerciseContext} />}</div>
+          <div className="grid gap-1.5 sm:col-span-2"><label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Choose exercise</span><input aria-label="Search and choose a catalog exercise" value={exerciseSearch} onChange={(event) => { setExerciseSearch(event.target.value); setSelectedExercise(null); setExerciseName(""); }} placeholder="Search catalog, then select" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label><LocalSearchScope scope="Searching the exercise catalog for a lift to record." query={exerciseSearch} />{exerciseSearch.trim() && !selectedExercise && <div className="strength-exercise-picker" role="listbox" aria-label="Catalog exercise results">{exerciseMatches.length ? exerciseMatches.map((exercise) => <button type="button" role="option" key={exercise.id} onClick={() => { emitInteractionFeedback(); setSelectedExercise(exercise); setExerciseName(exercise.name); setExerciseSearch(exercise.name); setSetEffort(undefined); }}><strong>{exercise.name}</strong><span>{exercise.primaryMuscles.join(" · ")}</span></button>) : <p>No matching catalog exercise.</p>}</div>}{selectedExerciseContext && <StrengthCatalogSelectionPreview context={selectedExerciseContext} />}</div>
           <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">How you measured it</span><select value={measurementType} onChange={(event) => setMeasurementType(event.target.value as MeasurementType)} className="h-12 rounded-xl border border-white/20 bg-[var(--sg-surface-raised)] px-3 text-sm text-white outline-none focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30">{measurementOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
           <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Date</span><input type="date" min="1970-01-02" max={localDateKey()} value={observedDate} onChange={(event) => setObservedDate(event.target.value)} className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
           <StrengthLoadInput weightUnit={weightUnit} value={loadKg} requiresLoad={loadRequired} convention={loadConvention} onChange={setLoadKg} />
           {measurementType === "MULTI_REP" && <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Repetitions</span><input inputMode="numeric" value={repetitions} onChange={(event) => setRepetitions(event.target.value.replace(/[^0-9]/g, ""))} placeholder="Enter reps" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>}
+          {/* Said in place, never asked in a dialog: a usually-light exercise shows its assumption, anything else a quiet toggle. */}
+          {selectedExercise && measurementType !== "MEASURED_1RM" && <div className="text-white sm:col-span-2"><SetEffortChoice exerciseName={selectedExercise.name} catalogExerciseId={selectedExercise.id} effort={setEffort} onChange={setSetEffort} /></div>}
         </div>
         <button type="button" onClick={() => setAdvancedOpen((current) => !current)} className="mt-4 block text-[11px] font-bold uppercase tracking-[.12em] text-[#9fc8f4] hover:text-white">{advancedOpen ? "Hide" : "Show"} more options</button>
         {advancedOpen && <div className="mt-3 grid gap-3 border-l-2 border-[var(--sg-focus-on-dark)] pl-3 sm:grid-cols-2">
@@ -1396,6 +1408,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         </ol>
         <p>Sports Genome ranks, not competition titles. Percentiles put lifts in order; the gap between two percentiles is not an equal step in strength. Groups with no percentile yet are hatched and labelled Not scored.</p>
         <p data-muscle-rank-ceiling>A muscle group is read through the lifts that train it. A lift counts for more the more of its work the muscle does, so an isolation lift says more about it than a compound lift it shares with other muscles; and each lift is scaled by how much it relies on the muscle, so a group sits a little below the lifts behind it. The comparison curves stop at the 95th percentile. Past it, a lift's place — a load or a rep count, on any exercise — is estimated from the curve's shape, up to the 99.99th, and marked estimated. So a muscle group reaches National or World Stage only on an estimate, and World Stage takes a lift far past the top of the data, since no lift passes all of its strength to one muscle. Muscles your lifts only steady are not ranked.</p>
+        <p data-rank-effort>A set marked not to failure shows the least you can do, so it counts only where it raises a rank and never pulls one down. Lifts usually done light, like good mornings, count that way unless you mark the set to failure. A logged one-rep max always counts in full.</p>
         {registryOfflineNotice && <p className="strength-profile-reference-offline" role="status">{registryOfflineNotice}</p>}
         <p>Your own progress is always tracked from your logs. A comparison against published numbers only appears when your exact lift, setup, and body weight line up with a study — most everyday gym lifts will not, and that is normal.</p>
         {supabaseEvidenceInventory.data?.status === "connected" && <p>Research on file: {supabaseEvidenceInventory.data.strengthNorms} strength norms, {supabaseEvidenceInventory.data.performanceNorms} performance norms, and {supabaseEvidenceInventory.data.performanceTests} test protocols. Having them on file does not by itself create a rank for you.</p>}
