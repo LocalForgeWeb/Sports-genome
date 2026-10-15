@@ -1264,7 +1264,15 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 
 /* Adding and removing mid-workout (15 Oct): "Add exercise" opens the add sheet straight after the
    current exercise; the full workout ends with the same action, and each exercise can be removed. */
-.live-set-card-done .live-set-add { display: flex; margin: .6rem auto 0; }
+/* Swap, Skip and Add: one row of three equal outlined buttons under Log set - unfilled, so Log set
+   stays the one dominant action, but each a full thumb target that reads at a glance on a phone. */
+.live-set-secondary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin-top: .75rem; }
+.live-set-secondary .live-set-skip { display: flex; flex-direction: column; min-height: 3.6rem; justify-content: center; gap: .2rem; margin: 0; border: 1px solid rgb(176 214 247 / .38); border-radius: 12px; padding: .35rem .25rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); text-decoration: none; -webkit-tap-highlight-color: transparent; }
+.live-set-secondary .live-set-skip:active { background: rgb(255 255 255 / .08); }
+.live-set-secondary .live-set-skip:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.live-done-add { display: flex; width: 100%; min-height: 3rem; align-items: center; justify-content: center; gap: .45rem; margin-top: .6rem; border: 1px solid rgb(176 214 247 / .45); border-radius: 12px; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; -webkit-tap-highlight-color: transparent; }
+.live-done-add:active { background: rgb(255 255 255 / .08); }
+.live-done-add:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 .session-add-exercise { display: flex; width: 100%; min-height: 2.75rem; align-items: center; justify-content: center; gap: .4rem; margin-top: .75rem; border: 1px dashed rgb(176 214 247 / .4); border-radius: 12px; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
 .session-add-exercise:hover { border-color: var(--sg-info); }
 .session-add-exercise:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
@@ -1277,6 +1285,6 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 }
 /* A logged set's effort is a state, not another action: a quiet chip under the set's buttons. */
 .device-workout-tracker .session-set-row button.set-effort-chip,
-.destination-train .device-workout-tracker .session-set-row button.set-effort-chip { grid-column: 1 / -1; justify-self: start; min-width: 0; min-height: 2.5rem; border: 1px dashed rgb(176 214 247 / .4); border-radius: 999px; background: transparent; padding: 0 .8rem; color: var(--sg-text-muted-on-dark); letter-spacing: 0; text-transform: none; }
+.destination-train .device-workout-tracker .session-set-row button.set-effort-chip { grid-column: 1 / -1; justify-self: start; min-width: 0; min-height: 2.9rem; border: 1px solid rgb(176 214 247 / .5); border-radius: 999px; background: transparent; padding: 0 1rem 0 .8rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); letter-spacing: 0; text-transform: none; }
 .device-workout-tracker .session-set-row button.set-effort-chip[aria-pressed="true"],
-.destination-train .device-workout-tracker .session-set-row button.set-effort-chip[aria-pressed="true"] { border-style: solid; border-color: rgb(176 214 247 / .6); background: rgb(255 255 255 / .08); color: var(--sg-text-on-dark); }
+.destination-train .device-workout-tracker .session-set-row button.set-effort-chip[aria-pressed="true"] { border-color: rgb(176 214 247 / .85); background: rgb(255 255 255 / .1); color: var(--sg-text-on-dark); }

@@ -1148,17 +1148,19 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         </button>}
       {dropMode && dropProblem && <p className="live-drop-problem" role="alert">{dropProblem}</p>}
       {dropMode && !dropProblem && dropNote && <p className="live-drop-note" role="status">{dropNote}</p>}
-      {/* Secondary by design: the dominant action is logging the set. Skipping
-          is the escape hatch for the rack being taken or time running out. */}
+      {/* Secondary by design: the dominant action is logging the set. Swap, Skip and Add sit
+          under it as one row of three equal outlined buttons - unfilled, so Log set stays the
+          one thing to press, but each a full thumb-sized target that reads at a glance on a
+          phone. Short labels on screen; the full action in each name. */}
       <div className="live-set-secondary">
-        <button type="button" className="live-set-skip live-set-swap" onClick={() => setSwapForId(activeExercise.id)}>
-          <ArrowLeftRight className="h-4 w-4" /> Swap exercise
+        <button type="button" className="live-set-skip live-set-swap" onClick={() => setSwapForId(activeExercise.id)} aria-label="Swap exercise">
+          <ArrowLeftRight className="h-5 w-5" aria-hidden="true" /><span>Swap</span>
         </button>
-        <button type="button" className="live-set-skip" onClick={skipActiveExercise}>
-          <SkipForward className="h-4 w-4" /> Skip {activeExercise.exerciseName}
+        <button type="button" className="live-set-skip" onClick={skipActiveExercise} aria-label={`Skip ${activeExercise.exerciseName}`}>
+          <SkipForward className="h-5 w-5" aria-hidden="true" /><span>Skip</span>
         </button>
-        <button type="button" className="live-set-skip live-set-add" onClick={() => setAddAfterId(activeExercise.id)}>
-          <Plus className="h-4 w-4" /> Add exercise
+        <button type="button" className="live-set-skip live-set-add" onClick={() => setAddAfterId(activeExercise.id)} aria-label="Add exercise">
+          <Plus className="h-5 w-5" aria-hidden="true" /><span>Add</span>
         </button>
       </div>
       {/* What follows, as quiet supporting information: the athlete can rack the
@@ -1190,8 +1192,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         <Save className="h-4 w-4" /> Finish workout · add {completed} {completed === 1 ? "set" : "sets"} to Progress
       </button>
       {/* One more before finishing: it goes after the last exercise and becomes the set card. */}
-      <button type="button" className="live-set-skip live-set-add" onClick={() => setAddAfterId(activeSession.exercises[activeSession.exercises.length - 1]?.id ?? null)}>
-        <Plus className="h-4 w-4" /> Add another exercise
+      <button type="button" className="live-done-add" onClick={() => setAddAfterId(activeSession.exercises[activeSession.exercises.length - 1]?.id ?? null)}>
+        <Plus className="h-5 w-5" aria-hidden="true" /> Add another exercise
       </button>
     </div>}
 
