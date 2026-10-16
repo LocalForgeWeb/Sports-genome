@@ -922,5 +922,17 @@
  "Zottman_Curl": {
   "verdict": "in order",
   "why": "frame 0 arms down"
+ },
+ "Finger_Curls": {
+  "verdict": "in order",
+  "why": "frame 0 hands open, the bar rolled down to the fingertips"
+ },
+ "Seated_One-Arm_Dumbbell_Palms-Down_Wrist_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 wrist down"
+ },
+ "Seated_One-Arm_Dumbbell_Palms-Up_Wrist_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 wrist down"
  }
 }

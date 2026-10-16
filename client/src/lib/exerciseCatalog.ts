@@ -1,6 +1,7 @@
 /** Kinetic Field Manual: app data favors transparent training logic over false precision. */
 
 import { expandedExercises } from "./exerciseCatalogExpansion";
+import { forearmCatalogExercises } from "./exerciseCatalogForearm";
 import { getExerciseStudyCalibration, type StudyRangeOfMotion } from "./exerciseStudyCalibration";
 
 export type Sport = 'tennis' | 'basketball' | 'soccer' | 'baseball' | 'combat';
@@ -6173,13 +6174,11 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Biceps, Brachialis & Forearms",
     "category": "Arms & grip",
     "equipment": "Free weights",
-    "movement": "Grip isometric",
+    "movement": "Wrist flexion",
     "primaryMuscles": [
       "forearms"
     ],
-    "secondaryMuscles": [
-      "forearms"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
       "hypertrophy",
       "grip",
@@ -6215,13 +6214,11 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Biceps, Brachialis & Forearms",
     "category": "Arms & grip",
     "equipment": "Free weights",
-    "movement": "Grip isometric",
+    "movement": "Wrist extension",
     "primaryMuscles": [
       "forearms"
     ],
-    "secondaryMuscles": [
-      "forearms"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
       "hypertrophy",
       "grip",
@@ -6257,13 +6254,11 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Biceps, Brachialis & Forearms",
     "category": "Arms & grip",
     "equipment": "Free weights",
-    "movement": "Grip isometric",
+    "movement": "Wrist flexion and extension",
     "primaryMuscles": [
       "forearms"
     ],
-    "secondaryMuscles": [
-      "forearms"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
       "hypertrophy",
       "grip",
@@ -6303,9 +6298,7 @@ export const baseExercises: Exercise[] = [
     "primaryMuscles": [
       "forearms"
     ],
-    "secondaryMuscles": [
-      "forearms"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
       "hypertrophy",
       "grip",
@@ -6345,9 +6338,7 @@ export const baseExercises: Exercise[] = [
     "primaryMuscles": [
       "forearms"
     ],
-    "secondaryMuscles": [
-      "forearms"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
       "hypertrophy",
       "grip",
@@ -6387,9 +6378,7 @@ export const baseExercises: Exercise[] = [
     "primaryMuscles": [
       "forearms"
     ],
-    "secondaryMuscles": [
-      "forearms"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
       "hypertrophy",
       "grip",
@@ -6429,9 +6418,7 @@ export const baseExercises: Exercise[] = [
     "primaryMuscles": [
       "forearms"
     ],
-    "secondaryMuscles": [
-      "forearms"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
       "hypertrophy",
       "grip",
@@ -10280,11 +10267,13 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Abs & Core",
     "category": "Core",
     "equipment": "Free weights",
-    "movement": "Grip isometric",
+    "movement": "Trunk flexion / anti-extension",
     "primaryMuscles": [
-      "forearms"
+      "abs"
     ],
     "secondaryMuscles": [
+      "obliques",
+      "hipFlexors",
       "forearms"
     ],
     "qualities": [
@@ -13449,7 +13438,10 @@ export const baseExercises: Exercise[] = [
   }
 ] as const;
 
-export const exercises: Exercise[] = [...baseExercises, ...expandedExercises].map((exercise) => {
+// Ids: base rows 1-300 are literal, the expansion's 301-400 are positional and closed, and the
+// forearm rows of 16 Oct 2026 are literal from 401 (exerciseCatalogForearm.ts). Logged workouts
+// and plans store these ids, so a new row goes after the last one and nothing is renumbered.
+export const exercises: Exercise[] = [...baseExercises, ...expandedExercises, ...forearmCatalogExercises].map((exercise) => {
   const calibration = getExerciseStudyCalibration(exercise);
   return calibration ? {
     ...exercise,
