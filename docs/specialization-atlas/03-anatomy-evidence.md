@@ -37,7 +37,7 @@ Wording was then rewritten until a sentence said no more than the sources: where
 | S6 | Cited by `anterior.function` | Abstract and introduction only: eight anterior muscles in superficial and deep groups. |
 | S7 | Not cited | Not returned by search; Kenhub (A6) and IMAIOS (A7) cover FCR. |
 | S8 | Not cited | The Bookshelf id NBK526046 could not be matched to the FDP article. The StatPearls FDP article was found as PubMed 30252302 and is cited as A14. |
-| S9 | Not cited | Not anatomy. See open issues: its title names the backend vendor. |
+| S9 | Removed | Not anatomy and cited by nothing; removed from the region's sources on 16 Oct (see open issue 1). |
 
 ## 4. Claims by node
 
@@ -159,7 +159,7 @@ Ids, layers, borders and catalog keys were kept. Points reviewed:
 
 ## 8. Open issues
 
-1. **S9 names the backend vendor in its title** and sits in the region's sources. Athlete copy must never name it. The page lane should list only sources cited by a claim or mapping (S9 is cited by neither), or the foundation should move S9 out of the region data.
+1. **S9 names the backend vendor in its title** and sits in the region's sources. Athlete copy must never name it. The page lane should list only sources cited by a claim or mapping (S9 is cited by neither), or the foundation should move S9 out of the region data. **Resolved 16 Oct:** S9 was removed from `sources.ts`, since no claim or mapping cited it; the database notes (04-database.md) keep the reference.
 2. **Human review.** A clinician or anatomist should read the 60 claims before the mapping version or the seed is published as reviewed content.
 3. **Full texts.** The StatPearls articles and the abstract-only studies should be read in full when the pages can be opened, and the locators tightened to exact headings.
 4. **Source id prefixes.** Anatomy sources use `A<n>`; the mappings lane's `mappingSources.ts` should use a different prefix. The anatomy test fails if any source id repeats across the two lists.

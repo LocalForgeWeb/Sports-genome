@@ -1,7 +1,7 @@
 import type { Source } from "../../types";
 
 /**
- * Sources added while reviewing exercise mappings (kept apart from the anatomy sources, S1-S9).
+ * Sources added while reviewing exercise mappings (kept apart from the anatomy sources, S1-S8 and A<n>).
  * Each was found by web search on 16 Oct 2026 and read at abstract level (this build cannot
  * open the full texts); the notes say what the source measured and what it cannot show, because
  * a mapping may cite it only for that. A title in sentence form is a description where the exact
