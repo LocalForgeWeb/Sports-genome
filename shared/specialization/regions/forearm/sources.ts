@@ -10,6 +10,10 @@ import type { Source } from "../../types";
  * Where a result carried only an abstract or the opening of an article, the note says so,
  * and the claims that cite it say what it cannot support. See
  * docs/specialization-atlas/03-anatomy-evidence.md for the method and its limits.
+ *
+ * The brief's S9 (the backend's row-level security guide) is not here: it is an
+ * implementation reference for the database lane, not evidence about a muscle, and no
+ * claim or mapping cited it. It is named in docs/specialization-atlas/04-database.md.
  */
 
 const CHECKED = "2026-10-16";
@@ -23,7 +27,6 @@ export const forearmSources: Source[] = [
   { id: "S6", url: "https://pubmed.ncbi.nlm.nih.gov/31183837/", title: "Rodrigues et al., Sonoanatomy of anterior forearm muscles (Journal of Ultrasound, 2019)", doi: null, evidenceType: "anatomy", retrievedOn: CHECKED, notes: "Superficial, intermediate and deep anterior structures. Checked via web-search results on 16 Oct 2026 (abstract and introduction only, PMC6704193): the anterior compartment's eight muscles split into superficial and deep groups. Layer-by-layer imaging findings were not seen." },
   { id: "S7", url: "https://anatomy.app/encyclopedia/flexor-carpi-radialis", title: "Anatomy.app: flexor carpi radialis", doi: null, evidenceType: "anatomy", retrievedOn: CHECKED, notes: "Superficial location and wrist action; not a quantified appearance claim. Not returned by web search on 16 Oct 2026; FCR claims cite A6 and A7 instead." },
   { id: "S8", url: "https://www.ncbi.nlm.nih.gov/sites/books/NBK526046/", title: "StatPearls: flexor digitorum profundus", doi: null, evidenceType: "anatomy", retrievedOn: CHECKED, notes: "Deep extrinsic finger flexor identity and joint actions. Web search on 16 Oct 2026 could not confirm that this Bookshelf id is the FDP article; the StatPearls FDP article was found as PubMed 30252302 (A14), which the FDP claims cite instead." },
-  { id: "S9", url: "https://supabase.com/docs/guides/database/postgres/row-level-security", title: "Supabase: Row Level Security", doi: null, evidenceType: "product_assumption", retrievedOn: CHECKED, notes: "Access-control implementation reference, not anatomy evidence." },
 
   // ---------------------------------------------------------------- anatomy review, 16 Oct 2026
   // Every entry below was checked through web-search results only, on 16 Oct 2026.
