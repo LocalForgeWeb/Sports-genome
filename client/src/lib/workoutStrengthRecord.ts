@@ -2,7 +2,7 @@ import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import type { SetEffort } from "@shared/setEffort";
 import { bodyWeightKgAt, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
-import { setWeightKg, setWeightUnit, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
+import { isHoldSet, setWeightKg, setWeightUnit, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { estimateOneRepMaxKg } from "@shared/oneRepMaxEstimation";
 import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
 import { resolveStrengthObservationRoute, strengthRegionIdsForCatalogMuscles } from "../../../shared/strengthGenomeDefinitions";
@@ -158,8 +158,10 @@ export function workoutStrengthObservations(
       // A drop set is one set and is read by its first stage alone (lib/dropSets): the later
       // stages are done fatigued, straight after the one before, and adding them up would credit
       // 21 reps at the first stage's load. Stage 1 is mirrored into the set's own weight and reps.
+      // A hold (a hang, a carry held for seconds) has no reps, so it says nothing a one-rep-max
+      // estimate can read; seconds are never passed off as reps. A warm-up is not a working set.
       const logged = exercise.sets
-        .filter((set) => set.completed && !set.skipped)
+        .filter((set) => set.completed && !set.skipped && !isHoldSet(set) && !set.warmup)
         .map((set) => (set.type === "drop" && set.stages?.length ? { ...set, weight: set.stages[0].weight, reps: set.stages[0].reps, unit: set.stages[0].unit ?? set.unit } : set))
         .map((set) => ({ weightKg: setWeightKg(set, session, fallbackUnit), weight: numeric(set.weight), unit: setWeightUnit(set, session, fallbackUnit), reps: numeric(set.reps), effort: set.effort }))
         .filter((set) => set.reps !== undefined);

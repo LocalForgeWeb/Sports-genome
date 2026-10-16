@@ -1,6 +1,6 @@
 import { loadConventionFor } from "@shared/loadConventions";
 import { exercises as catalog } from "./exerciseCatalog";
-import { isCompletedSet, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, type DeviceSetLog, type DeviceWorkoutSession } from "./deviceWorkoutLog";
+import { isCompletedSet, isHoldSet, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, type DeviceSetLog, type DeviceWorkoutSession, type SetSide, type StrapsUsed } from "./deviceWorkoutLog";
 import { loadSyncedKeys, loadSyncQueue, removeQueuedLiftsForSession, saveSyncQueue } from "./strengthSyncQueue";
 import { workoutObservationId } from "./workoutStrengthRecord";
 import { dropSetSummary, isDropSet, performedSetLine, setVolume, volumeText } from "./dropSets";
@@ -18,7 +18,18 @@ import type { IncomingDraftDay } from "./planImport";
  * drop set is one set. Load x reps appears only inside a drop set's detail, labelled lb-reps or
  * kg-reps; there is no workout-wide "volume", calorie, effort or score figure.
  */
-export type RecapSet = { index: number; set: DeviceSetLog; line: string; detail: string | null; drop: boolean };
+export type RecapSet = {
+  index: number;
+  set: DeviceSetLog;
+  /** "185 lb × 5", "30 s", "70 lb × 30 s · Left": what was done, with the arm where it was recorded. */
+  line: string;
+  detail: string | null;
+  drop: boolean;
+  /** A hold: its dose is seconds, so a correction edits seconds rather than reps. */
+  hold: boolean;
+  /** "Left", "Right" or "Both arms", only where the side was recorded. */
+  side: string | null;
+};
 
 export type RecapExercise = {
   id: string;
@@ -32,8 +43,21 @@ export type RecapExercise = {
   skipped: number;
   /** Planned sets neither completed nor skipped - untouched, or typed and never logged. */
   unrecorded: number;
+  /** "Straps used" / "Straps not used", only where the athlete said. */
+  straps: string | null;
   sets: RecapSet[];
 };
+
+const sideLabels: Record<SetSide, string> = { left: "Left", right: "Right", both: "Both arms" };
+/** "Left", "Right" or "Both arms" for a recorded side; null when none was recorded. */
+export function sideLabel(side: SetSide | undefined): string | null {
+  return side ? sideLabels[side] ?? null : null;
+}
+
+/** What an exercise's straps record says, or null when nothing was recorded. */
+export function strapsLabel(straps: StrapsUsed | undefined): string | null {
+  return straps === "yes" ? "Straps used" : straps === "no" ? "Straps not used" : null;
+}
 
 export type SessionRecap = {
   id: string;
@@ -75,11 +99,13 @@ export function sessionRecap(session: DeviceWorkoutSession, fallbackUnit: Displa
       planned,
       skipped,
       unrecorded: planned === null ? 0 : Math.max(0, planned - done.length - skipped),
+      straps: strapsLabel(exercise.straps),
       sets: done.map(({ set, index }) => {
         const unit = setWeightUnit(set, session, fallbackUnit);
         const drop = isDropSet(set);
         const volume = drop ? setVolume(set, unit, convention, fallbackUnit) : null;
-        return { index, set, line: performedSetLine(set, unit, convention), detail: drop ? `${dropSetSummary(set)}${volume ? ` · ${volumeText(volume)}` : ""}` : null, drop };
+        const side = sideLabel(set.side);
+        return { index, set, line: `${performedSetLine(set, unit, convention)}${side ? ` · ${side}` : ""}`, detail: drop ? `${dropSetSummary(set)}${volume ? ` · ${volumeText(volume)}` : ""}` : null, drop, hold: isHoldSet(set), side };
       }),
     };
   });
@@ -118,15 +144,30 @@ export function elapsedText(minutes: number): string {
  * same one when the change cannot apply. A correction never removes a workout's last completed
  * set: that is removing the workout, which Progress does with its own confirmation.
  */
-export function correctSet(session: DeviceWorkoutSession, exerciseId: string, setIndex: number, patch: { weight: string; reps: string }, at = new Date().toISOString()): DeviceWorkoutSession {
-  const reps = Number(patch.reps);
+/**
+ * A hold is corrected in seconds and keeps no reps; any other set in reps. Everything else on the
+ * set - its side, its unit, its effort, its id - and the exercise's straps record stay as they were.
+ */
+export function correctSet(session: DeviceWorkoutSession, exerciseId: string, setIndex: number, patch: { weight: string; reps?: string; holdSeconds?: string }, at = new Date().toISOString()): DeviceWorkoutSession {
   const weight = patch.weight.trim() === "" ? 0 : Number(patch.weight);
-  if (!Number.isInteger(reps) || reps < 1 || reps > 1000 || !Number.isFinite(weight) || weight < 0) return session;
+  if (!Number.isFinite(weight) || weight < 0) return session;
+  const wholeIn = (value: string | undefined, max: number) => {
+    const parsed = Number((value ?? "").trim());
+    return (value ?? "").trim() !== "" && Number.isInteger(parsed) && parsed >= 1 && parsed <= max ? parsed : null;
+  };
   let changed = false;
   const exercises = session.exercises.map((exercise) => exercise.id !== exerciseId ? exercise : {
     ...exercise,
     sets: exercise.sets.map((set, index) => {
       if (index !== setIndex || !isCompletedSet(set) || set.type === "drop") return set;
+      if (isHoldSet(set)) {
+        const seconds = wholeIn(patch.holdSeconds, 86_400);
+        if (seconds === null) return set;
+        changed = true;
+        return { ...set, weight: patch.weight.trim(), reps: "", holdSeconds: String(seconds) };
+      }
+      const reps = wholeIn(patch.reps, 1000);
+      if (reps === null) return set;
       changed = true;
       return { ...set, weight: patch.weight.trim(), reps: String(reps) };
     }),

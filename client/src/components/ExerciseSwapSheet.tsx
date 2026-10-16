@@ -8,6 +8,7 @@ import { trapTabWithin } from "@/lib/modalBackground";
 import { ExerciseMedia } from "@/components/ExerciseMedia";
 import { swapMeasurementNotes, swapSuggestions, type DraftChoice, type PartialDropChoice, type SwapAssessment } from "@/lib/workoutSwap";
 import type { DeviceWorkoutExercise } from "@/lib/deviceWorkoutLog";
+import { loggingPolicyFor } from "@shared/specialization/loggingPolicy";
 import "../exercise-swap.css";
 
 /**
@@ -85,7 +86,16 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
   const results = useMemo(() => (query.trim() ? rankExerciseMatches(candidates, query).map((match) => match.exercise).filter(byEquipment).slice(0, 40) : candidates.filter(byEquipment).slice().sort((a, b) => a.name.localeCompare(b.name))), [candidates, query, equipment]);
   const selected = selectedId === null ? null : candidates.find((item) => item.id === selectedId) ?? null;
   const planOption = selected && planOptionFor ? planOptionFor(selected) : null;
-  const notes = selected ? swapMeasurementNotes(catalogEntry, selected, exercise.plannedPrescription) : [];
+  // Reps or seconds held, as the atlas's logging policy says for each exercise.
+  const notes = selected ? swapMeasurementNotes(catalogEntry, selected, exercise.plannedPrescription, (item) => loggingPolicyFor(item?.id).measure) : [];
+  /**
+   * What a typed-but-unlogged set can hand on: its reps, or a hold's seconds, and only to an
+   * exercise logged the same way. Between a hold and a rep exercise nothing carries, so that
+   * choice is not offered, and a choice made for another exercise falls back to keeping it.
+   */
+  const fromDose = loggingPolicyFor(exercise.catalogId ?? catalogEntry?.id).measure;
+  const reusableDose = selected && loggingPolicyFor(selected.id).measure === fromDose ? fromDose : null;
+  const draftChoice: DraftChoice = draft === "reuse" && !reusableDose ? "keep" : draft;
   const nothingLeft = assessment.kind === "nothing_left";
   const adding = addOnly || nothingLeft;
 
@@ -101,7 +111,7 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
     if (!selected || confirmed.current) return;
     confirmed.current = true;
     if (adding) onAdd(selected);
-    else onConfirm({ target: selected, draft, partialDrop, alsoPlan: Boolean(alsoPlan && planOption?.available) });
+    else onConfirm({ target: selected, draft: draftChoice, partialDrop, alsoPlan: Boolean(alsoPlan && planOption?.available) });
   };
 
   const row = (item: Exercise) => {
@@ -156,9 +166,9 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
           </fieldset>}
           {assessment.draftSets > 0 && <fieldset className="swap-choice">
             <legend>{assessment.draftSets === 1 ? `A set of ${name} is typed but not logged` : `${assessment.draftSets} sets of ${name} are typed but not logged`}</legend>
-            <label className={draft === "keep" ? "is-on" : ""}><input type="radio" name="swap-draft" checked={draft === "keep"} onChange={() => setDraft("keep")} /><span><b>Keep it with {name}</b><small>Still not logged: you can log it from the full workout list.</small></span></label>
-            <label className={draft === "discard" ? "is-on" : ""}><input type="radio" name="swap-draft" checked={draft === "discard"} onChange={() => setDraft("discard")} /><span><b>Discard it</b></span></label>
-            <label className={draft === "reuse" ? "is-on" : ""}><input type="radio" name="swap-draft" checked={draft === "reuse"} onChange={() => setDraft("reuse")} /><span><b>Use the reps for {selected.name}</b><small>The load is not carried over.</small></span></label>
+            <label className={draftChoice === "keep" ? "is-on" : ""}><input type="radio" name="swap-draft" checked={draftChoice === "keep"} onChange={() => setDraft("keep")} /><span><b>Keep it with {name}</b><small>Still not logged: you can log it from the full workout list.</small></span></label>
+            <label className={draftChoice === "discard" ? "is-on" : ""}><input type="radio" name="swap-draft" checked={draftChoice === "discard"} onChange={() => setDraft("discard")} /><span><b>Discard it</b></span></label>
+            {reusableDose && <label className={draftChoice === "reuse" ? "is-on" : ""}><input type="radio" name="swap-draft" checked={draftChoice === "reuse"} onChange={() => setDraft("reuse")} /><span><b>Use the {reusableDose === "seconds" ? "seconds" : "reps"} for {selected.name}</b><small>The load is not carried over.</small></span></label>}
           </fieldset>}
           {/* A brief look before choosing, inside this sheet: no second dialog on top of it. */}
           <details className="swap-inspect">
