@@ -74,6 +74,11 @@ export function formatSeconds(seconds: number): string {
   return rest ? `${minutes} min ${rest} s` : `${minutes} min`;
 }
 
+/** Hold time, or that it was not recorded: holds logged before seconds were kept have none, and that is not zero. */
+export function holdTime(seconds: number): string {
+  return seconds > 0 ? formatSeconds(seconds) : "time not recorded";
+}
+
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
 /** The parts of a muscle's exposure that are not zero, in the brief's order (§5 "Default muscle totals"). */
@@ -81,7 +86,7 @@ export function exposureParts(node: NodeExposure): string[] {
   const parts: string[] = [];
   if (node.directDynamicBouts) parts.push(`${plural(node.directDynamicBouts, "direct dynamic bout")}`);
   if (node.contributingDynamicBouts) parts.push(`${node.contributingDynamicBouts} other dynamic`);
-  if (node.deliberateHoldBouts) parts.push(`${plural(node.deliberateHoldBouts, "deliberate hold")}, ${formatSeconds(node.deliberateHoldSeconds)}`);
+  if (node.deliberateHoldBouts) parts.push(`${plural(node.deliberateHoldBouts, "deliberate hold")}, ${holdTime(node.deliberateHoldSeconds)}`);
   if (node.incidentalBouts) parts.push(`${node.incidentalBouts} incidental grip or steadying`);
   if (node.mixedBouts) parts.push(`${node.mixedBouts} mixed`);
   if (node.unknownBouts) parts.push(`${node.unknownBouts} unclassified`);

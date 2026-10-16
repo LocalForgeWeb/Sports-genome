@@ -4,7 +4,7 @@ import type { StoreWrite } from "@/lib/specialization/stores";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import type { AnatomyNode, ArmSide, GoalProgress, NodeExposure, SpecializationGoal, SpecializationRegionData, SummaryMode } from "@shared/specialization/types";
 import { ActionGlyph } from "./ActionGlyph";
-import { categoryLabel, formatSeconds, formatSegment, layerLabels, ledgerByExercise, sideLabels } from "./model";
+import { categoryLabel, formatSegment, holdTime, layerLabels, ledgerByExercise, sideLabels } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
 import { TargetsEditor } from "./TargetsEditor";
 
@@ -51,11 +51,10 @@ export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, w
   const armWord = side === "left" ? "left arm" : "right arm";
   const ledger = exposure ? ledgerByExercise(exposure.contributions) : [];
   const notCounted = exposure?.notCounted ?? [];
-  const parent = node.parentId ? data.nodes.find((item) => item.id === node.parentId) : null;
 
   return <SpecializationSheet
     id="spz-muscle"
-    eyebrow={[node.shortName, layerLabels[node.layer], parent?.name].filter(Boolean).join(" · ")}
+    eyebrow={`${node.shortName} · ${layerLabels[node.layer]}`}
     title={node.name}
     subtitle={<p>{node.location}</p>}
     onClose={onClose}
@@ -85,7 +84,7 @@ export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, w
         : <dl className="spz-numbers">
           <div><dt>Direct dynamic bouts</dt><dd>{exposure.directDynamicBouts}{exposure.directDynamicReps ? <small> · {exposure.directDynamicReps} reps</small> : null}</dd></div>
           <div><dt>Other dynamic bouts</dt><dd>{exposure.contributingDynamicBouts}{exposure.contributingDynamicReps ? <small> · {exposure.contributingDynamicReps} reps</small> : null}</dd></div>
-          <div><dt>Deliberate holds</dt><dd>{exposure.deliberateHoldBouts}{exposure.deliberateHoldSeconds ? <small> · {formatSeconds(exposure.deliberateHoldSeconds)}</small> : null}</dd></div>
+          <div><dt>Deliberate holds</dt><dd>{exposure.deliberateHoldBouts}{exposure.deliberateHoldBouts ? <small> · {holdTime(exposure.deliberateHoldSeconds)}</small> : null}</dd></div>
           <div><dt>Incidental grip or steadying</dt><dd>{exposure.incidentalBouts}</dd></div>
           {exposure.mixedBouts > 0 && <div><dt>Mixed bouts</dt><dd>{exposure.mixedBouts}</dd></div>}
           {exposure.unknownBouts > 0 && <div><dt>Unclassified</dt><dd>{exposure.unknownBouts}</dd></div>}

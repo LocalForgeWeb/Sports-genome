@@ -19,7 +19,7 @@ import { MeasurementsPanel } from "./MeasurementsPanel";
 import { MuscleSheet } from "./MuscleSheet";
 import { PlanChangeSheet } from "./PlanChangeSheet";
 import { SpecializationDiagram } from "./SpecializationDiagram";
-import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exercisesInWindow, exposureSentence, fillForNode, findingsFor, formatSeconds, goalMetricLabels, goalsForNode, layerLabels, selectableNodes, sortForList, targetBins, volumeBins, type Finding } from "./model";
+import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricLabels, holdTime, goalsForNode, layerLabels, selectableNodes, sortForList, targetBins, volumeBins, type Finding } from "./model";
 import "@/components/anatomy/anatomy-figure.css";
 import "./specialization.css";
 
@@ -254,7 +254,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
             : <button type="button" className="spz-primary" onClick={() => addTargeted(selected.id)}>Add targeted exercise <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
           <button type="button" className="spz-link" onClick={() => select(null)}>Clear</button>
         </div>
-      </> : <p className="spz-selected-line">{summary ? `${summary.regionDistinctBouts} distinct bout${summary.regionDistinctBouts === 1 ? "" : "s"} touched the ${regionWord} on the ${armWord}${summary.regionUnknownSideBouts ? `, and ${summary.regionUnknownSideBouts} more had no arm recorded` : ""}.` : "Working out the totals…"} Choose a muscle to see its share.</p>}
+      </> : <p className="spz-selected-line">{summary ? `${summary.regionDistinctBouts} distinct bout${summary.regionDistinctBouts === 1 ? "" : "s"} touched the ${regionWord} on the ${armWord}${summary.regionUnknownSideBouts ? `, and ${summary.regionUnknownSideBouts} more had no arm recorded` : ""}.` : "Working out the totals…"} Choose a muscle for its numbers.</p>}
     </section>
     <p className="sr-only" aria-live="polite">{announcement}</p>
 
@@ -384,7 +384,7 @@ function MuscleRow({ node, exposure, selected, onOpen }: { node: AnatomyNode; ex
     : [
       parts!.direct ? `${parts!.direct} direct` : "",
       parts!.other ? `${parts!.other} other` : "",
-      parts!.holds ? `${parts!.holds} hold${parts!.holds === 1 ? "" : "s"} · ${formatSeconds(exposure.deliberateHoldSeconds)}` : "",
+      parts!.holds ? `${parts!.holds} hold${parts!.holds === 1 ? "" : "s"} · ${holdTime(exposure.deliberateHoldSeconds)}` : "",
       parts!.incidental ? `${parts!.incidental} grip` : "",
       parts!.rest ? `${parts!.rest} mixed` : "",
     ].filter(Boolean).join(" · ") || "No work";

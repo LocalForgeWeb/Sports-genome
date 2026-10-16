@@ -32,7 +32,7 @@
 /* Segments: a pill with one lit part. It wraps to two lines rather than push the page sideways at 320 px. */
 .spz-controls, .spz-diagram-controls { display: flex; flex-wrap: wrap; gap: .5rem; min-width: 0; }
 .spz-segment { display: inline-flex; flex-wrap: wrap; max-width: 100%; min-width: 0; border: 1px solid var(--sg-control-border-on-dark); border-radius: 1.45rem; padding: 2px; }
-.spz-segment button { display: inline-flex; flex: 1 1 auto; align-items: center; justify-content: center; min-width: 0; min-height: 2.75rem; border-radius: var(--sg-radius-pill); padding: 0 .9rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-weight: 700; text-align: center; white-space: normal; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
+.spz-segment button { display: inline-flex; flex: 1 1 auto; align-items: center; justify-content: center; min-width: 0; min-height: 2.75rem; border-radius: var(--sg-radius-pill); padding: 0 .75rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-weight: 700; text-align: center; white-space: normal; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
 .spz-segment button[aria-pressed="true"] { background: rgb(255 255 255 / .14); color: var(--sg-text-on-dark); }
 .spz-segment button:disabled { color: var(--sg-text-subtle-on-dark); cursor: not-allowed; }
 .spz-segment button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
@@ -161,6 +161,7 @@
 .spz-targets { display: grid; gap: .6rem; }
 .spz-target[data-current] b { color: var(--sg-text-on-dark); }
 .spz-target-form, .spz-fieldset { display: grid; gap: .7rem; min-width: 0; margin: 0; border: 0; border-top: 1px solid rgb(164 200 232 / .2); padding: .8rem 0 0; }
+.spz-sheet-body > .spz-fieldset:first-child { border-top: 0; padding-top: 0; }
 .spz-target-form legend, .spz-fieldset legend { float: left; width: 100%; margin-bottom: .2rem; padding: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 700; }
 .spz-radio-group, .spz-choice-list { display: grid; gap: .35rem; }
 .spz-radio, .spz-choice { position: relative; display: flex; align-items: flex-start; gap: .65rem; min-height: 2.75rem; border-radius: var(--sg-radius-sm); padding: .45rem .25rem; cursor: pointer; }

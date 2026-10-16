@@ -10,7 +10,7 @@ import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { catalogIdOf } from "@/lib/workoutSwap";
 import { variantForCatalogId } from "@shared/specialization/exposure";
 import type { ArmSide, SpecializationRegionData } from "@shared/specialization/types";
-import { formatSeconds } from "./model";
+import { holdTime } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
 
 /**
@@ -85,13 +85,15 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
   const describe = (values: PlannedValues) => [
     values.directDynamicBouts ? `${values.directDynamicBouts} direct` : "",
     values.contributingDynamicBouts ? `${values.contributingDynamicBouts} other dynamic` : "",
-    values.deliberateHoldBouts ? `${values.deliberateHoldBouts} holds (${formatSeconds(values.deliberateHoldSeconds)})` : "",
+    values.deliberateHoldBouts ? `${values.deliberateHoldBouts} holds (${holdTime(values.deliberateHoldSeconds)})` : "",
     values.incidentalBouts ? `${values.incidentalBouts} incidental` : "",
     values.mixedBouts ? `${values.mixedBouts} mixed` : "",
   ].filter(Boolean).join(" · ") || "none";
   const focusFirst = preview ? [...preview.nodes].sort((left, right) => (left.nodeId === nodeId ? -1 : right.nodeId === nodeId ? 1 : 0)) : [];
-  const choices = candidates.map((candidate) => ({ catalogExerciseId: candidate.catalogExerciseId, name: candidate.name, why: candidate.why }));
-  const listed = choices.some((choice) => choice.catalogExerciseId === exerciseId) || !incoming ? choices : [{ catalogExerciseId: incoming.id, name: incoming.name, why: "" }, ...choices];
+  // The why was read in the muscle sheet; here each choice says what it needs and whether it is planned.
+  const detailOf = (candidate: { equipment: string | null; alreadyPlanned?: boolean; equipmentAvailable?: boolean }) => [candidate.equipment, candidate.alreadyPlanned ? "already in this plan week" : "", candidate.equipmentAvailable === false ? "not in your equipment" : ""].filter(Boolean).join(" · ");
+  const choices = candidates.map((candidate) => ({ catalogExerciseId: candidate.catalogExerciseId, name: candidate.name, why: detailOf(candidate) }));
+  const listed = choices.some((choice) => choice.catalogExerciseId === exerciseId) || !incoming ? choices : [{ catalogExerciseId: incoming.id, name: incoming.name, why: detailOf({ equipment: incoming.equipment }) }, ...choices];
   // Six at most, and always the one chosen.
   const shown = listed.slice(0, 6);
   const chosen = listed.find((choice) => choice.catalogExerciseId === exerciseId);
@@ -162,7 +164,7 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
           <b>{row.name}</b>
           <span>{describe(row.before)} <ArrowRight className="h-3.5 w-3.5" aria-label="becomes" /> {describe(row.after)}</span>
         </li>)}
-        <li><b>Distinct {data.region.label.toLowerCase()} bouts</b><span>{preview.regionDistinctBouts.before} <ArrowRight className="h-3.5 w-3.5" aria-label="becomes" /> {preview.regionDistinctBouts.after}</span></li>
+        <li><b>Distinct bouts in the {data.region.label.toLowerCase()}</b><span>{preview.regionDistinctBouts.before} <ArrowRight className="h-3.5 w-3.5" aria-label="becomes" /> {preview.regionDistinctBouts.after}</span></li>
       </ul> : <p className="spz-note">No mapped muscle's planned totals change.</p>)}
       {preview && !preview.nodes.some((row) => row.nodeId === nodeId) && <p className="spz-note">{nodeName}'s planned totals do not change with this.</p>}
       {overlapping.length > 0 && <p className="spz-note"><Check className="h-3.5 w-3.5" aria-hidden="true" /> Already in that day and loading {nodeName}: {overlapping.map((entry) => entry.name).join(", ")}.</p>}
