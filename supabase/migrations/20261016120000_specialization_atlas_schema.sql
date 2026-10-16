@@ -70,6 +70,8 @@ create table if not exists specialization.regions (
   status text not null check (status in ('production', 'fixture', 'reference')),
   body_map_keys text[] not null default '{}',
   entry_label text,
+  -- A body-map key that names exactly one of the region's muscles: {"brachioradialis": "forearm.br"}.
+  node_for_body_map_key jsonb not null default '{}'::jsonb check (jsonb_typeof(node_for_body_map_key) = 'object'),
   constraint regions_page_copy check (status = 'reference' or (heading is not null and entry_label is not null))
 );
 

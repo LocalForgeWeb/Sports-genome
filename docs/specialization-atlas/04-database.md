@@ -25,7 +25,7 @@ The brief's `exposure_ledger` is not created. Workouts, sets and drop-set stages
 
 | Table | Key | Notes |
 |---|---|---|
-| `regions` | `id` (`forearm`) | `status`: `production`, `fixture`, or `reference` (a region that only holds another region's external contributors: `upper_arm`, for the biceps and brachialis; it has no page). |
+| `regions` | `id` (`forearm`) | `status`: `production`, `fixture`, or `reference` (a region that only holds another region's external contributors: `upper_arm`, for the biceps and brachialis; it has no page). `body_map_keys`, `entry_label`, and `node_for_body_map_key` (jsonb object: a body-map key that opens the page on one muscle, `{"brachioradialis": "forearm.br"}`). |
 | `nodes` | `id` (`forearm.fcu`) | `region_id` → regions; `parent_id` → nodes; `database_muscle` → `public.muscles(canonical_name)` (a real key: all five values exist there); `catalog_muscle_key` stays text because the client catalog is code, not a table. `role`, `border`, `location`, `what_it_does`, `shape_note`, `caveats`, `sort_order` (content order). |
 | `actions` | `id` (`wrist.flexion`) | |
 | `sources` | `id` uuid; `source_key` unique (`S2`, `A14`, `M3`) | Keys are shared across regions: two regions may name one only with identical content (the generator refuses otherwise). |

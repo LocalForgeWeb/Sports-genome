@@ -287,3 +287,15 @@ describe("forearm anatomy copy", () => {
     }
   });
 });
+
+describe("map keys that open one muscle", () => {
+  it("name a muscle of the region, for a key the region refines", () => {
+    const region = forearmRegionData.region;
+    for (const [key, nodeId] of Object.entries(region.nodeForBodyMapKey ?? {})) {
+      expect(region.bodyMapKeys, key).toContain(key);
+      const node = forearmRegionData.nodes.find((item) => item.id === nodeId);
+      expect(node?.regionId, `${key} → ${nodeId}`).toBe(region.id);
+      expect(node?.kind, `${key} → ${nodeId}`).toBe("muscle");
+    }
+  });
+});

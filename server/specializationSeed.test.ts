@@ -168,10 +168,10 @@ describe("the seeded database", () => {
   });
 
   it("holds the region and the upper-arm reference region its external contributors live in", async () => {
-    const regions = await rows(db, `select id, label, heading, sort_order as "sortOrder", status, body_map_keys as "bodyMapKeys", entry_label as "entryLabel" from specialization.regions order by id`);
+    const regions = await rows(db, `select id, label, heading, sort_order as "sortOrder", status, body_map_keys as "bodyMapKeys", entry_label as "entryLabel", node_for_body_map_key as "nodeForBodyMapKey" from specialization.regions order by id`);
     expect(regions).toEqual([
-      { ...forearmRegionData.region },
-      { id: "upper_arm", label: "Upper arm", heading: null, sortOrder: 0, status: "reference", bodyMapKeys: [], entryLabel: null },
+      { ...forearmRegionData.region, nodeForBodyMapKey: forearmRegionData.region.nodeForBodyMapKey ?? {} },
+      { id: "upper_arm", label: "Upper arm", heading: null, sortOrder: 0, status: "reference", bodyMapKeys: [], entryLabel: null, nodeForBodyMapKey: {} },
     ]);
   });
 

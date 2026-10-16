@@ -297,12 +297,12 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
     "Regions (reference regions only hold another region's external contributors)",
     upsertValues(
       "regions",
-      ["id", "label", "heading", "sort_order", "status", "body_map_keys", "entry_label"],
+      ["id", "label", "heading", "sort_order", "status", "body_map_keys", "entry_label", "node_for_body_map_key"],
       ["id"],
       [...regionRows.values()].sort((a, b) => byKey(a.id, b.id)).map((region) =>
         "reference" in region
-          ? [region.id, region.label, null, 0, "reference", [], null]
-          : [region.id, region.label, region.heading, region.sortOrder, region.status, [...region.bodyMapKeys], region.entryLabel],
+          ? [region.id, region.label, null, 0, "reference", [], null, { jsonb: {} }]
+          : [region.id, region.label, region.heading, region.sortOrder, region.status, [...region.bodyMapKeys], region.entryLabel, { jsonb: region.nodeForBodyMapKey ?? {} }],
       ),
     ),
   );

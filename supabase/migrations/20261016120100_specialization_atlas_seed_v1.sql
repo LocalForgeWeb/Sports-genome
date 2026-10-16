@@ -15,11 +15,11 @@
 -- versions are deliberately undeletable row by row.
 
 -- Regions (reference regions only hold another region's external contributors)
-insert into specialization.regions as t (id, label, heading, sort_order, status, body_map_keys, entry_label) values
-  ($$forearm$$, $$Forearms$$, $$Forearm specialization$$, 10, $$production$$, array[$$forearms$$, $$brachioradialis$$], $$Explore forearm coverage$$),
-  ($$upper_arm$$, $$Upper arm$$, null, 0, $$reference$$, array[]::text[], null)
-on conflict (id) do update set label = excluded.label, heading = excluded.heading, sort_order = excluded.sort_order, status = excluded.status, body_map_keys = excluded.body_map_keys, entry_label = excluded.entry_label
-  where (t.label, t.heading, t.sort_order, t.status, t.body_map_keys, t.entry_label) is distinct from (excluded.label, excluded.heading, excluded.sort_order, excluded.status, excluded.body_map_keys, excluded.entry_label);
+insert into specialization.regions as t (id, label, heading, sort_order, status, body_map_keys, entry_label, node_for_body_map_key) values
+  ($$forearm$$, $$Forearms$$, $$Forearm specialization$$, 10, $$production$$, array[$$forearms$$, $$brachioradialis$$], $$Explore forearm coverage$$, $${"brachioradialis":"forearm.br"}$$::jsonb),
+  ($$upper_arm$$, $$Upper arm$$, null, 0, $$reference$$, array[]::text[], null, $${}$$::jsonb)
+on conflict (id) do update set label = excluded.label, heading = excluded.heading, sort_order = excluded.sort_order, status = excluded.status, body_map_keys = excluded.body_map_keys, entry_label = excluded.entry_label, node_for_body_map_key = excluded.node_for_body_map_key
+  where (t.label, t.heading, t.sort_order, t.status, t.body_map_keys, t.entry_label, t.node_for_body_map_key) is distinct from (excluded.label, excluded.heading, excluded.sort_order, excluded.status, excluded.body_map_keys, excluded.entry_label, excluded.node_for_body_map_key);
 
 -- Joint actions
 insert into specialization.actions as t (id, joint, label, plain_description, sort_order) values
