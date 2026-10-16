@@ -103,6 +103,8 @@ import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 import { clearSpecializationParams, defaultSpecializationState, specializationStateFromParams, writeSpecializationParams, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { applyPlanChangeToRecord } from "@/lib/specialization/planChange";
+import { useSpecializationGoals } from "@/lib/specialization/stores";
+import { isGoalActiveAt } from "@shared/specialization/goals";
 import { defaultSpecializationRegionId, regionForBodyMapKey, specializationRegionIndex } from "@shared/specialization/regionIndex";
 
 type Workspace = "command" | "profile" | "progress" | "recommended" | "review" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "strength" | "specialization";
@@ -541,6 +543,13 @@ export default function Home() {
   const [specializationState, setSpecializationState] = useState<SpecializationViewState>(() => (typeof window === "undefined" ? defaultSpecializationState(defaultSpecializationRegionId) : specializationFromLocation(new URLSearchParams(window.location.search))));
   /** Where the specialization page was opened from, so its in-page Back returns there (brief §6). */
   const [specializationOrigin, setSpecializationOrigin] = useState<Workspace | null>(null);
+  /**
+   * The logger asks about straps only for an athlete who has set a specialization target
+   * (brief §6: "Keep this information out of the workout logger until relevant"); the
+   * tracker then asks only on exercises whose grip credit straps would change.
+   */
+  const { goals: specializationGoals } = useSpecializationGoals(accountId);
+  const askStraps = useMemo(() => { const now = new Date().toISOString(); return specializationGoals.some((item) => isGoalActiveAt(item, now)); }, [specializationGoals]);
   const [launchExperienceEnabled, setLaunchExperienceEnabled] = useState(true);
   const favoriteQuery = trpc.favorites.list.useQuery(undefined, { enabled: isAuthenticated, retry: false });
   // Selectable capacity targets. Sport-independent, and safe to fail: the quiz renders an
@@ -2270,7 +2279,7 @@ export default function Home() {
       />}
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace, { discovery: searchReturn.discovery })}><ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="workspace-skeleton" role="status" aria-label="Loading this screen"><span className="workspace-skeleton-title" /><span /><span /><span /></div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
-        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onReviewDay={() => navigateWorkspace("review", { reviewScope: "day" })} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} onOpenSession={(id) => navigateWorkspace("progress", { session: id })} onOpenHome={() => navigateWorkspace("command")} onReplaceInPlan={replaceInPlanFromWorkout} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
+        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onReviewDay={() => navigateWorkspace("review", { reviewScope: "day" })} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} onOpenSession={(id) => navigateWorkspace("progress", { session: id })} onOpenHome={() => navigateWorkspace("command")} onReplaceInPlan={replaceInPlanFromWorkout} askStraps={askStraps} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
           {/* One line under the day the session names, not a panel above it.
               The tracker renders it only before a session starts; mid-workout
               the day cannot change under the sets being logged. */}

@@ -147,4 +147,26 @@ describe("The specialization page", () => {
     await tick();
     expect(window.location.search).toBe("?workspace=review");
   });
+  const startRowWorkout = async () => {
+    const rowWeek = { ...week, weeklyPlanEntries: { "0-Push": entries([45]), "1-Pull": entries([exercises[2].id]) }, activeDayIndex: 0 };
+    window.localStorage.setItem(PLAN_KEY, JSON.stringify({ version: 2, ...rowWeek, weeks: { "1": rowWeek }, activeWeek: 1 }));
+    window.history.replaceState({}, "", "/?workspace=tracker");
+    render(createElement(Home));
+    // Found outside act: React holds a lazily loaded chunk's commit until act's callback ends.
+    const start = await screen.findByRole("button", { name: /start workout/i }, { timeout: 15000 });
+    await act(async () => { fireEvent.click(start); });
+    await tick();
+  };
+
+  it("keeps the straps question out of the workout without a specialization target", async () => {
+    await startRowWorkout();
+    expect(screen.getAllByRole("button", { name: /^Log set/ }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole("group", { name: /^Straps on / })).toBeNull();
+  }, 30000);
+
+  it("asks about straps on a grip-credited lift once the athlete has a specialization target", async () => {
+    window.localStorage.setItem("sports-genome-specialization-goals-v1", JSON.stringify([{ id: "g:right", regionId: "forearm", nodeId: "forearm.fds", actionId: null, side: "right", metric: "deliberate_hold_bouts", target: 6, period: "calendar_week", startsOn: "2026-01-01", endsOn: null, timezone: "UTC", createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" }]));
+    await startRowWorkout();
+    expect(screen.getByRole("group", { name: "Straps on Underhand Barbell Row" })).not.toBeNull();
+  }, 30000);
 });
