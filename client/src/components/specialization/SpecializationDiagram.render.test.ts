@@ -195,14 +195,14 @@ describe("the left arm", () => {
 });
 
 describe("tap targets on a phone", () => {
-  // The page draws the diagram about 324 px wide on a 390 pt phone (16 px gutters and card
-  // padding) and about 309 px on a 375 pt phone. Rendered sizes measured in Chromium are in
-  // docs/specialization-atlas/evidence/hit-targets.json.
+  // The page draws the diagram 321 px wide on a 390 pt phone and 307 px on a 375 pt phone
+  // (docs/specialization-atlas/evidence/diagram-page-checks.json); the tap squares measured
+  // in Chromium are in docs/specialization-atlas/evidence/hit-targets.json.
   const views: [DiagramViewId, DiagramLayerId][] = [["palm", "surface"], ["palm", "intermediate"], ["palm", "deep"], ["back", "surface"], ["back", "deep"], ["thumb", "surface"], ["thumb", "deep"]];
   const side = HIT_SQUARE_SHARE * asset.viewBox.width;
 
   it("gives every muscle a square at least 44 px across at the phone's drawing width", () => {
-    expect((side * 309) / asset.viewBox.width).toBeGreaterThanOrEqual(44);
+    expect((side * 307) / asset.viewBox.width).toBeGreaterThanOrEqual(44);
     const { container } = draw({ view: "back", layer: "surface" });
     for (const button of screen.getAllByRole("button")) {
       const rect = button.querySelector("rect")!;

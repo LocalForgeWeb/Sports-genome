@@ -62,11 +62,11 @@ export function palmView() {
   // Palmaris longus: a small belly near the elbow and a long slender tendon to the middle
   // of the wrist, fanning into the palm (the palmar aponeurosis).
   const pl = rowsShape({
-    rows: [[150, 262, 265.5], [175, 257.5, 263.5], [200, 250, 258.5], [230, 240, 252.5], [260, 228.5, 244], [290, 221.5, 236], [315, 218.5, 229]],
-    bottom: [[221.5, 334]],
+    rows: [[150, 262, 265.5], [175, 257.5, 263.5], [200, 250, 258.5], [230, 240, 252.5], [255, 231, 245.5], [275, 226, 239]],
+    bottom: [[228, 296]],
     top: [[266.5, 137]],
   });
-  const plTendon = tendon([[223, 318], [214, 370], [204, 430], [195, 490], [188.5, 545], [184.5, 585], [183, 602]], 4.5, 4);
+  const plTendon = tendon([[228.5, 282], [219, 330], [209, 390], [199.5, 450], [191.5, 510], [186, 560], [183, 602]], 4.5, 4);
   // Four slips fanning toward the fingers, thin, because it is a sheet of connective tissue.
   const palmarAponeurosis = [
     tendon([[183, 598], [176, 640], [164, 676], [152, 702]], 4, 2.5, { taper: 0.05 }),
@@ -77,7 +77,7 @@ export function palmView() {
 
   // Flexor carpi ulnaris: down the pinky-side border to the pisiform.
   const fcu = rowsShape({
-    rows: [150, 175, 200, 230, 260, 290, 320, 350, 380, 410, 440, 470, 500, 530].map((y, index) => [y, [268.5, 266.5, 262, 256.5, 248, 240, 236, 233.5, 232, 231, 230.5, 230, 230, 231][index], ulnarIn(y)]),
+    rows: [150, 175, 200, 230, 260, 290, 320, 350, 380, 410, 440, 470, 500, 530].map((y, index) => [y, [268.5, 266.5, 262, 256.5, 249, 238.5, 232, 229, 227.5, 227, 227, 227.5, 228.5, 230.5][index], ulnarIn(y)]),
     bottom: [[234, 554]],
     top: [[269, 120]],
   });

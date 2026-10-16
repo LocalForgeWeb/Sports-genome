@@ -43,9 +43,9 @@ export type SpecializationDiagramProps = {
 /** Tap targets reach this far past a belly's edge, in view-box units: across the gutters, not over a neighbour. */
 const HIT_HALO = 9;
 /**
- * Every muscle also gets a square tap target this wide, as a share of the drawing's width. At
- * the width a 375–390 pt phone draws it (about 309–324 px) that is 45–47 px square: the
- * 44 × 44 pt floor (CLAUDE.md; Apple HIG), whatever the region.
+ * Every muscle also gets a square tap target this wide, as a share of the drawing's width. The
+ * page draws the diagram 307 px wide on a 375 pt phone and 321 px on a 390 pt one (measured in
+ * Chromium), so the square is 44.5–46.5 px: the 44 × 44 pt floor (CLAUDE.md; Apple HIG).
  */
 export const HIT_SQUARE_SHARE = 0.145;
 const LABEL_CLEARANCE = 24;
@@ -69,6 +69,18 @@ function paintFor(fill: DiagramFill, hatchId: string): string {
   }
   if (fill.kind === "hatch") return `url(#${hatchId})`;
   return "var(--sg-role-neutral-on-dark, #34495f)";
+}
+
+/**
+ * Keyboard focus only: a finger tap also focuses the target, and the blue focus outline on top
+ * of the gold selection would read as a second selection. Where the browser cannot say, show it.
+ */
+function focusVisible(element: Element): boolean {
+  try {
+    return element.matches(":focus-visible");
+  } catch {
+    return true;
+  }
 }
 
 /** Text width estimate for the label pill (no DOM measuring, so tests and phones agree). */
@@ -193,7 +205,7 @@ export function SpecializationDiagram({ asset, view, layer, mirrored, fillFor, s
                 data-hit={node.nodeId}
                 onClick={() => onSelect(node.nodeId)}
                 onKeyDown={onKeyDown(node.nodeId)}
-                onFocus={() => setFocusedNodeId(node.nodeId)}
+                onFocus={(event) => setFocusedNodeId(focusVisible(event.currentTarget) ? node.nodeId : null)}
                 onBlur={() => setFocusedNodeId(null)}
               >
                 <rect x={node.hitAnchor.x - square / 2} y={node.hitAnchor.y - square / 2} width={square} height={square} />
