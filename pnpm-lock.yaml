@@ -145,7 +145,7 @@ importers:
         version: 17.4.2
       drizzle-orm:
         specifier: ^0.44.5
-        version: 0.44.7(mysql2@3.23.3(@types/node@24.7.0))
+        version: 0.44.7(@electric-sql/pglite@0.4.6)(mysql2@3.23.3(@types/node@24.7.0))
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@19.2.1)
@@ -216,6 +216,9 @@ importers:
         specifier: ^4.1.12
         version: 4.1.12
     devDependencies:
+      '@electric-sql/pglite':
+        specifier: 0.4.6
+        version: 0.4.6
       '@tailwindcss/typography':
         specifier: ^0.5.15
         version: 0.5.19(tailwindcss@4.1.14)
@@ -458,6 +461,9 @@ packages:
 
   '@drizzle-team/brocli@0.10.2':
     resolution: {integrity: sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w==}
+
+  '@electric-sql/pglite@0.4.6':
+    resolution: {integrity: sha512-qmlmfN8UyKCee35qkV0r/MBp+Znl8FjBz7OpoglNvww3GJpw0/DLP0o1ZymvLNmcD5DTLOQdzKPtF8Hd3mdl1w==}
 
   '@esbuild-kit/core-utils@3.3.2':
     resolution: {integrity: sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==}
@@ -4617,6 +4623,8 @@ snapshots:
 
   '@drizzle-team/brocli@0.10.2': {}
 
+  '@electric-sql/pglite@0.4.6': {}
+
   '@esbuild-kit/core-utils@3.3.2':
     dependencies:
       esbuild: 0.18.20
@@ -6757,8 +6765,9 @@ snapshots:
       esbuild: 0.25.10
       tsx: 4.23.12
 
-  drizzle-orm@0.44.7(mysql2@3.23.3(@types/node@24.7.0)):
+  drizzle-orm@0.44.7(@electric-sql/pglite@0.4.6)(mysql2@3.23.3(@types/node@24.7.0)):
     optionalDependencies:
+      '@electric-sql/pglite': 0.4.6
       mysql2: 3.23.3(@types/node@24.7.0)
 
   dunder-proto@1.0.1:
