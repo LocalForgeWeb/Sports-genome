@@ -172,3 +172,24 @@ A `deltoid` fixture (three heads, a handful of mappings, a small diagram) lives 
 | Diagram | `design/specialization/forearm/`, `shared/specialization/regions/forearm/diagram.generated.ts`, `client/src/components/specialization/SpecializationDiagram.tsx` |
 | Database | `supabase/migrations/`, `scripts/specialization/`, `server/specialization*.test.ts`, `package.json` (PGlite) |
 | Page and navigation (after the above) | `client/src/components/specialization/*`, `Home.tsx`, Review link, search, CSS |
+
+## 12. Diagram renderer contract (room for a 3D viewer)
+
+The page never depends on how the forearm is drawn. Any renderer takes the same props as `SpecializationDiagram`:
+- `view` and `layer`;
+- `mirrored` (left arm);
+- `fillFor(nodeId)`, returning `bin n`, `zero`, `hatch` or `none`;
+- `selectedNodeId`, `onSelect(nodeId)`, `labelFor(nodeId)`, `describeFor(nodeId)`.
+
+The counting, list, ledger, targets and add/swap flows read node ids only.
+
+On 16 Oct the owner showed a separate 3D upper-limb viewer in progress elsewhere. It uses the Open3Dmodel GLB, with Z-Anatomy and BodyParts3D content, and kebab-case mesh ids such as `brachioradialis`, `flexor-carpi-radialis` and `flexor-digitorum-profundus`. To plug it in later:
+1. Map its mesh ids to node ids through node aliases.
+2. Implement the props above.
+3. Lazy-load it so Three.js and the model only download when the 3D view is opened.
+4. Keep the SVG as the default and the fallback offline.
+
+Licensing has to be cleared first:
+- The CC BY-SA model needs attribution in the app, and any adapted model stays CC BY-SA.
+- GPL viewer code must not be copied into this repository.
+- Three.js (MIT) is fine.
