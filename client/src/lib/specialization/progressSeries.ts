@@ -110,12 +110,16 @@ export function zonedDateTimeToIso(dateKey: string, time: string, timeZone: stri
     return Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second) - Math.floor(instantMs / 1000) * 1000;
   };
   const matches = (instantMs: number) => { const at = wallClockAt(instantMs, timeZone); return at.dateKey === dateKey && at.time === time; };
-  // The two offsets either side of the wall time; the earlier instant that reads as it wins.
-  const candidates = [wall - offsetAt(wall - 12 * 3_600_000), wall - offsetAt(wall + 12 * 3_600_000), wall - offsetAt(wall)].sort((a, b) => a - b);
+  // The instant lies within 14 h of the wall time read as UTC (offsets run from -12 h to +14 h),
+  // so the offsets a day either side are the ones in force before and after any change near it
+  // (New Zealand and Chatham sit at +12 h and beyond, where half a day is not far enough).
+  // The earlier instant that reads as the wall time wins.
+  const before = offsetAt(wall - 24 * 3_600_000);
+  const candidates = [wall - before, wall - offsetAt(wall + 24 * 3_600_000), wall - offsetAt(wall)].sort((a, b) => a - b);
   const exact = candidates.find(matches);
   if (exact !== undefined) return new Date(exact).toISOString();
   // In a gap: the wall time plus the offset in force before it (02:30 → 03:30 after spring forward).
-  return new Date(wall - offsetAt(wall - 12 * 3_600_000)).toISOString();
+  return new Date(wall - before).toISOString();
 }
 
 /** "13 Oct" or "13 Oct 2026". */
@@ -189,7 +193,10 @@ export type PerformanceSeries = {
   name: string;
   straps: boolean;
   measure: SetMeasure;
-  /** What the chart's y axis reads: the top set's load, its reps when no session has a load, or seconds held. */
+  /**
+   * Over all of its sessions: the top set's load, its reps when no session has a load, or seconds
+   * held. The chart reads chartPerformance's metric instead, which looks only inside the axis.
+   */
   metric: PerformanceMetric;
   /** One per session, oldest first. */
   points: PerformancePoint[];
@@ -295,6 +302,33 @@ export function performanceSeries(sessions: readonly DeviceWorkoutSession[], inp
     const metric: PerformanceMetric = series.measure === "seconds" ? "seconds" : points.some((point) => point.load !== null) ? "load" : "reps";
     return { ...series, metric, points };
   });
+}
+
+/** One exercise's chart inside the axis: what it draws, what its y axis reads, and what it leaves out. */
+export type ChartedPerformance = {
+  series: PerformanceSeries;
+  metric: PerformanceMetric;
+  /** The sessions drawn, oldest first. */
+  inside: PerformancePoint[];
+  older: number;
+  later: number;
+  /** Sessions inside the axis left off a load line because their top set had no load entered. */
+  noLoad: number;
+};
+
+/**
+ * What one exercise's chart draws inside the axis. The y axis reads seconds for a hold; else the
+ * top set's load once two sessions or more in the window have one, and reps otherwise. On a load
+ * line a session with no load entered is left out and counted, never drawn at zero (a drop that
+ * did not happen); for a bodyweight exercise an empty load is the body alone (+0) and is drawn.
+ */
+export function chartPerformance(series: PerformanceSeries, axis: Pick<ProgressAxis, "firstMonday" | "endKeyExclusive">): ChartedPerformance {
+  const { inside, older, later } = splitByAxis(series.points, (point) => point.dateKey, axis);
+  if (series.measure === "seconds") return { series, metric: "seconds", inside, older, later, noLoad: 0 };
+  const loaded = inside.filter((point) => point.load !== null);
+  if (loadConventionFor(series.catalogExerciseId) === "bodyweight_reps") return { series, metric: loaded.length ? "load" : "reps", inside, older, later, noLoad: 0 };
+  if (loaded.length >= 2) return { series, metric: "load", inside: loaded, older, later, noLoad: inside.length - loaded.length };
+  return { series, metric: "reps", inside, older, later, noLoad: 0 };
 }
 
 /** The number a performance point puts on its chart's y axis. */

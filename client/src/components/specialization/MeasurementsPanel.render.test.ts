@@ -186,8 +186,14 @@ describe("units follow the profile", () => {
   });
 
   it("shows a kg profile cm and kg", async () => {
-    render(createElement(Harness, { initial: [reading("g", "2026-10-14T07:00:00.000Z", 45 * NEWTONS_PER_KGF, { metric: "grip_force_n" })] }));
+    const pumpedGrip = reading("p", "2026-10-15T19:00:00.000Z", 40 * NEWTONS_PER_KGF, { metric: "grip_force_n" });
+    pumpedGrip.protocol = { ...pumpedGrip.protocol, condition: "pumped" };
+    render(createElement(Harness, { initial: [reading("g", "2026-10-14T07:00:00.000Z", 45 * NEWTONS_PER_KGF, { metric: "grip_force_n" }), pumpedGrip] }));
     expect(screen.getByText("45.0 kg on a dynamometer")).not.toBeNull();
+    // A grip reading taken pumped is drawn hollow, and its chart says what a hollow dot is.
+    const gripChart = figure(/^Grip strength on a dynamometer \(kg;/);
+    expect(gripChart.querySelectorAll('circle[data-condition="pumped"]')).toHaveLength(1);
+    expect(gripChart.textContent).toMatch(/Scale 40\.0 to 45\.0 kg · open dots were pumped/);
     await click("Add a reading");
     expect(field(/^Circumference \(cm\)$/)).toBeDefined();
   });
@@ -243,9 +249,45 @@ describe("exercise performance", () => {
     expect(chart.textContent).toMatch(/Squares: that set recorded no arm/);
   });
 
+  it("leaves a session with no load entered off the load line and says so, rather than drawing it at zero", async () => {
+    window.localStorage.setItem(historyKey, JSON.stringify([
+      workout("w1", "2026-10-01", [logged("a", "Hammer Curl", 132, [set(30, 10)])]),
+      workout("w2", "2026-10-05", [logged("a", "Hammer Curl", 132, [set("", 12)])]),
+      workout("w3", "2026-10-08", [logged("a", "Hammer Curl", 132, [set(35, 8)])]),
+    ]));
+    render(createElement(Harness, { weightUnit: "lb" }));
+    const chart = figure(/^Hammer Curl: top set each session, right arm/);
+    expect(chart.querySelectorAll("circle")).toHaveLength(2);
+    expect(Array.from(within(chart).getByRole("list").querySelectorAll("li")).map((item) => item.textContent)).toEqual(["1 Oct: 30 lb × 10", "8 Oct: 35 lb × 8"]);
+    expect(chart.textContent).toMatch(/Scale 30 to 35 lb/);
+    expect(chart.textContent).toMatch(/1 session with no load entered is not shown\./);
+    expect((screen.getByLabelText("Exercise") as HTMLSelectElement).options[0].textContent).toBe("Hammer Curl · 2 sessions");
+  });
+
   it("says so plainly when nothing qualifies", () => {
     render(createElement(Harness));
     expect(screen.getByText(/No exercise that works the forearms directly has two finished sessions on the right arm in these 8 weeks\./)).not.toBeNull();
+  });
+});
+
+describe("focus", () => {
+  it("moves to what replaces the control that had it: the form, Add a reading, Undo", async () => {
+    render(createElement(Harness, { initial: [reading("a", "2026-10-14T07:00:00.000Z", 31)] }));
+    await click("Add a reading");
+    expect(document.activeElement?.textContent).toBe("Circumference");
+    await type(/^Circumference \(cm\)$/, "31.5");
+    await click("Save reading");
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Add a reading" }));
+    await click("Add a reading");
+    await click("Cancel");
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Add a reading" }));
+    await click(/^Remove the reading of 31\.0 cm around/);
+    const undo = screen.getByRole("button", { name: "Undo" });
+    expect(document.activeElement).toBe(undo);
+    // A text link alone is 36 px wide; the box class gives it the 44 px target.
+    expect(undo.classList.contains("spz-link-box")).toBe(true);
+    await click("Undo");
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Add a reading" }));
   });
 });
 

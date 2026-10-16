@@ -1,11 +1,11 @@
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { boutsFromSessions } from "@/lib/specialization/bouts";
 import {
-  dayLabel, dayOnAxis, formatLength, formatPerformance, formatPerformanceScale, formatReading, formatScale, isTimeOfDay, lengthToCm,
+  chartPerformance, dayLabel, dayOnAxis, formatLength, formatPerformance, formatPerformanceScale, formatReading, formatScale, isTimeOfDay, lengthToCm,
   performanceSeries, performanceValue, progressAxis, progressUnitsFor, splitByAxis, toStoredValue, valueScale, wallClockAt, zonedDateTimeToIso,
-  type PerformancePoint, type PerformanceSeries, type ProgressAxis, type ProgressUnits,
+  type ChartedPerformance, type PerformancePoint, type ProgressAxis, type ProgressUnits,
 } from "@/lib/specialization/progressSeries";
 import type { StoreWrite } from "@/lib/specialization/stores";
 import { catalogMusclesLookup, useDeviceWorkoutSessions } from "@/lib/specialization/useSpecializationSummary";
@@ -65,7 +65,8 @@ function ReadingChart({ metric, entries, axis, units, side }: { metric: Measurem
   const title = grip ? `Grip strength on a dynamometer (${units.force}; its own measure, not exercise load)` : `Circumference (${units.length})`;
   const noun = grip ? "grip reading" : "circumference reading";
   const outside = notShown(older, later, "reading", "readings");
-  const pumped = !grip && inside.some(({ item }) => item.protocol.condition === "pumped");
+  // Any reading taken pumped is drawn hollow, grip as well as circumference, so the key goes with it.
+  const pumped = inside.some(({ item }) => item.protocol.condition === "pumped");
   return <figure className="spz-chart">
     <figcaption>{title}</figcaption>
     {scale ? <>
@@ -79,14 +80,12 @@ function ReadingChart({ metric, entries, axis, units, side }: { metric: Measurem
   </figure>;
 }
 
-type PerformanceOption = { series: PerformanceSeries; inside: PerformancePoint[]; older: number; later: number };
-
 /** One exercise's top set (or longest hold) per session, on the same axis, with its own scale. */
-function PerformanceChart({ option, axis, side, weightUnit }: { option: PerformanceOption; axis: ProgressAxis; side: ArmSide; weightUnit: DisplayWeightUnit }) {
-  const { series, inside, older, later } = option;
+function PerformanceChart({ option, axis, side, weightUnit }: { option: ChartedPerformance; axis: ProgressAxis; side: ArmSide; weightUnit: DisplayWeightUnit }) {
+  const { series, metric, inside, older, later, noLoad } = option;
   const { xOfKey } = axisGeometry(axis);
-  const scale = valueScale(inside.map((point) => performanceValue(point, series.metric)))!;
-  const points = inside.map((point) => ({ point, x: xOfKey(point.dateKey), y: scale.y(performanceValue(point, series.metric)) }));
+  const scale = valueScale(inside.map((point) => performanceValue(point, metric)))!;
+  const points = inside.map((point) => ({ point, x: xOfKey(point.dateKey), y: scale.y(performanceValue(point, metric)) }));
   const first = inside[0];
   const last = inside[inside.length - 1];
   const name = `${series.name}${series.straps ? ", with straps" : ""}`;
@@ -103,8 +102,9 @@ function PerformanceChart({ option, axis, side, weightUnit }: { option: Performa
         ? <rect key={point.sessionId} x={x - 4} y={y - 4} width="8" height="8" className="spz-progress-marker" data-side="unrecorded" />
         : <circle key={point.sessionId} cx={x} cy={y} r="4" className="spz-chart-dot" data-side="recorded" />)}
     </svg>
-    <p className="spz-chart-scale">Scale {formatPerformanceScale(scale.low, scale.high, series.metric, weightUnit)} · first {text(first)} ({dayLabel(first.dateKey)}), latest {text(last)} ({dayLabel(last.dateKey)})</p>
+    <p className="spz-chart-scale">Scale {formatPerformanceScale(scale.low, scale.high, metric, weightUnit)} · first {text(first)} ({dayLabel(first.dateKey)}), latest {text(last)} ({dayLabel(last.dateKey)})</p>
     {unrecorded && <p className="spz-chart-scale">Squares: that set recorded no arm, so it may have been either arm.</p>}
+    {noLoad > 0 && <p className="spz-chart-scale">{noLoad === 1 ? "1 session with no load entered is" : `${noLoad} sessions with no load entered are`} not shown.</p>}
     {outside && <p className="spz-chart-scale">{outside}</p>}
     <ol className="sr-only">{inside.map((point) => <li key={point.sessionId}>{dayLabel(point.dateKey)}: {text(point)}{point.sideUnrecorded ? ", no arm recorded" : ""}</li>)}</ol>
   </figure>;
@@ -165,6 +165,20 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
   const [exerciseKey, setExerciseKey] = useState<string | null>(null);
   const performanceHeading = useId();
 
+  // The control that had focus goes away when the form opens or closes, a reading is removed or
+  // restored; focus moves to what replaces it (the form, "Add a reading", Undo), never the page top.
+  const focusNext = useRef<"form" | "add" | "undo" | null>(null);
+  const formRef = useRef<HTMLFieldSetElement>(null);
+  const addRef = useRef<HTMLButtonElement>(null);
+  const undoRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const target = focusNext.current;
+    if (!target) return;
+    focusNext.current = null;
+    const first = () => formRef.current?.querySelector<HTMLElement>("button, input, select") ?? null;
+    (target === "undo" ? undoRef.current : target === "add" ? addRef.current ?? first() : first())?.focus();
+  });
+
   const axis = useMemo(() => progressAxis(todayKey), [todayKey]);
   const { xOfDay, weekWidth } = axisGeometry(axis);
 
@@ -191,14 +205,15 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
 
   // Comparable exercise performance: exercises with two sessions or more inside the axis.
   const allSeries = useMemo(() => performanceSeries(sessions, { data, side, weightUnit, timeZone, catalog }), [sessions, data, side, weightUnit, timeZone, catalog]);
-  const options = useMemo<PerformanceOption[]>(() => allSeries
-    .map((series) => ({ series, ...splitByAxis(series.points, (point) => point.dateKey, axis) }))
+  const options = useMemo<ChartedPerformance[]>(() => allSeries
+    .map((series) => chartPerformance(series, axis))
     .filter((option) => option.inside.length >= 2)
     .sort((a, b) => b.inside[b.inside.length - 1].performedAt.localeCompare(a.inside[a.inside.length - 1].performedAt) || a.series.name.localeCompare(b.series.name)), [allSeries, axis]);
   const chosen = options.find((option) => option.series.key === exerciseKey) ?? options[0] ?? null;
 
   const openForm = () => {
     const nextDate = dateEdited ? date : todayKey;
+    focusNext.current = "form";
     setOpen(true);
     setArm(side);
     setError(null);
@@ -245,17 +260,18 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
     setNotes("");
     setDateEdited(false);
     setTimeEdited(false);
+    focusNext.current = "add";
     setOpen(false);
     setNotice({ kind: "saved", text: `Saved ${formatReading(metric, entry.value, units)}, ${arm} arm, ${dayLabel(date)} at ${time}.${arm !== side ? ` Switch to the ${arm} arm to see it on the charts.` : ""}` });
   };
   const remove = (entry: SpecializationMeasurement) => {
     const result = onRemove(entry.id);
-    if (result.ok) { setNotice({ kind: "removed", entry }); setListError(null); } else setListError(result.reason);
+    if (result.ok) { focusNext.current = "undo"; setNotice({ kind: "removed", entry }); setListError(null); } else setListError(result.reason);
   };
   const undo = () => {
     if (notice?.kind !== "removed") return;
     const result = onSave(notice.entry);
-    if (result.ok) { setNotice(null); setListError(null); } else setListError(result.reason);
+    if (result.ok) { focusNext.current = "add"; setNotice(null); setListError(null); } else setListError(result.reason);
   };
 
   const listed = [...armEntries].sort((left, right) => right.measuredAt.localeCompare(left.measuredAt)).slice(0, 8);
@@ -290,11 +306,11 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
         </li>;
       })}
     </ul>}
-    {notice?.kind === "removed" && <p className="spz-inline-status" role="status">Reading removed. <button type="button" className="spz-link" onClick={undo}>Undo</button></p>}
+    {notice?.kind === "removed" && <p className="spz-inline-status" role="status">Reading removed. <button type="button" ref={undoRef} className="spz-link spz-link-box" onClick={undo}>Undo</button></p>}
     {notice?.kind === "saved" && <p className="spz-inline-status" role="status">{notice.text}</p>}
     {listError && <p className="spz-error" role="alert">{listError}</p>}
 
-    {open ? <fieldset className="spz-target-form">
+    {open ? <fieldset ref={formRef} className="spz-target-form">
       <legend>New reading</legend>
       <div className="spz-segment" role="group" aria-label="What was measured">
         <button type="button" aria-pressed={metric === "circumference_cm"} onClick={() => { setMetric("circumference_cm"); setLandmark("Thickest point"); }}>Circumference</button>
@@ -318,8 +334,8 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
       <label className="spz-field"><span>Note (optional)</span><input type="text" value={notes} onChange={(event) => setNotes(event.target.value)} /></label>
       <p className="spz-note">The same place, posture, time of day and condition make two readings comparable.</p>
       {error && <p className="spz-error" role="alert">{error}</p>}
-      <div className="spz-actions"><button type="button" className="spz-primary" onClick={save}>Save reading</button><button type="button" className="spz-button" onClick={() => { setOpen(false); setError(null); }}>Cancel</button></div>
-    </fieldset> : <button type="button" className="spz-button" onClick={openForm}>Add a reading</button>}
+      <div className="spz-actions"><button type="button" className="spz-primary" onClick={save}>Save reading</button><button type="button" className="spz-button" onClick={() => { focusNext.current = "add"; setOpen(false); setError(null); }}>Cancel</button></div>
+    </fieldset> : <button type="button" ref={addRef} className="spz-button" onClick={openForm}>Add a reading</button>}
 
     <section className="spz-subsection spz-progress-section" aria-labelledby={performanceHeading}>
       <h3 id={performanceHeading}>Exercise performance</h3>
@@ -330,7 +346,7 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
             {options.map((option) => <option key={option.series.key} value={option.series.key}>{option.series.name}{option.series.straps ? ", with straps" : ""} · {option.inside.length} sessions</option>)}
           </select>
         </label>
-        <p className="spz-note">{chosen.series.measure === "seconds" ? "The longest hold of each session" : `The top set of each session: the heaviest load in ${weightUnit}, then the most reps`}, from completed sets. A set done with both arms counts for each arm.</p>
+        <p className="spz-note">{chosen.metric === "seconds" ? "The longest hold of each session" : chosen.metric === "load" ? `The top set of each session: the heaviest load in ${weightUnit}, then the most reps` : "The top set of each session, drawn by its reps"}, from completed sets. A set done with both arms counts for each arm.</p>
         <PerformanceChart option={chosen} axis={axis} side={side} weightUnit={weightUnit} />
       </> : <p className="spz-note">No exercise that works the {data.region.label.toLowerCase()} directly has two finished sessions on the {side} arm in these {axis.weeks} weeks.</p>}
     </section>

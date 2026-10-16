@@ -3,7 +3,7 @@ import type { DeviceSetLog, DeviceWorkoutSession } from "@/lib/deviceWorkoutLog"
 import { exercises } from "@/lib/exerciseCatalog";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import {
-  CM_PER_INCH, KG_PER_LB, NEWTONS_PER_KGF, directlyMappedCatalogIds, formatPerformance, formatReading, formatScale, performanceSeries, progressAxis,
+  CM_PER_INCH, KG_PER_LB, NEWTONS_PER_KGF, chartPerformance, directlyMappedCatalogIds, formatPerformance, formatReading, formatScale, performanceSeries, progressAxis,
   progressUnitsFor, splitByAxis, toShownValue, toStoredValue, valueScale, wallClockAt, zonedDateTimeToIso,
 } from "./progressSeries";
 
@@ -56,6 +56,24 @@ describe("a reading's local date and time", () => {
     expect(zonedDateTimeToIso("2026-11-01", "01:30", "America/New_York")).toBe("2026-11-01T05:30:00.000Z");
     // 8 Mar 2026, New York: 02:30 does not exist; it lands at 03:30 EDT.
     expect(zonedDateTimeToIso("2026-03-08", "02:30", "America/New_York")).toBe("2026-03-08T07:30:00.000Z");
+  });
+
+  it("gets the clock changes right where the offset is twelve hours or more", () => {
+    // 5 Apr 2026, Auckland: 02:30 happens twice; the first is NZDT (UTC+13).
+    expect(zonedDateTimeToIso("2026-04-05", "02:30", "Pacific/Auckland")).toBe("2026-04-04T13:30:00.000Z");
+    // 27 Sep 2026, Auckland: 02:30 does not exist; it lands at 03:30 NZDT.
+    expect(zonedDateTimeToIso("2026-09-27", "02:30", "Pacific/Auckland")).toBe("2026-09-26T14:30:00.000Z");
+    // Chatham (+12:45 / +13:45): 02:00 on 5 Apr happens once, before the change at 03:45.
+    expect(zonedDateTimeToIso("2026-04-05", "02:00", "Pacific/Chatham")).toBe("2026-04-04T12:15:00.000Z");
+    expect(zonedDateTimeToIso("2026-10-10", "07:30", "Pacific/Kiritimati")).toBe("2026-10-09T17:30:00.000Z");
+    for (const [zone, day] of [["Pacific/Auckland", "2026-04-05"], ["Pacific/Auckland", "2026-09-27"], ["Pacific/Chatham", "2026-09-27"]] as const) {
+      for (let minutes = 0; minutes < 24 * 60; minutes += 15) {
+        const time = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+        const back = wallClockAt(Date.parse(zonedDateTimeToIso(day, time, zone)!), zone);
+        // Every wall time reads back as itself, or (in the gap) as a later time the same morning.
+        expect(back.dateKey === day && back.time >= time).toBe(true);
+      }
+    }
   });
 
   it("refuses what is not a date or a time, and reads an instant back as its local date and time", () => {
@@ -144,6 +162,31 @@ describe("comparable exercise performance", () => {
     ], input())[0];
     expect(series.metric).toBe("seconds");
     expect(series.points.map((point) => [formatPerformance(point, series, "lb"), point.sideUnrecorded])).toEqual([["55 s", false], ["30 s with 10 lb", false]]);
+  });
+
+  it("leaves a session with no load entered off a load line, and counts it, rather than drawing it at zero", () => {
+    const axis = progressAxis("2026-10-16");
+    const series = performanceSeries([
+      session("a", "2026-10-01", [exercise("e", "Hammer Curl", 132, [set(30, 10)])]),
+      session("b", "2026-10-05", [exercise("e", "Hammer Curl", 132, [set("", 12)])]),
+      session("c", "2026-10-08", [exercise("e", "Hammer Curl", 132, [set(35, 8)])]),
+    ], input())[0];
+    const charted = chartPerformance(series, axis);
+    expect(charted.metric).toBe("load");
+    expect(charted.inside.map((point) => point.load)).toEqual([30, 35]);
+    expect(charted.noLoad).toBe(1);
+    // With fewer than two loaded sessions the line reads reps, and every session is drawn.
+    const fewLoads = chartPerformance(performanceSeries([
+      session("a", "2026-10-01", [exercise("e", "Band Finger Extension", 404, [set("", 20, { side: "right" })])]),
+      session("b", "2026-10-05", [exercise("e", "Band Finger Extension", 404, [set(5, 15, { side: "right" })])]),
+      session("c", "2026-10-08", [exercise("e", "Band Finger Extension", 404, [set("", 25, { side: "right" })])]),
+    ], input())[0], axis);
+    expect([fewLoads.metric, fewLoads.inside.map((point) => point.reps), fewLoads.noLoad]).toEqual(["reps", [20, 15, 25], 0]);
+    // A bodyweight exercise's empty load is the body alone: drawn at +0, not left out.
+    const bodyweight = chartPerformance({ ...series, catalogExerciseId: 26, points: [{ ...series.points[1] }, { ...series.points[2] }] }, axis);
+    expect([bodyweight.metric, bodyweight.inside.length, bodyweight.noLoad]).toEqual(["load", 2, 0]);
+    // Outside the window is counted as such, never as a missing load.
+    expect(chartPerformance(series, progressAxis("2027-03-01"))).toMatchObject({ inside: [], older: 3, noLoad: 0 });
   });
 
   it("keeps sessions logged with straps on a line of their own", () => {
