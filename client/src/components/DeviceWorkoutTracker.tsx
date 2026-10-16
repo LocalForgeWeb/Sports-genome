@@ -610,7 +610,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       const swapId = freshId("swap");
       const out: { receipt: SwapReceipt | null } = { receipt: null };
       commit((session) => {
-        const result = applySwap(session, exerciseId, { name: choice.target.name, id: choice.target.id }, { swapId, newExerciseId: freshId(String(choice.target.id)), at: new Date().toISOString(), draft: choice.draft, partialDrop: choice.partialDrop, newSetId }, exerciseCatalog);
+        const result = applySwap(session, exerciseId, { name: choice.target.name, id: choice.target.id }, { swapId, newExerciseId: freshId(String(choice.target.id)), at: new Date().toISOString(), draft: choice.draft, partialDrop: choice.partialDrop, newSetId, measureOf: (target) => policyFor({ catalogId: target.id, exerciseName: target.name }).measure }, exerciseCatalog);
         out.receipt = result.receipt;
         return result.session;
       });
@@ -1125,6 +1125,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     ? activeSet.side ?? defaultSideFor(activeExercise, position.setIndex, activePolicy)
     : null;
   const askStrapsHere = Boolean(askStraps && activePolicy?.strapsSensitive);
+  /** The last hold's seconds; reps only for a set logged in reps, which are never passed off as seconds. */
+  const carriedDose = carried?.seconds ? `${carried.seconds} sec` : carried?.reps.trim() ? `${carried.reps} reps` : "— sec";
   /** "30", "45" on a hold's target: the bare number is seconds there, not reps. */
   const activeTarget = position && activeExercise ? repsForSet(activeExercise.plannedPrescription, position.setIndex) : "";
   const swapExercise = swapForId ? activeSession.exercises.find((exercise) => exercise.id === swapForId) ?? null : null;
@@ -1190,10 +1192,11 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       {/* Once a drop set has a stage, the last set's numbers are exactly what the next stage is not. */}
       {carried && activeStages.length === 0 && <p className="live-set-last">
         {carried.source === "session" ? "Last set" : "Last logged"}: {activeHold
-          // A hold's last time: the load where there was one, then the seconds. No reps to show.
+          // A hold's last time: the load where there was one, then the seconds. A set logged in reps
+          // before this exercise was measured in seconds says reps: they are never read as seconds.
           ? (carried.logged
-            ? <>{carried.logged.weight} {carried.logged.unit} · {carried.seconds || "—"} sec <small>({carried.weight} {sessionUnit} in this workout's unit)</small></>
-            : <>{[...activeLoadFields.filter((field) => carried[field.measure]).map((field) => `${carried[field.measure]} ${field.unit}`), `${carried.seconds || "—"} sec`].join(" · ")}</>)
+            ? <>{carried.logged.weight} {carried.logged.unit} · {carriedDose} <small>({carried.weight} {sessionUnit} in this workout's unit)</small></>
+            : <>{[...activeLoadFields.filter((field) => carried[field.measure]).map((field) => `${carried[field.measure]} ${field.unit}`), carriedDose].join(" · ")}</>)
           : carried.logged
             ? <>{carried.logged.weight} {carried.logged.unit} × {carried.reps} <small>({carried.weight} {sessionUnit} in this workout's unit)</small></>
             : <>{activeEntryFields.map((field) => `${carried[field.measure] || "—"} ${field.unit}`).join(" · ")} × {carried.reps}</>}

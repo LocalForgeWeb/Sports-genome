@@ -113,6 +113,17 @@ describe("A hold is logged in seconds, not reps", () => {
     expect(stored()[0].exercises[0].sets[0]).toMatchObject({ weight: "70", unit: "lb", holdSeconds: "45", reps: "" });
   });
 
+  it("shows a hold logged in reps before it was measured in seconds as reps, never as seconds", () => {
+    const earlier: DeviceWorkoutSession = {
+      id: "old", title: "Pull workout", dayLabel: "Week 1 · Day 01 · Pull", startedAt: "2026-10-01T10:00:00.000Z", completedAt: "2026-10-01T10:40:00.000Z", status: "completed", weightUnit: "lb",
+      exercises: [{ id: "old-carry", exerciseName: farmerHold.name, catalogId: farmerHold.id, plannedPrescription: "1 × 40", sets: [{ weight: "70", reps: "40", unit: "lb", completed: true }] }],
+    };
+    window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([earlier]));
+    start([farmerHold]);
+    expect(card().querySelector(".live-set-last")!.textContent).toBe("Last logged: 70 lb · 40 reps");
+    expect((within(card()).getByLabelText(/^Seconds/) as HTMLInputElement).value).toBe("");
+  });
+
   it("leaves an unmapped exercise exactly as it was: Reps, and drop sets on offer", () => {
     start([bench]);
     expect(within(card()).getByLabelText("Reps")).toBeTruthy();
@@ -130,6 +141,36 @@ describe("A hold is logged in seconds, not reps", () => {
     expect(rows[0].textContent).not.toContain("Reps");
     expect(rows[1].textContent).toContain("Reps");
     expect(rows[0].querySelector(".session-set-to-drop")).toBeNull();
+  });
+});
+
+describe("Swapping a hold", () => {
+  const pullUp = byId(66);
+  const swapTo = (query: string, name: string) => {
+    fireEvent.click(within(card()).getByRole("button", { name: "Swap exercise" }));
+    const dialog = screen.getByRole("dialog", { name: /^Replace / });
+    fireEvent.change(within(dialog).getByRole("searchbox"), { target: { value: query } });
+    fireEvent.click(within(dialog).getAllByRole("button", { name: new RegExp(`^${name}`) })[0]);
+    return dialog;
+  };
+
+  it("hands typed seconds to another hold, as seconds", () => {
+    start([deadHang, bench]);
+    type(/^Seconds/, "35");
+    const dialog = swapTo("farmer hold", "Farmer Hold");
+    fireEvent.click(within(dialog).getByRole("radio", { name: /Use the seconds for Farmer Hold/ }));
+    fireEvent.click(within(dialog).getByRole("button", { name: "Use Farmer Hold" }));
+    expect((within(card()).getByLabelText(/^Seconds/) as HTMLInputElement).value).toBe("35");
+    expect((within(card()).getByLabelText(/^Weight/) as HTMLInputElement).value).toBe("");
+  });
+
+  it("says a rep exercise is logged in reps, and does not offer to turn typed seconds into reps", () => {
+    start([deadHang, bench]);
+    type(/^Seconds/, "35");
+    const dialog = swapTo("pull-up", pullUp.name);
+    expect(dialog.textContent).toContain(`${pullUp.name} is logged in reps, not seconds.`);
+    expect(within(dialog).queryByRole("radio", { name: /^Use the (reps|seconds)/ })).toBeNull();
+    expect((within(dialog).getByRole("radio", { name: /^Keep it with Dead Hang/ }) as HTMLInputElement).checked).toBe(true);
   });
 });
 

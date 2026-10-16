@@ -1,7 +1,10 @@
 import type { Exercise } from "./exerciseCatalog";
 import type { DisplayWeightUnit } from "./weightUnits";
 import { loadConventionFor } from "@shared/loadConventions";
-import { loggingPolicyFor, type LoggingPolicy } from "@shared/specialization/loggingPolicy";
+import type { LoggingPolicy } from "@shared/specialization/loggingPolicy";
+
+/** Reps or the seconds of a hold: what a set's last box records. */
+export type SetDoseMeasure = LoggingPolicy["measure"];
 
 /**
  * Which boxes a set actually needs, and what each one measures.
@@ -18,10 +21,13 @@ import { loggingPolicyFor, type LoggingPolicy } from "@shared/specialization/log
  * gets a unit invented for it.
  *
  * A hold (a dead hang, a farmer hold, a plate pinch) is measured in seconds, not
- * reps. Only the atlas's reviewed variant data says which exercises those are
- * (shared/specialization/loggingPolicy.ts), so the Seconds box appears exactly
- * there and nowhere else; it is stored as the set's `holdSeconds`, and the set
- * has no reps box at all.
+ * reps. Only the atlas's variant data says which exercises those are
+ * (shared/specialization/loggingPolicy.ts), and the caller passes that measure
+ * in, so the Seconds box appears exactly there and nowhere else; it is stored
+ * as the set's `holdSeconds`, and the set has no reps box at all. This module
+ * does not read the atlas itself: it is imported by screens that load with the
+ * app (through sessionRecap and workoutSwap), and the atlas's region data
+ * should load only with the screens that use it.
  */
 export type SetEntryMeasure = "weight" | "height" | "seconds";
 
@@ -61,8 +67,8 @@ export function setEntryFieldsFor(
   exercise: (Pick<Exercise, "name" | "category" | "equipment"> & { id?: number }) | undefined,
   /** The unit the weight box records in: the session's, which is the profile's when it started. */
   weightUnit: DisplayWeightUnit = "lb",
-  /** What the set's dose is entered in. By default the atlas's logging policy for the exercise decides. */
-  measure: LoggingPolicy["measure"] = loggingPolicyFor(exercise?.id).measure,
+  /** What the set's dose is entered in: the atlas's logging policy for the exercise, passed by the caller. */
+  measure: SetDoseMeasure = "reps",
 ): SetEntryField[] {
   // The box used to say "lb" whatever the profile said, while every screen read the
   // number in the profile's unit: a kg athlete typed next to "lb" and was scored in kg.

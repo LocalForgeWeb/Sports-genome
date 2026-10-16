@@ -1,7 +1,7 @@
 import type { Exercise } from "./exerciseCatalog";
 import { isCompletedSet, isDraftSet, isDropInProgress, settleDropSet, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession } from "./deviceWorkoutLog";
 import { renderableSetCount } from "./setPrescription";
-import { isHoldEntry, setEntryFieldsFor } from "./setEntryFields";
+import { setEntryFieldsFor, type SetDoseMeasure } from "./setEntryFields";
 import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
 
 /**
@@ -13,7 +13,8 @@ import { loadConventionFor, type LoadConvention } from "@shared/loadConventions"
  * - Some sets logged: those sets stay with the exercise they were done on, under its name; the
  *   remaining sets go to the new exercise, placed straight after it. The total is unchanged.
  * - Typed but not logged: the athlete chooses - keep it with the original (still unlogged),
- *   discard it, or reuse the reps (never the load) on the new exercise's first set.
+ *   discard it, or reuse the reps (never the load) on the new exercise's first set. A hold's
+ *   typed seconds carry only to another hold, and reps only to an exercise logged in reps.
  * - A drop set under way: its added stages stay with the original as the set they were.
  * - Every set done: nothing is left to hand on, so the choice is to add the new exercise.
  *
@@ -64,6 +65,12 @@ export type SwapOptions = {
   partialDrop?: PartialDropChoice;
   /** Gives each new set its id at creation (the tracker passes one); without it, new sets have none. */
   newSetId?: () => string;
+  /**
+   * Whether an exercise is logged in reps or in seconds held (the atlas's logging policy, which
+   * the tracker passes); reps when not said. A reused draft carries its dose only between two
+   * exercises measured the same way: seconds held never become reps, nor reps seconds.
+   */
+  measureOf?: (target: SwapTarget) => SetDoseMeasure;
 };
 
 /** Everything needed to take a swap back while no new work has been logged on it. */
@@ -101,21 +108,29 @@ export function applySwap(session: DeviceWorkoutSession, exerciseId: string, tar
   if (original.replacedBy) return { session, receipt: null };
 
   const kept: DeviceSetLog[] = [];
-  let reused: Pick<DeviceSetLog, "reps" | "height"> | null = null;
+  let reused: Pick<DeviceSetLog, "reps" | "height" | "holdSeconds"> | null = null;
+  const from: SwapTarget = { name: original.exerciseName, id: original.catalogId };
+  const measureOf = options.measureOf ?? (() => "reps" as const);
+  const dose = measureOf(from) === measureOf(target) ? measureOf(target) : null;
   for (const set of original.sets) {
     if (isCompletedSet(set)) { kept.push(set); continue; }
     if (isDropInProgress(set)) { if ((options.partialDrop ?? "keep") === "keep") kept.push(settleDropSet(set)); continue; }
     if (isDraftSet(set)) {
       const choice = options.draft ?? "keep";
       if (choice === "keep") kept.push(set);
-      else if (choice === "reuse" && !reused) reused = { reps: set.reps, height: bothUseHeight({ name: original.exerciseName, id: original.catalogId }, target, catalog) ? set.height : "" };
+      else if (choice === "reuse" && !reused) reused = {
+        // The typed reps, or a hold's typed seconds, only where the new exercise takes the same dose.
+        reps: dose === "reps" ? set.reps : "",
+        ...(dose === "seconds" && set.holdSeconds ? { holdSeconds: set.holdSeconds } : {}),
+        height: bothUseHeight(from, target, catalog) ? set.height : "",
+      };
     }
   }
   const completedOnOriginal = kept.filter(isCompletedSet).length;
   // Every slot not kept by the original moves on; a swap always leaves something to do.
   const moved = Math.max(1, original.sets.length - kept.length);
   const sets = Array.from({ length: moved }, newSetWith(options.newSetId));
-  if (reused) sets[0] = { ...sets[0], reps: reused.reps, ...(reused.height ? { height: reused.height } : {}) };
+  if (reused) sets[0] = { ...sets[0], reps: reused.reps, ...(reused.holdSeconds ? { holdSeconds: reused.holdSeconds } : {}), ...(reused.height ? { height: reused.height } : {}) };
   const replacement: DeviceWorkoutExercise = {
     id: options.newExerciseId,
     exerciseName: target.name,
@@ -208,7 +223,13 @@ const conventionWords: Record<LoadConvention, string> = {
  * What the athlete should know before confirming: how each exercise is logged when that differs,
  * that no load comes across, and where the plan's target does not fit the new exercise.
  */
-export function swapMeasurementNotes(from: Exercise | undefined, to: Exercise | undefined, prescription: string): string[] {
+export function swapMeasurementNotes(
+  from: Exercise | undefined,
+  to: Exercise | undefined,
+  prescription: string,
+  /** Whether an exercise is logged in reps or in seconds held (the atlas's logging policy); reps when not said. */
+  measureOf: (exercise: Exercise | undefined) => SetDoseMeasure = () => "reps",
+): string[] {
   const notes: string[] = [];
   const fromName = from?.name ?? "the current exercise";
   const toName = to?.name ?? "the new exercise";
@@ -219,8 +240,8 @@ export function swapMeasurementNotes(from: Exercise | undefined, to: Exercise | 
   const toHeight = setEntryFieldsFor(to).some((field) => field.measure === "height");
   if (fromHeight !== toHeight) notes.push(toHeight ? `${toName} records a box height as well as reps.` : `${toName} has no box height to record.`);
   // A hold is logged in seconds (the atlas's logging policy); everything else in reps.
-  const fromSeconds = isHoldEntry(setEntryFieldsFor(from));
-  const toSeconds = isHoldEntry(setEntryFieldsFor(to));
+  const fromSeconds = measureOf(from) === "seconds";
+  const toSeconds = measureOf(to) === "seconds";
   if (fromSeconds !== toSeconds) notes.push(toSeconds ? `${toName} is logged in seconds held, not reps.` : `${toName} is logged in reps, not seconds.`);
   if (!toSeconds && /\d\s*(s|sec|secs|seconds|min|mins|minutes)\b/i.test(prescription)) notes.push(`The plan's target (${prescription}) is a time; sets here are logged in reps, so set the reps as you go.`);
   return notes;

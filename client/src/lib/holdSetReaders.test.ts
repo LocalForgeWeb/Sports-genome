@@ -7,6 +7,7 @@ import { dropSetSummary, performedSetLine, setVolume, totalReps } from "./dropSe
 import { correctSet, exerciseHistory, removeSet, sessionRecap, sideLabel, strapsLabel, updateFinishedSession } from "./sessionRecap";
 import { isHoldEntry, setEntryFieldsFor } from "./setEntryFields";
 import { exercises } from "./exerciseCatalog";
+import { applySwap, swapMeasurementNotes, type SwapTarget } from "./workoutSwap";
 
 /**
  * Every reader of a set's reps and load meets holds now: a set with `holdSeconds` and no reps.
@@ -143,8 +144,53 @@ describe("the entry boxes for a hold", () => {
     expect(isHoldEntry(setEntryFieldsFor(byName("Dead Hang"), "lb", "seconds"))).toBe(true);
   });
 
-  it("is unchanged where the measure is reps", () => {
+  it("is unchanged where the measure is reps, which is the default", () => {
     expect(shape("Dead Hang", "reps")).toEqual(["Added weight (lb) optional"]);
+    expect(setEntryFieldsFor(byName("Dead Hang"))).toEqual(setEntryFieldsFor(byName("Dead Hang"), "lb", "reps"));
     expect(isHoldEntry(setEntryFieldsFor(byName("Barbell Bench Press"), "lb", "reps"))).toBe(false);
+  });
+});
+
+describe("the swap sheet's notes on how each exercise is logged", () => {
+  const byName = (name: string) => exercises.find((exercise) => exercise.name === name);
+  const seconds = (exercise: { id: number } | undefined) => (exercise?.id === 143 ? "seconds" as const : "reps" as const);
+
+  it("says when the new exercise is logged in seconds, and drops the 'logged in reps' note for a hold", () => {
+    const notes = swapMeasurementNotes(byName("Pull-Up"), byName("Dead Hang"), "3 × 30 s", seconds);
+    expect(notes).toContain("Dead Hang is logged in seconds held, not reps.");
+    expect(notes.some((note) => note.includes("logged in reps, so set the reps"))).toBe(false);
+    expect(swapMeasurementNotes(byName("Dead Hang"), byName("Pull-Up"), "3 × 8", seconds)).toContain("Pull-Up is logged in reps, not seconds.");
+  });
+
+  it("says nothing new when no measure is given", () => {
+    expect(swapMeasurementNotes(byName("Pull-Up"), byName("Dead Hang"), "3 × 30 s").some((note) => note.includes("seconds held"))).toBe(false);
+  });
+});
+
+describe("a typed-but-unlogged set reused on a swapped-in exercise", () => {
+  // Dead Hang (143) and Farmer Hold (145) are holds here; everything else is logged in reps.
+  const measureOf = (target: SwapTarget) => (target.id === 143 || target.id === 145 ? "seconds" as const : "reps" as const);
+  const running = (exercise: { name: string; id: number }, typed: DeviceSetLog): DeviceWorkoutSession => ({
+    ...workout(), status: "active", completedAt: undefined,
+    exercises: [{ id: "from", exerciseName: exercise.name, catalogId: exercise.id, plannedPrescription: "2 × 30", sets: [typed, { weight: "", reps: "", completed: false }] }],
+  });
+  const swap = (before: DeviceWorkoutSession, target: SwapTarget) =>
+    applySwap(before, "from", target, { swapId: "w", newExerciseId: "to", at: "2026-10-16T10:30:00.000Z", draft: "reuse", measureOf }, exercises).session.exercises[0].sets[0];
+
+  it("carries a hold's seconds to another hold, never the load", () => {
+    expect(swap(running({ name: "Dead Hang", id: 143 }, { weight: "20", reps: "", holdSeconds: "35", completed: false }), { name: "Farmer Hold", id: 145 }))
+      .toEqual({ weight: "", reps: "", holdSeconds: "35", completed: false });
+  });
+
+  it("carries nothing between a hold and an exercise logged in reps: seconds never become reps, nor reps seconds", () => {
+    expect(swap(running({ name: "Dead Hang", id: 143 }, { weight: "", reps: "", holdSeconds: "35", completed: false }), { name: "Pull-Up", id: 66 }))
+      .toEqual({ weight: "", reps: "", completed: false });
+    expect(swap(running({ name: "Pull-Up", id: 66 }, { weight: "", reps: "8", completed: false }), { name: "Dead Hang", id: 143 }))
+      .toEqual({ weight: "", reps: "", completed: false });
+  });
+
+  it("still carries reps between two exercises logged in reps", () => {
+    expect(swap(running({ name: "Pull-Up", id: 66 }, { weight: "", reps: "8", completed: false }), { name: "Chin-Up", id: 67 }))
+      .toEqual({ weight: "", reps: "8", completed: false });
   });
 });
