@@ -207,7 +207,8 @@ export function findingsFor(input: {
     findings.push({
       id: `goal:${progress.goal.id}`,
       title: `${subject}: ${progress.label}`,
-      detail: `${goalMetricLabels[progress.goal.metric]}, ${arm}, ${progress.goal.period === "calendar_week" ? "this calendar week" : "the last 7 days"}. The target is yours, not a prescription.`,
+      // Planned mode reads the plan week on screen; completed mode reads the target's own period.
+      detail: `${goalMetricLabels[progress.goal.metric]}, ${arm}, ${summary.mode === "planned" ? `${summary.interval.label}` : progress.goal.period === "calendar_week" ? "this calendar week" : "the last 7 days"}. The target is yours, not a prescription.`,
       action: progress.goal.nodeId ? { kind: "add", nodeId: progress.goal.nodeId } : null,
       actionLabel: progress.goal.nodeId ? "See exercises for it" : null,
     });
@@ -329,3 +330,32 @@ export function boutsByDay(summary: SpecializationSummary, data: SpecializationR
   }
   return new Map(Array.from(byDay.entries()).map(([key, set]) => [key, set.size]));
 }
+
+export type SessionOverlap = { key: string; sessionLabel: string; performedAt: string | null; nodeId: string; nodeShortName: string; exercises: string[] };
+
+/**
+ * Repeated direct exposure inside one session (brief §7: "Offer a review of overlapping
+ * repeated exposures, using neutral factual wording"): a muscle loaded directly by two or
+ * more different exercises in the same workout or plan day. Facts only; no recovery score.
+ */
+export function overlapsInWindow(summary: SpecializationSummary, data: SpecializationRegionData): SessionOverlap[] {
+  const regionNodes = new Map(data.nodes.filter((node) => node.regionId === data.region.id).map((node) => [node.id, node] as const));
+  const bySessionNode = new Map<string, SessionOverlap & { names: Set<string> }>();
+  for (const node of summary.nodes) {
+    const meta = regionNodes.get(node.nodeId);
+    if (!meta) continue;
+    for (const row of node.contributions) {
+      if (row.side === "unknown" || !isDirectWork(row)) continue;
+      const session = row.sessionId ?? row.sessionLabel;
+      const key = `${session}|${node.nodeId}`;
+      const entry = bySessionNode.get(key) ?? { key, sessionLabel: row.sessionLabel, performedAt: row.performedAt, nodeId: node.nodeId, nodeShortName: meta.shortName, exercises: [], names: new Set<string>() };
+      entry.names.add(row.exerciseName);
+      bySessionNode.set(key, entry);
+    }
+  }
+  return Array.from(bySessionNode.values())
+    .filter((entry) => entry.names.size >= 2)
+    .map(({ names, ...entry }) => ({ ...entry, exercises: Array.from(names).sort((left, right) => left.localeCompare(right)) }))
+    .sort((left, right) => (left.performedAt ?? "").localeCompare(right.performedAt ?? "") || left.sessionLabel.localeCompare(right.sessionLabel) || left.nodeShortName.localeCompare(right.nodeShortName));
+}
+

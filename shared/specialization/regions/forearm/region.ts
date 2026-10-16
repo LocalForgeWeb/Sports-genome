@@ -1,5 +1,5 @@
 import type { SpecializationRegion } from "../../types";
-import { FOREARM_REGION_ID } from "../../ids";
+import { FOREARM_REGION_ID, forearmMuscleIds } from "../../ids";
 
 export const forearmRegion: SpecializationRegion = {
   id: FOREARM_REGION_ID,
@@ -9,4 +9,5 @@ export const forearmRegion: SpecializationRegion = {
   status: "production",
   bodyMapKeys: ["forearms", "brachioradialis"],
   entryLabel: "Explore forearm coverage",
+  nodeForBodyMapKey: { brachioradialis: forearmMuscleIds.brachioradialis },
 };

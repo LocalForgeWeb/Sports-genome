@@ -6,20 +6,21 @@ import type { NextWorkoutChoice } from "@/lib/nextWorkout";
 import { plannedExercisesInWeek } from "@/lib/specialization/planBouts";
 import { recommendFor } from "@/lib/specialization/recommendations";
 import { useSpecializationGoals, useSpecializationMeasurements } from "@/lib/specialization/stores";
-import { intervalForView, useSpecializationSummary, type SpecializationPlanInput } from "@/lib/specialization/useSpecializationSummary";
+import { useSpecializationExclusions } from "@/lib/specialization/exclusions";
+import { intervalForView, useDeviceWorkoutSessions, useSpecializationSummary, type SpecializationPlanInput } from "@/lib/specialization/useSpecializationSummary";
 import type { SpecializationPlanChange, SpecializationPlanChangeResult, SpecializationViewState } from "@/lib/specialization/viewState";
 import { emptyDayStore, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { regionDataFor } from "@shared/specialization/registry";
 import { exposureCategoryLabels, exposureRuleV1 } from "@shared/specialization/rules";
-import { addDaysToDateKey, isDateKey, localDateKey, mondayIndexOfDateKey } from "@shared/specialization/time";
+import { addDaysToDateKey, calendarWeekInterval, isDateKey, localDateKey, planWeekInterval } from "@shared/specialization/time";
 import type { AnatomyNode, DiagramLayerId, DiagramViewId, NodeExposure, SpecializationRegionData } from "@shared/specialization/types";
 import { MeasurementsPanel } from "./MeasurementsPanel";
 import { MuscleSheet } from "./MuscleSheet";
 import { PlanChangeSheet } from "./PlanChangeSheet";
 import { SpecializationDiagram } from "./SpecializationDiagram";
-import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricLabels, holdTime, goalsForNode, layerLabels, selectableNodes, sortForList, targetBins, volumeBins, type Finding } from "./model";
+import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricLabels, holdTime, goalsForNode, layerLabels, overlapsInWindow, selectableNodes, sortForList, targetBins, volumeBins, type Finding } from "./model";
 import "@/components/anatomy/anatomy-figure.css";
 import "./specialization.css";
 
@@ -88,23 +89,41 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const there = useSpecializationSummary({ region: data, accountScope: accountId, interval, side: otherSide, mode: state.mode, plan: planInput, goals: regionGoals, catalog, fallbackUnit: weightUnit });
   const summary = here.status === "ready" ? here.summary : null;
   const otherSummary = there.status === "ready" ? there.summary : null;
+  /**
+   * The ledger's comparison (design §4): the plan week paired with the calendar week. In
+   * completed mode over this week it is the plan week as written; in planned mode, this
+   * calendar week's logged work. Other windows have no pair: a plan carries no dates.
+   */
+  const pairMode = state.mode === "planned" ? "completed" : state.window === "week" ? "planned" : null;
+  const pairInterval = useMemo(() => (pairMode === "planned" ? planWeekInterval(planWeek, timeZone) : calendarWeekInterval(nowIso, timeZone)), [pairMode, planWeek, timeZone, nowIso]);
+  const pair = useSpecializationSummary({ region: data, accountScope: accountId, interval: pairInterval, side: state.limb, mode: pairMode ?? "planned", plan: planInput, goals: regionGoals, catalog, fallbackUnit: weightUnit });
+  const pairSummary = pairMode && pair.status === "ready" ? pair.summary : null;
+  const { exclusions, setExercise: setExerciseExcluded, setEquipment: setEquipmentExcluded } = useSpecializationExclusions(accountId);
+  const sessions = useDeviceWorkoutSessions();
 
   const exposureById = useMemo(() => new Map((summary?.nodes ?? []).map((node) => [node.nodeId, node] as const)), [summary]);
   const exposureOf = (id: string): NodeExposure | null => exposureById.get(id) ?? null;
   const nodes = useMemo(() => selectableNodes(data), [data]);
   const selected = nodes.find((node) => node.id === state.nodeId) ?? null;
   const selectedExposure = selected ? exposureOf(selected.id) : null;
+  // A hand-edited or stale address: an unknown muscle, or a plan week that is not built, is dropped from it.
+  useEffect(() => {
+    if (state.nodeId && !selected) onStateChange({ ...state, nodeId: null });
+    else if (plan.ready && state.planWeek !== null && builtWeeks.length && !builtWeeks.includes(state.planWeek)) onStateChange({ ...state, planWeek: null });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.nodeId, selected, state.planWeek, plan.ready, builtWeeks]);
 
-  const [sheet, setSheet] = useState<null | { kind: "muscle" } | { kind: "change"; exerciseId: number }>(null);
+  const [sheet, setSheet] = useState<null | { kind: "muscle"; section?: "exercises" } | { kind: "change"; exerciseId: number }>(null);
   const [allFindings, setAllFindings] = useState(false);
-  const [progressOpen, setProgressOpen] = useState(false);
+  // Mounted once first opened and kept: a half-filled reading or its Undo survives closing the disclosure.
+  const [progressOpened, setProgressOpened] = useState(false);
   const methodRef = useRef<HTMLDetailsElement>(null);
 
   const plannedExercises = useMemo(() => plannedExercisesInWeek(plan.slots, weekStore ?? emptyDayStore()), [plan.slots, weekStore]);
   const recommendations = useMemo(() => {
     if (!selected || !summary) return null;
-    return recommendFor({ region: data, target: { nodeId: selected.id }, side: state.limb, summary, otherSideSummary: otherSummary, plannedExercises, catalog, equipmentProfile });
-  }, [selected, summary, otherSummary, plannedExercises, catalog, equipmentProfile, data, state.limb]);
+    return recommendFor({ region: data, target: { nodeId: selected.id }, side: state.limb, summary, otherSideSummary: otherSummary, plannedExercises, catalog, equipmentProfile, exclusions });
+  }, [selected, summary, otherSummary, plannedExercises, catalog, equipmentProfile, data, state.limb, exclusions]);
   const candidates = recommendations?.kind === "candidates" ? recommendations.candidates : [];
 
   const findings = useMemo(() => (summary ? findingsFor({ data, summary, otherSide: otherSummary }) : []), [data, summary, otherSummary]);
@@ -145,15 +164,16 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     setSheet(null);
     onInspectExercise(exercise);
   };
-  const addTargeted = (nodeId: string) => {
-    select(nodeId);
-    setSheet({ kind: "muscle" });
+  /** "Add targeted exercise" starts an add: the best reviewed candidate in the add sheet, else the muscle's exercises. */
+  const addTargeted = () => {
+    if (candidates.length) setSheet({ kind: "change", exerciseId: candidates[0].catalogExerciseId });
+    else setSheet({ kind: "muscle", section: "exercises" });
   };
   const runFinding = (finding: Finding) => {
     if (!finding.action) return;
     if (finding.action.kind === "method") { openMethod(); return; }
     select(finding.action.nodeId);
-    setSheet({ kind: "muscle" });
+    setSheet(finding.action.kind === "add" ? { kind: "muscle", section: "exercises" } : { kind: "muscle" });
   };
   const chooseWindow = (window: SpecializationViewState["window"]) => {
     if (window !== "custom") { update({ window, from: null, to: null }); return; }
@@ -173,15 +193,28 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   ].filter((group) => group.nodes.length);
 
   const windowItems = summary ? exercisesInWindow(summary, data) : [];
+  /** Distinct bouts per local day of a completed window, up to 31 days (brief §10: daily exposure distribution). */
   const days = useMemo(() => {
-    if (!summary || state.mode !== "completed" || state.window !== "week") return null;
-    const monday = addDaysToDateKey(todayKey, -mondayIndexOfDateKey(todayKey));
+    if (!summary || state.mode !== "completed" || !interval.startAt || !interval.endAtExclusive) return null;
+    const first = localDateKey(interval.startAt, timeZone);
+    const last = localDateKey(new Date(Date.parse(interval.endAtExclusive) - 1).toISOString(), timeZone);
+    const keys: string[] = [];
+    for (let key = first; key <= last && keys.length <= 31; key = addDaysToDateKey(key, 1)) keys.push(key);
+    if (keys.length > 31) return "too-long" as const;
     const counts = boutsByDay(summary, data, (iso) => localDateKey(iso, timeZone));
-    return Array.from({ length: 7 }, (_, index) => {
-      const key = addDaysToDateKey(monday, index);
-      return { key, label: new Date(`${key}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "short", timeZone: "UTC" }), bouts: counts.get(key) ?? 0 };
-    });
-  }, [summary, data, state.mode, state.window, todayKey, timeZone]);
+    return keys.map((key) => ({ key, label: new Date(`${key}T12:00:00Z`).toLocaleDateString(undefined, keys.length > 7 ? { day: "numeric", month: "short", timeZone: "UTC" } : { weekday: "short", timeZone: "UTC" }), bouts: counts.get(key) ?? 0 }));
+  }, [summary, data, state.mode, interval.startAt, interval.endAtExclusive, timeZone]);
+  const overlaps = summary ? overlapsInWindow(summary, data) : [];
+  /** Notes the athlete left on the workouts that loaded the region in this window (design §5: the existing session note). */
+  const notes = useMemo(() => {
+    if (!summary || state.mode !== "completed") return [];
+    const ids = new Set<string>();
+    for (const node of summary.nodes) for (const row of node.contributions) if (row.sessionId) ids.add(row.sessionId);
+    return sessions.filter((session) => ids.has(session.id) && session.note?.trim()).map((session) => ({ id: session.id, label: session.dayLabel || session.title, at: session.completedAt ?? session.startedAt, note: session.note!.trim() })).sort((left, right) => right.at.localeCompare(left.at)).slice(0, 5);
+  }, [summary, sessions, state.mode]);
+  // Planned against completed for the whole region, said as a plain count (brief §10: reward completed planned work, nothing more).
+  const plannedBouts = state.mode === "planned" ? summary?.regionDistinctBouts ?? null : pairSummary?.regionDistinctBouts ?? null;
+  const completedBouts = state.mode === "completed" ? (state.window === "week" ? summary?.regionDistinctBouts ?? null : null) : pairSummary?.regionDistinctBouts ?? null;
 
   const completeness = summary?.completeness;
   const hasWork = selectedExposure ? barParts(selectedExposure).direct + barParts(selectedExposure).other + barParts(selectedExposure).holds + barParts(selectedExposure).incidental + barParts(selectedExposure).rest > 0 : false;
@@ -218,6 +251,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       </div>}
     </div>
     <p className="spz-window"><b>{interval.label}</b> · {armWord}{state.mode === "planned" && !planInput ? (plan.ready ? ` · Week ${planWeek} has nothing planned yet` : " · your plan is loading") : ""}</p>
+    {plannedBouts !== null && completedBouts !== null && (plannedBouts > 0 || completedBouts > 0) && <p className="spz-pair">This week, {armWord}, for the {regionWord}: <b>{completedBouts}</b> bout{completedBouts === 1 ? "" : "s"} logged · <b>{plannedBouts}</b> planned in Plan Week {planWeek}, as written.</p>}
 
     {here.status === "error" && <p className="spz-error" role="alert">The totals could not be worked out: {here.message}</p>}
 
@@ -252,8 +286,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
         <div className="spz-actions">
           {hasWork || selectedExposure?.mappingCoverage !== "reviewed"
             ? <button type="button" className="spz-primary" onClick={() => setSheet({ kind: "muscle" })}>Inspect coverage <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
-            : <button type="button" className="spz-primary" onClick={() => addTargeted(selected.id)}>Add targeted exercise <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
-          <button type="button" className="spz-link" onClick={() => select(null)}>Clear</button>
+            : <button type="button" className="spz-primary" onClick={addTargeted}>Add targeted exercise <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
+          <button type="button" className="spz-link spz-link-box" onClick={() => select(null)}>Clear</button>
         </div>
       </> : <p className="spz-selected-line">{summary ? `${summary.regionDistinctBouts} distinct bout${summary.regionDistinctBouts === 1 ? "" : "s"} touched the ${regionWord} on the ${armWord}${summary.regionUnknownSideBouts ? `, and ${summary.regionUnknownSideBouts} more had no arm recorded` : ""}.` : "Working out the totals…"} Choose a muscle for its numbers.</p>}
     </section>
@@ -289,7 +323,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     <div className="spz-disclosures">
       <details className="spz-disclosure spz-card">
         <summary><span><b>Exercises in this window</b><small>{windowItems.length ? `${windowItems.length} exercise${windowItems.length === 1 ? "" : "s"}` : "None yet"}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
-        {days && <ol className="spz-days" aria-label="Distinct bouts per day this week">
+        {days === "too-long" ? <p className="spz-note">Choose 31 days or fewer to see the work day by day.</p> : days && <ol className="spz-days" aria-label="Distinct bouts per day in this window">
           {days.map((day) => <li key={day.key} data-today={day.key === todayKey || undefined}><span className="spz-day-bar"><i style={{ height: `${Math.min(100, (day.bouts / 12) * 100)}%` }} /></span><b>{day.bouts}</b><small>{day.label}</small></li>)}
         </ol>}
         {windowItems.length ? <ul className="spz-exercise-list">
@@ -298,6 +332,14 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
             {item.catalogExerciseId !== null && <button type="button" className="spz-link" onClick={() => inspect(item.catalogExerciseId, item.name)}>About it</button>}
           </li>)}
         </ul> : <p className="spz-note">No exercise {state.mode === "planned" ? "planned" : "logged"} in this window loads a mapped {regionWord} muscle.</p>}
+        {overlaps.length > 0 && <div className="spz-subsection">
+          <h3>Same muscle, same {state.mode === "planned" ? "day" : "workout"}</h3>
+          <ul className="spz-exercise-list">{overlaps.map((item) => <li key={item.key}><span><b>{item.nodeShortName}</b><small>{item.sessionLabel}{item.performedAt ? ` · ${new Date(item.performedAt).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}` : ""}: {item.exercises.join(" and ")} both load it directly.</small></span></li>)}</ul>
+        </div>}
+        {notes.length > 0 && <div className="spz-subsection">
+          <h3>Your notes on these workouts</h3>
+          <ul className="spz-exercise-list">{notes.map((item) => <li key={item.id}><span><b>{item.label}</b><small>{item.note}</small></span><button type="button" className="spz-link" onClick={() => onOpenSession(item.id)}>Open</button></li>)}</ul>
+        </div>}
       </details>
 
       <details className="spz-disclosure spz-card">
@@ -310,10 +352,10 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
         </ul> : <p className="spz-note">No targets. Open a muscle to set one; a muscle without a target is not behind on anything.</p>}
       </details>
 
-      <details className="spz-disclosure spz-card" onToggle={(event) => setProgressOpen(event.currentTarget.open)}>
+      <details className="spz-disclosure spz-card" onToggle={(event) => { if (event.currentTarget.open) setProgressOpened(true); }}>
         <summary><span><b>Progress</b><small>Circumference and grip, by arm</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
-        {/* Mounted when opened: its weekly chart reads eight weeks of history. */}
-        {progressOpen && <MeasurementsPanel data={data} side={state.limb} catalog={catalog} weightUnit={weightUnit} timeZone={timeZone} todayKey={todayKey} measurements={measurements} onSave={saveMeasurement} onRemove={removeMeasurement} />}
+        {/* Mounted when first opened, then kept: its weekly chart reads eight weeks of history. */}
+        {progressOpened && <MeasurementsPanel data={data} side={state.limb} catalog={catalog} weightUnit={weightUnit} timeZone={timeZone} todayKey={todayKey} measurements={measurements} onSave={saveMeasurement} onRemove={removeMeasurement} />}
       </details>
 
       <details ref={methodRef} className="spz-disclosure spz-card" id="spz-method">
@@ -345,6 +387,11 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       timeZone={timeZone}
       todayKey={todayKey}
       recommendations={recommendations}
+      initialSection={sheet.section}
+      paired={pairMode && pairSummary ? { label: pairMode === "planned" ? `Plan Week ${planWeek}, as written` : "Logged this week", exposure: pairSummary.nodes.find((node) => node.nodeId === selected.id) ?? null } : null}
+      exclusions={exclusions}
+      onSetExerciseExcluded={setExerciseExcluded}
+      onSetEquipmentExcluded={setEquipmentExcluded}
       onSaveGoals={(next) => saveGoals(next)}
       onRemoveGoal={removeGoal}
       onChooseExercise={(exerciseId) => setSheet({ kind: "change", exerciseId })}

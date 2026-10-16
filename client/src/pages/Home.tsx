@@ -298,6 +298,13 @@ function replaceWithCanonicalAddress(workspace: Workspace) {
   if (url.search !== window.location.search) window.history.replaceState(window.history.state, "", url);
 }
 
+/** The page the current history entry's specialization page was opened from, if it says so and that page exists. */
+function specializationOriginFromHistory(): Workspace | null {
+  if (typeof window === "undefined") return null;
+  const origin = (window.history.state as { specializationOrigin?: unknown } | null)?.specializationOrigin;
+  return typeof origin === "string" && origin !== "specialization" && (workspaceIds as string[]).includes(origin) ? origin as Workspace : null;
+}
+
 const specializationRegionIds: ReadonlySet<string> = new Set(specializationRegionIndex.map((region) => region.id));
 /** The specialization page's state as an address states it, validated field by field. */
 export function specializationFromLocation(params: URLSearchParams): SpecializationViewState {
@@ -542,7 +549,8 @@ export default function Home() {
   /** The specialization page's muscle, arm, window and view; its own address states it (lib/specialization/viewState). */
   const [specializationState, setSpecializationState] = useState<SpecializationViewState>(() => (typeof window === "undefined" ? defaultSpecializationState(defaultSpecializationRegionId) : specializationFromLocation(new URLSearchParams(window.location.search))));
   /** Where the specialization page was opened from, so its in-page Back returns there (brief §6). */
-  const [specializationOrigin, setSpecializationOrigin] = useState<Workspace | null>(null);
+  // Read from the entry itself, so a reload (or iOS bringing the app back) keeps the Back.
+  const [specializationOrigin, setSpecializationOrigin] = useState<Workspace | null>(() => (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("workspace") === "specialization" ? specializationOriginFromHistory() : null));
   /**
    * The logger asks about straps only for an athlete who has set a specialization target
    * (brief §6: "Keep this information out of the workout logger until relevant"); the
@@ -1222,16 +1230,20 @@ export default function Home() {
     if (next === "review" && requestedScope) { reviewScopeRef.current = requestedScope; setReviewScopeState(requestedScope); }
     const specialization = requestedSpecialization ?? specializationState;
     if (next === "specialization") setSpecializationState(specialization);
-    // Arriving from the tab row or the dock is not "opened from" anywhere; an entry point
-    // that names where it was pressed gets an in-page Back to there (brief §6).
-    const origin = next === "specialization" && specializationFrom && specializationFrom !== "specialization" ? specializationFrom : null;
+    const url = typeof window === "undefined" ? null : urlForWorkspace(next, catalogDiscovery, reviewScopeRef.current, session, specialization);
+    const samePlace = url !== null && url.search === window.location.search;
+    // An entry point that names where it was pressed gets an in-page Back to there (brief §6).
+    // Arriving from the tab row, the dock or search is not "opened from" anywhere, except that
+    // staying on the same entry (the active tab tapped again) keeps the Back that entry has.
+    const origin = next !== "specialization" ? null
+      : specializationFrom && specializationFrom !== "specialization" ? specializationFrom
+      : samePlace ? specializationOriginFromHistory() : null;
     setSpecializationOrigin(origin);
     setWorkspaceState(next);
     setProgressSession(next === "progress" ? session : null);
-    if (typeof window === "undefined") return;
+    if (url === null) return;
     // A new entry whenever the address changes: another page, the catalog in another mode, or one workout's detail.
-    const url = urlForWorkspace(next, catalogDiscovery, reviewScopeRef.current, session, specialization);
-    if (url.search !== window.location.search) {
+    if (!samePlace) {
       window.history.pushState(origin ? { workspace: next, specializationOrigin: origin } : { workspace: next }, "", url);
     }
     if (!keepScroll) window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
@@ -1256,10 +1268,10 @@ export default function Home() {
   /** The page a muscle key opens, if a specialization region refines it, labelled as the region names its entry. */
   const specializationEntryFor = (muscleKey: string, context: Partial<SpecializationViewState> = {}) => {
     const region = regionForBodyMapKey(muscleKey);
-    return region ? { label: region.entryLabel, open: () => openSpecialization({ ...context, regionId: region.id }) } : null;
+    return region ? { label: region.entryLabel, open: () => openSpecialization({ ...context, regionId: region.id, nodeId: region.nodeForBodyMapKey?.[muscleKey] ?? null }) } : null;
   };
-  // Body Lab offers the region for the muscle picked on the map, without picking a muscle
-  // inside it: the map's key is coarser than the atlas's muscles.
+  // Body Lab offers the region for the muscle picked on the map, with that muscle selected
+  // only when the map's key names exactly one of the atlas's muscles.
   const activeMuscleSpecialization = activeMuscle ? specializationEntryFor(activeMuscle) : null;
   /**
    * The one way into the catalog with a purpose: a movement ("Find exercises for
@@ -1344,8 +1356,7 @@ export default function Home() {
       // The specialization entry brings back its muscle, arm, window and view, and its origin.
       if (next === "specialization") {
         setSpecializationState(specializationFromLocation(params));
-        const origin = (window.history.state as { specializationOrigin?: unknown } | null)?.specializationOrigin;
-        setSpecializationOrigin(typeof origin === "string" && workspaceIds.includes(origin as Workspace) ? origin as Workspace : null);
+        setSpecializationOrigin(specializationOriginFromHistory());
       }
       setWorkspaceState(next);
     };

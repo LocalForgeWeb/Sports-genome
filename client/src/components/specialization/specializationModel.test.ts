@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Contribution, GoalProgress, NodeExposure, SpecializationGoal, SpecializationSummary } from "@shared/specialization/types";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
-import { directWorkBouts, exposureSentence, fillForNode, findingsFor, formatSegment, holdTime, ledgerByExercise, selectableNodes, sortForList, targetStep, volumeStep } from "./model";
+import { directWorkBouts, overlapsInWindow, exposureSentence, fillForNode, findingsFor, formatSegment, holdTime, ledgerByExercise, selectableNodes, sortForList, targetStep, volumeStep } from "./model";
 
 /**
  * The page's own reading of a summary (design §7): fixed bins, honest blanks, the ledger's
@@ -150,5 +150,26 @@ describe("coverage to review", () => {
     const finding = findingsFor({ data: forearmRegionData, summary: { ...withWork(5), side: "left" }, otherSide: { ...withWork(2), side: "right" } }).find((item) => item.id.startsWith("arms:"));
     expect(finding?.title).toBe("Flexor carpi radialis: 5 direct bouts on the left arm, 2 on the right");
     expect(finding?.detail).not.toMatch(/imbalance|weak|behind/i);
+  });
+});
+
+describe("the review of repeated exposure", () => {
+  it("names a muscle loaded directly by two exercises in one workout, in plain words, and nothing else", () => {
+    const fcr = node({ nodeId: "forearm.fcr", contributions: [
+      contribution({ boutId: "w1", nodeId: "forearm.fcr", exerciseName: "Wrist Curl", catalogExerciseId: 139, sessionId: "s1", sessionLabel: "Push" }),
+      contribution({ boutId: "w2", nodeId: "forearm.fcr", exerciseName: "One-Arm Dumbbell Wrist Curl", catalogExerciseId: 410, sessionId: "s1", sessionLabel: "Push" }),
+      contribution({ boutId: "w3", nodeId: "forearm.fcr", exerciseName: "Wrist Curl", catalogExerciseId: 139, sessionId: "s2", sessionLabel: "Pull" }),
+      contribution({ boutId: "w4", nodeId: "forearm.fcr", exerciseName: "Hammer Curl", catalogExerciseId: 132, sessionId: "s2", sessionLabel: "Pull", category: "incidental_isometric" }),
+    ] });
+    const result = overlapsInWindow(summary({ nodes: forearmRegionData.nodes.map((item) => (item.id === "forearm.fcr" ? fcr : node({ nodeId: item.id }))) }), forearmRegionData);
+    expect(result.map((item) => [item.sessionLabel, item.nodeShortName, item.exercises])).toEqual([["Push", "FCR", ["One-Arm Dumbbell Wrist Curl", "Wrist Curl"]]]);
+  });
+});
+
+describe("a target in planned mode", () => {
+  it("names the plan week it was read over, not the calendar period", () => {
+    const finding = findingsFor({ data: forearmRegionData, summary: summary({ mode: "planned", interval: { kind: "plan_week", startAt: null, endAtExclusive: null, timezone: "UTC", planWeek: 2, label: "Plan Week 2, as written" }, goals: [progress(3)] }), otherSide: null })[0];
+    expect(finding.detail).toMatch(/right arm, Plan Week 2, as written\./);
+    expect(finding.detail).not.toMatch(/calendar week/);
   });
 });

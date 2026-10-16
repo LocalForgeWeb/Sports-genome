@@ -39,6 +39,8 @@
 .spz-dates { display: flex; flex-wrap: wrap; gap: .5rem .75rem; width: 100%; }
 .spz-window { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-window b { color: var(--sg-text-on-dark); }
+.spz-pair { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-variant-numeric: tabular-nums; line-height: var(--sg-leading-body); }
+.spz-pair b { color: var(--sg-text-on-dark); }
 
 .spz-field { display: grid; gap: .3rem; min-width: 0; flex: 1 1 9rem; }
 .spz-field > span { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
@@ -81,6 +83,8 @@
 .spz-button:hover { background: rgb(255 255 255 / .12); }
 .spz-link { position: relative; display: inline-flex; align-items: center; gap: .3rem; min-height: 2.75rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); font-weight: 700; text-align: left; }
 .spz-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+/* A text action standing on its own ("Clear") still gets a 44 px square. */
+.spz-link-box { justify-content: center; min-width: 2.75rem; padding: 0 .5rem; }
 .spz-icon-button { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: var(--sg-radius-pill); color: var(--sg-text-on-dark); }
 
 /* -- Muscle list: name, layer, one stacked bar on a fixed scale ------------------ */
@@ -132,13 +136,15 @@
 .spz-candidate > span:first-child { flex: 1 1 14rem; }
 .spz-candidate-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .75rem; }
 
-.spz-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .3rem; margin-bottom: .6rem; padding: 0; list-style: none; }
+.spz-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: .6rem; gap: .3rem; margin-bottom: .6rem; padding: 0; list-style: none; }
 .spz-days li { display: grid; justify-items: center; gap: .15rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-variant-numeric: tabular-nums; }
 .spz-days li b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }
 .spz-days li[data-today] small { color: var(--sg-selected-on-dark); font-weight: 800; }
 .spz-day-bar { position: relative; display: block; width: 100%; max-width: 2rem; height: 3rem; background: rgb(255 255 255 / .07); }
 .spz-day-bar i { position: absolute; right: 0; bottom: 0; left: 0; background: var(--spz-direct); transition: height var(--sg-motion-base) var(--sg-ease); }
 
+.spz-subsection { display: grid; gap: .35rem; margin-top: .8rem; }
+.spz-subsection h3 { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .spz-method { display: grid; gap: .6rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-method b { color: var(--sg-text-on-dark); }
 .spz-categories { display: grid; gap: .4rem; }
@@ -232,7 +238,8 @@
 .spz-claims p { color: #d6e2ee; font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-claims > li > small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-sm); }
 .spz-sources { display: grid; gap: .15rem; padding-left: 1rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
-.spz-sources a { color: var(--sg-link-on-dark); text-decoration: underline; text-underline-offset: 2px; }
+.spz-sources { gap: .25rem; }
+.spz-sources a { display: inline-flex; align-items: center; min-height: 2.75rem; color: var(--sg-link-on-dark); text-decoration: underline; text-underline-offset: 2px; }
 
 @media (min-width: 900px) {
   .spz-page { gap: 1.25rem; }

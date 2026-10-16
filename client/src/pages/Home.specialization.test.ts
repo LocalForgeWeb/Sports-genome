@@ -100,9 +100,9 @@ describe("The specialization page", () => {
   it("writes an add from the page into the exact day it names, and Undo takes back that one change", async () => {
     window.history.replaceState({}, "", "/?workspace=specialization&region=forearm&node=forearm.br");
     render(createElement(Home));
-    const inspect = await screen.findByRole("button", { name: /Inspect coverage|Add targeted exercise/ }, { timeout: 15000 });
-    await act(async () => { fireEvent.click(inspect); });
-    await act(async () => { fireEvent.click(within(screen.getByRole("dialog")).getAllByRole("button", { name: /Add or swap/ })[0]); });
+    // Nothing in this plan loads brachioradialis, so the page offers to add work, and that starts an add.
+    const add = await screen.findByRole("button", { name: /Add targeted exercise/ }, { timeout: 15000 });
+    await act(async () => { fireEvent.click(add); });
     const sheet = screen.getByRole("dialog", { name: "Add to your plan" });
     const chosen = within(sheet).getAllByRole("radio").find((radio) => (radio as HTMLInputElement).checked)!;
     const chosenName = chosen.closest("label")!.querySelector("b")!.textContent!;
@@ -142,7 +142,10 @@ describe("The specialization page", () => {
     await tick();
     expect(window.location.search).toBe("?workspace=specialization&region=forearm&mode=planned&pweek=1");
     expect(screen.getByRole("button", { name: "Planned" }).getAttribute("aria-pressed")).toBe("true");
-    const back = screen.getByRole("button", { name: /Back to Review your week/ });
+    // A reload of that entry (or iOS bringing the app back) keeps the Back.
+    cleanup();
+    render(createElement(Home));
+    const back = await screen.findByRole("button", { name: /Back to Review your week/ }, { timeout: 15000 });
     await act(async () => { fireEvent.click(back); });
     await tick();
     expect(window.location.search).toBe("?workspace=review");

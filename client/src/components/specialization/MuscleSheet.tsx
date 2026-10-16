@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown, Plus } from "lucide-react";
+import type { SpecializationExclusions } from "@/lib/specialization/exclusions";
 import type { Recommendations } from "@/lib/specialization/recommendations";
 import type { StoreWrite } from "@/lib/specialization/stores";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
@@ -22,7 +24,7 @@ const basisLabels: Record<string, string> = {
  * contribution ledger behind every number (exercise → bout → segment); your target;
  * exercises for it, with why; and the sources and method.
  */
-export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, onSaveGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onClose }: {
+export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, initialSection, paired, exclusions, onSetExerciseExcluded, onSetEquipmentExcluded, onSaveGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onClose }: {
   data: SpecializationRegionData;
   node: AnatomyNode;
   exposure: NodeExposure | null;
@@ -35,6 +37,13 @@ export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, w
   timeZone: string;
   todayKey: string;
   recommendations: Recommendations | null;
+  /** Opened to add work: the sheet starts at "Exercises for this muscle". */
+  initialSection?: "exercises";
+  /** The paired view (design §4): this week's logged work beside the plan week as written, or the reverse. */
+  paired: { label: string; exposure: NodeExposure | null } | null;
+  exclusions: SpecializationExclusions;
+  onSetExerciseExcluded: (catalogExerciseId: number, excluded: boolean) => StoreWrite;
+  onSetEquipmentExcluded: (equipment: string, excluded: boolean) => StoreWrite;
   onSaveGoals: (goals: SpecializationGoal[]) => StoreWrite;
   onRemoveGoal: (goalId: string) => StoreWrite;
   onChooseExercise: (catalogExerciseId: number) => void;
@@ -51,6 +60,21 @@ export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, w
   const armWord = side === "left" ? "left arm" : "right arm";
   const ledger = exposure ? ledgerByExercise(exposure.contributions) : [];
   const notCounted = exposure?.notCounted ?? [];
+  const [excludedNow, setExcludedNow] = useState<{ id: number; name: string } | null>(null);
+  const [exclusionError, setExclusionError] = useState<string | null>(null);
+  useEffect(() => {
+    if (initialSection !== "exercises") return;
+    // After the heading has taken focus: bring the exercises into view without moving focus.
+    const frame = window.requestAnimationFrame(() => document.getElementById("spz-exercises")?.scrollIntoView({ block: "start" }));
+    return () => window.cancelAnimationFrame(frame);
+  }, [initialSection, node.id]);
+  const exclude = (id: number, name: string) => {
+    const result = onSetExerciseExcluded(id, true);
+    if (result.ok) { setExcludedNow({ id, name }); setExclusionError(null); } else setExclusionError(result.reason);
+  };
+  const candidateEquipment = recommendations?.kind === "candidates" ? recommendations.candidates.map((item) => item.equipment).filter((item): item is string => Boolean(item)) : [];
+  const equipmentChoices = Array.from(new Set([...candidateEquipment, ...exclusions.equipment])).sort((left, right) => left.localeCompare(right));
+  const excludedExercises = exclusions.catalogExerciseIds.map((id) => ({ id, name: data.variants.find((variant) => variant.catalogExerciseId === id)?.catalogName ?? `Exercise ${id}` }));
 
   return <SpecializationSheet
     id="spz-muscle"
@@ -92,6 +116,7 @@ export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, w
           {exposure.pendingReviewBouts > 0 && <div><dt>Mapping under review</dt><dd>{exposure.pendingReviewBouts}<small> · shown, not counted</small></dd></div>}
         </dl>}
       {exposure?.mappingCoverage === "pending_review" && <p className="spz-note">Its exercise mapping is still under review, so nothing is counted for it yet.</p>}
+      {paired && exposure?.mappingCoverage === "reviewed" && <p className="spz-note"><b>{paired.label}:</b> {paired.exposure ? `${paired.exposure.directDynamicBouts} direct dynamic · ${paired.exposure.contributingDynamicBouts} other dynamic · ${paired.exposure.deliberateHoldBouts} holds` : "nothing"}, {side === "left" ? "left" : "right"} arm.</p>}
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-ledger">
@@ -137,9 +162,22 @@ export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, w
             <span className="spz-candidate-actions">
               <button type="button" className="spz-button" onClick={() => onChooseExercise(candidate.catalogExerciseId)}><Plus className="h-4 w-4" aria-hidden="true" />Add or swap</button>
               <button type="button" className="spz-link" onClick={() => onInspectExercise(candidate.catalogExerciseId, candidate.name)}>About it</button>
+              <button type="button" className="spz-link" onClick={() => exclude(candidate.catalogExerciseId, candidate.name)} aria-label={`Do not suggest ${candidate.name}`}>Not for me</button>
             </span>
           </li>)}
         </ul> : <p className="spz-note">{recommendations.emptyReason ?? "No reviewed exercise fits your equipment and choices."}</p>}
+      {excludedNow && <p className="spz-inline-status" role="status">{excludedNow.name} will not be suggested. <button type="button" className="spz-link" onClick={() => { if (onSetExerciseExcluded(excludedNow.id, false).ok) setExcludedNow(null); }}>Undo</button></p>}
+      {exclusionError && <p className="spz-error" role="alert">{exclusionError}</p>}
+      {(equipmentChoices.length > 0 || excludedExercises.length > 0) && <details className="spz-disclosure">
+        <summary><span><b>What is suggested</b><small>{exclusions.catalogExerciseIds.length + exclusions.equipment.length ? `${exclusions.catalogExerciseIds.length + exclusions.equipment.length} left out by you` : "Nothing left out"}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+        {equipmentChoices.length > 0 && <div className="spz-chips" role="group" aria-label="Equipment to leave out of suggestions">
+          {equipmentChoices.map((item) => {
+            const off = exclusions.equipment.includes(item);
+            return <button key={item} type="button" className="spz-chip" aria-pressed={off} onClick={() => { const result = onSetEquipmentExcluded(item, !off); setExclusionError(result.ok ? null : result.reason); }}><span>{item}</span><small>{off ? "Left out" : "Suggested"}</small></button>;
+          })}
+        </div>}
+        {excludedExercises.length > 0 && <ul className="spz-exercise-list">{excludedExercises.map((item) => <li key={item.id}><span><b>{item.name}</b><small>Not suggested</small></span><button type="button" className="spz-link" onClick={() => onSetExerciseExcluded(item.id, false)}>Suggest again</button></li>)}</ul>}
+      </details>}
       {recommendations && recommendations.kind !== "mapping_not_reviewed" && recommendations.alreadyCoveredBy.length > 0 && <p className="spz-note"><b>Already covered by</b> {recommendations.alreadyCoveredBy.map((item) => `${item.name} (${item.days.map((day) => day.label).join(", ")})`).join("; ")}.</p>}
     </section>
 

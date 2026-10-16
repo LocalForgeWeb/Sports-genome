@@ -7,6 +7,7 @@ import { exercises } from "@/lib/exerciseCatalog";
 import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { specializationGoalsKeyBase } from "@/lib/specialization/stores";
+import { specializationExclusionsKeyBase } from "@/lib/specialization/exclusions";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { buildDaySlots, commitDay, emptyDayStore } from "@/lib/trainingDayPlan";
 import { parseSetCount } from "@/lib/sessionVolume";
@@ -31,8 +32,10 @@ const sessions = [{
   exercises: [{ id: "e1", exerciseName: "Hammer Curl", catalogId: 132, plannedPrescription: "3 × 12", sets: [set(30, 12), set(30, 12), set(30, 10)] }],
 }];
 
+let lastState: SpecializationViewState | null = null;
 function Harness(props: { initial?: Partial<SpecializationViewState>; onApply?: SpecializationPanelProps["onApplyPlanChange"] }) {
   const [state, setState] = useState<SpecializationViewState>({ ...defaultSpecializationState("forearm"), ...props.initial });
+  lastState = state;
   return createElement(SpecializationPanel, {
     state,
     onStateChange: setState,
@@ -132,5 +135,35 @@ describe("the specialization page", () => {
     // Planned: Hammer Curl's sets as the goal's default prescription writes them for its place in the day, on each arm.
     const planned = parseSetCount(getGoalPrescription("Athleticism", 1));
     expect(row(new RegExp(`^Brachioradialis, Surface\\. ${planned} direct dynamic bouts`))).not.toBeNull();
+  });
+  it("starts an add from Add targeted exercise when the muscle has no work", async () => {
+    render(createElement(Harness, { initial: { nodeId: "forearm.fcr" } }));
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /Add targeted exercise/ })); });
+    expect(screen.getByRole("dialog", { name: "Add to your plan" })).not.toBeNull();
+  });
+
+  it("leaves an exercise out of suggestions with Not for me, and Undo brings it back", async () => {
+    render(createElement(Harness, { initial: { nodeId: "forearm.br" } }));
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /Inspect coverage/ })); });
+    const sheet = screen.getByRole("dialog", { name: "Brachioradialis" });
+    const first = within(sheet).getAllByRole("button", { name: /^Do not suggest / })[0];
+    const name = first.getAttribute("aria-label")!.replace("Do not suggest ", "");
+    await act(async () => { fireEvent.click(first); });
+    expect(within(sheet).queryByRole("button", { name: `Do not suggest ${name}` })).toBeNull();
+    expect(JSON.parse(window.localStorage.getItem(specializationExclusionsKeyBase) ?? "{}").catalogExerciseIds).toHaveLength(1);
+    expect(within(sheet).getByRole("status").textContent).toMatch(new RegExp(`^${name} will not be suggested`));
+    await act(async () => { fireEvent.click(within(within(sheet).getByRole("status")).getByRole("button", { name: "Undo" })); });
+    expect(within(sheet).getByRole("button", { name: `Do not suggest ${name}` })).not.toBeNull();
+  });
+
+  it("sets this week's logged work beside the plan week as written", () => {
+    render(createElement(Harness));
+    expect(screen.getByText(/This week, right arm:/).textContent).toMatch(/for the forearms: 3 bouts logged · \d+ planned in Plan Week 1, as written\./);
+  });
+
+  it("drops a muscle the region does not have from the address", async () => {
+    render(createElement(Harness, { initial: { nodeId: "forearm.nonexistent" } }));
+    await act(async () => {});
+    expect(lastState?.nodeId).toBeNull();
   });
 });

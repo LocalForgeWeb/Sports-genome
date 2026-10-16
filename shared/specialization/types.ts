@@ -44,6 +44,11 @@ export interface SpecializationRegion {
   bodyMapKeys: string[];
   /** The link from other screens: "Explore forearm coverage". */
   entryLabel: string;
+  /**
+   * A body-map key that names exactly one of the region's muscles opens the page with that
+   * muscle selected ("brachioradialis" → BR); a broader key ("forearms") opens the region.
+   */
+  nodeForBodyMapKey?: Record<string, NodeId>;
 }
 
 export interface AnatomyNode {
