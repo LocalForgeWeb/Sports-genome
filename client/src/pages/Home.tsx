@@ -1443,25 +1443,14 @@ export default function Home() {
     const before = loadDay(store, slot.key);
     const outcome = applyPlanChangeToRecord(before, change, incoming);
     if (!outcome.ok) return outcome;
-    const after = outcome.record;
+    const { record: after, revert } = outcome;
     editDayInWeek(change.week, slot.key, () => after);
     const outgoing = change.replaceEntryId === undefined ? null : before.workout.find((exercise) => exercise.id === change.replaceEntryId) ?? null;
-    // The inverse of this change only, wherever the incoming exercise stands by then: an add
-    // (at whatever slot it was given) comes back out and the rest of the day closes up; a swap
-    // puts the outgoing exercise back where the incoming one stands, with its own prescription
-    // and settings.
-    const undo = () => editDayInWeekRef.current(change.week, slot.key, (record) => {
-      if (!record.workout.some((exercise) => exercise.id === incoming.id)) return record;
-      const { [incoming.id]: _prescription, ...prescriptions } = record.prescriptions;
-      const { [incoming.id]: _settings, ...settings } = record.settings;
-      if (!outgoing) return { ...record, workout: record.workout.filter((exercise) => exercise.id !== incoming.id), prescriptions, settings };
-      return {
-        ...record,
-        workout: record.workout.map((exercise) => (exercise.id === incoming.id ? outgoing : exercise)),
-        prescriptions: before.prescriptions[outgoing.id] ? { ...prescriptions, [outgoing.id]: before.prescriptions[outgoing.id] } : prescriptions,
-        settings: before.settings[outgoing.id] ? { ...settings, [outgoing.id]: before.settings[outgoing.id] } : settings,
-      };
-    });
+    // The inverse of this change only, on the day as it stands when Undo is pressed (planChange
+    // `revert`): an add comes back out from whatever slot it was given and the rest of the day
+    // closes up; a swap puts the outgoing exercise back where the incoming one stands, with its
+    // own prescription and settings, and never into a day that has it again already.
+    const undo = () => editDayInWeekRef.current(change.week, slot.key, revert);
     // Sonner merges a notice into the one already showing with its id, so every option is named:
     // an earlier add's description and its "View workout" would otherwise carry over to this one.
     toast(`${outcome.summary} · Week ${change.week} · ${slot.day}`, {

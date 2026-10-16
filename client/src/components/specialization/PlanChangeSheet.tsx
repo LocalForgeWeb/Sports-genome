@@ -152,7 +152,9 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
     slot ? slot.label : "Choose a day",
     !slot ? "" : swapping ? (replaced ? `In place of ${replaced.name}` : "Choose one to swap out") : dayExercises.length ? placeLabel : "",
   ].filter(Boolean).join(" · ");
-  const hint = !slot ? "Choose a day" : swapping && replaceEntryId === null ? "Choose the exercise to swap out" : null;
+  // Beside a disabled Save, why it is disabled: the choice still to make, or why this change cannot be
+  // saved (on a phone the preview's own line is often below the fold).
+  const hint = !slot ? "Choose a day" : swapping && replaceEntryId === null ? "Choose the exercise to swap out" : outcome && !outcome.ok ? outcome.reason : null;
   const plannedAs = outcome?.ok && !swapping && incoming ? prescriptionOf(outcome.record.prescriptions[incoming.id], outcome.index, goal) : undefined;
   // An add ahead of other exercises moves them down a place. One without a prescription of its
   // own reads as its place's default, so where that default differs its planned sets change: said

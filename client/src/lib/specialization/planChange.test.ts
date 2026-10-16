@@ -4,6 +4,7 @@ import type { DayRecord } from "@/lib/trainingDayPlan";
 import { getGoalPrescription } from "@/lib/workoutPlanner";
 import { prescriptionOf } from "./planBouts";
 import { applyPlanChangeToRecord, insertionIndex } from "./planChange";
+import type { SpecializationPlanChange } from "./viewState";
 
 const byId = (id: number) => exercises.find((exercise) => exercise.id === id)!;
 const day = (): DayRecord => ({
@@ -127,5 +128,62 @@ describe("an add or swap from the specialization page, on one exact day (brief �
     applyPlanChangeToRecord(record, { ...change, replaceEntryId: 139 }, byId(140));
     applyPlanChangeToRecord(record, { ...change, insertAt: 1, prescription: "3 × 8" }, byId(140));
     expect(JSON.stringify(record)).toBe(snapshot);
+  });
+});
+
+describe("Undo of an add or swap from the specialization page: that one change, on the day as it stands then", () => {
+  const applied = (record: DayRecord, extra: Partial<SpecializationPlanChange>) => {
+    const outcome = applyPlanChangeToRecord(record, { ...change, ...extra }, byId(140));
+    if (!outcome.ok) throw new Error(outcome.reason);
+    return outcome;
+  };
+
+  it("takes an add back out of the slot it was given, and the day closes up as it was", () => {
+    const before = unprescribedFirst();
+    const outcome = applied(before, { insertAt: 0 });
+    expect(outcome.revert(outcome.record)).toEqual(before);
+  });
+
+  it("takes out only that add after other edits to the day, wherever it stands by then", () => {
+    const outcome = applied(day(), { insertAt: 1 });
+    // Since: the add moved to the end and another exercise was added first.
+    const since: DayRecord = { ...outcome.record, workout: [byId(1), byId(132), byId(139), byId(140)], prescriptions: { ...outcome.record.prescriptions, 1: "2 × 5", 140: "5 × 5" } };
+    const undone = outcome.revert(since);
+    expect(ids(undone)).toEqual([1, 132, 139]);
+    expect(undone.prescriptions).toEqual({ 1: "2 × 5", 132: "3 × 10–12", 139: "4 × 15" });
+  });
+
+  it("puts a swapped-out exercise back in the incoming one's place, with only what it had of its own", () => {
+    const prescribed = applied(day(), { replaceEntryId: 139 });
+    expect(prescribed.revert(prescribed.record)).toEqual(day());
+    const unprescribed = applied(unprescribedFirst(), { replaceEntryId: 132 });
+    const undone = unprescribed.revert(unprescribed.record);
+    expect(undone).toEqual(unprescribedFirst());
+    expect(undone.prescriptions).not.toHaveProperty("132");
+  });
+
+  it("puts back a duplicated entry (its own negative id) that was swapped out", () => {
+    const copy = { ...byId(132), id: -1700000000001, catalogExerciseId: 132 } as DayRecord["workout"][number];
+    const before: DayRecord = { workout: [byId(132), copy], prescriptions: { [copy.id]: "2 × 20" }, settings: { [copy.id]: { rest: "45 sec", notes: "", completed: false } }, context: [] };
+    const outcome = applied(before, { replaceEntryId: copy.id });
+    expect(ids(outcome.record)).toEqual([132, 140]);
+    expect(outcome.record.prescriptions).toEqual({ 140: "2 × 20" });
+    expect(outcome.revert(outcome.record)).toEqual(before);
+  });
+
+  it("never puts an exercise into a day twice: when the swapped-out one is back already, only the incoming one comes out", () => {
+    const outcome = applied(day(), { replaceEntryId: 139 });
+    // Since: the athlete added Wrist Curl to the day again, at the end.
+    const since: DayRecord = { ...outcome.record, workout: [...outcome.record.workout, byId(139)] };
+    const undone = outcome.revert(since);
+    expect(ids(undone)).toEqual([132, 139]);
+    expect(new Set(ids(undone)).size).toBe(undone.workout.length);
+    expect(undone.prescriptions).not.toHaveProperty("140");
+  });
+
+  it("changes nothing once the incoming exercise has left the day", () => {
+    const outcome = applied(day(), { replaceEntryId: 139 });
+    const since: DayRecord = { ...outcome.record, workout: [byId(132)] };
+    expect(outcome.revert(since)).toBe(since);
   });
 });

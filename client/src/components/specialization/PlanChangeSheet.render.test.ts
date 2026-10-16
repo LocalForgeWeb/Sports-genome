@@ -183,6 +183,22 @@ describe("the add-or-swap sheet", () => {
     expect(outcome.record.prescriptions).toEqual({});
   });
 
+  it("says beside a disabled Save why a change cannot be saved, not only further down in the preview", async () => {
+    const { sheet, onApply } = open({ initialExerciseId: 132 });
+    // Hammer Curl is already on Pull in week 1.
+    await click(within(sheet).getByRole("button", { name: /Day 02 · Pull/ }));
+    expect(save(sheet).disabled).toBe(true);
+    const hint = sheet.querySelector(".spz-sheet-foot #spz-change-hint");
+    expect(hint?.textContent).toBe("Hammer Curl is already in that day.");
+    expect(save(sheet).getAttribute("aria-describedby")).toBe("spz-change-hint");
+    await click(save(sheet));
+    expect(onApply).not.toHaveBeenCalled();
+    // Another day takes it: Save is ready and the hint is gone.
+    await click(within(sheet).getByRole("button", { name: /Day 03 · Legs/ }));
+    expect(save(sheet).disabled).toBe(false);
+    expect(sheet.querySelector("#spz-change-hint")).toBeNull();
+  });
+
   it("keeps the sheet open with Home's reason when the change is refused", async () => {
     const { sheet, onClose } = open({ onApply: () => ({ ok: false, reason: "Week 1 is not built yet. Build it in Plan first." }) });
     await click(within(sheet).getByRole("button", { name: /Day 03 · Legs/ }));

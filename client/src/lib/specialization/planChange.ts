@@ -3,8 +3,11 @@ import type { DayRecord } from "@/lib/trainingDayPlan";
 import type { SpecializationPlanChange } from "./viewState";
 
 export type PlanChangeOutcome =
-  /** `index`: where the incoming exercise stands in the day afterwards (0 = first). */
-  | { ok: true; record: DayRecord; summary: string; index: number }
+  /**
+   * `index`: where the incoming exercise stands in the day afterwards (0 = first). `revert`: this
+   * change's inverse, for Undo, applied to the day as it stands when Undo is pressed.
+   */
+  | { ok: true; record: DayRecord; summary: string; index: number; revert: (current: DayRecord) => DayRecord }
   | { ok: false; reason: string };
 
 /** Where an add lands: `insertAt` clamped to the day (0 = first), or the end when it is absent or not a number. */
@@ -49,6 +52,7 @@ export function applyPlanChangeToRecord(record: DayRecord, change: Specializatio
       },
       summary: `Added ${incoming.name}`,
       index,
+      revert: (current) => revertChange(current, incoming, null, record),
     };
   }
   const index = record.workout.findIndex((exercise) => exercise.id === change.replaceEntryId);
@@ -66,5 +70,29 @@ export function applyPlanChangeToRecord(record: DayRecord, change: Specializatio
     },
     summary: `Swapped ${outgoing.name} for ${incoming.name}`,
     index,
+    revert: (current) => revertChange(current, incoming, outgoing, record),
+  };
+}
+
+/**
+ * Takes back one add or swap on the day as it stands now, which may have changed since (Undo
+ * can come after other edits). An add comes back out wherever the incoming exercise stands by
+ * then, and the rest of the day closes up. A swap puts the outgoing entry back where the
+ * incoming one stands, with the prescription and settings it had of its own before. Nothing
+ * changes once the incoming exercise has left the day. If the outgoing entry is already back in
+ * the day (added again since), the incoming one only comes out, so no entry is ever in a day twice.
+ */
+function revertChange(current: DayRecord, incoming: Exercise, outgoing: Exercise | null, before: DayRecord): DayRecord {
+  if (!current.workout.some((exercise) => exercise.id === incoming.id)) return current;
+  const { [incoming.id]: _prescription, ...prescriptions } = current.prescriptions;
+  const { [incoming.id]: _settings, ...settings } = current.settings;
+  if (!outgoing || current.workout.some((exercise) => exercise.id === outgoing.id)) {
+    return { ...current, workout: current.workout.filter((exercise) => exercise.id !== incoming.id), prescriptions, settings };
+  }
+  return {
+    ...current,
+    workout: current.workout.map((exercise) => (exercise.id === incoming.id ? outgoing : exercise)),
+    prescriptions: before.prescriptions[outgoing.id] ? { ...prescriptions, [outgoing.id]: before.prescriptions[outgoing.id] } : prescriptions,
+    settings: before.settings[outgoing.id] ? { ...settings, [outgoing.id]: before.settings[outgoing.id] } : settings,
   };
 }
