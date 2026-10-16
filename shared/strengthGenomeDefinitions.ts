@@ -143,7 +143,7 @@ export function getStrengthCatalogSelectionContext(exercise: StrengthCatalogSele
  * The exercise catalog names muscles in its own vocabulary. This maps that
  * vocabulary onto the athlete-facing regions above so a lift logged in the
  * workout tracker can say where it belongs without anyone hand-writing an
- * alias for all 400 catalog exercises.
+ * alias for every catalog exercise.
  *
  * This is the same kind of statement the routes above make — a movement
  * classification, not a measurement. It says "you have recorded work here",
