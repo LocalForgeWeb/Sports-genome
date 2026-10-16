@@ -201,6 +201,9 @@ const DESTINATIONS: Candidate[] = [
   { type: "destination", id: "catalog", label: "Exercise catalog", context: "Body Lab", terms: ["exercise catalog", "catalog", "exercises"] },
   { type: "destination", id: "body", label: "Muscle map", context: "Body Lab", terms: ["muscle map", "body lab", "body map", "anatomy"] },
   { type: "destination", id: "movement", label: "Movement explorer", context: "Body Lab", terms: ["movement explorer", "movement atlas", "movements", "actions"] },
+  // The specialization page (Oct 16 brief): the forearm is its only region so far, and it
+  // is named as the page names itself. The terms are the words people type for that work.
+  { type: "destination", id: "specialization", label: "Forearm specialization", context: "Body Lab", terms: ["forearm specialization", "specialize", "specialization", "forearms", "forearm", "grip", "wrist", "brachioradialis", "muscle atlas"] },
   { type: "destination", id: "profile", label: "About me", context: "Profile", terms: ["about me", "profile", "settings", "account"] },
   /**
    * The contract's §11 "named/search/list path with the same authority as any

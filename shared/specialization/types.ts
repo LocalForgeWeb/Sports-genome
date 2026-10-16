@@ -40,6 +40,10 @@ export interface SpecializationRegion {
   sortOrder: number;
   /** `fixture` regions exist only in tests; production never registers one. */
   status: "production" | "fixture";
+  /** Body-map and catalog keys this region refines; selecting one on the map offers the page. */
+  bodyMapKeys: string[];
+  /** The link from other screens: "Explore forearm coverage". */
+  entryLabel: string;
 }
 
 export interface AnatomyNode {

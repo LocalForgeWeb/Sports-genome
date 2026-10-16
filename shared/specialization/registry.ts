@@ -12,4 +12,4 @@ export function regionDataFor(id: RegionId | null | undefined): SpecializationRe
   return specializationRegions.find((data) => data.region.id === id) ?? null;
 }
 
-export const defaultSpecializationRegionId: RegionId = forearmRegionData.region.id;
+export { defaultSpecializationRegionId } from "./regionIndex";

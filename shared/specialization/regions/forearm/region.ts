@@ -7,4 +7,6 @@ export const forearmRegion: SpecializationRegion = {
   heading: "Forearm specialization",
   sortOrder: 10,
   status: "production",
+  bodyMapKeys: ["forearms", "brachioradialis"],
+  entryLabel: "Explore forearm coverage",
 };

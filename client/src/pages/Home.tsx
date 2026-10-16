@@ -101,8 +101,11 @@ import { isLaunchExperienceEnabled, launchExperiencePreferenceKey } from "@/lib/
 import { buildStampLabel } from "@/lib/buildStamp";
 import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
+import { clearSpecializationParams, defaultSpecializationState, specializationStateFromParams, writeSpecializationParams, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationViewState } from "@/lib/specialization/viewState";
+import { applyPlanChangeToRecord } from "@/lib/specialization/planChange";
+import { defaultSpecializationRegionId, regionForBodyMapKey, specializationRegionIndex } from "@shared/specialization/regionIndex";
 
-type Workspace = "command" | "profile" | "progress" | "recommended" | "review" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "strength";
+type Workspace = "command" | "profile" | "progress" | "recommended" | "review" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "strength" | "specialization";
 type Goal = TrainingGoal;
 type StoredAthleteProfile = { version: 1 | 2 | 3; sportId: string; sportContextMode?: SportContextMode; capacityFocus?: CapacityFocusState; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number; baseline?: AthleteBaseline };
 type StoredWorkoutEntry = { entryId: number; catalogExerciseId: number };
@@ -151,6 +154,7 @@ const BodyLabNavigator = lazy(() => import("@/components/BodyLabNavigator").then
 const CatalogDiscoveryPanel = lazy(() => import("@/components/CatalogDiscoveryPanel").then((module) => ({ default: module.CatalogDiscoveryPanel })));
 const CatalogExerciseEvidenceCard = lazy(() => import("@/components/CatalogExerciseEvidenceCard").then((module) => ({ default: module.CatalogExerciseEvidenceCard })));
 const StrengthGenomePanel = lazy(() => import("@/components/StrengthGenomePanel").then((module) => ({ default: module.StrengthGenomePanel })));
+const SpecializationPanel = lazy(() => import("@/components/specialization/SpecializationPanel").then((module) => ({ default: module.SpecializationPanel })));
 const SelectedActionConnectionCard = lazy(() => import("@/components/SelectedActionConnectionCard").then((module) => ({ default: module.SelectedActionConnectionCard })));
 
 // FIXED DEFAULT per the Sports Genome philosophy's Mobile global navigation contract: four
@@ -185,12 +189,21 @@ export const contextualWorkspaces: Record<Exclude<PrimaryDestination, "secondary
     { id: "tracker", label: "Workout", workspace: "tracker" },
     { id: "recommended", label: "Matches", workspace: "recommended" },
   ],
-  // Body Lab is the reference library: look things up, understand them. Everything
-  // here is about exercises and anatomy in general, not about this athlete.
+  /**
+   * Body Lab is the reference library: look things up, understand them. Movements,
+   * Muscles and Exercises are about exercises and anatomy in general, not about this
+   * athlete.
+   *
+   * Specialize is the one exception, by decision (Oct 16 forearm brief: "Body Lab →
+   * Specialization → Forearms is the canonical workspace"). It reads the athlete's own
+   * plan and logged work against the same anatomy, muscle by muscle, so it sits beside
+   * the map it refines rather than under Progress, and the bottom dock stays at four.
+   */
   body: [
     { id: "movement", label: "Movements", workspace: "movement" },
     { id: "body", label: "Muscles", workspace: "body" },
     { id: "catalog", label: "Exercises", workspace: "catalog" },
+    { id: "specialization", label: "Specialize", workspace: "specialization" },
   ],
   /**
    * Progress is the athlete's own record, so logging a lift belongs here.
@@ -241,6 +254,7 @@ export const workspaceTitles: Record<Workspace, string> = {
   movement: "Movement explorer",
   body: "Muscle map",
   catalog: "Exercise catalog",
+  specialization: "Forearm specialization",
 };
 const workspaceIds = Object.keys(workspaceTitles) as Workspace[];
 
@@ -275,7 +289,17 @@ function replaceWithCanonicalAddress(workspace: Workspace) {
   if (workspace !== "review" || url.searchParams.get("scope") !== "day") url.searchParams.delete("scope");
   // A finished workout's id belongs to Progress's own entries.
   if (workspace !== "progress") url.searchParams.delete("session");
+  // The specialization page's muscle, arm, window and view ride on its own entries only,
+  // written back as validated so a hand-edited value never survives a reload.
+  if (workspace === "specialization") writeSpecializationParams(url.searchParams, specializationFromLocation(url.searchParams));
+  else clearSpecializationParams(url.searchParams);
   if (url.search !== window.location.search) window.history.replaceState(window.history.state, "", url);
+}
+
+const specializationRegionIds: ReadonlySet<string> = new Set(specializationRegionIndex.map((region) => region.id));
+/** The specialization page's state as an address states it, validated field by field. */
+export function specializationFromLocation(params: URLSearchParams): SpecializationViewState {
+  return specializationStateFromParams(params, defaultSpecializationRegionId, specializationRegionIds);
 }
 
 /** The finished workout a Progress address opens, if any (Oct 7 brief N06): `?workspace=progress&session=<id>`. */
@@ -289,7 +313,7 @@ export function progressSessionFromLocation(params: URLSearchParams): string | n
  * that is not the catalog carries no discovery parameters; anything else in the query
  * is left as it is.
  */
-function urlForWorkspace(next: Workspace, discovery: ExerciseDiscoveryContext, scope?: ReviewScope, session?: string | null) {
+function urlForWorkspace(next: Workspace, discovery: ExerciseDiscoveryContext, scope?: ReviewScope, session?: string | null, specialization?: SpecializationViewState) {
   const url = new URL(window.location.href);
   url.searchParams.set("workspace", next);
   // One finished workout's detail in Progress; any other address carries no session.
@@ -298,6 +322,7 @@ function urlForWorkspace(next: Workspace, discovery: ExerciseDiscoveryContext, s
   // Review's scope rides on Review's own entries and on no other page's; the week is the
   // default, so only a day view says so and a plain Review address stays what it was.
   if (next === "review" && scope === "day") url.searchParams.set("scope", scope); else url.searchParams.delete("scope");
+  if (next === "specialization" && specialization) writeSpecializationParams(url.searchParams, specialization); else clearSpecializationParams(url.searchParams);
   return url;
 }
 
@@ -512,6 +537,10 @@ export default function Home() {
   const [trackerDayPickerOpen, setTrackerDayPickerOpen] = useState(false);
   /** The finished workout open in Progress, from the address so a reload or a shared link reopens it. */
   const [progressSession, setProgressSession] = useState<string | null>(() => (typeof window === "undefined" ? null : progressSessionFromLocation(new URLSearchParams(window.location.search))));
+  /** The specialization page's muscle, arm, window and view; its own address states it (lib/specialization/viewState). */
+  const [specializationState, setSpecializationState] = useState<SpecializationViewState>(() => (typeof window === "undefined" ? defaultSpecializationState(defaultSpecializationRegionId) : specializationFromLocation(new URLSearchParams(window.location.search))));
+  /** Where the specialization page was opened from, so its in-page Back returns there (brief §6). */
+  const [specializationOrigin, setSpecializationOrigin] = useState<Workspace | null>(null);
   const [launchExperienceEnabled, setLaunchExperienceEnabled] = useState(true);
   const favoriteQuery = trpc.favorites.list.useQuery(undefined, { enabled: isAuthenticated, retry: false });
   // Selectable capacity targets. Sport-independent, and safe to fail: the quiz renders an
@@ -1159,7 +1188,7 @@ export default function Home() {
    * mode is named) clears the refinements; a named mode without it gets back the
    * ones it was left with.
    */
-  const navigateWorkspace = (next: Workspace, { keepScroll = false, discovery: requested, fresh, reviewScope: requestedScope, session = null }: { keepScroll?: boolean; discovery?: ExerciseDiscoveryContext; fresh?: boolean; reviewScope?: ReviewScope; session?: string | null } = {}) => {
+  const navigateWorkspace = (next: Workspace, { keepScroll = false, discovery: requested, fresh, reviewScope: requestedScope, session = null, specialization: requestedSpecialization, specializationFrom }: { keepScroll?: boolean; discovery?: ExerciseDiscoveryContext; fresh?: boolean; reviewScope?: ReviewScope; session?: string | null; specialization?: SpecializationViewState; specializationFrom?: Workspace } = {}) => {
     // Any ordinary navigation supersedes the return context a search result left.
     setSearchReturn(null);
     /**
@@ -1182,16 +1211,47 @@ export default function Home() {
     // Review opened for a day (Plan's pointer) or for the week (Home) says which; the tab and
     // the dock say nothing and Review keeps the scope it was left on.
     if (next === "review" && requestedScope) { reviewScopeRef.current = requestedScope; setReviewScopeState(requestedScope); }
+    const specialization = requestedSpecialization ?? specializationState;
+    if (next === "specialization") setSpecializationState(specialization);
+    // Arriving from the tab row or the dock is not "opened from" anywhere; an entry point
+    // that names where it was pressed gets an in-page Back to there (brief §6).
+    const origin = next === "specialization" && specializationFrom && specializationFrom !== "specialization" ? specializationFrom : null;
+    setSpecializationOrigin(origin);
     setWorkspaceState(next);
     setProgressSession(next === "progress" ? session : null);
     if (typeof window === "undefined") return;
     // A new entry whenever the address changes: another page, the catalog in another mode, or one workout's detail.
-    const url = urlForWorkspace(next, catalogDiscovery, reviewScopeRef.current, session);
+    const url = urlForWorkspace(next, catalogDiscovery, reviewScopeRef.current, session, specialization);
     if (url.search !== window.location.search) {
-      window.history.pushState({ workspace: next }, "", url);
+      window.history.pushState(origin ? { workspace: next, specializationOrigin: origin } : { workspace: next }, "", url);
     }
     if (!keepScroll) window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
+  /**
+   * The specialization page opened from somewhere with a purpose: a region (and, when the
+   * entry point names one, a muscle) chosen there. The rest of the view starts from the
+   * defaults, and Back returns to the page it was opened from.
+   */
+  const openSpecialization = (partial: Partial<SpecializationViewState> = {}) => {
+    const next = { ...defaultSpecializationState(partial.regionId ?? defaultSpecializationRegionId), ...partial };
+    navigateWorkspace("specialization", { specialization: next, specializationFrom: workspace });
+  };
+  /** A change made on the page itself (muscle, arm, window, view): the same entry, its address rewritten. */
+  const updateSpecializationState = (next: SpecializationViewState) => {
+    setSpecializationState(next);
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    writeSpecializationParams(url.searchParams, next);
+    if (url.search !== window.location.search) window.history.replaceState(window.history.state, "", url);
+  };
+  /** The page a muscle key opens, if a specialization region refines it, labelled as the region names its entry. */
+  const specializationEntryFor = (muscleKey: string) => {
+    const region = regionForBodyMapKey(muscleKey);
+    return region ? { label: region.entryLabel, open: () => openSpecialization({ regionId: region.id }) } : null;
+  };
+  // Body Lab offers the region for the muscle picked on the map, without picking a muscle
+  // inside it: the map's key is coarser than the atlas's muscles.
+  const activeMuscleSpecialization = activeMuscle ? specializationEntryFor(activeMuscle) : null;
   /**
    * The one way into the catalog with a purpose: a movement ("Find exercises for
    * Bridge"), a muscle the athlete picked ("Browse Gluteal complex exercises"), or the
@@ -1272,6 +1332,12 @@ export default function Home() {
       }
       replaceWithCanonicalAddress(next);
       setProgressSession(next === "progress" ? progressSessionFromLocation(params) : null);
+      // The specialization entry brings back its muscle, arm, window and view, and its origin.
+      if (next === "specialization") {
+        setSpecializationState(specializationFromLocation(params));
+        const origin = (window.history.state as { specializationOrigin?: unknown } | null)?.specializationOrigin;
+        setSpecializationOrigin(typeof origin === "string" && workspaceIds.includes(origin as Workspace) ? origin as Workspace : null);
+      }
       setWorkspaceState(next);
     };
     window.addEventListener("popstate", restoreWorkspace);
@@ -1332,6 +1398,59 @@ export default function Home() {
       cancel: { label: "Undo", onClick: () => editDay(dayKey, (record) => ({ ...record, workout: record.workout.filter((item) => item.id !== exercise.id) })) },
     });
     return "added";
+  };
+  /**
+   * An edit to one day of any plan week. The week being edited goes through editDay, so the
+   * open draft changes in place; another week's stored record changes in planWeeks. Undo
+   * reaches this through a ref, so it writes to wherever that day lives when it is pressed.
+   */
+  const editDayInWeek = (week: number, dayKey: string, edit: (record: DayRecord) => DayRecord) => {
+    if (week === activeWeek) { editDay(dayKey, edit); return; }
+    setPlanWeeks((current) => {
+      const snapshot = current[week];
+      if (!snapshot) return current;
+      return { ...current, [week]: { ...snapshot, days: commitDay(snapshot.days, dayKey, edit(loadDay(snapshot.days, dayKey))) } };
+    });
+  };
+  const editDayInWeekRef = useRef(editDayInWeek);
+  editDayInWeekRef.current = editDayInWeek;
+  /**
+   * An add or a swap asked for from the specialization page, into the exact week and day it
+   * named (brief §7). The page has already shown the athlete what changes; this applies the
+   * same pure edit (lib/specialization/planChange) and answers with a reason when it cannot.
+   * The toast's Undo takes back this one change, not whatever the day became since.
+   */
+  const applySpecializationChange = (change: SpecializationPlanChange): SpecializationPlanChangeResult => {
+    if (!planReadyForEdits({ quiet: true })) return { ok: false, reason: "Your plan is still loading, so nothing was changed. Try again in a moment." };
+    const incoming = exercises.find((exercise) => exercise.id === change.catalogExerciseId);
+    if (!incoming) return { ok: false, reason: "That exercise is not in the catalog any more." };
+    const slot = daySlots.find((item) => item.key === change.dayKey);
+    if (!slot) return { ok: false, reason: "That day is no longer in your week. Choose another day." };
+    const isActive = change.week === activeWeek;
+    if (!isActive && !planWeeks[change.week]) return { ok: false, reason: `Week ${change.week} is not built yet. Build it in Plan first.` };
+    const store = isActive ? commitDay(dayStore, draftDayKeyRef.current, activeDraft()) : planWeeks[change.week].days;
+    const before = loadDay(store, slot.key);
+    const outcome = applyPlanChangeToRecord(before, change, incoming, prescriptionFor(before.workout.length, goal));
+    if (!outcome.ok) return outcome;
+    const after = outcome.record;
+    editDayInWeek(change.week, slot.key, () => after);
+    const outgoing = change.replaceEntryId === undefined ? null : before.workout.find((exercise) => exercise.id === change.replaceEntryId) ?? null;
+    // The inverse of this change only: an add comes back out; a swap puts the outgoing
+    // exercise back where the incoming one stands, with its own prescription and settings.
+    const undo = () => editDayInWeekRef.current(change.week, slot.key, (record) => {
+      if (!record.workout.some((exercise) => exercise.id === incoming.id)) return record;
+      const { [incoming.id]: _prescription, ...prescriptions } = record.prescriptions;
+      const { [incoming.id]: _settings, ...settings } = record.settings;
+      if (!outgoing) return { ...record, workout: record.workout.filter((exercise) => exercise.id !== incoming.id), prescriptions, settings };
+      return {
+        ...record,
+        workout: record.workout.map((exercise) => (exercise.id === incoming.id ? outgoing : exercise)),
+        prescriptions: before.prescriptions[outgoing.id] ? { ...prescriptions, [outgoing.id]: before.prescriptions[outgoing.id] } : prescriptions,
+        settings: before.settings[outgoing.id] ? { ...settings, [outgoing.id]: before.settings[outgoing.id] } : settings,
+      };
+    });
+    toast(`${outcome.summary} · Week ${change.week} · ${slot.day}`, { id: "plan-add", cancel: { label: "Undo", onClick: undo } });
+    return { ok: true, undo };
   };
   const toggleFavorite = (exercise: Exercise) => {
     const currentlyFavorite = favoriteIds.has(exercise.id);
@@ -2323,6 +2442,7 @@ export default function Home() {
             <span>Explore exercises that support this movement.</span>
             <button type="button" onClick={() => openDiscovery({ mode: "movement", sportId: referenceMovement.sportId, movementId: referenceMovement.id })}>Find exercises for {movementDisplayLabel(referenceMovement.label)} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
             {activeMuscle && activeMuscleBrowsable && <button type="button" className="body-lab-next-step-secondary" onClick={() => openDiscovery({ mode: "muscle", muscleId: activeMuscle })}>Browse {muscleLabels[activeMuscle] || activeMuscle} exercises <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
+            {activeMuscleSpecialization && <button type="button" className="body-lab-next-step-secondary" onClick={activeMuscleSpecialization.open}>{activeMuscleSpecialization.label} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
           </div>
           {capacityOfferForSelection && <div className="body-lab-capacity-step"><Target className="h-4 w-4" aria-hidden="true" /><div><p>Want {capacityOfferForSelection.name.toLowerCase()} to hold up better, or is something going on there?</p>{capacityOfferForSelection.relation === "region" && <small>{capacityOfferForSelection.name} is the area {(muscleLabels[activeMuscle!] || activeMuscle!).toLowerCase()} sits in — the closest target Sports Genome has for it.</small>}</div><button type="button" onClick={() => { adoptCapacityTarget(capacityOfferForSelection.targetKey); navigateWorkspace("profile", { keepScroll: true }); revealWorkspaceAnchor("targeted-capacity"); }}>Set it as a target <ArrowUpRight className="h-4 w-4" /></button></div>}
         </>} /></section>}
@@ -2363,6 +2483,7 @@ export default function Home() {
               onEditDay={(dayKey, options) => { const index = daySlots.findIndex((slot) => slot.key === dayKey); if (index < 0) return; selectTrainingDay(index); navigateWorkspace("day-plan"); if (options?.addExercises) { window.scrollTo({ top: 0 }); setPickerSheetOpen(true); } }}
               onInspectExercise={inspectExercise}
               onFindExercises={(muscleId) => openDiscovery({ mode: "muscle", muscleId })}
+              specializationEntryFor={specializationEntryFor}
             />
             : <>
               {/* The same strip as the Week board, as day tabs: a tap moves the inspected day. */}
@@ -2382,6 +2503,22 @@ export default function Home() {
             </>}
         </section>}
         {workspace === "progress" && <ProgressOverviewPanel sessionId={progressSession} onOpenSession={openProgressSession} onCloseSession={closeProgressSession} onRepeatSession={repeatSession} onOpenStrength={() => navigateWorkspace("strength")} onOpenTraining={() => navigateWorkspace("day-plan")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} birthYear={athleteBaseline.birthYear} directAccess={directWorkspaceAccess} />}
+        {workspace === "specialization" && <SpecializationPanel
+          state={specializationState}
+          onStateChange={updateSpecializationState}
+          plan={{ ready: homePlan.ready, slots: daySlots, weeks: homePlan.weeks, choice: trainChoice, activeWeek }}
+          catalog={exercises}
+          equipmentProfile={athleteBaseline.equipment}
+          accountId={accountId}
+          goal={goal}
+          weightUnit={athleteBaseline.weightUnit}
+          defaultPrescriptionFor={(index) => prescriptionFor(index, goal)}
+          onApplyPlanChange={applySpecializationChange}
+          onInspectExercise={inspectExercise}
+          onOpenSession={(id) => navigateWorkspace("progress", { session: id })}
+          backLabel={specializationOrigin ? workspaceTitles[specializationOrigin] : null}
+          onBack={specializationOrigin ? () => window.history.back() : null}
+        />}
         {workspace === "strength" && <StrengthGenomePanel weightUnit={athleteBaseline.weightUnit} baselineBodyWeight={athleteBaseline.bodyWeight} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onRankProfile={(patch) => updateBaseline({ ...athleteBaseline, ...patch })} directAccess={directWorkspaceAccess} onOpenTraining={() => navigateWorkspace("day-plan")} />}
       </main></Suspense>
     </div>
