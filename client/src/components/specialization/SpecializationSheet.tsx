@@ -3,14 +3,17 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 import { trapTabWithin } from "@/lib/modalBackground";
+import "./plan-change.css";
 
 /**
  * The page's bottom sheet: the muscle detail and the add/swap flow (design §7). The house
  * pattern of the Save to plan sheet: a bottom sheet on a phone and a dialog from 720 px, on
  * the navy of the app's other sheets, focus on the heading when it opens, Escape and the
- * scrim close it, Tab stays inside, and focus returns to what opened it.
+ * scrim close it, Tab stays inside, and focus returns to what opened it. Whatever sits last
+ * clears the home indicator: the footer pads with the bottom safe area, and without a footer
+ * (the muscle sheet) the body does.
  */
-export function SpecializationSheet({ id, eyebrow, title, subtitle, onClose, children, footer }: {
+export function SpecializationSheet({ id, eyebrow, title, subtitle, onClose, children, footer, focusKey }: {
   id: string;
   eyebrow: string;
   title: string;
@@ -18,6 +21,13 @@ export function SpecializationSheet({ id, eyebrow, title, subtitle, onClose, chi
   onClose: () => void;
   children: ReactNode;
   footer?: ReactNode;
+  /**
+   * What the sheet is about. The heading takes focus when the sheet opens and again only when
+   * this changes (a new muscle is a new subject), never because the title's wording changed:
+   * a control that rewords the title keeps focus. Without it, a change of `title` refocuses,
+   * as before, until every caller passes a key.
+   */
+  focusKey?: string | number;
 }) {
   const layerRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -41,11 +51,12 @@ export function SpecializationSheet({ id, eyebrow, title, subtitle, onClose, chi
       if (opener?.isConnected) opener.focus({ preventScroll: true });
     };
   }, []);
-  // A new muscle in the same sheet is a new subject: the heading takes focus again.
-  useEffect(() => { headingRef.current?.focus({ preventScroll: true }); }, [title]);
+  // A new subject in the same sheet (a new muscle): the heading takes focus again.
+  const subject = focusKey ?? title;
+  useEffect(() => { headingRef.current?.focus({ preventScroll: true }); }, [subject]);
 
   return createPortal(<div className="spz-scrim" onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-    <div ref={layerRef} className="spz-sheet sg-surface-dark" role="dialog" aria-modal="true" aria-labelledby={`${id}-title`}>
+    <div ref={layerRef} className="spz-sheet sg-surface-dark" data-footless={footer ? undefined : ""} role="dialog" aria-modal="true" aria-labelledby={`${id}-title`}>
       <header className="spz-sheet-head">
         <div>
           <p className="spz-eyebrow">{eyebrow}</p>

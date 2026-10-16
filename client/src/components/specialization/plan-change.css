@@ -1,0 +1,10 @@
+/* -- Specialize: the add-or-swap sheet, and the sheet's last edge ----------------- *
+
+   The sheet's footer pads with the bottom safe area (specialization.css). A sheet
+   with no footer (the muscle sheet) ends on its body, so the body clears the home
+   indicator instead. The add-or-swap sheet says, under its title, where the change
+   goes: the week, the day and the slot, in on-dark ink so it reads as the answer to
+   the choices below it. Tokens only. */
+.spz-sheet[data-footless] > .spz-sheet-body { padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
+.spz-change-where { color: var(--sg-text-on-dark); font-weight: 700; overflow-wrap: anywhere; }
+.spz-change-hint { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-weight: 600; line-height: var(--sg-leading-body); }

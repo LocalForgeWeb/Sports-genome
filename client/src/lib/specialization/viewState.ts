@@ -90,17 +90,27 @@ export function clearSpecializationParams(params: URLSearchParams): void {
 }
 
 /**
- * A change to the plan asked for from the page: add an exercise to an exact day, or
- * swap one already there. Home owns the plan, so it applies this and answers.
+ * A change to the plan asked for from the page: add an exercise to an exact slot of an exact
+ * day, or swap one already there (brief §7, "Choose exact week/day and exercise slot before
+ * save"). Home owns the plan, so it applies this (lib/specialization/planChange) and answers.
  */
 export type SpecializationPlanChange = {
   week: number;
   slotIndex: number;
   dayKey: string;
   catalogExerciseId: number;
-  /** The plan entry to replace; absent for an add. */
+  /** The plan entry to replace; absent for an add. A swap takes that entry's place in the day. */
   replaceEntryId?: number;
-  /** Prescription for an added exercise; Home keeps the replaced one's for a swap. */
+  /**
+   * Where an add goes in the day: 0 = first, 2 = after the second exercise; absent = at the
+   * end. Clamped to the day. A swap ignores it: the incoming exercise takes the replaced one's place.
+   */
+  insertAt?: number;
+  /**
+   * An explicit prescription for an added exercise. Absent (as the page sends it), the entry has
+   * none of its own and reads as the goal's default for its position, as every plan reader does.
+   * A swap ignores it and carries over the replaced entry's own prescription, if it had one.
+   */
   prescription?: string;
 };
 

@@ -122,6 +122,8 @@ describe("the specialization page", () => {
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: /Inspect coverage/ })); });
     await act(async () => { fireEvent.click(within(screen.getByRole("dialog")).getAllByRole("button", { name: /Add or swap/ })[0]); });
     const sheet = screen.getByRole("dialog", { name: "Add to your plan" });
+    // The day is the athlete's to choose: Save waits for it.
+    await act(async () => { fireEvent.click(within(sheet).getByRole("button", { name: /Day 03 · Legs/ })); });
     await act(async () => { fireEvent.click(within(sheet).getByRole("button", { name: "Save to plan" })); });
     expect(within(sheet).getByRole("alert").textContent).toBe("Your plan is still loading, so nothing was changed.");
   });
