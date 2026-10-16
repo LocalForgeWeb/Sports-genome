@@ -67,9 +67,9 @@ afterEach(() => { cleanup(); });
 async function openSheetOn(day: RegExp) {
   window.history.replaceState({}, "", "/?workspace=specialization&region=forearm&node=forearm.br");
   render(createElement(Home));
-  const inspect = await screen.findByRole("button", { name: /Inspect coverage|Add targeted exercise/ }, { timeout: 15000 });
-  await act(async () => { fireEvent.click(inspect); });
-  await act(async () => { fireEvent.click(within(screen.getByRole("dialog")).getAllByRole("button", { name: /Add or swap/ })[0]); });
+  // Nothing here loads brachioradialis, so the page offers to add work, and that opens the add sheet.
+  const add = await screen.findByRole("button", { name: /Add targeted exercise/ }, { timeout: 15000 });
+  await act(async () => { fireEvent.click(add); });
   const sheet = screen.getByRole("dialog", { name: "Add to your plan" });
   const chosen = within(sheet).getAllByRole("radio").find((radio) => (radio as HTMLInputElement).checked)!;
   const name = chosen.closest("label")!.querySelector("b")!.textContent!;

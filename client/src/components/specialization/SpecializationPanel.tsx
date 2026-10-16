@@ -18,6 +18,8 @@ import { addDaysToDateKey, calendarWeekInterval, isDateKey, localDateKey, planWe
 import type { AnatomyNode, DiagramLayerId, DiagramViewId, NodeExposure, SpecializationRegionData } from "@shared/specialization/types";
 import { MeasurementsPanel } from "./MeasurementsPanel";
 import { MuscleSheet } from "./MuscleSheet";
+import { splitTargets } from "./TargetsEditor";
+import { TargetsOverview } from "./TargetsOverview";
 import { PlanChangeSheet } from "./PlanChangeSheet";
 import { SpecializationDiagram } from "./SpecializationDiagram";
 import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricLabels, holdTime, goalsForNode, layerLabels, overlapsInWindow, selectableNodes, sortForList, targetBins, volumeBins, type Finding } from "./model";
@@ -36,7 +38,6 @@ export type SpecializationPanelProps = {
   goal: TrainingGoal;
   /** The profile's unit: loads are shown in it, and a set with no recorded unit was typed in it. */
   weightUnit: DisplayWeightUnit;
-  defaultPrescriptionFor: (index: number) => string;
   onApplyPlanChange: (change: SpecializationPlanChange) => SpecializationPlanChangeResult;
   onInspectExercise: (exercise: Exercise) => void;
   onOpenSession: (sessionId: string) => void;
@@ -63,7 +64,7 @@ export function SpecializationPanel(props: SpecializationPanelProps) {
   return <SpecializationPage {...props} data={data} />;
 }
 
-function SpecializationPage({ data, state, onStateChange, plan, catalog, equipmentProfile, accountId, goal, weightUnit, defaultPrescriptionFor, onApplyPlanChange, onInspectExercise, onOpenSession, backLabel, onBack }: SpecializationPanelProps & { data: SpecializationRegionData }) {
+function SpecializationPage({ data, state, onStateChange, plan, catalog, equipmentProfile, accountId, goal, weightUnit, onApplyPlanChange, onInspectExercise, onOpenSession, backLabel, onBack }: SpecializationPanelProps & { data: SpecializationRegionData }) {
   const timeZone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC", []);
   const [nowIso, setNowIso] = useState(() => new Date().toISOString());
   useEffect(() => {
@@ -84,6 +85,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const { goals, save: saveGoals, remove: removeGoal } = useSpecializationGoals(accountId);
   const { measurements, save: saveMeasurement, remove: removeMeasurement } = useSpecializationMeasurements(accountId);
   const regionGoals = useMemo(() => goals.filter((item) => item.regionId === data.region.id), [goals, data.region.id]);
+  const activeTargets = splitTargets(regionGoals, localDateKey(nowIso, timeZone)).active.length;
   const otherSide = state.limb === "left" ? "right" : "left";
   const here = useSpecializationSummary({ region: data, accountScope: accountId, interval, side: state.limb, mode: state.mode, plan: planInput, goals: regionGoals, catalog, fallbackUnit: weightUnit });
   const there = useSpecializationSummary({ region: data, accountScope: accountId, interval, side: otherSide, mode: state.mode, plan: planInput, goals: regionGoals, catalog, fallbackUnit: weightUnit });
@@ -343,13 +345,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       </details>
 
       <details className="spz-disclosure spz-card">
-        <summary><span><b>Targets</b><small>{regionGoals.length ? `${regionGoals.length} set` : "None set"}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
-        {regionGoals.length ? <ul className="spz-exercise-list">
-          {Array.from(new Set(regionGoals.map((item) => item.nodeId).filter((id): id is string => Boolean(id)))).map((nodeId) => <li key={nodeId}>
-            <span><b>{nameOf(nodeId)}</b><small>{goalsForNode(summary, nodeId).map((progress) => `${goalMetricLabels[progress.goal.metric]}: ${progress.label}`).join(" · ") || `No target on the ${armWord}`}</small></span>
-            <button type="button" className="spz-link" onClick={() => { select(nodeId); setSheet({ kind: "muscle" }); }}>Open</button>
-          </li>)}
-        </ul> : <p className="spz-note">No targets. Open a muscle to set one; a muscle without a target is not behind on anything.</p>}
+        <summary><span><b>Targets</b><small>{activeTargets ? `${activeTargets} active` : "None set"}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+        <TargetsOverview data={data} summary={summary} goals={regionGoals} side={state.limb} timeZone={timeZone} todayKey={todayKey} onSave={saveGoals} onRemove={removeGoal} onOpenMuscle={(nodeId) => { select(nodeId); setSheet({ kind: "muscle" }); }} />
       </details>
 
       <details className="spz-disclosure spz-card" onToggle={(event) => { if (event.currentTarget.open) setProgressOpened(true); }}>
@@ -409,7 +406,6 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       catalog={catalog}
       plan={{ slots: plan.slots, weeks: plan.weeks, week: planWeek }}
       goal={goal}
-      defaultPrescriptionFor={defaultPrescriptionFor}
       onApply={onApplyPlanChange}
       onClose={() => setSheet(null)}
     />}

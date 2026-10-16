@@ -45,7 +45,6 @@ function Harness(props: { initial?: Partial<SpecializationViewState>; onApply?: 
     accountId: null,
     goal: "Athleticism",
     weightUnit: "lb",
-    defaultPrescriptionFor: () => "3 × 10",
     onApplyPlanChange: props.onApply ?? (() => ({ ok: true, undo: () => {} })),
     onInspectExercise: () => {},
     onOpenSession: () => {},
@@ -153,8 +152,9 @@ describe("the specialization page", () => {
     await act(async () => { fireEvent.click(first); });
     expect(within(sheet).queryByRole("button", { name: `Do not suggest ${name}` })).toBeNull();
     expect(JSON.parse(window.localStorage.getItem(specializationExclusionsKeyBase) ?? "{}").catalogExerciseIds).toHaveLength(1);
-    expect(within(sheet).getByRole("status").textContent).toMatch(new RegExp(`^${name} will not be suggested`));
-    await act(async () => { fireEvent.click(within(within(sheet).getByRole("status")).getByRole("button", { name: "Undo" })); });
+    const notice = within(sheet).getAllByRole("status").find((element) => element.textContent?.startsWith(`${name} will not be suggested`))!;
+    expect(notice).toBeTruthy();
+    await act(async () => { fireEvent.click(within(notice).getByRole("button", { name: "Undo" })); });
     expect(within(sheet).getByRole("button", { name: `Do not suggest ${name}` })).not.toBeNull();
   });
 

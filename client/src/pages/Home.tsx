@@ -1399,7 +1399,8 @@ export default function Home() {
     // A refusal is said where the add was asked for: the exercise sheet says it in its footer.
     if (!planReadyForEdits({ quiet })) return "not-ready";
     if (customWorkout.some((item) => catalogExerciseIdFor(item) === exercise.id)) {
-      toast("Already in this workout", { id: "plan-add", description: `${exercise.name} is already in Week ${activeWeek} · ${activeSlot.day}.` });
+      // Named explicitly: sonner merges options by id, and an earlier toast's View workout or Undo must not carry over.
+      toast("Already in this workout", { id: "plan-add", description: `${exercise.name} is already in Week ${activeWeek} · ${activeSlot.day}.`, action: undefined, cancel: undefined });
       return "duplicate";
     }
     const destination = `Week ${activeWeek} · ${activeSlot.day}`;
@@ -2533,7 +2534,6 @@ export default function Home() {
           accountId={accountId}
           goal={goal}
           weightUnit={athleteBaseline.weightUnit}
-          defaultPrescriptionFor={(index) => prescriptionFor(index, goal)}
           onApplyPlanChange={applySpecializationChange}
           onInspectExercise={inspectExercise}
           onOpenSession={(id) => navigateWorkspace("progress", { session: id })}

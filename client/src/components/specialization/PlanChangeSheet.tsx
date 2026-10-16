@@ -40,13 +40,6 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
   /** The plan's days and built weeks; `week` is the page's plan week, where the sheet starts. */
   plan: { slots: DaySlot[]; weeks: Record<number, WeeklyDayStore>; week: number };
   goal: TrainingGoal;
-  /**
-   * @deprecated Not read. An add or a swap no longer pins a default prescription: an entry
-   * without one of its own reads as the goal's default for its position, as every plan reader
-   * does. Accepted (and ignored) only so the page still compiles while it passes it; the page
-   * can stop passing it.
-   */
-  defaultPrescriptionFor?: (index: number) => string;
   onApply: (change: SpecializationPlanChange) => SpecializationPlanChangeResult;
   onClose: () => void;
 }) {

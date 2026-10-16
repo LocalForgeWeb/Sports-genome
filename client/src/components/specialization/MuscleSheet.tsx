@@ -78,6 +78,7 @@ export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, w
 
   return <SpecializationSheet
     id="spz-muscle"
+    focusKey={node.id}
     eyebrow={`${node.shortName} · ${layerLabels[node.layer]}`}
     title={node.name}
     subtitle={<p>{node.location}</p>}
