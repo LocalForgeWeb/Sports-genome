@@ -105,8 +105,11 @@ describe("the muscle sheet's targets", () => {
     expect(stored()).toEqual([]);
     expect(status()).toContain("2 targets removed.");
     expect(screen.getByText("Not targeted.")).not.toBeNull();
+    // The removed row held focus; Undo takes it, so it is one tap or keypress away.
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Undo" }));
     await click(screen.getByRole("button", { name: "Undo" }));
     expect(stored().map((item) => item.id).sort()).toEqual(["pair:left", "pair:right"]);
+    expect(document.activeElement?.getAttribute("role")).toBe("status");
     expect(stored().find((item) => item.side === "left")).toEqual(left);
     expect(screen.queryByRole("button", { name: "Undo" })).toBeNull();
     expect(status()).toContain("2 targets restored.");
@@ -161,6 +164,15 @@ describe("the muscle sheet's targets", () => {
     expect(status()).toContain("It started today, so it is removed rather than kept as ended.");
     await click(screen.getByRole("button", { name: "Undo" }));
     expect(stored()).toEqual([goal({ startsOn: TODAY })]);
+  });
+
+  it("removes a target that has not started yet when it is ended, and says so", async () => {
+    seed(goal({ startsOn: "2026-10-19" }));
+    render(createElement(EditorHarness));
+    expect(screen.getByText(/starts 19 Oct 2026/)).not.toBeNull();
+    await click(screen.getByRole("button", { name: /^End the right-arm target/ }));
+    expect(stored()).toEqual([]);
+    expect(status()).toContain("It had not started yet, so it is removed rather than kept as ended.");
   });
 
   it("refuses an overlapping target with the reason, inline, and saves nothing", async () => {

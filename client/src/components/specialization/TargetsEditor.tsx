@@ -69,13 +69,14 @@ function describeTarget(goal: SpecializationGoal, subjectName: string): string {
 
 type Undoable = { kind: "removed" | "ended" | "ended_unstarted"; goal: SpecializationGoal };
 
-function undoMessage(entries: readonly Undoable[], subjectName: (goal: SpecializationGoal) => string): string {
+function undoMessage(entries: readonly Undoable[], subjectName: (goal: SpecializationGoal) => string, todayKey: string): string {
   if (entries.length === 1) {
     const [{ kind, goal }] = entries;
     const which = `${capitalised(armWord(goal.side))} target for ${subjectName(goal)}`;
     if (kind === "removed") return `${which} removed.`;
     if (kind === "ended") return `${which} ended. It stops counting from today and is listed under Ended targets.`;
-    return `${which} ended. It started today, so it is removed rather than kept as ended.`;
+    const why = goal.startsOn > todayKey ? "It had not started yet" : "It started today";
+    return `${which} ended. ${why}, so it is removed rather than kept as ended.`;
   }
   const removed = entries.filter((entry) => entry.kind === "removed").length;
   const ended = entries.length - removed;
@@ -92,6 +93,7 @@ export type TargetEdits = {
   /** Every removal or end since the last other change; one Undo restores them all. */
   undoable: readonly Undoable[];
   undoRef: RefObject<HTMLButtonElement | null>;
+  statusRef: RefObject<HTMLParagraphElement | null>;
   remove: (goal: SpecializationGoal) => void;
   end: (goal: SpecializationGoal) => void;
   change: (goal: SpecializationGoal, target: number) => StoreWrite;
@@ -117,16 +119,21 @@ export function useTargetEdits({ onSave, onRemove, todayKey, subjectName }: {
   const [message, setMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
   const undoRef = useRef<HTMLButtonElement | null>(null);
-  const [focusUndo, setFocusUndo] = useState(0);
-  // The row that held focus is gone: focus moves to Undo, the next thing anyone would want.
-  useEffect(() => { if (focusUndo) undoRef.current?.focus({ preventScroll: true }); }, [focusUndo]);
+  const statusRef = useRef<HTMLParagraphElement | null>(null);
+  const [focus, setFocus] = useState<{ on: "undo" | "status"; count: number }>({ on: "undo", count: 0 });
+  // The control that held focus is gone (a removed row, or Undo itself): focus moves to Undo,
+  // the next thing anyone would want, or after Undo to the message saying what came back.
+  useEffect(() => {
+    if (!focus.count) return;
+    (focus.on === "undo" ? undoRef.current : statusRef.current)?.focus({ preventScroll: true });
+  }, [focus]);
 
   const record = (entry: Undoable) => {
     const next = undoable.some((item) => item.goal.id === entry.goal.id) ? undoable : [...undoable, entry];
     setUndoable(next);
-    setMessage(undoMessage(next, subjectName));
+    setMessage(undoMessage(next, subjectName, todayKey));
     setError(null);
-    setFocusUndo((count) => count + 1);
+    setFocus((current) => ({ on: "undo", count: current.count + 1 }));
   };
   const remove = (goal: SpecializationGoal) => {
     const result = onRemove(goal.id);
@@ -160,15 +167,16 @@ export function useTargetEdits({ onSave, onRemove, todayKey, subjectName }: {
     const result = onSave(undoable.map((entry) => entry.goal));
     if (!result.ok) { setError(result.reason); return; }
     settle(undoable.length === 1 ? "Target restored." : `${undoable.length} targets restored.`);
+    setFocus((current) => ({ on: "status", count: current.count + 1 }));
   };
-  return { message, error, undoable, undoRef, remove, end, change, undo, settle };
+  return { message, error, undoable, undoRef, statusRef, remove, end, change, undo, settle };
 }
 
 /** The live message with its Undo, and any refusal, in place under the list. */
 export function TargetEditStatus({ edits }: { edits: TargetEdits }) {
   return <>
     <div className="spz-tg-status">
-      <p role="status">{edits.message}</p>
+      <p ref={edits.statusRef} role="status" tabIndex={-1}>{edits.message}</p>
       {edits.undoable.length > 0 && <button ref={edits.undoRef} type="button" className="spz-button" onClick={edits.undo}>Undo</button>}
     </div>
     {edits.error && <p className="spz-error" role="alert">{edits.error}</p>}

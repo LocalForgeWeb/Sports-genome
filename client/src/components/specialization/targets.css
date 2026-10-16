@@ -19,6 +19,7 @@
 
 .spz-tg-status { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; }
 .spz-tg-status > p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.spz-tg-status > p:focus { outline: none; }
 .spz-tg-status .spz-button { min-height: 2.75rem; }
 
 /* The overview: one group per muscle or movement. */
@@ -32,5 +33,6 @@
 .spz-tg-group-head small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
 .spz-tg-group-head .spz-button { flex: 0 0 auto; min-height: 2.75rem; }
 
-.spz-tg-ended { border-top: 1px solid rgb(164 200 232 / .14); }
+/* A disclosure takes the card radius from index.css; this one is a ruled section of a list, not a surface. */
+.spz-tg-ended { border-top: 1px solid rgb(164 200 232 / .14); border-radius: 0; }
 .spz-tg-ended .spz-target-list > li:first-child { border-top: 0; }
