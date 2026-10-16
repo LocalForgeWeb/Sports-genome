@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { forearmCatalogExercises } from "@/lib/exerciseCatalogForearm";
 import { catalogEquipment } from "@/lib/equipmentProfile";
+import { exercisePhotoSet } from "@/lib/exercisePhotos";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { forearmVariants, regionOnlyExercises, unmappedForearmTaggedExercises } from "@shared/specialization/regions/forearm/variants";
 import { forearmMappings, forearmMappingVersion } from "@shared/specialization/regions/forearm/mappings";
@@ -288,6 +289,14 @@ describe("forearm rows added to the catalog (ids 401+)", () => {
       // Each has an atlas variant with at least one reviewed mapping.
       expect(mappingsFor(exercise.id).some((mapping) => mapping.reviewStatus === "reviewed"), exercise.name).toBe(true);
     }
+  });
+
+  it("are photographed only where a photograph shows exactly the row's set-up", () => {
+    expect(exercisePhotoSet(401)?.source).toBe("Finger_Curls");
+    expect(exercisePhotoSet(410)?.source).toBe("Seated_One-Arm_Dumbbell_Palms-Up_Wrist_Curl");
+    expect(exercisePhotoSet(411)?.source).toBe("Seated_One-Arm_Dumbbell_Palms-Down_Wrist_Curl");
+    // The source's lying pronation and supination pairs do not show which way the forearm turns.
+    for (const [id] of expected.filter(([id]) => ![401, 410, 411].includes(id))) expect(exercisePhotoSet(id), String(id)).toBeNull();
   });
 
   it("use the catalog's own muscle keys, never the atlas's node ids", () => {

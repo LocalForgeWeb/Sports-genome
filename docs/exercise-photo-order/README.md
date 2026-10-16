@@ -8,6 +8,8 @@
 
 **October 3.** The photo re-match (`../exercise-photo-rematch/`) brought 14 more source pairs into use. They were checked the same way and all 14 are in order (their verdicts are in `audit.json`, now 221 pairs). Barbell Hip Hinge joined the Romanian deadlift pair, which was already reversed, so 36 catalog exercises now show a reversed pair start-first. The full verdict for every pair, with a one-line reason, is `audit.json`. The reversed list with reasons is `client/src/data/exercisePhotoOrder.json`; `framesInMovementOrder` in `client/src/lib/exercisePhotos.ts` shows frame 1 first for those, everywhere a photo appears (detail Start/Finish, the live-set disclosure, and every thumbnail, which uses the start frame).
 
+**October 16.** The forearm rows (ids 401+) brought three more pairs into use: Finger_Curls, and the seated one-arm palms-up and palms-down dumbbell wrist curls. Each was viewed enlarged; all three are in order (frame 0 the hands open or the wrist down), and their verdicts are at the end of `audit.json`.
+
 | Source pair | Catalog exercises | Frame 0 showed |
 | --- | --- | --- |
 | Standing_Low-Pulley_Deltoid_Raise | Cable Lateral Raise | arm raised (the reported case) |
