@@ -6,7 +6,7 @@ import type { StoreWrite } from "@/lib/specialization/stores";
 import { catalogMusclesLookup, useDeviceWorkoutSessions } from "@/lib/specialization/useSpecializationSummary";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
-import { addDaysToDateKey, calendarWeekInterval, localDateKey, zonedStartOfDay, mondayIndexOfDateKey } from "@shared/specialization/time";
+import { addDaysToDateKey, calendarWeekInterval, intervalContains, localDateKey, mondayIndexOfDateKey, zonedStartOfDay } from "@shared/specialization/time";
 import type { ArmSide, MeasurementMetric, MeasurementProtocol, SpecializationMeasurement, SpecializationRegionData } from "@shared/specialization/types";
 
 const NEWTONS_PER_KGF = 9.80665;
@@ -63,7 +63,9 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
     return Array.from({ length: WEEKS }, (_, index) => {
       const monday = addDaysToDateKey(thisMonday, -7 * (WEEKS - 1 - index));
       const interval = calendarWeekInterval(zonedStartOfDay(monday, timeZone), timeZone);
-      const summary = getSpecializationSummary({ region: data, bouts, interval, side, mode: "completed", goals: [], catalogMusclesFor, sourceRevision: "", planRevision: null, now: interval.startAt ?? new Date().toISOString() });
+      // Only that week's bouts: the same answer, without reading a year of history eight times.
+      const weekBouts = bouts.filter((bout) => intervalContains(interval, bout.performedAt));
+      const summary = getSpecializationSummary({ region: data, bouts: weekBouts, interval, side, mode: "completed", goals: [], catalogMusclesFor, sourceRevision: "", planRevision: null, now: interval.startAt ?? new Date().toISOString() });
       return { monday, bouts: summary.regionDistinctBouts };
     });
   }, [sessions, catalog, data, weightUnit, side, timeZone, todayKey]);

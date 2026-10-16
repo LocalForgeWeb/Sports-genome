@@ -97,6 +97,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
 
   const [sheet, setSheet] = useState<null | { kind: "muscle" } | { kind: "change"; exerciseId: number }>(null);
   const [allFindings, setAllFindings] = useState(false);
+  const [progressOpen, setProgressOpen] = useState(false);
   const methodRef = useRef<HTMLDetailsElement>(null);
 
   const plannedExercises = useMemo(() => plannedExercisesInWeek(plan.slots, weekStore ?? emptyDayStore()), [plan.slots, weekStore]);
@@ -309,9 +310,10 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
         </ul> : <p className="spz-note">No targets. Open a muscle to set one; a muscle without a target is not behind on anything.</p>}
       </details>
 
-      <details className="spz-disclosure spz-card">
+      <details className="spz-disclosure spz-card" onToggle={(event) => setProgressOpen(event.currentTarget.open)}>
         <summary><span><b>Progress</b><small>Circumference and grip, by arm</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
-        <MeasurementsPanel data={data} side={state.limb} catalog={catalog} weightUnit={weightUnit} timeZone={timeZone} todayKey={todayKey} measurements={measurements} onSave={saveMeasurement} onRemove={removeMeasurement} />
+        {/* Mounted when opened: its weekly chart reads eight weeks of history. */}
+        {progressOpen && <MeasurementsPanel data={data} side={state.limb} catalog={catalog} weightUnit={weightUnit} timeZone={timeZone} todayKey={todayKey} measurements={measurements} onSave={saveMeasurement} onRemove={removeMeasurement} />}
       </details>
 
       <details ref={methodRef} className="spz-disclosure spz-card" id="spz-method">
