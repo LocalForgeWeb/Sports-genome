@@ -1,7 +1,7 @@
 import type { Exercise } from "./exerciseCatalog";
 import { isCompletedSet, isDraftSet, isDropInProgress, settleDropSet, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession } from "./deviceWorkoutLog";
 import { renderableSetCount } from "./setPrescription";
-import { setEntryFieldsFor } from "./setEntryFields";
+import { isHoldEntry, setEntryFieldsFor } from "./setEntryFields";
 import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
 
 /**
@@ -62,6 +62,8 @@ export type SwapOptions = {
   at: string;
   draft?: DraftChoice;
   partialDrop?: PartialDropChoice;
+  /** Gives each new set its id at creation (the tracker passes one); without it, new sets have none. */
+  newSetId?: () => string;
 };
 
 /** Everything needed to take a swap back while no new work has been logged on it. */
@@ -76,6 +78,8 @@ export type SwapReceipt = {
 };
 
 const emptySet = (): DeviceSetLog => ({ weight: "", reps: "", completed: false });
+/** An empty set, with an id when the caller gives sets ids at creation. */
+const newSetWith = (newSetId: (() => string) | undefined) => (): DeviceSetLog => (newSetId ? { id: newSetId(), ...emptySet() } : emptySet());
 
 /** True when both exercises record a box height, so a typed height means the same on each. */
 function bothUseHeight(from: SwapTarget | undefined, to: SwapTarget | undefined, catalog: readonly Exercise[]) {
@@ -110,7 +114,7 @@ export function applySwap(session: DeviceWorkoutSession, exerciseId: string, tar
   const completedOnOriginal = kept.filter(isCompletedSet).length;
   // Every slot not kept by the original moves on; a swap always leaves something to do.
   const moved = Math.max(1, original.sets.length - kept.length);
-  const sets = Array.from({ length: moved }, emptySet);
+  const sets = Array.from({ length: moved }, newSetWith(options.newSetId));
   if (reused) sets[0] = { ...sets[0], reps: reused.reps, ...(reused.height ? { height: reused.height } : {}) };
   const replacement: DeviceWorkoutExercise = {
     id: options.newExerciseId,
@@ -135,7 +139,7 @@ export function applySwap(session: DeviceWorkoutSession, exerciseId: string, tar
  * Adds an exercise straight after one whose planned sets are all done - the "nothing left to
  * swap" case - with that exercise's prescription as its starting point.
  */
-export function addAfter(session: DeviceWorkoutSession, exerciseId: string, target: SwapTarget, options: { newExerciseId: string; at: string }): DeviceWorkoutSession {
+export function addAfter(session: DeviceWorkoutSession, exerciseId: string, target: SwapTarget, options: { newExerciseId: string; at: string; newSetId?: () => string }): DeviceWorkoutSession {
   if (session.exercises.some((exercise) => exercise.id === options.newExerciseId)) return session;
   const index = session.exercises.findIndex((exercise) => exercise.id === exerciseId);
   if (index < 0) return session;
@@ -145,7 +149,7 @@ export function addAfter(session: DeviceWorkoutSession, exerciseId: string, targ
     exerciseName: target.name,
     ...(target.id !== undefined ? { catalogId: target.id } : {}),
     plannedPrescription: anchor.plannedPrescription,
-    sets: Array.from({ length: renderableSetCount(anchor.plannedPrescription) }, emptySet),
+    sets: Array.from({ length: renderableSetCount(anchor.plannedPrescription) }, newSetWith(options.newSetId)),
     addedDuringWorkout: { at: options.at, afterExerciseName: anchor.exerciseName },
   };
   const exercises = [...session.exercises];
@@ -157,7 +161,7 @@ export function addAfter(session: DeviceWorkoutSession, exerciseId: string, targ
  * What an exercise holds, as work: storage fills in defaults (an empty height, skipped: false),
  * so the comparison is of what was typed, logged or skipped - never of how the record is laid out.
  */
-const workOf = (exercise: DeviceWorkoutExercise) => JSON.stringify([exercise.exerciseName, exercise.sets.map((set) => [Boolean(set.completed), Boolean(set.skipped), set.weight || "", set.reps || "", set.height || "", set.type ?? "", (set.stages ?? []).map((stage) => [stage.weight, stage.reps])])]);
+const workOf = (exercise: DeviceWorkoutExercise) => JSON.stringify([exercise.exerciseName, exercise.sets.map((set) => [Boolean(set.completed), Boolean(set.skipped), set.weight || "", set.reps || "", set.height || "", set.holdSeconds || "", set.type ?? "", (set.stages ?? []).map((stage) => [stage.weight, stage.reps])])]);
 const same = (a: DeviceWorkoutExercise, b: DeviceWorkoutExercise) => workOf(a) === workOf(b);
 
 /** A swap can be taken back until anything is logged or typed on either side of it. */
@@ -214,7 +218,11 @@ export function swapMeasurementNotes(from: Exercise | undefined, to: Exercise | 
   const fromHeight = setEntryFieldsFor(from).some((field) => field.measure === "height");
   const toHeight = setEntryFieldsFor(to).some((field) => field.measure === "height");
   if (fromHeight !== toHeight) notes.push(toHeight ? `${toName} records a box height as well as reps.` : `${toName} has no box height to record.`);
-  if (/\d\s*(s|sec|secs|seconds|min|mins|minutes)\b/i.test(prescription)) notes.push(`The plan's target (${prescription}) is a time; sets here are logged in reps, so set the reps as you go.`);
+  // A hold is logged in seconds (the atlas's logging policy); everything else in reps.
+  const fromSeconds = isHoldEntry(setEntryFieldsFor(from));
+  const toSeconds = isHoldEntry(setEntryFieldsFor(to));
+  if (fromSeconds !== toSeconds) notes.push(toSeconds ? `${toName} is logged in seconds held, not reps.` : `${toName} is logged in reps, not seconds.`);
+  if (!toSeconds && /\d\s*(s|sec|secs|seconds|min|mins|minutes)\b/i.test(prescription)) notes.push(`The plan's target (${prescription}) is a time; sets here are logged in reps, so set the reps as you go.`);
   return notes;
 }
 

@@ -42,7 +42,8 @@ export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, o
   const [noteDraft, setNoteDraft] = useState(session?.note ?? "");
   const [noteStatus, setNoteStatus] = useState<string | null>(null);
   const [correcting, setCorrecting] = useState(false);
-  const [editing, setEditing] = useState<{ exerciseId: string; index: number; weight: string; reps: string } | null>(null);
+  /** The set being corrected. `reps` holds the dose: reps, or seconds when the set is a hold. */
+  const [editing, setEditing] = useState<{ exerciseId: string; index: number; weight: string; reps: string; hold: boolean } | null>(null);
   const [correctionStatus, setCorrectionStatus] = useState<string | null>(null);
   const [correctionError, setCorrectionError] = useState<string | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -90,6 +91,7 @@ export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, o
   };
   const repsValid = editing ? /^\d{1,4}$/.test(editing.reps) && Number(editing.reps) >= 1 : false;
   const weightValid = editing ? editing.weight.trim() === "" || Number.isFinite(Number(editing.weight)) : false;
+  const hasHold = recap.exercises.some((exercise) => exercise.sets.some((row) => row.hold));
 
   return <section className="session-detail" aria-labelledby={`${ids}-title`} data-session-detail={variant} data-session-id={session.id}>
     {variant === "history" && onBack && <button type="button" className="session-detail-back" onClick={onBack}><ArrowLeft aria-hidden="true" /> All workouts</button>}
@@ -109,7 +111,7 @@ export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, o
       {recap.exercises.map((exercise) => <li key={exercise.id}>
         <details open={correcting || undefined}>
           <summary>
-            <span className="session-detail-exercise-name"><strong>{exercise.name}</strong><small>{exerciseOutcomeLine(exercise)}</small>{exercise.note && <small className="session-detail-swap">{exercise.note}</small>}</span>
+            <span className="session-detail-exercise-name"><strong>{exercise.name}</strong><small>{exerciseOutcomeLine(exercise)}{exercise.straps ? ` · ${exercise.straps}` : ""}</small>{exercise.note && <small className="session-detail-swap">{exercise.note}</small>}</span>
             <ChevronRight aria-hidden="true" />
           </summary>
           <ol className="session-detail-sets">
@@ -119,17 +121,19 @@ export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, o
                 {isEditing && editing ? <form className="session-detail-edit" onSubmit={(event) => {
                   event.preventDefault();
                   if (!repsValid || !weightValid) return;
-                  if (apply((current) => correctSet(current, exercise.id, row.index, { weight: editing.weight, reps: editing.reps }), `Set ${position + 1} of ${exercise.name} corrected.`)) setEditing(null);
+                  // A hold is corrected in seconds; its side and the exercise's straps record are kept either way.
+                  const patch = editing.hold ? { weight: editing.weight, holdSeconds: editing.reps } : { weight: editing.weight, reps: editing.reps };
+                  if (apply((current) => correctSet(current, exercise.id, row.index, patch), `Set ${position + 1} of ${exercise.name} corrected.`)) setEditing(null);
                 }}>
                   <label><span>Weight</span><input inputMode="decimal" value={editing.weight} onChange={(event) => setEditing({ ...editing, weight: decimalEntryText(event.target.value) })} aria-invalid={!weightValid || undefined} /></label>
-                  <label><span>Reps</span><input inputMode="numeric" value={editing.reps} onChange={(event) => setEditing({ ...editing, reps: event.target.value.replace(/[^0-9]/g, "").slice(0, 4) })} aria-invalid={!repsValid || undefined} /></label>
+                  <label><span>{editing.hold ? "Seconds" : "Reps"}</span><input inputMode="numeric" value={editing.reps} onChange={(event) => setEditing({ ...editing, reps: event.target.value.replace(/[^0-9]/g, "").slice(0, 4) })} aria-invalid={!repsValid || undefined} /></label>
                   <button type="submit" disabled={!repsValid || !weightValid}><Check aria-hidden="true" /> Save set</button>
                   <button type="button" onClick={() => setEditing(null)}>Cancel</button>
-                  {!repsValid && <p className="session-detail-error" role="alert">Reps are a whole number, at least 1.</p>}
+                  {!repsValid && <p className="session-detail-error" role="alert">{editing.hold ? "Seconds are a whole number, at least 1." : "Reps are a whole number, at least 1."}</p>}
                 </form> : <>
                   <span className="session-detail-set-line"><span>Set {position + 1}</span><b>{row.line}</b>{row.detail && <small>{row.detail}</small>}</span>
                   {correcting && <span className="session-detail-set-actions">
-                    {!row.drop && <button type="button" onClick={() => setEditing({ exerciseId: exercise.id, index: row.index, weight: row.set.weight, reps: row.set.reps })} aria-label={`Edit set ${position + 1} of ${exercise.name}`}><Pencil aria-hidden="true" /> Edit</button>}
+                    {!row.drop && <button type="button" onClick={() => setEditing({ exerciseId: exercise.id, index: row.index, weight: row.set.weight, reps: row.hold ? row.set.holdSeconds ?? "" : row.set.reps, hold: row.hold })} aria-label={`Edit set ${position + 1} of ${exercise.name}`}><Pencil aria-hidden="true" /> Edit</button>}
                     <button type="button" disabled={recap.totals.workingSets <= 1} onClick={() => apply((current) => removeSet(current, exercise.id, row.index), `Set ${position + 1} of ${exercise.name} removed.`)} aria-label={`Remove set ${position + 1} of ${exercise.name}`}><Trash2 aria-hidden="true" /> Remove</button>
                   </span>}
                 </>}
@@ -156,7 +160,7 @@ export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, o
 
     <div className="session-detail-correct">
       <button type="button" aria-pressed={correcting} onClick={() => { setCorrecting((value) => !value); setEditing(null); setCorrectionStatus(null); }}>{correcting ? "Done correcting" : "Correct a set"}</button>
-      {correcting && <p className="session-detail-hint">Edit a set's weight or reps, or remove a set logged by mistake. Your progress, strength record and Home read the corrected workout. A drop set can be removed, not edited.</p>}
+      {correcting && <p className="session-detail-hint">Edit a set's weight or {hasHold ? "reps (seconds on a hold)" : "reps"}, or remove a set logged by mistake. Your progress, strength record and Home read the corrected workout. A drop set can be removed, not edited.</p>}
       {correctionStatus && <p role="status" className="session-detail-status">{correctionStatus}</p>}
       {correctionError && <p role="alert" className="session-detail-error">{correctionError}</p>}
     </div>

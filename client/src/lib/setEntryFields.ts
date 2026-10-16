@@ -1,6 +1,7 @@
 import type { Exercise } from "./exerciseCatalog";
 import type { DisplayWeightUnit } from "./weightUnits";
 import { loadConventionFor } from "@shared/loadConventions";
+import { loggingPolicyFor, type LoggingPolicy } from "@shared/specialization/loggingPolicy";
 
 /**
  * Which boxes a set actually needs, and what each one measures.
@@ -15,8 +16,14 @@ import { loadConventionFor } from "@shared/loadConventions";
  * Classification reads only fields the catalog really carries, and anything not
  * clearly in one of the narrow cases keeps the plain weight box — no exercise
  * gets a unit invented for it.
+ *
+ * A hold (a dead hang, a farmer hold, a plate pinch) is measured in seconds, not
+ * reps. Only the atlas's reviewed variant data says which exercises those are
+ * (shared/specialization/loggingPolicy.ts), so the Seconds box appears exactly
+ * there and nowhere else; it is stored as the set's `holdSeconds`, and the set
+ * has no reps box at all.
  */
-export type SetEntryMeasure = "weight" | "height";
+export type SetEntryMeasure = "weight" | "height" | "seconds";
 
 export type SetEntryField = {
   measure: SetEntryMeasure;
@@ -34,6 +41,8 @@ const PER_DUMBBELL: SetEntryField = { measure: "weight", label: "Weight per dumb
 const PER_HAND: SetEntryField = { measure: "weight", label: "Weight per hand", unit: "lb", optional: false };
 const ADDED_WEIGHT: SetEntryField = { measure: "weight", label: "Added weight", unit: "lb", optional: true };
 const BOX_HEIGHT: SetEntryField = { measure: "height", label: "Box height", unit: "in", optional: true };
+/** How long the hold lasted. It takes the reps box's place: a hold is never also counted in reps. */
+const SECONDS: SetEntryField = { measure: "seconds", label: "Seconds", unit: "sec", optional: false };
 
 /** Jumps onto or off a box: the box's height is the progression variable. */
 const BOX_EXERCISES = /\b(box jump|depth jump|step-up)\b/i;
@@ -52,10 +61,18 @@ export function setEntryFieldsFor(
   exercise: (Pick<Exercise, "name" | "category" | "equipment"> & { id?: number }) | undefined,
   /** The unit the weight box records in: the session's, which is the profile's when it started. */
   weightUnit: DisplayWeightUnit = "lb",
+  /** What the set's dose is entered in. By default the atlas's logging policy for the exercise decides. */
+  measure: LoggingPolicy["measure"] = loggingPolicyFor(exercise?.id).measure,
 ): SetEntryField[] {
   // The box used to say "lb" whatever the profile said, while every screen read the
   // number in the profile's unit: a kg athlete typed next to "lb" and was scored in kg.
-  return fieldsFor(exercise).map((field) => field.measure === "weight" ? { ...field, unit: weightUnit } : field);
+  const fields = fieldsFor(exercise).map((field) => field.measure === "weight" ? { ...field, unit: weightUnit } : field);
+  return measure === "seconds" ? [...fields, SECONDS] : fields;
+}
+
+/** Whether the set's dose is seconds: the entry ends in a Seconds box and has no reps box. */
+export function isHoldEntry(fields: readonly SetEntryField[]): boolean {
+  return fields.some((field) => field.measure === "seconds");
 }
 
 function fieldsFor(exercise: (Pick<Exercise, "name" | "category" | "equipment"> & { id?: number }) | undefined): SetEntryField[] {
