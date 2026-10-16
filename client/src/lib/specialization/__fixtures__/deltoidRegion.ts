@@ -83,7 +83,7 @@ const mapping = (id: string, variantId: string, nodeId: string, actionId: string
 });
 
 export const deltoidRegionData: SpecializationRegionData = {
-  region: { id: REGION, label: "Deltoids", heading: "Deltoid specialization", sortOrder: 90, status: "fixture" },
+  region: { id: REGION, label: "Deltoids", heading: "Deltoid specialization", sortOrder: 90, status: "fixture", bodyMapKeys: ["frontDelts", "sideDelts", "rearDelts"], entryLabel: "Explore deltoid coverage" },
   nodes: [
     head(deltoidIds.anterior, "Anterior deltoid", "AD", "frontDelts", "Front of the shoulder"),
     head(deltoidIds.lateral, "Lateral deltoid", "LD", "sideDelts", "Outside of the shoulder"),
