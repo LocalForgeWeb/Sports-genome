@@ -262,9 +262,9 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
   const timeOf = (entry: SpecializationMeasurement) => entry.protocol.timeOfDay ?? wallClockAt(Date.parse(entry.measuredAt), timeZone).time;
 
   return <div className="spz-measure">
-    <p className="spz-note">Charts for the {side} arm on one time axis, {axis.label}, each with its own scale. Circumference is the whole {data.region.label.toLowerCase()}, so it cannot show which muscle changed, and a change beside your training does not show the training caused it.</p>
+    <p className="spz-note">Charts for the {side} arm on one time axis, {axis.label}, each with its own scale. A tape takes in every muscle under it, so circumference cannot show which muscle changed, and a change beside your training does not show the training caused it.</p>
     <figure className="spz-chart">
-      <figcaption>Distinct {data.region.label.toLowerCase()} bouts per week, completed</figcaption>
+      <figcaption>Distinct bouts per week on the {data.region.label.toLowerCase()}, completed</figcaption>
       <svg viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`} role="img" aria-label={`Bouts per week on the ${side} arm for the last ${axis.weeks} weeks: ${weeks.map((week) => week.bouts).join(", ")}`}>
         <TimeAxis axis={axis} />
         {weeks.map((week, index) => {
