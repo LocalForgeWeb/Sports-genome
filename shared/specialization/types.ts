@@ -233,13 +233,21 @@ export interface RuleVersion {
 // ---------------------------------------------------------------- diagram
 
 export type DiagramViewId = "palm" | "back" | "thumb";
-export type DiagramLayerId = "surface" | "deep";
+/**
+ * `intermediate` exists where anatomy really has a middle layer (the palm side: FDS lies
+ * between the superficial flexors and FDP/FPL/PQ). Views without one offer surface and deep.
+ */
+export type DiagramLayerId = "surface" | "intermediate" | "deep";
 export type DiagramPathKind = "belly" | "tendon" | "outline" | "bone" | "ghost" | "skin";
 
 export interface DiagramPath {
   /** Stable path id: `<view>__<layer>__<nodeShort>__<n>` for selectable paths. */
   id: string;
-  /** The node a selectable belly path belongs to; null for structure. */
+  /**
+   * The node a belly or tendon belongs to; null for structure. Only `belly` paths are
+   * selectable and painted with exposure; a tendon keeps its node so the selection
+   * outline can include it, but it is never coloured as muscle bulk (brief §6).
+   */
   nodeId: NodeId | null;
   kind: DiagramPathKind;
   d: string;
