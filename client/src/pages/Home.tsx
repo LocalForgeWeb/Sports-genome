@@ -1424,10 +1424,12 @@ export default function Home() {
   const editDayInWeekRef = useRef(editDayInWeek);
   editDayInWeekRef.current = editDayInWeek;
   /**
-   * An add or a swap asked for from the specialization page, into the exact week and day it
-   * named (brief §7). The page has already shown the athlete what changes; this applies the
-   * same pure edit (lib/specialization/planChange) and answers with a reason when it cannot.
-   * The toast's Undo takes back this one change, not whatever the day became since.
+   * An add or a swap asked for from the specialization page, into the exact week, day and slot
+   * it named (brief §7). The page has already shown the athlete what changes; this applies the
+   * same pure edit (lib/specialization/planChange), which pins no default prescription (an
+   * entry without its own reads as the goal's default for its position, as Plan's own add and
+   * swap leave it), and answers with a reason when it cannot. The toast's Undo takes back this
+   * one change, not whatever the day became since.
    */
   const applySpecializationChange = (change: SpecializationPlanChange): SpecializationPlanChangeResult => {
     if (!planReadyForEdits({ quiet: true })) return { ok: false, reason: "Your plan is still loading, so nothing was changed. Try again in a moment." };
@@ -1439,13 +1441,15 @@ export default function Home() {
     if (!isActive && !planWeeks[change.week]) return { ok: false, reason: `Week ${change.week} is not built yet. Build it in Plan first.` };
     const store = isActive ? commitDay(dayStore, draftDayKeyRef.current, activeDraft()) : planWeeks[change.week].days;
     const before = loadDay(store, slot.key);
-    const outcome = applyPlanChangeToRecord(before, change, incoming, prescriptionFor(before.workout.length, goal));
+    const outcome = applyPlanChangeToRecord(before, change, incoming);
     if (!outcome.ok) return outcome;
     const after = outcome.record;
     editDayInWeek(change.week, slot.key, () => after);
     const outgoing = change.replaceEntryId === undefined ? null : before.workout.find((exercise) => exercise.id === change.replaceEntryId) ?? null;
-    // The inverse of this change only: an add comes back out; a swap puts the outgoing
-    // exercise back where the incoming one stands, with its own prescription and settings.
+    // The inverse of this change only, wherever the incoming exercise stands by then: an add
+    // (at whatever slot it was given) comes back out and the rest of the day closes up; a swap
+    // puts the outgoing exercise back where the incoming one stands, with its own prescription
+    // and settings.
     const undo = () => editDayInWeekRef.current(change.week, slot.key, (record) => {
       if (!record.workout.some((exercise) => exercise.id === incoming.id)) return record;
       const { [incoming.id]: _prescription, ...prescriptions } = record.prescriptions;
@@ -1458,7 +1462,14 @@ export default function Home() {
         settings: before.settings[outgoing.id] ? { ...settings, [outgoing.id]: before.settings[outgoing.id] } : settings,
       };
     });
-    toast(`${outcome.summary} · Week ${change.week} · ${slot.day}`, { id: "plan-add", cancel: { label: "Undo", onClick: undo } });
+    // Sonner merges a notice into the one already showing with its id, so every option is named:
+    // an earlier add's description and its "View workout" would otherwise carry over to this one.
+    toast(`${outcome.summary} · Week ${change.week} · ${slot.day}`, {
+      id: "plan-add",
+      description: outgoing ? "Sets you already logged keep the exercise they were logged as." : `Now ${outcome.index + 1} of ${after.workout.length} in that day.`,
+      action: undefined,
+      cancel: { label: "Undo", onClick: undo },
+    });
     return { ok: true, undo };
   };
   const toggleFavorite = (exercise: Exercise) => {

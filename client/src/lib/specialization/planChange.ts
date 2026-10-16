@@ -3,45 +3,68 @@ import type { DayRecord } from "@/lib/trainingDayPlan";
 import type { SpecializationPlanChange } from "./viewState";
 
 export type PlanChangeOutcome =
-  | { ok: true; record: DayRecord; summary: string }
+  /** `index`: where the incoming exercise stands in the day afterwards (0 = first). */
+  | { ok: true; record: DayRecord; summary: string; index: number }
   | { ok: false; reason: string };
+
+/** Where an add lands: `insertAt` clamped to the day (0 = first), or the end when it is absent or not a number. */
+export function insertionIndex(length: number, insertAt: number | undefined): number {
+  if (insertAt === undefined || !Number.isFinite(insertAt)) return length;
+  return Math.min(Math.max(Math.trunc(insertAt), 0), length);
+}
 
 /**
  * One day's record after an add or a swap asked for from the specialization page.
  *
  * Pure, so the page can preview the planned totals on the record this returns before
  * anything is saved (brief §7, "Preview how the proposed change affects planned totals
- * only"), and Home writes exactly the same record when the athlete confirms. A swap
- * keeps the replaced exercise's prescription and settings, as Plan's own swap does.
+ * only"), and Home writes exactly the same record when the athlete confirms.
+ *
+ * Neither edit writes a prescription the athlete did not set. An entry without one reads as
+ * the goal's default for its position, as every plan reader does (planBouts `prescriptionOf`),
+ * and Plan's own add and swap leave it that way too:
+ * - an add goes where `insertAt` says (clamped; at the end when absent) and carries only the
+ *   prescription the change names, if any;
+ * - a swap takes the replaced exercise's place and carries over only what that entry had of
+ *   its own: its prescription and settings. Without them the incoming exercise has none either,
+ *   so its sets stay the default for that position instead of becoming another position's.
  */
-export function applyPlanChangeToRecord(record: DayRecord, change: SpecializationPlanChange, incoming: Exercise, defaultPrescription: string): PlanChangeOutcome {
+export function applyPlanChangeToRecord(record: DayRecord, change: SpecializationPlanChange, incoming: Exercise): PlanChangeOutcome {
   const catalogIdOf = (exercise: Exercise & { catalogExerciseId?: number }) => exercise.catalogExerciseId || exercise.id;
   if (record.workout.some((exercise) => catalogIdOf(exercise) === incoming.id)) {
     return { ok: false, reason: `${incoming.name} is already in that day.` };
   }
+  // Nothing left over under the incoming id (a record is scoped to its workout, but a stale key would otherwise ride along).
+  const { [incoming.id]: _stalePrescription, ...prescriptions } = record.prescriptions;
+  const { [incoming.id]: _staleSettings, ...settings } = record.settings;
   if (change.replaceEntryId === undefined) {
+    const index = insertionIndex(record.workout.length, change.insertAt);
     return {
       ok: true,
       record: {
         ...record,
-        workout: [...record.workout, incoming],
-        prescriptions: { ...record.prescriptions, [incoming.id]: change.prescription || defaultPrescription },
+        workout: [...record.workout.slice(0, index), incoming, ...record.workout.slice(index)],
+        prescriptions: change.prescription ? { ...prescriptions, [incoming.id]: change.prescription } : prescriptions,
+        settings,
       },
       summary: `Added ${incoming.name}`,
+      index,
     };
   }
-  const outgoing = record.workout.find((exercise) => exercise.id === change.replaceEntryId);
-  if (!outgoing) return { ok: false, reason: "The exercise to swap out is no longer in that day." };
-  const { [outgoing.id]: keptPrescription, ...otherPrescriptions } = record.prescriptions;
-  const { [outgoing.id]: keptSettings, ...otherSettings } = record.settings;
+  const index = record.workout.findIndex((exercise) => exercise.id === change.replaceEntryId);
+  if (index === -1) return { ok: false, reason: "The exercise to swap out is no longer in that day." };
+  const outgoing = record.workout[index];
+  const { [outgoing.id]: keptPrescription, ...otherPrescriptions } = prescriptions;
+  const { [outgoing.id]: keptSettings, ...otherSettings } = settings;
   return {
     ok: true,
     record: {
       ...record,
       workout: record.workout.map((exercise) => (exercise.id === outgoing.id ? incoming : exercise)),
-      prescriptions: { ...otherPrescriptions, [incoming.id]: keptPrescription || change.prescription || defaultPrescription },
+      prescriptions: keptPrescription ? { ...otherPrescriptions, [incoming.id]: keptPrescription } : otherPrescriptions,
       settings: keptSettings ? { ...otherSettings, [incoming.id]: keptSettings } : otherSettings,
     },
     summary: `Swapped ${outgoing.name} for ${incoming.name}`,
+    index,
   };
 }
