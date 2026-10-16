@@ -1245,9 +1245,9 @@ export default function Home() {
     if (url.search !== window.location.search) window.history.replaceState(window.history.state, "", url);
   };
   /** The page a muscle key opens, if a specialization region refines it, labelled as the region names its entry. */
-  const specializationEntryFor = (muscleKey: string) => {
+  const specializationEntryFor = (muscleKey: string, context: Partial<SpecializationViewState> = {}) => {
     const region = regionForBodyMapKey(muscleKey);
-    return region ? { label: region.entryLabel, open: () => openSpecialization({ regionId: region.id }) } : null;
+    return region ? { label: region.entryLabel, open: () => openSpecialization({ ...context, regionId: region.id }) } : null;
   };
   // Body Lab offers the region for the muscle picked on the map, without picking a muscle
   // inside it: the map's key is coarser than the atlas's muscles.
@@ -2483,7 +2483,8 @@ export default function Home() {
               onEditDay={(dayKey, options) => { const index = daySlots.findIndex((slot) => slot.key === dayKey); if (index < 0) return; selectTrainingDay(index); navigateWorkspace("day-plan"); if (options?.addExercises) { window.scrollTo({ top: 0 }); setPickerSheetOpen(true); } }}
               onInspectExercise={inspectExercise}
               onFindExercises={(muscleId) => openDiscovery({ mode: "muscle", muscleId })}
-              specializationEntryFor={specializationEntryFor}
+              // Review reads a plan week, so the page opens on the same week, as planned (design §7).
+              specializationEntryFor={(key) => specializationEntryFor(key, { mode: "planned", planWeek: activeWeek })}
             />
             : <>
               {/* The same strip as the Week board, as day tabs: a tap moves the inspected day. */}
