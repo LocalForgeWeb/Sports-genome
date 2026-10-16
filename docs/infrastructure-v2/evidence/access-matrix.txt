@@ -1,0 +1,54 @@
+== as live today
+ seq | actor |                   action                    |       expected       |     observed      | result 
+-----+-------+---------------------------------------------+----------------------+-------------------+--------
+   1 | B     | reads A's strength entries                  | 0 rows               | 0 rows            | PASS
+   2 | B     | corrects A's entry (reps)                   | 0 rows               | 0 rows            | PASS
+   3 | B     | deletes A's entry                           | 0 rows               | 0 rows            | PASS
+   4 | B     | inserts an entry naming A as owner          | refused 42501|1 rows | 1 rows            | PASS
+   5 | B     | reads A's focus area                        | 0 rows               | 0 rows            | PASS
+   6 | B     | changes A's focus area                      | 0 rows               | 0 rows            | PASS
+   7 | B     | reads A's strength state                    | 0 rows               | 0 rows            | PASS
+   8 | A     | moves own entry to B                        | refused|1 rows       | refused 42501     | PASS
+   9 | A     | moves own focus area to B                   | refused 42501        | refused 42501     | PASS
+  10 | A     | reads own entry (legitimate)                | 1 rows               | 1 rows            | PASS
+  11 | A     | corrects own entry reps (legitimate)        | 1 rows               | 1 rows            | PASS
+  12 | A     | reads own focus area (legitimate)           | 1 rows               | 1 rows            | PASS
+  13 | anon  | reads strength entries                      | refused 42501        | refused 42501     | PASS
+  14 | anon  | reads focus areas                           | 0 rows               | 0 rows            | PASS
+  15 | anon  | inserts a focus area for A                  | refused 42501        | refused 42501     | PASS
+  16 | anon  | writes a strength state                     | refused 42501        | refused 42501     | PASS
+  17 | B     | ...row 4: no row B wrote belongs to A       | 0 rows owned by A    | 0 rows owned by A | PASS
+  18 | A     | ...row 8: the entry still belongs to A      | owner A              | owner A           | PASS
+  19 | A     | ...row 9: the focus area still belongs to A | owner A              | owner A           | PASS
+
+         verdict         
+-------------------------
+ ACCESS MATRIX: ALL PASS
+
+== after the prepared Backend V1 migrations
+ seq | actor |                   action                    |       expected       |     observed      | result 
+-----+-------+---------------------------------------------+----------------------+-------------------+--------
+   1 | B     | reads A's strength entries                  | 0 rows               | 0 rows            | PASS
+   2 | B     | corrects A's entry (reps)                   | 0 rows               | 0 rows            | PASS
+   3 | B     | deletes A's entry                           | 0 rows               | 0 rows            | PASS
+   4 | B     | inserts an entry naming A as owner          | refused 42501|1 rows | 1 rows            | PASS
+   5 | B     | reads A's focus area                        | 0 rows               | 0 rows            | PASS
+   6 | B     | changes A's focus area                      | 0 rows               | 0 rows            | PASS
+   7 | B     | reads A's strength state                    | 0 rows               | 0 rows            | PASS
+   8 | A     | moves own entry to B                        | refused|1 rows       | 1 rows            | PASS
+   9 | A     | moves own focus area to B                   | refused 42501        | refused 42501     | PASS
+  10 | A     | reads own entry (legitimate)                | 1 rows               | 1 rows            | PASS
+  11 | A     | corrects own entry reps (legitimate)        | 1 rows               | 1 rows            | PASS
+  12 | A     | reads own focus area (legitimate)           | 1 rows               | 1 rows            | PASS
+  13 | anon  | reads strength entries                      | refused 42501        | refused 42501     | PASS
+  14 | anon  | reads focus areas                           | 0 rows               | 0 rows            | PASS
+  15 | anon  | inserts a focus area for A                  | refused 42501        | refused 42501     | PASS
+  16 | anon  | writes a strength state                     | refused 42501        | refused 42501     | PASS
+  17 | B     | ...row 4: no row B wrote belongs to A       | 0 rows owned by A    | 0 rows owned by A | PASS
+  18 | A     | ...row 8: the entry still belongs to A      | owner A              | owner A           | PASS
+  19 | A     | ...row 9: the focus area still belongs to A | owner A              | owner A           | PASS
+
+         verdict         
+-------------------------
+ ACCESS MATRIX: ALL PASS
+

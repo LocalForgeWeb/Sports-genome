@@ -8,8 +8,7 @@ import { buildStrengthRegionMap, type AnatomyRole } from "@/lib/anatomyRegions";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 import { anatomySides, defaultAnatomySide, sideForSelection, sideLabel, turnToSideLabel, type AnatomySide } from "@/lib/anatomySide";
 import { confidenceLabel, type RankId, type RegionRank } from "@shared/capabilityRank";
-import { RankLegend, displayPercentile, rankPercentileText } from "@/components/CapabilityRank";
-import { ordinal } from "@/lib/strengthPercentileCard";
+import { RankLegend, rankOrdinal, rankPercentileText } from "@/components/CapabilityRank";
 
 type RegionState = "OBSERVED_TEST_CONTEXT" | "INSUFFICIENT_DATA";
 
@@ -100,7 +99,7 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
         id: region.id,
         label: region.label,
         muscleKeys: regionToMuscles[region.id] ?? [],
-        state: regionRank ? `${regionRank.rank.shortName} · ${ordinal(displayPercentile(regionRank.representative.percentile))}` : "Not scored",
+        state: regionRank ? `${regionRank.rank.shortName} · ${rankOrdinal(regionRank.representative.percentile, regionRank.representative.estimated, "", regionRank.representative.atLeast)}` : "Not scored",
         active: Boolean(regionRank),
         rankId: regionRank?.rank.id,
         unscored: !regionRank,

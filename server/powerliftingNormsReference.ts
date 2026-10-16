@@ -1,5 +1,6 @@
 import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import type { PowerliftingNormLift, PowerliftingNormRow } from "../shared/powerliftingNormsReference";
+import { upstreamFetch } from "./_core/http";
 
 type FetchImplementation = typeof fetch;
 
@@ -35,7 +36,7 @@ function embedded<T>(value: T | T[] | null | undefined): T | null {
 export function createPowerliftingNormsClient({
   url,
   serviceRoleKey,
-  fetchImplementation = fetch,
+  fetchImplementation = upstreamFetch,
 }: PowerliftingNormsClientConfig) {
   const baseUrl = url.replace(/\/+$/, "");
 

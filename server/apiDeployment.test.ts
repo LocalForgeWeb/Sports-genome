@@ -22,6 +22,18 @@ describe("the API is actually deployed", () => {
     expect(api.destination).toContain("__trpc=:path*");
   });
 
+  it("routes every other deeper /api path to the function too, after tRPC", () => {
+    // /api/health/ready answered the platform's own plain-text 404 in production: the
+    // catch-all never saw it. Deeper paths now reach the function and its JSON answers.
+    const rewrites: { source: string; destination: string }[] = vercelConfig.rewrites || [];
+    const deeper = rewrites.findIndex((r) => r.destination.includes("__api="));
+    const trpc = rewrites.findIndex((r) => r.source.startsWith("/api/trpc"));
+    expect(deeper, "a rewrite carries deeper /api paths").toBeGreaterThan(-1);
+    expect(rewrites[deeper].source).toBe("/api/:first/:rest+");
+    expect(rewrites[deeper].destination).toBe("/api/[...path]?__api=:first/:rest+");
+    expect(trpc, "tRPC keeps its own rule, ahead of the general one").toBeLessThan(deeper);
+  });
+
   it("keeps the SPA rewrite away from /api", () => {
     const rewrites = vercelConfig.rewrites || [];
     expect(rewrites.length).toBeGreaterThan(0);
@@ -65,7 +77,7 @@ describe("the API is actually deployed", () => {
     expect(read("server/_core/index.ts")).toContain('from "./apiHandler"');
     expect(handler).toContain('from "../routers"');
     expect(handler).toContain('from "./context"');
-    expect(source).toContain('app.use("/api/trpc", requireJsonMutations, trpcHandler());');
+    expect(source).toContain('app.use("/api/trpc", noStore, requireJsonMutations, trpcHandler());');
     expect(source).not.toContain("listen(");
   });
 
@@ -115,6 +127,27 @@ describe("the deployed handler answers as an API", () => {
     expect(response.headers.get("content-type")).toMatch(/application\/json/);
     const body = await response.json();
     expect(Array.isArray(body.result.data.json)).toBe(true);
+  });
+
+  it("restores a deeper /api path carried by the rewrite, and only a plain one", async () => {
+    const previous = process.env.HEALTH_CHECK_TOKEN;
+    process.env.HEALTH_CHECK_TOKEN = "test-token";
+    try {
+      // The function's own path plus the carried one reaches readiness, which still needs its token.
+      const hidden = await fetch(base + "/api/%5B...path%5D?__api=health/ready");
+      expect(hidden.status).toBe(404);
+      const ready = await fetch(base + "/api/%5B...path%5D?__api=health/ready", { headers: { "x-health-token": "test-token" } });
+      expect([200, 503]).toContain(ready.status);
+      await expect(ready.json()).resolves.toHaveProperty("status");
+      // A dot-segment is not a path to restore: the request stays where it was, a JSON 404.
+      for (const carried of ["health/../ready", "health/./ready", "health//ready", "health"]) {
+        const refused = await fetch(base + `/api/%5B...path%5D?__api=${encodeURIComponent(carried)}`, { headers: { "x-health-token": "test-token" } });
+        expect(refused.status, carried).toBe(404);
+        await expect(refused.json()).resolves.toMatchObject({ error: "Not found" });
+      }
+    } finally {
+      if (previous === undefined) delete process.env.HEALTH_CHECK_TOKEN; else process.env.HEALTH_CHECK_TOKEN = previous;
+    }
   });
 
   it("404s unknown API paths in JSON, so a client never parses an HTML error page", async () => {

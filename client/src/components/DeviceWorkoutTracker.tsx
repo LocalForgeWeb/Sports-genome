@@ -13,6 +13,7 @@ import {
 import { addAfter, applySwap, assessSwap, canUndoSwap, catalogIdOf, swapNote, undoSwap, type SwapReceipt } from "@/lib/workoutSwap";
 import { dropSetLine, dropSetSummary, newStageId, performedSetLine, setVolume, stageLoadText, stageNote, stageProblem, volumeText } from "@/lib/dropSets";
 import { loadConventionFor } from "@shared/loadConventions";
+import { SetEffortChoice } from "@/components/SetEffortChoice";
 import { ExerciseSwapSheet, type ExerciseSwapChoice, type SwapPlanOption } from "@/components/ExerciseSwapSheet";
 import { ExerciseHistoryList } from "@/components/ExerciseHistoryList";
 import { exerciseHistoryCount } from "@/lib/sessionRecap";
@@ -423,6 +424,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             height: shownEntries.height,
             reps: shownEntries.reps,
             completed: true,
+            // How hard it was taken, when said before logging (shared/setEffort.ts).
+            ...(set.effort ? { effort: set.effort } : {}),
           }) }),
     }));
   };
@@ -485,6 +488,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    * apply twice; and the toast's Undo takes it back while nothing new is logged on it.
    */
   const [swapForId, setSwapForId] = useState<string | null>(null);
+  /** "Add exercise": the sheet opened to add straight after this session exercise. */
+  const [addAfterId, setAddAfterId] = useState<string | null>(null);
   /** The workout just finished, shown as its saved recap until the athlete is done with it. */
   const [savedSessionId, setSavedSessionId] = useState<string | null>(null);
   const [confirmingFinish, setConfirmingFinish] = useState(false);
@@ -564,10 +569,45 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
 
   const addAfterExercise = (exerciseId: string, target: Exercise) => {
     const anchor = activeSessionRef.current?.exercises.find((exercise) => exercise.id === exerciseId);
-    commit((session) => addAfter(session, exerciseId, { name: target.name, id: target.id }, { newExerciseId: freshId(String(target.id)), at: new Date().toISOString() }));
+    const newExerciseId = freshId(String(target.id));
+    commit((session) => addAfter(session, exerciseId, { name: target.name, id: target.id }, { newExerciseId, at: new Date().toISOString() }));
     setSwapForId(null);
+    setAddAfterId(null);
     focusNextLogAction();
-    toast(`Added ${target.name}`, { description: `After ${anchor?.exerciseName ?? "the last exercise"}, starting from the same sets and reps.` });
+    toast(`Added ${target.name}`, {
+      id: `add-${newExerciseId}`,
+      description: `After ${anchor?.exerciseName ?? "the last exercise"}, starting from the same sets and reps.`,
+      // Taken back while nothing is logged or typed on it; after that, Remove in the full workout.
+      action: { label: "Undo", onClick: () => commit((session) => {
+        const added = session.exercises.find((exercise) => exercise.id === newExerciseId);
+        return added && !added.sets.some((set) => set.completed || isDraftSet(set)) ? { ...session, exercises: session.exercises.filter((exercise) => exercise.id !== newExerciseId) } : session;
+      }) },
+    });
+  };
+
+  /**
+   * Takes an exercise out of this workout - one added by mistake, or one that will not happen - with
+   * whatever it holds. The message says what went with it, and its Undo puts it back where it was.
+   * An exercise in a swap stays: the other half of the swap refers to it. The last exercise stays
+   * too; a workout with nothing in it is finished, not emptied.
+   */
+  const removeFromWorkout = (exerciseId: string) => {
+    const current = activeSessionRef.current;
+    if (!current) return;
+    const index = current.exercises.findIndex((exercise) => exercise.id === exerciseId);
+    if (index < 0 || current.exercises.length < 2) return;
+    const removed = current.exercises[index];
+    if (removed.swappedFrom || removed.replacedBy) return;
+    commit((session) => ({ ...session, exercises: session.exercises.filter((exercise) => exercise.id !== exerciseId) }));
+    const logged = removed.sets.filter(isCompletedSet).length;
+    toast(`Removed ${removed.exerciseName}`, {
+      id: `remove-${exerciseId}`,
+      description: logged ? `Its ${logged} logged ${logged === 1 ? "set went" : "sets went"} with it.` : "Nothing was logged for it.",
+      action: { label: "Undo", onClick: () => commit((session) => session.exercises.some((exercise) => exercise.id === exerciseId) ? session : {
+        ...session,
+        exercises: [...session.exercises.slice(0, index), removed, ...session.exercises.slice(index)],
+      }) },
+    });
   };
 
   /**
@@ -812,6 +852,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
                 {exerciseSkipped ? <Undo2 className="h-3.5 w-3.5" /> : <SkipForward className="h-3.5 w-3.5" />}
                 <span>{exerciseSkipped ? "Put back" : "Skip"}</span>
               </button>
+              {!exercise.swappedFrom && activeSession.exercises.length > 1 && <button type="button" className="session-exercise-skip session-exercise-remove" onClick={() => removeFromWorkout(exercise.id)} aria-label={`Remove ${exercise.exerciseName} from this workout`}>
+                <X className="h-3.5 w-3.5" /><span>Remove</span>
+              </button>}
             </span>}
           </div>
           <div className="session-set-list">{exercise.sets.map((set, setIndex) => {
@@ -847,8 +890,13 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             {set.completed && canDrop && <button type="button" className="session-set-to-drop" onClick={() => convertToDropSet(exercise.id, setIndex)} aria-label={`Make set ${setIndex + 1} of ${exercise.exerciseName} a drop set`}>
               <Layers className="h-3.5 w-3.5" /><span>Make drop set</span>
             </button>}
+            {set.completed && <SetEffortChoice variant="chip" exerciseName={exercise.exerciseName} catalogExerciseId={catalogEntry?.id} effort={set.effort}
+              onChange={(effort) => updateSet(exercise.id, setIndex, { effort })} />}
           </div>; })}</div>
         </article>; })}</div>
+        <button type="button" className="session-add-exercise" onClick={() => setAddAfterId(activeSession.exercises[activeSession.exercises.length - 1]?.id ?? null)}>
+          <Plus className="h-4 w-4" aria-hidden="true" /> Add exercise
+        </button>
       </details>
   ), [activeSession, catalogByName, sessionUnit]);
 
@@ -978,6 +1026,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   /** Drop sets are about load: offered wherever the set has a weight box. */
   const canDropActive = activeEntryFields.some((field) => field.measure === "weight");
   const swapExercise = swapForId ? activeSession.exercises.find((exercise) => exercise.id === swapForId) ?? null : null;
+  const addAnchor = addAfterId ? activeSession.exercises.find((exercise) => exercise.id === addAfterId) ?? null : null;
 
   return <section id="workout-tracker" className="workout-execution-panel device-workout-tracker">
     <div className="execution-head">
@@ -1086,6 +1135,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             onChange={(event) => editEntry("reps", event.target.value)} onKeyDown={onEntryKeyDown} placeholder="—" />
         </label>
       </div>
+      {/* How hard the set was taken, said in place: asked only of a usually-light exercise, a quiet toggle otherwise. */}
+      {!dropMode && <SetEffortChoice exerciseName={activeExercise.exerciseName} catalogExerciseId={catalogFor(activeExercise)?.id} effort={activeSet.effort}
+        onChange={(effort) => updateSet(activeExercise.id, position.setIndex, { effort })} />}
       {dropMode
         ? <div className="live-drop-actions">
           <button type="button" className="live-drop-add" onClick={() => addDropStage(false)}><Plus className="h-4 w-4" aria-hidden /> Add drop</button>
@@ -1096,14 +1148,19 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         </button>}
       {dropMode && dropProblem && <p className="live-drop-problem" role="alert">{dropProblem}</p>}
       {dropMode && !dropProblem && dropNote && <p className="live-drop-note" role="status">{dropNote}</p>}
-      {/* Secondary by design: the dominant action is logging the set. Skipping
-          is the escape hatch for the rack being taken or time running out. */}
+      {/* Secondary by design: the dominant action is logging the set. Swap, Skip and Add sit
+          under it as one row of three equal outlined buttons - unfilled, so Log set stays the
+          one thing to press, but each a full thumb-sized target that reads at a glance on a
+          phone. Short labels on screen; the full action in each name. */}
       <div className="live-set-secondary">
-        <button type="button" className="live-set-skip live-set-swap" onClick={() => setSwapForId(activeExercise.id)}>
-          <ArrowLeftRight className="h-4 w-4" /> Swap exercise
+        <button type="button" className="live-set-skip live-set-swap" onClick={() => setSwapForId(activeExercise.id)} aria-label="Swap exercise">
+          <ArrowLeftRight className="h-5 w-5" aria-hidden="true" /><span>Swap</span>
         </button>
-        <button type="button" className="live-set-skip" onClick={skipActiveExercise}>
-          <SkipForward className="h-4 w-4" /> Skip {activeExercise.exerciseName}
+        <button type="button" className="live-set-skip" onClick={skipActiveExercise} aria-label={`Skip ${activeExercise.exerciseName}`}>
+          <SkipForward className="h-5 w-5" aria-hidden="true" /><span>Skip</span>
+        </button>
+        <button type="button" className="live-set-skip live-set-add" onClick={() => setAddAfterId(activeExercise.id)} aria-label="Add exercise">
+          <Plus className="h-5 w-5" aria-hidden="true" /><span>Add</span>
         </button>
       </div>
       {/* What follows, as quiet supporting information: the athlete can rack the
@@ -1133,6 +1190,10 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
           away at the top. */}
       <button type="button" className="live-session-finish live-session-finish-primary" onClick={finish}>
         <Save className="h-4 w-4" /> Finish workout · add {completed} {completed === 1 ? "set" : "sets"} to Progress
+      </button>
+      {/* One more before finishing: it goes after the last exercise and becomes the set card. */}
+      <button type="button" className="live-done-add" onClick={() => setAddAfterId(activeSession.exercises[activeSession.exercises.length - 1]?.id ?? null)}>
+        <Plus className="h-5 w-5" aria-hidden="true" /> Add another exercise
       </button>
     </div>}
 
@@ -1173,6 +1234,18 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       </div>;
     })()}
 
+    {addAnchor && <ExerciseSwapSheet
+      addOnly
+      exercise={addAnchor}
+      catalogEntry={catalogFor(addAnchor)}
+      catalog={exerciseCatalog}
+      assessment={assessSwap(addAnchor)}
+      inWorkout={new Set(activeSession.exercises.map((exercise) => exercise.exerciseName))}
+      lastLoggedFor={lastLoggedText}
+      onConfirm={() => undefined}
+      onAdd={(target) => addAfterExercise(addAnchor.id, target)}
+      onClose={() => setAddAfterId(null)}
+    />}
     {swapExercise && <ExerciseSwapSheet
       exercise={swapExercise}
       catalogEntry={catalogFor(swapExercise)}

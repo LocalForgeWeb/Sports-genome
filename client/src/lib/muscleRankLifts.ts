@@ -5,6 +5,7 @@ import { estimateOneRepMaxKg } from "@shared/oneRepMaxEstimation";
 import { strengthLevelAgeFactor } from "@shared/strengthPercentile";
 import { loadConventionFor } from "@shared/loadConventions";
 import type { MuscleEvidence } from "@shared/capabilityRank";
+import { isNotToFailure, type SetEffort } from "@shared/setEffort";
 
 export type RankableObservation = {
   /** The record the lift was read from, so a rank can name the lift behind it. */
@@ -17,6 +18,8 @@ export type RankableObservation = {
   observedAt: string | Date;
   /** "workout" when the lift was carried across from a finished workout rather than typed into the log. */
   source?: string | null;
+  /** How hard the set was taken, when the athlete said (shared/setEffort.ts). */
+  effort?: SetEffort | null;
 };
 
 export type MuscleRankLift = {
@@ -30,6 +33,11 @@ export type MuscleRankLift = {
    * year entered today re-reads a lift from last spring at the age it was lifted at.
    */
   ageYears: number | null;
+  /**
+   * Stopped short of failure - said so, or a usually-light exercise left unmarked - so a floor:
+   * it may raise a muscle's rank, never lower it. Sent only when true, to keep the URL short.
+   */
+  notToFailure?: true;
 };
 
 /**
@@ -66,6 +74,8 @@ export type MuscleRankLiftSource = {
   bodyMassKg: number | null;
   bodyMassSource: LiftBodyMassSource | null;
   fromWorkout: boolean;
+  /** Read as a floor (`MuscleRankLift.notToFailure`). */
+  notToFailure?: true;
 };
 
 /**
@@ -116,8 +126,9 @@ export function muscleRankLiftSelection(observations: readonly RankableObservati
     if (!Number.isFinite(loadKg) || loadKg < 0 || loadKg > 1000) continue;
     if (loadKg === 0 && !scoredOnReps) continue;
     const repetitions = observation.measurementType === "MEASURED_1RM" ? 1 : Math.round(Number(observation.repetitions));
-    if (!Number.isFinite(repetitions) || repetitions < 1 || repetitions > 100) continue;
     const repsOnly = scoredOnReps && loadKg === 0;
+    // A rep count can run long - 150 push-ups is a count, not a typo - so it may reach 1000, as a record can.
+    if (!Number.isFinite(repetitions) || repetitions < 1 || repetitions > (repsOnly ? 1000 : 100)) continue;
     const e1rmKg = repsOnly ? null : estimateOneRepMaxKg(loadKg, repetitions);
     if (!repsOnly && e1rmKg === null) continue;
     const bodyMass = liftBodyMass(observation, history, profileBodyMassKg);
@@ -128,6 +139,7 @@ export function muscleRankLiftSelection(observations: readonly RankableObservati
       repetitions,
       bodyMassKg: bodyMass?.kg ?? null,
       ageYears: ageAtLift(birthYear ?? undefined, observation.observedAt) ?? null,
+      ...(isNotToFailure({ catalogExerciseId, measurementType: observation.measurementType, effort: observation.effort }) ? { notToFailure: true as const } : {}),
     };
     // Age scales the comparison the way the database will: divide by the published factor.
     const factor = strengthLevelAgeFactor(lift.ageYears);
@@ -166,11 +178,11 @@ export function muscleRankLiftSelection(observations: readonly RankableObservati
   const seen = new Set<string>();
   for (const { lift, bodyMassSource, fromWorkout, repsOnly, observationId, observedOn } of [...leaders, ...runnersUp]) {
     // The same lift twice tells the aggregation nothing new, and costs URL.
-    const key = `${lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase()}|${lift.loadKg}|${lift.repetitions}|${lift.bodyMassKg}|${lift.ageYears}`;
+    const key = `${lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase()}|${lift.loadKg}|${lift.repetitions}|${lift.bodyMassKg}|${lift.ageYears}|${lift.notToFailure ? "floor" : ""}`;
     if (seen.has(key)) continue;
     seen.add(key);
     lifts.push(lift);
-    sources.push({ observationId, exerciseName: lift.exerciseName, catalogExerciseId: lift.catalogExerciseId, observedAt: observedOn, loadKg: lift.loadKg, repetitions: lift.repetitions, repsOnly, bodyMassKg: lift.bodyMassKg, bodyMassSource, fromWorkout });
+    sources.push({ observationId, exerciseName: lift.exerciseName, catalogExerciseId: lift.catalogExerciseId, observedAt: observedOn, loadKg: lift.loadKg, repetitions: lift.repetitions, repsOnly, bodyMassKg: lift.bodyMassKg, bodyMassSource, fromWorkout, ...(lift.notToFailure ? { notToFailure: true as const } : {}) });
     if (bodyMassSource === "profile") profileWeightLifts.push({ exerciseName: lift.exerciseName, fromWorkout });
     if (lifts.length === MUSCLE_RANK_LIFT_LIMIT) break;
   }
@@ -184,6 +196,10 @@ export type RankProvenance = {
   role: string | null;
   /** Where the exercise placed on its own; the muscle's rank weighs these. */
   exercisePercentile: number;
+  /** That placement is the estimated tail past the curve's top anchor. */
+  estimated?: boolean;
+  /** Stopped short of failure, so a floor; it is listed because it raised this muscle. */
+  notToFailure?: boolean;
   /**
    * The share of the muscle's rank this exercise carried (D-016: a lift counts for more the more
    * directly it reads the muscle), or null when the route did not say.
@@ -219,7 +235,7 @@ export function rankProvenance(evidence: readonly MuscleEvidence[], sources: rea
     const catalogId = catalogExerciseIdForName(item.exerciseName) ?? null;
     const lifts = sources.filter((source) => (catalogId !== null && source.catalogExerciseId === catalogId) || comparableExerciseName(source.exerciseName) === name);
     const weightShare = typeof item.weightShare === "number" && Number.isFinite(item.weightShare) ? item.weightShare : null;
-    entries.push({ exerciseName: item.exerciseName, role: item.role, exercisePercentile: item.exercisePercentile, weightShare, lifts });
+    entries.push({ exerciseName: item.exerciseName, role: item.role, exercisePercentile: item.exercisePercentile, weightShare, lifts, ...(item.estimated ? { estimated: true } : {}), ...(item.notToFailure ? { notToFailure: true } : {}) });
   }
   // The exercise that carried most of the rank first; by placement when the route gave no shares.
   return entries.sort((a, b) => (b.weightShare ?? -1) - (a.weightShare ?? -1) || b.exercisePercentile - a.exercisePercentile);

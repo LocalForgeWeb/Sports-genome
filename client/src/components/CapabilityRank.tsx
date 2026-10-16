@@ -2,23 +2,34 @@ import "@/capability-rank.css";
 import type { ReactNode } from "react";
 import { RANKS, confidenceLabel, rankForPercentile, rankColorToken, rankRangeLabel, type RankId, type RegionRank } from "@shared/capabilityRank";
 import { RankIcon } from "@/components/RankIcon";
-import { ordinal } from "@/lib/strengthPercentileCard";
+import { ordinal, percentileFigure } from "@/lib/strengthPercentileCard";
 
-/**
- * The integer a percentile is shown as.
- *
- * Floored, not rounded, so the printed number always sits inside the band its colour and
- * name come from: 19.6 rounds to "20th", which the legend files under JV, while the rank -
- * read on the raw value - is Prospect. Flooring keeps "Prospect · 19th" true to the legend's
- * 0-19. The source clamps muscle scores to 1-99, and nothing reads as "0th".
- */
+/** The number a rank percentile is printed as: the one rule a lift's card uses too (`percentileFigure`). */
 export function displayPercentile(percentile: number): number {
-  return Math.max(1, Math.floor(percentile));
+  return percentileFigure(percentile);
 }
 
-/** "41st percentile", or "About 41st percentile" where the evidence is thin. */
+/**
+ * A percentile as a rank surface prints it: "96th", or "≈ 96th (estimated)" when it is past the
+ * top anchor the comparison data measures and rests on the estimated tail. `noun` goes between
+ * the number and the label: "96th percentile", "≈ 96th percentile (estimated)". A floor - read from
+ * sets stopped short of failure - reads "at least 41st", lower case, for the middle of a line.
+ */
+export function rankOrdinal(percentile: number, estimated?: boolean, noun = "", floor = false): string {
+  const text = `${ordinal(displayPercentile(percentile))}${noun ? ` ${noun}` : ""}`;
+  const shown = estimated ? `≈ ${text} (estimated)` : text;
+  return floor ? `at least ${shown}` : shown;
+}
+
+/**
+ * "41st percentile", "About 41st percentile" where the evidence is thin, "≈ 97th percentile
+ * (estimated)" past the top anchor, or "At least 41st percentile" from sets stopped short of failure.
+ */
 export function rankPercentileText(regionRank: Pick<RegionRank, "representative" | "confidence">): string {
-  const text = `${ordinal(displayPercentile(regionRank.representative.percentile))} percentile`;
+  const { percentile, estimated, atLeast } = regionRank.representative;
+  if (atLeast) return `At least ${rankOrdinal(percentile, estimated, "percentile")}`;
+  if (estimated) return rankOrdinal(percentile, true, "percentile");
+  const text = rankOrdinal(percentile, false, "percentile");
   return regionRank.confidence === "low" ? `About ${text}` : text;
 }
 
@@ -123,7 +134,7 @@ export function RankCard({ regionRank, provenance }: { regionRank: RegionRank; p
             <ul aria-label="Lifts behind this rank">
               {representative.evidence.map((item, index) => (
                 <li key={`${item.exerciseName}-${index}`}>
-                  {item.exerciseName}{item.role ? ` · ${item.role}` : ""}{item.exercisePercentile != null ? ` · ${ordinal(displayPercentile(item.exercisePercentile))} percentile on its own` : ""}{shared && item.weightShare != null ? ` · ${Math.round(item.weightShare * 100)}% of this rank` : ""}
+                  {item.exerciseName}{item.role ? ` · ${item.role}` : ""}{item.exercisePercentile != null ? ` · ${rankOrdinal(item.exercisePercentile, item.estimated, "percentile on its own", item.notToFailure)}` : ""}{item.notToFailure ? " · not to failure" : ""}{shared && item.weightShare != null ? ` · ${Math.round(item.weightShare * 100)}% of this rank` : ""}
                 </li>
               ))}
             </ul>
@@ -144,7 +155,7 @@ export function RankCard({ regionRank, provenance }: { regionRank: RegionRank; p
                   return (
                     <li key={muscle.muscleId}>
                       <span>{muscle.name}</span>
-                      <span>{own && <RankIcon rankId={own.id} size={32} />}{own?.shortName} · {ordinal(displayPercentile(muscle.percentile))}</span>
+                      <span>{own && <RankIcon rankId={own.id} size={32} />}{own?.shortName} · {rankOrdinal(muscle.percentile, muscle.estimated, "", muscle.atLeast)}</span>
                     </li>
                   );
                 })}

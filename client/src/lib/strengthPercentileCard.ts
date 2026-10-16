@@ -1,5 +1,7 @@
 import { exercises } from "@/lib/exerciseCatalog";
-import type { OneRepMaxEstimate, StrengthPercentileResult } from "@shared/strengthPercentile";
+import { loadConventionFor } from "@shared/loadConventions";
+import { tailEstimateCapPercentile, type OneRepMaxEstimate, type StrengthPercentileResult } from "@shared/strengthPercentile";
+import type { SetEffort } from "@shared/setEffort";
 
 /**
  * Turning a beta percentile into the one line an athlete reads.
@@ -17,18 +19,66 @@ export function catalogExerciseIdForName(exerciseName: string): number | undefin
 }
 
 /**
- * 63 -> "63rd". English ordinals, with the teens exception that catches every naive version:
- * 11, 12 and 13 take "th" despite ending in 1, 2 and 3.
+ * A set placed as a rep count: a movement scored on reps (`bodyweight_reps`, such as a pull-up or
+ * a push-up) done with no added load, from 1 to 1000 reps - the same sets the muscle ranks score
+ * on reps, and the route reads the same way.
+ */
+export function isRepCountLift(exerciseName: string, loadKg: number | string | null | undefined, repetitions: number | string | null | undefined): boolean {
+  if (loadConventionFor(catalogExerciseIdForName(exerciseName)) !== "bodyweight_reps") return false;
+  const load = loadKg == null || loadKg === "" ? 0 : Number(loadKg);
+  const reps = repetitions == null || repetitions === "" ? Number.NaN : Math.round(Number(repetitions));
+  return load === 0 && reps >= 1 && reps <= 1000;
+}
+
+/**
+ * The figure a percentile is printed as - on a lift's card and in the ranks alike, so one lift
+ * never reads two numbers.
+ *
+ * Floored, not rounded, so the printed number always sits inside the band its colour and name
+ * come from: 19.6 rounds to "20th", which the legend files under JV, while the rank - read on the
+ * raw value - is Prospect. Flooring keeps "Prospect · 19th" true to the legend's 0-19, and nothing
+ * reads as "0th". From the 99th up, where the estimated tail runs on to the 99.99th, whole numbers
+ * would print 99.2 and 99.99 alike, so it keeps a tenth (99.2) and from the 99.9th a hundredth
+ * (99.95) - still floored, so it never reads 100.
+ */
+export function percentileFigure(value: number): number {
+  if (value >= 99) {
+    const places = value >= 99.9 ? 100 : 10;
+    // The small allowance keeps 99.99, stored as 99.98999…, from flooring to 99.98.
+    return Math.min(99.99, Math.floor(value * places + 1e-6) / places);
+  }
+  return Math.max(1, Math.floor(value));
+}
+
+/**
+ * A lift's percentile to 2 decimals, as the ranks report it (`exercise_percentile`, rounded in
+ * server/muscleAggregation.ts). The card prints this, not the unrounded placement, so 57.996 reads
+ * "58th" on the card exactly as the ranks' 58.00 does.
+ */
+export function reportedPercentile(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+/**
+ * A percentile as an English ordinal, at its printed figure (`percentileFigure`): "63rd", with
+ * the teens exception that catches every naive version - 11, 12 and 13 take "th" despite ending in
+ * 1, 2 and 3. From the 99th up the figure keeps its decimals and the suffix follows the last digit,
+ * read one by one: "99.2nd", "99.95th", "99.99th".
  */
 export function ordinal(value: number): string {
-  const whole = Math.round(value);
-  const lastTwo = whole % 100;
-  if (lastTwo >= 11 && lastTwo <= 13) return `${whole}th`;
-  switch (whole % 10) {
-    case 1: return `${whole}st`;
-    case 2: return `${whole}nd`;
-    case 3: return `${whole}rd`;
-    default: return `${whole}th`;
+  const figure = percentileFigure(value);
+  if (!Number.isInteger(figure)) return `${figure}${suffix(Number(String(figure).slice(-1)))}`;
+  const lastTwo = figure % 100;
+  if (lastTwo >= 11 && lastTwo <= 13) return `${figure}th`;
+  return `${figure}${suffix(figure % 10)}`;
+}
+
+function suffix(lastDigit: number): string {
+  switch (lastDigit) {
+    case 1: return "st";
+    case 2: return "nd";
+    case 3: return "rd";
+    default: return "th";
   }
 }
 
@@ -55,7 +105,15 @@ const populationLabel: Record<"male" | "female", string> = {
  */
 export function strengthPercentileCard(
   result: StrengthPercentileResult,
-  context: { sex: "male" | "female"; bodyMassKg?: number | null }
+  context: {
+    sex: "male" | "female";
+    bodyMassKg?: number | null;
+    /**
+     * How hard the set was taken (shared/setEffort.ts `effectiveEffort`): said by the athlete, or
+     * assumed for a usually-light exercise left unmarked. Absent reads as before - not recorded.
+     */
+    effort?: { effort: SetEffort | null; assumed: boolean };
+  }
 ): StrengthPercentileCard | null {
   if (result.status !== "resolved") return null;
   const placedAs = result.unit === "x_bodyweight"
@@ -63,14 +121,45 @@ export function strengthPercentileCard(
     : result.unit === "reps"
       ? `${Math.round(result.observedValue)} reps`
       : `${Math.round(result.observedValue)} ${result.unit === "kg" ? "kg" : "lb"}`;
-  const placement = `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}`;
-  const effort = effortNote(result.estimate);
+  const placement = `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}${borrowedCurveNote(result)}${tailEstimateNote(result.tailEstimate)}`;
+  const floor = context.effort?.effort === "not_to_failure";
+  const effort = floor ? floorNote(Boolean(context.effort?.assumed)) : context.effort?.effort === "failure" ? "" : effortNote(result.estimate);
+  // Printed as the ranks print the same lift: to 2 decimals, then floored.
+  const shown = ordinal(reportedPercentile(result.percentile));
+  const placed = result.tailEstimate ? `≈ ${shown} percentile (estimated)` : `${shown} percentile`;
   return {
-    headline: `${ordinal(result.percentile)} percentile`,
+    headline: floor ? `At least ${placed}` : placed,
     detail: `${placement}${effort}`,
     placement,
     effort: effort.trim(),
   };
+}
+
+/**
+ * Why a percentile past the top anchor is an estimate. The comparison data stops at its top
+ * anchor (the 95th for every curve today); beyond it the place is the curve's shape carried on,
+ * and the estimate itself stops at the 99.99th.
+ */
+export function tailEstimateNote(tail: Extract<StrengthPercentileResult, { status: "resolved" }>["tailEstimate"]): string {
+  if (!tail) return "";
+  const where = ` Past the ${ordinal(tail.aboveAnchorPercentile)} percentile, where the comparison data stops, so this is estimated from the curve's shape.`;
+  return tail.capped ? `${where} Estimates stop at the ${ordinal(tailEstimateCapPercentile)}.` : where;
+}
+
+/** Said when the lift was read on a related exercise's curve, because the logged one has none. */
+export function borrowedCurveNote(result: Extract<StrengthPercentileResult, { status: "resolved" }>): string {
+  return result.borrowedCurve ? " Compared through a closely related lift, which has the community data this one lacks." : "";
+}
+
+/**
+ * A set stopped short of failure is a floor: the lift shows the least the athlete can do, and in the
+ * ranks it may raise a muscle, never lower it. An unmarked set of a usually-light exercise is read
+ * that way too, and the card says so, so it can be marked otherwise.
+ */
+export function floorNote(assumed: boolean): string {
+  return assumed
+    ? " Usually done light, so read as not to failure - the least this lift shows. It can raise a rank, never lower it; mark the set to failure if it was."
+    : " Not taken to failure, so this is the least the lift shows. It can raise a rank, never lower it.";
 }
 
 /**

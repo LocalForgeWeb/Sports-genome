@@ -1,0 +1,27 @@
+# supabase/prepared/backend_v1/validation/run.sh on local PostgreSQL 16.15, 2026-10-14T02:14Z; elapsed 920 ms
+== live schema: the holes are open
+before SB-07: anon truncated a reference table and a user table (RLS does not apply to TRUNCATE)
+before SB-02: B attached a check-in to A's focus area
+before SB-03: A changed sex and body weight on a stored entry, and the pool copied them
+before SB-04: A wrote a strength state directly
+before SB-06: anon could not read approved mappings
+before PS-09: the same lift landed twice
+before PS-14: a general athlete's lift was refused (SPORT_REQUIRED)
+== applying prepared migrations
+   20260928120000_backend_v1_table_grants.sql
+   20260928120100_backend_v1_child_ownership.sql
+   20260928120200_backend_v1_entry_context_immutable.sql
+   20260928120300_backend_v1_states_server_only.sql
+   20260928120400_backend_v1_approved_mappings_read.sql
+   20260928120500_backend_v1_entry_client_op_id.sql
+   20260928120600_backend_v1_entry_sport_optional.sql
+== after the migrations: closed, and legitimate writes still work
+after SB-07: anon cannot write or truncate; athletes still write their own rows
+after SB-02: B cannot attach to A's focus area; A still checks in on their own
+after SB-03: derived context stays as derived; reps are still correctable
+after SB-04: clients cannot write strength states; reading them still works
+after SB-06: approved mappings are readable, nothing else
+after PS-09: a resent lift is ignored; two athletes may use the same client id
+after PS-14: a general athlete's lift lands with no sport and stays out of the sport pool
+== re-applying the migrations is harmless
+ALL VALIDATION PASSED

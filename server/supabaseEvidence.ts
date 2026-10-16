@@ -8,6 +8,7 @@ import type {
   SupabaseResearchLibrary,
   SupabaseResearchLibrarySource,
 } from "../shared/supabaseEvidence";
+import { upstreamFetch } from "./_core/http";
 
 type FetchImplementation = typeof fetch;
 
@@ -226,7 +227,7 @@ function sourceLibraryRecord(
 export function createSupabaseEvidenceClient({
   url,
   serviceRoleKey,
-  fetchImplementation = fetch,
+  fetchImplementation = upstreamFetch,
 }: SupabaseEvidenceClientConfig) {
   const baseUrl = url.replace(/\/+$/, "");
 

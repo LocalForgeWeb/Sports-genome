@@ -8,6 +8,7 @@ import type {
   SupabaseSportProfile,
   SupabaseSportQualityDemand,
 } from "../shared/supabaseSportProfile";
+import { upstreamFetch } from "./_core/http";
 
 type FetchImplementation = typeof fetch;
 
@@ -94,7 +95,7 @@ function unavailableProfile(
 export function createSupabaseSportProfileClient({
   url,
   serviceRoleKey,
-  fetchImplementation = fetch,
+  fetchImplementation = upstreamFetch,
 }: SupabaseSportProfileClientConfig) {
   const baseUrl = url.replace(/\/+$/, "");
 

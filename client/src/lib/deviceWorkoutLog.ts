@@ -1,4 +1,5 @@
 import { displayWeightToKilograms, kilogramsToDisplayWeight, type DisplayWeightUnit } from "./weightUnits";
+import { isSetEffort, type SetEffort } from "@shared/setEffort";
 
 export type DeviceSetLog = {
   weight: string;
@@ -31,6 +32,11 @@ export type DeviceSetLog = {
    * stages added together. See lib/dropSets.ts for what each reader does with the rest.
    */
   stages?: DropStage[];
+  /**
+   * How hard the set was taken, when the athlete said (shared/setEffort.ts). A set stopped short
+   * of failure is a floor: it may raise a rank, never lower it. Absent means not said.
+   */
+  effort?: SetEffort;
 };
 
 /** One stage of a drop set: the load and the reps done at it, in the unit it was typed in. */
@@ -138,6 +144,7 @@ function normalizeSet(set: DeviceSetLog): DeviceSetLog {
   const normalized: DeviceSetLog = { weight: String(set.weight || ""), reps: String(set.reps || ""), height: String(set.height || ""), completed: Boolean(set.completed), skipped: Boolean(set.skipped) };
   if (isWeightUnit(set.unit)) normalized.unit = set.unit;
   if (typeof set.id === "string" && set.id) normalized.id = set.id;
+  if (isSetEffort(set.effort)) normalized.effort = set.effort;
   if (set.type === "drop") {
     normalized.type = "drop";
     normalized.stages = (Array.isArray(set.stages) ? set.stages : [])

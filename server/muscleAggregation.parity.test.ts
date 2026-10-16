@@ -21,7 +21,8 @@ const closeTo = (actual: number, expected: number, places: number) =>
   expect(Math.abs(actual - expected), `${actual} vs ${expected}`).toBeLessThanOrEqual(0.5 / 10 ** places + 1e-9);
 
 function transcription(set: keyof typeof live.inputs): AggregationResult {
-  return aggregateMuscleStrength(live.inputs[set], tables, { directness: false });
+  // The database clamps a lift to [1, 99]; the app raised its ceiling to 99.99 for estimated lifts.
+  return aggregateMuscleStrength(live.inputs[set], tables, { directness: false, liftPercentileCeiling: 99 });
 }
 
 describe("The transcription reproduces the database, muscle for muscle", () => {
@@ -65,6 +66,20 @@ describe("The transcription reproduces the database, muscle for muscle", () => {
     const pec = transcription("set_e").muscles.find((m) => m.muscle_canonical_name === "pectoralis_major_sternocostal")!;
     expect(pec.evidence.find((e) => e.exercise_name === "Pec Deck Fly")?.exercise_percentile).toBe(40);
     expect(pec.evidence.find((e) => e.exercise_name === "Barbell Bench Press")?.exercise_percentile).toBe(99);
+  });
+
+  /** The one place the app departs on purpose (14 Oct 2026): a lift estimated past the 99th keeps its place, up to 99.99. */
+  it("lets the app's ceiling of 99.99 through where the database would clamp to 99", () => {
+    const app = aggregateMuscleStrength(live.inputs.set_e, tables, { directness: false });
+    const pec = app.muscles.find((m) => m.muscle_canonical_name === "pectoralis_major_sternocostal")!;
+    // set_e sends the bench at 99.5: the database clamps it to 99, the app keeps it.
+    expect(pec.evidence.find((e) => e.exercise_name === "Barbell Bench Press")?.exercise_percentile).toBe(99.5);
+    const databasePec = transcription("set_e").muscles.find((m) => m.muscle_canonical_name === "pectoralis_major_sternocostal")!;
+    expect(pec.strength_percentile).toBeGreaterThan(databasePec.strength_percentile);
+    // Inputs inside [1, 99] - every measured placement - aggregate exactly as before.
+    for (const set of sets.filter((name) => name !== "set_e")) {
+      expect(aggregateMuscleStrength(live.inputs[set], tables, { directness: false })).toEqual(transcription(set));
+    }
   });
 
   it("groups movement patterns the way the database keys them", () => {

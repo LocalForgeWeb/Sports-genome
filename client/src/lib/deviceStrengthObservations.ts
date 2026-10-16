@@ -1,3 +1,5 @@
+import { isSetEffort, type SetEffort } from "@shared/setEffort";
+
 export type DeviceStrengthObservation = {
   id: string;
   exerciseName: string;
@@ -15,6 +17,8 @@ export type DeviceStrengthObservation = {
   dataQuality?: string;
   referenceContextJson?: string;
   notes?: string;
+  /** How hard the set was taken, when the athlete said (shared/setEffort.ts). */
+  effort?: SetEffort;
 };
 
 export const deviceStrengthObservationKey = "sports-genome-device-strength-observations-v1";
@@ -37,6 +41,8 @@ function readDeviceStrengthObservation(entry: unknown): DeviceStrengthObservatio
   if (typeof exerciseName !== "string" || !exerciseName.trim()) return null;
   if (typeof observedAt !== "string" || !Number.isFinite(Date.parse(observedAt))) return null;
   if (typeof measurementType !== "string") return null;
+  // An effort the app does not know is dropped rather than read as one it does.
+  if (record.effort !== undefined && !isSetEffort(record.effort)) delete record.effort;
   for (const field of numericFields) {
     const value = record[field];
     if (value == null || (typeof value === "number" && Number.isFinite(value))) continue;

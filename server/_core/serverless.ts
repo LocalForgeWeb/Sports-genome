@@ -1,6 +1,8 @@
-import express, { type Request, type Response } from "express";
+import express from "express";
 import { requireJsonMutations, trpcHandler } from "./apiHandler";
 import { serveSharePage } from "../sharePage";
+import { BODY_LIMIT, apiErrorHandler, apiNotFound, mountHealth, noStore, requestContext } from "./http";
+import { warnOnMissingConfig } from "./config";
 
 /**
  * The API as a serverless request handler.
@@ -22,30 +24,45 @@ export const app = express();
 // TLS terminates upstream, so the original protocol arrives in x-forwarded-proto.
 // Without this, secure-cookie decisions read the internal hop instead.
 app.set("trust proxy", 1);
+app.disable("x-powered-by");
+
+warnOnMissingConfig();
+// Identified and timed before anything can fail, so even a parser error carries an id.
+app.use(requestContext);
 
 // The platform caps request bodies well below this; the limit only guards the parser.
-app.use(express.json({ limit: "4mb" }));
-app.use(express.urlencoded({ limit: "4mb", extended: true }));
+app.use(express.json({ limit: BODY_LIMIT }));
+app.use(express.urlencoded({ limit: BODY_LIMIT, extended: true }));
+
+/** The request again, at `path`, with the rewrite's carrier dropped from the query. */
+function restorePath(req: express.Request, carrier: string, path: string): void {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(req.query)) {
+    if (key !== carrier && typeof value === "string") search.set(key, value);
+  }
+  const query = search.toString();
+  req.url = `${path}${query ? `?${query}` : ""}`;
+}
+
+/** Plain path segments only: no empty segment, no dot-segment, no query or fragment. */
+const CARRIED_API_PATH = /^(?!.*(?:^|\/)\.\.?(?:\/|$))[A-Za-z0-9._~-]+(?:\/[A-Za-z0-9._~-]+)+$/;
 
 /**
- * Restores the tRPC path when the platform routes through a rewrite.
+ * Restores the request path when the platform routes through a rewrite.
  *
- * `/api/trpc/<procedure>` is rewritten to the function file, and depending on how the
- * platform resolves that, the app may receive the function's own path instead of the
- * request path. The rewrite carries the original procedure path in `__trpc`, so when
- * the mount point is missing it can be rebuilt exactly. When the request arrives
- * unmodified this is a no-op.
+ * `api/[...path].js` only matches ONE segment under this framework preset, so every deeper
+ * path is rewritten to the function file (vercel.json): `/api/trpc/<procedure>` carrying
+ * `__trpc`, and any other `/api/<a>/<b>...` (e.g. `/api/health/ready`) carrying `__api`.
+ * Depending on how the platform resolves that, the app may receive the function's own path
+ * instead of the request path, so the carried copy rebuilds it exactly. When the request
+ * arrives unmodified this is a no-op. A carried path only selects a route, never a
+ * privilege: every route still applies its own checks.
  */
 app.use((req, _res, next) => {
-  const carried = typeof req.query.__trpc === "string" ? req.query.__trpc : null;
-  if (carried && !req.path.startsWith("/api/trpc")) {
-    const search = new URLSearchParams();
-    for (const [key, value] of Object.entries(req.query)) {
-      if (key !== "__trpc" && typeof value === "string") search.set(key, value);
-    }
-    const query = search.toString();
-    req.url = `/api/trpc/${carried}${query ? `?${query}` : ""}`;
-  }
+  const trpc = typeof req.query.__trpc === "string" ? req.query.__trpc : null;
+  const api = typeof req.query.__api === "string" && CARRIED_API_PATH.test(req.query.__api) ? req.query.__api : null;
+  if (trpc && !req.path.startsWith("/api/trpc")) restorePath(req, "__trpc", `/api/trpc/${trpc}`);
+  else if (api && req.path !== `/api/${api}`) restorePath(req, "__api", `/api/${api}`);
   next();
 });
 
@@ -61,12 +78,12 @@ app.get("*", (req, res, next) => {
   serveSharePage(token, req.headers, res).catch(next);
 });
 
-app.use("/api/trpc", requireJsonMutations, trpcHandler());
+mountHealth(app);
+app.use("/api/trpc", noStore, requireJsonMutations, trpcHandler());
 
 // Anything else under /api is a genuine 404. Answering in JSON stops a client from
 // parsing an HTML error page as if it were a tRPC response.
-app.use((req: Request, res: Response) => {
-  res.status(404).json({ error: "Not found", path: req.originalUrl });
-});
+app.use(apiNotFound);
+app.use(apiErrorHandler);
 
 export default app;

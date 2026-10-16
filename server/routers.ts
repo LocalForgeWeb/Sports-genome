@@ -44,7 +44,7 @@ import { getNormsRegistryStatus, getStrengthGenomeOverviewWithReferences, getStr
 import { getPublicNormsReference } from "./normsRegistry";
 import { getWorkoutPlan, maxPlanBytes, saveWorkoutPlan } from "./workoutPlanSync";
 import { createShare, disableShare, ownedShares, readShare, ShareError, tokenPattern } from "./workoutShares";
-import { assertShareCreateAllowed } from "./_core/rateLimit";
+import { enforceShareCreate } from "./_core/rateLimit";
 import {
   correctWorkoutSet,
   deleteStrengthObservation,
@@ -94,7 +94,7 @@ const strengthPercentileLiftInput = z.object({
   bodyMassKg: z.number().positive().max(500).nullable().optional(),
   measuredOneRmKg: z.number().positive().max(1000).nullable().optional(),
   loadKg: z.number().positive().max(1000).nullable().optional(),
-  repetitions: z.number().int().min(1).max(100).nullable().optional(),
+  repetitions: z.number().int().min(1).max(1000).nullable().optional(),
   repsInReserve: z.number().int().min(0).max(10).nullable().optional(),
   /** Age on the day of the lift. The engine applies the published age table from 15 to 90. */
   ageYears: z.number().min(0).max(120).nullable().optional(),
@@ -494,10 +494,13 @@ export const appRouter = router({
           exerciseName: z.string().trim().min(1).max(255),
           /** 0 for a bodyweight movement done without added load; those are scored on reps. */
           loadKg: z.number().min(0).max(1000),
-          repetitions: z.number().int().min(1).max(100),
+          /** Up to 1000: a set scored on reps (a push-up, a sit-up) can run long; a loaded set is refused past 15 by the scoring. */
+          repetitions: z.number().int().min(1).max(1000),
           bodyMassKg: z.number().positive().max(500).nullable(),
           /** Age on the day of this lift, so a birth year given later re-reads every earlier lift. */
           ageYears: z.number().min(0).max(120).nullable().optional(),
+          /** Stopped short of failure: a floor that may raise a rank, never lower it (shared/setEffort.ts). */
+          notToFailure: z.boolean().optional(),
         // Each distinct saved weight and age at the lift is one scoring call, each scored lift with an
         // age one adjustment call, plus one read of the muscle mappings: 30 lifts bound a request to 61
         // Supabase calls, run at most four at a time. The client sends at most 30 - each exercise's strongest lifts - duplicates removed.
@@ -552,7 +555,7 @@ export const appRouter = router({
         supersedes: z.object({ token: z.string().regex(tokenPattern), manageSecret: z.string().regex(/^[A-Za-z0-9_-]{32,128}$/) }).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        assertShareCreateAllowed(ctx.req);
+        await enforceShareCreate(ctx.req, ctx.res);
         return shareCall(() => createShare(input));
       }),
     get: costlyPublicProcedure

@@ -1,5 +1,6 @@
 import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import type { NormsComparisonSex, NormsReferenceRow } from "../shared/normsReference";
+import { upstreamFetch } from "./_core/http";
 
 /**
  * Server-only adapter over the Sports Genome research project's reference gate.
@@ -99,7 +100,7 @@ function chunk<T>(items: readonly T[], size: number): T[][] {
 export function createNormsRegistryClient({
   url,
   serviceRoleKey,
-  fetchImplementation = fetch,
+  fetchImplementation = upstreamFetch,
 }: NormsRegistryClientConfig) {
   const baseUrl = url.replace(/\/+$/, "");
 

@@ -1,7 +1,8 @@
 import { trpc } from "@/lib/trpc";
 import { dismissBootSplash } from "@/lib/bootSplash";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { installSessionNotice, isUnauthorized, sessionNotice } from "@/lib/sessionNotice";
+import { installSessionNotice, sessionNotice } from "@/lib/sessionNotice";
+import { shouldRetryQuery } from "@/lib/queryRetry";
 import { httpBatchLink } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
@@ -17,8 +18,9 @@ const onError = (error: unknown) => sessionNotice()?.onError(error);
 const queryClient = new QueryClient({
   queryCache: new QueryCache({ onError }),
   mutationCache: new MutationCache({ onError }),
-  // A lapsed sign-in does not get better on the third try; say so at once.
-  defaultOptions: { queries: { retry: (count, error) => !isUnauthorized(error) && count < 3 } },
+  // Network and server failures are retried; a 4xx answer (a lapsed sign-in, bad input, not
+  // found, throttled) does not get better on the third try (lib/queryRetry.ts).
+  defaultOptions: { queries: { retry: shouldRetryQuery } },
 });
 installSessionNotice(queryClient);
 

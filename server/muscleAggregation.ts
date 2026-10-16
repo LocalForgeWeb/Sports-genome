@@ -120,9 +120,21 @@ const ROLE_WEIGHT = { primary: 1.0, secondary: 0.75, other: 0.35 } as const;
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
-/** `sg_percentile_to_latent_v1`: the logit of the percentile, clamped to [1, 99], over 1.702. */
-export function percentileToLatent(percentile: number): number {
-  const p = clamp(percentile, 1, 99) / 100;
+/**
+ * The range a lift's percentile enters the aggregation in. The database's `sg_percentile_to_latent_v1`
+ * clamps to [1, 99]; every measured placement lies in [5, 95], so neither bound ever bit until the
+ * estimated tail (shared/strengthPercentile.ts) reached past the 99th. The top is raised to that
+ * estimate's own cap, 99.99, so a lift estimated there keeps its place in the ranks (owner, 14 Oct 2026).
+ */
+export const LIFT_PERCENTILE_FLOOR = 1;
+export const LIFT_PERCENTILE_CEILING = 99.99;
+
+/**
+ * `sg_percentile_to_latent_v1`: the logit of the percentile, clamped to [1, ceiling], over 1.702.
+ * The database's ceiling is 99; the app's is `LIFT_PERCENTILE_CEILING`.
+ */
+export function percentileToLatent(percentile: number, ceiling: number = LIFT_PERCENTILE_CEILING): number {
+  const p = clamp(percentile, LIFT_PERCENTILE_FLOOR, ceiling) / 100;
   return Math.log(p / (1 - p)) / LATENT_SCALE;
 }
 
@@ -216,15 +228,17 @@ type Mapped = {
  * the database's own rule applies (the more confident, then the better placed), so the
  * transcription is complete.
  */
-export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], tables: AggregationTables, options: { directness?: boolean } = {}): AggregationResult {
+export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], tables: AggregationTables, options: { directness?: boolean; liftPercentileCeiling?: number } = {}): AggregationResult {
   const directness = options.directness ?? true;
+  // 99 reproduces the database's own clamp exactly (the parity tests use it); the app's default lets an estimated lift past the 99th count as placed.
+  const ceiling = options.liftPercentileCeiling ?? LIFT_PERCENTILE_CEILING;
 
   // raw + dedup
   const best = new Map<string, { percentile: number; confidence: number }>();
   for (const score of scores) {
     const percentile = numberOf(score?.percentile);
     if (typeof score?.exercise_id !== "string" || percentile === null) continue;
-    const entry = { percentile: clamp(percentile, 1, 99), confidence: clamp(numberOf(score.confidence) ?? DEFAULT_OBSERVATION_CONFIDENCE, 0, 1) };
+    const entry = { percentile: clamp(percentile, LIFT_PERCENTILE_FLOOR, ceiling), confidence: clamp(numberOf(score.confidence) ?? DEFAULT_OBSERVATION_CONFIDENCE, 0, 1) };
     const current = best.get(score.exercise_id);
     if (!current || entry.confidence > current.confidence || (entry.confidence === current.confidence && entry.percentile > current.percentile)) best.set(score.exercise_id, entry);
   }
@@ -250,7 +264,7 @@ export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], t
         muscle, exercise, key: movementKey(exercise), role: mapping.role,
         percentile: score.percentile, observationConfidence: score.confidence,
         contribution, mappingConfidence,
-        latent: percentileToLatent(score.percentile),
+        latent: percentileToLatent(score.percentile, ceiling),
         transfer: signalTransfer(mapping.contribution_weight, kind),
         baseWeight: mappingConfidence * score.confidence * Math.sqrt(Math.max(0.05, contribution)) * ROLE_WEIGHT[kind],
         directness: directness ? directnessOf(mapping, exerciseMappings) : 1,
@@ -337,4 +351,38 @@ export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], t
     aggregation_method: directness ? MUSCLE_AGGREGATION_METHOD : DATABASE_AGGREGATION.method,
     muscles,
   };
+}
+
+/**
+ * Lifts stopped short of failure are floors (shared/setEffort.ts; owner, 15 Oct 2026): each says
+ * the athlete can do at least that much, so it may raise a muscle's score but never lower it.
+ *
+ * The measured lifts are aggregated as always. Then, muscle by muscle, the floors that read it are
+ * tried strongest first and kept only where they raise that muscle - so a light set of good
+ * mornings leaves a lower back that heavier lifts rank as it was, and still counts where it is all
+ * there is. Each try is the full aggregation, so a kept floor weighs exactly as a measured lift
+ * would; only the decision to keep it differs.
+ */
+export function aggregateMuscleStrengthWithFloors(measured: readonly ExerciseScoreInput[], floors: readonly ExerciseScoreInput[], tables: AggregationTables, options: { directness?: boolean; liftPercentileCeiling?: number } = {}): AggregationResult {
+  const base = aggregateMuscleStrength(measured, tables, options);
+  if (floors.length === 0) return base;
+  const muscles = new Map(base.muscles.map((muscle) => [muscle.muscle_id, muscle]));
+  const reads = (exerciseId: string, muscleId: string) => tables.mappings.some((mapping) => mapping.exercise_id === exerciseId && mapping.muscle_id === muscleId);
+  const ordered = [...floors].sort((a, b) => (numberOf(b.percentile) ?? 0) - (numberOf(a.percentile) ?? 0) || a.exercise_id.localeCompare(b.exercise_id));
+  const touched = new Set(tables.mappings.filter((mapping) => floors.some((floor) => floor.exercise_id === mapping.exercise_id)).map((mapping) => mapping.muscle_id));
+  touched.forEach((muscleId) => {
+    const kept: ExerciseScoreInput[] = [];
+    let current = muscles.get(muscleId) ?? null;
+    for (const floor of ordered) {
+      if (!reads(floor.exercise_id, muscleId)) continue;
+      const trial = aggregateMuscleStrength([...measured, ...kept, floor], tables, options).muscles.find((muscle) => muscle.muscle_id === muscleId);
+      if (trial && (current === null || trial.strength_percentile > current.strength_percentile)) {
+        kept.push(floor);
+        current = trial;
+      }
+    }
+    if (current) muscles.set(muscleId, current);
+  });
+  const list = Array.from(muscles.values()).sort((a, b) => b.strength_percentile - a.strength_percentile || a.muscle_canonical_name.localeCompare(b.muscle_canonical_name));
+  return { ...base, status: list.length === 0 ? "no_evidence" : "ok", muscles: list };
 }

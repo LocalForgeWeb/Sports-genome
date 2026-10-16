@@ -109,10 +109,18 @@ describe("A lift re-read at the age it was lifted at", () => {
     expect(place(16).confidence).toBe(0.82);
   });
 
-  /** A scaled lift past the top anchor is censored there, never extrapolated to a 99th. */
-  it("censors a scaled lift that leaves the curve rather than extrapolating", () => {
+  /**
+   * A scaled lift past the top anchor is estimated on the scaled value - the same value the
+   * database's age adjustment places - and marked estimated. 120 kg at 15 compares as 2.1365x.
+   */
+  it("estimates a scaled lift that leaves the curve from its scaled value", () => {
     const strong = resolveStrengthPercentile(bench, { measuredOneRmKg: 120 }, at(15));
-    expect(strong).toEqual({ status: "unavailable", reason: "above_highest_anchor", censoredAt: 95 });
+    expect(strong).toMatchObject({ status: "resolved", observedValue: 1.82454, tailEstimate: { aboveAnchorPercentile: 95, capped: false } });
+    if (strong.status !== "resolved") return;
+    expect(strong.ageAdjustment).toMatchObject({ status: "applied", factor: 0.854 });
+    expect(strong.percentile).toBeCloseTo(96.969, 3);
+    // Unscaled, the same lift (1.8245x) sits inside the curve and is not an estimate.
+    expect(resolveStrengthPercentile(bench, { measuredOneRmKg: 120 }, at(30))).not.toHaveProperty("tailEstimate");
   });
 
   it("scales an absolute curve the same way, in its own unit", () => {

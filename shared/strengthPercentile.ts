@@ -55,6 +55,13 @@ export type StrengthCurve = {
   /** Set when the curve is borrowed from a variant, so the result can say whose curve it is. */
   aliasOfExerciseId?: string | null;
   /**
+   * How a lift on the logged exercise is read on the borrowed curve, as the database's aliases
+   * (`strength_norm_curve_aliases`, `strength_rep_curve_aliases`) say: the one-rep max or the rep
+   * count is multiplied by `multiplier` before it is placed, and confidence by
+   * `confidenceModifier`. Absent for an exercise's own curve.
+   */
+  alias?: { multiplier: number; confidenceModifier: number } | null;
+  /**
    * The study the anchors come from. Only the Strength Level family publishes an age table,
    * so this decides whether an age adjustment can be made at all.
    */
@@ -107,7 +114,23 @@ export type StrengthPercentileUnavailableReason =
  */
 export type AgeAdjustment =
   | { status: "applied"; version: typeof ageFactorVersion; ageYears: number; factor: number; placedValue: number }
-  | { status: "not_applied"; reason: "age_missing" | "outside_published_age_range" | "not_age_scalable_source"; ageYears: number | null };
+  /** `rep_count`: a rep count is placed as counted. The age table scales a load, and the database's ranks do not scale reps either. */
+  | { status: "not_applied"; reason: "age_missing" | "outside_published_age_range" | "not_age_scalable_source" | "rep_count"; ageYears: number | null };
+
+/**
+ * A rep count placed on a rep curve. Nothing is estimated - the athlete did that many reps -
+ * so there is no one-rep max, and the result says so rather than carrying a made-up one.
+ */
+export type RepetitionCount = {
+  valueKg: null;
+  basis: "measured";
+  confidence: number;
+  /** The reps placed. */
+  effectiveReps: number;
+  method: "bodyweight_reps";
+  estimator: "measured";
+  repsInReserve: null;
+};
 
 export type StrengthPercentileResult =
   | {
@@ -117,7 +140,8 @@ export type StrengthPercentileResult =
       observedValue: number;
       /** Age scaling, applied or not and why. The percentile already includes it. */
       ageAdjustment: AgeAdjustment;
-      estimate: OneRepMaxEstimate;
+      /** The one-rep max the lift was placed as, or the rep count for a movement scored on reps. */
+      estimate: OneRepMaxEstimate | RepetitionCount;
       confidence: number;
       scoringVersion: typeof strengthScoringVersion;
       route: "beta_community_curve";
@@ -129,6 +153,11 @@ export type StrengthPercentileResult =
       aliasOfExerciseId: string | null;
       /** True when the curve belongs to a variant rather than the logged exercise. */
       borrowedCurve: boolean;
+      /**
+       * Set when the lift is past the curve's top anchor and `percentile` is the estimated tail
+       * (`estimateAboveTopAnchor`), not a placement between measured points. Absent otherwise.
+       */
+      tailEstimate?: TailEstimate;
     }
   | {
       status: "unavailable";
@@ -177,6 +206,12 @@ export type OneRepMaxInput = {
   repetitions?: number | null;
   /** Reps in reserve, if reported. Counts toward effective reps. */
   repsInReserve?: number | null;
+  /**
+   * A movement scored on reps (`bodyweight_reps` in shared/loadConventions.ts) done without added
+   * load: `repetitions` is placed as a count on the exercise's rep curve, as the muscle ranks score
+   * it. Set by the route from the exercise's convention, never taken from the caller.
+   */
+  repsOnly?: boolean;
 };
 
 /**
@@ -230,10 +265,10 @@ export function estimateOneRepMax(input: OneRepMaxInput, estimator: OneRepMaxEst
 /**
  * Places a value on a curve.
  *
- * Interpolates linearly between the two anchors it falls between. Outside the stored range it
- * returns a censored state rather than an extrapolated number: a lift below the 5th or above the
- * 95th anchor is off the end of what the curve actually measured, and inventing a 2nd or 99th
- * percentile there would be the false precision this version exists to avoid.
+ * Interpolates linearly between the two anchors it falls between, exactly as the database does.
+ * Outside the stored range it returns a censored state: a lift below the 5th or above the 95th
+ * anchor is off the end of what the curve actually measured. Past the top, the route then asks
+ * `estimateAboveTopAnchor` for a labelled estimate; this function itself never extrapolates.
  */
 export function placeOnCurve(anchors: readonly CurveAnchor[], observedValue: number): { percentile: number } | { reason: StrengthPercentileUnavailableReason; censoredAt: number } {
   const ordered = [...anchors]
@@ -258,6 +293,113 @@ export function placeOnCurve(anchors: readonly CurveAnchor[], observedValue: num
   const upper = ordered.find((anchor) => anchor.value > observedValue)!;
   const share = (observedValue - lower.value) / (upper.value - lower.value);
   return { percentile: lower.percentile + share * (upper.percentile - lower.percentile) };
+}
+
+/* -------------------------------------------------------------------------------------------
+ * Past the top anchor: the curve's shape carried on (owner decision, 14 October 2026)
+ * ---------------------------------------------------------------------------------------- */
+
+/**
+ * Every stored curve stops at the 95th percentile, so until now a lift past that point could
+ * only be "above the 95th" - never 97th, never 99th - and no muscle could rank above it. The
+ * owner chose to estimate that end rather than leave it blank, on three conditions this keeps:
+ * the shape comes from the curve's own upper points (50th, 80th, 95th), it stops at the 99.99th
+ * (raised from the 99th the same day, at the owner's request: estimated up there is acceptable),
+ * and the result says it is an estimate wherever it is shown. It applies to every curve: body
+ * weight multiples, kilograms, pounds and rep counts alike.
+ *
+ * The model: strength above the median is treated as log-normal. ln(value) is fitted against the
+ * normal quantile of each anchor at or above the 50th by least squares, and that slope is carried
+ * on from the top anchor, so the estimate starts exactly where the measured curve ends and rises
+ * smoothly from there. A curve without three upper anchors, or whose upper anchors do not climb,
+ * gets no estimate and stays "above the top anchor".
+ */
+export const tailEstimateVersion = "lognormal_upper_tail_v1" as const;
+/** The highest percentile an estimate may report. */
+export const tailEstimateCapPercentile = 99.99;
+/** The anchors the tail's shape is read from: this one and every one above it. */
+const TAIL_FIT_FROM_PERCENTILE = 50;
+
+export type TailEstimate = {
+  version: typeof tailEstimateVersion;
+  /** The top anchor the curve actually measures; the estimate starts there. */
+  aboveAnchorPercentile: number;
+  /** The estimate reached the cap: the lift is at least this high. */
+  capped: boolean;
+};
+
+/**
+ * Where a value past the top anchor would sit if the curve kept its shape, or null when it
+ * cannot be estimated (the value is not past the top, or the curve has too little shape to read).
+ *
+ * The value is taken to 5 decimals first, as the database reports a placed value, so a lift
+ * estimated here and one the muscle ranks estimate from the database's answer land on the
+ * same number.
+ */
+export function estimateAboveTopAnchor(anchors: readonly { percentile: unknown; value: unknown }[], observedValue: number): { percentile: number; tail: TailEstimate } | null {
+  if (!Number.isFinite(observedValue)) return null;
+  const value = Number(observedValue.toFixed(5));
+  const upper = new Map<number, number>();
+  for (const anchor of anchors) {
+    const percentile = numberOrNull(anchor.percentile);
+    const anchorValue = numberOrNull(anchor.value);
+    if (percentile === null || anchorValue === null || anchorValue <= 0 || percentile < TAIL_FIT_FROM_PERCENTILE || percentile >= 100) continue;
+    // Two values at one percentile leave the shape ambiguous; no estimate is better than a guess at which.
+    if (upper.has(percentile) && upper.get(percentile) !== anchorValue) return null;
+    upper.set(percentile, anchorValue);
+  }
+  const points = Array.from(upper, ([percentile, anchorValue]) => ({ percentile, value: anchorValue })).sort((a, b) => a.percentile - b.percentile);
+  if (points.length < 3) return null;
+  if (points.some((point, index) => index > 0 && point.value <= points[index - 1].value)) return null;
+  const top = points[points.length - 1];
+  if (top.percentile >= tailEstimateCapPercentile || !(value > top.value)) return null;
+
+  const z = points.map((point) => normalQuantile(point.percentile / 100));
+  const y = points.map((point) => Math.log(point.value));
+  const zMean = z.reduce((sum, item) => sum + item, 0) / z.length;
+  const yMean = y.reduce((sum, item) => sum + item, 0) / y.length;
+  let covariance = 0;
+  let variance = 0;
+  z.forEach((item, index) => { covariance += (item - zMean) * (y[index] - yMean); variance += (item - zMean) ** 2; });
+  const slope = covariance / variance;
+  if (!Number.isFinite(slope) || slope <= 0) return null;
+
+  const zValue = normalQuantile(top.percentile / 100) + (Math.log(value) - Math.log(top.value)) / slope;
+  const raw = 100 * normalCdf(zValue);
+  const capped = raw >= tailEstimateCapPercentile;
+  return {
+    percentile: capped ? tailEstimateCapPercentile : Math.max(top.percentile, raw),
+    tail: { version: tailEstimateVersion, aboveAnchorPercentile: top.percentile, capped },
+  };
+}
+
+/** The standard normal distribution function, from the complementary error function (error < 1.2e-7). */
+export function normalCdf(z: number): number {
+  const x = Math.abs(z) / Math.SQRT2;
+  const t = 1 / (1 + 0.5 * x);
+  const erfc = t * Math.exp(-x * x - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
+  return z >= 0 ? 1 - erfc / 2 : erfc / 2;
+}
+
+/** The standard normal quantile (Acklam's rational approximation, relative error < 1.2e-9). */
+export function normalQuantile(p: number): number {
+  if (!(p > 0 && p < 1)) return Number.NaN;
+  const a = [-3.969683028665376e1, 2.209460984245205e2, -2.759285104469687e2, 1.38357751867269e2, -3.066479806614716e1, 2.506628277459239];
+  const b = [-5.447609879822406e1, 1.615858368580409e2, -1.556989798598866e2, 6.680131188771972e1, -1.328068155288572e1];
+  const c = [-7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783];
+  const d = [7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996, 3.754408661907416];
+  const low = 0.02425;
+  if (p < low) {
+    const q = Math.sqrt(-2 * Math.log(p));
+    return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+  }
+  if (p > 1 - low) {
+    const q = Math.sqrt(-2 * Math.log(1 - p));
+    return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+  }
+  const q = p - 0.5;
+  const r = q * q;
+  return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
 }
 
 export type PercentileContext = {
@@ -354,6 +496,7 @@ export function resolveStrengthPercentile(
   if (curve.sex !== context.sex) return { status: "unavailable", reason: "no_curve_for_exercise" };
 
   const placement = curvePlacement(curve);
+  if (input.repsOnly) return resolveRepCount(curve, input);
   if (placement === "not_one_rep_max") return { status: "unavailable", reason: "curve_is_not_one_rep_max" };
 
   // The formula the curve's source calls for, as the database resolves it.
@@ -372,13 +515,17 @@ export function resolveStrengthPercentile(
       ? kilograms / kilogramsPerPound
       : kilograms;
   const observedValue = Number(inCurveUnit(estimate.valueKg).toFixed(5));
+  // A related lift's curve is read with the lift scaled onto it, as `get_beta_strength_percentile_v1`
+  // places `e1rm × e1rm_multiplier` on the alias source; the recorded lift stays as it was.
+  const scale = aliasScale(curve);
+  const placedAsLogged = scale === 1 ? observedValue : Number(inCurveUnit(estimate.valueKg * scale).toFixed(5));
 
   // Age scales the comparison, never the lift: a 16-year-old's bench is placed as the
   // 25-40 equivalent the published table gives it, and the recorded lift stays as it was.
   const ageYears = numberOrNull(context.ageYears);
   const ageFactor = strengthLevelAgeFactor(ageYears);
   const ageScalable = curve.sourceStudyId === STRENGTH_LEVEL_SOURCE_STUDY_ID;
-  const placedValue = ageScalable && ageFactor.status === "ok" ? inCurveUnit(estimate.valueKg / ageFactor.factor) : observedValue;
+  const placedValue = ageScalable && ageFactor.status === "ok" ? inCurveUnit(estimate.valueKg / ageFactor.factor * scale) : placedAsLogged;
   const ageAdjustment: AgeAdjustment = ageFactor.status === "age_missing"
     ? { status: "not_applied", reason: "age_missing", ageYears: null }
     : !ageScalable
@@ -387,18 +534,23 @@ export function resolveStrengthPercentile(
         ? { status: "applied", version: ageFactorVersion, ageYears: ageYears!, factor: ageFactor.factor, placedValue }
         : { status: "not_applied", reason: "outside_published_age_range", ageYears };
 
-  const placed = placeOnCurve(curve.anchors, placedValue);
+  // Past the top anchor the measured curve has nothing to say; its estimated tail does, labelled
+  // as such. Below the bottom anchor nothing is estimated - that end stays a bound.
+  const measured = placeOnCurve(curve.anchors, placedValue);
+  const estimatedTail = "reason" in measured && measured.reason === "above_highest_anchor" ? estimateAboveTopAnchor(curve.anchors, placedValue) : null;
+  const placed = estimatedTail ?? measured;
   if ("reason" in placed) return { status: "unavailable", reason: placed.reason, censoredAt: placed.censoredAt };
 
   // Confidence is the estimate's own, held under the source's ceiling and, when age scaled the
   // comparison, under the age table's own confidence too - the same three the database takes
   // the least of. It never changes the percentile: how sure we are and how strong the lift is
   // are separate answers.
+  // A borrowed curve answers for a related lift, so it is trusted less, by the alias's own modifier.
   const capped = Math.min(
     estimate.confidence,
     curve.confidenceCap ?? 1,
     ageAdjustment.status === "applied" && ageFactor.status === "ok" ? ageFactor.confidence : 1,
-  );
+  ) * aliasConfidence(curve);
 
   return {
     status: "resolved",
@@ -415,6 +567,60 @@ export function resolveStrengthPercentile(
     exerciseId: curve.exerciseId,
     aliasOfExerciseId: curve.aliasOfExerciseId ?? null,
     borrowedCurve: Boolean(curve.aliasOfExerciseId),
+    ...(estimatedTail ? { tailEstimate: estimatedTail.tail } : {}),
+  };
+}
+
+/** The alias's multiplier, or 1 for an exercise's own curve (or an alias that gives no usable one). */
+function aliasScale(curve: StrengthCurve): number {
+  const multiplier = numberOrNull(curve.alias?.multiplier);
+  return multiplier !== null && multiplier > 0 ? multiplier : 1;
+}
+
+/** The alias's confidence modifier, held to 0-1; 1 for an exercise's own curve. */
+function aliasConfidence(curve: StrengthCurve): number {
+  const modifier = numberOrNull(curve.alias?.confidenceModifier);
+  return modifier === null ? 1 : Math.min(1, Math.max(0, modifier));
+}
+
+/**
+ * A movement scored on reps, done without added load: its rep count placed on its rep curve,
+ * the way `score_strength_input_v1` scores it for the muscle ranks (`bodyweight_reps` mode).
+ * Nothing is estimated and nothing is scaled for age - the count is the measurement - and past
+ * the top anchor the same tail estimate applies as for a load.
+ */
+function resolveRepCount(curve: StrengthCurve, input: OneRepMaxInput): StrengthPercentileResult {
+  if (curvePlacement(curve) !== "not_one_rep_max") return { status: "unavailable", reason: "no_curve_for_exercise" };
+  const raw = numberOrNull(input.repetitions);
+  const reps = raw === null ? null : Math.round(raw);
+  if (reps === null || reps < 1) return { status: "unavailable", reason: "repetitions_out_of_range" };
+
+  // On a related exercise's rep curve the count is placed as its equivalent there, rounded to a
+  // whole rep, as `get_beta_rep_percentile_v1` does (`equivalent_source_reps`).
+  const scale = aliasScale(curve);
+  const placedReps = scale === 1 ? reps : Math.max(0, Math.round(Number((reps * scale).toFixed(6))));
+  const measured = placeOnCurve(curve.anchors, placedReps);
+  const estimatedTail = "reason" in measured && measured.reason === "above_highest_anchor" ? estimateAboveTopAnchor(curve.anchors, placedReps) : null;
+  const placed = estimatedTail ?? measured;
+  if ("reason" in placed) return { status: "unavailable", reason: placed.reason, censoredAt: placed.censoredAt };
+
+  const confidence = Math.min(1, curve.confidenceCap ?? 1) * aliasConfidence(curve);
+  return {
+    status: "resolved",
+    percentile: placed.percentile,
+    observedValue: reps,
+    ageAdjustment: { status: "not_applied", reason: "rep_count", ageYears: null },
+    estimate: { valueKg: null, basis: "measured", confidence: 1, effectiveReps: reps, method: "bodyweight_reps", estimator: "measured", repsInReserve: null },
+    confidence: Number(confidence.toFixed(4)),
+    scoringVersion: strengthScoringVersion,
+    route: "beta_community_curve",
+    normalizationMethod: curve.normalizationMethod,
+    unit: curve.unit,
+    sourceRole: curve.sourceRole,
+    exerciseId: curve.exerciseId,
+    aliasOfExerciseId: curve.aliasOfExerciseId ?? null,
+    borrowedCurve: Boolean(curve.aliasOfExerciseId),
+    ...(estimatedTail ? { tailEstimate: estimatedTail.tail } : {}),
   };
 }
 

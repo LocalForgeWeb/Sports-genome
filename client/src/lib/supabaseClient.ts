@@ -14,20 +14,28 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  * and the case during local development. Nothing in the app may depend on this
  * being present: a workout logged with no connection is still a logged workout.
  *
- * Both values fall back to the project's own, rather than requiring a deploy-time
- * variable. A publishable key is meant to ship in the bundle — it is how the
- * browser identifies the project at all, and it grants nothing on its own:
- * row-level security on `athlete_profiles` and `athlete_strength_entries` scopes
- * every statement to `auth.uid() = user_id`, so the key without a session can
- * read reference data and nothing else. Keeping it in an environment variable
- * only meant that a missing variable silently disabled sync on a build that
- * otherwise looked fine, which is exactly what happened. The environment still
- * wins where it is set, so a fork or a second project needs no code change.
+ * Both values fall back to the project's own in a PRODUCTION build, rather than requiring a
+ * deploy-time variable. A publishable key is meant to ship in the bundle — it is how the
+ * browser identifies the project at all, and it grants nothing on its own: row-level
+ * security on `athlete_profiles` and `athlete_strength_entries` scopes every statement to
+ * `auth.uid() = user_id`. Keeping it in an environment variable only meant that a missing
+ * variable silently disabled sync on a production build that otherwise looked fine.
+ *
+ * A preview or local build gets no such fallback (Infrastructure V2, ENV05): with it, every
+ * preview deployment and every local run signed visitors in to the production project and
+ * wrote their profiles and lifts there. Off production the app now behaves as offline unless
+ * a project is configured explicitly - which is how a staging project is attached, and the
+ * environment still wins wherever it is set.
  */
-const url = import.meta.env.VITE_SUPABASE_URL || "https://qiccnqkypbhlwpmjcsri.supabase.co";
+declare const __SG_DEPLOY_ENV__: string | undefined;
+export const deployEnvironment = typeof __SG_DEPLOY_ENV__ === "undefined" ? "local" : __SG_DEPLOY_ENV__;
+const productionDefaults = deployEnvironment === "production";
+// A preview inherits the production URL from its environment, but never the key: without an
+// explicitly configured key it gets no client at all.
+const url = import.meta.env.VITE_SUPABASE_URL || (productionDefaults ? "https://qiccnqkypbhlwpmjcsri.supabase.co" : "");
 const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
   || import.meta.env.VITE_SUPABASE_ANON_KEY
-  || "sb_publishable_FwOauC-9nUBQvp8U6XEyOA_Q1tpgSlX";
+  || (productionDefaults ? "sb_publishable_FwOauC-9nUBQvp8U6XEyOA_Q1tpgSlX" : "");
 
 let client: SupabaseClient | null | undefined;
 
