@@ -335,6 +335,12 @@ export interface ExposureBout {
   effort: "failure" | "not_to_failure" | null;
   kind: "standard" | "drop";
   segments: ExposureSegment[];
+  /**
+   * Set only on a record passed along to be counted as excluded and never credited: a
+   * skipped set, or a set logged in a workout that is not finished. It lets the summary's
+   * completeness say what was left out (design §3) without the calculator reading storage.
+   */
+  excluded?: "not_completed";
 }
 
 export type GoalMetric = "direct_dynamic_bouts" | "deliberate_hold_bouts" | "deliberate_hold_seconds";
@@ -449,6 +455,12 @@ export interface NodeExposure {
   /** Whether any reviewed mapping can credit this node at all. */
   mappingCoverage: MappingCoverage;
   contributions: Contribution[];
+  /**
+   * Bouts a mapping matched but that earned this node nothing: grip credit withheld from a
+   * strapped set ("Strapped: grip not counted"), or a mapping still pending review. Listed
+   * so the ledger can say so; never part of any total above.
+   */
+  notCounted?: Contribution[];
 }
 
 export interface GoalProgress {
