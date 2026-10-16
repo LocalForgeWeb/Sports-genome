@@ -81,7 +81,16 @@ export type AlreadyCovered = { catalogExerciseId: number; name: string; days: Pl
 export type Recommendations =
   | { kind: "mapping_not_reviewed"; message: string }
   | { kind: "at_target"; note: string; goals: GoalProgress[]; alreadyCoveredBy: AlreadyCovered[] }
-  | { kind: "candidates"; candidates: RecommendationCandidate[]; alreadyCoveredBy: AlreadyCovered[]; excludedCount: number; emptyReason: string | null };
+  | {
+      kind: "candidates";
+      candidates: RecommendationCandidate[];
+      alreadyCoveredBy: AlreadyCovered[];
+      /** Exercises removed by the athlete's exclusions. */
+      excludedCount: number;
+      /** Exercises left out because they only answer a target already met. */
+      skippedAtTarget: number;
+      emptyReason: string | null;
+    };
 
 const RELEVANCE_ORDER: Record<Relevance, number> = { direct_dynamic: 0, direct_isometric: 1, contributing: 2 };
 
@@ -192,12 +201,24 @@ export function recommendFor(request: RecommendationRequest): Recommendations {
     };
   }
 
-  // One candidate per exercise variant, at the best relevance any of its mappings gives.
+  // A kind of work whose every target is already met is not suggested again: with a hold
+  // target met and a dynamic one not, only dynamic work is offered. Contributing work answers
+  // no target directly and stays, ranked last.
+  const metKinds = new Set<Relevance>();
+  for (const kind of ["direct_dynamic", "direct_isometric"] as const) {
+    const forKind = goals.filter((progress) => goalKindOf(progress.goal.metric) === kind);
+    if (forKind.length && forKind.every((progress) => progress.fraction >= 1)) metKinds.add(kind);
+  }
+
+  // One candidate per exercise variant, at the best relevance any of its usable mappings gives.
   const byVariant = new Map<VariantId, { variant: ExerciseVariant; mappings: VariantMapping[]; relevance: Relevance }>();
+  const offered = new Set<VariantId>();
   for (const mapping of relevant) {
     const variant = variantById.get(mapping.variantId);
     const relevance = relevanceOf(mapping);
     if (!variant || !relevance) continue;
+    offered.add(variant.id);
+    if (metKinds.has(relevance)) continue;
     const entry = byVariant.get(variant.id) ?? { variant, mappings: [], relevance };
     entry.mappings.push(mapping);
     if (RELEVANCE_ORDER[relevance] < RELEVANCE_ORDER[entry.relevance]) entry.relevance = relevance;
@@ -250,13 +271,26 @@ export function recommendFor(request: RecommendationRequest): Recommendations {
     || a.name.localeCompare(b.name)
     || a.catalogExerciseId - b.catalogExerciseId);
 
+  const skippedAtTarget = offered.size - byVariant.size;
   return {
     kind: "candidates",
     candidates,
     alreadyCoveredBy,
     excludedCount,
-    emptyReason: candidates.length ? null : excludedCount ? "Every reviewed exercise for this is excluded by your settings." : "No reviewed exercise trains this directly or as a main helper yet.",
+    skippedAtTarget,
+    emptyReason: candidates.length
+      ? null
+      : excludedCount
+        ? "Every reviewed exercise for this is excluded by your settings."
+        : skippedAtTarget
+          ? "The exercises that train this answer a target you have already met. Nothing is suggested to add more."
+          : "No reviewed exercise trains this directly or as a main helper yet.",
   };
+}
+
+/** The kind of work a goal's metric counts. */
+function goalKindOf(metric: GoalProgress["goal"]["metric"]): Relevance {
+  return metric === "direct_dynamic_bouts" ? "direct_dynamic" : "direct_isometric";
 }
 
 function alsoLoadedBy(region: SpecializationRegionData, variant: ExerciseVariant, mappings: readonly VariantMapping[]): AlsoLoaded[] {

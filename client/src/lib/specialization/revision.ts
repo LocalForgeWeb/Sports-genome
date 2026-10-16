@@ -1,6 +1,7 @@
 import type { DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { planFingerprint } from "@/lib/planSyncDecision";
 import type { DaySlot, WeeklyDayStore } from "@/lib/trainingDayPlan";
+import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { catalogIdOf } from "@/lib/workoutSwap";
 
 /**
@@ -48,11 +49,15 @@ export function sourceRevision(sessions: readonly DeviceWorkoutSession[]): strin
   return `src-${planFingerprint(stableStringify(projection))}`;
 }
 
-/** What of a plan week a planned summary depends on: its days, their exercises and prescriptions. */
-export function planRevision(store: WeeklyDayStore, slots?: readonly DaySlot[], week?: number): string {
+/**
+ * What of a plan week a planned summary depends on: its days, their exercises and
+ * prescriptions, and the training goal that fills in a prescription that was never saved.
+ */
+export function planRevision(store: WeeklyDayStore, slots?: readonly DaySlot[], week?: number, goal?: TrainingGoal): string {
   const keys = slots ? slots.map((slot) => slot.key) : Object.keys(store.plan).sort();
   const projection = {
     week: week ?? null,
+    goal: goal ?? null,
     days: keys.map((key) => ({
       key,
       label: slots?.find((slot) => slot.key === key)?.label ?? null,

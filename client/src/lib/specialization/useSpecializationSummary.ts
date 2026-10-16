@@ -3,6 +3,7 @@ import { deviceWorkoutHistoryEvent, deviceWorkoutHistoryKey, loadDeviceWorkoutSe
 import { exercises as exerciseCatalog, type Exercise } from "@/lib/exerciseCatalog";
 import type { DaySlot, WeeklyDayStore } from "@/lib/trainingDayPlan";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
+import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { exposureRuleV1 } from "@shared/specialization/rules";
 import { calendarWeekInterval, customInterval, planWeekInterval, rolling7dInterval } from "@shared/specialization/time";
@@ -27,7 +28,8 @@ import type { AccountScope } from "./stores";
  * changes a revision and is recalculated.
  */
 
-export type SpecializationPlanInput = { week: number; slots: readonly DaySlot[]; store: WeeklyDayStore };
+/** One plan week as Home holds it, and the training goal that fills in prescriptions never saved. */
+export type SpecializationPlanInput = { week: number; slots: readonly DaySlot[]; store: WeeklyDayStore; goal?: TrainingGoal };
 
 export type SummaryCacheKeyParts = {
   accountScope: AccountScope;
@@ -200,9 +202,9 @@ export function useSpecializationSummary(input: UseSpecializationSummaryInput): 
     [source, catalog, variants, fallbackUnit],
   );
   const plan = input.plan;
-  const planRev = useMemo(() => (plan ? planRevision(plan.store, plan.slots, plan.week) : null), [plan]);
+  const planRev = useMemo(() => (plan ? planRevision(plan.store, plan.slots, plan.week, plan.goal) : null), [plan]);
   const plannedBouts = useMemo(
-    () => (plan ? boutsFromPlan({ week: plan.week, slots: plan.slots, store: plan.store, variants }) : []),
+    () => (plan ? boutsFromPlan({ week: plan.week, slots: plan.slots, store: plan.store, variants, goal: plan.goal }) : []),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [planRev, variants],
   );

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { exercises } from "@/lib/exerciseCatalog";
 import { buildDaySlots, emptyDayStore, type WeeklyDayStore } from "@/lib/trainingDayPlan";
+import { getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
 import { boutsFromSessions, excludedRecordsFromSessions, resolveCatalogExercise } from "./bouts";
 import { boutsFromPlan, plannedExercisesInWeek, plannedTarget } from "./planBouts";
 import { planRevision, sourceRevision, stableStringify } from "./revision";
@@ -129,6 +130,22 @@ describe("boutsFromPlan", () => {
     expect(bouts.filter((bout) => bout.exerciseEntryId === "-501").every((bout) => bout.catalogExerciseId === 139)).toBe(true);
     // Hidden days of a lowered frequency are not planned work.
     expect(bouts.some((bout) => bout.catalogExerciseId === 140)).toBe(false);
+  });
+
+  it("fills a prescription that was never saved from the training goal, as the weekly review does", () => {
+    const counts = (goal?: TrainingGoal) => {
+      const perEntry = new Map<string, number>();
+      for (const bout of boutsFromPlan({ week: 2, slots, store, variants: syntheticForearm.variants, goal })) perEntry.set(bout.exerciseEntryId, (perEntry.get(bout.exerciseEntryId) ?? 0) + 1);
+      return Object.fromEntries(perEntry);
+    };
+    // "Max strength": the first two exercises of a day default to 4 × 3–5, the rest to 3 × 6–8.
+    // Saved prescriptions (139, 145, the duplicate) are read as written whatever the goal.
+    expect(getGoalPrescription("Max strength", 2)).toBe("3 × 6–8");
+    expect(counts("Max strength")).toEqual({ "139": 4, "145": 3, "135": 3, "1": 3, "-501": 2 });
+    const firstUnsaved: WeeklyDayStore = { ...store, plan: { [pullKey]: [byId(135), byId(139)] }, prescriptions: {} };
+    expect(boutsFromPlan({ week: 2, slots, store: firstUnsaved, variants: syntheticForearm.variants, goal: "Max strength" }).filter((bout) => bout.catalogExerciseId === 135)).toHaveLength(4);
+    expect(boutsFromPlan({ week: 2, slots, store: firstUnsaved, variants: syntheticForearm.variants }).filter((bout) => bout.catalogExerciseId === 135)).toHaveLength(3);
+    expect(planRevision(firstUnsaved, slots, 2, "Max strength")).not.toBe(planRevision(firstUnsaved, slots, 2, "Capacity"));
   });
 
   it("reads reps or seconds from the written target, never a load", () => {

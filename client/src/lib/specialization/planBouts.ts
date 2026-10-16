@@ -2,6 +2,7 @@ import type { Exercise } from "@/lib/exerciseCatalog";
 import { parseSetCount } from "@/lib/sessionVolume";
 import { parsePrescription } from "@/lib/setPrescription";
 import type { DaySlot, WeeklyDayStore } from "@/lib/trainingDayPlan";
+import { getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
 import { catalogIdOf } from "@/lib/workoutSwap";
 import type { BoutSide, ExerciseVariant, ExposureBout, SideSource } from "@shared/specialization/types";
 import { variantLookup } from "./bouts";
@@ -25,7 +26,18 @@ export type PlanBoutInput = {
   store: WeeklyDayStore;
   /** Atlas variants, for each exercise's laterality and default straps. */
   variants: readonly ExerciseVariant[];
+  /**
+   * The athlete's training goal. A day entry with no saved prescription reads as the goal's
+   * default for its position, as the weekly review, Today and the tracker read it; without a
+   * goal it falls back to the planner's 3 sets.
+   */
+  goal?: TrainingGoal;
 };
+
+/** The prescription every plan reader uses for an entry: the saved one, else the goal's default for its position. */
+export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal | undefined): string | undefined {
+  return saved || (goal ? getGoalPrescription(goal, index) : undefined);
+}
 
 const TIME_UNIT = /^(s|sec|secs|second|seconds|min|mins|minute|minutes)$/i;
 
@@ -61,10 +73,10 @@ export function boutsFromPlan(input: PlanBoutInput): ExposureBout[] {
   for (const slot of input.slots) {
     const entries = input.store.plan[slot.key] ?? [];
     const prescriptions = input.store.prescriptions[slot.key] ?? {};
-    for (const entry of entries) {
+    entries.forEach((entry, position) => {
       const catalogExerciseId = catalogIdOf(entry);
       const variant = variantOf(catalogExerciseId);
-      const prescription = prescriptions[entry.id];
+      const prescription = prescriptionOf(prescriptions[entry.id], position, input.goal);
       const count = parseSetCount(prescription);
       const targets = parsePrescription(prescription).sets;
       const straps: ExposureBout["straps"] = variant?.straps === "yes" || variant?.straps === "no" ? variant.straps : "unknown";
@@ -91,7 +103,7 @@ export function boutsFromPlan(input: PlanBoutInput): ExposureBout[] {
           segments: [{ id, reps: target.reps, loadKg: null, holdSeconds: target.holdSeconds }],
         });
       }
-    }
+    });
   }
   return bouts;
 }

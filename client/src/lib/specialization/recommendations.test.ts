@@ -49,6 +49,18 @@ describe("when nothing should be suggested", () => {
     }
   });
 
+  it("offers no more of a kind of work whose target is met, even while another target is not", () => {
+    const hold = (): ExposureBout => ({ ...bout(145), segments: [{ id: `h${++sequence}`, reps: null, loadKg: 32, holdSeconds: 30 }] });
+    const goals = [
+      goal({ id: "holds", nodeId: m.flexorDigitorumSuperficialis, metric: "deliberate_hold_bouts", target: 1 }),
+      goal({ id: "dynamic", nodeId: m.flexorDigitorumSuperficialis, metric: "direct_dynamic_bouts", target: 5 }),
+    ];
+    const met = candidatesOf(recommendFor(request({ target: { nodeId: m.flexorDigitorumSuperficialis }, summary: summary(syntheticForearm, [hold()], "left", goals) })));
+    expect([met.candidates, met.skippedAtTarget, met.emptyReason]).toEqual([[], 2, "The exercises that train this answer a target you have already met. Nothing is suggested to add more."]);
+    const notMet = candidatesOf(recommendFor(request({ target: { nodeId: m.flexorDigitorumSuperficialis }, summary: summary(syntheticForearm, [], "left", goals) })));
+    expect([notMet.candidates.map((candidate) => candidate.name), notMet.skippedAtTarget]).toEqual([["Dead Hang", "Farmer Hold"], 0]);
+  });
+
   it("gives a muscle at or above the athlete's target a neutral note and no exercise", () => {
     const goals = [goal({ target: 2 })];
     const result = recommendFor(request({ target: { nodeId: m.flexorCarpiRadialis }, summary: summary(syntheticForearm, [bout(139), bout(139)], "left", goals) }));
