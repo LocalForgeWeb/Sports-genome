@@ -89,14 +89,14 @@ Tests for `shared/` code live under `client/src/lib/specialization/` (vitest doe
 
 ## 7. Page
 
-**Route:** workspace `specialization`, Body Lab's fourth tab **Specialize**. URL params: `region`, `node`, `limb` (`left`/`right`), `window` (`week`/`7d`/`custom`), `from`/`to` (custom), `mode` (`planned`/`completed`), `view` (`palm`/`back`/`thumb`), `layer` (`surface`/`deep`), `map` (`volume`/`target`), `pweek` (plan week). Changes inside the page use `replaceState`; entering the page pushes. Other workspaces strip these params. Back returns to the screen that opened it.
+**Route:** workspace `specialization`, Body Lab's fourth tab **Specialize**. URL params: `region`, `node`, `limb` (`left`/`right`), `window` (`week`/`7d`/`custom`), `from`/`to` (custom), `mode` (`planned`/`completed`), `view` (`palm`/`back`/`thumb`), `layer` (`surface`/`intermediate`/`deep`), `map` (`volume`/`target`), `pweek` (plan week). Changes inside the page use `replaceState`; entering the page pushes. Other workspaces strip these params. Back returns to the screen that opened it.
 
 **Entry points:** Body Lab tab; the Muscles map's next step when the forearm or brachioradialis is selected; Review → Week → forearm muscle detail, "Explore forearm coverage" (opens with that plan week and `mode=planned`); universal search "Forearm specialization".
 
 **Phone layout (390 × 844 first):**
 1. Heading "Forearm specialization" and one line saying what is counted.
 2. Controls in two wrapping rows: window (This week · Rolling 7 days · Custom), Planned / Completed, Left / Right arm.
-3. Diagram card: view (Palm · Back · Thumb side), layer (Surface · Deep), map (Volume · Target). Thumb side and pinky side labelled on the drawing, mirrored for the left arm. Fixed bins with a numeric legend: 0 · 1–2 · 3–5 · 6–9 · 10–14 · 15+ bouts, on the existing `--sg-exposure-*` ramp (never the rank or role colours). Hatching means mapping not reviewed; an empty outline means mapped, no work. Target mode bins: under 25 %, 25–49 %, 50–74 %, 75–99 %, 100 % and over, with the number always shown.
+3. Diagram card: view (Palm · Back · Thumb side), layer (Surface · Middle · Deep, as each view has them: the palm side has a middle layer, FDS), map (Volume · Target). Thumb side and pinky side labelled on the drawing, mirrored for the left arm. Fixed bins with a numeric legend: 0 · 1–2 · 3–5 · 6–9 · 10–14 · 15+ bouts, on the existing `--sg-exposure-*` ramp (never the rank or role colours). Hatching means mapping not reviewed; an empty outline means mapped, no work. Target mode bins: under 25 %, 25–49 %, 50–74 %, 75–99 %, 100 % and over, with the number always shown.
 4. Selected muscle line: name, layer badge, one exposure sentence, and one CTA: "Inspect coverage" (opens the sheet), or "Add targeted exercise" when it has no work in the window.
 5. Muscle list, sorted by direct bouts: name, layer badge, a stacked bar (direct, other dynamic, holds, incidental) and numbers. Deep muscles are marked "Deep".
 6. "Coverage to review": the three most useful findings, then "Show N more".
