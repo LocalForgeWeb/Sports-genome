@@ -234,7 +234,9 @@ describe("changing content", () => {
       [drawing.key, drawing.version],
     );
     expect(paths).toEqual(drawing.views.back!.surface!.paths);
-    const labels = await rows(db, `select label_text as text, x::float8 as x, y::float8 as y, anchor from specialization.diagram_labels order by sort_order`);
+    // Scoped to the fixture asset: the production forearm drawing is seeded beside it.
+    const labels = await rows(db, `select l.label_text as text, l.x::float8 as x, l.y::float8 as y, l.anchor from specialization.diagram_labels l join specialization.diagram_assets a on a.id = l.asset_id
+       where a.asset_key = $1 and a.version = $2 order by l.sort_order`, [drawing.key, drawing.version]);
     expect(labels).toEqual(drawing.views.back!.surface!.labels);
 
     // A fixture region and its draft content stay out of users' sight.
@@ -253,8 +255,9 @@ describe("changing content", () => {
       },
     };
     expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, redrawn])))).toBeNull();
-    expect(await count(db, "select 1 from specialization.diagram_paths")).toBe(3);
-    expect(await rows(db, "select label_text from specialization.diagram_labels")).toEqual([{ label_text: "Front side" }]);
+    const fixtureAsset = `join specialization.diagram_assets a on a.id = x.asset_id where a.asset_key = '${drawing.key}'`;
+    expect(await count(db, `select 1 from specialization.diagram_paths x ${fixtureAsset}`)).toBe(3);
+    expect(await rows(db, `select x.label_text from specialization.diagram_labels x ${fixtureAsset}`)).toEqual([{ label_text: "Front side" }]);
   });
 });
 
