@@ -21,6 +21,8 @@
 .spz-tg-status > p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-tg-status > p:focus { outline: none; }
 .spz-tg-status .spz-button { min-height: 2.75rem; }
+/* Scrolled into view after a removal or an Undo: clear of the fixed bottom dock and the home indicator. */
+.spz-tg-status > p, .spz-tg-status .spz-button { scroll-margin-top: 1rem; scroll-margin-bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + .75rem); }
 
 /* The overview: one group per muscle or movement. */
 .spz-tg-overview { display: grid; gap: .8rem; min-width: 0; }

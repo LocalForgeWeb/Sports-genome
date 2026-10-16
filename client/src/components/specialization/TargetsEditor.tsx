@@ -59,10 +59,15 @@ const amountOf = (goal: Pick<SpecializationGoal, "metric" | "target">) => `${goa
 const armWord = (side: ArmSide) => `${side}-arm`;
 const capitalised = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
-/** "the left-arm target of 20 direct dynamic bouts for Brachioradialis", for button names. */
-function describeTarget(goal: SpecializationGoal, subjectName: string): string {
+/**
+ * "the left-arm target of 20 direct dynamic bouts per calendar week for Brachioradialis", for
+ * button names. The period (and a later start) is part of it: one arm can hold the same number
+ * per calendar week and per rolling 7 days, and each row's buttons need a name of their own.
+ */
+function describeTarget(goal: SpecializationGoal, subjectName: string, todayKey: string): string {
   const what = isSeconds(goal) ? `${goal.target} seconds of deliberate holds` : `${goal.target} ${goalMetricLabels[goal.metric].toLowerCase()}`;
-  return `the ${armWord(goal.side)} target of ${what} for ${subjectName}`;
+  const starts = goal.startsOn > todayKey ? ` starting ${formatDateKey(goal.startsOn)}` : "";
+  return `the ${armWord(goal.side)} target of ${what} ${targetPeriodLabels[goal.period].toLowerCase()}${starts} for ${subjectName}`;
 }
 
 // ---------------------------------------------------------------- changes and Undo
@@ -123,9 +128,15 @@ export function useTargetEdits({ onSave, onRemove, todayKey, subjectName }: {
   const [focus, setFocus] = useState<{ on: "undo" | "status"; count: number }>({ on: "undo", count: 0 });
   // The control that held focus is gone (a removed row, or Undo itself): focus moves to Undo,
   // the next thing anyone would want, or after Undo to the message saying what came back.
+  // The message sits under the whole list, which on a phone is often below the fold: it is
+  // scrolled just into view (clear of the bottom dock, see targets.css), so Undo is never off screen.
   useEffect(() => {
     if (!focus.count) return;
-    (focus.on === "undo" ? undoRef.current : statusRef.current)?.focus({ preventScroll: true });
+    const target = focus.on === "undo" ? undoRef.current : statusRef.current;
+    if (!target) return;
+    target.focus({ preventScroll: true });
+    // Optional call: jsdom has no scrollIntoView.
+    target.scrollIntoView?.({ block: "nearest" });
   }, [focus]);
 
   const record = (entry: Undoable) => {
@@ -234,7 +245,7 @@ function TargetRow({ goal, side, progress, subjectName, showSubject, editing, on
     if (wasEditing.current && !editing) changeRef.current?.focus();
     wasEditing.current = editing;
   }, [editing]);
-  const description = describeTarget(goal, subjectName);
+  const description = describeTarget(goal, subjectName, todayKey);
   const startsLater = goal.startsOn > todayKey;
   const current = goal.side === side;
   // On this arm, the summary's "8 of your 20"; with no summary yet, nothing rather than a guess.
@@ -250,7 +261,13 @@ function TargetRow({ goal, side, progress, subjectName, showSubject, editing, on
       </small>
     </span>
     {editing
-      ? <ChangeTarget goal={goal} description={description} onSave={(target) => { const result = edits.change(goal, target); if (result.ok) onStopEditing(); return result; }} onCancel={onStopEditing} />
+      ? <ChangeTarget goal={goal} description={description} onSave={(target) => {
+        // The same number is no change: nothing is written, so a pending Undo is kept.
+        if (target === goal.target) { onStopEditing(); return { ok: true }; }
+        const result = edits.change(goal, target);
+        if (result.ok) onStopEditing();
+        return result;
+      }} onCancel={onStopEditing} />
       : <div className="spz-tg-actions">
         <button ref={changeRef} type="button" className="spz-button" onClick={onEdit} aria-label={`Change ${description}`}>Change</button>
         <button type="button" className="spz-button" onClick={() => edits.end(goal)} aria-label={`End ${description}`}>End</button>

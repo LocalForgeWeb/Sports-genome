@@ -58,9 +58,9 @@ function EditorHarness({ side = "right" as ArmSide }) {
   return createElement(TargetsEditor, { regionId: "forearm", nodeId: BR, nodeName: "Brachioradialis", side, goals: mine, progress, timeZone: ZONE, todayKey: TODAY, onSave: save, onRemove: remove });
 }
 
-function OverviewHarness({ side = "right" as ArmSide, onOpenMuscle = (() => {}) as (nodeId: string) => void }) {
+function OverviewHarness({ side = "right" as ArmSide, onOpenMuscle = (() => {}) as (nodeId: string) => void, summaryOf = ((goals, arm) => summaryFor(goals, arm)) as (goals: readonly SpecializationGoal[], arm: ArmSide) => SpecializationSummary | null }) {
   const { goals, save, remove } = useSpecializationGoals(null);
-  return createElement(TargetsOverview, { data: forearmRegionData, summary: summaryFor(goals, side), goals, side, timeZone: ZONE, todayKey: TODAY, onSave: save, onRemove: remove, onOpenMuscle });
+  return createElement(TargetsOverview, { data: forearmRegionData, summary: summaryOf(goals, side), goals, side, timeZone: ZONE, todayKey: TODAY, onSave: save, onRemove: remove, onOpenMuscle });
 }
 
 const click = async (element: HTMLElement) => { await act(async () => { fireEvent.click(element); }); };
@@ -175,6 +175,48 @@ describe("the muscle sheet's targets", () => {
     expect(status()).toContain("It had not started yet, so it is removed rather than kept as ended.");
   });
 
+  it("brings Undo into view after a removal, since the message sits under the whole list", async () => {
+    const scrolled: Element[] = [];
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function (this: Element) { scrolled.push(this); };
+    try {
+      seed(goal());
+      render(createElement(EditorHarness));
+      await click(screen.getByRole("button", { name: /^Remove the right-arm target/ }));
+      const undo = screen.getByRole("button", { name: "Undo" });
+      expect(document.activeElement).toBe(undo);
+      expect(scrolled).toContain(undo);
+      await click(undo);
+      expect(scrolled[scrolled.length - 1]?.getAttribute("role")).toBe("status");
+    } finally {
+      Element.prototype.scrollIntoView = original;
+    }
+  });
+
+  it("keeps a pending Undo when Change is saved with the same number, and writes nothing", async () => {
+    seed(goal({ id: "a", side: "left" }), goal({ id: "b", side: "right" }));
+    render(createElement(EditorHarness));
+    await click(screen.getByRole("button", { name: /^Remove the left-arm/ }));
+    await click(screen.getByRole("button", { name: /^Change the right-arm/ }));
+    await click(screen.getByRole("button", { name: "Save" }));
+    expect(screen.queryByRole("spinbutton")).toBeNull();
+    expect(stored()).toEqual([goal({ id: "b", side: "right" })]);
+    await click(screen.getByRole("button", { name: "Undo" }));
+    expect(stored().map((item) => item.id).sort()).toEqual(["a", "b"]);
+  });
+
+  it("gives each row's buttons a name of its own when two targets differ only by period or start", async () => {
+    // The same arm, measure and number: per calendar week, per rolling 7 days until the 20th, and per rolling 7 days from the 21st.
+    seed(goal({ id: "week" }), goal({ id: "now", period: "rolling_7d", endsOn: "2026-10-20" }), goal({ id: "next", period: "rolling_7d", startsOn: "2026-10-21" }));
+    render(createElement(EditorHarness));
+    const names = screen.getAllByRole("button", { name: /^Remove/ }).map((button) => button.getAttribute("aria-label"));
+    expect(names).toEqual([
+      "Remove the right-arm target of 20 direct dynamic bouts per calendar week for Brachioradialis",
+      "Remove the right-arm target of 20 direct dynamic bouts per rolling 7 days for Brachioradialis",
+      "Remove the right-arm target of 20 direct dynamic bouts per rolling 7 days starting 21 Oct 2026 for Brachioradialis",
+    ]);
+  });
+
   it("refuses an overlapping target with the reason, inline, and saves nothing", async () => {
     seed(goal({ startsOn: "2026-10-12" }));
     render(createElement(EditorHarness));
@@ -233,14 +275,25 @@ describe("the Targets overview", () => {
     expect(onOpenMuscle).toHaveBeenCalledWith(BR);
   });
 
+  it("shows no progress while the summary is not ready, or when it is for the other arm", async () => {
+    seed(goal({ id: "move", nodeId: null, actionId: ELBOW_FLEXION }));
+    const { unmount } = render(createElement(OverviewHarness, { summaryOf: () => null }));
+    const group = () => screen.getByText("Elbow flexion").closest("li")!;
+    expect(within(group()).getByText(/20 per calendar week/)).not.toBeNull();
+    expect(within(group()).queryByText(/of your/)).toBeNull();
+    unmount();
+    render(createElement(OverviewHarness, { summaryOf: (goals) => summaryFor(goals, "left") }));
+    expect(within(group()).queryByText(/of your/)).toBeNull();
+  });
+
   it("restores every removal since the last other change with one Undo, across subjects", async () => {
     const [left, right] = goalsForBothArms(goal({ id: "pair" }));
     const movement = goal({ id: "move", nodeId: null, actionId: ELBOW_FLEXION });
     seed(left, right, movement);
     render(createElement(OverviewHarness));
-    await click(screen.getByRole("button", { name: /^Remove the left-arm target of 20 direct dynamic bouts for Brachioradialis/ }));
-    await click(screen.getByRole("button", { name: /^Remove the right-arm target of 20 direct dynamic bouts for Brachioradialis/ }));
-    await click(screen.getByRole("button", { name: /^End the right-arm target of 20 direct dynamic bouts for Elbow flexion/ }));
+    await click(screen.getByRole("button", { name: /^Remove the left-arm target of 20 direct dynamic bouts per calendar week for Brachioradialis/ }));
+    await click(screen.getByRole("button", { name: /^Remove the right-arm target of 20 direct dynamic bouts per calendar week for Brachioradialis/ }));
+    await click(screen.getByRole("button", { name: /^End the right-arm target of 20 direct dynamic bouts per calendar week for Elbow flexion/ }));
     expect(status()).toContain("2 targets removed and 1 ended.");
     expect(screen.getByText("Ended targets (1)")).not.toBeNull();
     await click(screen.getByRole("button", { name: "Undo" }));
