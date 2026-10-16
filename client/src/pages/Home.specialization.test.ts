@@ -9,8 +9,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  * muscle map and from Review, each with a Back to where it was pressed.
  */
 
+const toasts = vi.hoisted(() => [] as { title: string; options?: { cancel?: { onClick: () => void } } }[]);
 vi.mock("sonner", () => {
-  const record = () => {};
+  const record = (title: string, options?: { cancel?: { onClick: () => void } }) => { toasts.push({ title, options }); };
   return { toast: Object.assign(record, { success: record, error: record }), Toaster: () => null };
 });
 vi.mock("@/_core/hooks/useAuth", () => ({
@@ -51,6 +52,7 @@ const plan = JSON.stringify({ version: 2, ...week, weeks: { "1": week }, activeW
 const tick = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); });
 
 beforeEach(() => {
+  toasts.length = 0;
   window.localStorage.clear();
   window.localStorage.setItem(PROFILE_KEY, profile);
   window.localStorage.setItem(PLAN_KEY, plan);
@@ -94,5 +96,55 @@ describe("The specialization page", () => {
     await act(async () => { window.history.back(); });
     await tick();
     expect(window.location.search).toBe("?workspace=specialization&region=forearm&node=forearm.fds&limb=left");
+  });
+  it("writes an add from the page into the exact day it names, and Undo takes back that one change", async () => {
+    window.history.replaceState({}, "", "/?workspace=specialization&region=forearm&node=forearm.br");
+    render(createElement(Home));
+    const inspect = await screen.findByRole("button", { name: /Inspect coverage|Add targeted exercise/ }, { timeout: 15000 });
+    await act(async () => { fireEvent.click(inspect); });
+    await act(async () => { fireEvent.click(within(screen.getByRole("dialog")).getAllByRole("button", { name: /Add or swap/ })[0]); });
+    const sheet = screen.getByRole("dialog", { name: "Add to your plan" });
+    const chosen = within(sheet).getAllByRole("radio").find((radio) => (radio as HTMLInputElement).checked)!;
+    const chosenName = chosen.closest("label")!.querySelector("b")!.textContent!;
+    await act(async () => { fireEvent.click(within(sheet).getByRole("button", { name: /Day 03 · Legs/ })); });
+    await act(async () => { fireEvent.click(within(sheet).getByRole("button", { name: "Save to plan" })); });
+    await tick();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    // The page stays where it was; the toast names the change and the day, with Undo.
+    expect(window.location.search).toBe("?workspace=specialization&region=forearm&node=forearm.br");
+    const notice = toasts.find((item) => item.title.startsWith(`Added ${chosenName}`));
+    expect(notice?.title).toBe(`Added ${chosenName} · Week 1 · Legs`);
+    const chosenId = exercises.find((exercise) => exercise.name === chosenName)!.id;
+    const legsIds = () => {
+      const stored = JSON.parse(window.localStorage.getItem(PLAN_KEY) ?? "{}");
+      return ((stored.weeks?.["1"]?.weeklyPlanEntries?.["2-Legs"] ?? []) as { catalogExerciseId: number }[]).map((entry) => entry.catalogExerciseId);
+    };
+    const pushIds = () => {
+      const stored = JSON.parse(window.localStorage.getItem(PLAN_KEY) ?? "{}");
+      return ((stored.weeks?.["1"]?.weeklyPlanEntries?.["0-Push"] ?? []) as { catalogExerciseId: number }[]).map((entry) => entry.catalogExerciseId);
+    };
+    // Week 1, Day 03 · Legs has it; the other days are as they were.
+    expect(legsIds()).toContain(chosenId);
+    expect(pushIds()).toEqual([exercises[0].id, exercises[1].id]);
+    await act(async () => { notice!.options!.cancel!.onClick(); });
+    await tick();
+    expect(legsIds()).not.toContain(chosenId);
+    expect(pushIds()).toEqual([exercises[0].id, exercises[1].id]);
+  });
+  it("opens from Review's muscle detail on the week Review reads, as planned, with a Back to Review", async () => {
+    const forearmWeek = { ...week, weeklyPlanEntries: { "0-Push": entries([139, 140]), "1-Pull": entries([exercises[2].id]) } };
+    window.localStorage.setItem(PLAN_KEY, JSON.stringify({ version: 2, ...forearmWeek, weeks: { "1": forearmWeek }, activeWeek: 1 }));
+    window.history.replaceState({}, "", "/?workspace=review");
+    render(createElement(Home));
+    const forearms = await screen.findByRole("button", { name: /^Forearms/ }, { timeout: 15000 });
+    await act(async () => { fireEvent.click(forearms); });
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /Explore forearm coverage/ })); });
+    await tick();
+    expect(window.location.search).toBe("?workspace=specialization&region=forearm&mode=planned&pweek=1");
+    expect(screen.getByRole("button", { name: "Planned" }).getAttribute("aria-pressed")).toBe("true");
+    const back = screen.getByRole("button", { name: /Back to Review your week/ });
+    await act(async () => { fireEvent.click(back); });
+    await tick();
+    expect(window.location.search).toBe("?workspace=review");
   });
 });

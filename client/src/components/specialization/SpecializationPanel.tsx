@@ -166,7 +166,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   };
 
   const groups: { id: string; title: string; nodes: AnatomyNode[] }[] = [
-    { id: "target", title: `${data.region.label} muscles`, nodes: nodes.filter((node) => node.role === "target") },
+    { id: "target", title: `Muscles of the ${regionWord}`, nodes: nodes.filter((node) => node.role === "target") },
     { id: "adjacent", title: "Nearby", nodes: nodes.filter((node) => node.role === "adjacent") },
     { id: "external", title: "Upper-arm muscles credited here", nodes: nodes.filter((node) => node.role === "external") },
   ].filter((group) => group.nodes.length);
