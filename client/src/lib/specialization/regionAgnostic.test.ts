@@ -1,5 +1,6 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
 import { buildDaySlots, emptyDayStore, type WeeklyDayStore } from "@/lib/trainingDayPlan";
@@ -19,7 +20,8 @@ import { exercise, finished, workSet } from "./__fixtures__/syntheticForearm";
  * Brief §1 "Deltoid specialization can be added without a new schema or calculator" and
  * §11 "New deltoid region fixture: same components/API work without forearm-specific
  * branches". The deltoid region is data only; the calculator, adapters and suggestions
- * run on it unchanged, and a source check keeps region names out of that code.
+ * run on it unchanged, and a source check keeps region names out of that code and out of the
+ * page's components (SpecializationPanel.deltoid.render.test.ts renders the page on it).
  */
 
 const NOW = "2026-10-16T12:00:00.000Z";
@@ -44,12 +46,24 @@ describe("the deltoid fixture is data, over real catalog exercises", () => {
     expect(specializationRegions.every((data) => data.region.status === "production")).toBe(true);
   });
 
-  it("draws every selectable path for one of its own nodes", () => {
+  it("is drawn from its own views, in its own words, each selectable path one of its own nodes", () => {
+    const drawing = deltoidRegionData.diagram!;
+    expect(drawing.viewOrder).toEqual([{ id: "front", label: "Front" }, { id: "side", label: "Side" }, { id: "rear", label: "Rear" }]);
+    expect(Object.keys(drawing.views).sort()).toEqual(drawing.viewOrder.map((view) => view.id).sort());
     const nodeIds = new Set(deltoidRegionData.nodes.map((node) => node.id));
-    const paths = Object.values(deltoidRegionData.diagram!.views).flatMap((view) => Object.values(view ?? {}).flatMap((layer) => layer?.paths ?? []));
-    const bellies = paths.filter((path) => path.kind === "belly");
-    expect(bellies.map((path) => path.nodeId)).toEqual([deltoidIds.anterior, deltoidIds.lateral, deltoidIds.posterior]);
-    expect(bellies.every((path) => path.nodeId !== null && nodeIds.has(path.nodeId))).toBe(true);
+    const bellies = (view: string) => Object.values(drawing.views[view] ?? {}).flatMap((layer) => layer?.paths ?? []).filter((path) => path.kind === "belly");
+    expect(bellies("front").map((path) => path.nodeId)).toEqual([deltoidIds.lateral, deltoidIds.anterior]);
+    // The lateral head is drawn from the side, where it is the middle of the shoulder.
+    expect(bellies("side").map((path) => path.nodeId)).toEqual([deltoidIds.posterior, deltoidIds.lateral, deltoidIds.anterior]);
+    expect(bellies("rear").map((path) => path.nodeId)).toEqual([deltoidIds.posterior, deltoidIds.lateral]);
+    for (const { id } of drawing.viewOrder) expect(bellies(id).every((path) => path.nodeId !== null && nodeIds.has(path.nodeId) && path.id.startsWith(`${id}__`)), id).toBe(true);
+  });
+
+  it("has its own page words and offers circumference only, where the forearm offers grip too", () => {
+    expect(deltoidRegionData.region.wording).toEqual({ externalGroup: "Other muscles credited here", incidentalWork: "bracing", progressSubtitle: "Circumference, by arm" });
+    expect(deltoidRegionData.region.measurementMetrics).toEqual(["circumference_cm"]);
+    expect(forearmRegionData.region.measurementMetrics).toEqual(["circumference_cm", "grip_force_n"]);
+    expect(forearmRegionData.diagram!.viewOrder.map((view) => view.label)).toEqual(["Palm", "Back", "Thumb side"]);
   });
 });
 
@@ -94,6 +108,9 @@ describe("the same calculator on the deltoid region", () => {
   });
 });
 
+/** Region and muscle words that region-agnostic code must never contain. */
+const regionWords = /forearm|deltoid|delts?\b|\bfc[ru]\b|\bfd[sp]\b|\becr[lb]\b|\becu\b|brachioradialis|wrist|biceps|triceps|pronat|supinat/i;
+
 describe("no region is named in the calculator, the windows, the goals or the adapters", () => {
   const files = [
     "shared/specialization/exposure.ts",
@@ -106,7 +123,6 @@ describe("no region is named in the calculator, the windows, the goals or the ad
     "client/src/lib/specialization/recommendations.ts",
     "client/src/lib/specialization/useSpecializationSummary.ts",
   ];
-  const regionWords = /forearm|deltoid|delts?\b|\bfc[ru]\b|\bfd[sp]\b|\becr[lb]\b|\becu\b|brachioradialis|wrist|biceps|triceps|pronat|supinat/i;
 
   for (const file of files) {
     it(file, () => {
@@ -115,6 +131,75 @@ describe("no region is named in the calculator, the windows, the goals or the ad
       expect(hits).toEqual([]);
     });
   }
+});
+
+/**
+ * The page's components (every .tsx here and the page model) by the same rule, plus the words
+ * the forearm page once hard-coded (its view names, "upper-arm"): a region's words come from its
+ * data (`region.wording`, `measurementMetrics`, the drawing's `viewOrder`). Comments are not
+ * read, since they may cite the forearm brief or give a forearm id as an example; strings and
+ * code are. `grip` is not on the list: it is also a measure (`grip_force_n`, offered only when the
+ * region lists it) and a kind of mapping (straps), which the components name as such.
+ */
+describe("no region is named in the page's components", () => {
+  const dir = "client/src/components/specialization";
+  const files = [...readdirSync(join(process.cwd(), dir)).filter((name) => name.endsWith(".tsx")).sort(), "model.ts"];
+  const pageWords = new RegExp(`${regionWords.source}|thumb.side|pinky|\\bpalm|upper.arm`, "i");
+  /** Lines that must stay, by file and exact code, each with its reason. */
+  const allowed: { file: string; code: string; why: string }[] = [
+    {
+      file: "ActionGlyph.tsx",
+      code: 'if (/pronation|supination|rotation/.test(actionId)) return "rotate";',
+      why: "Picks the glyph's shape from the verb in any region's action id (shoulder.internal_rotation, foot pronation): joint-action vocabulary, not a branch on a region.",
+    },
+  ];
+
+  /** The file's lines with every comment blanked out, by the TypeScript parser (JSX text is text, not a comment). */
+  const codeLines = (file: string, text: string) => {
+    const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+    const chars = text.split("");
+    const blank = (ranges: readonly ts.CommentRange[] | undefined) => {
+      for (const range of ranges ?? []) for (let index = range.pos; index < range.end; index++) if (chars[index] !== "\n") chars[index] = " ";
+    };
+    const startsWithText = (node: ts.Node) => node.getChildren(source)[0]?.kind === ts.SyntaxKind.JsxText;
+    const visit = (node: ts.Node) => {
+      // A doc comment is blanked whole; JSX text is never trivia, so it is never scanned for comments.
+      if (ts.isJSDoc(node)) { blank([{ pos: node.pos, end: node.end, kind: ts.SyntaxKind.MultiLineCommentTrivia }]); return; }
+      if (node.kind === ts.SyntaxKind.JsxText) return;
+      if (!startsWithText(node)) blank(ts.getLeadingCommentRanges(text, node.pos));
+      const children = node.getChildren(source);
+      if (!children.length && node.kind !== ts.SyntaxKind.GreaterThanToken) blank(ts.getTrailingCommentRanges(text, node.end));
+      children.forEach(visit);
+    };
+    visit(source);
+    return chars.join("").split("\n");
+  };
+
+  it("finds the page's components, and reads strings and code but not comments", () => {
+    expect(files).toEqual(expect.arrayContaining(["SpecializationPanel.tsx", "SpecializationDiagram.tsx", "MeasurementsPanel.tsx", "MuscleSheet.tsx", "model.ts"]));
+    const sample = 'const a = "Thumb side"; // forearm\n/** forearm */\nconst b = <p>{/* forearm */}upper-arm</p>;';
+    expect(codeLines("sample.tsx", sample).map((line) => pageWords.test(line))).toEqual([true, false, true]);
+    expect(codeLines("sample.tsx", sample)[0].trimEnd()).toBe('const a = "Thumb side";');
+  });
+
+  for (const file of files) {
+    it(file, () => {
+      const lines = codeLines(file, readFileSync(join(process.cwd(), dir, file), "utf8"));
+      const hits = lines
+        .map((line, index) => [index + 1, line.trim()] as const)
+        .filter(([, line]) => pageWords.test(line) && !allowed.some((entry) => entry.file === file && entry.code === line));
+      expect(hits).toEqual([]);
+    });
+  }
+
+  it("keeps the allow-list short and true: every entry is still a line of its file", () => {
+    expect(allowed.length).toBeLessThanOrEqual(3);
+    for (const entry of allowed) {
+      expect(entry.why.length, entry.code).toBeGreaterThan(40);
+      const lines = codeLines(entry.file, readFileSync(join(process.cwd(), dir, entry.file), "utf8")).map((line) => line.trim());
+      expect(lines, `${entry.file}: ${entry.code}`).toContain(entry.code);
+    }
+  });
 });
 
 describe("the forearm content, whatever it holds today", () => {

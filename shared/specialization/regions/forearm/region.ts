@@ -10,4 +10,10 @@ export const forearmRegion: SpecializationRegion = {
   bodyMapKeys: ["forearms", "brachioradialis"],
   entryLabel: "Explore forearm coverage",
   nodeForBodyMapKey: { brachioradialis: forearmMuscleIds.brachioradialis },
+  wording: {
+    externalGroup: "Upper-arm muscles credited here",
+    incidentalWork: "grip",
+    progressSubtitle: "Circumference and grip, by arm",
+  },
+  measurementMetrics: ["circumference_cm", "grip_force_n"],
 };

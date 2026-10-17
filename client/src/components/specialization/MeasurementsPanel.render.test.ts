@@ -8,6 +8,7 @@ import { exercises } from "@/lib/exerciseCatalog";
 import type { StoreWrite } from "@/lib/specialization/stores";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import type { SpecializationMeasurement } from "@shared/specialization/types";
+import { deltoidRegionData } from "@/lib/specialization/__fixtures__/deltoidRegion";
 
 /**
  * The Progress disclosure, rendered (brief §10, design §5): a backdated reading keeps the date
@@ -199,6 +200,51 @@ describe("units follow the profile", () => {
   });
 });
 
+describe("the region's own measures", () => {
+  const select = (name: RegExp) => screen.getByLabelText(name) as HTMLSelectElement;
+
+  it("offers the forearm circumference and grip, each starting from its own place, posture and instrument", async () => {
+    render(createElement(Harness));
+    await click("Add a reading");
+    const measured = screen.getByRole("group", { name: "What was measured" });
+    expect(within(measured).getAllByRole("button").map((button) => button.textContent)).toEqual(["Circumference", "Grip strength"]);
+    expect(field(/^Where \(landmark\)$/).value).toBe("Thickest point");
+    expect(select(/^Posture$/).value).toBe("arm_relaxed_hanging");
+    expect(field(/^Tape \(optional\)$/)).toBeDefined();
+    await click("Grip strength", measured);
+    expect(field(/^Where \(landmark\)$/).value).toBe("Dynamometer grip");
+    expect(select(/^Posture$/).value).toBe("elbow_90_supported");
+    expect(field(/^Dynamometer \(optional\)$/)).toBeDefined();
+    // Back to the tape: its own place and posture again, never the dynamometer's elbow at 90°.
+    await click("Circumference", measured);
+    expect(field(/^Where \(landmark\)$/).value).toBe("Thickest point");
+    expect(select(/^Posture$/).value).toBe("arm_relaxed_hanging");
+  });
+
+  it("offers a region only the measures it lists: the deltoid fixture records circumference, with no dynamometer anywhere", async () => {
+    const { container } = render(createElement(Harness, { data: deltoidRegionData }));
+    expect(figure(/^Circumference \(cm\)$/)).toBeDefined();
+    await click("Add a reading");
+    expect(screen.queryByRole("group", { name: "What was measured" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Grip strength" })).toBeNull();
+    expect(field(/^Tape \(optional\)$/)).toBeDefined();
+    expect(select(/^Posture$/).value).toBe("arm_relaxed_hanging");
+    expect(container.textContent).not.toMatch(/grip|dynamometer|forearm/i);
+    await type(/^Circumference \(cm\)$/, "48");
+    await click("Save reading");
+    expect(saved).toHaveLength(1);
+    expect(saved[0]).toMatchObject({ regionId: "deltoid", metric: "circumference_cm", value: 48, protocol: { landmark: "Thickest point", posture: "arm_relaxed_hanging" } });
+    expect(container.textContent).toMatch(/Distinct bouts per week on the deltoids, completed/);
+  });
+
+  it("still draws readings of a measure the region no longer lists, rather than hiding them", () => {
+    const old = reading("g", "2026-10-14T07:00:00.000Z", 45 * NEWTONS_PER_KGF, { metric: "grip_force_n", regionId: "deltoid" });
+    render(createElement(Harness, { data: deltoidRegionData, initial: [old] }));
+    expect(figure(/^Grip strength on a dynamometer \(kg;/)).toBeDefined();
+    expect(figure(/^Circumference \(cm\)$/)).toBeDefined();
+  });
+});
+
 describe("exercise performance", () => {
   it("lists only directly mapped exercises with two sessions or more, matched by catalog id", async () => {
     window.localStorage.setItem(historyKey, JSON.stringify([
@@ -218,7 +264,7 @@ describe("exercise performance", () => {
     render(createElement(Harness));
     const select = screen.getByLabelText("Exercise") as HTMLSelectElement;
     expect(Array.from(select.options).map((option) => option.textContent)).toEqual(["Hammer Curl · 2 sessions"]);
-    expect(screen.getByText("Same exercise only. A different grip, implement or range of motion is a different line.")).not.toBeNull();
+    expect(screen.getByText("Same exercise only. A change of hand position, implement or range of motion is a different line.")).not.toBeNull();
   });
 
   it("plots the top set of each session in the profile's unit, with a text summary", async () => {

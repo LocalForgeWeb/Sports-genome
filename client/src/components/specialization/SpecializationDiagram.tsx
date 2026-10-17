@@ -39,7 +39,8 @@ export type SpecializationDiagramProps = {
  *   4. Text, outside the mirror: the anatomy labels and the selected muscle's name.
  *
  * Mirroring flips the drawing for the left arm and re-places every label (x and anchor), so
- * "Thumb side" lands on the thumb side and no text is ever drawn backwards.
+ * each label lands on the side it names and no text is ever drawn backwards. The views, and
+ * the words for them, are the asset's (`viewOrder`).
  */
 
 /** Tap targets reach this far past a belly's edge, in view-box units: across the gutters, not over a neighbour. */
@@ -52,7 +53,8 @@ const HIT_HALO = 9;
 export const HIT_SQUARE_SHARE = 0.145;
 const LABEL_CLEARANCE = 24;
 
-const VIEW_NAMES: Record<DiagramViewId, string> = { palm: "Palm", back: "Back", thumb: "Thumb side" };
+/** A view's words are the drawing's own (its `viewOrder`); an id it does not list reads as itself. */
+const viewLabelOf =(asset: DiagramAsset, view: DiagramViewId): string => asset.viewOrder.find((item) => item.id === view)?.label ?? view;
 const LAYER_NAMES: Record<DiagramLayerId, string> = { surface: "Surface", intermediate: "Middle", deep: "Deep" };
 
 const EXPOSURE_STEPS = 5;
@@ -139,7 +141,7 @@ export function SpecializationDiagram({ asset, view, layer, mirrored, fillFor, s
     if (!selectedNodeId || selected) return null;
     const name = labelFor(selectedNodeId);
     const ghost = paths.some((path) => path.kind === "ghost" && path.nodeId === selectedNodeId);
-    const elsewhere = placementsOf(asset, selectedNodeId).map((place) => `${VIEW_NAMES[place.view]} · ${LAYER_NAMES[place.layer]}`);
+    const elsewhere = placementsOf(asset, selectedNodeId).map((place) => `${viewLabelOf(asset, place.view)} · ${LAYER_NAMES[place.layer]}`);
     if (ghost) return `${name} lies above this layer; its outline is dashed here. It is drawn in ${elsewhere.join(", ")}.`;
     if (elsewhere.length) return `${name} is not drawn on this layer. It is drawn in ${elsewhere.join(", ")}.`;
     return `${name} is not part of this drawing.`;
@@ -165,7 +167,7 @@ export function SpecializationDiagram({ asset, view, layer, mirrored, fillFor, s
         className="spz-diagram-svg"
         viewBox={`0 0 ${width} ${height}`}
         role="group"
-        aria-label={`${caption ?? `${VIEW_NAMES[view]} view, ${LAYER_NAMES[layer].toLowerCase()} layer`}. ${nodes.length} muscles to choose from.`}
+        aria-label={`${caption ?? `${viewLabelOf(asset, view)} view, ${LAYER_NAMES[layer].toLowerCase()} layer`}. ${nodes.length} muscles to choose from.`}
         aria-describedby={note ? noteId : undefined}
       >
         <defs>

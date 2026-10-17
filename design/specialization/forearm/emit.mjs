@@ -35,6 +35,7 @@ export function renderModule() {
   lines.push(`  version: ${asset.version},`);
   lines.push(`  regionId: ${json(asset.regionId)},`);
   lines.push(`  viewBox: { width: ${asset.viewBox.width}, height: ${asset.viewBox.height} },`);
+  lines.push(`  viewOrder: [${asset.viewOrder.map((view) => `{ id: ${json(view.id)}, label: ${json(view.label)} }`).join(", ")}],`);
   lines.push("  views: {");
   for (const [view, layers] of Object.entries(asset.views)) {
     lines.push(`    ${view}: {`);

@@ -15,7 +15,7 @@ import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { regionDataFor } from "@shared/specialization/registry";
 import { exposureCategoryLabels, exposureRuleV1 } from "@shared/specialization/rules";
 import { addDaysToDateKey, calendarWeekInterval, isDateKey, localDateKey, planWeekInterval } from "@shared/specialization/time";
-import type { AnatomyNode, DiagramLayerId, DiagramViewId, NodeExposure, SpecializationRegionData, SummaryMode } from "@shared/specialization/types";
+import type { AnatomyNode, DiagramLayerId, NodeExposure, SpecializationRegionData, SummaryMode } from "@shared/specialization/types";
 import { BoutListSheet, type BoutList } from "./BoutListSheet";
 import { MeasurementsPanel } from "./MeasurementsPanel";
 import { MovementSheet } from "./MovementSheet";
@@ -53,7 +53,6 @@ export type SpecializationPanelProps = {
   onBack: (() => void) | null;
 };
 
-const viewLabels: Record<DiagramViewId, string> = { palm: "Palm", back: "Back", thumb: "Thumb side" };
 const layerControlLabels: Record<DiagramLayerId, string> = { surface: "Surface", intermediate: "Middle", deep: "Deep" };
 const SHOWN_FINDINGS = 3;
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
@@ -176,10 +175,13 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const findings = useMemo(() => (summary ? findingsFor({ data, summary, otherSide: otherSummary }) : []), [data, summary, otherSummary]);
   const shownFindings = allFindings ? findings : findings.slice(0, SHOWN_FINDINGS);
 
-  // The drawing: only the views and layers the asset has; the list stands in when there is none.
+  // The drawing: only the views and layers the asset has, in its order and its words (no view is
+  // named here); the list stands in when there is none. No view in the address, or one this
+  // drawing does not have, is its first view.
   const asset = data.diagram;
-  const views = (Object.keys(viewLabels) as DiagramViewId[]).filter((view) => asset?.views[view]);
-  const view: DiagramViewId = views.includes(state.view) ? state.view : views[0] ?? state.view;
+  const views = (asset?.viewOrder ?? []).filter((item) => asset?.views[item.id]);
+  const shownView = views.find((item) => item.id === state.view) ?? views[0] ?? null;
+  const view = shownView?.id ?? state.view ?? "";
   const layers = (Object.keys(layerControlLabels) as DiagramLayerId[]).filter((layer) => asset?.views[view]?.[layer]);
   const layer: DiagramLayerId = layers.includes(state.layer) ? state.layer : layers[0] ?? state.layer;
   const nameOf = (id: string) => data.nodes.find((node) => node.id === id)?.name ?? id;
@@ -266,7 +268,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const groups: { id: string; title: string; nodes: AnatomyNode[] }[] = [
     { id: "target", title: `Muscles of the ${regionWord}`, nodes: nodes.filter((node) => node.role === "target") },
     { id: "adjacent", title: "Nearby", nodes: nodes.filter((node) => node.role === "adjacent") },
-    { id: "external", title: "Upper-arm muscles credited here", nodes: nodes.filter((node) => node.role === "external") },
+    { id: "external", title: data.region.wording.externalGroup, nodes: nodes.filter((node) => node.role === "external") },
   ].filter((group) => group.nodes.length);
 
   const windowItems = summary ? exercisesInWindow(summary, data) : [];
@@ -377,7 +379,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       </div>
       {asset && <div className="spz-diagram-controls">
         <div className="spz-segment" role="group" aria-label="View">
-          {views.map((item) => <button key={item} type="button" aria-pressed={item === view} onClick={() => update({ view: item })}>{viewLabels[item]}</button>)}
+          {views.map((item) => <button key={item.id} type="button" aria-pressed={item.id === view} onClick={() => update({ view: item.id === views[0].id ? null : item.id })}>{item.label}</button>)}
         </div>
         {layers.length > 1 && <div className="spz-segment" role="group" aria-label="Layer">
           {layers.map((item) => <button key={item} type="button" aria-pressed={item === layer} onClick={() => update({ layer: item })}>{layerControlLabels[item]}</button>)}
@@ -404,7 +406,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
         </>}
       </div>
       {asset ? <>
-        <SpecializationDiagram asset={asset} view={view} layer={layer} mirrored={state.limb === "left"} fillFor={fillFor} selectedNodeId={selected?.id ?? null} onSelect={tapDrawing} labelFor={(id) => data.nodes.find((node) => node.id === id)?.shortName ?? id} describeFor={describeFor} caption={`${data.region.label}, ${armWord}, ${viewLabels[view].toLowerCase()} view, ${layerControlLabels[layer].toLowerCase()} layer`} />
+        <SpecializationDiagram asset={asset} view={view} layer={layer} mirrored={state.limb === "left"} fillFor={fillFor} selectedNodeId={selected?.id ?? null} onSelect={tapDrawing} labelFor={(id) => data.nodes.find((node) => node.id === id)?.shortName ?? id} describeFor={describeFor} caption={`${data.region.label}, ${armWord}, ${(shownView?.label ?? view).toLowerCase()} view, ${layerControlLabels[layer].toLowerCase()} layer`} />
         <MapLegend map={state.map} />
       </> : <p className="spz-note">The drawing is not ready yet. Every muscle is in the list below, with the same numbers.</p>}
     </section>
@@ -417,11 +419,11 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       <div className="spz-section-head">
         <h2 id="spz-list-title">Muscles, most direct work first</h2>
       </div>
-      <p className="spz-legend-line"><i className="spz-key spz-key-direct" />Direct <i className="spz-key spz-key-other" />Other dynamic <i className="spz-key spz-key-holds" />Holds <i className="spz-key spz-key-incidental" />Incidental grip · bar full at {BAR_SCALE} bouts</p>
+      <p className="spz-legend-line"><i className="spz-key spz-key-direct" />Direct <i className="spz-key spz-key-other" />Other dynamic <i className="spz-key spz-key-holds" />Holds <i className="spz-key spz-key-incidental" />Incidental {data.region.wording.incidentalWork} · bar full at {BAR_SCALE} bouts</p>
       {groups.map((group) => <div key={group.id} className="spz-group">
         {groups.length > 1 && <h3>{group.title}</h3>}
         <ul className="spz-rows">
-          {sortForList(group.nodes, exposureOf).map((node) => <MuscleRow key={node.id} node={node} exposure={exposureOf(node.id)} waiting={summary ? null : waiting} selected={node.id === selected?.id} onOpen={() => { select(node.id); setSheet({ kind: "muscle" }); }} />)}
+          {sortForList(group.nodes, exposureOf).map((node) => <MuscleRow key={node.id} node={node} exposure={exposureOf(node.id)} incidentalWork={data.region.wording.incidentalWork} waiting={summary ? null : waiting} selected={node.id === selected?.id} onOpen={() => { select(node.id); setSheet({ kind: "muscle" }); }} />)}
         </ul>
       </div>)}
     </section>
@@ -471,7 +473,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       </details>
 
       <details className="spz-disclosure spz-card" onToggle={(event) => { if (event.currentTarget.open) setProgressOpened(true); }}>
-        <summary><span><b>Progress</b><small>Circumference and grip, by arm</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+        <summary><span><b>Progress</b><small>{data.region.wording.progressSubtitle}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
         {/* Mounted when first opened, then kept: its weekly chart reads eight weeks of history. */}
         {progressOpened && <MeasurementsPanel data={data} side={state.limb} catalog={catalog} weightUnit={weightUnit} timeZone={timeZone} todayKey={todayKey} measurements={measurements} onSave={saveMeasurement} onRemove={removeMeasurement} />}
       </details>
@@ -566,7 +568,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   </section>;
 }
 
-function MuscleRow({ node, exposure, waiting, selected, onOpen }: { node: AnatomyNode; exposure: NodeExposure | null; waiting: string | null; selected: boolean; onOpen: () => void }) {
+function MuscleRow({ node, exposure, incidentalWork, waiting, selected, onOpen }: { node: AnatomyNode; exposure: NodeExposure | null; incidentalWork: string; waiting: string | null; selected: boolean; onOpen: () => void }) {
   const parts = exposure ? barParts(exposure) : null;
   // While there is no summary (the plan loading), a row is neither "not reviewed" nor "no work": it waits.
   const unmapped = !waiting && (!exposure || exposure.mappingCoverage !== "reviewed");
@@ -586,7 +588,7 @@ function MuscleRow({ node, exposure, waiting, selected, onOpen }: { node: Anatom
       parts!.direct ? `${parts!.direct} direct` : "",
       parts!.other ? `${parts!.other} other` : "",
       parts!.holds ? `${parts!.holds} hold${parts!.holds === 1 ? "" : "s"} · ${holdTime(exposure.deliberateHoldSeconds)}` : "",
-      parts!.incidental ? `${parts!.incidental} grip` : "",
+      parts!.incidental ? `${parts!.incidental} ${incidentalWork}` : "",
       parts!.rest ? `${parts!.rest} mixed` : "",
     ].filter(Boolean).join(" · ") || "No work";
   return <li>

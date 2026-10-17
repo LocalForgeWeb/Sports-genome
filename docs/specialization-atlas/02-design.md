@@ -158,7 +158,14 @@ The schema `specialization` holds:
 
 ## 10. Extensibility check
 
-A `deltoid` fixture (three heads, a handful of mappings, a small diagram) lives in tests only. The calculator and the page render it with no deltoid-specific code. A test fails if any component or calculator branch names `forearm` outside region data.
+A `deltoid` fixture (`client/src/lib/specialization/__fixtures__/deltoidRegion.ts`) lives in tests only and is never registered. It is a second region in full: three heads and an external triceps, a handful of mappings, a small drawing from the front, the side and the rear (the lateral head drawn from the side), its own page words and circumference as its only measure. Everything that differs between regions is region data:
+- **The drawing's views.** `DiagramAsset.viewOrder` lists the views in the page's order with the words on their buttons (forearm: Palm · Back · Thumb side; deltoid: Front · Side · Rear). A view id is the drawing's own, any `^[a-z][a-z0-9_]*$`, in TypeScript (`DiagramViewId` is a string), in the address and in the database (`diagram_views`). The address names a view only when it is not the drawing's first, and a view the drawing does not have falls back to the first.
+- **The page's words.** `SpecializationRegion.wording`: the heading over external muscles ("Upper-arm muscles credited here"), the word for incidental work on the bars and their key ("grip": "Incidental grip", "3 grip"), and the Progress subtitle ("Circumference and grip, by arm").
+- **The measures.** `SpecializationRegion.measurementMetrics`: Progress offers only these (forearm: circumference and grip; deltoid: circumference), each starting from its own landmark and posture.
+
+Tests: the calculator, adapters and suggestions run on the fixture (`regionAgnostic.test.ts`); the page renders it with no deltoid code (`SpecializationPanel.deltoid.render.test.ts`: heading, Front · Side · Rear, the fixture's group heading and incidental word, the drawing's muscles selectable, circumference only, and no forearm, grip, palm or thumb-side word on the page outside "How this is counted"); the seed loads it with no schema change and reads it back whole (`specializationSeed.test.ts`); and a source scan fails if the calculator, the adapters or any page component (`client/src/components/specialization/*.tsx`, `model.ts`) names a region or the forearm's view and group words in its code or strings (comments aside), with one allowed line, ActionGlyph's action-verb pattern.
+
+Still forearm-worded on every region's page: "How this is counted" shows the published rule's own text (`rules.ts`, `specialization_exposure_v1`), which speaks of grip credit and straps, and the muscle sheet's "Incidental grip or steadying" line and the exposure sentence's "incidental grip or steadying" (`MuscleSheet.tsx`, `model.ts`) do not yet read `wording.incidentalWork`.
 
 ## 11. Ownership for parallel work
 
@@ -176,12 +183,13 @@ A `deltoid` fixture (three heads, a handful of mappings, a small diagram) lives 
 ## 12. Diagram renderer contract (room for a 3D viewer)
 
 The page never depends on how the forearm is drawn. Any renderer takes the same props as `SpecializationDiagram`:
-- `view` and `layer`;
+- `asset`, whose `viewOrder` names its views and the words for them;
+- `view` (one of the asset's view ids) and `layer`;
 - `mirrored` (left arm);
 - `fillFor(nodeId)`, returning `bin n`, `zero`, `hatch` or `none`;
 - `selectedNodeId`, `onSelect(nodeId)`, `labelFor(nodeId)`, `describeFor(nodeId)`.
 
-The counting, list, ledger, targets and add/swap flows read node ids only.
+The counting, list, ledger, targets and add/swap flows read node ids only. Neither the page nor the renderer names a view: the view buttons, the drawing's caption and the "drawn in Palm · Middle" note read the asset's `viewOrder`.
 
 On 16 Oct the owner showed a separate 3D upper-limb viewer in progress elsewhere. It uses the Open3Dmodel GLB, with Z-Anatomy and BodyParts3D content, and kebab-case mesh ids such as `brachioradialis`, `flexor-carpi-radialis` and `flexor-digitorum-profundus`. To plug it in later:
 1. Map its mesh ids to node ids through node aliases.

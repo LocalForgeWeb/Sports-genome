@@ -5,7 +5,7 @@ import { exposureRuleV1 } from "@shared/specialization/rules";
 import { deltoidIds, deltoidRegionData } from "@/lib/specialization/__fixtures__/deltoidRegion";
 import { emitSeedSql, productionSeedInput, quote, referenceRegionLabels, type SeedInput } from "../scripts/specialization/emit-seed";
 import { SEED_MIGRATION_PATH, USER_A, applyMigration, as, count, createSeededDb, readMigration, rows, scriptFailure, stubExercises } from "./fixtures/specializationPg";
-import type { SpecializationRegionData } from "@shared/specialization/types";
+import type { DiagramAsset, SpecializationRegionData } from "@shared/specialization/types";
 
 /**
  * The seed migration is generated from the TypeScript content (scripts/specialization/
@@ -39,6 +39,49 @@ async function rowVersions(): Promise<Record<string, string>> {
 }
 
 const withRegions = (regions: SeedInput["regions"]): SeedInput => ({ ...productionSeedInput(), regions });
+
+/** Every region row in the content's own shape (SpecializationRegion); a reference region has no page words. */
+const readRegions = () =>
+  rows(
+    db,
+    `select id, label, heading, sort_order as "sortOrder", status, body_map_keys as "bodyMapKeys", entry_label as "entryLabel", node_for_body_map_key as "nodeForBodyMapKey",
+            case when external_group is null and incidental_work is null and progress_subtitle is null then null
+                 else json_build_object('externalGroup', external_group, 'incidentalWork', incidental_work, 'progressSubtitle', progress_subtitle) end as wording,
+            measurement_metrics as "measurementMetrics"
+     from specialization.regions order by id`,
+  );
+
+/** One seeded drawing read back whole, in the content's own shape (DiagramAsset): its views in order with their words, every layer's paths and labels in draw order. */
+async function readDrawing(key: string, version: number): Promise<DiagramAsset | null> {
+  const [asset] = await rows<{ id: string; regionId: string; width: number; height: number; licenseNote: string }>(
+    db,
+    `select id, region_id as "regionId", view_box_width::float8 as width, view_box_height::float8 as height, license_note as "licenseNote" from specialization.diagram_assets where asset_key = $1 and version = $2`,
+    [key, version],
+  );
+  if (!asset) return null;
+  const viewOrder = await rows<{ id: string; label: string }>(db, "select view as id, label from specialization.diagram_views where asset_id = $1 order by sort_order", [asset.id]);
+  const paths = await rows<{ view: string; layer: string; id: string; nodeId: string | null; kind: string; d: string }>(
+    db,
+    `select view, layer, path_id as id, node_id as "nodeId", kind, d from specialization.diagram_paths where asset_id = $1 order by view, layer, sort_order`,
+    [asset.id],
+  );
+  const labels = await rows<{ view: string; layer: string; text: string; x: number; y: number; anchor: string }>(
+    db,
+    `select view, layer, label_text as text, x::float8 as x, y::float8 as y, anchor from specialization.diagram_labels where asset_id = $1 order by view, layer, sort_order`,
+    [asset.id],
+  );
+  const views: Record<string, Record<string, { paths: unknown[]; labels: unknown[] }>> = {};
+  const layerOf = (view: string, layer: string) => ((views[view] ??= {})[layer] ??= { paths: [], labels: [] });
+  for (const { view, layer, ...path } of paths) layerOf(view, layer).paths.push(path);
+  for (const { view, layer, ...label } of labels) layerOf(view, layer).labels.push(label);
+  return { key, version, regionId: asset.regionId, viewBox: { width: asset.width, height: asset.height }, viewOrder, views: views as DiagramAsset["views"], licenseNote: asset.licenseNote };
+}
+
+/** A drawing compared as data: the same views in the same order, each layer's paths and labels in the same order (object key order aside). */
+const sameDrawing = (drawing: DiagramAsset) => ({
+  ...drawing,
+  views: Object.fromEntries(Object.entries(drawing.views).map(([view, layers]) => [view, Object.fromEntries(Object.entries(layers ?? {}).map(([layer, drawn]) => [layer, { paths: drawn!.paths, labels: drawn!.labels }]))])),
+});
 
 // Counts come from the content itself, so another content change only needs the seed regenerated.
 const forearm = forearmRegionData;
@@ -178,12 +221,21 @@ describe("the seeded database", () => {
     expect(rule).toEqual(exposureRuleV1);
   });
 
-  it("holds the region and the upper-arm reference region its external contributors live in", async () => {
-    const regions = await rows(db, `select id, label, heading, sort_order as "sortOrder", status, body_map_keys as "bodyMapKeys", entry_label as "entryLabel", node_for_body_map_key as "nodeForBodyMapKey" from specialization.regions order by id`);
-    expect(regions).toEqual([
+  it("holds the region, with its page words and measures, and the upper-arm reference region its external contributors live in", async () => {
+    expect(await readRegions()).toEqual([
       { ...forearmRegionData.region, nodeForBodyMapKey: forearmRegionData.region.nodeForBodyMapKey ?? {} },
-      { id: "upper_arm", label: "Upper arm", heading: null, sortOrder: 0, status: "reference", bodyMapKeys: [], entryLabel: null, nodeForBodyMapKey: {} },
+      { id: "upper_arm", label: "Upper arm", heading: null, sortOrder: 0, status: "reference", bodyMapKeys: [], entryLabel: null, nodeForBodyMapKey: {}, wording: null, measurementMetrics: [] },
     ]);
+    expect(forearmRegionData.region.wording.incidentalWork).toBe("grip");
+    expect(forearmRegionData.region.measurementMetrics).toEqual(["circumference_cm", "grip_force_n"]);
+  });
+
+  it("holds the forearm drawing whole: its views in the page's order with the words on their buttons, every path and label", async () => {
+    const drawing = forearmRegionData.diagram!;
+    expect(drawing.viewOrder).toEqual([{ id: "palm", label: "Palm" }, { id: "back", label: "Back" }, { id: "thumb", label: "Thumb side" }]);
+    expect(await readDrawing(drawing.key, drawing.version)).toEqual(sameDrawing(drawing));
+    // Users read the drawing, views included.
+    expect(await as(db, { user: USER_A }, () => count(db, "select 1 from specialization.diagram_views"))).toBe(drawing.viewOrder.length);
   });
 
   it("links catalog exercises to public.exercises by catalog id, else by the name suffix, never by another repository's id", async () => {
@@ -282,18 +334,13 @@ describe("changing content", () => {
     expect(await count(db, "select 1 from specialization.actions where id = 'elbow.extension'")).toBe(1);
     expect(await count(db, "select 1 from specialization.claims where claim_key like 'deltoid:%'")).toBe(3);
 
+    // The region with its own page words and its one measure, and its drawing from the front,
+    // the side and the rear with its own button words: all rows, no new column or table.
+    expect((await readRegions()).find((region) => (region as { id: string }).id === "deltoid")).toEqual({ ...deltoidRegionData.region, nodeForBodyMapKey: {} });
     const drawing = deltoidRegionData.diagram!;
-    const paths = await rows(
-      db,
-      `select p.path_id as id, p.node_id as "nodeId", p.kind, p.d from specialization.diagram_paths p join specialization.diagram_assets a on a.id = p.asset_id
-       where a.asset_key = $1 and a.version = $2 and p.view = 'back' and p.layer = 'surface' order by p.sort_order`,
-      [drawing.key, drawing.version],
-    );
-    expect(paths).toEqual(drawing.views.back!.surface!.paths);
-    // Scoped to the fixture asset: the production forearm drawing is seeded beside it.
-    const labels = await rows(db, `select l.label_text as text, l.x::float8 as x, l.y::float8 as y, l.anchor from specialization.diagram_labels l join specialization.diagram_assets a on a.id = l.asset_id
-       where a.asset_key = $1 and a.version = $2 order by l.sort_order`, [drawing.key, drawing.version]);
-    expect(labels).toEqual(drawing.views.back!.surface!.labels);
+    expect(drawing.viewOrder.map((view) => view.label)).toEqual(["Front", "Side", "Rear"]);
+    expect(drawing.views.side!.surface!.paths.some((path) => path.nodeId === deltoidIds.lateral && path.kind === "belly")).toBe(true);
+    expect(await readDrawing(drawing.key, drawing.version)).toEqual(sameDrawing(drawing));
 
     // A fixture region and its draft content stay out of users' sight.
     const seen = await as(db, { user: USER_A }, () => rows<{ n: number }>(db, "select (select count(*)::int from specialization.regions where id = 'deltoid') + (select count(*)::int from specialization.nodes where region_id = 'deltoid') + (select count(*)::int from specialization.mapping_versions where version_key like 'deltoid%') as n"));
@@ -303,17 +350,26 @@ describe("changing content", () => {
     const before = await rowVersions();
     expect(await scriptFailure(db, emitSeedSql(both))).toBeNull();
     expect(await rowVersions()).toEqual(before);
-    const redrawn = {
+    // Redrawn: the rear view gone, the side view renamed and trimmed.
+    const redrawn: SpecializationRegionData = {
       ...deltoidRegionData,
       diagram: {
         ...drawing,
-        views: { back: { surface: { paths: drawing.views.back!.surface!.paths.slice(0, 3), labels: [{ text: "Front side", x: 20, y: 76, anchor: "start" as const }] } } },
+        viewOrder: [{ id: "front", label: "Front" }, { id: "side", label: "Outside" }],
+        views: { front: drawing.views.front, side: { surface: { paths: drawing.views.side!.surface!.paths.slice(0, 3), labels: [{ text: "Back side", x: 4, y: 77, anchor: "start" as const }] } } },
       },
     };
     expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, redrawn])))).toBeNull();
-    const fixtureAsset = `join specialization.diagram_assets a on a.id = x.asset_id where a.asset_key = '${drawing.key}'`;
-    expect(await count(db, `select 1 from specialization.diagram_paths x ${fixtureAsset}`)).toBe(3);
-    expect(await rows(db, `select x.label_text from specialization.diagram_labels x ${fixtureAsset}`)).toEqual([{ label_text: "Front side" }]);
+    expect(await readDrawing(drawing.key, drawing.version)).toEqual(sameDrawing(redrawn.diagram!));
+    // Redrawn again: every view replaced by a new one in one seed, its paths keeping their ids.
+    const moved: SpecializationRegionData = {
+      ...deltoidRegionData,
+      diagram: { ...drawing, viewOrder: [{ id: "top", label: "From above" }], views: { top: { surface: { paths: drawing.views.front!.surface!.paths, labels: [] } } } },
+    };
+    expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, moved])))).toBeNull();
+    expect(await readDrawing(drawing.key, drawing.version)).toEqual(sameDrawing(moved.diagram!));
+    expect(await scriptFailure(db, emitSeedSql(both))).toBeNull();
+    expect(await readDrawing(drawing.key, drawing.version)).toEqual(sameDrawing(drawing));
   });
 
   it("cleans a draft version and draft claims of what the content no longer has: mappings, mapping sources, node actions, claim sources", async () => {
@@ -423,16 +479,16 @@ describe("a draft region's claims are the content's", () => {
 describe("diagram views and layers are the drawing's own", () => {
   it("seeds a drawing seen from the front, side and rear, on a layer of its own name, with no schema change", async () => {
     const drawing = deltoidRegionData.diagram!;
-    const surface = drawing.views.back!.surface!;
-    const views = Object.fromEntries(
-      ["front", "side", "rear"].map((view) => [view, { superficial: { paths: surface.paths.map((path) => ({ ...path, id: path.id.replace(/^back__surface__/, `${view}__superficial__`) })), labels: surface.labels } }]),
-    );
+    // The fixture's own views, moved to a layer the forearm never uses.
+    const views = Object.fromEntries(drawing.viewOrder.map(({ id }) => [id, { superficial: drawing.views[id]!.surface! }]));
     const redrawn = { ...deltoidRegionData, diagram: { ...drawing, version: 2, views: views as unknown as typeof drawing.views } };
     expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, redrawn])))).toBeNull();
     const asset = "join specialization.diagram_assets a on a.id = x.asset_id where a.asset_key = $1 and a.version = 2 group by 1, 2 order by 1, 2";
     const per = (table: string) => rows(db, `select x.view, x.layer, count(*)::int as n from specialization.${table} x ${asset}`, [drawing.key]);
-    expect(await per("diagram_paths")).toEqual(["front", "rear", "side"].map((view) => ({ view, layer: "superficial", n: surface.paths.length })));
-    expect(await per("diagram_labels")).toEqual(["front", "rear", "side"].map((view) => ({ view, layer: "superficial", n: surface.labels.length })));
+    expect(await per("diagram_paths")).toEqual(["front", "rear", "side"].map((view) => ({ view, layer: "superficial", n: drawing.views[view]!.surface!.paths.length })));
+    expect(await per("diagram_labels")).toEqual(["front", "rear", "side"].map((view) => ({ view, layer: "superficial", n: drawing.views[view]!.surface!.labels.length })));
+    expect(await rows(db, "select x.view, x.label from specialization.diagram_views x join specialization.diagram_assets a on a.id = x.asset_id where a.asset_key = $1 and a.version = 2 order by x.sort_order", [drawing.key]))
+      .toEqual([{ view: "front", label: "Front" }, { view: "side", label: "Side" }, { view: "rear", label: "Rear" }]);
   });
 });
 
@@ -440,8 +496,27 @@ describe("the emitter refuses content it cannot seed faithfully", () => {
   it("a view or layer id the schema would refuse", () => {
     const drawing = deltoidRegionData.diagram!;
     const withViews = (views: unknown) => emitSeedSql(withRegions([forearmRegionData, { ...deltoidRegionData, diagram: { ...drawing, views: views as typeof drawing.views } }]));
-    expect(() => withViews({ "Front view": drawing.views.back })).toThrow(/view id "Front view" must be lowercase letters/);
-    expect(() => withViews({ front: { "Deep-1": drawing.views.back!.surface } })).toThrow(/layer id "Deep-1" in view front must be lowercase letters/);
+    expect(() => withViews({ "Front view": drawing.views.front })).toThrow(/view id "Front view" must be lowercase letters/);
+    expect(() => withViews({ front: { "Deep-1": drawing.views.front!.surface } })).toThrow(/layer id "Deep-1" in view front must be lowercase letters/);
+  });
+
+  it("a view order that is not exactly the views drawn, or a view without the words for its button", () => {
+    const drawing = deltoidRegionData.diagram!;
+    const withOrder = (viewOrder: unknown) => emitSeedSql(withRegions([forearmRegionData, { ...deltoidRegionData, diagram: { ...drawing, viewOrder: viewOrder as typeof drawing.viewOrder } }]));
+    const [front, side, rear] = drawing.viewOrder;
+    expect(() => withOrder([front, side])).toThrow(/viewOrder lists front, side but the drawing has front, rear, side/);
+    expect(() => withOrder([front, side, rear, { id: "top", label: "Top" }])).toThrow(/viewOrder lists front, rear, side, top but the drawing has front, rear, side/);
+    expect(() => withOrder([front, side, rear, front])).toThrow(/Duplicate view in diagram deltoid-fixture front/);
+    expect(() => withOrder([front, { ...side, label: " " }, rear])).toThrow(/view side needs the words for its button/);
+    expect(() => withOrder([front, { ...side, id: "Side" }, rear])).toThrow(/view id "Side" in viewOrder must be lowercase letters/);
+  });
+
+  it("a region without its page words, or offering a measure twice", () => {
+    const region = deltoidRegionData.region;
+    const withRegion = (patch: Partial<typeof region>) => emitSeedSql(withRegions([forearmRegionData, { ...deltoidRegionData, region: { ...region, ...patch } }]));
+    expect(() => withRegion({ wording: { ...region.wording, incidentalWork: "  " } })).toThrow(/Region deltoid: wording\.incidentalWork must be text/);
+    expect(() => withRegion({ wording: undefined as unknown as typeof region.wording })).toThrow(/Region deltoid has no wording/);
+    expect(() => withRegion({ measurementMetrics: ["circumference_cm", "circumference_cm"] })).toThrow(/Duplicate measurement metric in region deltoid circumference_cm/);
   });
 
   it("a shared key that means two different things", () => {

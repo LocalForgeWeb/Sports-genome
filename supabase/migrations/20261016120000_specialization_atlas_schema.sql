@@ -75,6 +75,8 @@ comment on schema specialization is
 
 -- `reference` regions are named only because another region's nodes point into them
 -- (the upper arm, for the biceps and brachialis a curl also loads); they have no page.
+-- A region with a page also carries the page's words for it (RegionWording in types.ts) and
+-- the measures its Progress offers, so a second region needs rows, not code or a new column.
 create table if not exists specialization.regions (
   id text primary key check (id ~ '^[a-z][a-z0-9_]*$'),
   label text not null check (btrim(label) <> ''),
@@ -85,7 +87,18 @@ create table if not exists specialization.regions (
   entry_label text,
   -- A body-map key that names exactly one of the region's muscles: {"brachioradialis": "forearm.br"}.
   node_for_body_map_key jsonb not null default '{}'::jsonb check (jsonb_typeof(node_for_body_map_key) = 'object'),
-  constraint regions_page_copy check (status = 'reference' or (heading is not null and entry_label is not null))
+  -- The list heading over another region's muscles credited here: 'Upper-arm muscles credited here'.
+  external_group text check (btrim(external_group) <> ''),
+  -- The kind of incidental work on the muscle bars and their key: 'grip' ('Incidental grip', '3 grip').
+  incidental_work text check (btrim(incidental_work) <> ''),
+  -- The line under Progress: 'Circumference and grip, by arm'.
+  progress_subtitle text check (btrim(progress_subtitle) <> ''),
+  -- The measures Progress offers, in order, from the measurements table's own list.
+  measurement_metrics text[] not null default '{}' check (measurement_metrics <@ array['circumference_cm', 'grip_force_n']::text[]),
+  constraint regions_page_copy check (
+    status = 'reference'
+    or (heading is not null and entry_label is not null and external_group is not null and incidental_work is not null and progress_subtitle is not null)
+  )
 );
 
 create table if not exists specialization.actions (
@@ -186,11 +199,22 @@ create table if not exists specialization.diagram_assets (
   unique (asset_key, version)
 );
 
+-- A drawing's views (DiagramAsset.viewOrder): its own ids, in the order the page offers them,
+-- with the words on their buttons (the forearm: Palm, Back, Thumb side; another region's might
+-- be Front, Side, Rear). The CHECK fixes an id's shape, not a list, so a region drawn from other
+-- sides is a data addition, not a schema change. Paths and labels name a view of their own
+-- asset by foreign key, so nothing is drawn in a view the drawing does not declare.
+create table if not exists specialization.diagram_views (
+  asset_id uuid not null references specialization.diagram_assets (id) on delete cascade,
+  view text not null check (view ~ '^[a-z][a-z0-9_]*$'),
+  label text not null check (btrim(label) <> ''),
+  sort_order integer not null,
+  primary key (asset_id, view)
+);
+
 -- Only belly paths are selectable and painted with exposure, so a belly must name its node;
 -- a tendon or ghost may name one for the selection outline, structure names none.
--- View and layer ids are the drawing's own (the forearm's palm, back and thumb side;
--- surface, intermediate and deep), so the CHECK fixes their shape, not a list: a region
--- drawn from the front, side and rear is a data addition, not a schema change.
+-- Layer ids are the drawing's own too (surface, intermediate, deep), checked for their shape.
 create table if not exists specialization.diagram_paths (
   asset_id uuid not null references specialization.diagram_assets (id) on delete cascade,
   path_id text not null,
@@ -201,7 +225,8 @@ create table if not exists specialization.diagram_paths (
   d text not null,
   sort_order integer not null,
   primary key (asset_id, path_id),
-  constraint diagram_paths_belly_has_node check (kind <> 'belly' or node_id is not null)
+  constraint diagram_paths_belly_has_node check (kind <> 'belly' or node_id is not null),
+  constraint diagram_paths_view_declared foreign key (asset_id, view) references specialization.diagram_views (asset_id, view)
 );
 
 create table if not exists specialization.diagram_labels (
@@ -213,7 +238,8 @@ create table if not exists specialization.diagram_labels (
   x numeric not null,
   y numeric not null,
   anchor text not null check (anchor in ('start', 'middle', 'end')),
-  primary key (asset_id, view, layer, sort_order)
+  primary key (asset_id, view, layer, sort_order),
+  constraint diagram_labels_view_declared foreign key (asset_id, view) references specialization.diagram_views (asset_id, view)
 );
 
 -- ---------------------------------------------------------------------------
@@ -1082,14 +1108,14 @@ declare
 begin
   foreach t in array array[
     'regions', 'actions', 'nodes', 'sources', 'claims', 'claim_sources', 'node_actions',
-    'diagram_assets', 'diagram_paths', 'diagram_labels', 'catalog_exercises', 'exercise_variants',
+    'diagram_assets', 'diagram_views', 'diagram_paths', 'diagram_labels', 'catalog_exercises', 'exercise_variants',
     'mapping_versions', 'variant_mappings', 'mapping_sources', 'rule_versions', 'goals', 'measurements'
   ] loop
     execute format('alter table specialization.%I enable row level security', t);
   end loop;
 
   -- Reference rows with nothing unreviewed about them.
-  foreach t in array array['actions', 'sources', 'diagram_assets', 'diagram_paths', 'diagram_labels', 'catalog_exercises', 'exercise_variants'] loop
+  foreach t in array array['actions', 'sources', 'diagram_assets', 'diagram_views', 'diagram_paths', 'diagram_labels', 'catalog_exercises', 'exercise_variants'] loop
     execute format('drop policy if exists %I on specialization.%I', t || '_read', t);
     execute format('create policy %I on specialization.%I for select to authenticated using (true)', t || '_read', t);
   end loop;
@@ -1191,7 +1217,7 @@ grant usage on schema specialization to authenticated, service_role;
 grant select on
   specialization.regions, specialization.actions, specialization.nodes, specialization.sources,
   specialization.claims, specialization.claim_sources, specialization.node_actions,
-  specialization.diagram_assets, specialization.diagram_paths, specialization.diagram_labels,
+  specialization.diagram_assets, specialization.diagram_views, specialization.diagram_paths, specialization.diagram_labels,
   specialization.catalog_exercises, specialization.exercise_variants,
   specialization.mapping_versions, specialization.variant_mappings, specialization.mapping_sources,
   specialization.rule_versions

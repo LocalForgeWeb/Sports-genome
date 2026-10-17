@@ -9,8 +9,8 @@
 -- Applies after 20261016120000_specialization_atlas_schema.sql, and can be applied again:
 -- every write is an upsert keyed by the content's own keys that skips unchanged rows, and
 -- the sets the content owns (a version's mappings and their sources, a region's claims with
--- their sources and node actions, a drawing's paths and labels) lose the rows the content
--- no longer has. A published mapping or rule version is immutable, and so is what a
+-- their sources and node actions, a drawing's views, paths and labels) lose the rows the
+-- content no longer has. A published mapping or rule version is immutable, and so is what a
 -- published version rests on (its variants, node actions, reviewed claims and their
 -- sources, cited sources), so a change or removal under such a key is refused here and
 -- nothing of this file is applied; give the change new keys and a new version. See
@@ -20,11 +20,11 @@
 -- versions are deliberately undeletable row by row.
 
 -- Regions (reference regions only hold another region's external contributors)
-insert into specialization.regions as t (id, label, heading, sort_order, status, body_map_keys, entry_label, node_for_body_map_key) values
-  ($$forearm$$, $$Forearms$$, $$Forearm specialization$$, 10, $$production$$, array[$$forearms$$, $$brachioradialis$$], $$Explore forearm coverage$$, $${"brachioradialis":"forearm.br"}$$::jsonb),
-  ($$upper_arm$$, $$Upper arm$$, null, 0, $$reference$$, array[]::text[], null, $${}$$::jsonb)
-on conflict (id) do update set label = excluded.label, heading = excluded.heading, sort_order = excluded.sort_order, status = excluded.status, body_map_keys = excluded.body_map_keys, entry_label = excluded.entry_label, node_for_body_map_key = excluded.node_for_body_map_key
-  where (t.label, t.heading, t.sort_order, t.status, t.body_map_keys, t.entry_label, t.node_for_body_map_key) is distinct from (excluded.label, excluded.heading, excluded.sort_order, excluded.status, excluded.body_map_keys, excluded.entry_label, excluded.node_for_body_map_key);
+insert into specialization.regions as t (id, label, heading, sort_order, status, body_map_keys, entry_label, node_for_body_map_key, external_group, incidental_work, progress_subtitle, measurement_metrics) values
+  ($$forearm$$, $$Forearms$$, $$Forearm specialization$$, 10, $$production$$, array[$$forearms$$, $$brachioradialis$$], $$Explore forearm coverage$$, $${"brachioradialis":"forearm.br"}$$::jsonb, $$Upper-arm muscles credited here$$, $$grip$$, $$Circumference and grip, by arm$$, array[$$circumference_cm$$, $$grip_force_n$$]),
+  ($$upper_arm$$, $$Upper arm$$, null, 0, $$reference$$, array[]::text[], null, $${}$$::jsonb, null, null, null, array[]::text[])
+on conflict (id) do update set label = excluded.label, heading = excluded.heading, sort_order = excluded.sort_order, status = excluded.status, body_map_keys = excluded.body_map_keys, entry_label = excluded.entry_label, node_for_body_map_key = excluded.node_for_body_map_key, external_group = excluded.external_group, incidental_work = excluded.incidental_work, progress_subtitle = excluded.progress_subtitle, measurement_metrics = excluded.measurement_metrics
+  where (t.label, t.heading, t.sort_order, t.status, t.body_map_keys, t.entry_label, t.node_for_body_map_key, t.external_group, t.incidental_work, t.progress_subtitle, t.measurement_metrics) is distinct from (excluded.label, excluded.heading, excluded.sort_order, excluded.status, excluded.body_map_keys, excluded.entry_label, excluded.node_for_body_map_key, excluded.external_group, excluded.incidental_work, excluded.progress_subtitle, excluded.measurement_metrics);
 
 -- Joint actions
 insert into specialization.actions as t (id, joint, label, plain_description, sort_order) values
@@ -634,6 +634,18 @@ delete from specialization.diagram_paths p using specialization.diagram_assets a
 delete from specialization.diagram_labels l using specialization.diagram_assets a
   where l.asset_id = a.id and a.asset_key = $$forearm_schematic$$ and a.version = 1 and (l.view, l.layer, l.sort_order) not in (values ($$back$$, $$deep$$, 0), ($$back$$, $$deep$$, 1), ($$back$$, $$deep$$, 2), ($$back$$, $$deep$$, 3), ($$back$$, $$surface$$, 0), ($$back$$, $$surface$$, 1), ($$back$$, $$surface$$, 2), ($$back$$, $$surface$$, 3), ($$palm$$, $$deep$$, 0), ($$palm$$, $$deep$$, 1), ($$palm$$, $$deep$$, 2), ($$palm$$, $$deep$$, 3), ($$palm$$, $$intermediate$$, 0), ($$palm$$, $$intermediate$$, 1), ($$palm$$, $$intermediate$$, 2), ($$palm$$, $$intermediate$$, 3), ($$palm$$, $$surface$$, 0), ($$palm$$, $$surface$$, 1), ($$palm$$, $$surface$$, 2), ($$palm$$, $$surface$$, 3), ($$thumb$$, $$deep$$, 0), ($$thumb$$, $$deep$$, 1), ($$thumb$$, $$deep$$, 2), ($$thumb$$, $$deep$$, 3), ($$thumb$$, $$surface$$, 0), ($$thumb$$, $$surface$$, 1), ($$thumb$$, $$surface$$, 2), ($$thumb$$, $$surface$$, 3));
 
+-- Diagram views (the page's order and the words on its buttons)
+insert into specialization.diagram_views as t (asset_id, view, label, sort_order)
+select a.id, x.view, x.label, x.sort_order
+from (values
+  ($$forearm_schematic$$, 1, $$palm$$, $$Palm$$, 0),
+  ($$forearm_schematic$$, 1, $$back$$, $$Back$$, 1),
+  ($$forearm_schematic$$, 1, $$thumb$$, $$Thumb side$$, 2)
+) as x (asset_key, version, view, label, sort_order)
+left join specialization.diagram_assets a on a.asset_key = x.asset_key and a.version = x.version
+on conflict (asset_id, view) do update set label = excluded.label, sort_order = excluded.sort_order
+  where (t.label, t.sort_order) is distinct from (excluded.label, excluded.sort_order);
+
 -- Diagram paths (draw order is sort_order within a view and layer)
 insert into specialization.diagram_paths as t (asset_id, path_id, view, layer, kind, node_id, d, sort_order)
 select a.id, x.path_id, x.view, x.layer, x.kind, x.node_id, x.d, x.sort_order
@@ -806,6 +818,10 @@ from (values
 left join specialization.diagram_assets a on a.asset_key = x.asset_key and a.version = x.version
 on conflict (asset_id, view, layer, sort_order) do update set label_text = excluded.label_text, x = excluded.x, y = excluded.y, anchor = excluded.anchor
   where (t.label_text, t.x, t.y, t.anchor) is distinct from (excluded.label_text, excluded.x, excluded.y, excluded.anchor);
+
+-- Diagram views no longer in the drawing (after its paths and labels have left them)
+delete from specialization.diagram_views v using specialization.diagram_assets a
+  where v.asset_id = a.id and a.asset_key = $$forearm_schematic$$ and a.version = 1 and v.view <> all (array[$$palm$$, $$back$$, $$thumb$$]);
 
 -- Catalog exercises the variants use. supabase_exercise_id: the public.exercises row with this catalog id under LocalForgeWeb/Sports-genome, else the one canonical_name ending __catalog_<id>, else null (not there yet)
 insert into specialization.catalog_exercises as t (catalog_id, name, supabase_exercise_id)

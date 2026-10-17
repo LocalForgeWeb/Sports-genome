@@ -9,6 +9,12 @@ import type { AnatomyNode, ExerciseVariant, SpecializationRegionData, VariantMap
  * The exercises are real catalog rows, checked by test against the catalog:
  * 111 Dumbbell Lateral Raise, 101 Barbell Overhead Press, 90 Bent-Over Rear-Delt Fly and
  * 93 Single-Arm Cable Rear-Delt Fly.
+ *
+ * It is a second region in full: its own small drawing from the front, the side and the rear
+ * (Front · Side · Rear, the lateral head drawn from the side), its own page wording, and
+ * circumference as its only measure. The page renders it with no deltoid code
+ * (SpecializationPanel.deltoid.render.test.ts) and the seed loads it with no schema change
+ * (server/specializationSeed.test.ts).
  */
 
 const REGION = "deltoid";
@@ -83,7 +89,18 @@ const mapping = (id: string, variantId: string, nodeId: string, actionId: string
 });
 
 export const deltoidRegionData: SpecializationRegionData = {
-  region: { id: REGION, label: "Deltoids", heading: "Deltoid specialization", sortOrder: 90, status: "fixture", bodyMapKeys: ["frontDelts", "sideDelts", "rearDelts"], entryLabel: "Explore deltoid coverage" },
+  region: {
+    id: REGION,
+    label: "Deltoids",
+    heading: "Deltoid specialization",
+    sortOrder: 90,
+    status: "fixture",
+    bodyMapKeys: ["frontDelts", "sideDelts", "rearDelts"],
+    entryLabel: "Explore deltoid coverage",
+    // Its own words, so a test can tell them from the forearm's.
+    wording: { externalGroup: "Other muscles credited here", incidentalWork: "bracing", progressSubtitle: "Circumference, by arm" },
+    measurementMetrics: ["circumference_cm"],
+  },
   nodes: [
     head(deltoidIds.anterior, "Anterior deltoid", "AD", "frontDelts", "Front of the shoulder"),
     head(deltoidIds.lateral, "Lateral deltoid", "LD", "sideDelts", "Outside of the shoulder"),
@@ -135,17 +152,40 @@ export const deltoidRegionData: SpecializationRegionData = {
     version: 1,
     regionId: REGION,
     viewBox: { width: 120, height: 80 },
-    // The view ids are the shared diagram vocabulary; "back" is the posterior view here.
+    // Its own views, in its own words: nothing in the page or the renderer knows these ids.
+    viewOrder: [{ id: "front", label: "Front" }, { id: "side", label: "Side" }, { id: "rear", label: "Rear" }],
+    // The subject's right shoulder. From the front its outer edge is on the viewer's left; from
+    // the side the subject faces right; from behind the outer edge is on the viewer's right.
     views: {
-      back: {
+      front: {
         surface: {
           paths: [
-            { id: "back__surface__skin__1", nodeId: null, kind: "skin", d: "M10 70 Q60 0 110 70 Z" },
-            { id: "back__surface__AD__1", nodeId: deltoidIds.anterior, kind: "belly", d: "M20 60 Q30 30 45 25 L45 60 Z" },
-            { id: "back__surface__LD__1", nodeId: deltoidIds.lateral, kind: "belly", d: "M45 25 Q60 15 75 25 L75 60 L45 60 Z" },
-            { id: "back__surface__PD__1", nodeId: deltoidIds.posterior, kind: "belly", d: "M75 25 Q90 30 100 60 L75 60 Z" },
+            { id: "front__surface__skin__1", nodeId: null, kind: "skin", d: "M10 72 Q20 10 60 10 Q100 10 110 72 Z" },
+            { id: "front__surface__ld__1", nodeId: deltoidIds.lateral, kind: "belly", d: "M14 64 Q20 26 34 18 L40 60 Z" },
+            { id: "front__surface__ad__1", nodeId: deltoidIds.anterior, kind: "belly", d: "M34 18 Q60 10 84 22 L72 62 L40 60 Z" },
           ],
-          labels: [{ text: "Front", x: 20, y: 76, anchor: "start" }, { text: "Back", x: 100, y: 76, anchor: "end" }],
+          labels: [{ text: "Outside", x: 4, y: 77, anchor: "start" }, { text: "Chest", x: 116, y: 77, anchor: "end" }],
+        },
+      },
+      side: {
+        surface: {
+          paths: [
+            { id: "side__surface__skin__1", nodeId: null, kind: "skin", d: "M10 70 Q60 0 110 70 Z" },
+            { id: "side__surface__pd__1", nodeId: deltoidIds.posterior, kind: "belly", d: "M20 60 Q30 30 45 25 L45 60 Z" },
+            { id: "side__surface__ld__1", nodeId: deltoidIds.lateral, kind: "belly", d: "M45 25 Q60 15 75 25 L75 60 L45 60 Z" },
+            { id: "side__surface__ad__1", nodeId: deltoidIds.anterior, kind: "belly", d: "M75 25 Q90 30 100 60 L75 60 Z" },
+          ],
+          labels: [{ text: "Back", x: 4, y: 77, anchor: "start" }, { text: "Front", x: 116, y: 77, anchor: "end" }],
+        },
+      },
+      rear: {
+        surface: {
+          paths: [
+            { id: "rear__surface__skin__1", nodeId: null, kind: "skin", d: "M10 72 Q20 10 60 10 Q100 10 110 72 Z" },
+            { id: "rear__surface__pd__1", nodeId: deltoidIds.posterior, kind: "belly", d: "M36 22 Q60 10 86 18 L80 60 L48 62 Z" },
+            { id: "rear__surface__ld__1", nodeId: deltoidIds.lateral, kind: "belly", d: "M86 18 Q100 26 106 64 L80 60 Z" },
+          ],
+          labels: [{ text: "Spine", x: 4, y: 77, anchor: "start" }, { text: "Outside", x: 116, y: 77, anchor: "end" }],
         },
       },
     },

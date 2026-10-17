@@ -22,7 +22,12 @@ export type SpecializationViewState = {
   from: string | null;
   to: string | null;
   mode: SummaryMode;
-  view: DiagramViewId;
+  /**
+   * The drawing's view, by its own id (`front`, `palm`). Null is the drawing's first view, the
+   * one the page opens on; the address names a view only when another one is chosen, and the
+   * page falls back to the first view when the drawing has no view by that id.
+   */
+  view: DiagramViewId | null;
   layer: DiagramLayerId;
   map: SpecializationMapMode;
   /** The plan week planned exposure reads; null = the week Home trains from. */
@@ -31,13 +36,14 @@ export type SpecializationViewState = {
 
 export const specializationParamNames = ["region", "node", "limb", "window", "from", "to", "mode", "view", "layer", "map", "pweek"] as const;
 
-const VIEWS: readonly DiagramViewId[] = ["palm", "back", "thumb"];
+/** A view id's shape (the database checks the same): which views exist is the drawing's business. */
+const VIEW_ID = /^[a-z][a-z0-9_]*$/;
 const LAYERS: readonly DiagramLayerId[] = ["surface", "intermediate", "deep"];
 /** The last date a custom window may end on: a day after it has no next day to end at. */
 const LAST_DATE = "9999-12-30";
 
 export function defaultSpecializationState(regionId: RegionId): SpecializationViewState {
-  return { regionId, nodeId: null, limb: "right", window: "week", from: null, to: null, mode: "completed", view: "palm", layer: "surface", map: "volume", planWeek: null };
+  return { regionId, nodeId: null, limb: "right", window: "week", from: null, to: null, mode: "completed", view: null, layer: "surface", map: "volume", planWeek: null };
 }
 
 /** Reads the page state from a URL, falling back field by field to the defaults. */
@@ -64,7 +70,7 @@ export function specializationStateFromParams(params: URLSearchParams, defaultRe
     from: custom ? from : null,
     to: custom ? to : null,
     mode: mode === "planned" || mode === "completed" ? mode : base.mode,
-    view: VIEWS.includes(view as DiagramViewId) ? (view as DiagramViewId) : base.view,
+    view: view && VIEW_ID.test(view) ? view : base.view,
     layer: LAYERS.includes(layer as DiagramLayerId) ? (layer as DiagramLayerId) : base.layer,
     map: map === "target" ? "target" : "volume",
     planWeek: Number.isInteger(planWeek) && planWeek > 0 ? planWeek : null,
@@ -81,7 +87,7 @@ export function writeSpecializationParams(params: URLSearchParams, state: Specia
   if (state.window !== "week") params.set("window", state.window);
   if (state.window === "custom" && state.from && state.to) { params.set("from", state.from); params.set("to", state.to); }
   if (state.mode !== base.mode) params.set("mode", state.mode);
-  if (state.view !== base.view) params.set("view", state.view);
+  if (state.view) params.set("view", state.view);
   if (state.layer !== base.layer) params.set("layer", state.layer);
   if (state.map !== base.map) params.set("map", state.map);
   if (state.planWeek !== null) params.set("pweek", String(state.planWeek));

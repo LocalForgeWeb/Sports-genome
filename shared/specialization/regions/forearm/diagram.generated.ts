@@ -13,6 +13,7 @@ export const forearmDiagram: DiagramAsset = {
   version: 1,
   regionId: "forearm",
   viewBox: { width: 360, height: 760 },
+  viewOrder: [{ id: "palm", label: "Palm" }, { id: "back", label: "Back" }, { id: "thumb", label: "Thumb side" }],
   views: {
     palm: {
       surface: {

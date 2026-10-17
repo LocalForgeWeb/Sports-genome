@@ -19,7 +19,7 @@ describe("specialization view state in the URL (brief §6: persist region, muscl
   });
 
   it("falls back field by field instead of trusting a hand-edited URL", () => {
-    const params = new URLSearchParams("region=calves&limb=up&window=custom&from=2026-10-20&to=2026-10-01&view=side&layer=bones&pweek=-1&map=x");
+    const params = new URLSearchParams("region=calves&limb=up&window=custom&from=2026-10-20&to=2026-10-01&view=Side%20view&layer=bones&pweek=-1&map=x");
     expect(specializationStateFromParams(params, "forearm", regions)).toEqual(defaultSpecializationState("forearm"));
   });
 
@@ -27,6 +27,31 @@ describe("specialization view state in the URL (brief §6: persist region, muscl
     const params = new URLSearchParams("workspace=catalog&muscle=forearms&node=forearm.fcu&limb=left&mode=planned");
     clearSpecializationParams(params);
     expect(params.toString()).toBe("workspace=catalog&muscle=forearms");
+  });
+});
+
+describe("the view is the drawing's own id", () => {
+  const read = (query: string) => specializationStateFromParams(new URLSearchParams(query), "forearm", regions);
+
+  it("opens on the drawing's first view: no view in the state, none in the address", () => {
+    expect(defaultSpecializationState("forearm").view).toBeNull();
+    expect(defaultSpecializationState("deltoid").view).toBeNull();
+    expect(read("region=forearm").view).toBeNull();
+  });
+
+  it("keeps any well-formed id, the forearm's or another region's, and leaves it to the page to know which views exist", () => {
+    for (const view of ["palm", "back", "thumb", "front", "side", "rear", "lateral_2"]) expect(read(`region=deltoid&view=${view}`).view, view).toBe(view);
+  });
+
+  it("drops an id of the wrong shape, as the database would refuse it", () => {
+    for (const view of ["", "Front", "front view", "2nd", "front-left", "palm;"]) expect(read(`view=${encodeURIComponent(view)}`).view, JSON.stringify(view)).toBeNull();
+  });
+
+  it("writes a view only when one is chosen, and reads it back", () => {
+    const params = new URLSearchParams();
+    writeSpecializationParams(params, { ...defaultSpecializationState("deltoid"), view: "rear" });
+    expect(params.toString()).toBe("region=deltoid&view=rear");
+    expect(specializationStateFromParams(params, "forearm", regions).view).toBe("rear");
   });
 });
 

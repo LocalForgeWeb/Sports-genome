@@ -307,10 +307,13 @@ const placementCache = new WeakMap<readonly DiagramPath[], Map<string, DrawnNode
 
 export type Placement = { view: DiagramViewId; layer: DiagramLayerId };
 
-/** Every view and layer in which a node is drawn as a belly (where to find a muscle that is not on screen). */
+/**
+ * Every view and layer in which a node is drawn as a belly (where to find a muscle that is not
+ * on screen), in the drawing's own view order, then surface to deep.
+ */
 export function placementsOf(asset: DiagramAsset, nodeId: string, kind: DiagramPath["kind"] = "belly"): Placement[] {
   const out: Placement[] = [];
-  for (const view of ["palm", "back", "thumb"] as const) {
+  for (const { id: view } of asset.viewOrder) {
     for (const layer of ["surface", "intermediate", "deep"] as const) {
       if (asset.views[view]?.[layer]?.paths.some((path) => path.nodeId === nodeId && path.kind === kind)) out.push({ view, layer });
     }

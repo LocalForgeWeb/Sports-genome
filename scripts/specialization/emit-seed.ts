@@ -26,7 +26,7 @@
  * - Sets the content owns end up exactly as the content has them: a mapping version's
  *   mappings and their sources; the claims of the regions in the seed (claim keys carry
  *   the region), with their sources and the node actions resting on them; a diagram asset
- *   version's paths and labels. Rows the content no longer has are deleted before the
+ *   version's views, paths and labels. Rows the content no longer has are deleted before the
  *   upserts, so a removal under a published version is refused like any other change,
  *   and a draft is cleaned.
  * - It never deletes the records others point at: regions, nodes (goals may point at
@@ -261,6 +261,12 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
     const sourceIds = new Set(data.sources.map((source) => source.id));
     const variantIds = new Set(data.variants.map((variant) => variant.id));
     const claimById = new Map(data.claims.map((claim) => [claim.id, claim]));
+    // The page's words and measures for the region are its data, like its heading.
+    if (!data.region.wording) throw new Error(`Region ${data.region.id} has no wording`);
+    for (const [field, text] of Object.entries(data.region.wording)) {
+      if (typeof text !== "string" || !text.trim()) throw new Error(`Region ${data.region.id}: wording.${field} must be text`);
+    }
+    assertUnique(`measurement metric in ${where}`, data.region.measurementMetrics);
     for (const node of data.nodes) {
       if (node.regionId !== data.region.id && !(node.regionId in input.referenceRegionLabels)) {
         throw new Error(`Node ${node.id} lives in region ${node.regionId}, which is neither ${data.region.id} nor a labelled reference region`);
@@ -326,12 +332,15 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
     "Regions (reference regions only hold another region's external contributors)",
     upsertValues(
       "regions",
-      ["id", "label", "heading", "sort_order", "status", "body_map_keys", "entry_label", "node_for_body_map_key"],
+      ["id", "label", "heading", "sort_order", "status", "body_map_keys", "entry_label", "node_for_body_map_key", "external_group", "incidental_work", "progress_subtitle", "measurement_metrics"],
       ["id"],
       [...regionRows.values()].sort((a, b) => byKey(a.id, b.id)).map((region) =>
         "reference" in region
-          ? [region.id, region.label, null, 0, "reference", [], null, { jsonb: {} }]
-          : [region.id, region.label, region.heading, region.sortOrder, region.status, [...region.bodyMapKeys], region.entryLabel, { jsonb: region.nodeForBodyMapKey ?? {} }],
+          ? [region.id, region.label, null, 0, "reference", [], null, { jsonb: {} }, null, null, null, []]
+          : [
+            region.id, region.label, region.heading, region.sortOrder, region.status, [...region.bodyMapKeys], region.entryLabel, { jsonb: region.nodeForBodyMapKey ?? {} },
+            region.wording.externalGroup, region.wording.incidentalWork, region.wording.progressSubtitle, [...region.measurementMetrics],
+          ],
       ),
     ),
   );
@@ -435,7 +444,9 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
   );
 
   // Diagrams: optional per region (null until drawn). A seeded asset version holds exactly
-  // the seeded paths and labels: stale ones are deleted, the rest upserted.
+  // the seeded views, paths and labels: stale ones are deleted, the rest upserted. Paths and
+  // labels name a declared view by foreign key, so views are written before them and stale
+  // views deleted after them (a path may move to a new view in the same seed).
   const diagrams = regions.map((data) => data.diagram).filter((diagram): diagram is NonNullable<typeof diagram> => diagram !== null);
   assertUnique("diagram asset", diagrams.map((diagram) => `${diagram.key} v${diagram.version}`));
   if (!diagrams.length) {
@@ -451,6 +462,7 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
         sorted.map((diagram) => [diagram.regionId, diagram.key, diagram.version, diagram.viewBox.width, diagram.viewBox.height, diagram.licenseNote]),
       ),
     );
+    const viewRows: Value[][] = [];
     const pathRows: Value[][] = [];
     const labelRows: Value[][] = [];
     for (const diagram of sorted) {
@@ -461,6 +473,19 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
       for (const { view, layer } of drawing) {
         if (!DIAGRAM_ID.test(view)) throw new Error(`Diagram ${diagram.key}: view id ${JSON.stringify(view)} must be lowercase letters, digits and underscores, starting with a letter`);
         if (!DIAGRAM_ID.test(layer)) throw new Error(`Diagram ${diagram.key}: layer id ${JSON.stringify(layer)} in view ${view} must be lowercase letters, digits and underscores, starting with a letter`);
+      }
+      // The views in the page's order with their button words: exactly the views drawn.
+      const order = diagram.viewOrder ?? [];
+      assertUnique(`view in diagram ${diagram.key}`, order.map((view) => view.id));
+      order.forEach((view, index) => {
+        if (!DIAGRAM_ID.test(view.id)) throw new Error(`Diagram ${diagram.key}: view id ${JSON.stringify(view.id)} in viewOrder must be lowercase letters, digits and underscores, starting with a letter`);
+        if (typeof view.label !== "string" || !view.label.trim()) throw new Error(`Diagram ${diagram.key}: view ${view.id} needs the words for its button`);
+        viewRows.push([diagram.key, diagram.version, view.id, view.label, index]);
+      });
+      const drawnViews = Object.keys(diagram.views).sort(byKey);
+      const listedViews = order.map((view) => view.id).sort(byKey);
+      if (drawnViews.join(" ") !== listedViews.join(" ")) {
+        throw new Error(`Diagram ${diagram.key}: viewOrder lists ${listedViews.join(", ") || "no view"} but the drawing has ${drawnViews.join(", ") || "none"}; list each drawn view once`);
       }
       assertUnique(`path in diagram ${diagram.key}`, drawing.flatMap(({ drawn }) => drawn?.paths.map((path) => path.id) ?? []));
       for (const { view, layer, drawn } of drawing) {
@@ -484,6 +509,18 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
     section("Diagram paths and labels no longer in the drawing", stale.join("\n"));
     const assetJoin = "left join specialization.diagram_assets a on a.asset_key = x.asset_key and a.version = x.version";
     section(
+      "Diagram views (the page's order and the words on its buttons)",
+      upsertSelect({
+        table: "diagram_views",
+        columns: ["asset_id", "view", "label", "sort_order"],
+        select: ["a.id", "x.view", "x.label", "x.sort_order"],
+        valueColumns: ["asset_key", "version", "view", "label", "sort_order"],
+        joins: [assetJoin],
+        conflict: ["asset_id", "view"],
+        rows: viewRows,
+      }),
+    );
+    section(
       "Diagram paths (draw order is sort_order within a view and layer)",
       upsertSelect({
         table: "diagram_paths",
@@ -506,6 +543,13 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
         conflict: ["asset_id", "view", "layer", "sort_order"],
         rows: labelRows,
       }),
+    );
+    section(
+      "Diagram views no longer in the drawing (after its paths and labels have left them)",
+      sorted.map((diagram) => {
+        const views = viewRows.filter((row) => row[0] === diagram.key && row[1] === diagram.version).map((row) => row[2] as string);
+        return `delete from specialization.diagram_views v using specialization.diagram_assets a\n  where v.asset_id = a.id and a.asset_key = ${quote(diagram.key)} and a.version = ${diagram.version} and v.view <> all (${literal(views)});`;
+      }).join("\n"),
     );
   }
 
@@ -652,8 +696,8 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
     "-- Applies after 20261016120000_specialization_atlas_schema.sql, and can be applied again:",
     "-- every write is an upsert keyed by the content's own keys that skips unchanged rows, and",
     "-- the sets the content owns (a version's mappings and their sources, a region's claims with",
-    "-- their sources and node actions, a drawing's paths and labels) lose the rows the content",
-    "-- no longer has. A published mapping or rule version is immutable, and so is what a",
+    "-- their sources and node actions, a drawing's views, paths and labels) lose the rows the",
+    "-- content no longer has. A published mapping or rule version is immutable, and so is what a",
     "-- published version rests on (its variants, node actions, reviewed claims and their",
     "-- sources, cited sources), so a change or removal under such a key is refused here and",
     "-- nothing of this file is applied; give the change new keys and a new version. See",
