@@ -711,10 +711,10 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       const kept = receipt.original ? receipt.original.sets.filter(isCompletedSet).length : 0;
       // Where rows per arm come into it, the count the new exercise got, as the sheet said it.
       const rows = receipt.replacement.sets.length;
-      const countLine = receipt.before.perArm || receipt.replacement.perArm ? ` ${choice.target.name} has ${rows} ${rows === 1 ? "set" : "sets"}${receipt.replacement.perArm ? ", one arm at a time" : ""}.` : "";
+      const count = receipt.before.perArm || receipt.replacement.perArm ? `${rows} ${rows === 1 ? "set" : "sets"}${receipt.replacement.perArm ? ", one arm at a time" : ""}` : "";
       toast(`Swapped to ${choice.target.name}`, {
         id: `swap-${swapId}`,
-        description: `${kept ? `Your ${kept} logged ${kept === 1 ? "set stays" : "sets stay"} with ${fromName}.` : `${choice.target.name} takes ${fromName}'s place.`}${countLine}${planLine}`,
+        description: `${kept ? `Your ${kept} logged ${kept === 1 ? "set stays" : "sets stay"} with ${fromName}.${count ? ` ${choice.target.name} has ${count}.` : ""}` : `${choice.target.name} takes ${fromName}'s place${count ? ` with ${count}` : ""}.`}${planLine}`,
         action: { label: "Undo", onClick: () => undoSwapFrom(receipt, revertPlan) },
       });
     } finally {

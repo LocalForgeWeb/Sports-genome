@@ -73,7 +73,7 @@ describe("Swapping a two-handed exercise for a one-arm one, with the gate", () =
     // Said again beside the confirm, where a phone's scrolled sheet still shows it.
     expect(dialog.querySelector(".swap-logging")!.textContent).toContain(`${oneArmCurl.name} gets 6 sets, one arm at a time.`);
     fireEvent.click(within(dialog).getByRole("button", { name: `Use ${oneArmCurl.name}` }));
-    expect(toasts.at(-1)?.options?.description).toBe(`${oneArmCurl.name} takes Hammer Curl's place. ${oneArmCurl.name} has 6 sets, one arm at a time.`);
+    expect(toasts.at(-1)?.options?.description).toBe(`${oneArmCurl.name} takes Hammer Curl's place with 6 sets, one arm at a time.`);
     expect(stored()[0].exercises[0]).toMatchObject({ exerciseName: oneArmCurl.name, perArm: true, plannedPrescription: "3 × 12" });
     expect(sidesOf(0)).toEqual(["right", "left", "right", "left", "right", "left"]);
     expect(card().querySelector(".live-set-prescription")!.textContent).toBe("Set 1 of 612 reps");
@@ -132,7 +132,7 @@ describe("Swapping a one-arm exercise laid out per arm for a two-handed one", ()
     expect(what(dialog)).toBe(`Nothing is logged for ${oneArmCurl.name} yet, so Hammer Curl takes its place with the same 3 planned sets, not one per arm.`);
     expect(dialog.querySelector(".swap-logging")!.textContent).toContain("Hammer Curl gets 3 sets.");
     fireEvent.click(within(dialog).getByRole("button", { name: "Use Hammer Curl" }));
-    expect(toasts.at(-1)?.options?.description).toBe(`Hammer Curl takes ${oneArmCurl.name}'s place. Hammer Curl has 3 sets.`);
+    expect(toasts.at(-1)?.options?.description).toBe(`Hammer Curl takes ${oneArmCurl.name}'s place with 3 sets.`);
     expect(stored()[0].exercises[0]).not.toHaveProperty("perArm");
     expect(sidesOf(0)).toEqual([null, null, null]);
     expect(document.querySelector(".session-progress strong")!.textContent).toBe("0/3 sets");
