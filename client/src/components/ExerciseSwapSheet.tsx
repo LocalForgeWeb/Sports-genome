@@ -138,12 +138,20 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
     if (perArmFrom) return `the ${moving.moving} one-arm ${moving.moving === 1 ? "set" : "sets"} left as ${setsWord(moving.sets)}, not one per arm`;
     return `the remaining ${eachArm(moving.plannedSets, moving.sets)}`;
   })();
+  /*
+   * An added exercise starts from the anchor's sets and reps, read by its own measure: where that
+   * reading differs (a hold after a rep exercise on the goal's default, or the other way round)
+   * the sheet names what it starts from, since there is no "Logging ..." list when adding.
+   */
+  const startsFrom = selected && incoming && incoming.prescription !== exercise.plannedPrescription ? incoming.prescription : null;
+  const startText = startsFrom ? `from ${startsFrom}` : "from the same sets and reps";
+  const addDetail = added ? `: ${eachArm(added.plannedSets, added.sets)}` : "";
   const what = addOnly
-    ? added && selected
-      ? `${selected.name} goes in straight after ${name}, starting from the same sets and reps: ${eachArm(added.plannedSets, added.sets)}. Nothing logged changes.`
+    ? (added || startsFrom) && selected
+      ? `${selected.name} goes in straight after ${name}, starting ${startText}${addDetail}. Nothing logged changes.`
       : `It goes in straight after ${name}, starting from the same sets and reps. Nothing logged changes.`
     : nothingLeft
-    ? `Every set of ${name} is logged, so there is nothing left to swap. You can add another exercise straight after it instead.${added && selected ? ` ${selected.name} would start from the same sets and reps: ${eachArm(added.plannedSets, added.sets)}.` : ""}`
+    ? `Every set of ${name} is logged, so there is nothing left to swap. You can add another exercise straight after it instead.${(added || startsFrom) && selected ? ` ${selected.name} would start ${startText}${addDetail}.` : ""}`
     : assessment.kind === "replace"
       ? `Nothing is logged for ${name} yet, so ${named && selected ? selected.name : "the exercise you choose"} takes its place with ${takesPlace}.`
       : `Your ${assessment.completedSets} logged ${assessment.completedSets === 1 ? "set stays" : "sets stay"} with ${name}. ${who} takes ${takesRest}.`;

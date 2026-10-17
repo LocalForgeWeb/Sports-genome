@@ -315,7 +315,9 @@ export function swapMeasurementNotes(
   const fromSeconds = measureOf(from) === "seconds";
   const toSeconds = measureOf(to) === "seconds";
   if (fromSeconds !== toSeconds) notes.push(toSeconds ? `${toName} is logged in seconds held, not reps.` : `${toName} is logged in reps, not seconds.`);
-  if (!toSeconds && /\d\s*(s|sec|secs|seconds|min|mins|minutes)\b/i.test(prescription)) notes.push(`The plan's target (${prescription}) is a time; sets here are logged in reps, so set the reps as you go.`);
+  // A hold's default meeting a rep exercise: the plan entry's reps are read again, not "30 sec" as reps.
+  if (!toSeconds && fromSeconds && incomingPrescription !== prescription) notes.push(`${prescription} is ${fromName}'s default as a hold, so ${toName} starts from the goal's: ${incomingPrescription}.`);
+  else if (!toSeconds && /\d\s*(s|sec|secs|seconds|min|mins|minutes)\b/i.test(incomingPrescription)) notes.push(`The plan's target (${incomingPrescription}) is a time; sets here are logged in reps, so set the reps as you go.`);
   // A rep target meeting a hold: the goal's rep default is read as a hold's, and a bare number as seconds.
   if (toSeconds && !fromSeconds && incomingPrescription !== prescription) notes.push(`The plan's ${prescription} is the goal's rep default, so ${toName} starts from a hold's: ${incomingPrescription}.`);
   else if (toSeconds && !fromSeconds && /^\s*\d+\s*(?:×|x)\s*\d[\d\s–—/-]*$/i.test(prescription)) notes.push(`The plan's target (${prescription}) gives no unit; on ${toName} its numbers are seconds.`);

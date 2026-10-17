@@ -236,3 +236,85 @@ describe("A hold swapped in reads its prescription as a hold's", () => {
     expect(card().querySelector(".live-set-prescription strong")!.textContent).toBe("12 sec");
   });
 });
+
+/**
+ * The other way round: a rep exercise swapped or added in place of a hold whose prescription is
+ * the hold's default ("4 × 30 sec", from the goal's "4 × 3–6" or from nothing) starts from the
+ * plan entry's reps, as the sheet's plan line reads them. Never "30 sec" as a rep target.
+ */
+describe("A rep exercise swapped or added in place of a hold reads the plan's reps again", () => {
+  const wristCurl = byId(139);
+  const target = () => card().querySelector(".live-set-prescription strong")!.textContent;
+  function startWith(prescriptions: Record<number, string>, workout: Exercise[] = [deadHang, hammerCurl]) {
+    render(createElement(DeviceWorkoutTracker, { workout, prescriptions, settings: {}, goal: "Athleticism", dayLabel: DAY, weightUnit: "lb", onReplaceInPlan: () => true }));
+    fireEvent.click(screen.getByRole("button", { name: /start workout/i }));
+  }
+
+  it("swaps a hang carrying the goal's pinned default for a curl that starts from the goal's reps, and the sheet agrees with itself", () => {
+    startWith({ [deadHang.id]: getGoalPrescription("Athleticism", 0) });
+    expect(target()).toBe("30 sec");
+    const dialog = openSwap("wrist curl", "Wrist Curl");
+    const text = dialog.textContent ?? "";
+    expect(text).toContain("4 × 30 sec is Dead Hang's default as a hold, so Wrist Curl starts from the goal's: 4 × 3–6.");
+    expect(text).toContain("Its sets and reps (4 × 3–6) stay.");
+    expect(text).not.toContain("is a time");
+    fireEvent.click(within(dialog).getByRole("button", { name: "Use Wrist Curl" }));
+    expect(stored()[0].exercises[0]).toMatchObject({ exerciseName: "Wrist Curl", plannedPrescription: "4 × 3–6" });
+    expect(stored()[0].exercises[0].sets).toHaveLength(4);
+    expect(target()).toBe("3–6 reps");
+  });
+
+  it("does the same for an unset hang, and for a curl added after it", () => {
+    startWith({});
+    const dialog = openSwap("wrist curl", "Wrist Curl");
+    fireEvent.click(within(dialog).getByRole("button", { name: "Use Wrist Curl" }));
+    expect(stored()[0].exercises[0].plannedPrescription).toBe("4 × 3–6");
+    cleanup();
+    window.localStorage.clear();
+    startWith({});
+    fireEvent.click(within(card()).getByRole("button", { name: "Add exercise" }));
+    const add = screen.getByRole("dialog", { name: "Add an exercise" });
+    choose(add, "wrist curl", "Wrist Curl");
+    expect(what(add)).toBe("Wrist Curl goes in straight after Dead Hang, starting from 4 × 3–6. Nothing logged changes.");
+    fireEvent.click(within(add).getByRole("button", { name: "Add Wrist Curl" }));
+    expect(stored()[0].exercises[1]).toMatchObject({ exerciseName: "Wrist Curl", plannedPrescription: "4 × 3–6" });
+    expect(toasts.at(-1)?.options?.description).toBe("After Dead Hang, starting from 4 × 3–6.");
+  });
+
+  it("names a hold's own reading when a hold is added after a rep exercise", () => {
+    startWith({ [hammerCurl.id]: getGoalPrescription("Athleticism", 0) }, [hammerCurl]);
+    fireEvent.click(within(card()).getByRole("button", { name: "Add exercise" }));
+    const add = screen.getByRole("dialog", { name: "Add an exercise" });
+    choose(add, "dead hang", "Dead Hang");
+    expect(what(add)).toBe("Dead Hang goes in straight after Hammer Curl, starting from 4 × 30 sec. Nothing logged changes.");
+    fireEvent.click(within(add).getByRole("button", { name: "Add Dead Hang" }));
+    expect(stored()[0].exercises[1]).toMatchObject({ exerciseName: "Dead Hang", plannedPrescription: "4 × 30 sec" });
+    expect(toasts.at(-1)?.options?.description).toBe("After Hammer Curl, starting from 4 × 30 sec.");
+  });
+
+  it("reads back through a hang that was itself swapped in for a planned rep exercise", () => {
+    startWith({ [hammerCurl.id]: getGoalPrescription("Athleticism", 0) }, [hammerCurl]);
+    fireEvent.click(within(openSwap("dead hang", "Dead Hang")).getByRole("button", { name: "Use Dead Hang" }));
+    expect(stored()[0].exercises[0].plannedPrescription).toBe("4 × 30 sec");
+    fireEvent.click(within(openSwap("wrist curl", "Wrist Curl")).getByRole("button", { name: "Use Wrist Curl" }));
+    expect(stored()[0].exercises[0]).toMatchObject({ exerciseName: "Wrist Curl", plannedPrescription: "4 × 3–6" });
+  });
+
+  it("keeps a time the athlete wrote on the hang, and says it is a time", () => {
+    startWith({ [deadHang.id]: "3 × 45 sec" });
+    const dialog = openSwap("wrist curl", "Wrist Curl");
+    expect(dialog.textContent).toContain("The plan's target (3 × 45 sec) is a time; sets here are logged in reps, so set the reps as you go.");
+    expect(dialog.textContent).not.toContain("default as a hold");
+    fireEvent.click(within(dialog).getByRole("button", { name: "Use Wrist Curl" }));
+    expect(stored()[0].exercises[0].plannedPrescription).toBe("3 × 45 sec");
+  });
+
+  it("does not read another day's plan into a workout from a different day", () => {
+    const { rerender } = render(createElement(DeviceWorkoutTracker, { workout: [deadHang], prescriptions: {}, settings: {}, goal: "Athleticism", dayLabel: DAY, weightUnit: "lb" }));
+    fireEvent.click(screen.getByRole("button", { name: /start workout/i }));
+    // The plan now open is another day, with the hang's slot holding the athlete's own text.
+    rerender(createElement(DeviceWorkoutTracker, { workout: [deadHang], prescriptions: { [deadHang.id]: "5 × 2–4" }, settings: {}, goal: "Athleticism", dayLabel: "Week 1 · Day 02 · Legs", weightUnit: "lb" }));
+    fireEvent.click(within(openSwap("wrist curl", "Wrist Curl")).getByRole("button", { name: "Use Wrist Curl" }));
+    expect(stored()[0].exercises[0].plannedPrescription).toBe("4 × 30 sec");
+  });
+});

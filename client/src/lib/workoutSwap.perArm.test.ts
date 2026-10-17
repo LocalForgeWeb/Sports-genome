@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "./exerciseCatalog";
 import { countPlannedSets, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession, type SetSide } from "./deviceWorkoutLog";
-import { addAfter, addSets, applySwap, perArmRowSides, swapSets, undoSwap } from "./workoutSwap";
+import { addAfter, addSets, applySwap, perArmRowSides, swapMeasurementNotes, swapSets, undoSwap } from "./workoutSwap";
 
 /**
  * Swap and add mid-workout with sets laid out per arm (the tracker's `perArmSets` gate, for an
@@ -122,5 +122,31 @@ describe("Adding an exercise, under the gate", () => {
   it("passes on an anchor's planned sets, not its rows: a two-handed exercise after a per-arm one gets 3", () => {
     const after = addAfter(session(perArm(perArmRowSides(3).map((side) => done(side)))), "curl-0", { name: hammerCurl.name, id: hammerCurl.id }, { newExerciseId: "added", at: "2026-10-17T10:30:00.000Z", newSetId });
     expect(rowsOf(after.exercises[1])).toEqual([null, null, null]);
+  });
+});
+
+/**
+ * The sheet's notes when the new exercise starts from another reading of the same plan entry
+ * (the tracker's `incomingFor`): each way round, the note names the reading the new exercise
+ * starts from, so it never says "30 sec" is the plan's time for a rep exercise.
+ */
+describe("the swap sheet's notes on a hold's default", () => {
+  const deadHang = byId(143);
+  const wristCurl = byId(139);
+  const measure = (exercise: { id: number } | undefined) => (exercise?.id === deadHang.id ? "seconds" as const : "reps" as const);
+
+  it("says a hold's default is read as the goal's reps for a rep exercise, and nothing about a time", () => {
+    const notes = swapMeasurementNotes(deadHang, wristCurl, "4 × 30 sec", measure, "4 × 3–6");
+    expect(notes).toContain("4 × 30 sec is Dead Hang's default as a hold, so Wrist Curl starts from the goal's: 4 × 3–6.");
+    expect(notes.join(" ")).not.toContain("is a time");
+  });
+
+  it("says the time is a time when the rep exercise starts from it", () => {
+    expect(swapMeasurementNotes(deadHang, wristCurl, "3 × 45 sec", measure, "3 × 45 sec")).toContain("The plan's target (3 × 45 sec) is a time; sets here are logged in reps, so set the reps as you go.");
+    expect(swapMeasurementNotes(deadHang, wristCurl, "3 × 45 sec", measure).join(" ")).toContain("is a time");
+  });
+
+  it("still says a rep default becomes a hold's for a hold coming in", () => {
+    expect(swapMeasurementNotes(wristCurl, deadHang, "4 × 3–6", measure, "4 × 30 sec")).toContain("The plan's 4 × 3–6 is the goal's rep default, so Dead Hang starts from a hold's: 4 × 30 sec.");
   });
 });

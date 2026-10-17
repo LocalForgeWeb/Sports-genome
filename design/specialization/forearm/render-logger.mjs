@@ -1,6 +1,8 @@
 /**
  * Phone check for the logger lane: a mid-workout swap under the per-arm gate (the sheet's copy and
- * the rows it builds), and the Plan editor showing a hold's prescription in seconds.
+ * the rows it builds), the Plan editor showing a hold's prescription in seconds, and a rep exercise
+ * swapped or added in place of a hold starting from the plan's reps (the sheet's notes agreeing
+ * with its plan line).
  *
  * Headless Chromium emulating an iPhone (viewport, isMobile, hasTouch, device scale 3): not an
  * iPhone, not Safari. Pattern: design/specialization/forearm/render-page.mjs.
@@ -145,6 +147,50 @@ for (const [width, height] of [[390, 844], [375, 667], [320, 568]]) {
     await page.locator(".live-set-card").scrollIntoViewIfNeeded();
     await page.screenshot({ path: join(outDir, `swap-${width}-oneArm-out-card.png`) });
     checks.push({ width, screen: "swap one-arm → two-handed", before, what, cardLine, horizontalOverflow: await overflow(page) });
+    await context.close();
+  }
+
+  // 4. A rep exercise in a hold's place: Dead Hang on the goal's pinned "4 × 3–6" ("4 × 30 sec")
+  // swapped for Wrist Curl, which starts from "4 × 3–6"; then Wrist Curl added after the hang.
+  {
+    const { context, page } = await open(width, height, { profile, plan: planWith([143, 167], { 143: "4 × 3–6" }) }, "/?workspace=tracker");
+    await page.getByRole("button", { name: /start workout/i }).click({ timeout: 30000 });
+    await page.locator(".live-set-card").waitFor();
+    const before = await page.locator(".live-set-prescription").textContent();
+    await page.getByRole("button", { name: "Swap exercise" }).click();
+    const sheet = page.getByRole("dialog", { name: /^Replace / });
+    await sheet.getByRole("searchbox").fill("wrist curl");
+    await sheet.getByRole("button", { name: /^Wrist Curl/ }).first().click();
+    await page.waitForTimeout(300);
+    const logging = sheet.locator(".swap-logging");
+    await logging.evaluate((node) => node.scrollIntoView({ block: "center" }));
+    await page.waitForTimeout(200);
+    const notes = await logging.locator("li").evaluateAll((nodes) => nodes.map((node) => ({ text: node.textContent, fontSize: getComputedStyle(node).fontSize })));
+    const planLine = await sheet.locator(".swap-plan small").textContent().catch(() => null);
+    await page.screenshot({ path: join(outDir, `swap-${width}-hold-to-reps-sheet.png`) });
+    await sheet.getByRole("button", { name: /^Use Wrist Curl/ }).click();
+    await page.waitForTimeout(400);
+    const cardLine = await page.locator(".live-set-prescription").textContent();
+    await page.locator(".live-set-card").scrollIntoViewIfNeeded();
+    await page.screenshot({ path: join(outDir, `swap-${width}-hold-to-reps-card.png`) });
+    checks.push({ width, screen: "swap hold → rep exercise", before, notes, planLine, cardLine, horizontalOverflow: await overflow(page) });
+    await context.close();
+  }
+  {
+    const { context, page } = await open(width, height, { profile, plan: planWith([143, 167], { 143: "4 × 3–6" }) }, "/?workspace=tracker");
+    await page.getByRole("button", { name: /start workout/i }).click({ timeout: 30000 });
+    await page.locator(".live-set-card").waitFor();
+    await page.getByRole("button", { name: "Add exercise" }).click();
+    const sheet = page.getByRole("dialog", { name: "Add an exercise" });
+    await sheet.getByRole("searchbox").fill("wrist curl");
+    await sheet.getByRole("button", { name: /^Wrist Curl/ }).first().click();
+    await page.waitForTimeout(300);
+    const what = await sheet.locator("#swap-what").textContent();
+    await sheet.locator("#swap-what").evaluate((node) => node.scrollIntoView({ block: "start" }));
+    await page.waitForTimeout(200);
+    const whatBox = await sheet.locator("#swap-what").evaluate((node) => { const box = node.getBoundingClientRect(); return { top: Math.round(box.top), bottom: Math.round(box.bottom), fontSize: getComputedStyle(node).fontSize }; });
+    await page.screenshot({ path: join(outDir, `add-${width}-reps-after-hold-sheet.png`) });
+    checks.push({ width, screen: "add rep exercise after a hold", what, whatBox, horizontalOverflow: await overflow(page) });
     await context.close();
   }
 }
