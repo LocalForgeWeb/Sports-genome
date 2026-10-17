@@ -160,7 +160,8 @@ describe("the specialization page", () => {
 
   it("sets this week's logged work beside the plan week as written", () => {
     render(createElement(Harness));
-    expect(screen.getByText(/^This week, right arm, for the forearms:/).textContent).toMatch(/for the forearms: 3 bouts logged · \d+ planned in Plan Week 1, as written\./);
+    const line = document.querySelector(".spz-window")!.textContent!;
+    expect(line).toMatch(/^This week · \d+–\d+ Oct · right arm: 3 bouts logged for the forearms · \d+ planned in Plan Week 1$/);
   });
 
   it("drops a muscle the region does not have from the address", async () => {

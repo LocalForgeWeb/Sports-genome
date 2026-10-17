@@ -226,7 +226,6 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       {onBack && backLabel && <button type="button" className="spz-back" onClick={onBack}><ArrowLeft className="h-4 w-4" aria-hidden="true" />Back to {backLabel}</button>}
       <p className="metric-label">Body Lab · Specialize</p>
       <h1 id="spz-heading" className="spz-title">{data.region.heading}</h1>
-      <p className="spz-lede">Each set counts once per muscle and once per arm, from your {state.mode === "planned" ? "plan as written" : "logged workouts"}. Holds stay in seconds and never become sets.</p>
     </header>
 
     <div className="spz-controls">
@@ -252,13 +251,15 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
         <label className="spz-field"><span>To</span><input type="date" value={state.to ?? ""} max={todayKey} onChange={(event) => setCustom("to", event.target.value)} /></label>
       </div>}
     </div>
-    <p className="spz-window"><b>{interval.label}</b> · {armWord}{state.mode === "planned" && !planInput ? (plan.ready ? ` · Week ${planWeek} has nothing planned yet` : " · your plan is loading") : ""}</p>
-    {plannedBouts !== null && completedBouts !== null && (plannedBouts > 0 || completedBouts > 0) && <p className="spz-pair">This week, {armWord}, for the {regionWord}: <b>{completedBouts}</b> bout{completedBouts === 1 ? "" : "s"} logged · <b>{plannedBouts}</b> planned in Plan Week {planWeek}, as written.</p>}
+    {/* One line: the window, the arm, and (for this week) logged beside planned (design §4), so the drawing starts higher. */}
+    <p className="spz-window"><b>{interval.label}</b> · {armWord}{state.mode === "planned" && !planInput ? (plan.ready ? ` · Week ${planWeek} has nothing planned yet` : " · your plan is loading") : ""}{plannedBouts !== null && completedBouts !== null && (plannedBouts > 0 || completedBouts > 0) && <span className="spz-pair">{state.mode === "planned"
+      ? <>: <b>{plannedBouts}</b> bout{plannedBouts === 1 ? "" : "s"} planned for the {regionWord} · <b>{completedBouts}</b> logged this week</>
+      : <>: <b>{completedBouts}</b> bout{completedBouts === 1 ? "" : "s"} logged for the {regionWord} · <b>{plannedBouts}</b> planned in Plan Week {planWeek}</>}</span>}</p>
 
     {here.status === "error" && <p className="spz-error" role="alert">The totals could not be worked out: {here.message}</p>}
 
     <section className="spz-card" aria-labelledby="spz-map-title">
-      <div className="spz-card-head">
+      <div className="spz-section-head">
         <h2 id="spz-map-title">Muscle map</h2>
         {asset && <div className="spz-segment" role="group" aria-label="Colour by">
           <button type="button" aria-pressed={state.map === "volume"} onClick={() => update({ map: "volume" })}>Volume</button>
@@ -279,6 +280,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       </> : <p className="spz-note">The drawing is not ready yet. Every muscle is in the list below, with the same numbers.</p>}
     </section>
 
+    {/* The counting rule sits under the drawing, so the drawing starts on a phone's first screen (brief §6: the illustration above the fold). */}
+    <p className="spz-lede">Each set counts once per muscle and once per arm, from your {state.mode === "planned" ? "plan as written" : "logged workouts"}. Holds stay in seconds and never become sets.</p>
     <section className="spz-selected" aria-labelledby="spz-selected-title">
       <h2 id="spz-selected-title" className="sr-only">Selected muscle</h2>
       {selected ? <>
@@ -296,7 +299,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     <p className="sr-only" aria-live="polite">{announcement}</p>
 
     <section className="spz-card" aria-labelledby="spz-list-title">
-      <div className="spz-card-head">
+      <div className="spz-section-head">
         <h2 id="spz-list-title">Muscles, most direct work first</h2>
       </div>
       <p className="spz-legend-line"><i className="spz-key spz-key-direct" />Direct <i className="spz-key spz-key-other" />Other dynamic <i className="spz-key spz-key-holds" />Holds <i className="spz-key spz-key-incidental" />Incidental grip · bar full at {BAR_SCALE} bouts</p>
@@ -309,7 +312,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     </section>
 
     <section className="spz-card" aria-labelledby="spz-findings-title">
-      <div className="spz-card-head"><h2 id="spz-findings-title">Coverage to review</h2></div>
+      <div className="spz-section-head"><h2 id="spz-findings-title">Coverage to review</h2></div>
       {findings.length ? <>
         <ul className="spz-findings">
           {shownFindings.map((finding) => <li key={finding.id} className="spz-finding">
