@@ -221,7 +221,7 @@ describe("changing content", () => {
       // cat-403 maps FDS and FDP as direct isometric work: the flag moves them between deliberate and incidental holds.
       ["a variant's deliberate hold", { ...f, variants: f.variants.map((v) => (v.id === "cat-403" ? { ...v, deliberateHold: !v.deliberateHold } : v)) }, /variant cat-403 is used by mapping version forearm_mappings_v1 \(published\); it cannot change/],
       ["a variant's straps", { ...f, variants: f.variants.map((v) => (v.id === "cat-139" ? { ...v, straps: "yes" as const } : v)) }, /variant cat-139 is used by mapping version forearm_mappings_v1 \(published\)/],
-      ["a source's evidence type", { ...f, sources: f.sources.map((s) => (s.id === "S4" ? { ...s, evidenceType: "product_assumption" as const } : s)) }, /source S4 is cited by mapping version forearm_mappings_v1 \(published\); its url, title and evidence type cannot change/],
+      ["a source's evidence type", { ...f, sources: f.sources.map((s) => (s.id === "S4" ? { ...s, evidenceType: "product_assumption" as const } : s)) }, /source S4 is cited by mapping version forearm_mappings_v1 \(published\); its key, url, title and evidence type cannot change/],
       ["a source's title", { ...f, sources: f.sources.map((s) => (s.id === "A8" ? { ...s, title: `${s.title} (2nd edition)` } : s)) }, /source A8 is cited by mapping version forearm_mappings_v1 \(published\)/],
       ["a claim's statement", { ...f, claims: f.claims.map((c) => (c.id === "fcu.function" ? { ...c, statement: `${c.statement} Edited.` } : c)) }, /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\) maps/],
       ["a claim's review", { ...f, claims: f.claims.map((c) => (c.id === "fcu.function" ? { ...c, reviewStatus: "draft" as const, reviewedAt: null } : c)) }, /claim forearm:fcu\.function is a reviewed claim/],
@@ -233,15 +233,23 @@ describe("changing content", () => {
     expect(await rowVersions()).toEqual(before);
   });
 
-  it("refuses removing a mapping, a mapping source, a node action or a claim source under the published version", async () => {
+  it("refuses removing a mapping, a mapping source, a node action, a claim or a claim source under the published version", async () => {
     const f = forearmRegionData;
     expect(f.mappings.find((m) => m.id === "cat-121:upper_arm.biceps")!.sources.length).toBeGreaterThan(1);
     expect(f.claims.find((c) => c.id === "fcu.function")!.sources.length).toBeGreaterThan(0);
+    // A reviewed claim of a mapped muscle that no node action rests on: removing it from the content is refused, not ignored.
+    const selectivity = f.claims.find((c) => c.nodeId === "forearm.fcu" && c.kind === "selectivity" && c.reviewStatus === "reviewed")!;
+    expect(f.nodeActions.some((n) => n.claimId === selectivity.id)).toBe(false);
     const cases: [what: string, edited: SpecializationRegionData, refusal: RegExp][] = [
       ["a mapping", { ...f, mappings: f.mappings.filter((m) => m.id !== "cat-139:forearm.fcu") }, /mapping cat-139:forearm\.fcu belongs to published version forearm_mappings_v1; it cannot change/],
       ["a mapping source", { ...f, mappings: f.mappings.map((m) => (m.id === "cat-121:upper_arm.biceps" ? { ...m, sources: m.sources.slice(0, 1) } : m)) }, /the sources of mapping cat-121:upper_arm\.biceps in published version forearm_mappings_v1 cannot change/],
       ["a node action", { ...f, nodeActions: f.nodeActions.filter((n) => !(n.nodeId === "forearm.fcu" && n.actionId === "wrist.flexion")) }, /node action forearm\.fcu wrist\.flexion is named by mapping version forearm_mappings_v1 \(published\)/],
       ["a claim source", { ...f, claims: f.claims.map((c) => (c.id === "fcu.function" ? { ...c, sources: c.sources.slice(1) } : c)) }, /the sources of claim forearm:fcu\.function cannot change/],
+      [
+        "a claim",
+        { ...f, claims: f.claims.filter((c) => c.id !== selectivity.id) },
+        new RegExp(`claim forearm:${selectivity.id.replace(/\./g, "\\.")} is a reviewed claim on forearm\\.fcu, which mapping version forearm_mappings_v1 \\(published\\) maps; .* it cannot be deleted`),
+      ],
     ];
     const before = await rowVersions();
     for (const [what, edited, refusal] of cases) expect(await reapplied(edited), what).toMatch(refusal);
@@ -350,6 +358,65 @@ describe("changing content", () => {
     expect(await rows(db, v1)).toEqual(v1Before);
     expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, deltoidRegionData])))).toBeNull();
     expect(await held()).toEqual(full);
+  });
+});
+
+describe("a draft region's claims are the content's", () => {
+  const claimsHeld = async () =>
+    rows<{ key: string; kind: string; node_actions: string[]; sources: number }>(
+      db,
+      `select c.claim_key as key, c.kind,
+              coalesce((select array_agg(na.node_id || ' ' || na.action_id order by na.node_id, na.action_id) from specialization.node_actions na where na.claim_id = c.id), '{}') as node_actions,
+              (select count(*)::int from specialization.claim_sources cs where cs.claim_id = c.id) as sources
+       from specialization.claims c where c.claim_key like 'deltoid:%' order by 1`,
+    );
+  const d = deltoidRegionData;
+  const withoutPosteriorWork = { mappings: d.mappings.filter((m) => m.nodeId !== deltoidIds.posterior), nodeActions: d.nodeActions.filter((n) => n.nodeId !== deltoidIds.posterior) };
+
+  it("deletes a claim the content no longer has, with its node action and sources, and puts it back", async () => {
+    expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, d])))).toBeNull();
+    const full = await claimsHeld();
+    expect(full.map((claim) => claim.key)).toEqual(d.claims.map((claim) => `deltoid:${claim.id}`).sort());
+    const removed: SpecializationRegionData = { ...d, ...withoutPosteriorWork, claims: d.claims.filter((c) => c.nodeId !== deltoidIds.posterior) };
+    expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, removed])))).toBeNull();
+    expect(await claimsHeld()).toEqual(full.filter((claim) => claim.key !== "deltoid:deltoid.posterior.function"));
+    expect(await count(db, "select 1 from specialization.node_actions where node_id = $1", [deltoidIds.posterior])).toBe(0);
+    expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, d])))).toBeNull();
+    expect(await claimsHeld()).toEqual(full);
+  });
+
+  it("lets a draft claim change kind in the same seed that takes its node action away, and moves a node action to another claim", async () => {
+    const full = await claimsHeld();
+    const recast: SpecializationRegionData = {
+      ...d,
+      ...withoutPosteriorWork,
+      claims: d.claims.map((c) => (c.nodeId === deltoidIds.posterior ? { ...c, kind: "appearance" as const } : c)),
+    };
+    expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, recast])))).toBeNull();
+    expect((await claimsHeld()).find((claim) => claim.key === "deltoid:deltoid.posterior.function")).toEqual({ key: "deltoid:deltoid.posterior.function", kind: "appearance", node_actions: [], sources: 1 });
+
+    // The lateral head's node action rests on a second function claim; the first becomes an appearance claim.
+    const second = { ...d.claims.find((c) => c.nodeId === deltoidIds.lateral)!, id: "deltoid.lateral.function.2" };
+    const moved: SpecializationRegionData = {
+      ...d,
+      claims: [...d.claims.map((c) => (c.nodeId === deltoidIds.lateral ? { ...c, kind: "appearance" as const } : c)), second],
+      nodeActions: d.nodeActions.map((n) => (n.nodeId === deltoidIds.lateral ? { ...n, claimId: second.id } : n)),
+    };
+    expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, moved])))).toBeNull();
+    const held = await claimsHeld();
+    expect(held.find((claim) => claim.key === "deltoid:deltoid.lateral.function")).toMatchObject({ kind: "appearance", node_actions: [] });
+    expect(held.find((claim) => claim.key === "deltoid:deltoid.lateral.function.2")).toMatchObject({ kind: "function", node_actions: [`${deltoidIds.lateral} shoulder.abduction`] });
+
+    expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, d])))).toBeNull();
+    expect(await claimsHeld()).toEqual(full);
+  });
+
+  it("leaves claims whose key names a region not in the seed alone", async () => {
+    // The deltoid claims stay when the seed holds only the forearm.
+    const before = await claimsHeld();
+    expect(before.length).toBe(d.claims.length);
+    expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData])))).toBeNull();
+    expect(await claimsHeld()).toEqual(before);
   });
 });
 

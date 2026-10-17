@@ -732,11 +732,11 @@ describe("what a published mapping version rests on is frozen with it", () => {
     });
   });
 
-  it("a reviewed claim of a mapped muscle keeps its node, kind, statement and review, and stays; its note may change; a draft claim is free", async () => {
-    const frozen = /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\) maps; its node, kind, statement and review status cannot change/;
+  it("a reviewed claim of a mapped muscle keeps its key, node, kind, statement and review, and stays; its note may change; a draft claim is free", async () => {
+    const frozen = /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\) maps; its key, node, kind, statement and review status cannot change/;
     for (const who of owners) {
       await as(db, who, async () => {
-        for (const change of ["statement = 'Rewritten.'", "review_status = 'draft'", "review_status = 'rejected'", "kind = 'appearance'", "node_id = 'forearm.fcr'"]) {
+        for (const change of ["statement = 'Rewritten.'", "review_status = 'draft'", "review_status = 'rejected'", "kind = 'appearance'", "node_id = 'forearm.fcr'", "claim_key = 'forearm:fcu.function.renamed'"]) {
           expect(await failure(db, `update specialization.claims set ${change} where claim_key = 'forearm:fcu.function'`), `${who}: ${change}`).toMatch(frozen);
         }
         expect(await failure(db, "delete from specialization.claims where claim_key = 'forearm:fcu.function'"), who).toMatch(frozen);
@@ -772,7 +772,7 @@ describe("what a published mapping version rests on is frozen with it", () => {
     });
   });
 
-  it("a source it cites keeps its url, title and evidence type and is not deleted; its notes may change; an uncited source is free", async () => {
+  it("a source it cites keeps its key, url, title and evidence type and is not deleted; its notes may change; an uncited source is free", async () => {
     // One cited by a mapping, and one cited only by a reviewed claim of a mapped muscle.
     const [{ key: claimOnly }] = await rows<{ key: string }>(
       db,
@@ -785,8 +785,8 @@ describe("what a published mapping version rests on is frozen with it", () => {
     for (const who of owners) {
       await as(db, who, async () => {
         for (const key of ["S4", claimOnly]) {
-          const cited = new RegExp(`source ${key} is cited by mapping version forearm_mappings_v1 \\(published\\); its url, title and evidence type cannot change and it cannot be deleted`);
-          for (const change of ["evidence_type = 'product_assumption'", "url = 'https://example.invalid/moved'", "title = title || ' (2nd edition)'"]) {
+          const cited = new RegExp(`source ${key} is cited by mapping version forearm_mappings_v1 \\(published\\); its key, url, title and evidence type cannot change and it cannot be deleted`);
+          for (const change of ["evidence_type = 'product_assumption'", "url = 'https://example.invalid/moved'", "title = title || ' (2nd edition)'", "source_key = source_key || 'x'"]) {
             expect(await failure(db, `update specialization.sources set ${change} where source_key = '${key}'`), `${who}: ${key} ${change}`).toMatch(cited);
           }
           expect(await failure(db, `delete from specialization.sources where source_key = '${key}'`), `${who}: delete ${key}`).toMatch(cited);

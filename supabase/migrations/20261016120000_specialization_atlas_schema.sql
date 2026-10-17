@@ -41,7 +41,7 @@
 --   * what a published or retired mapping version rests on is frozen with it: its
 --     variants, the node actions its mappings name, the reviewed claims of the muscles it
 --     maps and their sources, those muscles' reviewed status, and the sources it cites
---     (url, title, evidence type). Changed content needs new keys and a new version;
+--     (key, url, title, evidence type). Changed content needs new keys and a new version;
 --   * a published rule version is immutable;
 --   * TRUNCATE, which fires no row trigger, is refused on the tables holding any of that
 --     while a published or retired version (or a published rule) exists;
@@ -843,9 +843,9 @@ create or replace trigger nodes_guard_published
   before update or delete on specialization.nodes
   for each row execute function specialization.guard_published_node();
 
--- A reviewed claim on a mapped muscle keeps its node, kind and statement, stays reviewed,
--- and is not deleted. Its basis, review date and note may still be edited; a draft or
--- rejected claim was never shown or relied on, and is free.
+-- A reviewed claim on a mapped muscle keeps its key, node, kind and statement, stays
+-- reviewed, and is not deleted. Its basis, review date and note may still be edited; a
+-- draft or rejected claim was never shown or relied on, and is free.
 create or replace function specialization.guard_published_claim()
 returns trigger
 language plpgsql
@@ -857,7 +857,7 @@ begin
   if old.review_status <> 'reviewed'
      or (tg_op = 'UPDATE'
          and new.review_status = 'reviewed'
-         and (new.node_id, new.kind, new.statement) is not distinct from (old.node_id, old.kind, old.statement)) then
+         and (new.claim_key, new.node_id, new.kind, new.statement) is not distinct from (old.claim_key, old.node_id, old.kind, old.statement)) then
     if tg_op = 'DELETE' then
       return old;
     end if;
@@ -871,7 +871,7 @@ begin
     where m.node_id = old.node_id and v.state <> 'draft'
   ) as used;
   if v_versions is not null then
-    raise exception 'claim % is a reviewed claim on %, which mapping version % maps; its node, kind, statement and review status cannot change and it cannot be deleted. Add the corrected claim under a new key', old.claim_key, old.node_id, v_versions
+    raise exception 'claim % is a reviewed claim on %, which mapping version % maps; its key, node, kind, statement and review status cannot change and it cannot be deleted. Add the corrected claim under a new key', old.claim_key, old.node_id, v_versions
       using errcode = '23514';
   end if;
   if tg_op = 'DELETE' then
@@ -947,8 +947,8 @@ create or replace trigger claim_sources_guard_change
   before update or delete on specialization.claim_sources
   for each row execute function specialization.guard_published_claim_source();
 
--- A source a published version cites, through a mapping or a frozen claim, keeps its url,
--- title and evidence type, and is not deleted. Its DOI, retrieval date and notes may
+-- A source a published version cites, through a mapping or a frozen claim, keeps its key,
+-- url, title and evidence type, and is not deleted. Its DOI, retrieval date and notes may
 -- still be edited.
 create or replace function specialization.guard_published_source()
 returns trigger
@@ -959,7 +959,7 @@ declare
   v_versions text;
 begin
   if tg_op = 'UPDATE'
-     and (new.url, new.title, new.evidence_type) is not distinct from (old.url, old.title, old.evidence_type) then
+     and (new.source_key, new.url, new.title, new.evidence_type) is not distinct from (old.source_key, old.url, old.title, old.evidence_type) then
     return new;
   end if;
   select string_agg(label, ', ' order by label) into v_versions
@@ -978,7 +978,7 @@ begin
     where cs.source_id = old.id and c.review_status = 'reviewed' and v.state <> 'draft'
   ) as cited;
   if v_versions is not null then
-    raise exception 'source % is cited by mapping version %; its url, title and evidence type cannot change and it cannot be deleted. Add the corrected source under a new key', old.source_key, v_versions
+    raise exception 'source % is cited by mapping version %; its key, url, title and evidence type cannot change and it cannot be deleted. Add the corrected source under a new key', old.source_key, v_versions
       using errcode = '23514';
   end if;
   if tg_op = 'DELETE' then

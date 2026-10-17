@@ -24,12 +24,13 @@
  *   depends on is refused by the database, so the whole seed rolls back with the
  *   database's message. Changing them means new keys and a new mapping version.
  * - Sets the content owns end up exactly as the content has them: a mapping version's
- *   mappings and their sources, a seeded claim's sources, the node actions resting on
- *   seeded claims, a diagram asset version's paths and labels. Rows the content no longer
- *   has are deleted before the upserts, so a removal under a published version is refused
- *   like any other change, and a draft is cleaned.
+ *   mappings and their sources; the claims of the regions in the seed (claim keys carry
+ *   the region), with their sources and the node actions resting on them; a diagram asset
+ *   version's paths and labels. Rows the content no longer has are deleted before the
+ *   upserts, so a removal under a published version is refused like any other change,
+ *   and a draft is cleaned.
  * - It never deletes the records others point at: regions, nodes (goals may point at
- *   one), actions, sources, claims, catalog exercises and variants.
+ *   one), actions, sources, catalog exercises and variants.
  *
  * Keys: node, action, variant, region and rule ids are the TypeScript ids. Source keys are
  * shared across regions (S2 is the same paper everywhere), so two regions may name one
@@ -365,30 +366,44 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
     ),
   );
 
+  // The claims of the regions in this seed are the content's: their keys carry the region
+  // (`<region>:<claim id>`), and claims of other regions are left alone. What the content no
+  // longer has goes before any claim is written. Node actions first, since they point at
+  // claims, matched by node, action and claim, so one moved to another claim is written
+  // again below once that claim is in. Then the claims, with their sources, and then the
+  // sources of the claims that stay. Each delete is refused for what a published version
+  // rests on, and the refusal names the node action or claim; a draft is cleaned.
+  const sortedClaims = [...claims].sort((a, b) => byKey(a.key, b.key));
+  const sortedNodeActions = [...nodeActions.entries()].sort(([a], [b]) => byKey(a, b)).map(([, row]) => row);
+  if (regions.length) {
+    const ownClaim = inValues("split_part(c.claim_key, ':', 1)", regions.map((data): Value[] => [data.region.id]));
+    section(
+      "Node actions, claims and claim sources no longer in the content (refused for what a published or retired version rests on)",
+      [
+        deleteWhere("specialization.node_actions na", ["specialization.claims c"], [
+          "na.claim_id = c.id",
+          ownClaim,
+          notIn("(na.node_id, na.action_id, c.claim_key)", sortedNodeActions.map((row): Value[] => [row.nodeId, row.actionId, row.claimKey])),
+        ]),
+        deleteWhere("specialization.claims c", [], [ownClaim, notIn("c.claim_key", sortedClaims.map(({ key }): Value[] => [key]))]),
+        deleteWhere("specialization.claim_sources cs", ["specialization.claims c", "specialization.sources s"], [
+          "cs.claim_id = c.id and s.id = cs.source_id",
+          ownClaim,
+          notIn("(c.claim_key, s.source_key)", sortedClaims.flatMap(({ key, claim }) => claim.sources.map((ref): Value[] => [key, ref.sourceId]))),
+        ]),
+      ].join("\n"),
+    );
+  }
+
   section(
     "Claims (key: <region>:<claim id>)",
     upsertValues(
       "claims",
       ["claim_key", "node_id", "kind", "statement", "basis", "review_status", "reviewed_on", "review_note"],
       ["claim_key"],
-      [...claims].sort((a, b) => byKey(a.key, b.key)).map(({ key, claim }) => [key, claim.nodeId, claim.kind, claim.statement, claim.basis, claim.reviewStatus, claim.reviewedAt, claim.reviewNote]),
+      sortedClaims.map(({ key, claim }) => [key, claim.nodeId, claim.kind, claim.statement, claim.basis, claim.reviewStatus, claim.reviewedAt, claim.reviewNote]),
     ),
   );
-
-  // A seeded claim holds exactly the content's sources, and the node actions resting on
-  // seeded claims are exactly the content's; claims of regions not in this seed are left alone.
-  const sortedClaims = [...claims].sort((a, b) => byKey(a.key, b.key));
-  const seededClaims = sortedClaims.length ? inValues("c.claim_key", sortedClaims.map(({ key }): Value[] => [key])) : null;
-  if (seededClaims) {
-    section(
-      "Claim sources no longer in the content (refused for a reviewed claim a published version rests on)",
-      deleteWhere("specialization.claim_sources cs", ["specialization.claims c", "specialization.sources s"], [
-        "cs.claim_id = c.id and s.id = cs.source_id",
-        seededClaims,
-        notIn("(c.claim_key, s.source_key)", sortedClaims.flatMap(({ key, claim }) => claim.sources.map((ref): Value[] => [key, ref.sourceId]))),
-      ]),
-    );
-  }
 
   section(
     "Claim sources",
@@ -402,19 +417,9 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
         "left join specialization.sources s on s.source_key = x.source_key",
       ],
       conflict: ["claim_id", "source_id"],
-      rows: [...claims]
-        .sort((a, b) => byKey(a.key, b.key))
-        .flatMap(({ key, claim }) => claim.sources.map((ref, index): Value[] => [key, ref.sourceId, ref.locator, ref.qualification, index])),
+      rows: sortedClaims.flatMap(({ key, claim }) => claim.sources.map((ref, index): Value[] => [key, ref.sourceId, ref.locator, ref.qualification, index])),
     }),
   );
-
-  if (seededClaims) {
-    const keptNodeActions = [...nodeActions.entries()].sort(([a], [b]) => byKey(a, b)).map(([, row]): Value[] => [row.nodeId, row.actionId]);
-    section(
-      "Node actions no longer in the content (refused for one a published version names)",
-      deleteWhere("specialization.node_actions na", ["specialization.claims c"], ["na.claim_id = c.id", seededClaims, notIn("(na.node_id, na.action_id)", keptNodeActions)]),
-    );
-  }
 
   section(
     "Node actions (each rests on a function claim of its own node)",
@@ -425,7 +430,7 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
       valueColumns: ["node_id", "action_id", "role", "claim_key"],
       joins: ["left join specialization.claims c on c.claim_key = x.claim_key"],
       conflict: ["node_id", "action_id"],
-      rows: [...nodeActions.entries()].sort(([a], [b]) => byKey(a, b)).map(([, row]) => [row.nodeId, row.actionId, row.role, row.claimKey]),
+      rows: sortedNodeActions.map((row) => [row.nodeId, row.actionId, row.role, row.claimKey]),
     }),
   );
 
@@ -646,12 +651,13 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
     "--",
     "-- Applies after 20261016120000_specialization_atlas_schema.sql, and can be applied again:",
     "-- every write is an upsert keyed by the content's own keys that skips unchanged rows, and",
-    "-- the sets the content owns (a version's mappings and their sources, a claim's sources and",
-    "-- node actions, a drawing's paths and labels) lose the rows the content no longer has. A",
-    "-- published mapping or rule version is immutable, and so is what a published version rests",
-    "-- on (its variants, node actions, reviewed claims and their sources, cited sources), so a",
-    "-- change or removal under such a key is refused here and nothing of this file is applied;",
-    "-- give the change new keys and a new version. See docs/specialization-atlas/04-database.md.",
+    "-- the sets the content owns (a version's mappings and their sources, a region's claims with",
+    "-- their sources and node actions, a drawing's paths and labels) lose the rows the content",
+    "-- no longer has. A published mapping or rule version is immutable, and so is what a",
+    "-- published version rests on (its variants, node actions, reviewed claims and their",
+    "-- sources, cited sources), so a change or removal under such a key is refused here and",
+    "-- nothing of this file is applied; give the change new keys and a new version. See",
+    "-- docs/specialization-atlas/04-database.md.",
     "--",
     "-- Rollback: the schema's (drop schema if exists specialization cascade). Published",
     "-- versions are deliberately undeletable row by row.",
