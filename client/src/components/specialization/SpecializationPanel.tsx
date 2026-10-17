@@ -162,6 +162,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     return recommendFor({ region: data, target: { nodeId: selected.id }, side: state.limb, summary, otherSideSummary: otherSummary, plannedExercises, catalog, equipmentProfile, exclusions });
   }, [selected, summary, otherSummary, plannedExercises, catalog, equipmentProfile, data, state.limb, exclusions]);
   const candidates = recommendations?.kind === "candidates" ? recommendations.candidates : [];
+  /** An exercise's equipment from the catalog the recommender read, so the muscle sheet can say why a main action has no suggestion. */
+  const equipmentById = useMemo(() => new Map(catalog.map((exercise) => [exercise.id, exercise.equipment ?? null] as const)), [catalog]);
   // A movement's exercises (brief §7: "A suggested exercise explicitly addresses the selected muscle/action").
   const movementId = sheet?.kind === "movement" ? sheet.actionId : sheet?.kind === "change" && sheet.from.kind === "movement" ? sheet.from.actionId : null;
   const movementRecommendations = useMemo(() => {
@@ -317,14 +319,15 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       const asWritten = summary.mode === "planned" ? summary : pairSummary;
       if (!logged || !asWritten || logged.mode !== "completed" || asWritten.mode !== "planned") return null;
       const unknown = regionBoutRows(logged, "unknown-side");
+      // "Bouts", as the line that opened it counts them: each set once, however many muscles it loads.
       return {
         eyebrow,
         title: `${logged.regionDistinctBouts} logged · ${asWritten.regionDistinctBouts} planned`,
-        intro: `${logged.interval.label}, logged, beside ${asWritten.interval.label}. Each set counts once, however many muscles of the ${regionWord} it loads.`,
+        intro: `${logged.interval.label}, logged, beside ${asWritten.interval.label}. Each set is one bout, however many muscles of the ${regionWord} it loads.`,
         lists: [
-          { key: "logged", heading: `Logged on the ${armWord}: ${plural(logged.regionDistinctBouts, "set")}`, note: null, rows: regionBoutRows(logged, "region"), empty: `Nothing logged for a muscle of the ${regionWord} on the ${armWord} this week.` },
-          ...(unknown.length ? [{ key: "unknown", heading: `Logged with no arm recorded: ${plural(unknown.length, "set")}`, note: "Kept apart and counted for neither arm.", rows: unknown }] : []),
-          { key: "planned", heading: `Planned in Plan Week ${trainingWeek}: ${plural(asWritten.regionDistinctBouts, "set")}`, note: null, rows: regionBoutRows(asWritten, "region"), empty: `Nothing planned for a muscle of the ${regionWord} on the ${armWord} in Plan Week ${trainingWeek}.` },
+          { key: "logged", heading: `Logged on the ${armWord}: ${plural(logged.regionDistinctBouts, "bout")}`, note: null, rows: regionBoutRows(logged, "region"), empty: `Nothing logged for a muscle of the ${regionWord} on the ${armWord} this week.` },
+          ...(unknown.length ? [{ key: "unknown", heading: `Logged with no arm recorded: ${plural(unknown.length, "bout")}`, note: "Kept apart and counted for neither arm.", rows: unknown }] : []),
+          { key: "planned", heading: `Planned in Plan Week ${trainingWeek}: ${plural(asWritten.regionDistinctBouts, "bout")}`, note: null, rows: regionBoutRows(asWritten, "region"), empty: `Nothing planned for a muscle of the ${regionWord} on the ${armWord} in Plan Week ${trainingWeek}.` },
         ],
       };
     }
@@ -406,7 +409,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       {pairShown
         ? <p className="spz-window"><button type="button" className="spz-window-open" onClick={() => setSheet({ kind: "bouts", list: "pair" })}><span><b>{interval.label}</b> · {armWord}: <span className="spz-pair">{state.mode === "planned"
           ? <><b>{plannedBouts}</b> bout{plannedBouts === 1 ? "" : "s"} planned · <b>{completedBouts}</b> logged this week</>
-          : <><b>{completedBouts}</b> bout{completedBouts === 1 ? "" : "s"} logged · <b>{plannedBouts}</b> planned in Plan Week {trainingWeek}</>}</span></span><ArrowRight className="h-4 w-4" aria-hidden="true" /></button></p>
+          : <><b>{completedBouts}</b> bout{completedBouts === 1 ? "" : "s"} logged · <b>{plannedBouts}</b> planned in Plan Week{" "}{trainingWeek}</>}</span></span><ArrowRight className="h-4 w-4" aria-hidden="true" /></button></p>
         : <p className="spz-window"><b>{interval.label}</b> · {armWord}{state.mode === "planned" && !planInput ? (plan.ready ? ` · Week ${planWeek} has nothing planned yet` : " · your plan is loading") : ""}{noPairNote && <span className="spz-pair-note">: not the week you train from (Week {trainingWeek}), so there is no logged week to compare</span>}</p>}
     </div>
 
@@ -568,6 +571,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       paired={pairMode && pairSummary ? { label: pairMode === "planned" ? `Plan Week ${trainingWeek}, as written` : "Logged this week", exposure: pairSummary.nodes.find((node) => node.nodeId === selected.id) ?? null } : null}
       pairNote={noPairNote}
       exclusions={exclusions}
+      equipmentOf={(catalogExerciseId) => equipmentById.get(catalogExerciseId) ?? null}
       onSetExerciseExcluded={setExerciseExcluded}
       onSetEquipmentExcluded={setEquipmentExcluded}
       onSaveGoals={(next) => saveGoals(next)}

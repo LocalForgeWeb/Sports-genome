@@ -162,7 +162,8 @@ describe("the specialization page", () => {
   it("sets this week's logged work beside the plan week as written", () => {
     render(createElement(Harness));
     const line = document.querySelector(".spz-window")!.textContent!;
-    expect(line).toMatch(/^This week · \d+–\d+ Oct · right arm: 3 bouts logged · \d+ planned in Plan Week 1$/);
+    // "Plan Week" and its number never part across lines (a no-break space).
+    expect(line).toMatch(/^This week · \d+–\d+ Oct · right arm: 3 bouts logged · \d+ planned in Plan Week\u00a01$/);
   });
 
   it("drops a muscle the region does not have from the address", async () => {
@@ -316,11 +317,12 @@ describe("the window line's pair opens its sets (brief §1: every total opens th
     const line = document.querySelector(".spz-window")!;
     const button = within(line as HTMLElement).getByRole("button");
     expect(button.textContent).toBe(line.textContent);
-    expect(button.textContent).toMatch(/: 3 bouts logged · \d+ planned in Plan Week 1$/);
+    expect(button.textContent).toMatch(/: 3 bouts logged · \d+ planned in Plan Week\u00a01$/);
     await act(async () => { fireEvent.click(button); });
     const sheet = screen.getByRole("dialog", { name: /^3 logged · \d+ planned$/ });
     const headings = within(sheet).getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent);
-    expect(headings).toEqual(["Logged on the right arm: 3 sets", expect.stringMatching(/^Planned in Plan Week 1: \d+ sets$/)]);
+    // Counted as the line counts them: bouts, each set once however many muscles it loads.
+    expect(headings).toEqual(["Logged on the right arm: 3 bouts", expect.stringMatching(/^Planned in Plan Week 1: \d+ bouts$/)]);
     expect(sheet.textContent).toMatch(/This week · \d+–\d+ Oct, logged, beside Plan Week 1, as written\./);
     // Only the logged sets have a workout to open.
     const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
@@ -372,7 +374,30 @@ describe("the exercises for a muscle, beyond each suggestion (brief §7)", () =>
     await act(async () => { fireEvent.click(row(/^Biceps brachii,/)); });
     const exercisesSection = section(screen.getByRole("dialog", { name: "Biceps brachii" }));
     const notes = Array.from(exercisesSection.querySelectorAll(".spz-suggest-note")).map((item) => item.textContent);
-    expect(notes).toEqual(["Supination, one of this muscle's main actions, has no direct work in this window. No reviewed exercise trains it directly yet, so none is suggested for it."]);
+    expect(notes).toEqual(["Supination, a main action of this muscle, has no direct work in this window, and no reviewed exercise trains it directly yet."]);
+    // A fact about the records, with no target and no shortfall in it.
+    expect(notes[0]).not.toMatch(/behind|short|need|should|target/i);
+  });
+
+  it("says both once, in that order, when a target nothing can fill and a main action whose exercises answer a met target meet", async () => {
+    // Two two-handed wrist curls meet FCR's dynamic target of 2; its hold target of 3 stays open.
+    saveSpecializationGoals([
+      target({ id: "dyn", nodeId: "forearm.fcr", metric: "direct_dynamic_bouts", target: 2 }),
+      target({ id: "hold", nodeId: "forearm.fcr", metric: "deliberate_hold_bouts", target: 3 }),
+    ], null);
+    logged([{ ...sessions[0], exercises: [{ id: "w1", exerciseName: "Wrist Curl", catalogId: 139, plannedPrescription: "2 × 15", sets: [set(60, 15), set(60, 15)] }] }]);
+    render(createElement(Harness));
+    await act(async () => { fireEvent.click(row(/^Flexor carpi radialis,/)); });
+    const exercisesSection = section(screen.getByRole("dialog", { name: "Flexor carpi radialis" }));
+    expect(Array.from(exercisesSection.querySelectorAll(".spz-suggest-note")).map((item) => item.textContent)).toEqual([
+      "No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week.",
+      "Radial deviation, a main action of this muscle, has no direct work in this window, and the exercises that train it directly answer a target you have already met, so none is suggested.",
+    ]);
+    const list = exercisesSection.querySelector(".spz-candidates")!;
+    expect(list).not.toBeNull();
+    expect(exercisesSection.querySelectorAll(".spz-suggest-note")[1].compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // Each is said once: no suggestion repeats the missing action as its lead.
+    expect(list.textContent).not.toMatch(/Radial deviation: no direct work/);
   });
 
   it("lists what already covers the muscle in words: the plan days, then the sets logged, never as a day", async () => {
@@ -480,7 +505,7 @@ describe("planned beside logged, only for the week being trained (design §4)", 
 
   it("pairs this week's logged work with the week trained from, not the week Plan is showing", () => {
     render(createElement(Harness, { plan }));
-    expect(windowLine()).toMatch(/planned in Plan Week 1$/);
+    expect(windowLine()).toMatch(/planned in Plan Week\u00a01$/);
   });
 
   it("defaults planned mode to that week, and on another week says there is nothing logged to compare", async () => {
@@ -497,12 +522,12 @@ describe("planned beside logged, only for the week being trained (design §4)", 
     // Back in completed mode with Week 2 still in the address: the pair is still the week trained from.
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Completed" })); });
     expect(lastState?.planWeek).toBe(2);
-    expect(windowLine()).toMatch(/planned in Plan Week 1$/);
+    expect(windowLine()).toMatch(/planned in Plan Week\u00a01$/);
   });
 
   it("follows an explicit choice of week", () => {
     render(createElement(Harness, { plan: { ...plan, choice: { week: 2, index: 0, day: "Push", madeAt: "2026-10-16T08:00:00.000Z" } } }));
-    expect(windowLine()).toMatch(/planned in Plan Week 2$/);
+    expect(windowLine()).toMatch(/planned in Plan Week\u00a02$/);
   });
 });
 

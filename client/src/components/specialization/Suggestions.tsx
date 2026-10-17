@@ -20,6 +20,8 @@ export type SuggestionsProps = {
   nodeId?: string | null;
   /** Completed or planned: whether "no direct work" is in the window or in the plan week. */
   mode?: SummaryMode;
+  /** An exercise's equipment, from the catalog the recommender read: tells an equipment the athlete left out apart from a target already met. */
+  equipmentOf?: (catalogExerciseId: number) => string | null;
 };
 
 /**
@@ -31,7 +33,7 @@ export type SuggestionsProps = {
  * (the recommender's `targetNote`), and a main action of the muscle with no direct work that
  * no suggestion covers, with why (`missingActionNote`).
  */
-export function Suggestions({ data, recommendations, exclusions, onSetExerciseExcluded, onSetEquipmentExcluded, onChooseExercise, onInspectExercise, nodeId = null, mode = "completed" }: SuggestionsProps) {
+export function Suggestions({ data, recommendations, exclusions, onSetExerciseExcluded, onSetEquipmentExcluded, onChooseExercise, onInspectExercise, nodeId = null, mode = "completed", equipmentOf }: SuggestionsProps) {
   const [excludedNow, setExcludedNow] = useState<{ id: number; name: string } | null>(null);
   const [exclusionError, setExclusionError] = useState<string | null>(null);
   const exclude = (id: number, name: string) => {
@@ -44,7 +46,7 @@ export function Suggestions({ data, recommendations, exclusions, onSetExerciseEx
   const candidatesResult = recommendations?.kind === "candidates" ? recommendations : null;
   // With no candidate the empty reason already leads with the target note, so it is said once either way.
   const targetNote = candidatesResult && candidatesResult.candidates.length ? candidatesResult.targetNote ?? null : null;
-  const missingNote = candidatesResult && nodeId ? missingActionNote({ data, nodeId, result: candidatesResult, mode, excludedExerciseIds: exclusions.catalogExerciseIds }) : null;
+  const missingNote = candidatesResult && nodeId ? missingActionNote({ data, nodeId, result: candidatesResult, mode, exclusions, equipmentOf }) : null;
 
   return <>
     {targetNote && <p className="spz-note spz-suggest-note">{targetNote}</p>}

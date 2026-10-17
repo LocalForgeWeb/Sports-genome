@@ -424,20 +424,29 @@ export type MissingActionInput = {
   skippedAtTarget: number;
 };
 
+type MissingReason = "none" | "excluded" | "met" | "either";
+
 /**
- * One neutral line for a main action of the muscle that has no direct work in the window and
- * that no suggestion covers (brief §7, "Recommendations explain a missing action"): plainly
- * why nothing is offered for it. Usually no reviewed exercise trains it directly (supination
- * for the biceps: only a lever supination, which the biceps helps with); otherwise the
- * exercises that do were left out by the athlete or answer a target already met. A fact
- * about the records and the mapping, never a shortfall: there is no target in it.
+ * One neutral sentence for a main action of the muscle that has no direct work in the window
+ * and that no suggestion covers (brief §7, "Recommendations explain a missing action"): what
+ * the records show, and plainly why nothing is offered for it. Usually no reviewed exercise
+ * trains it directly (supination for the biceps: only Lever Supination works it, and there
+ * the biceps only helps); otherwise every exercise that does was left out by the athlete (the
+ * exercise, or its equipment) or answers a target already met, which the recommender skips.
+ * A fact about the records and the mapping, never a shortfall: there is no target in it.
+ *
+ * The reason follows `recommendFor`: an exercise with a credited direct mapping for the action
+ * is a candidate, excluded, or skipped at target. `equipmentOf` (the catalog the recommender
+ * read) tells an equipment exclusion apart; without it the result's counts decide, and
+ * "either" is said only when they cannot.
  */
 export function missingActionNote(input: {
   data: SpecializationRegionData;
   nodeId: NodeId;
   result: MissingActionInput;
   mode: SpecializationSummary["mode"];
-  excludedExerciseIds?: readonly number[];
+  exclusions?: { catalogExerciseIds?: readonly number[]; equipment?: readonly string[] };
+  equipmentOf?: (catalogExerciseId: number) => string | null;
 }): string | null {
   const { data, nodeId, result } = input;
   const covered = new Set(result.candidates.flatMap((candidate) => candidate.missingActions ?? []));
@@ -445,7 +454,7 @@ export function missingActionNote(input: {
   if (!uncovered.length) return null;
   const variantById = new Map(data.variants.map((variant) => [variant.id, variant] as const));
   /** The exercises the recommender counts as direct work on this action for this muscle: a reviewed direct mapping it credits (moved, or held on purpose). */
-  const directExercises = (actionId: string) => new Set(data.mappings
+  const directExercises = (actionId: string) => Array.from(new Set(data.mappings
     .filter((mapping) => mapping.versionKey === data.mappingVersion.key && mapping.reviewStatus === "reviewed" && mapping.nodeId === nodeId && mapping.actionId === actionId && mapping.relationship === "direct")
     .filter((mapping) => {
       const variant = variantById.get(mapping.variantId);
@@ -453,35 +462,44 @@ export function missingActionNote(input: {
       const category = categoryFor(mapping.relationship, mapping.muscleMode, variant.deliberateHold);
       return category !== "incidental_isometric" && category !== "unknown";
     })
-    .map((mapping) => variantById.get(mapping.variantId)!.catalogExerciseId));
-  const excluded = new Set(input.excludedExerciseIds ?? []);
+    .map((mapping) => variantById.get(mapping.variantId)!.catalogExerciseId)));
+  const excludedIds = new Set(input.exclusions?.catalogExerciseIds ?? []);
+  const excludedEquipment = new Set(input.exclusions?.equipment ?? []);
+  /** What became of one such exercise: left out by the athlete, or skipped as answering a met target (not a candidate, so one of the two). */
+  const fate = (catalogExerciseId: number): Exclude<MissingReason, "none"> => {
+    if (excludedIds.has(catalogExerciseId)) return "excluded";
+    if (input.equipmentOf) {
+      const equipment = input.equipmentOf(catalogExerciseId);
+      return equipment !== null && excludedEquipment.has(equipment) ? "excluded" : "met";
+    }
+    if (!excludedEquipment.size || !result.excludedCount) return "met";
+    return result.skippedAtTarget ? "either" : "excluded";
+  };
+  const reasonFor = (actionId: string): MissingReason => {
+    const fates = new Set(directExercises(actionId).map(fate));
+    if (!fates.size) return "none";
+    return fates.size === 1 ? Array.from(fates)[0] : "either";
+  };
   const label = (actionId: string) => data.actions.find((action) => action.id === actionId)?.label ?? actionId;
   const lowerFirst = (text: string) => (text ? text.charAt(0).toLowerCase() + text.slice(1) : text);
+  const names = (actionIds: readonly string[], capital: boolean) => listWords(actionIds.map((actionId, position) => (capital && !position ? label(actionId) : lowerFirst(label(actionId)))));
   const where = input.mode === "planned" ? "planned in this week" : "in this window";
 
-  const groups = new Map<string, string[]>();
+  const groups = new Map<MissingReason, string[]>();
   for (const actionId of uncovered) {
-    const exercises = Array.from(directExercises(actionId));
-    const reason = !exercises.length ? "none"
-      : exercises.every((id) => excluded.has(id)) ? "excluded"
-      : result.skippedAtTarget && !result.excludedCount ? "met"
-      : result.excludedCount && !result.skippedAtTarget ? "excluded"
-      : "either";
+    const reason = reasonFor(actionId);
     groups.set(reason, [...(groups.get(reason) ?? []), actionId]);
   }
-  const sentences: string[] = [];
-  const many = uncovered.length > 1;
-  const names = listWords(uncovered.map((actionId, position) => (position ? lowerFirst(label(actionId)) : label(actionId))));
-  sentences.push(`${names}, ${many ? "main actions of this muscle, have" : "one of this muscle's main actions, has"} no direct work ${where}.`);
-  for (const [reason, actionIds] of Array.from(groups.entries())) {
-    const them = actionIds.length > 1 ? "them" : "it";
-    const which = groups.size > 1 ? ` (${listWords(actionIds.map((actionId) => lowerFirst(label(actionId))))})` : "";
-    if (reason === "none") sentences.push(`No reviewed exercise trains ${them}${which} directly yet, so none is suggested for ${them}.`);
-    else if (reason === "excluded") sentences.push(`The exercises that train ${them}${which} directly are left out by your choices under What is suggested.`);
-    else if (reason === "met") sentences.push(`The exercises that train ${them}${which} directly answer a target you have already met, so none is suggested.`);
-    else sentences.push(`The exercises that train ${them}${which} directly are not suggested: your choices under What is suggested leave them out, or they answer a target you have already met.`);
-  }
-  return sentences.join(" ");
+  const lead = `${names(uncovered, true)}, ${uncovered.length > 1 ? "main actions of this muscle, have" : "a main action of this muscle, has"} no direct work ${where}`;
+  const clauses = Array.from(groups.entries()).map(([reason, actionIds]) => {
+    // With more than one reason, each clause names the actions it is about.
+    const them = groups.size > 1 ? names(actionIds, false) : actionIds.length > 1 ? "them" : "it";
+    if (reason === "none") return `no reviewed exercise trains ${them} directly yet`;
+    if (reason === "excluded") return `the exercises that train ${them} directly are left out by your choices under What is suggested`;
+    if (reason === "met") return `the exercises that train ${them} directly answer a target you have already met, so none is suggested`;
+    return `the exercises that train ${them} directly are left out by your choices or answer a target you have already met`;
+  });
+  return `${lead}${clauses.length === 1 ? ", and " : "; "}${clauses.join("; ")}.`;
 }
 
 // ---------------------------------------------------------------- a movement
