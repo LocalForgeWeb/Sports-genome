@@ -136,8 +136,9 @@ describe("a suggestion names only a target gap the calculator would fill with it
   it("forearm: a target no reviewed exercise can fill is said plainly, not claimed by what is offered", () => {
     const goals = [goal({ id: "dyn", metric: "direct_dynamic_bouts", target: 2 }), goal({ id: "holds", metric: "deliberate_hold_bouts", target: 3 })];
     const result = recommend(forearmRegionData, { nodeId: m.flexorCarpiRadialis }, { summary: summary(forearmRegionData, [bout(139), bout(139)], "left", goals) });
-    // The dynamic target is met, so the direct curls and the radial-deviation lever are not offered again.
-    expect([namesOf(result), result.skippedAtTarget]).toEqual([["Wrist Roller"], 3]);
+    // The dynamic target is met, so the direct curls, the flexion-wind roller and the radial-deviation
+    // lever are not offered again; the two rollers that only contribute to wrist flexion stay.
+    expect([namesOf(result), result.skippedAtTarget]).toEqual([["Wrist Roller", "Wrist Roller, Extension Wind"], 4]);
     expect(result.candidates[0].why).toMatch(/^Helps with wrist flexion for flexor carpi radialis; no reviewed exercise for this muscle counts toward your target of 3 deliberate hold bouts this week\./);
     expect(result.candidates[0].why).not.toMatch(/0 of your 3/);
     expect(result.targetNote).toBe("No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week.");
@@ -244,7 +245,8 @@ describe("a main action of the muscle with no direct work in the window comes fi
     const curls = [bout(139, "right"), bout(139, "right"), bout(139, "right"), bout(139, "right")];
     const result = recommend(forearmRegionData, { nodeId: m.flexorCarpiUlnaris }, { side: "right", summary: summary(forearmRegionData, curls, "right") });
     expect(result.missingActions).toEqual([a.ulnarDeviation]);
-    expect(namesOf(result)).toEqual(["Lever Ulnar Deviation", "One-Arm Dumbbell Wrist Curl", "Wrist Curl", "Wrist Roller"]);
+    // Direct work not yet logged, then the logged Wrist Curl (overlap), then work that only contributes.
+    expect(namesOf(result)).toEqual(["Lever Ulnar Deviation", "One-Arm Dumbbell Wrist Curl", "Wrist Roller, Flexion Wind", "Wrist Curl", "Wrist Roller", "Wrist Roller, Extension Wind"]);
     expect(result.candidates[0].why).toMatch(/^Ulnar deviation: no direct work in this window\. Direct ulnar deviation for flexor carpi ulnaris; 4 direct dynamic and 0 hold bouts in this window, no target set\./);
     expect(result.candidates[0].missingActions).toEqual([a.ulnarDeviation]);
     // Only the exercise that fills the missing action leads with it.
