@@ -83,11 +83,15 @@ describe("a muscle's fill", () => {
 
 describe("what the page says about a muscle", () => {
   it("names missing mapping as missing mapping", () => {
-    expect(exposureSentence(node({ mappingCoverage: "none" }))).toMatch(/No exercise is mapped/);
+    expect(exposureSentence(node({ mappingCoverage: "none" }), "grip")).toMatch(/No exercise is mapped/);
   });
   it("lists only the kinds of work that happened, holds in time, and keeps no-arm sets apart", () => {
-    const sentence = exposureSentence(node({ directDynamicBouts: 6, contributingDynamicBouts: 2, deliberateHoldBouts: 2, deliberateHoldSeconds: 60, unknownSide: { bouts: 1, directDynamicBouts: 1, deliberateHoldBouts: 0, deliberateHoldSeconds: 0 } }));
+    const sentence = exposureSentence(node({ directDynamicBouts: 6, contributingDynamicBouts: 2, deliberateHoldBouts: 2, deliberateHoldSeconds: 60, unknownSide: { bouts: 1, directDynamicBouts: 1, deliberateHoldBouts: 0, deliberateHoldSeconds: 0 } }), "grip");
     expect(sentence).toBe("6 direct dynamic bouts · 2 other dynamic · 2 deliberate holds, 1 min. 1 set with no arm recorded is kept apart.");
+  });
+  it("names incidental work in the region's own word", () => {
+    expect(exposureSentence(node({ incidentalBouts: 4 }), "grip")).toBe("4 incidental grip or steadying.");
+    expect(exposureSentence(node({ incidentalBouts: 4 }), "bracing")).toBe("4 incidental bracing or steadying.");
   });
   it("says a hold's time was not recorded rather than 0 s", () => {
     expect(holdTime(0)).toBe("time not recorded");

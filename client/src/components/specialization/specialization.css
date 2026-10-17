@@ -32,7 +32,11 @@
 /* One line from 375 px, even in a fallback sans before the display face loads. */
 .spz-title { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.5rem, 6.4vw, 2.7rem); font-weight: 800; line-height: .95; text-transform: uppercase; overflow-wrap: anywhere; }
 .spz-lede { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
-.spz-back { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); font-weight: 700; }
+/* Back, and the links in the selected-muscle strip, sit on the Body Lab blue like the window
+   line below: on-dark ink with a link-coloured underline (link ink reads under 4.5:1 there). */
+.spz-back { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; text-decoration: underline; text-decoration-color: var(--sg-link-on-dark); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.spz-back > svg { color: var(--sg-link-on-dark); }
+.spz-strip .spz-link { color: var(--sg-text-on-dark); text-decoration: underline; text-decoration-color: var(--sg-link-on-dark); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .spz-back:focus-visible, .spz-link:focus-visible, .spz-button:focus-visible, .spz-primary:focus-visible, .spz-row:focus-visible, .spz-chip:focus-visible, .spz-icon-button:focus-visible, .spz-close:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 
 /* Segments: a pill with one lit part. It wraps to two lines rather than push the page sideways at 320 px. */
@@ -187,6 +191,13 @@
 .spz-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .6rem .15rem; padding: 0; list-style: none; }
 .spz-page .spz-days { margin: 0 -.75rem .4rem; }
 @media (max-width: 369px) { .spz-days { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+/* A short phone (iPhone SE, 375 × 667): tighter gaps above the drawing, so a selected muscle with
+   a target and a Back link still has its strip and the drawing's top on the first screen. */
+@media (max-height: 700px) {
+  .spz-page { gap: .5rem; }
+  .spz-card.spz-map { gap: .25rem; padding: .75rem; padding-top: .25rem; }
+  .spz-controls, .spz-diagram-controls, .spz-map > .spz-section-head { row-gap: .25rem; }
+}
 .spz-days li { display: grid; min-width: 0; }
 .spz-day { display: grid; justify-items: center; align-content: start; gap: .15rem; min-width: 0; min-height: 2.75rem; border: 1px solid transparent; border-radius: var(--sg-radius-sm); padding: .35rem .1rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-variant-numeric: tabular-nums; }
 button.spz-day { border-color: var(--sg-control-border-on-dark); }

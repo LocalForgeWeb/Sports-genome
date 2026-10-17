@@ -197,6 +197,20 @@ describe("the selected muscle, on the same screen as the drawing (brief §6 mobi
     expect(screen.getAllByRole("button", { name: /Inspect coverage|Add targeted exercise/ })).toEqual([within(strip).getByRole("button", { name: /Inspect coverage/ })]);
   });
 
+  it("keeps to one target line however many targets the muscle has: the one furthest behind, and how many more", () => {
+    saveSpecializationGoals([
+      target({ id: "near", metric: "direct_dynamic_bouts", target: 4 }),
+      target({ id: "far", metric: "deliberate_hold_bouts", target: 6 }),
+      target({ id: "left", side: "left", metric: "direct_dynamic_bouts", target: 4 }),
+    ], null);
+    render(createElement(Harness, { initial: { nodeId: "forearm.br" } }));
+    const strip = within(mapCard()).getByRole("group", { name: "Selected muscle" });
+    const lines = strip.querySelectorAll(".spz-strip-goal");
+    expect(lines).toHaveLength(1);
+    // Right arm: 3 of 4 direct bouts, 0 of 6 holds; the holds are furthest behind. The left arm's target is not this arm's.
+    expect(lines[0].textContent).toMatch(/^Hold bouts: 0 of your 6.* · 1 more target$/);
+  });
+
   it("follows a tap on the drawing, and offers to add when the muscle has no work", async () => {
     render(createElement(Harness, { initial: { nodeId: "forearm.br" } }));
     await act(async () => { fireEvent.click(within(mapCard()).getByRole("button", { name: /^Flexor carpi radialis\. / })); });
@@ -366,6 +380,12 @@ describe("the window line's pair opens its sets (brief §1: every total opens th
     expect(ratio(token("--sg-text-on-dark"), ground)).toBeGreaterThanOrEqual(4.5);
     expect(ratio(token("--sg-link-on-dark"), ground)).toBeLessThan(4.5);
     expect(ratio(token("--sg-link-on-dark"), ground)).toBeGreaterThanOrEqual(3);
+    // The same ground is under Back and the selected-muscle strip's links.
+    for (const rule of [/\.spz-back \{([^}]*)\}/, /\.spz-strip \.spz-link \{([^}]*)\}/]) {
+      const body = read("./specialization.css").match(rule)![1];
+      expect(body).toMatch(/(^|;)\s*color: var\(--sg-text-on-dark\)/);
+      expect(body).toMatch(/text-decoration: underline/);
+    }
   });
 });
 

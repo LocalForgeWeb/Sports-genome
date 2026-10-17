@@ -81,22 +81,25 @@ export function holdTime(seconds: number): string {
 
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
-/** The parts of a muscle's exposure that are not zero, in the brief's order (§5 "Default muscle totals"). */
-export function exposureParts(node: NodeExposure): string[] {
+/**
+ * The parts of a muscle's exposure that are not zero, in the brief's order (§5 "Default muscle
+ * totals"). `incidentalWork` is the region's word for incidental work (`region.wording`).
+ */
+export function exposureParts(node: NodeExposure, incidentalWork: string): string[] {
   const parts: string[] = [];
   if (node.directDynamicBouts) parts.push(`${plural(node.directDynamicBouts, "direct dynamic bout")}`);
   if (node.contributingDynamicBouts) parts.push(`${node.contributingDynamicBouts} other dynamic`);
   if (node.deliberateHoldBouts) parts.push(`${plural(node.deliberateHoldBouts, "deliberate hold")}, ${holdTime(node.deliberateHoldSeconds)}`);
-  if (node.incidentalBouts) parts.push(`${node.incidentalBouts} incidental grip or steadying`);
+  if (node.incidentalBouts) parts.push(`${node.incidentalBouts} incidental ${incidentalWork} or steadying`);
   if (node.mixedBouts) parts.push(`${node.mixedBouts} mixed`);
   if (node.unknownBouts) parts.push(`${node.unknownBouts} unclassified`);
   return parts;
 }
 
 /** One line for a muscle: what it got, or why there is nothing to count. */
-export function exposureSentence(node: NodeExposure | null): string {
+export function exposureSentence(node: NodeExposure | null, incidentalWork: string): string {
   if (!node || node.mappingCoverage === "none") return "No exercise is mapped to this muscle yet, so nothing can be counted for it.";
-  const parts = exposureParts(node);
+  const parts = exposureParts(node, incidentalWork);
   const pending = node.pendingReviewBouts ? `${plural(node.pendingReviewBouts, "set")} matched a mapping still under review and ${node.pendingReviewBouts === 1 ? "is" : "are"} not counted.` : "";
   const unknownSide = node.unknownSide.bouts ? `${plural(node.unknownSide.bouts, "set")} with no arm recorded ${node.unknownSide.bouts === 1 ? "is" : "are"} kept apart.` : "";
   const head = parts.length ? `${parts.join(" · ")}.` : node.mappingCoverage === "pending_review" ? "Its exercise mapping is still under review." : "No work for it in this window.";
@@ -144,6 +147,13 @@ export const goalMetricLabels: Record<GoalMetric, string> = {
   direct_dynamic_bouts: "Direct dynamic bouts",
   deliberate_hold_bouts: "Deliberate hold bouts",
   deliberate_hold_seconds: "Deliberate hold seconds",
+};
+
+/** The same, short enough for one line in the selected-muscle strip on a 375 px phone. */
+export const goalMetricShortLabels: Record<GoalMetric, string> = {
+  direct_dynamic_bouts: "Direct bouts",
+  deliberate_hold_bouts: "Hold bouts",
+  deliberate_hold_seconds: "Hold seconds",
 };
 
 export function categoryLabel(category: ExposureCategory): string {

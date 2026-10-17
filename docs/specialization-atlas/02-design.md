@@ -89,7 +89,7 @@ Tests for `shared/` code live under `client/src/lib/specialization/` (vitest doe
 
 ## 7. Page
 
-**Route:** workspace `specialization`, Body Lab's fourth tab **Specialize**. URL params: `region`, `node`, `limb` (`left`/`right`), `window` (`week`/`7d`/`custom`), `from`/`to` (custom), `mode` (`planned`/`completed`), `view` (`palm`/`back`/`thumb`), `layer` (`surface`/`intermediate`/`deep`), `map` (`volume`/`target`), `pweek` (plan week). Changes inside the page use `replaceState`; entering the page pushes. Other workspaces strip these params. Back returns to the screen that opened it.
+**Route:** workspace `specialization`, Body Lab's fourth tab **Specialize**. URL params: `region`, `node`, `limb` (`left`/`right`), `window` (`week`/`7d`/`custom`), `from`/`to` (custom), `mode` (`planned`/`completed`), `view` (the drawing's own view id; left out for the drawing's first view, and dropped when the drawing has no such view), `layer` (`surface`/`intermediate`/`deep`), `map` (`volume`/`target`), `pweek` (plan week). Changes inside the page use `replaceState`; entering the page pushes. Other workspaces strip these params. Back returns to the screen that opened it.
 
 **Entry points:** Body Lab tab; the Muscles map's next step when the forearm or brachioradialis is selected; Review → Week → forearm muscle detail, "Explore forearm coverage" (opens with that plan week and `mode=planned`); universal search "Forearm specialization".
 
@@ -133,7 +133,7 @@ A node with no reviewed mapping gets "This muscle's exercise mapping is not revi
 
 The schema `specialization` holds:
 - regions, nodes, actions, sources, claims, claim_sources, node_actions;
-- diagram_assets and diagram_paths;
+- diagram_assets, diagram_views, diagram_paths and diagram_labels;
 - catalog_exercises and exercise_variants;
 - mapping_versions, variant_mappings and mapping_sources;
 - rule_versions;

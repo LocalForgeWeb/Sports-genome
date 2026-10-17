@@ -24,7 +24,7 @@ import { splitTargets } from "./TargetsEditor";
 import { TargetsOverview } from "./TargetsOverview";
 import { PlanChangeSheet } from "./PlanChangeSheet";
 import { SpecializationDiagram } from "./SpecializationDiagram";
-import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricLabels, holdTime, goalsForNode, latestSessionDayLabel, layerLabels, movementFocusNodeId, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
+import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricLabels, goalMetricShortLabels, holdTime, goalsForNode, latestSessionDayLabel, layerLabels, movementFocusNodeId, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
 import "@/components/anatomy/anatomy-figure.css";
 import "./specialization.css";
 
@@ -142,13 +142,9 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const nodes = useMemo(() => selectableNodes(data), [data]);
   const selected = nodes.find((node) => node.id === state.nodeId) ?? null;
   const selectedExposure = selected ? exposureOf(selected.id) : null;
-  // A hand-edited or stale address: an unknown muscle, or a plan week that is not built, is dropped from it.
-  useEffect(() => {
-    if (state.nodeId && !selected) onStateChange({ ...state, nodeId: null });
-    else if (plan.ready && state.planWeek !== null && builtWeeks.length && !builtWeeks.includes(state.planWeek)) onStateChange({ ...state, planWeek: null });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.nodeId, selected, state.planWeek, plan.ready, builtWeeks]);
-
+  const selectedGoals = selected ? [...goalsForNode(summary, selected.id)].sort((left, right) => left.fraction - right.fraction) : [];
+  const stripGoal = selectedGoals[0] ?? null;
+  const stripGoalsMore = Math.max(0, selectedGoals.length - 1);
   const [sheet, setSheet] = useState<SheetState | null>(null);
   const [allFindings, setAllFindings] = useState(false);
   // Mounted once first opened and kept: a half-filled reading or its Undo survives closing the disclosure.
@@ -190,12 +186,24 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const view = shownView?.id ?? state.view ?? "";
   const layers = (Object.keys(layerControlLabels) as DiagramLayerId[]).filter((layer) => asset?.views[view]?.[layer]);
   const layer: DiagramLayerId = layers.includes(state.layer) ? state.layer : layers[0] ?? state.layer;
+
+  // A hand-edited or stale address: an unknown muscle, a plan week that is not built, or a view
+  // this drawing does not have (or its first view, which the address leaves out) is dropped from
+  // it, all in one change so no fix overwrites another.
+  const staleView = state.view !== null && views.length > 0 && (state.view !== shownView?.id || state.view === views[0].id);
+  const staleWeek = plan.ready && state.planWeek !== null && builtWeeks.length > 0 && !builtWeeks.includes(state.planWeek);
+  const staleNode = Boolean(state.nodeId) && !selected;
+  useEffect(() => {
+    if (!staleNode && !staleWeek && !staleView) return;
+    onStateChange({ ...state, ...(staleNode ? { nodeId: null } : {}), ...(staleWeek ? { planWeek: null } : {}), ...(staleView ? { view: null } : {}) });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staleNode, staleWeek, staleView]);
   const nameOf = (id: string) => data.nodes.find((node) => node.id === id)?.name ?? id;
   /** What stands in for numbers while there are none: the plan loading, the totals failing, or (briefly) being worked out. */
   const waiting = planLoading ? "Loading your plan…" : here.status === "error" ? "The totals could not be worked out." : "Working out the totals…";
   // No summary yet: every muscle is drawn plain, neither hatched ("not reviewed") nor empty ("no work").
   const fillFor = (id: string): DiagramFill => (summary ? fillForNode(exposureOf(id), state.map, goalsForNode(summary, id)) : { kind: "none" });
-  const sentenceFor = (id: string) => (summary ? exposureSentence(exposureOf(id)) : waiting);
+  const sentenceFor = (id: string) => (summary ? exposureSentence(exposureOf(id), data.region.wording.incidentalWork) : waiting);
   const describeFor = (id: string) => `${nameOf(id)}. ${sentenceFor(id)}`;
 
   const armWord = state.limb === "left" ? "left arm" : "right arm";
@@ -228,7 +236,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     if (Math.abs(shift) >= 1) window.scrollBy({ top: shift, behavior: "instant" });
   }, [state.nodeId]);
   useEffect(() => {
-    if (summary) setAnnouncement(`${interval.label}, ${armWord}: ${summary.regionDistinctBouts} distinct ${regionWord} bouts.`);
+    if (summary) setAnnouncement(`${interval.label}, ${armWord}: ${plural(summary.regionDistinctBouts, "distinct bout")} for the ${regionWord}.`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interval.label, state.limb, state.mode]);
 
@@ -441,7 +449,9 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
         {selected ? <>
           <p className="spz-strip-name"><b>{selected.name}</b><span className="spz-badge">{layerLabels[selected.layer]}</span></p>
           <p className="spz-strip-line">{sentenceFor(selected.id)}</p>
-          {goalsForNode(summary, selected.id).map((progress) => <p key={progress.goal.id} className="spz-strip-goal">{goalMetricLabels[progress.goal.metric]}: {progress.label}</p>)}
+          {/* One line however many targets the muscle has, so the drawing stays on a small phone's
+              first screen: the target furthest behind, and how many more the sheet lists. */}
+          {stripGoal && <p className="spz-strip-goal">{goalMetricShortLabels[stripGoal.goal.metric]}: {stripGoal.label}{stripGoalsMore ? ` · ${plural(stripGoalsMore, "more target")}` : ""}</p>}
           <div className="spz-actions">
             {hasWork || !summary || selectedExposure?.mappingCoverage !== "reviewed"
               ? <button type="button" className="spz-primary" onClick={() => setSheet({ kind: "muscle" })}>Inspect coverage <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
@@ -654,7 +664,7 @@ function MuscleRow({ node, exposure, incidentalWork, waiting, selected, onOpen }
       parts!.rest ? `${parts!.rest} mixed` : "",
     ].filter(Boolean).join(" · ") || "No work";
   return <li>
-    <button type="button" className="spz-row" aria-pressed={selected} data-unmapped={unmapped || undefined} onClick={onOpen} aria-label={`${node.name}, ${layerLabels[node.layer]}. ${waiting ?? exposureSentence(exposure)} Open details.`}>
+    <button type="button" className="spz-row" aria-pressed={selected} data-unmapped={unmapped || undefined} onClick={onOpen} aria-label={`${node.name}, ${layerLabels[node.layer]}. ${waiting ?? exposureSentence(exposure, incidentalWork)} Open details.`}>
       <span className="spz-row-head">
         <span className="spz-row-name">{node.name}<small>{node.shortName}</small>{node.layer !== "surface" && <span className="spz-badge">{node.layer === "deep" ? "Deep" : "Middle"}</span>}</span>
         <span className="spz-row-value">{value}{exposure && directWorkBouts(exposure) > BAR_SCALE ? ` (${directWorkBouts(exposure)})` : ""}</span>

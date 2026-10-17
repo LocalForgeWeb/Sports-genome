@@ -140,9 +140,9 @@ describe("no region is named in the calculator, the windows, the goals or the ad
  * data (`region.wording`, `measurementMetrics`, the drawing's `viewOrder`). Comments are not
  * read, since they may cite the forearm brief or give a forearm id as an example; strings and
  * code are. `grip` is not on the list: it is also a measure (`grip_force_n`, offered only when the
- * region lists it) and a kind of mapping (straps), which the components name as such. So the
- * muscle sheet's "Incidental grip or steadying" (MuscleSheet.tsx, model.ts `exposureParts`) is
- * not caught here; it is the one forearm word left on every region's page (02-design.md §10).
+ * region lists it) and a kind of mapping (straps), which the components name as such. The muscle
+ * sheet and the exposure sentence take the incidental word from `region.wording` too, and
+ * SpecializationPanel.deltoid.render.test.ts checks the deltoid's sheet for forearm words.
  */
 describe("no region is named in the page's components", () => {
   const dir = "client/src/components/specialization";

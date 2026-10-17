@@ -110,7 +110,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
           <div><dt>Direct dynamic bouts</dt><dd>{exposure.directDynamicBouts}{exposure.directDynamicReps ? <small> · {exposure.directDynamicReps} reps</small> : null}</dd></div>
           <div><dt>Other dynamic bouts</dt><dd>{exposure.contributingDynamicBouts}{exposure.contributingDynamicReps ? <small> · {exposure.contributingDynamicReps} reps</small> : null}</dd></div>
           <div><dt>Deliberate holds</dt><dd>{exposure.deliberateHoldBouts}{exposure.deliberateHoldBouts ? <small> · {holdTime(exposure.deliberateHoldSeconds)}</small> : null}</dd></div>
-          <div><dt>Incidental grip or steadying</dt><dd>{exposure.incidentalBouts}</dd></div>
+          <div><dt>Incidental {data.region.wording.incidentalWork} or steadying</dt><dd>{exposure.incidentalBouts}</dd></div>
           {exposure.mixedBouts > 0 && <div><dt>Mixed bouts</dt><dd>{exposure.mixedBouts}</dd></div>}
           {exposure.unknownBouts > 0 && <div><dt>Unclassified</dt><dd>{exposure.unknownBouts}</dd></div>}
           {exposure.unknownSide.bouts > 0 && <div><dt>No arm recorded</dt><dd>{exposure.unknownSide.bouts}<small> · counted for neither arm</small></dd></div>}

@@ -126,10 +126,23 @@ describe("the specialization page on the deltoid fixture", () => {
     expect(mapCard().querySelector(".spz-diagram")!.getAttribute("data-view")).toBe("front");
   });
 
-  it("falls back to the drawing's first view when the address names one it does not have", () => {
+  it("falls back to the drawing's first view when the address names one it does not have, and drops it from the address", async () => {
     render(createElement(Harness, { initial: { view: "palm" } }));
     expect(viewButtons().map((button) => button.getAttribute("aria-pressed"))).toEqual(["true", "false", "false"]);
     expect(mapCard().querySelector(".spz-diagram")!.getAttribute("data-view")).toBe("front");
+    await act(async () => {});
+    expect(lastState?.view).toBeNull();
+  });
+
+  it("leaves the first view out of the address when it is named, and keeps another", async () => {
+    render(createElement(Harness, { initial: { view: "front" } }));
+    await act(async () => {});
+    expect(lastState?.view).toBeNull();
+    cleanup();
+    render(createElement(Harness, { initial: { view: "rear", nodeId: "deltoid.nonexistent" } }));
+    await act(async () => {});
+    // Two fixes at once (an unknown muscle) never undo each other: the rear view stays.
+    expect([lastState?.view, lastState?.nodeId]).toEqual(["rear", null]);
   });
 
   it("lets the drawing's muscles be chosen: the lateral head from the side, its numbers above the drawing", async () => {
@@ -143,7 +156,10 @@ describe("the specialization page on the deltoid fixture", () => {
     expect(within(strip).getByText(/^3 direct dynamic bouts/)).not.toBeNull();
     // The same muscle sheet opens from it, for this region's muscle.
     await act(async () => { fireEvent.click(within(strip).getByRole("button", { name: /Inspect coverage/ })); });
-    expect(screen.getByRole("dialog", { name: "Lateral deltoid" })).not.toBeNull();
+    const sheet = screen.getByRole("dialog", { name: "Lateral deltoid" });
+    // The sheet, too, speaks in this region's words: its incidental work is "bracing", never grip.
+    expect(within(sheet).getByText("Incidental bracing or steadying")).not.toBeNull();
+    expect(sheet.textContent).not.toMatch(/forearm|grip|palm|thumb side|pinky|upper-arm|wrist|dynamometer/i);
   });
 
   it("offers circumference only under Progress, with the region's own subtitle", async () => {
