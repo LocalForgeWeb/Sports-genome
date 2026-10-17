@@ -151,6 +151,8 @@
 .spz-why-line, .spz-why-rationale { color: #d6e2ee; font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-why-basis { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; }
 .spz-why-basis small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+/* A limitation is part of the claim: kept at the small step, not shrunk further by the browser's <small>. */
+.spz-sources small { font-size: var(--sg-text-sm); }
 .spz-why .spz-sources small { display: block; color: var(--sg-text-muted-on-dark); }
 
 .spz-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: .6rem; gap: .3rem; margin-bottom: .6rem; padding: 0; list-style: none; }

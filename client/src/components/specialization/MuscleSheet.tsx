@@ -149,7 +149,9 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
 
     <section className="spz-sheet-section" aria-labelledby="spz-target">
       <h3 id="spz-target">Your target</h3>
-      <TargetsEditor regionId={data.region.id} nodeId={node.id} nodeName={node.name} side={side} goals={goals} progress={progress} timeZone={timeZone} todayKey={todayKey} onSave={onSaveGoals} onRemove={onRemoveGoal} />
+      {/* While the plan loads there is no progress to read, and the editor would show each target at 0. */}
+      {loading ? <p className="spz-note">Your targets and their progress appear once your plan has loaded.</p>
+        : <TargetsEditor regionId={data.region.id} nodeId={node.id} nodeName={node.name} side={side} goals={goals} progress={progress} timeZone={timeZone} todayKey={todayKey} onSave={onSaveGoals} onRemove={onRemoveGoal} />}
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-exercises">

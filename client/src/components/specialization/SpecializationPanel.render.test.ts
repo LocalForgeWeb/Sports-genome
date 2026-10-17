@@ -204,6 +204,23 @@ describe("the selected muscle, on the same screen as the drawing (brief §6 mobi
     expect(lastState?.nodeId).toBe("forearm.fcr");
   });
 
+  it("keeps the drawing still under the finger when a tap changes the strip's height", async () => {
+    render(createElement(Harness));
+    const strip = within(mapCard()).getByRole("group", { name: "Selected muscle" });
+    const rect = (bottom: number) => ({ top: bottom - 116, bottom, left: 0, right: 320, width: 320, height: 116, x: 0, y: bottom - 116, toJSON: () => ({}) }) as DOMRect;
+    // Before the tap the region line is 116 px tall; the selected muscle's strip is 12 px shorter.
+    vi.spyOn(strip, "getBoundingClientRect").mockImplementationOnce(() => rect(716)).mockImplementation(() => rect(704));
+    const scrollBy = vi.spyOn(window, "scrollBy").mockImplementation(() => {});
+    await act(async () => { fireEvent.click(within(mapCard()).getByRole("button", { name: /^Flexor carpi radialis\. / })); });
+    expect(lastState?.nodeId).toBe("forearm.fcr");
+    expect(scrollBy).toHaveBeenCalledTimes(1);
+    expect(scrollBy).toHaveBeenCalledWith({ top: -12, behavior: "instant" });
+    // A choice from the list opens the sheet and moves nothing.
+    scrollBy.mockClear();
+    await act(async () => { fireEvent.click(row(/^Brachioradialis,/)); });
+    expect(scrollBy).not.toHaveBeenCalled();
+  });
+
   it("with nothing selected, gives the region's count and opens the sets behind it", async () => {
     const onOpenSession = vi.fn();
     render(createElement(Harness, { onOpenSession }));
@@ -211,6 +228,7 @@ describe("the selected muscle, on the same screen as the drawing (brief §6 mobi
     expect(within(strip).getByText(/^3 distinct bouts touched the forearms on the right arm\./)).not.toBeNull();
     await act(async () => { fireEvent.click(within(strip).getByRole("button", { name: /See these sets/ })); });
     const sheet = screen.getByRole("dialog", { name: "3 distinct bouts" });
+    expect(sheet.textContent).toMatch(/every set that loaded a muscle of the forearms on the right arm/);
     expect(within(sheet).getByText("Hammer Curl")).not.toBeNull();
     const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
     expect(open).toHaveLength(3);
@@ -251,6 +269,16 @@ describe("totals for the whole region open their sets (brief §1)", () => {
     const sheet = screen.getByRole("dialog", { name: "1 set with no arm recorded" });
     expect(within(sheet).getByText("One-Arm Dumbbell Wrist Curl")).not.toBeNull();
     expect(within(sheet).getByText(/Arm not recorded/)).not.toBeNull();
+  });
+
+  it("in planned mode, calls the sets planned rather than done", async () => {
+    render(createElement(Harness, { initial: { mode: "planned" } }));
+    const strip = within(mapCard()).getByRole("group", { name: "Selected muscle" });
+    await act(async () => { fireEvent.click(within(strip).getByRole("button", { name: /See these sets/ })); });
+    const sheet = screen.getByRole("dialog");
+    expect(sheet.textContent).toMatch(/every set planned for a muscle of the forearms on the right arm/);
+    expect(sheet.textContent).not.toMatch(/loaded/);
+    expect(within(sheet).queryAllByRole("button", { name: /Open this workout/ })).toEqual([]);
   });
 
   it("opens one exercise's sets from Exercises in this window", async () => {
@@ -337,6 +365,16 @@ describe("planned mode while the plan loads", () => {
     expect(screen.queryAllByRole("button", { name: /No work for it|No exercise is mapped/ })).toEqual([]);
     const fills = new Set(Array.from(document.querySelectorAll<SVGPathElement>(".spz-diagram-belly")).map((path) => path.dataset.fill));
     expect(Array.from(fills)).toEqual(["none"]);
+  });
+
+  it("shows no target progress in the muscle sheet either, until the plan has loaded", async () => {
+    saveSpecializationGoals([target({})], null);
+    render(createElement(Harness, { initial: { mode: "planned", nodeId: "forearm.br" }, plan: { ready: false } }));
+    await act(async () => { fireEvent.click(within(mapCard()).getByRole("button", { name: /Inspect coverage/ })); });
+    const sheet = screen.getByRole("dialog", { name: "Brachioradialis" });
+    expect(within(sheet).queryByText(/of your 20/)).toBeNull();
+    const targets = within(sheet).getByRole("heading", { name: "Your target" }).closest("section")!;
+    expect(targets.textContent).toMatch(/once your plan has loaded/);
   });
 });
 

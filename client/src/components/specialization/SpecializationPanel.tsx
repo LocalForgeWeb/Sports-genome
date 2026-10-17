@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ChevronDown } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import type { AthleteEquipmentProfile } from "@/lib/equipmentProfile";
@@ -197,6 +197,28 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     update({ nodeId });
     if (nodeId) setAnnouncement(`${nameOf(nodeId)} selected. ${sentenceFor(nodeId)}`);
   };
+  /**
+   * The strip sits above the drawing, so a tap that changes its height (a longer sentence, a
+   * target line, the region line giving way to a name) would move the drawing under the
+   * finger. The strip's bottom edge is noted before the tap and the page scrolled by however
+   * far it moved, so the drawing stays where it was touched.
+   */
+  const stripRef = useRef<HTMLDivElement>(null);
+  const keepDrawing = useRef<{ nodeId: string | null; bottom: number } | null>(null);
+  const tapDrawing = (id: string) => {
+    const nodeId = id === selected?.id ? null : id;
+    const strip = stripRef.current;
+    keepDrawing.current = strip ? { nodeId, bottom: strip.getBoundingClientRect().bottom } : null;
+    select(nodeId);
+  };
+  useLayoutEffect(() => {
+    const kept = keepDrawing.current;
+    keepDrawing.current = null;
+    const strip = stripRef.current;
+    if (!kept || !strip || kept.nodeId !== (state.nodeId ?? null)) return;
+    const shift = strip.getBoundingClientRect().bottom - kept.bottom;
+    if (Math.abs(shift) >= 1) window.scrollBy({ top: shift, behavior: "instant" });
+  }, [state.nodeId]);
   useEffect(() => {
     if (summary) setAnnouncement(`${interval.label}, ${armWord}: ${summary.regionDistinctBouts} distinct ${regionWord} bouts.`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -275,17 +297,21 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const boutSheet = useMemo<null | { eyebrow: string; title: string; intro: string; lists: BoutList[] }>(() => {
     if (sheet?.kind !== "bouts" || !summary) return null;
     const eyebrow = `${data.region.label} · ${armWord}`;
+    // A plan has done nothing yet: its sets are planned for a muscle, not sets that loaded one.
+    const planned = summary.mode === "planned";
     if (sheet.list === "region") {
       const onArm = regionBoutRows(summary, "region");
       if (sheet.exerciseKey) {
         const rows = onArm.filter((row) => exerciseKeyOf(row) === sheet.exerciseKey);
-        return { eyebrow, title: rows[0]?.exerciseName ?? "Sets", intro: `${interval.label}: ${plural(rows.length, "set")} of it loaded a ${regionWord} muscle on the ${armWord}.`, lists: [{ key: "arm", heading: null, note: null, rows }] };
+        return { eyebrow, title: rows[0]?.exerciseName ?? "Sets", intro: planned ? `${interval.label}: ${plural(rows.length, "set")} of it planned for a muscle of the ${regionWord} on the ${armWord}.` : `${interval.label}: ${plural(rows.length, "set")} of it loaded a muscle of the ${regionWord} on the ${armWord}.`, lists: [{ key: "arm", heading: null, note: null, rows }] };
       }
       const unknown = regionBoutRows(summary, "unknown-side");
       return {
         eyebrow,
         title: `${plural(summary.regionDistinctBouts, "distinct bout")}`,
-        intro: `${interval.label}: every set that loaded a ${regionWord} muscle on the ${armWord}, each counted once however many muscles it loaded.`,
+        intro: planned
+          ? `${interval.label}: every set planned for a muscle of the ${regionWord} on the ${armWord}, each counted once however many muscles it is planned for.`
+          : `${interval.label}: every set that loaded a muscle of the ${regionWord} on the ${armWord}, each counted once however many muscles it loaded.`,
         lists: [
           { key: "arm", heading: unknown.length ? `On the ${armWord}` : null, note: null, rows: onArm },
           ...(unknown.length ? [{ key: "unknown", heading: "No arm recorded", note: "Kept apart and counted for neither arm.", rows: unknown }] : []),
@@ -359,7 +385,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       </div>}
       {/* The selected muscle sits between the controls and the drawing (brief §6 "Mobile overview"):
           a tap on the drawing changes the words right above it, on the same screen. One action. */}
-      <div className="spz-strip" role="group" aria-label="Selected muscle" data-empty={selected ? undefined : ""}>
+      <div ref={stripRef} className="spz-strip" role="group" aria-label="Selected muscle" data-empty={selected ? undefined : ""}>
         {selected ? <>
           <p className="spz-strip-name"><b>{selected.name}</b><span className="spz-badge">{layerLabels[selected.layer]}</span></p>
           <p className="spz-strip-line">{sentenceFor(selected.id)}</p>
@@ -371,14 +397,14 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
             <button type="button" className="spz-link spz-link-box" onClick={() => select(null)}>Clear</button>
           </div>
         </> : <>
-          <p className="spz-strip-line">{summary ? `${plural(summary.regionDistinctBouts, "distinct bout")} touched the ${regionWord} on the ${armWord}${summary.regionUnknownSideBouts ? `, and ${summary.regionUnknownSideBouts} more had no arm recorded` : ""}.` : waiting} Choose a muscle on the drawing or in the list for its numbers.</p>
+          <p className="spz-strip-line">{summary ? `${plural(summary.regionDistinctBouts, "distinct bout")} touched the ${regionWord} on the ${armWord}${summary.regionUnknownSideBouts ? `, and ${summary.regionUnknownSideBouts} more had no arm recorded` : ""}.` : waiting} Choose a muscle {asset ? "on the drawing or " : ""}in the list for its numbers.</p>
           {regionBoutsBehind > 0 && <div className="spz-actions">
             <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "region" })}>See these sets <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
           </div>}
         </>}
       </div>
       {asset ? <>
-        <SpecializationDiagram asset={asset} view={view} layer={layer} mirrored={state.limb === "left"} fillFor={fillFor} selectedNodeId={selected?.id ?? null} onSelect={(id) => select(id === selected?.id ? null : id)} labelFor={(id) => data.nodes.find((node) => node.id === id)?.shortName ?? id} describeFor={describeFor} caption={`${data.region.label}, ${armWord}, ${viewLabels[view].toLowerCase()} view, ${layerControlLabels[layer].toLowerCase()} layer`} />
+        <SpecializationDiagram asset={asset} view={view} layer={layer} mirrored={state.limb === "left"} fillFor={fillFor} selectedNodeId={selected?.id ?? null} onSelect={tapDrawing} labelFor={(id) => data.nodes.find((node) => node.id === id)?.shortName ?? id} describeFor={describeFor} caption={`${data.region.label}, ${armWord}, ${viewLabels[view].toLowerCase()} view, ${layerControlLabels[layer].toLowerCase()} layer`} />
         <MapLegend map={state.map} />
       </> : <p className="spz-note">The drawing is not ready yet. Every muscle is in the list below, with the same numbers.</p>}
     </section>
@@ -428,7 +454,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
               {item.catalogExerciseId !== null && <button type="button" className="spz-link" onClick={() => inspect(item.catalogExerciseId, item.name)}>About it</button>}
             </span>
           </li>)}
-        </ul> : <p className="spz-note">No exercise {state.mode === "planned" ? "planned" : "logged"} in this window loads a mapped {regionWord} muscle.</p>}
+        </ul> : <p className="spz-note">No exercise {state.mode === "planned" ? "planned" : "logged"} in this window loads a mapped muscle of the {regionWord}.</p>}
         {overlaps.length > 0 && <div className="spz-subsection">
           <h3>Same muscle, same {state.mode === "planned" ? "day" : "workout"}</h3>
           <ul className="spz-exercise-list">{overlaps.map((item) => <li key={item.key}><span><b>{item.nodeShortName}</b><small>{item.sessionLabel}{item.performedAt ? ` · ${new Date(item.performedAt).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}` : ""}: {item.exercises.join(" and ")} both load it directly.</small></span></li>)}</ul>
