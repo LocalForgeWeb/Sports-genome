@@ -648,7 +648,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const slot = fromEntry ? workout.findIndex((item) => catalogIdOf(item) === fromEntry.id) : -1;
     if (!fromEntry || slot < 0) return { available: false, reason: `${from.exerciseName} isn't in this day of your plan.` };
     if (workout.some((item) => catalogIdOf(item) === target.id)) return { available: false, reason: `${target.name} is already in this day of your plan.` };
-    const prescription = plannedFor(workout[slot], slot).prescription;
+    // What the slot's sets and reps will read as for the exercise coming in: a hold's pinned rep
+    // default is a hold default only while a hold holds the slot, and back to reps for a rep exercise.
+    const prescription = prescriptionOf(prescriptions[workout[slot].id], slot, goal, policyFor({ catalogId: target.id, exerciseName: target.name }).measure);
     return { available: true, slot: `${dayNameOf(dayLabel)}, exercise ${slot + 1} of ${workout.length}: ${from.exerciseName} becomes ${target.name}. Its sets and reps (${prescription}) stay.` };
   };
 

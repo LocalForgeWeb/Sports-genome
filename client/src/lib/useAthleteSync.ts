@@ -61,10 +61,14 @@ export function liftsWaitingToUpload(queue: readonly QueuedLift[], referenceMap:
   return queue.length - liftsKeptOnDevice(queue, referenceMap);
 }
 
+/** Said when the sync's reference map changes, so a count read from the cached map is read again. */
+export const referenceMapChangedEvent = "sports-genome:reference-map";
+
 /**
  * The lifts kept on this device, read from the stored queue and the cached reference map (the
- * map the sync reads), and read again whenever the queue is saved. For a screen that is not
- * handed the sync's own status.
+ * map the sync reads), and read again whenever the queue is saved or the sync's map changes
+ * (the first load of the map is what turns a waiting lift into a kept one). For a screen that is
+ * not handed the sync's own status.
  */
 export function useLiftsKeptOnDevice(): number {
   const read = () => liftsKeptOnDevice(loadSyncQueue(), loadCachedReferenceMap());
@@ -72,9 +76,9 @@ export function useLiftsKeptOnDevice(): number {
   useEffect(() => {
     const refresh = () => setKept(read());
     refresh();
-    window.addEventListener(strengthSyncEvent, refresh);
-    window.addEventListener("storage", refresh);
-    return () => { window.removeEventListener(strengthSyncEvent, refresh); window.removeEventListener("storage", refresh); };
+    const events = [strengthSyncEvent, referenceMapChangedEvent, "storage"];
+    events.forEach((name) => window.addEventListener(name, refresh));
+    return () => events.forEach((name) => window.removeEventListener(name, refresh));
   }, []);
   return kept;
 }
@@ -137,6 +141,14 @@ export function useAthleteSync(options: {
     refreshReferenceMap(appSports).then((map) => { if (!cancelled && map) setReferenceMap(map); });
     return () => { cancelled = true; };
   }, [enabled, appSports]);
+
+  // A screen counting the kept lifts from the cached map reads it again once the map has changed:
+  // refreshReferenceMap caches the map before handing it over, so the cache is this map.
+  const firstMap = useRef(true);
+  useEffect(() => {
+    if (firstMap.current) { firstMap.current = false; return; }
+    window.dispatchEvent(new Event(referenceMapChangedEvent));
+  }, [referenceMap]);
 
   // An offline launch leaves identity "unreachable" and the map unread, and About me promises
   // the record syncs when the service is back, so both are asked for again on reconnect.

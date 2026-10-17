@@ -213,10 +213,38 @@ describe("A hold's default is a hold's (R1)", () => {
     expect(card().querySelector(".live-set-prescription strong")!.textContent).toBe("30 sec");
   });
 
+  it("still reads a built day's pinned default as the default after the hold is moved in the day", () => {
+    // generateWeek pins "3 × 6–10" on the third entry; the athlete then moves the hang to the top.
+    mount([deadHang, hammerCurl], { prescriptions: { [deadHang.id]: getGoalPrescription("Athleticism", 2), [hammerCurl.id]: "3 × 10" }, goal: "Athleticism" });
+    expect(document.querySelector(".session-prestart-name small")!.textContent).toBe("3 × 30 sec");
+    startWorkout();
+    expect(stored()[0].exercises[0].plannedPrescription).toBe("3 × 30 sec");
+    expect(card().querySelector(".live-set-prescription strong")!.textContent).toBe("30 sec");
+  });
+
   it("reads a saved bare target on a hold as seconds, as the planned atlas now does", () => {
     mount([deadHang], { prescription: "3 × 40" });
     startWorkout();
     expect(card().querySelector(".live-set-prescription strong")!.textContent).toBe("40 sec");
+  });
+});
+
+describe("The plan change offered with a swap names the sets and reps the slot will hold", () => {
+  const openSwap = (query: string, name: string) => {
+    fireEvent.click(within(card()).getByRole("button", { name: "Swap exercise" }));
+    const dialog = screen.getByRole("dialog", { name: /^Replace / });
+    fireEvent.change(within(dialog).getByRole("searchbox"), { target: { value: query } });
+    fireEvent.click(within(dialog).getAllByRole("button", { name: new RegExp(`^${name}`) })[0]);
+    return dialog;
+  };
+
+  it("reads a hang's pinned rep default as reps again for the rep exercise taking its slot", () => {
+    // The hang's slot holds the goal's pinned "4 × 3–6": a hold reads it as 4 × 30 sec, a curl as 4 × 3–6.
+    render(createElement(DeviceWorkoutTracker, { workout: [deadHang, oneArmCurl], prescriptions: { [deadHang.id]: getGoalPrescription("Athleticism", 0), [oneArmCurl.id]: "3 × 12" }, settings: {}, goal: "Athleticism", dayLabel: DAY, weightUnit: "lb", onReplaceInPlan: () => true }));
+    startWorkout();
+    expect(card().querySelector(".live-set-prescription strong")!.textContent).toBe("30 sec");
+    const dialog = openSwap("hammer curl", "Hammer Curl");
+    expect(dialog.textContent).toContain("Pull, exercise 1 of 2: Dead Hang becomes Hammer Curl. Its sets and reps (4 × 3–6) stay.");
   });
 });
 

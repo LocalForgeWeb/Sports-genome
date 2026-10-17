@@ -12,9 +12,9 @@ import type { ReferenceMap } from "./supabaseReferenceMap";
  * reference map has loaded they are counted apart, and the account card says they are kept on this
  * device; the queue itself is unchanged.
  */
-const sync = vi.hoisted(() => ({ flushSyncQueue: vi.fn(), map: null as ReferenceMap | null }));
+const sync = vi.hoisted(() => ({ flushSyncQueue: vi.fn(), map: null as ReferenceMap | null, refreshed: undefined as ReferenceMap | null | undefined }));
 vi.mock("@/lib/athleteIdentity", () => ({ ensureAthleteIdentity: async () => ({ userId: "u1", anonymous: true }), upsertAthleteProfile: vi.fn(async () => true), attachEmailToIdentity: vi.fn() }));
-vi.mock("@/lib/supabaseReferenceMap", () => ({ loadCachedReferenceMap: () => sync.map, refreshReferenceMap: async () => sync.map }));
+vi.mock("@/lib/supabaseReferenceMap", () => ({ loadCachedReferenceMap: () => sync.map, refreshReferenceMap: async () => { if (sync.refreshed !== undefined) sync.map = sync.refreshed; return sync.map; } }));
 vi.mock("@/lib/strengthSyncQueue", async (importOriginal) => ({
   ...(await importOriginal<typeof import("./strengthSyncQueue")>()),
   flushSyncQueue: sync.flushSyncQueue,
@@ -22,7 +22,7 @@ vi.mock("@/lib/strengthSyncQueue", async (importOriginal) => ({
 vi.mock("@/lib/resilienceCatalogClient", () => ({ fetchTargetCatalogAsAthlete: async () => null }));
 vi.mock("@/lib/capacityContext", () => ({ capacitySignature: () => "none", loadCapacityContext: async () => null, saveCapacityContext: async () => undefined }));
 
-import { liftsKeptOnDevice, liftsWaitingToUpload, useAthleteSync } from "./useAthleteSync";
+import { liftsKeptOnDevice, liftsWaitingToUpload, referenceMapChangedEvent, useAthleteSync } from "./useAthleteSync";
 import { loadSyncQueue } from "./strengthSyncQueue";
 import { AthleteAccountCard } from "@/components/AthleteAccountCard";
 
@@ -41,6 +41,7 @@ const settle = async () => { await act(async () => { for (let i = 0; i < 5; i +=
 beforeEach(() => {
   window.localStorage.clear();
   sync.map = null;
+  sync.refreshed = undefined;
   sync.flushSyncQueue.mockReset().mockResolvedValue(idle);
 });
 afterEach(() => cleanup());
@@ -92,6 +93,35 @@ describe("the account card", () => {
     const text = card({ pending: 2, keptOnDevice: 3 });
     expect(text).toContain("2 lifts are waiting to upload.");
     expect(text).toContain("3 lifts are kept on this device because their exercises cannot be uploaded to your account yet.");
+  });
+
+  it("reads the count again when the sync's map first loads, with no queue write in between", async () => {
+    // Nothing cached yet: every queued lift counts as waiting, and none as kept.
+    window.localStorage.setItem("sports-genome-strength-sync-queue-v1", JSON.stringify([lift("b", 410)]));
+    const view = render(createElement(AthleteAccountCard, { identity: { userId: "u1", anonymous: true }, pending: 1, optedIn: false, onOptIn: vi.fn() }));
+    expect(view.container.textContent).not.toContain("kept on this device");
+    // The map arrives (and is cached by refreshReferenceMap); the sync hook says so.
+    const said: string[] = [];
+    const listen = (event: Event) => said.push(event.type);
+    window.addEventListener(referenceMapChangedEvent, listen);
+    sync.refreshed = mapOf([1]);
+    renderHook(() => useAthleteSync({ weightUnit: "lb", appSports: [], enabled: false }));
+    // Disabled, the hook asks for no map; enabled, it does, and the card follows the loaded map.
+    expect(said).toEqual([]);
+    renderHook(() => useAthleteSync({ weightUnit: "lb", appSports: [], enabled: true }));
+    await settle();
+    window.removeEventListener(referenceMapChangedEvent, listen);
+    expect(said.length).toBeGreaterThan(0);
+    expect(view.container.textContent).toContain("1 lift is kept on this device");
+  });
+
+  it("re-reads on the map event alone", () => {
+    window.localStorage.setItem("sports-genome-strength-sync-queue-v1", JSON.stringify([lift("b", 410)]));
+    const view = render(createElement(AthleteAccountCard, { identity: { userId: "u1", anonymous: true }, pending: 1, optedIn: false, onOptIn: vi.fn() }));
+    expect(view.container.textContent).not.toContain("kept on this device");
+    sync.map = mapOf([1]);
+    act(() => { window.dispatchEvent(new Event(referenceMapChangedEvent)); });
+    expect(view.container.textContent).toContain("1 lift is kept on this device");
   });
 
   it("reads the kept lifts from the stored queue when it is not told, and says nothing when there are none", () => {

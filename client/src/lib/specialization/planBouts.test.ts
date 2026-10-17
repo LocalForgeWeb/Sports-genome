@@ -62,8 +62,22 @@ describe("a hold never gets a rep default", () => {
     // The planner and Home fill an unset entry with the goal's default; on a hold that is not a choice.
     expect(prescriptionOf(getGoalPrescription("Athleticism", 1), 1, "Athleticism", "seconds")).toBe("4 × 30 sec");
     expect(prescriptionOf(getGoalPrescription("Muscle growth", 0), 0, "Muscle growth", "seconds")).toBe("3 × 30 sec");
-    // The same text in another place, where it is not the default, is kept as written.
-    expect(prescriptionOf("4 × 3–6", 3, "Athleticism", "seconds")).toBe("4 × 3–6");
+    // The pinned text stays with the entry when it moves within its day, or when the goal changes
+    // after the week was built: it is still a rep default, read with its own set count.
+    expect(prescriptionOf(getGoalPrescription("Athleticism", 2), 0, "Athleticism", "seconds")).toBe("3 × 30 sec");
+    expect(prescriptionOf(getGoalPrescription("Athleticism", 0), 3, "Athleticism", "seconds")).toBe("4 × 30 sec");
+    expect(prescriptionOf(getGoalPrescription("Capacity", 2), 2, "Muscle growth", "seconds")).toBe("3 × 30 sec");
+    expect(prescriptionOf(getGoalPrescription("Max strength", 0), 0, undefined, "seconds")).toBe("4 × 30 sec");
+    // On a rep exercise every goal default is kept as written; on a hold, anything else the athlete wrote is too.
+    expect(prescriptionOf(getGoalPrescription("Capacity", 2), 0, "Athleticism", "reps")).toBe("3 × 12–20");
+    expect(prescriptionOf("3 × 20–40", 0, "Athleticism", "seconds")).toBe("3 × 20–40");
+    expect(prescriptionOf("4 × 45 sec", 0, "Athleticism", "seconds")).toBe("4 × 45 sec");
+  });
+
+  it("plans a hang moved within a built day as 30-second holds, not the rep range it was pinned with", () => {
+    // Built under Athleticism at position 3 ("3 × 6–10"), then moved to the top of the day.
+    const bouts = boutsFromPlan({ week: 1, slots, store: day([{ id: deadHang.id, prescription: getGoalPrescription("Athleticism", 2) }]), variants: forearmRegionData.variants, goal: "Athleticism" });
+    expect(bouts.map((bout) => [bout.segments[0].reps, bout.segments[0].holdSeconds])).toEqual([[null, 30], [null, 30], [null, 30]]);
   });
 
   it("plans a pinned goal default on a hang as 30-second holds", () => {

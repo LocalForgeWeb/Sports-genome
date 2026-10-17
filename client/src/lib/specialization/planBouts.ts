@@ -58,22 +58,32 @@ function defaultPrescriptionOf(index: number, goal: TrainingGoal | undefined, me
   return goalDefault ? `${parseSetCount(goalDefault)} × ${holdDefaultTarget}` : holdDefaultPrescription;
 }
 
+/** Every goal's default for every place in a day: the texts the planner pins on an entry it builds. */
+const trainingGoals = ["Athleticism", "Muscle growth", "Max strength", "Capacity"] as const satisfies readonly TrainingGoal[];
+// Every goal is listed: a goal added to TrainingGoal and not here fails to compile.
+const everyGoalListed: Exclude<TrainingGoal, (typeof trainingGoals)[number]> extends never ? true : never = true;
+void everyGoalListed;
+const pinnedGoalDefaults: ReadonlySet<string> = new Set(trainingGoals.flatMap((goal) => [0, 1, 2, 3].map((index) => getGoalPrescription(goal, index))));
+
 /**
  * The prescription every plan reader uses for an entry: the saved one, else the default for its
  * position (`defaultPrescriptionOf`), so a hold never gets a rep default. The tracker reads its
  * planned sets through this same function, so the card and the planned totals start from the
  * same text.
  *
- * On a hold, a saved prescription that is exactly the goal's default for its position is read as
- * the default it is. The planner pins that text when it builds a day (and Home hands the tracker
- * the day's map with it filled in), so it says nothing the athlete chose; read literally it would
- * be a rep range taken as seconds. Any other saved text is the athlete's and is kept.
+ * On a hold, a saved prescription that is one of the goals' defaults is read as the default it
+ * is, with its own set count: "3 × 6–10" on a hang is "3 × 30 sec". The planner pins that text
+ * on every entry when it builds a day or a week (and Home hands the tracker the day's map with
+ * it filled in), so it says nothing the athlete chose; read literally it would be a rep range
+ * taken as seconds. It is matched against every goal's default for every position, not only
+ * this entry's: an entry moved within its day, or a goal changed after the week was built,
+ * keeps the text it was pinned with. Any other saved text is the athlete's and is kept.
  */
 export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal, measure?: PlannedMeasure): string;
 export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal | undefined, measure?: PlannedMeasure): string | undefined;
 export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal | undefined, measure?: PlannedMeasure): string | undefined {
-  const pinnedGoalDefault = measure === "seconds" && goal !== undefined && saved === getGoalPrescription(goal, index);
-  if (saved && !pinnedGoalDefault) return saved;
+  if (saved && measure === "seconds" && pinnedGoalDefaults.has(saved.trim())) return `${parseSetCount(saved)} × ${holdDefaultTarget}`;
+  if (saved) return saved;
   return defaultPrescriptionOf(index, goal, measure);
 }
 
