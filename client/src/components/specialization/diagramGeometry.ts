@@ -129,6 +129,65 @@ export function sliceCentres(points: readonly Point[], count = 48): { point: Poi
   return out;
 }
 
+/** Even-odd point-in-polygon test. */
+export function containsPoint(points: readonly Point[], point: Point): boolean {
+  let inside = false;
+  for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+    const a = points[i];
+    const b = points[j];
+    if ((a.y > point.y) !== (b.y > point.y) && point.x < a.x + ((point.y - a.y) * (b.x - a.x)) / (b.y - a.y)) inside = !inside;
+  }
+  return inside;
+}
+
+type Box = { left: number; top: number; right: number; bottom: number };
+const boxOf = (points: readonly Point[]): Box => ({
+  left: Math.min(...points.map((point) => point.x)),
+  top: Math.min(...points.map((point) => point.y)),
+  right: Math.max(...points.map((point) => point.x)),
+  bottom: Math.max(...points.map((point) => point.y)),
+});
+
+/**
+ * Which node's belly is painted on top at a point (paint order: later paths are on top), or
+ * null over a gutter, a tendon, bone or skin. The tap squares are scored with it. Worked out
+ * once per layer as a raster of RASTER_CELL-unit cells, filled row by row from each belly's
+ * slices, so scoring a square is a few look-ups rather than point-in-polygon tests.
+ */
+function topBellyAt(bellies: readonly { nodeId: string; points: Point[]; box: Box }[]) {
+  if (!bellies.length) return () => null;
+  const left = Math.floor(Math.min(...bellies.map((belly) => belly.box.left)));
+  const top = Math.floor(Math.min(...bellies.map((belly) => belly.box.top)));
+  const cols = Math.ceil((Math.max(...bellies.map((belly) => belly.box.right)) - left) / RASTER_CELL) + 1;
+  const rows = Math.ceil((Math.max(...bellies.map((belly) => belly.box.bottom)) - top) / RASTER_CELL) + 1;
+  const owners = new Int16Array(cols * rows).fill(-1);
+  bellies.forEach((belly, index) => {
+    const firstRow = Math.max(0, Math.floor((belly.box.top - top) / RASTER_CELL));
+    const lastRow = Math.min(rows - 1, Math.ceil((belly.box.bottom - top) / RASTER_CELL));
+    for (let row = firstRow; row <= lastRow; row++) {
+      for (const [from, to] of slice(belly.points, top + (row + 0.5) * RASTER_CELL)) {
+        const firstCol = Math.max(0, Math.ceil((from - left) / RASTER_CELL - 0.5));
+        const lastCol = Math.min(cols - 1, Math.floor((to - left) / RASTER_CELL - 0.5));
+        for (let col = firstCol; col <= lastCol; col++) owners[row * cols + col] = index;
+      }
+    }
+  });
+  return (point: Point): string | null => {
+    const col = Math.floor((point.x - left) / RASTER_CELL);
+    const row = Math.floor((point.y - top) / RASTER_CELL);
+    if (col < 0 || row < 0 || col >= cols || row >= rows) return null;
+    const index = owners[row * cols + col];
+    return index < 0 ? null : bellies[index].nodeId;
+  };
+}
+
+/** Raster cell for topBellyAt, in view-box units. */
+const RASTER_CELL = 2;
+/** Samples per side when scoring how much of other muscles a tap square would cover. */
+const COVER_SAMPLES = 6;
+/** A label anchor stays this far inside the canvas, so the leader line ends on the drawing. */
+const ANCHOR_MARGIN = 14;
+
 export type DrawnNode = {
   nodeId: string;
   /** Belly paths in draw order. */
@@ -154,28 +213,52 @@ export type DrawnNode = {
 export function drawnNodes(paths: readonly DiagramPath[], options: { square?: number; canvas?: { width: number; height: number } } = {}): DrawnNode[] {
   const side = options.square ?? 0;
   const canvas = options.canvas ?? null;
+  // One asset's layers are fixed module data, so each is worked out once per square size.
+  const cacheKey = `${side}|${canvas ? `${canvas.width}x${canvas.height}` : "-"}`;
+  const cached = placementCache.get(paths)?.get(cacheKey);
+  if (cached) return cached;
+
   const byNode = new Map<string, { bellies: DiagramPath[]; tendons: DiagramPath[] }>();
+  // Every belly as drawn, in paint order (the paths' order: later is on top).
+  const bellyShapes: { nodeId: string; points: Point[]; box: Box }[] = [];
+  const pointsOf = new Map<DiagramPath, Point[]>();
+  for (const path of paths) {
+    if (path.kind !== "belly" || !path.nodeId) continue;
+    const points = flattenPath(path.d);
+    pointsOf.set(path, points);
+    bellyShapes.push({ nodeId: path.nodeId, points, box: boxOf(points) });
+  }
+  const ownerAt = topBellyAt(bellyShapes);
   for (const path of paths) {
     if (!path.nodeId || (path.kind !== "belly" && path.kind !== "tendon")) continue;
     const entry = byNode.get(path.nodeId) ?? { bellies: [], tendons: [] };
     (path.kind === "belly" ? entry.bellies : entry.tendons).push(path);
     byNode.set(path.nodeId, entry);
   }
+  // A label anchor on the canvas: a belly that runs off the edge of the drawing is labelled
+  // where it is drawn, never at a point the leader line cannot reach.
+  const onCanvas = (point: Point) => !canvas || (point.y >= ANCHOR_MARGIN && point.y <= canvas.height - ANCHOR_MARGIN && point.x >= 0 && point.x <= canvas.width);
   const nodes = Array.from(byNode.entries())
     .filter(([, entry]) => entry.bellies.length > 0)
     .map(([nodeId, entry]) => {
-      const polygons = entry.bellies.map((path) => flattenPath(path.d));
+      const polygons = entry.bellies.map((path) => pointsOf.get(path) ?? flattenPath(path.d));
       const areas = polygons.map(polygonArea);
       const largest = polygons[areas.indexOf(Math.max(...areas))];
-      const centres = sliceCentres(largest);
+      const all = sliceCentres(largest);
+      const visible = all.filter((item) => onCanvas(item.point));
+      const centres = visible.length ? visible : all;
       const widest = centres.reduce((best, item) => (item.width > best.width ? item : best), centres[0] ?? { point: { x: 0, y: 0 }, width: 0 });
-      return { nodeId, ...entry, area: areas.reduce((sum, value) => sum + value, 0), labelAnchor: widest.point, hitAnchor: widest.point, centres };
+      // Tap-square candidates: across every belly of the node, each slice's middle and its quarter points.
+      const candidates = polygons.flatMap((points) => sliceCentres(points).flatMap(({ point, width }) => [0, -0.25, 0.25].map((shift) => ({ point: { x: point.x + shift * width, y: point.y }, width }))));
+      return { nodeId, ...entry, area: areas.reduce((sum, value) => sum + value, 0), labelAnchor: widest.point, hitAnchor: widest.point, candidates };
     });
 
   // Tap squares, smallest node first (it has the fewest places to go): each takes the point
   // inside its own belly whose square overlaps no square already placed (Chebyshev distance
-  // of a full side) and stays on the canvas, preferring wide slices and, among equals, the
-  // node's widest point. Bigger nodes, placed later, have room to step round the small ones.
+  // of a full side) and stays on the canvas. Among those it takes the one that covers the
+  // least of other muscles as drawn, because the squares sit above the bellies and a tap on a
+  // neighbour under a square selects the square's muscle; then wide slices, then the node's
+  // widest point. Bigger nodes, placed later, have room to step round the small ones.
   const placed: Point[] = [];
   // The side a square centred here could have without touching a placed square or leaving the canvas.
   const room = (point: Point) => Math.min(
@@ -183,18 +266,44 @@ export function drawnNodes(paths: readonly DiagramPath[], options: { square?: nu
     ...placed.map((other) => Math.max(Math.abs(other.x - point.x), Math.abs(other.y - point.y))),
     ...(canvas ? [2 * point.x, 2 * (canvas.width - point.x), 2 * point.y, 2 * (canvas.height - point.y)] : []),
   );
+  // Share of the square over another muscle's belly as drawn, and over its own.
+  const cover = (nodeId: string, centre: Point) => {
+    let other = 0;
+    let own = 0;
+    for (let i = 0; i < COVER_SAMPLES; i++) {
+      for (let j = 0; j < COVER_SAMPLES; j++) {
+        const owner = ownerAt({ x: centre.x + side * ((i + 0.5) / COVER_SAMPLES - 0.5), y: centre.y + side * ((j + 0.5) / COVER_SAMPLES - 0.5) });
+        if (owner === nodeId) own++;
+        else if (owner !== null) other++;
+      }
+    }
+    const total = COVER_SAMPLES * COVER_SAMPLES;
+    return { other: other / total, own: own / total };
+  };
   for (const node of [...nodes].sort((left, right) => left.area - right.area)) {
     let best = node.hitAnchor;
     let bestScore = -Infinity;
-    for (const centre of node.centres) {
-      const score = room(centre.point) * 100 + centre.width - Math.hypot(centre.point.x - node.labelAnchor.x, centre.point.y - node.labelAnchor.y) / 100;
-      if (score > bestScore) { bestScore = score; best = centre.point; }
+    for (const candidate of node.candidates) {
+      const free = room(candidate.point);
+      // Room first and by far (a square that touches another is never chosen over one that does not).
+      let score = free * 1e5 + candidate.width - Math.hypot(candidate.point.x - node.labelAnchor.x, candidate.point.y - node.labelAnchor.y) / 100;
+      if (side > 0 && free * 1e5 >= bestScore - 1e4) {
+        const { other, own } = cover(node.nodeId, candidate.point);
+        score += -other * 1000 + own * 100;
+      }
+      if (score > bestScore) { bestScore = score; best = candidate.point; }
     }
     node.hitAnchor = best;
     placed.push(best);
   }
-  return nodes.map(({ centres: _centres, ...node }) => node);
+  const result = nodes.map(({ candidates: _candidates, ...node }) => node);
+  const forPaths = placementCache.get(paths) ?? new Map<string, DrawnNode[]>();
+  forPaths.set(cacheKey, result);
+  placementCache.set(paths, forPaths);
+  return result;
 }
+
+const placementCache = new WeakMap<readonly DiagramPath[], Map<string, DrawnNode[]>>();
 
 export type Placement = { view: DiagramViewId; layer: DiagramLayerId };
 

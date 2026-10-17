@@ -29,11 +29,13 @@ export type SpecializationDiagramProps = {
  *   1. The asset's paths in their own order: skin, bone, ghost outlines of the layer above,
  *      bellies (painted by `fillFor`), tendons (always neutral: a tendon is not muscle bulk,
  *      brief §6), creases.
- *   2. The selected muscle's outline: a soft halo, a dark keyline and a gold line, so it reads
- *      on the palest exposure step and on the dark ground alike, never by hue alone.
+ *   2. The selected muscle's outline, round its bellies and tendons as one shape (masked to the
+ *      outside): a dark keyline, a gold line, a dark keyline and a soft halo, so it reads on the
+ *      palest exposure step and on the dark ground alike, never by hue alone.
  *   3. The tap targets (invisible): every belly widened across its gutters, every belly as
  *      drawn above those, and on top one 44 pt square per muscle, placed inside its own belly
- *      and clear of every other square. Largest muscle first, so a smaller one wins a tie.
+ *      and clear of every other square, where it covers the least of other muscles as drawn
+ *      (a tap there selects the square's muscle). Largest first, so a smaller one wins a tie.
  *   4. Text, outside the mirror: the anatomy labels and the selected muscle's name.
  *
  * Mirroring flips the drawing for the left arm and re-places every label (x and anchor), so
@@ -90,7 +92,11 @@ export function SpecializationDiagram({ asset, view, layer, mirrored, fillFor, s
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const hatchId = `${uid}-hatch`;
   const noteId = `${uid}-note`;
+  const maskId = `${uid}-selection-mask`;
   const [focusedNodeId, setFocusedNodeId] = useState<string | null>(null);
+  // The muscle that last had focus, by any means: the one tab stop moves with it, so Tab from
+  // a muscle reached with the arrow keys leaves the drawing instead of landing on another muscle.
+  const [rovingNodeId, setRovingNodeId] = useState<string | null>(null);
   const { width, height } = asset.viewBox;
   const drawn = asset.views[view]?.[layer] ?? null;
   const paths = drawn?.paths ?? [];
@@ -106,9 +112,16 @@ export function SpecializationDiagram({ asset, view, layer, mirrored, fillFor, s
     [nodes, mirrored, width],
   );
   const selected = nodes.find((node) => node.nodeId === selectedNodeId) ?? null;
-  const tabbable = selected?.nodeId ?? focusOrder[0]?.nodeId ?? null;
+  const roving = nodes.some((node) => node.nodeId === rovingNodeId) ? rovingNodeId : null;
+  const tabbable = roving ?? selected?.nodeId ?? focusOrder[0]?.nodeId ?? null;
 
-  const describe = (nodeId: string) => `${describeFor?.(nodeId) ?? labelFor(nodeId)}${nodeId === selectedNodeId ? ", selected" : ""}`;
+  // The page's description is sentences ("<Name>. 3 direct dynamic bouts."): the state
+  // follows as its own sentence, never as ".,".
+  const describe = (nodeId: string) => {
+    const text = (describeFor?.(nodeId) ?? labelFor(nodeId)).trim();
+    if (nodeId !== selectedNodeId) return text;
+    return /[.!?]$/.test(text) ? `${text} Selected.` : `${text}, selected`;
+  };
   const moveFocus = (from: string, step: number) => {
     const index = focusOrder.findIndex((node) => node.nodeId === from);
     if (index < 0 || !focusOrder.length) return;
@@ -142,6 +155,7 @@ export function SpecializationDiagram({ asset, view, layer, mirrored, fillFor, s
     anchor: mirrored && label.anchor !== "middle" ? (label.anchor === "start" ? "end" : "start") : label.anchor,
   }));
   const callout = selected ? calloutFor(selected, labelFor(selected.nodeId), labels, { width, height, flipX }) : null;
+  const outlined = selected ? [...selected.bellies, ...selected.tendons] : [];
   const mirror = mirrored ? `translate(${width} 0) scale(-1 1)` : undefined;
   const square = HIT_SQUARE_SHARE * width;
 
@@ -162,6 +176,13 @@ export function SpecializationDiagram({ asset, view, layer, mirrored, fillFor, s
             <rect width="6" height="6" fill="#2e3a49" />
             <rect width="1.2" height="6" fill="#6f7d90" />
           </pattern>
+          {/* The selected muscle's outline is drawn outside its shapes only: a belly and the
+              tendon that starts inside its tip are outlined as one shape, with no crossing
+              lines where they join. In the user space of the (possibly mirrored) drawing. */}
+          {selected && <mask id={maskId} maskUnits="userSpaceOnUse" x={-width} y={-height} width={width * 3} height={height * 3}>
+            <rect x={-width} y={-height} width={width * 3} height={height * 3} fill="#fff" />
+            {outlined.map((path) => <path key={path.id} d={path.d} fill="#000" />)}
+          </mask>}
         </defs>
 
         <g transform={mirror}>
@@ -169,10 +190,9 @@ export function SpecializationDiagram({ asset, view, layer, mirrored, fillFor, s
             {paths.map((path) => <ArtPath key={path.id} path={path} fill={path.kind === "belly" && path.nodeId ? fillFor(path.nodeId) : null} hatchId={hatchId} selectedNodeId={selectedNodeId} />)}
           </g>
 
-          {selected && <g className="spz-diagram-selection" aria-hidden="true" data-node={selected.nodeId}>
-            {[...selected.bellies, ...selected.tendons].map((path) => <path key={`halo-${path.id}`} className="spz-diagram-halo" d={path.d} />)}
-            {[...selected.bellies, ...selected.tendons].map((path) => <path key={`key-${path.id}`} className="spz-diagram-keyline" d={path.d} />)}
-            {[...selected.bellies, ...selected.tendons].map((path) => <path key={`ring-${path.id}`} className="spz-diagram-ring" d={path.d} />)}
+          {selected && <g className="spz-diagram-selection" aria-hidden="true" data-node={selected.nodeId} mask={`url(#${maskId})`}>
+            {/* Outside the shape, from it outwards: dark keyline, gold line, dark keyline, soft halo. */}
+            {(["halo", "outer-keyline", "ring", "keyline"] as const).map((part) => outlined.map((path) => <path key={`${part}-${path.id}`} className={`spz-diagram-${part}`} d={path.d} />))}
           </g>}
 
           {focusedNodeId && <g className="spz-diagram-focus" aria-hidden="true">
@@ -207,7 +227,7 @@ export function SpecializationDiagram({ asset, view, layer, mirrored, fillFor, s
                 data-hit={node.nodeId}
                 onClick={() => onSelect(node.nodeId)}
                 onKeyDown={onKeyDown(node.nodeId)}
-                onFocus={(event) => setFocusedNodeId(focusVisible(event.currentTarget) ? node.nodeId : null)}
+                onFocus={(event) => { setRovingNodeId(node.nodeId); setFocusedNodeId(focusVisible(event.currentTarget) ? node.nodeId : null); }}
                 onBlur={() => setFocusedNodeId(null)}
               >
                 <rect x={node.hitAnchor.x - square / 2} y={node.hitAnchor.y - square / 2} width={square} height={square} />

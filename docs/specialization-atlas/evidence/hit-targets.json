@@ -6,8 +6,8 @@
       "upper_arm.biceps": 60,
       "forearm.pt": 48,
       "forearm.fcu": 48,
-      "forearm.fcr": 48,
-      "forearm.pl": 47
+      "forearm.pl": 48,
+      "forearm.fcr": 47
     }
   },
   "palm-surface-left": {
@@ -17,8 +17,8 @@
       "forearm.br": 63,
       "forearm.pt": 48,
       "forearm.fcu": 48,
-      "forearm.fcr": 48,
-      "forearm.pl": 47
+      "forearm.pl": 48,
+      "forearm.fcr": 47
     }
   },
   "palm-intermediate-right": {
@@ -40,7 +40,7 @@
       "forearm.supinator": 62,
       "forearm.fdp": 92,
       "forearm.fpl": 48,
-      "forearm.pq": 71
+      "forearm.pq": 65
     }
   },
   "palm-deep-left": {
@@ -50,7 +50,7 @@
       "forearm.supinator": 62,
       "forearm.fdp": 92,
       "forearm.fpl": 48,
-      "forearm.pq": 71
+      "forearm.pq": 65
     }
   },
   "back-surface-right": {
@@ -58,12 +58,12 @@
     "squares": {
       "forearm.br": 48,
       "forearm.ecrl": 48,
-      "forearm.anconeus": 48,
+      "forearm.anconeus": 47,
       "forearm.fcu": 54,
-      "forearm.ecrb": 48,
-      "forearm.edm": 48,
-      "forearm.ed": 47,
+      "forearm.edm": 47,
       "forearm.ecu": 48,
+      "forearm.ed": 48,
+      "forearm.ecrb": 48,
       "forearm.apl": 47,
       "forearm.epb": 48
     }
@@ -73,11 +73,11 @@
     "squares": {
       "forearm.br": 48,
       "forearm.ecrl": 48,
-      "forearm.anconeus": 48,
+      "forearm.anconeus": 47,
       "forearm.fcu": 54,
+      "forearm.edm": 47,
       "forearm.ecrb": 48,
-      "forearm.edm": 48,
-      "forearm.ed": 47,
+      "forearm.ed": 48,
       "forearm.ecu": 48,
       "forearm.apl": 47,
       "forearm.epb": 48
@@ -88,7 +88,7 @@
     "squares": {
       "forearm.supinator": 75,
       "forearm.apl": 48,
-      "forearm.epl": 47,
+      "forearm.epl": 48,
       "forearm.epb": 48,
       "forearm.ei": 47
     }
@@ -98,7 +98,7 @@
     "squares": {
       "forearm.supinator": 75,
       "forearm.apl": 48,
-      "forearm.epl": 47,
+      "forearm.epl": 48,
       "forearm.epb": 48,
       "forearm.ei": 47
     }
@@ -106,29 +106,29 @@
   "thumb-surface-right": {
     "svgWidth": 324,
     "squares": {
-      "forearm.br": 54,
+      "forearm.br": 59,
       "upper_arm.biceps": 48,
       "forearm.ecrl": 48,
       "forearm.anconeus": 48,
-      "forearm.ecrb": 47,
-      "forearm.ed": 48,
+      "forearm.ecrb": 48,
+      "forearm.ed": 47,
       "forearm.fcr": 48,
       "forearm.apl": 48,
-      "forearm.epb": 47
+      "forearm.epb": 48
     }
   },
   "thumb-surface-left": {
     "svgWidth": 324,
     "squares": {
       "upper_arm.biceps": 48,
-      "forearm.br": 54,
+      "forearm.br": 59,
       "forearm.ecrl": 48,
       "forearm.anconeus": 48,
-      "forearm.ecrb": 47,
-      "forearm.ed": 48,
+      "forearm.ecrb": 48,
+      "forearm.ed": 47,
       "forearm.fcr": 48,
       "forearm.apl": 48,
-      "forearm.epb": 47
+      "forearm.epb": 48
     }
   },
   "thumb-deep-right": {
@@ -139,7 +139,7 @@
       "forearm.fpl": 48,
       "forearm.apl": 48,
       "forearm.epl": 48,
-      "forearm.epb": 47
+      "forearm.epb": 48
     }
   },
   "thumb-deep-left": {
@@ -150,7 +150,7 @@
       "forearm.fpl": 48,
       "forearm.apl": 48,
       "forearm.epl": 48,
-      "forearm.epb": 47
+      "forearm.epb": 48
     }
   },
   "fills-at-rest": {
@@ -160,8 +160,8 @@
       "upper_arm.biceps": 60,
       "forearm.pt": 48,
       "forearm.fcu": 48,
-      "forearm.fcr": 48,
-      "forearm.pl": 47
+      "forearm.pl": 48,
+      "forearm.fcr": 47
     }
   },
   "not-on-layer": {
@@ -171,7 +171,7 @@
       "forearm.supinator": 62,
       "forearm.fdp": 92,
       "forearm.fpl": 48,
-      "forearm.pq": 71
+      "forearm.pq": 65
     }
   }
 }
