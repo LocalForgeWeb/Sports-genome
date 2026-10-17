@@ -12,7 +12,7 @@ import {
   unskipExercise, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession, type SetSide, type StrapsUsed,
 } from "@/lib/deviceWorkoutLog";
 import { loggingPolicyFor, type LoggingPolicy } from "@shared/specialization/loggingPolicy";
-import { addAfter, applySwap, assessSwap, canUndoSwap, catalogIdOf, swapNote, undoSwap, type SwapReceipt } from "@/lib/workoutSwap";
+import { addAfter, addSets, applySwap, assessSwap, canUndoSwap, catalogIdOf, perArmRowSides, swapNote, undoSwap, type SwapReceipt, type SwapTarget } from "@/lib/workoutSwap";
 import { dropSetLine, dropSetSummary, newStageId, performedSetLine, setVolume, stageLoadText, stageNote, stageProblem, volumeText } from "@/lib/dropSets";
 import { loadConventionFor } from "@shared/loadConventions";
 import { SetEffortChoice } from "@/components/SetEffortChoice";
@@ -96,7 +96,7 @@ type PlannedEntry = { prescription: string; perArm: boolean };
  * plan counts for it. Each row's arm is set from the start and can still be changed on the card.
  */
 const perArmRows = (plannedSets: number): DeviceSetLog[] =>
-  Array.from({ length: plannedSets * 2 }, (_, row) => ({ id: newSetId(), weight: "", reps: "", completed: false, side: row % 2 === 0 ? "right" : "left" }));
+  perArmRowSides(plannedSets).map((side) => ({ id: newSetId(), weight: "", reps: "", completed: false, side }));
 
 function makeSession(workout: Exercise[], plannedFor: (exercise: Exercise, index: number) => PlannedEntry, dayLabel: string, restSeconds: number, weightUnit: DisplayWeightUnit): DeviceWorkoutSession {
   return {
@@ -333,6 +333,36 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   const plannedFor = (exercise: Exercise, index: number): PlannedEntry => {
     const policy = policyFor({ catalogId: catalogIdOf(exercise), exerciseName: exercise.name });
     return { prescription: prescriptionOf(prescriptions[exercise.id], index, goal, policy.measure), perArm: perArmSets && policy.oneArm };
+  };
+  /**
+   * The plan entry a session exercise was built from, in the day open in the plan: its own, or,
+   * for one swapped in, the one it took the place of. -1 when there is none, or when this
+   * workout is from another day.
+   */
+  const planSlotOf = (from: DeviceWorkoutExercise) => {
+    if ((activeSessionRef.current ?? activeSession)?.dayLabel !== dayLabel) return -1;
+    const ids = [from.catalogId ?? catalogFor(from)?.id, from.swappedFrom?.catalogId].filter((id): id is number => id !== undefined);
+    for (const id of ids) {
+      const slot = workout.findIndex((item) => catalogIdOf(item) === id);
+      if (slot >= 0) return slot;
+    }
+    return -1;
+  };
+  /**
+   * An exercise swapped in or added mid-workout is built the way a planned one is (lib/workoutSwap):
+   * laid out per arm under the same gate, and starting from the sets and reps it takes over, read
+   * by its own measure. Both ways round, so the incoming exercise reads what the plan entry says
+   * as `planOptionFor` reads it: a goal's rep default pinned on the plan entry (or none) is a
+   * hold's "4 × 30 sec" for a hold coming in, and, where `from` still holds what its plan entry
+   * gave it, a hold's default is the goal's reps again ("4 × 3–6") for a rep exercise coming in,
+   * never "30 sec" on a rep exercise. Text the athlete wrote is kept as written.
+   */
+  const incomingFor = (target: SwapTarget, from: DeviceWorkoutExercise) => {
+    const policy = policyFor({ catalogId: target.id, exerciseName: target.name });
+    const slot = planSlotOf(from);
+    const saved = slot >= 0 ? prescriptions[workout[slot].id] : undefined;
+    const fromPlan = slot >= 0 && prescriptionOf(saved, slot, goal, policyFor(from).measure) === from.plannedPrescription;
+    return { perArm: perArmSets && policy.oneArm, prescription: fromPlan ? prescriptionOf(saved, slot, goal, policy.measure) : prescriptionOf(from.plannedPrescription, 0, goal, policy.measure) };
   };
   const completed = useMemo(() => (activeSession ? countCompletedSets(activeSession) : 0), [activeSession]);
   const planned = useMemo(() => (activeSession ? countPlannedSets(activeSession) : 0), [activeSession]);
@@ -678,7 +708,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       const swapId = freshId("swap");
       const out: { receipt: SwapReceipt | null } = { receipt: null };
       commit((session) => {
-        const result = applySwap(session, exerciseId, { name: choice.target.name, id: choice.target.id }, { swapId, newExerciseId: freshId(String(choice.target.id)), at: new Date().toISOString(), draft: choice.draft, partialDrop: choice.partialDrop, newSetId, measureOf: (target) => policyFor({ catalogId: target.id, exerciseName: target.name }).measure }, exerciseCatalog);
+        const original = session.exercises.find((exercise) => exercise.id === exerciseId);
+        const target = { name: choice.target.name, id: choice.target.id };
+        const result = applySwap(session, exerciseId, target, { swapId, newExerciseId: freshId(String(choice.target.id)), at: new Date().toISOString(), draft: choice.draft, partialDrop: choice.partialDrop, newSetId, measureOf: (item) => policyFor({ catalogId: item.id, exerciseName: item.name }).measure, ...(original ? incomingFor(target, original) : {}) }, exerciseCatalog);
         out.receipt = result.receipt;
         return result.session;
       });
@@ -697,9 +729,12 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         } else planLine = " Your plan couldn't be changed just now, so it is as it was.";
       }
       const kept = receipt.original ? receipt.original.sets.filter(isCompletedSet).length : 0;
+      // Where rows per arm come into it, the count the new exercise got, as the sheet said it.
+      const rows = receipt.replacement.sets.length;
+      const count = receipt.before.perArm || receipt.replacement.perArm ? `${rows} ${rows === 1 ? "set" : "sets"}${receipt.replacement.perArm ? ", one arm at a time" : ""}` : "";
       toast(`Swapped to ${choice.target.name}`, {
         id: `swap-${swapId}`,
-        description: `${kept ? `Your ${kept} logged ${kept === 1 ? "set stays" : "sets stay"} with ${fromName}.` : `${choice.target.name} takes ${fromName}'s place.`}${planLine}`,
+        description: `${kept ? `Your ${kept} logged ${kept === 1 ? "set stays" : "sets stay"} with ${fromName}.${count ? ` ${choice.target.name} has ${count}.` : ""}` : `${choice.target.name} takes ${fromName}'s place${count ? ` with ${count}` : ""}.`}${planLine}`,
         action: { label: "Undo", onClick: () => undoSwapFrom(receipt, revertPlan) },
       });
     } finally {
@@ -710,13 +745,15 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   const addAfterExercise = (exerciseId: string, target: Exercise) => {
     const anchor = activeSessionRef.current?.exercises.find((exercise) => exercise.id === exerciseId);
     const newExerciseId = freshId(String(target.id));
-    commit((session) => addAfter(session, exerciseId, { name: target.name, id: target.id }, { newExerciseId, at: new Date().toISOString(), newSetId }));
+    const incoming = anchor ? incomingFor({ name: target.name, id: target.id }, anchor) : null;
+    commit((session) => addAfter(session, exerciseId, { name: target.name, id: target.id }, { newExerciseId, at: new Date().toISOString(), newSetId, ...(incoming ?? {}) }));
     setSwapForId(null);
     setAddAfterId(null);
     focusNextLogAction();
+    const perArm = incoming?.perArm ? addSets(incoming.prescription, true) : null;
     toast(`Added ${target.name}`, {
       id: `add-${newExerciseId}`,
-      description: `After ${anchor?.exerciseName ?? "the last exercise"}, starting from the same sets and reps.`,
+      description: `After ${anchor?.exerciseName ?? "the last exercise"}, starting from ${incoming && anchor && incoming.prescription !== anchor.plannedPrescription ? incoming.prescription : "the same sets and reps"}${perArm ? `, done once with each arm: ${perArm.sets} sets` : ""}.`,
       // Taken back while nothing is logged or typed on it; after that, Remove in the full workout.
       action: { label: "Undo", onClick: () => commit((session) => {
         const added = session.exercises.find((exercise) => exercise.id === newExerciseId);
@@ -1463,6 +1500,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       assessment={assessSwap(addAnchor)}
       inWorkout={new Set(activeSession.exercises.map((exercise) => exercise.exerciseName))}
       lastLoggedFor={lastLoggedText}
+      incomingFor={(target) => incomingFor({ name: target.name, id: target.id }, addAnchor)}
       onConfirm={() => undefined}
       onAdd={(target) => addAfterExercise(addAnchor.id, target)}
       onClose={() => setAddAfterId(null)}
@@ -1474,6 +1512,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       assessment={assessSwap(swapExercise)}
       inWorkout={new Set(activeSession.exercises.map((exercise) => exercise.exerciseName))}
       lastLoggedFor={lastLoggedText}
+      incomingFor={(target) => incomingFor({ name: target.name, id: target.id }, swapExercise)}
       planOptionFor={planOptionFor(swapExercise)}
       onConfirm={(choice) => confirmSwap(swapExercise.id, choice)}
       onAdd={(target) => addAfterExercise(swapExercise.id, target)}

@@ -75,7 +75,8 @@ import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { catalogPageSize, defaultCatalogFilters, muscleModeExercises, type CatalogFilters } from "@/lib/catalogDiscovery";
 import { allExercisesDiscovery, discoveryFromParams, discoveryKey, discoveryMovementProfile, discoveryTitle, validDiscovery, writeDiscoveryParams, type ExerciseDiscoveryContext } from "@/lib/exerciseDiscovery";
 import { getMovementSupport } from "@/lib/movementSupport";
-import { getExerciseSettings, getGoalPrescription, getWorkoutDiagnostics, isTrainingGoal, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
+import { getExerciseSettings, getGoalPrescription, getWorkoutDiagnostics, isTrainingGoal, prescriptionOf, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
+import { catalogIdOf } from "@/lib/workoutSwapRecord";
 import { createActionConnectionLookup, lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { getBodyLabRoleContext } from "@/lib/bodyLabRoleContext";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
@@ -105,6 +106,7 @@ import { clearSpecializationParams, defaultSpecializationState, specializationSt
 import { applyPlanChangeToRecord } from "@/lib/specialization/planChange";
 import { useSpecializationGoals } from "@/lib/specialization/stores";
 import { isGoalActiveAt } from "@shared/specialization/goals";
+import { catalogMeasureOf } from "@shared/specialization/holdCatalogIds";
 import { defaultSpecializationRegionId, regionForBodyMapKey, specializationRegionIndex } from "@shared/specialization/regionIndex";
 
 type Workspace = "command" | "profile" | "progress" | "recommended" | "review" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "strength" | "specialization";
@@ -340,8 +342,16 @@ export function reviewScopeFromLocation(value: string | null): ReviewScope {
   return value === "day" ? "day" : "week";
 }
 
-function prescriptionFor(index: number, goal: Goal) {
-  return getGoalPrescription(goal, index);
+/**
+ * A plan entry's prescription as every screen shows it: the saved one, else the goal's default for
+ * its place in the day; on an exercise measured in seconds, a hold's ("4 × 30 sec", with the
+ * goal's set count), and a goal default pinned on a hold read as that (`prescriptionOf`). Train
+ * and the atlas read the plan through the same function, so the Plan editor, the picker, print,
+ * share and the review panels show what the workout will hold. The measure comes from the light
+ * list of holds, not the atlas's region data, which this first screen must not load.
+ */
+function prescriptionFor(exercise: Exercise, index: number, goal: Goal, saved: string | undefined) {
+  return prescriptionOf(saved, index, goal, catalogMeasureOf(catalogIdOf(exercise)));
 }
 
 export function shouldRenderMetric(detail: string) {
@@ -651,6 +661,9 @@ export default function Home() {
    * The tracker fell back to "3 × 8–12", the full analysis to 3 sets and the Plan to "4 × 3–6"
    * for the same unset exercise, so one day showed 14 planned sets and started a 12-set workout
    * (TR-05, B093, B114). Surfaces are handed this map, so their own fallbacks never fire here.
+   * The tracker is handed the saved map and reads it through the same `prescriptionOf`, because
+   * a swap with "Also update this day in my plan" must know what the slot holds as saved: a hold's
+   * pinned rep default reads as reps again for the rep exercise put in its place.
    */
   /** The day as it leaves the app, captured when Share is pressed (lib/workoutExport): the rows' own values, in their order. */
   const [sharePlan, setSharePlan] = useState<WorkoutExport | null>(null);
@@ -670,7 +683,7 @@ export default function Home() {
           exercises: record.workout.map((exercise, index) => {
             const set = record.prescriptions[exercise.id];
             const settings = getExerciseSettings(record.settings, exercise.id);
-            return { exercise, prescription: set || prescriptionFor(index, goal), prescriptionIsDefault: !set, rpe: settings.rpe, rest: settings.rest, notes: settings.notes };
+            return { exercise, prescription: prescriptionFor(exercise, index, goal, set), prescriptionIsDefault: !set, rpe: settings.rpe, rest: settings.rest, notes: settings.notes };
           }),
         };
       }),
@@ -684,12 +697,12 @@ export default function Home() {
     dayName: activeSlot.day,
     sport: hasSportContext ? selectedSport.label : sportContextMode === "general" ? "General strength and resilience" : "",
     goal,
-    prescriptionFor: (exercise, index) => prescriptions[exercise.id] || prescriptionFor(index, goal),
+    prescriptionFor: (exercise, index) => prescriptionFor(exercise, index, goal, prescriptions[exercise.id]),
     settingsFor: (exercise) => getExerciseSettings(exerciseSettings, exercise.id),
     muscleLabel: (key) => muscleLabels[key] || key,
   }));
   const dayPrescriptions = useMemo(
-    () => Object.fromEntries(customWorkout.map((exercise, index) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(index, goal)])),
+    () => Object.fromEntries(customWorkout.map((exercise, index) => [exercise.id, prescriptionFor(exercise, index, goal, prescriptions[exercise.id])])),
     [customWorkout, prescriptions, goal],
   );
   /** The day the working draft belongs to, so an edit can never be filed against another day. */
@@ -1700,7 +1713,7 @@ export default function Home() {
     const previous = { workout: customWorkout, prescriptions, settings: exerciseSettings };
     const dayKey = draftDayKeyRef.current;
     setCustomWorkout(stack);
-    setPrescriptions(Object.fromEntries(stack.map((exercise, index) => [exercise.id, prescriptionFor(index, goal)])));
+    setPrescriptions(Object.fromEntries(stack.map((exercise, index) => [exercise.id, getGoalPrescription(goal, index)])));
     setExerciseSettings({});
     const draftedIds = stack.map((exercise) => exercise.id).join(",");
     // Restores the day it replaced - that day, and only while it still holds the draft.
@@ -1893,7 +1906,7 @@ export default function Home() {
       const source = filterStackForEquipment(getSplitExercisePool(exercises, slot.day, sportSeed), athleteBaseline.equipment);
       const offset = (nextWeek * 3) + (slot.index * 2);
       const rotated = [...source.slice(offset), ...source.slice(0, offset)].filter((exercise, index, values) => values.findIndex((item) => item.id === exercise.id) === index).slice(0, gymTimeBudget.recommendationLimit);
-      generatedDays = commitDay(generatedDays, slot.key, { workout: rotated, prescriptions: Object.fromEntries(rotated.map((exercise, index) => [exercise.id, prescriptionFor(index, goal)])), settings: {}, context: [] });
+      generatedDays = commitDay(generatedDays, slot.key, { workout: rotated, prescriptions: Object.fromEntries(rotated.map((exercise, index) => [exercise.id, getGoalPrescription(goal, index)])), settings: {}, context: [] });
     });
     const generated: WeekSnapshot = { days: generatedDays, activeDayIndex: 0 };
     setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot(), [nextWeek]: generated }));
@@ -2291,7 +2304,7 @@ export default function Home() {
       />}
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace, { discovery: searchReturn.discovery })}><ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="workspace-skeleton" role="status" aria-label="Loading this screen"><span className="workspace-skeleton-title" /><span /><span /><span /></div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
-        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onReviewDay={() => navigateWorkspace("review", { reviewScope: "day" })} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} onOpenSession={(id) => navigateWorkspace("progress", { session: id })} onOpenHome={() => navigateWorkspace("command")} onReplaceInPlan={replaceInPlanFromWorkout} askStraps={askStraps} perArmSets={askStraps} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
+        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onReviewDay={() => navigateWorkspace("review", { reviewScope: "day" })} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} onOpenSession={(id) => navigateWorkspace("progress", { session: id })} onOpenHome={() => navigateWorkspace("command")} onReplaceInPlan={replaceInPlanFromWorkout} askStraps={askStraps} perArmSets={askStraps} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
           {/* One line under the day the session names, not a panel above it.
               The tracker renders it only before a session starts; mid-workout
               the day cannot change under the sets being logged. */}
@@ -2414,7 +2427,7 @@ export default function Home() {
             </p>}
             <div className={`day-plan-list${reorderingDay ? " is-reordering" : ""}`}>
               {customWorkout.length
-                ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow onApplyRestToDay={applyRestToDay} dayRestMismatch={restMismatchFor(exercise.id)} exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal)} settings={getExerciseSettings(exerciseSettings, exercise.id)} progress={liveSession ? exerciseProgressFor(exercise.name, liveWorkoutLog) : null} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} />{/* Remove, on the row itself: it used to live only at the foot of the opened editor. Undo comes with it. */}<button type="button" className="day-row-remove" onClick={() => removeExercise(exercise.id)} aria-label={`Remove ${exercise.name} from ${activeSlot.day}`} title="Remove from this day"><X className="h-4 w-4" aria-hidden="true" /></button></div>)
+                ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow onApplyRestToDay={applyRestToDay} dayRestMismatch={restMismatchFor(exercise.id)} exercise={exercise} index={index} prescription={prescriptionFor(exercise, index, goal, prescriptions[exercise.id])} settings={getExerciseSettings(exerciseSettings, exercise.id)} progress={liveSession ? exerciseProgressFor(exercise.name, liveWorkoutLog) : null} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} />{/* Remove, on the row itself: it used to live only at the foot of the opened editor. Undo comes with it. */}<button type="button" className="day-row-remove" onClick={() => removeExercise(exercise.id)} aria-label={`Remove ${exercise.name} from ${activeSlot.day}`} title="Remove from this day"><X className="h-4 w-4" aria-hidden="true" /></button></div>)
                 /* An empty day has one thing to do, said once, with the day it is about. It had
                    two equal Add exercises buttons (this one and the action row's), a profile
                    prompt and a 0/100 gauge before anything was in it (Sep 28 regression brief §8). */
