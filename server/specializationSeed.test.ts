@@ -2,9 +2,10 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { specializationRegions } from "@shared/specialization/registry";
 import { exposureRuleV1 } from "@shared/specialization/rules";
-import { deltoidRegionData } from "@/lib/specialization/__fixtures__/deltoidRegion";
+import { deltoidIds, deltoidRegionData } from "@/lib/specialization/__fixtures__/deltoidRegion";
 import { emitSeedSql, productionSeedInput, quote, referenceRegionLabels, type SeedInput } from "../scripts/specialization/emit-seed";
 import { SEED_MIGRATION_PATH, USER_A, applyMigration, as, count, createSeededDb, readMigration, rows, scriptFailure, stubExercises } from "./fixtures/specializationPg";
+import type { SpecializationRegionData } from "@shared/specialization/types";
 
 /**
  * The seed migration is generated from the TypeScript content (scripts/specialization/
@@ -39,6 +40,12 @@ async function rowVersions(): Promise<Record<string, string>> {
 
 const withRegions = (regions: SeedInput["regions"]): SeedInput => ({ ...productionSeedInput(), regions });
 
+// Counts come from the content itself, so another content change only needs the seed regenerated.
+const forearm = forearmRegionData;
+const reviewedMappings = forearm.mappings.filter((mapping) => mapping.reviewStatus === "reviewed");
+const draftMappings = forearm.mappings.filter((mapping) => mapping.reviewStatus === "draft");
+const catalogIds = new Set(forearm.variants.map((variant) => variant.catalogExerciseId));
+
 describe("drift guard", () => {
   it("the committed seed is exactly what the emitter writes from the current content", () => {
     const committed = readMigration(SEED_MIGRATION_PATH);
@@ -64,8 +71,12 @@ describe("drift guard", () => {
     expect(specializationRegions.map((data) => data.region.id)).toEqual(["forearm"]);
     const header = readMigration(SEED_MIGRATION_PATH).split("\n").slice(0, 8).join("\n");
     expect(header).toContain("Do not edit by hand");
-    expect(header).toMatch(/24 nodes, 20 actions, 38 node actions, 60 claims, \d+ sources, 117 catalog exercises, 117 variants, 404 mappings/);
-    expect(header).toContain("forearm_mappings_v1 (published): 399 reviewed, 5 draft");
+    const f = forearm;
+    expect(header).toContain(
+      `${f.nodes.length} nodes, ${f.actions.length} actions, ${f.nodeActions.length} node actions, ${f.claims.length} claims, ${f.sources.length} sources, ` +
+        `${catalogIds.size} catalog exercises, ${f.variants.length} variants, ${f.mappings.length} mappings`,
+    );
+    expect(header).toContain(`forearm_mappings_v1 (published): ${reviewedMappings.length} reviewed, ${draftMappings.length} draft (${draftMappings.map((mapping) => mapping.id).sort().join(", ")})`);
   });
 });
 
@@ -129,12 +140,12 @@ describe("the seeded database", () => {
               v.grip_type as "gripType", v.straps, v.laterality, v.phase, v.measure, v.deliberate_hold as "deliberateHold", v.elbow_angle_deg::float8 as "elbowAngleDeg", v.notes
        from specialization.exercise_variants v join specialization.catalog_exercises c on c.catalog_id = v.catalog_id`,
     );
-    expect(variants).toHaveLength(117);
+    expect(variants).toHaveLength(forearm.variants.length);
     expect([...variants].sort(byId)).toEqual([...forearmRegionData.variants].sort(byId));
     expect(await count(db, "select 1 from specialization.catalog_exercises")).toBe(new Set(forearmRegionData.variants.map((variant) => variant.catalogExerciseId)).size);
   });
 
-  it("holds the published mapping version with all 404 rows, its 5 drafts included, each with its sources in order", async () => {
+  it("holds the published mapping version with all its rows, its drafts included, each with its sources in order", async () => {
     const [version] = await rows(
       db,
       `select version_key as key, state, to_char(published_at at time zone 'UTC', 'YYYY-MM-DD') as "publishedAt", method_notes as "methodNotes", region_id from specialization.mapping_versions where version_key = 'forearm_mappings_v1'`,
@@ -149,17 +160,17 @@ describe("the seeded database", () => {
                         from specialization.mapping_sources ms join specialization.sources s on s.id = ms.source_id where ms.mapping_id = m.id), '[]') as sources
        from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where v.version_key = 'forearm_mappings_v1'`,
     );
-    expect(mappings).toHaveLength(404);
+    expect(mappings).toHaveLength(forearm.mappings.length);
     expect([...mappings].sort(byId)).toEqual([...forearmRegionData.mappings].sort(byId));
-    const drafts = forearmRegionData.mappings.filter((mapping) => mapping.reviewStatus === "draft").map((mapping) => mapping.id).sort();
-    expect(drafts).toHaveLength(5);
+    const drafts = draftMappings.map((mapping) => mapping.id).sort();
+    expect(drafts.length).toBeGreaterThan(0);
     expect((await rows<{ k: string }>(db, "select mapping_key as k from specialization.variant_mappings where review_status = 'draft'")).map((row) => row.k).sort()).toEqual(drafts);
   });
 
-  it("users read the 399 reviewed rows; the 5 drafts stay with the service role", async () => {
-    expect(await as(db, { user: USER_A }, () => count(db, "select 1 from specialization.variant_mappings"))).toBe(399);
+  it("users read the reviewed rows; the drafts stay with the service role", async () => {
+    expect(await as(db, { user: USER_A }, () => count(db, "select 1 from specialization.variant_mappings"))).toBe(reviewedMappings.length);
     expect(await as(db, { user: USER_A }, () => count(db, "select 1 from specialization.variant_mappings where review_status = 'draft'"))).toBe(0);
-    expect(await as(db, "service_role", () => count(db, "select 1 from specialization.variant_mappings where review_status = 'draft'"))).toBe(5);
+    expect(await as(db, "service_role", () => count(db, "select 1 from specialization.variant_mappings where review_status = 'draft'"))).toBe(draftMappings.length);
   });
 
   it("holds the published accounting rule as written", async () => {
@@ -198,6 +209,43 @@ describe("changing content", () => {
     const message = await scriptFailure(db, emitSeedSql(withRegions([edited])));
     expect(message).toMatch(/cat-139:forearm\.fcu belongs to published version forearm_mappings_v1; it cannot change/);
     expect(await rows(db, "select name from specialization.nodes where id = 'forearm.fcu'")).toEqual([{ name: "Flexor carpi ulnaris" }]);
+  });
+
+  /** The content with one change, plus a harmless rename earlier in the same seed: the database's refusal, or null. */
+  const reapplied = (edited: SpecializationRegionData) =>
+    scriptFailure(db, emitSeedSql(withRegions([{ ...edited, nodes: edited.nodes.map((node) => (node.id === "forearm.fcu" ? { ...node, name: "Renamed in the same seed" } : node)) }])));
+
+  it("refuses rewriting what the published version rests on, and applies nothing of that seed", async () => {
+    const f = forearmRegionData;
+    const cases: [what: string, edited: SpecializationRegionData, refusal: RegExp][] = [
+      // cat-403 maps FDS and FDP as direct isometric work: the flag moves them between deliberate and incidental holds.
+      ["a variant's deliberate hold", { ...f, variants: f.variants.map((v) => (v.id === "cat-403" ? { ...v, deliberateHold: !v.deliberateHold } : v)) }, /variant cat-403 is used by mapping version forearm_mappings_v1 \(published\); it cannot change/],
+      ["a variant's straps", { ...f, variants: f.variants.map((v) => (v.id === "cat-139" ? { ...v, straps: "yes" as const } : v)) }, /variant cat-139 is used by mapping version forearm_mappings_v1 \(published\)/],
+      ["a source's evidence type", { ...f, sources: f.sources.map((s) => (s.id === "S4" ? { ...s, evidenceType: "product_assumption" as const } : s)) }, /source S4 is cited by mapping version forearm_mappings_v1 \(published\); its url, title and evidence type cannot change/],
+      ["a source's title", { ...f, sources: f.sources.map((s) => (s.id === "A8" ? { ...s, title: `${s.title} (2nd edition)` } : s)) }, /source A8 is cited by mapping version forearm_mappings_v1 \(published\)/],
+      ["a claim's statement", { ...f, claims: f.claims.map((c) => (c.id === "fcu.function" ? { ...c, statement: `${c.statement} Edited.` } : c)) }, /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\) maps/],
+      ["a claim's review", { ...f, claims: f.claims.map((c) => (c.id === "fcu.function" ? { ...c, reviewStatus: "draft" as const, reviewedAt: null } : c)) }, /claim forearm:fcu\.function is a reviewed claim/],
+      ["a node action's role", { ...f, nodeActions: f.nodeActions.map((n) => (n.nodeId === "forearm.fcu" && n.actionId === "wrist.flexion" ? { ...n, role: "assist" as const } : n)) }, /node action forearm\.fcu wrist\.flexion is named by mapping version forearm_mappings_v1 \(published\)/],
+      ["a mapped muscle's review", { ...f, nodes: f.nodes.map((n) => (n.id === "forearm.fcr" ? { ...n, status: "draft" as const } : n)) }, /node forearm\.fcr is mapped by mapping version forearm_mappings_v1 \(published\); it must stay reviewed/],
+    ];
+    const before = await rowVersions();
+    for (const [what, edited, refusal] of cases) expect(await reapplied(edited), what).toMatch(refusal);
+    expect(await rowVersions()).toEqual(before);
+  });
+
+  it("refuses removing a mapping, a mapping source, a node action or a claim source under the published version", async () => {
+    const f = forearmRegionData;
+    expect(f.mappings.find((m) => m.id === "cat-121:upper_arm.biceps")!.sources.length).toBeGreaterThan(1);
+    expect(f.claims.find((c) => c.id === "fcu.function")!.sources.length).toBeGreaterThan(0);
+    const cases: [what: string, edited: SpecializationRegionData, refusal: RegExp][] = [
+      ["a mapping", { ...f, mappings: f.mappings.filter((m) => m.id !== "cat-139:forearm.fcu") }, /mapping cat-139:forearm\.fcu belongs to published version forearm_mappings_v1; it cannot change/],
+      ["a mapping source", { ...f, mappings: f.mappings.map((m) => (m.id === "cat-121:upper_arm.biceps" ? { ...m, sources: m.sources.slice(0, 1) } : m)) }, /the sources of mapping cat-121:upper_arm\.biceps in published version forearm_mappings_v1 cannot change/],
+      ["a node action", { ...f, nodeActions: f.nodeActions.filter((n) => !(n.nodeId === "forearm.fcu" && n.actionId === "wrist.flexion")) }, /node action forearm\.fcu wrist\.flexion is named by mapping version forearm_mappings_v1 \(published\)/],
+      ["a claim source", { ...f, claims: f.claims.map((c) => (c.id === "fcu.function" ? { ...c, sources: c.sources.slice(1) } : c)) }, /the sources of claim forearm:fcu\.function cannot change/],
+    ];
+    const before = await rowVersions();
+    for (const [what, edited, refusal] of cases) expect(await reapplied(edited), what).toMatch(refusal);
+    expect(await rowVersions()).toEqual(before);
   });
 
   it("seeds changed mappings published under a new key beside the old version", async () => {
@@ -259,9 +307,76 @@ describe("changing content", () => {
     expect(await count(db, `select 1 from specialization.diagram_paths x ${fixtureAsset}`)).toBe(3);
     expect(await rows(db, `select x.label_text from specialization.diagram_labels x ${fixtureAsset}`)).toEqual([{ label_text: "Front side" }]);
   });
+
+  it("cleans a draft version and draft claims of what the content no longer has: mappings, mapping sources, node actions, claim sources", async () => {
+    const d = deltoidRegionData;
+    const held = async () =>
+      (
+        await rows<Record<string, number>>(
+          db,
+          `select (select count(*)::int from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where v.version_key = $1) as mappings,
+                  (select count(*)::int from specialization.mapping_sources ms join specialization.variant_mappings m on m.id = ms.mapping_id join specialization.mapping_versions v on v.id = m.version_id where v.version_key = $1) as mapping_sources,
+                  (select count(*)::int from specialization.node_actions na join specialization.claims c on c.id = na.claim_id where c.claim_key like 'deltoid:%') as node_actions,
+                  (select count(*)::int from specialization.claim_sources cs join specialization.claims c on c.id = cs.claim_id where c.claim_key like 'deltoid:%') as claim_sources`,
+          [d.mappingVersion.key],
+        )
+      )[0];
+    const full = { mappings: d.mappings.length, mapping_sources: d.mappings.reduce((n, m) => n + m.sources.length, 0), node_actions: d.nodeActions.length, claim_sources: d.claims.reduce((n, c) => n + c.sources.length, 0) };
+    const v1 = "select m.mapping_key from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where v.version_key = 'forearm_mappings_v1' order by 1";
+    const v1Before = await rows(db, v1);
+
+    // A second source on one mapping, so one can be taken away while the mapping stays.
+    const s2 = forearmRegionData.sources.find((source) => source.id === "S2")!;
+    const fuller: SpecializationRegionData = {
+      ...d,
+      sources: [...d.sources, s2],
+      mappings: d.mappings.map((m) => (m.id === "dm-111-lateral" ? { ...m, sources: [...m.sources, { sourceId: "S2", locator: "Test", limitation: null }] } : m)),
+    };
+    expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, fuller])))).toBeNull();
+    expect(await held()).toEqual({ ...full, mapping_sources: full.mapping_sources + 1 });
+
+    const fewer: SpecializationRegionData = {
+      ...d,
+      mappings: d.mappings.filter((m) => m.id !== "dm-093-posterior"),
+      nodeActions: d.nodeActions.filter((n) => n.nodeId !== deltoidIds.posterior),
+      claims: d.claims.map((c) => (c.nodeId === deltoidIds.posterior ? { ...c, sources: [] } : c)),
+    };
+    expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, fewer])))).toBeNull();
+    // dm-093-posterior took its one source with it; dm-111-lateral lost S2.
+    expect(await held()).toEqual({ mappings: full.mappings - 1, mapping_sources: full.mapping_sources - 1, node_actions: full.node_actions - 1, claim_sources: full.claim_sources - 1 });
+    expect(await count(db, "select 1 from specialization.variant_mappings where mapping_key = 'dm-093-posterior'")).toBe(0);
+
+    // The published forearm version is untouched, and the full content puts every row back.
+    expect(await rows(db, v1)).toEqual(v1Before);
+    expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, deltoidRegionData])))).toBeNull();
+    expect(await held()).toEqual(full);
+  });
+});
+
+describe("diagram views and layers are the drawing's own", () => {
+  it("seeds a drawing seen from the front, side and rear, on a layer of its own name, with no schema change", async () => {
+    const drawing = deltoidRegionData.diagram!;
+    const surface = drawing.views.back!.surface!;
+    const views = Object.fromEntries(
+      ["front", "side", "rear"].map((view) => [view, { superficial: { paths: surface.paths.map((path) => ({ ...path, id: path.id.replace(/^back__surface__/, `${view}__superficial__`) })), labels: surface.labels } }]),
+    );
+    const redrawn = { ...deltoidRegionData, diagram: { ...drawing, version: 2, views: views as unknown as typeof drawing.views } };
+    expect(await scriptFailure(db, emitSeedSql(withRegions([forearmRegionData, redrawn])))).toBeNull();
+    const asset = "join specialization.diagram_assets a on a.id = x.asset_id where a.asset_key = $1 and a.version = 2 group by 1, 2 order by 1, 2";
+    const per = (table: string) => rows(db, `select x.view, x.layer, count(*)::int as n from specialization.${table} x ${asset}`, [drawing.key]);
+    expect(await per("diagram_paths")).toEqual(["front", "rear", "side"].map((view) => ({ view, layer: "superficial", n: surface.paths.length })));
+    expect(await per("diagram_labels")).toEqual(["front", "rear", "side"].map((view) => ({ view, layer: "superficial", n: surface.labels.length })));
+  });
 });
 
 describe("the emitter refuses content it cannot seed faithfully", () => {
+  it("a view or layer id the schema would refuse", () => {
+    const drawing = deltoidRegionData.diagram!;
+    const withViews = (views: unknown) => emitSeedSql(withRegions([forearmRegionData, { ...deltoidRegionData, diagram: { ...drawing, views: views as typeof drawing.views } }]));
+    expect(() => withViews({ "Front view": drawing.views.back })).toThrow(/view id "Front view" must be lowercase letters/);
+    expect(() => withViews({ front: { "Deep-1": drawing.views.back!.surface } })).toThrow(/layer id "Deep-1" in view front must be lowercase letters/);
+  });
+
   it("a shared key that means two different things", () => {
     const clash = { ...deltoidRegionData, sources: [...deltoidRegionData.sources, { ...forearmRegionData.sources.find((source) => source.id === "S2")!, title: "Another paper" }] };
     expect(() => emitSeedSql(withRegions([forearmRegionData, clash]))).toThrow(/Source S2 differs between deltoid and forearm/);
