@@ -93,7 +93,6 @@ export function palmView() {
   const surface = [
     skin,
     { kind: "outline", structure: "crease", d: open([[150, 114], [178, 117], [210, 117], [236, 114]]) },
-    { kind: "outline", structure: "epicondyle", d: open([[99, 96], [95.5, 102], [96, 109]]) },
     { kind: "outline", structure: "epicondyle", d: open([[262, 96], [267.5, 103], [267.5, 112]]) },
     { kind: "belly", node: "BR", d: br },
     { kind: "belly", node: "Biceps", d: biceps },
@@ -137,8 +136,12 @@ export function palmView() {
 
   // ------------------------------------------------------------------ deep
 
+  // The medial epicondyle reaches the pinky-side outline (it is under the skin there); the
+  // lateral one sits a finger's width inside the thumb-side outline, under the origins of
+  // brachioradialis and the radial wrist extensors, which is why the surface layer marks only
+  // the medial one.
   const humerus = closed([
-    [158, CROP_TOP, C], [205, CROP_TOP, C], [207, 34], [216, 62], [238, 82], [258, 94], [269, 103], [266, 112], [250, 116], [232, 120], [214, 127], [196, 128], [180, 122], [164, 124], [148, 125], [132, 124], [116, 118], [101, 110], [97, 102], [106, 92], [128, 74], [150, 46],
+    [158, CROP_TOP, C], [205, CROP_TOP, C], [207, 34], [216, 62], [238, 82], [258, 94], [269, 103], [266, 112], [250, 116], [232, 120], [214, 127], [196, 128], [180, 122], [164, 124], [148, 125], [132, 124], [117, 118], [110, 110], [110, 100], [118, 90], [133, 74], [150, 46],
   ]);
   const radius = closed([
     [121, 128], [134, 125], [148, 127], [151, 135], [146, 143], [143, 154], [150, 166], [150, 180], [142, 192], [137, 250], [136, 310], [139, 380], [146, 450], [158, 520], [171, 564], [180, 582], [178, 598], [150, 601], [126, 603], [120, 592], [121, 566], [120, 520], [117, 450], [114, 380], [115, 310], [120, 250], [127, 196], [131, 154], [124, 140],

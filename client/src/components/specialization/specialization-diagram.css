@@ -33,11 +33,14 @@
 .spz-diagram-belly[data-fill="zero"] { stroke: var(--spz-diagram-zero-edge); stroke-width: 1.25; stroke-dasharray: 3 2; }
 .spz-diagram-tendon { fill: var(--spz-diagram-tendon); stroke: var(--spz-diagram-keyline); stroke-width: .75; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 
-/* The selected muscle: a soft halo, a dark keyline, a gold line. */
+/* The selected muscle, outside its shapes only (the inner half of each stroke is masked off, so
+   belly and tendons read as one outline): from the edge out, a 1 px dark keyline, a 2 px gold
+   line, a 1 px dark keyline, a soft halo. Readable on the palest exposure step and on the ground. */
 .spz-diagram-selection path { fill: none; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; pointer-events: none; }
-.spz-diagram-halo { stroke: var(--spz-diagram-selected); stroke-width: 9; stroke-opacity: .28; }
-.spz-diagram-keyline { stroke: #07182e; stroke-width: 4; }
-.spz-diagram-ring { stroke: var(--spz-diagram-selected); stroke-width: 2; }
+.spz-diagram-halo { stroke: var(--spz-diagram-selected); stroke-width: 16; stroke-opacity: .28; }
+.spz-diagram-outer-keyline { stroke: #07182e; stroke-width: 8; }
+.spz-diagram-ring { stroke: var(--spz-diagram-selected); stroke-width: 6; }
+.spz-diagram-keyline { stroke: #07182e; stroke-width: 2; }
 
 /* Keyboard focus is its own colour, never the selected gold. */
 .spz-diagram-focus path { fill: none; stroke: var(--sg-focus-ring, #3b86db); stroke-width: 3; stroke-linejoin: round; vector-effect: non-scaling-stroke; pointer-events: none; }

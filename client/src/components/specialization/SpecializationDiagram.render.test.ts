@@ -9,7 +9,7 @@ import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import type { DiagramAsset, DiagramLayerId, DiagramViewId } from "@shared/specialization/types";
 import { deltoidIds, deltoidRegionData } from "@/lib/specialization/__fixtures__/deltoidRegion";
 import { HIT_SQUARE_SHARE, SpecializationDiagram, type SpecializationDiagramProps } from "./SpecializationDiagram";
-import { drawnNodes } from "./diagramGeometry";
+import { containsPoint, drawnNodes, flattenPath } from "./diagramGeometry";
 import type { DiagramFill } from "./model";
 
 /**
@@ -126,7 +126,9 @@ describe("selection", () => {
     expect(drawnPaths.some((path) => path.kind === "tendon")).toBe(true);
     const callout = container.querySelector(".spz-diagram-callout")!;
     expect(callout.querySelector("text")!.textContent).toBe("FCR");
-    expect(screen.getByRole("button", { name: /^Flexor carpi radialis\..*, selected$/ }).getAttribute("aria-pressed")).toBe("true");
+    // The page's description is sentences; the state is a sentence after it, never ".,".
+    expect(screen.getByRole("button", { name: "Flexor carpi radialis. 3 direct dynamic bouts. Selected." }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getAllByRole("button").filter((button) => /\.,/.test(button.getAttribute("aria-label") ?? ""))).toEqual([]);
     expect(screen.getAllByRole("button").filter((button) => button.getAttribute("aria-pressed") === "true")).toHaveLength(1);
   });
 
@@ -158,6 +160,33 @@ describe("selection", () => {
     fireEvent.keyDown(document.activeElement!, { key: " " });
     expect(onSelect).toHaveBeenCalledTimes(2);
   });
+
+  it("moves the one tab stop with focus, so Tab from a muscle reached by arrow leaves the drawing", () => {
+    // Before: the stop stayed on the selected (or first) muscle, so Tab from a muscle reached
+    // with the arrows could land on that muscle again, a second stop inside the drawing.
+    draw({ view: "back", layer: "surface", selectedNodeId: m.extensorCarpiUlnaris });
+    const stops = () => screen.getAllByRole("button").filter((button) => button.getAttribute("tabindex") === "0");
+    const ecu = screen.getAllByRole("button").find((button) => button.getAttribute("data-node") === m.extensorCarpiUlnaris)!;
+    act(() => { ecu.focus(); });
+    for (const key of ["ArrowDown", "ArrowDown", "ArrowUp", "End", "Home"]) {
+      fireEvent.keyDown(document.activeElement!, { key });
+      expect(stops(), key).toEqual([document.activeElement]);
+    }
+  });
+
+  it("outlines a muscle and its tendons as one shape: the outline is masked off inside them", () => {
+    const { container } = draw({ selectedNodeId: m.brachioradialis });
+    const selection = container.querySelector(".spz-diagram-selection")!;
+    const maskId = selection.getAttribute("mask")!.match(/url\(#(.+)\)/)![1];
+    const mask = container.querySelector(`mask[id="${maskId}"]`)!;
+    const outlined = asset.views.palm!.surface!.paths.filter((path) => path.nodeId === m.brachioradialis && (path.kind === "belly" || path.kind === "tendon"));
+    expect(outlined.some((path) => path.kind === "tendon")).toBe(true);
+    expect(Array.from(mask.querySelectorAll("path")).map((path) => [path.getAttribute("d"), path.getAttribute("fill")])).toEqual(outlined.map((path) => [path.d, "#000"]));
+    expect(mask.querySelector("rect")!.getAttribute("fill")).toBe("#fff");
+    // Mask in user space, larger than the canvas, so a halo round a thin tendon is not clipped.
+    expect(mask.getAttribute("maskUnits")).toBe("userSpaceOnUse");
+    expect(Number(mask.getAttribute("width"))).toBeGreaterThan(asset.viewBox.width);
+  });
 });
 
 describe("the left arm", () => {
@@ -180,6 +209,34 @@ describe("the left arm", () => {
     // Right arm, palm view: thumb side on the left. Left arm: on the right.
     expect(rightLabels.find((label) => label.text === "Thumb side")!.x).toBeLessThan(180);
     expect(leftLabels.find((label) => label.text === "Thumb side")!.x).toBeGreaterThan(180);
+  });
+
+  it("keeps the hatch slanting the legend's way on the left arm too", () => {
+    // The linear part of an SVG transform list (translate ignored: it does not change a slant).
+    const linear = (list: string | null) => {
+      let m = [1, 0, 0, 1];
+      const mul = (a: number[], b: number[]) => [a[0] * b[0] + a[1] * b[2], a[0] * b[1] + a[1] * b[3], a[2] * b[0] + a[3] * b[2], a[2] * b[1] + a[3] * b[3]];
+      for (const [, op, args] of Array.from((list ?? "").matchAll(/(\w+)\(([^)]*)\)/g))) {
+        const n = args.split(/[ ,]+/).filter(Boolean).map(Number);
+        const rad = (n[0] * Math.PI) / 180;
+        // Row-major [a, c, b, d] for x' = a x + c y, y' = b x + d y.
+        if (op === "scale") m = mul(m, [n[0], 0, 0, n[1] ?? n[0]]);
+        if (op === "rotate") m = mul(m, [Math.cos(rad), -Math.sin(rad), Math.sin(rad), Math.cos(rad)]);
+      }
+      return m;
+    };
+    const onScreen = (container: HTMLElement) => {
+      const art = container.querySelector(".spz-diagram-art")!.parentElement!;
+      const pattern = container.querySelector("pattern")!;
+      const both = linear(`${art.getAttribute("transform") ?? ""} ${pattern.getAttribute("patternTransform")}`);
+      return both.map((value) => Math.round(value * 1000) / 1000);
+    };
+    const right = onScreen(draw({ view: "back", layer: "surface" }).container);
+    cleanup();
+    const left = onScreen(draw({ view: "back", layer: "surface", mirrored: true }).container);
+    expect(left).toEqual(right);
+    // And that is the legend's slant: rotate(-45) on screen, stripes top-left to bottom-right.
+    expect(right).toEqual(linear("rotate(-45)").map((value) => Math.round(value * 1000) / 1000));
   });
 
   it("moves the selected muscle's name to the side the muscle is drawn on", () => {
@@ -225,6 +282,40 @@ describe("tap targets on a phone", () => {
         const a = placedNodes[i].hitAnchor;
         const b = placedNodes[j].hitAnchor;
         expect(Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y)), `${view}/${layer}: ${placedNodes[i].nodeId} and ${placedNodes[j].nodeId}`).toBeGreaterThanOrEqual(side - 0.01);
+      }
+    }
+  });
+
+  it("places each square where it covers little of other muscles as drawn (a tap there selects the square's muscle)", () => {
+    // The squares sit above the bellies. Measured share of drawn belly area under another
+    // muscle's square, before this placement: palm surface 3.2 %, back surface 12.9 % (EPB 45 %),
+    // back deep 3.8 %, thumb surface 10.2 % (ECRB 28 %), thumb deep 6.7 %.
+    const bounds: Record<string, number> = { "palm/surface": 0.03, "palm/intermediate": 0, "palm/deep": 0.01, "back/surface": 0.065, "back/deep": 0.015, "thumb/surface": 0.055, "thumb/deep": 0.05 };
+    for (const [view, layer] of views) {
+      const paths = asset.views[view]![layer]!.paths;
+      const bellies = paths.filter((path) => path.kind === "belly" && path.nodeId).map((path) => ({ nodeId: path.nodeId!, points: flattenPath(path.d) }));
+      const placed = drawnNodes(paths, { square: side, canvas: asset.viewBox });
+      let drawn = 0;
+      let taken = 0;
+      for (let y = 1; y < asset.viewBox.height; y += 3) {
+        for (let x = 1; x < asset.viewBox.width; x += 3) {
+          const top = [...bellies].reverse().find((belly) => containsPoint(belly.points, { x, y }));
+          if (!top) continue;
+          drawn++;
+          const square = placed.find((node) => Math.abs(node.hitAnchor.x - x) <= side / 2 && Math.abs(node.hitAnchor.y - y) <= side / 2);
+          if (square && square.nodeId !== top.nodeId) taken++;
+        }
+      }
+      expect(taken / drawn, `${view}/${layer}`).toBeLessThanOrEqual(bounds[`${view}/${layer}`]);
+    }
+  });
+
+  it("keeps every selected muscle's label anchor on the drawing, so its leader line ends on it", () => {
+    // Before: BR in the back view runs off the top of the canvas and its anchor sat at y -8.
+    for (const [view, layer] of views) {
+      for (const node of drawnNodes(asset.views[view]![layer]!.paths, { square: side, canvas: asset.viewBox })) {
+        expect(node.labelAnchor.y, `${view}/${layer} ${node.nodeId}`).toBeGreaterThanOrEqual(10);
+        expect(node.labelAnchor.y, `${view}/${layer} ${node.nodeId}`).toBeLessThanOrEqual(asset.viewBox.height - 10);
       }
     }
   });

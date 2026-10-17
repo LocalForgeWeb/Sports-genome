@@ -159,6 +159,72 @@ describe("what is drawn where", () => {
     }
   });
 
+  it("cuts each outcrop from its own muscle as the deep layer draws it, in the same view", () => {
+    // Switching from the surface to the deep layer must never move a muscle: the part that
+    // surfaces is part of the muscle underneath, not a shape of its own. Sampled on a grid.
+    for (const item of forearmDiagramOutcrops) {
+      const outcrop = flattenPath(placed.find((candidate) => candidate.id === item.pathId)!.d);
+      const whole = bellyOf(item.view as DiagramViewId, "deep", item.nodeId);
+      const wholePoints = flattenPath(whole.d);
+      const tendons = layerOf(item.view as DiagramViewId, "deep").paths.filter((path) => path.kind === "tendon" && path.nodeId === item.nodeId).map((path) => flattenPath(path.d));
+      const xs = outcrop.map((point) => point.x);
+      const ys = outcrop.map((point) => point.y);
+      let sampled = 0;
+      let inWhole = 0;
+      let onTendonOnly = 0;
+      for (let x = Math.min(...xs); x <= Math.max(...xs); x += 0.5) for (let y = Math.min(...ys); y <= Math.max(...ys); y += 0.5) {
+        if (!inside({ x, y }, outcrop)) continue;
+        sampled++;
+        if (inside({ x, y }, wholePoints)) inWhole++;
+        else if (tendons.some((tendon) => inside({ x, y }, tendon))) onTendonOnly++;
+      }
+      expect(sampled, item.pathId).toBeGreaterThan(200);
+      expect(inWhole / sampled, `${item.pathId} lies within ${whole.id}`).toBeGreaterThan(0.99);
+      // Never muscle on the surface where the deep layer draws its tendon.
+      expect(onTendonOnly, item.pathId).toBe(0);
+      // Cut, not whole: it starts well below the muscle's upper end and ends where the muscle does.
+      const wholeYs = wholePoints.map((point) => point.y);
+      expect(Math.min(...ys) - Math.min(...wholeYs), item.pathId).toBeGreaterThan(25);
+      expect(Math.abs(Math.max(...ys) - Math.max(...wholeYs)), item.pathId).toBeLessThan(2);
+    }
+  });
+
+  it("ends a muscle's belly at the same height in every view that shows its lower end", () => {
+    // Views that show only an edge of a muscle (brachioradialis from behind, extensor digitorum
+    // from the thumb side, flexor carpi ulnaris from behind) are left out: the view cuts them.
+    const shown: [string, [DiagramViewId, DiagramLayerId][]][] = [
+      [m.brachioradialis, [["palm", "surface"], ["thumb", "surface"]]],
+      [m.flexorCarpiRadialis, [["palm", "surface"], ["thumb", "surface"]]],
+      [m.extensorCarpiRadialisLongus, [["back", "surface"], ["thumb", "surface"]]],
+      [m.extensorCarpiRadialisBrevis, [["back", "surface"], ["thumb", "surface"]]],
+      [m.flexorPollicisLongus, [["palm", "deep"], ["thumb", "deep"]]],
+      [m.abductorPollicisLongus, [["back", "deep"], ["thumb", "deep"], ["back", "surface"], ["thumb", "surface"]]],
+      [m.extensorPollicisBrevis, [["back", "deep"], ["thumb", "deep"], ["back", "surface"], ["thumb", "surface"]]],
+      [m.extensorPollicisLongus, [["back", "deep"], ["thumb", "deep"]]],
+    ];
+    for (const [id, places] of shown) {
+      const ends = places.map(([view, layer]) => Math.max(...flattenPath(bellyOf(view, layer, id).d).map((point) => point.y)));
+      expect(Math.max(...ends) - Math.min(...ends), `${id}: ${ends.map(Math.round).join(", ")}`).toBeLessThan(20);
+    }
+  });
+
+  it("draws the ulna's back border over the ulna, and each bony landmark over its bone", () => {
+    const bones = (view: DiagramViewId) => layerOf(view, "deep").paths.filter((path) => path.kind === "bone").map((path) => ({ id: path.id, points: flattenPath(path.d) }));
+    // The border between ECU and FCU on the back is the ulna's subcutaneous border: it must lie
+    // over the ulna drawn one layer down, all the way from the elbow to the wrist.
+    const border = flattenPath(layerOf("back", "surface").paths.find((path) => path.id === "back__surface__ulna__1")!.d);
+    const ulna = bones("back").find((bone) => bone.id === "back__deep__ulna__1")!.points;
+    const off = border.filter((point) => point.y > 150 && point.y < 580 && !inside(point, ulna));
+    expect(off.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)).toEqual([]);
+    // Olecranon and epicondyle marks on the surface sit on bone in the deep layer of the same view.
+    for (const view of VIEWS) {
+      const marks = layerOf(view, "surface").paths.filter((path) => path.kind === "bone" || /__epicondyle__/.test(path.id));
+      for (const mark of marks) {
+        expect(bones(view).some((bone) => inside(centroid(mark), bone.points)), `${mark.id} is over bone`).toBe(true);
+      }
+    }
+  });
+
   it("keeps deep muscles off the surface (FDP, PQ, FPL, the thumb extensors, supinator, EI) and FDS to the middle layer", () => {
     const surfaceBellies = new Set(bellies.filter((path) => path.layer === "surface").map((path) => path.nodeId));
     for (const id of [m.flexorDigitorumProfundus, m.pronatorQuadratus, m.flexorPollicisLongus, m.extensorPollicisLongus, m.extensorIndicis, m.supinator, m.flexorDigitorumSuperficialis]) {

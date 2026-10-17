@@ -17,13 +17,47 @@
  *   longus crossing to the thumb, brachialis in the stub; humerus, radius and the point of
  *   the ulna as bone; the radial muscles as ghosts.
  */
-import { band, closed, open, rowsShape, tendon } from "../geometry.mjs";
+import { band, bandPoints, clipBelow, closed, open, rowsShape, tendon } from "../geometry.mjs";
 import { CROP_TOP, thumbEdge, thumbSilhouette } from "../silhouettes.mjs";
 
 const C = "corner";
 const INSET = 3;
 const backIn = (y) => thumbEdge("back", y) + INSET;
 const palmIn = (y) => thumbEdge("palm", y) - INSET;
+
+/**
+ * Abductor pollicis longus and extensor pollicis brevis, whole, as the deep layer draws them,
+ * fleshy to the same heights as in the back view (APL to y 540, EPB to about 560). The surface
+ * outcrops are cut from these same outlines (`clipBelow`), so what shows on the surface is
+ * exactly part of the muscle underneath. Tendons are shared by both layers.
+ */
+const APL_OUTLINE = bandPoints(
+  [[146, 300], [155, 360], [169, 420], [182, 478], [192, 540]],
+  [[0, 0], [0.15, 7], [0.45, 11], [0.7, 8], [0.88, 7], [1, 0]],
+  undefined,
+  { samples: 25 },
+);
+const EPB_OUTLINE = bandPoints(
+  [[146, 390], [150, 428], [155, 462], [162, 500], [172, 536], [184, 562]],
+  [[0, 0], [0.15, 3.5], [0.35, 6], [0.6, 7.5], [0.85, 5.5], [1, 0]],
+  undefined,
+  { samples: 21 },
+);
+/**
+ * Where each shows on the surface from this side: APL below the ends of the radial wrist
+ * extensor bellies, EPB a little lower beside it (as from behind, where it surfaces about
+ * 1.5 cm below APL). Above these heights the surface layer leaves them out.
+ */
+const APL_SURFACES_AT = 408;
+const EPB_SURFACES_AT = 456;
+const APL_TENDON = tendon([[188, 528], [195, 570], [202, 600], [208, 624]], 7, 6.5);
+const EPB_TENDON = tendon([[178, 548], [187, 582], [198, 612], [212, 650], [226, 690], [237, 730], [243, 776]], 5.5, 5);
+/**
+ * Extensor pollicis longus: fleshy to about y 480 as in the back view, then its tendon, which
+ * comes into sight at the wrist on the back side of extensor pollicis brevis (the two tendons
+ * edge the hollow at the base of the thumb) and runs to the thumb tip.
+ */
+const EPL_TENDON_SPINE = [[142, 474], [146, 520], [151, 556], [156, 590], [168, 618], [190, 652], [208, 690], [222, 730], [230, 776]];
 
 export function thumbView() {
   const skin = { kind: "skin", structure: "skin", d: closed(thumbSilhouette()) };
@@ -54,26 +88,27 @@ export function thumbView() {
     top: [[125, 202]],
   });
   const anconeus = closed([[148, 112, C], [112, 120, C], [115, 160], [119, 190, C], [132, 150]]);
-  // The edge of flexor carpi radialis on the palm-side edge.
+  // The edge of flexor carpi radialis on the palm-side edge; fleshy to the same height as in
+  // the palm view (about y 410), then its tendon.
   const fcr = rowsShape({
-    rows: [[280, 241.5, palmIn(280)], [320, 233.5, palmIn(320)], [360, 226, palmIn(360)], [400, 222, 234], [430, 221, 229.5]],
-    bottom: [[225, 450]],
+    rows: [[280, 241.5, palmIn(280)], [320, 233.5, palmIn(320)], [355, 227, palmIn(355)], [385, 223, 234], [400, 222, 229.5]],
+    bottom: [[225, 414]],
     top: [[245, 256]],
   });
-  const fcrTendon = tendon([[225, 436], [222, 500], [219.5, 560], [218, 600]], 7, 6);
+  const fcrTendon = tendon([[225, 400], [222, 460], [220, 530], [219, 570], [218, 600]], 7, 6);
   const biceps = rowsShape({
     rows: [[CROP_TOP, [212, C], [palmIn(CROP_TOP), C]], [20, 212.5, palmIn(20)], [50, 214.5, palmIn(50)], [75, 220, palmIn(75)]],
     bottom: [[226, 92]],
   });
   const bicepsTendon = tendon([[228, 80], [230, 104], [230.5, 124]], 8, 6);
 
-  // Abductor pollicis longus and extensor pollicis brevis where they come to the surface:
-  // from the back side, crossing the radial wrist extensor tendons toward the thumb.
-  const aplOutcrop = band([[152, 408], [164, 450], [177, 495], [190, 540]], [[0, 6], [0.3, 7.5], [0.75, 6.5], [1, 0]]);
-  const epbOutcrop = band([[144, 440], [153, 480], [164, 520], [176, 560]], [[0, 4.5], [0.35, 5.5], [0.8, 4.5], [1, 0]]);
-  const aplTendon = tendon([[188, 528], [195, 570], [202, 600], [208, 624]], 7, 6.5);
-  const epbTendon = tendon([[173, 548], [184, 585], [197, 615], [212, 650], [226, 690], [237, 730], [243, 776]], 5.5, 5);
-  const eplTendon = tendon([[146, 556], [155, 590], [168, 620], [190, 655], [208, 690], [222, 730], [230, 776]], 5, 4.5);
+  // Abductor pollicis longus and extensor pollicis brevis where they come to the surface: the
+  // lower ends of the deep muscles, cut square where the back-side extensors stop covering
+  // them, crossing the radial wrist extensor tendons toward the thumb.
+  const aplOutcrop = closed(clipBelow(APL_OUTLINE, APL_SURFACES_AT));
+  const epbOutcrop = closed(clipBelow(EPB_OUTLINE, EPB_SURFACES_AT));
+  // The long thumb extensor's tendon where it comes into sight at the wrist.
+  const eplTendon = tendon(EPL_TENDON_SPINE.filter(([, y]) => y >= 556), 5, 4.5);
 
   const surface = [
     skin,
@@ -94,8 +129,8 @@ export function thumbView() {
     { kind: "tendon", node: "BR", d: brTendon },
     { kind: "belly", node: "APL", d: aplOutcrop, outcrop: "Seen from the thumb side, it comes to the surface on the back of the lower forearm and crosses the radial wrist extensor tendons and the end of brachioradialis toward the thumb; the rest of the muscle is deep." },
     { kind: "belly", node: "EPB", d: epbOutcrop, outcrop: "Seen from the thumb side, it comes to the surface beside abductor pollicis longus and crosses toward the thumb; the rest of the muscle is deep." },
-    { kind: "tendon", node: "APL", d: aplTendon },
-    { kind: "tendon", node: "EPB", d: epbTendon },
+    { kind: "tendon", node: "APL", d: APL_TENDON },
+    { kind: "tendon", node: "EPB", d: EPB_TENDON },
     { kind: "tendon", node: "EPL", d: eplTendon },
   ];
 
@@ -119,14 +154,15 @@ export function thumbView() {
     bottom: [[212, 510]],
     top: [[236, 240]],
   });
-  const apl = band([[146, 300], [154, 360], [166, 420], [180, 475], [194, 525]], [[0, 0], [0.15, 7], [0.5, 11], [0.85, 7], [1, 0]]);
-  const epb = band([[148, 428], [153, 462], [161, 500], [172, 536], [184, 562]], [[0, 0], [0.2, 6.5], [0.55, 8.5], [0.85, 6], [1, 0]]);
-  const epl = band([[136, 318], [139, 352], [141, 384], [143, 410]], [[0, 0], [0.25, 4.5], [0.6, 5], [1, 0]]);
+  const apl = closed(APL_OUTLINE);
+  const epb = closed(EPB_OUTLINE);
+  // Only its back-side edge shows from here: APL and EPB lie nearer the viewer.
+  const epl = band([[134.5, 318], [136, 360], [137, 400], [139, 440], [141.5, 482]], [[0, 0], [0.15, 3.8], [0.45, 4], [0.65, 3], [1, 0]]);
   const deepTendons = [
     { node: "FPL", d: tendon([[212, 495], [214, 560], [217, 600], [225, 640], [234, 690], [243, 740], [248, 776]], 6.5, 6) },
-    { node: "APL", d: tendon([[192, 515], [198, 560], [204, 600], [208, 622]], 7, 6.5) },
-    { node: "EPB", d: tendon([[182, 550], [190, 580], [199, 610], [213, 650], [227, 690], [238, 730], [244, 776]], 5.5, 5) },
-    { node: "EPL", d: tendon([[143, 398], [147, 480], [151, 530], [154, 575], [166, 610], [190, 652], [208, 690], [222, 730], [230, 776]], 5, 4.5) },
+    { node: "APL", d: APL_TENDON },
+    { node: "EPB", d: EPB_TENDON },
+    { node: "EPL", d: tendon(EPL_TENDON_SPINE, 5, 4.5) },
     { node: "Brachialis", d: tendon([[206, 100], [213, 120], [216, 136]], 9, 8) },
   ];
 
