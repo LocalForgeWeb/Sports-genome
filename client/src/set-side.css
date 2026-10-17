@@ -73,3 +73,33 @@
 
 .live-set-side button:focus-visible,
 .live-set-straps button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+
+/* A hold waits for its seconds (02-design.md §6): Log set is outlined, not filled, until whole
+   seconds of at least 1 are in, and the reason sits beside it at rest, in readable text - never a
+   faint or hover-only state. The same on a hold's row in the full workout list. */
+.device-workout-tracker .live-set-commit:disabled {
+  border: 1px solid rgb(176 214 247 / .45);
+  background: transparent;
+  color: var(--sg-text-muted-on-dark);
+  cursor: not-allowed;
+  transform: none;
+}
+.live-set-dose-hint {
+  margin-top: .75rem;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-base);
+  font-weight: 700;
+}
+.device-workout-tracker .session-set-row button.session-set-log:disabled {
+  border-color: rgb(176 214 247 / .45);
+  background: transparent;
+  color: var(--sg-text-muted-on-dark);
+  cursor: not-allowed;
+}
+.device-workout-tracker .session-set-row .session-set-dose-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-sm);
+  font-weight: 700;
+}

@@ -13,13 +13,13 @@ vi.mock("sonner", () => {
 });
 
 /**
- * The atlas's variant data, injected: the production arrays are filled by another lane, and
- * with them empty the logger must behave exactly as before (the other tracker tests). Here a
- * dead hang and a farmer hold are measured in seconds; a hammer curl may be done with one arm
- * or two; a single-arm cable row is one arm at a time; the hold and the row carry a grip
- * mapping that a strapped set does not earn. The bench press is not mapped at all.
+ * The atlas's variant data, injected through the logger's light region list (the logger never
+ * reads the full registry). Here a dead hang and a farmer hold are measured in seconds; a hammer
+ * curl may be done with one arm or two; a single-arm cable row is one arm at a time; the hold and
+ * the row carry a grip mapping that a strapped set does not earn. The bench press is not mapped
+ * at all.
  */
-vi.mock("@shared/specialization/registry", () => {
+vi.mock("@shared/specialization/loggingRegions", () => {
   const variant = (catalogExerciseId: number, catalogName: string, measure: string, laterality: string, deliberateHold: boolean) => ({
     id: `cat-${catalogExerciseId}`, catalogExerciseId, catalogName, organization: "task", forearmOrientation: "neutral", wristPosition: "neutral",
     gripType: "neutral", straps: "unknown", laterality, phase: "unspecified", measure, deliberateHold, elbowAngleDeg: null, notes: null,
@@ -30,18 +30,16 @@ vi.mock("@shared/specialization/registry", () => {
   });
   const region = {
     region: { id: "forearm", label: "Forearms", heading: "Forearm specialization", sortOrder: 10, status: "production" },
-    nodes: [], actions: [], nodeActions: [], claims: [], sources: [],
     variants: [
       variant(143, "Dead Hang", "seconds", "bilateral", true),
       variant(145, "Farmer Hold", "seconds", "either", true),
       variant(132, "Hammer Curl", "reps", "either", false),
       variant(56, "Single-Arm Cable Row", "reps", "unilateral", false),
+      variant(142, "Plate Pinch", "seconds", "unilateral", true),
     ],
     mappings: [grip("cat-145"), grip("cat-56")],
-    mappingVersion: { key: "test", state: "draft", publishedAt: null, methodNotes: "" },
-    diagram: null,
   };
-  return { specializationRegions: [region], regionDataFor: () => region, defaultSpecializationRegionId: "forearm" };
+  return { specializationLoggingRegions: [region] };
 });
 
 import { DeviceWorkoutTracker } from "./DeviceWorkoutTracker";

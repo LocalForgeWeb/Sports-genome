@@ -2,21 +2,19 @@ import { describe, expect, it, vi } from "vitest";
 import type { ExerciseVariant, Laterality, SetMeasure, VariantMapping } from "@shared/specialization/types";
 
 /**
- * The registry, injected: a production region with one hold, and a fixture region (tests only,
- * never registered in production) whose variant must not reach the logger.
+ * The logger's region list, injected: a production region with one hold, and a fixture region
+ * (tests only, never registered in production) whose variant must not reach the logger. The
+ * policy reads `loggingRegions` (variants and mappings only), never the full registry.
  */
-vi.mock("@shared/specialization/registry", () => {
+vi.mock("@shared/specialization/loggingRegions", () => {
   const variant = (catalogExerciseId: number, measure: string, laterality: string) => ({
     id: `cat-${catalogExerciseId}`, catalogExerciseId, catalogName: `Exercise ${catalogExerciseId}`, organization: "task", forearmOrientation: "neutral",
     wristPosition: "neutral", gripType: "neutral", straps: "unknown", laterality, phase: "unspecified", measure, deliberateHold: measure === "seconds", elbowAngleDeg: null, notes: null,
   });
-  const region = (id: string, status: string, variants: unknown[], mappings: unknown[]) => ({
-    region: { id, label: id, heading: id, sortOrder: 0, status }, nodes: [], actions: [], nodeActions: [], claims: [], sources: [],
-    variants, mappings, mappingVersion: { key: "test", state: "draft", publishedAt: null, methodNotes: "" }, diagram: null,
-  });
+  const region = (id: string, status: string, variants: unknown[], mappings: unknown[]) => ({ region: { id, label: id, heading: id, sortOrder: 0, status }, variants, mappings });
   const strapsGrip = { id: "m-143", versionKey: "test", variantId: "cat-143", nodeId: "forearm.fds", actionId: null, relationship: "direct", muscleMode: "isometric", evidenceBasis: "inference", allocation: "shared", requiresNoStraps: true, rationale: "", reviewStatus: "draft", sources: [] };
   return {
-    specializationRegions: [
+    specializationLoggingRegions: [
       region("forearm", "production", [variant(143, "seconds", "bilateral")], [strapsGrip]),
       region("deltoid", "fixture", [variant(900, "seconds", "unilateral")], []),
     ],
@@ -36,7 +34,7 @@ const mapping = (variantId: string, overrides: Partial<VariantMapping> = {}): Va
 
 describe("the logging policy for one exercise", () => {
   it("asks nothing new of an exercise the atlas does not map, or of no exercise at all", () => {
-    expect(loggingPolicyFor(1, [], [])).toEqual({ measure: "reps", askSide: false, sideDefault: null, strapsSensitive: false });
+    expect(loggingPolicyFor(1, [], [])).toEqual({ measure: "reps", askSide: false, oneArm: false, sideDefault: null, strapsSensitive: false });
     expect(loggingPolicyFor(undefined, [variant(1, "seconds", "unilateral")], [])).toBe(defaultLoggingPolicy);
     expect(loggingPolicyFor(null, [variant(1, "seconds", "unilateral")], [])).toBe(defaultLoggingPolicy);
     expect(loggingPolicyFor(Number.NaN, [variant(1, "seconds", "unilateral")], [])).toBe(defaultLoggingPolicy);
@@ -49,11 +47,11 @@ describe("the logging policy for one exercise", () => {
   });
 
   it("asks the arm only of one-arm or either-arm variants, never of a two-handed one", () => {
-    expect(loggingPolicyFor(1, [variant(1, "reps", "bilateral")], [])).toMatchObject({ askSide: false, sideDefault: null });
+    expect(loggingPolicyFor(1, [variant(1, "reps", "bilateral")], [])).toMatchObject({ askSide: false, oneArm: false, sideDefault: null });
     // One arm at a time: which arm goes first is the athlete's, so nothing is preselected.
-    expect(loggingPolicyFor(1, [variant(1, "reps", "unilateral")], [])).toMatchObject({ askSide: true, sideDefault: null });
-    // Usually two arms at once, sometimes one: it starts on Both.
-    expect(loggingPolicyFor(1, [variant(1, "reps", "either")], [])).toMatchObject({ askSide: true, sideDefault: "both" });
+    expect(loggingPolicyFor(1, [variant(1, "reps", "unilateral")], [])).toMatchObject({ askSide: true, oneArm: true, sideDefault: null });
+    // Usually two arms at once, sometimes one: it starts on Both, and a planned set of it is not split by arm.
+    expect(loggingPolicyFor(1, [variant(1, "reps", "either")], [])).toMatchObject({ askSide: true, oneArm: false, sideDefault: "both" });
   });
 
   it("is straps-sensitive only when a mapping of that same variant needs a bare hand", () => {
@@ -72,7 +70,7 @@ describe("the policy's default data", () => {
   it("reads every production region and never a fixture region", () => {
     expect(productionVariants().map((item) => item.catalogExerciseId)).toEqual([143]);
     expect(productionMappings().map((item) => item.id)).toEqual(["m-143"]);
-    expect(loggingPolicyFor(143)).toEqual({ measure: "seconds", askSide: false, sideDefault: null, strapsSensitive: true });
+    expect(loggingPolicyFor(143)).toEqual({ measure: "seconds", askSide: false, oneArm: false, sideDefault: null, strapsSensitive: true });
     expect(loggingPolicyFor(900)).toBe(defaultLoggingPolicy);
   });
 });

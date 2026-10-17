@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { ArrowLeft, Check, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { deviceWorkoutHistoryEvent, deviceWorkoutHistoryKey, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
-import { correctSet, elapsedText, exerciseOutcomeLine, removeSet, sessionRecap, updateFinishedSession, withNote } from "@/lib/sessionRecap";
+import { correctSet, elapsedText, exerciseOutcomeLine, removeSet, sessionRecap, updateFinishedSession, withNote, type MeasureOf } from "@/lib/sessionRecap";
+import { loggingPolicyFor } from "@shared/specialization/loggingPolicy";
 import { decimalEntryText } from "@/lib/numericEntry";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
@@ -20,6 +21,14 @@ import "../session-detail.css";
 export type SessionDetailVariant = "saved" | "history";
 
 const findSession = (id: string) => loadDeviceWorkoutSessions().find((session) => session.id === id && session.status === "completed") ?? null;
+
+/**
+ * How each exercise is measured, from the atlas's logging policy: a set with no reps on an
+ * exercise measured in seconds is a hold, so Correct a set asks for its seconds and never stores
+ * them as reps. This screen loads with the tracker and with Progress, both lazily; the policy
+ * reads only the atlas's variants and mappings (shared/specialization/loggingRegions.ts).
+ */
+const measureOf: MeasureOf = (catalogExerciseId) => loggingPolicyFor(catalogExerciseId).measure;
 
 export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, onOpenProgress, onOpenNext, onBack, onRemove, onRepeat }: {
   sessionId: string;
@@ -70,7 +79,7 @@ export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, o
     </section>;
   }
 
-  const recap = sessionRecap(session, weightUnit);
+  const recap = sessionRecap(session, weightUnit, measureOf);
   const date = recap.completedAt.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
   const dayName = recap.dayLabel.split(" · ").map((part) => part.trim()).filter(Boolean).pop() || recap.title;
 
@@ -123,7 +132,7 @@ export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, o
                   if (!repsValid || !weightValid) return;
                   // A hold is corrected in seconds; its side and the exercise's straps record are kept either way.
                   const patch = editing.hold ? { weight: editing.weight, holdSeconds: editing.reps } : { weight: editing.weight, reps: editing.reps };
-                  if (apply((current) => correctSet(current, exercise.id, row.index, patch), `Set ${position + 1} of ${exercise.name} corrected.`)) setEditing(null);
+                  if (apply((current) => correctSet(current, exercise.id, row.index, patch, undefined, measureOf), `Set ${position + 1} of ${exercise.name} corrected.`)) setEditing(null);
                 }}>
                   <label><span>Weight</span><input inputMode="decimal" value={editing.weight} onChange={(event) => setEditing({ ...editing, weight: decimalEntryText(event.target.value) })} aria-invalid={!weightValid || undefined} /></label>
                   <label><span>{editing.hold ? "Seconds" : "Reps"}</span><input inputMode="numeric" value={editing.reps} onChange={(event) => setEditing({ ...editing, reps: event.target.value.replace(/[^0-9]/g, "").slice(0, 4) })} aria-invalid={!repsValid || undefined} /></label>
