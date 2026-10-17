@@ -228,7 +228,7 @@ Abbreviations: dyn dynamic, iso isometric, contrib. contributing; "(shared)" all
 
 ## Counts
 
-117 variants and 404 mappings in `forearm_mappings_v1`: **399 reviewed, 5 draft**. All 19 core forearm muscles have at least one reviewed mapping.
+119 variants and 418 mappings in `forearm_mappings_v1`: **413 reviewed, 5 draft**. All 19 core forearm muscles have at least one reviewed mapping.
 
 Draft (pending review, not counted), by mapping id:
 
@@ -240,9 +240,9 @@ Draft (pending review, not counted), by mapping id:
 | `cat-409:forearm.fpl` | Suitcase Carry: as Farmer Hold. |
 | `cat-317:forearm.br` | Cable Upright Row: the elbows bend as the bar rises, but whether the elbow flexors move the load or mostly follow the shoulders is not established. |
 
-Reviewed and draft mappings per muscle (reviewed / draft): BR 68/1, FCR 4/0, FCU 4/0, PL 2/0, FDS 112/0, FDP 112/0, FPL 2/4, PT 1/0, PQ 1/0, ECRL 10/0, ECRB 10/0, ECU 10/0, ED 4/0, EDM 1/0, EI 1/0, APL 1/0, EPB 1/0, EPL 1/0, supinator 1/0; upper-arm contributors biceps 27/0, brachialis 26/0.
+Reviewed and draft mappings per muscle (reviewed / draft): BR 68/1, FCR 6/0, FCU 6/0, PL 2/0, FDS 114/0, FDP 114/0, FPL 2/4, PT 1/0, PQ 1/0, ECRL 12/0, ECRB 12/0, ECU 12/0, ED 4/0, EDM 1/0, EI 1/0, APL 1/0, EPB 1/0, EPL 1/0, supinator 1/0; upper-arm contributors biceps 27/0, brachialis 26/0.
 
-Evidence basis across all 404: anatomy 166, inference 217, EMG 21. Categories the 399 reviewed mappings give a bout (`categoryFor`): direct dynamic 81, contributing dynamic 79, deliberate isometric 18, incidental isometric 221. The large incidental count is the grip on every row, pulldown, pull-up, hinge, shrug, curl and lever: visible as context, never dynamic credit.
+Evidence basis across all 418: anatomy 176, inference 221, EMG 21. Categories the 413 reviewed mappings give a bout (`categoryFor`): direct dynamic 86, contributing dynamic 84, deliberate isometric 18, incidental isometric 225. The large incidental count is the grip on every row, pulldown, pull-up, hinge, shrug, curl and lever: visible as context, never dynamic credit.
 
 ## Sources added (M1-M8)
 
