@@ -31,6 +31,8 @@ These are the brief's §8 "first reconcile existing ownership" results, read fro
 | Straps | none | `DeviceWorkoutExercise.straps`, else unknown |
 | Hold duration | none | `DeviceSetLog.holdSeconds` |
 | Effort | `DeviceSetLog.effort` (`failure` / `not_to_failure`) | passed through; absent stays unknown (never defaults to failure) |
+| Limiting factor (`limiting_factor`: target muscle / grip / other / unknown) | none | **Not asked, not recorded.** A question on every set is the questionnaire the brief rules out (§6: "avoid making every set entry a questionnaire"), and nothing the atlas counts would read the answer. Absent means unknown; never defaulted (not to target muscle, not to grip). |
+| Lever arm (`lever_arm`, metres) | none | **Not recorded.** No exercise in the catalog defines one, and the brief (§8) allows it only for repeatability, never for muscle force; with a changing angle one number is not a torque curve. Absent means unknown; never defaulted. The elbow angle beside it is kept only where an exercise defines it (`ExerciseVariant.elbowAngleDeg`, `exercise_variants.elbow_angle_deg`). |
 | Load | `weight` + `unit` + `loadConventionFor()` | `setWeightKg()` per segment; shown as external load, never as muscle force |
 | Muscle node | `forearms` catalog key; `public.muscles` 3 forearm rows | `AnatomyNode.catalogMuscleKey`, `AnatomyNode.databaseMuscle` |
 | Plan edit | `editDay`, `commitDay`, `writeIncomingDay`, `planWeeks` in Home | one new Home callback that writes an exact week and day |

@@ -18,11 +18,19 @@
  *   rather than dropping the row.
  * - Mapping versions are inserted as drafts, filled, then published, so the publication
  *   rule (specialization.mapping_version_problems) runs on the real rows. Once published a
- *   version is immutable: re-applying identical content is a no-op, and changed content
- *   for a published key is refused by the database. Changing mappings means a new key.
- * - It adds and updates; it never deletes reference rows (goals may point at a node).
- *   The one exception is a diagram asset version, which ends up holding exactly the
- *   drawing's paths and labels: a drawing is one unit, and nothing points at a path.
+ *   version is immutable, and so is what it rests on (its variants, node actions, the
+ *   reviewed claims of its muscles and their sources, the sources it cites): re-applying
+ *   identical content is a no-op, and changed content under a key a published version
+ *   depends on is refused by the database, so the whole seed rolls back with the
+ *   database's message. Changing them means new keys and a new mapping version.
+ * - Sets the content owns end up exactly as the content has them: a mapping version's
+ *   mappings and their sources; the claims of the regions in the seed (claim keys carry
+ *   the region), with their sources and the node actions resting on them; a diagram asset
+ *   version's paths and labels. Rows the content no longer has are deleted before the
+ *   upserts, so a removal under a published version is refused like any other change,
+ *   and a draft is cleaned.
+ * - It never deletes the records others point at: regions, nodes (goals may point at
+ *   one), actions, sources, catalog exercises and variants.
  *
  * Keys: node, action, variant, region and rule ids are the TypeScript ids. Source keys are
  * shared across regions (S2 is the same paper everywhere), so two regions may name one
@@ -36,8 +44,6 @@ import { specializationRegions } from "../../shared/specialization/registry";
 import { exposureRuleV1 } from "../../shared/specialization/rules";
 import type {
   AnatomyNode,
-  DiagramLayerId,
-  DiagramViewId,
   ExerciseVariant,
   JointAction,
   RuleVersion,
@@ -115,6 +121,25 @@ function instantValue(value: string | null, what: string): Value {
 }
 
 const rowsBlock = (rows: readonly Value[][]) => rows.map((row) => `  (${row.map(literal).join(", ")})`).join(",\n");
+
+const valuesList = (rows: readonly Value[][]) => `(values\n${rows.map((row) => `      (${row.map(literal).join(", ")})`).join(",\n")})`;
+
+/** `<expr> in (values ...)`, one row per line. */
+function inValues(expr: string, rows: readonly Value[][]): string {
+  if (!rows.length) throw new Error(`An empty list for ${expr}: leave the statement out instead`);
+  return `${expr} in ${valuesList(rows)}`;
+}
+
+/** `<expr> not in (values ...)`; null when nothing is kept, so the caller drops the condition. */
+function notIn(expr: string, rows: readonly Value[][]): string | null {
+  return rows.length ? `${expr} not in ${valuesList(rows)}` : null;
+}
+
+/** `delete ... using ... where <conditions>`, one condition per line, the null ones left out. */
+function deleteWhere(target: string, using: readonly string[], conditions: readonly (string | null)[]): string {
+  const kept = conditions.filter((condition): condition is string => condition !== null);
+  return `delete from ${target}${using.length ? ` using ${using.join(", ")}` : ""}\n  where ${kept.join("\n    and ")};`;
+}
 
 function updateClause(alias: string, columns: readonly string[]): string {
   if (!columns.length) return "do nothing";
@@ -207,8 +232,12 @@ function parentsFirst(nodes: readonly AnatomyNode[]): AnatomyNode[] {
 
 // ---------------------------------------------------------------- the seed
 
-const VIEWS: readonly DiagramViewId[] = ["palm", "back", "thumb"];
-const LAYERS: readonly DiagramLayerId[] = ["surface", "intermediate", "deep"];
+/**
+ * View and layer ids are the drawing's own (palm, back, thumb; surface, intermediate,
+ * deep for the forearm; front, side, rear could be another region's). This is the shape
+ * the schema's CHECK accepts, so the emitter refuses what the database would.
+ */
+const DIAGRAM_ID = /^[a-z][a-z0-9_]*$/;
 
 export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
   const { rules } = input;
@@ -337,13 +366,42 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
     ),
   );
 
+  // The claims of the regions in this seed are the content's: their keys carry the region
+  // (`<region>:<claim id>`), and claims of other regions are left alone. What the content no
+  // longer has goes before any claim is written. Node actions first, since they point at
+  // claims, matched by node, action and claim, so one moved to another claim is written
+  // again below once that claim is in. Then the claims, with their sources, and then the
+  // sources of the claims that stay. Each delete is refused for what a published version
+  // rests on, and the refusal names the node action or claim; a draft is cleaned.
+  const sortedClaims = [...claims].sort((a, b) => byKey(a.key, b.key));
+  const sortedNodeActions = [...nodeActions.entries()].sort(([a], [b]) => byKey(a, b)).map(([, row]) => row);
+  if (regions.length) {
+    const ownClaim = inValues("split_part(c.claim_key, ':', 1)", regions.map((data): Value[] => [data.region.id]));
+    section(
+      "Node actions, claims and claim sources no longer in the content (refused for what a published or retired version rests on)",
+      [
+        deleteWhere("specialization.node_actions na", ["specialization.claims c"], [
+          "na.claim_id = c.id",
+          ownClaim,
+          notIn("(na.node_id, na.action_id, c.claim_key)", sortedNodeActions.map((row): Value[] => [row.nodeId, row.actionId, row.claimKey])),
+        ]),
+        deleteWhere("specialization.claims c", [], [ownClaim, notIn("c.claim_key", sortedClaims.map(({ key }): Value[] => [key]))]),
+        deleteWhere("specialization.claim_sources cs", ["specialization.claims c", "specialization.sources s"], [
+          "cs.claim_id = c.id and s.id = cs.source_id",
+          ownClaim,
+          notIn("(c.claim_key, s.source_key)", sortedClaims.flatMap(({ key, claim }) => claim.sources.map((ref): Value[] => [key, ref.sourceId]))),
+        ]),
+      ].join("\n"),
+    );
+  }
+
   section(
     "Claims (key: <region>:<claim id>)",
     upsertValues(
       "claims",
       ["claim_key", "node_id", "kind", "statement", "basis", "review_status", "reviewed_on", "review_note"],
       ["claim_key"],
-      [...claims].sort((a, b) => byKey(a.key, b.key)).map(({ key, claim }) => [key, claim.nodeId, claim.kind, claim.statement, claim.basis, claim.reviewStatus, claim.reviewedAt, claim.reviewNote]),
+      sortedClaims.map(({ key, claim }) => [key, claim.nodeId, claim.kind, claim.statement, claim.basis, claim.reviewStatus, claim.reviewedAt, claim.reviewNote]),
     ),
   );
 
@@ -359,9 +417,7 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
         "left join specialization.sources s on s.source_key = x.source_key",
       ],
       conflict: ["claim_id", "source_id"],
-      rows: [...claims]
-        .sort((a, b) => byKey(a.key, b.key))
-        .flatMap(({ key, claim }) => claim.sources.map((ref, index): Value[] => [key, ref.sourceId, ref.locator, ref.qualification, index])),
+      rows: sortedClaims.flatMap(({ key, claim }) => claim.sources.map((ref, index): Value[] => [key, ref.sourceId, ref.locator, ref.qualification, index])),
     }),
   );
 
@@ -374,7 +430,7 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
       valueColumns: ["node_id", "action_id", "role", "claim_key"],
       joins: ["left join specialization.claims c on c.claim_key = x.claim_key"],
       conflict: ["node_id", "action_id"],
-      rows: [...nodeActions.entries()].sort(([a], [b]) => byKey(a, b)).map(([, row]) => [row.nodeId, row.actionId, row.role, row.claimKey]),
+      rows: sortedNodeActions.map((row) => [row.nodeId, row.actionId, row.role, row.claimKey]),
     }),
   );
 
@@ -398,23 +454,22 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
     const pathRows: Value[][] = [];
     const labelRows: Value[][] = [];
     for (const diagram of sorted) {
-      assertUnique(`path in diagram ${diagram.key}`, VIEWS.flatMap((view) => LAYERS.flatMap((layer) => diagram.views[view]?.[layer]?.paths.map((path) => path.id) ?? [])));
-      for (const view of VIEWS) {
-        for (const layer of LAYERS) {
-          const drawn = diagram.views[view]?.[layer];
-          if (!drawn) continue;
-          drawn.paths.forEach((path, index) => {
-            if (path.nodeId !== null && !nodes.has(path.nodeId)) throw new Error(`Diagram ${diagram.key} path ${path.id}: node ${path.nodeId} is not a node`);
-            pathRows.push([diagram.key, diagram.version, path.id, view, layer, path.kind, path.nodeId, path.d, index]);
-          });
-          drawn.labels.forEach((label, index) => labelRows.push([diagram.key, diagram.version, view, layer, index, label.text, label.x, label.y, label.anchor]));
-        }
+      // Views and layers in key order, so the output never depends on how the object was built.
+      const drawing = Object.entries(diagram.views)
+        .sort(([a], [b]) => byKey(a, b))
+        .flatMap(([view, layers]) => Object.entries(layers ?? {}).sort(([a], [b]) => byKey(a, b)).map(([layer, drawn]) => ({ view, layer, drawn })));
+      for (const { view, layer } of drawing) {
+        if (!DIAGRAM_ID.test(view)) throw new Error(`Diagram ${diagram.key}: view id ${JSON.stringify(view)} must be lowercase letters, digits and underscores, starting with a letter`);
+        if (!DIAGRAM_ID.test(layer)) throw new Error(`Diagram ${diagram.key}: layer id ${JSON.stringify(layer)} in view ${view} must be lowercase letters, digits and underscores, starting with a letter`);
       }
-      for (const view of Object.keys(diagram.views)) {
-        if (!VIEWS.includes(view as DiagramViewId)) throw new Error(`Diagram ${diagram.key}: unknown view ${view}`);
-        for (const layer of Object.keys(diagram.views[view as DiagramViewId] ?? {})) {
-          if (!LAYERS.includes(layer as DiagramLayerId)) throw new Error(`Diagram ${diagram.key}: unknown layer ${layer}`);
-        }
+      assertUnique(`path in diagram ${diagram.key}`, drawing.flatMap(({ drawn }) => drawn?.paths.map((path) => path.id) ?? []));
+      for (const { view, layer, drawn } of drawing) {
+        if (!drawn) continue;
+        drawn.paths.forEach((path, index) => {
+          if (path.nodeId !== null && !nodes.has(path.nodeId)) throw new Error(`Diagram ${diagram.key} path ${path.id}: node ${path.nodeId} is not a node`);
+          pathRows.push([diagram.key, diagram.version, path.id, view, layer, path.kind, path.nodeId, path.d, index]);
+        });
+        drawn.labels.forEach((label, index) => labelRows.push([diagram.key, diagram.version, view, layer, index, label.text, label.x, label.y, label.anchor]));
       }
     }
     const stale = sorted.flatMap((diagram) => {
@@ -502,6 +557,24 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
   );
 
   const mappings = versions.flatMap((data) => [...data.mappings].sort((a, b) => byKey(a.id, b.id)));
+  // Per version in the content, mappings first, so a removed mapping is refused by name;
+  // their sources go with them. Versions not in the content are left alone.
+  const staleMappings = versions.flatMap((data) => {
+    const version = `v.version_key = ${quote(data.mappingVersion.key)}`;
+    const rows = [...data.mappings].sort((a, b) => byKey(a.id, b.id));
+    return [
+      deleteWhere("specialization.variant_mappings m", ["specialization.mapping_versions v"], [`m.version_id = v.id and ${version}`, notIn("m.mapping_key", rows.map((mapping): Value[] => [mapping.id]))]),
+      deleteWhere("specialization.mapping_sources ms", ["specialization.variant_mappings m", "specialization.mapping_versions v", "specialization.sources s"], [
+        `ms.mapping_id = m.id and m.version_id = v.id and s.id = ms.source_id and ${version}`,
+        notIn("(m.mapping_key, s.source_key)", rows.flatMap((mapping) => mapping.sources.map((ref): Value[] => [mapping.id, ref.sourceId]))),
+      ]),
+    ];
+  });
+  section(
+    "Mappings and mapping sources no longer in the content (refused for a published or retired version; a draft is cleaned)",
+    staleMappings.length ? staleMappings.join("\n") : "-- none: the content has no mapping version",
+  );
+
   section(
     "Variant mappings (draft rows are kept: shown as pending review, never counted, never readable by users)",
     upsertSelect({
@@ -577,9 +650,14 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
     }),
     "--",
     "-- Applies after 20261016120000_specialization_atlas_schema.sql, and can be applied again:",
-    "-- every write is an upsert keyed by the content's own keys that skips unchanged rows. A",
-    "-- published mapping or rule version is immutable, so changed content under a published",
-    "-- key is refused here; publish it under a new key. See docs/specialization-atlas/04-database.md.",
+    "-- every write is an upsert keyed by the content's own keys that skips unchanged rows, and",
+    "-- the sets the content owns (a version's mappings and their sources, a region's claims with",
+    "-- their sources and node actions, a drawing's paths and labels) lose the rows the content",
+    "-- no longer has. A published mapping or rule version is immutable, and so is what a",
+    "-- published version rests on (its variants, node actions, reviewed claims and their",
+    "-- sources, cited sources), so a change or removal under such a key is refused here and",
+    "-- nothing of this file is applied; give the change new keys and a new version. See",
+    "-- docs/specialization-atlas/04-database.md.",
     "--",
     "-- Rollback: the schema's (drop schema if exists specialization cascade). Published",
     "-- versions are deliberately undeletable row by row.",

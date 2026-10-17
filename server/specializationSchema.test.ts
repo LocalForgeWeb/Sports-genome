@@ -1,20 +1,26 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import type { PGlite } from "@electric-sql/pglite";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { goalsForBothArms } from "@shared/specialization/goals";
+import { forearmRegionData } from "@shared/specialization/regions/forearm";
+import { emitSeedSql, productionSeedInput } from "../scripts/specialization/emit-seed";
 import {
   SCHEMA_MIGRATION_PATH,
   SEED_MIGRATION_PATH,
   USER_A,
   USER_B,
   applyMigration,
+  applyMigrationAsDoBlock,
   as,
+  asDoBlock,
   count,
   createSeededDb,
   createSupabaseLikeDb,
   failure,
   readMigration,
   rows,
+  scriptFailure,
 } from "./fixtures/specializationPg";
 
 /**
@@ -45,6 +51,14 @@ const UPDATABLE: Record<string, string> = {
 
 const userA = { user: USER_A };
 const userB = { user: USER_B };
+
+// Counts from the content itself, so a content change only needs the seed regenerated.
+const reviewedMappingCount = forearmRegionData.mappings.filter((mapping) => mapping.reviewStatus === "reviewed").length;
+const draftMappingCount = forearmRegionData.mappings.filter((mapping) => mapping.reviewStatus === "draft").length;
+const catalogCount = new Set(forearmRegionData.variants.map((variant) => variant.catalogExerciseId)).size;
+
+/** Tables holding what a published or retired mapping version rests on (refuse TRUNCATE while one exists). */
+const FROZEN_TABLES = ["mapping_versions", "variant_mappings", "mapping_sources", "rule_versions", "exercise_variants", "nodes", "node_actions", "claims", "claim_sources", "sources"];
 
 let db: Awaited<ReturnType<typeof createSeededDb>>;
 
@@ -142,7 +156,8 @@ describe("structure", () => {
       expect(of("PUBLIC", table), `PUBLIC on ${table}`).toEqual([]);
       expect(of("anon", table), `anon on ${table}`).toEqual([]);
       expect(of("authenticated", table), `authenticated on ${table}`).toEqual(PERSONAL_TABLES.includes(table) ? ["DELETE", "INSERT", "SELECT", "UPDATE"] : ["SELECT"]);
-      expect(of("service_role", table), `service_role on ${table}`).toEqual(expect.arrayContaining(["DELETE", "INSERT", "SELECT", "UPDATE"]));
+      // Exactly these: TRUNCATE would bypass every row guard; TRIGGER and REFERENCES are not needed.
+      expect(of("service_role", table), `service_role on ${table}`).toEqual(["DELETE", "INSERT", "SELECT", "UPDATE"]);
     }
     const [schema] = await rows<Record<string, boolean>>(
       db,
@@ -154,6 +169,52 @@ describe("structure", () => {
               has_function_privilege('service_role', 'specialization.mapping_version_problems(uuid)', 'EXECUTE') as service_problems`,
     );
     expect(schema).toEqual({ anon: false, authenticated: true, service_role: true, auth_problems: false, anon_problems: false, service_problems: true });
+  });
+});
+
+describe("function privileges", () => {
+  /** Signature -> the roles among PUBLIC, anon and authenticated allowed to execute it. Nothing today. */
+  const EXECUTE_ALLOWED: Readonly<Record<string, readonly string[]>> = {};
+
+  /** Every EXECUTE that PUBLIC, anon or authenticated holds on a function in the schema. A NULL proacl is Postgres's default: EXECUTE for PUBLIC. */
+  const clientExecute = () =>
+    rows<{ fn: string; grantee: string }>(
+      db,
+      `select p.oid::regprocedure::text as fn, coalesce(r.rolname, 'PUBLIC') as grantee
+       from pg_proc p
+       join pg_namespace n on n.oid = p.pronamespace
+       cross join lateral aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a
+       left join pg_roles r on r.oid = a.grantee
+       where n.nspname = 'specialization' and a.privilege_type = 'EXECUTE' and (a.grantee = 0 or r.rolname in ('anon', 'authenticated'))
+       order by 1, 2`,
+    );
+  const notAllowed = (found: { fn: string; grantee: string }[]) => found.filter(({ fn, grantee }) => !(EXECUTE_ALLOWED[fn] ?? []).includes(grantee));
+
+  it("no function in the schema is executable by PUBLIC, anon or authenticated outside the allow-list", async () => {
+    expect(notAllowed(await clientExecute())).toEqual([]);
+    const reach = await rows<{ fn: string; anon: boolean; authenticated: boolean }>(
+      db,
+      `select p.oid::regprocedure::text as fn, has_function_privilege('anon', p.oid, 'EXECUTE') as anon, has_function_privilege('authenticated', p.oid, 'EXECUTE') as authenticated
+       from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'specialization'`,
+    );
+    expect(reach.length).toBeGreaterThan(10);
+    for (const { fn, anon, authenticated } of reach) {
+      expect(anon && !(EXECUTE_ALLOWED[fn] ?? []).includes("anon"), `anon can execute ${fn}`).toBe(false);
+      expect(authenticated && !(EXECUTE_ALLOWED[fn] ?? []).includes("authenticated"), `authenticated can execute ${fn}`).toBe(false);
+    }
+  });
+
+  it("catches a function added without its own revoke: Postgres gives PUBLIC execute, and no default privilege takes it away", async () => {
+    const code = readMigration(SCHEMA_MIGRATION_PATH).split("\n").filter((line) => !/^\s*--/.test(line)).join("\n");
+    expect(code).not.toMatch(/alter default privileges/i);
+    expect(await count(db, "select 1 from pg_default_acl")).toBe(0);
+    await db.exec("create function specialization.zz_later() returns integer language sql set search_path = '' as 'select 1'");
+    try {
+      expect(notAllowed(await clientExecute())).toEqual([{ fn: "specialization.zz_later()", grantee: "PUBLIC" }]);
+      expect(await rows(db, "select has_function_privilege('authenticated', 'specialization.zz_later()', 'EXECUTE') as ok")).toEqual([{ ok: true }]);
+    } finally {
+      await db.exec("drop function specialization.zz_later()");
+    }
   });
 });
 
@@ -198,11 +259,8 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     ["variant_mappings", "allocation", () => property("VariantMapping", "allocation")],
     ["variant_mappings", "review_status", () => union("ReviewStatus")],
     ["mapping_versions", "state", () => property("MappingVersion", "state")],
-    ["diagram_paths", "view", () => union("DiagramViewId")],
-    ["diagram_paths", "layer", () => union("DiagramLayerId")],
+    // Diagram view and layer ids are the drawing's own: a shape, not a list (tested below).
     ["diagram_paths", "kind", () => union("DiagramPathKind")],
-    ["diagram_labels", "view", () => union("DiagramViewId")],
-    ["diagram_labels", "layer", () => union("DiagramLayerId")],
     ["diagram_labels", "anchor", () => property("DiagramLabel", "anchor")],
     ["goals", "side", () => union("ArmSide")],
     ["goals", "metric", () => union("GoalMetric")],
@@ -225,6 +283,38 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     expect(def, `${table}.${column} has a CHECK vocabulary`).toBeDefined();
     const inDb = [...pattern.exec(def!)![1].matchAll(/'([^']+)'::text/g)].map((match) => match[1]).sort();
     expect(inDb).toEqual(values());
+  });
+
+  it("diagram view and layer ids are the drawing's own: any lowercase id (front, side, rear), no fixed list", async () => {
+    for (const table of ["diagram_paths", "diagram_labels"]) {
+      const defs = (await rows<{ def: string }>(
+        db,
+        `select pg_get_constraintdef(c.oid) as def from pg_constraint c join pg_class t on t.oid = c.conrelid join pg_namespace n on n.oid = t.relnamespace
+         where n.nspname = 'specialization' and t.relname = $1 and c.contype = 'c'`,
+        [table],
+      )).map((row) => row.def);
+      for (const column of ["view", "layer"]) {
+        expect(defs.some((def) => def.includes(`(${column} ~ '^[a-z][a-z0-9_]*$'::text)`)), `${table}.${column}`).toBe(true);
+        expect(defs.some((def) => new RegExp(`\\(${column} = ANY`).test(def)), `${table}.${column} has no fixed list`).toBe(false);
+      }
+    }
+    await as(db, "service_role", async () => {
+      const [asset] = await rows<{ id: string }>(db, "insert into specialization.diagram_assets (region_id, asset_key, version, view_box_width, view_box_height, license_note) values ('forearm', 'zz_views', 1, 10, 10, 'Test') returning id");
+      const path = (id: string, view: string, layer: string) =>
+        failure(db, "insert into specialization.diagram_paths (asset_id, path_id, view, layer, kind, d, sort_order) values ($1, $2, $3, $4, 'outline', 'M0 0', 0)", [asset.id, id, view, layer]);
+      const label = (view: string, layer: string, order: number) =>
+        failure(db, "insert into specialization.diagram_labels (asset_id, view, layer, sort_order, label_text, x, y, anchor) values ($1, $2, $3, $4, 'Test', 1, 1, 'start')", [asset.id, view, layer, order]);
+      for (const [index, view] of ["front", "side", "rear", "palm"].entries()) {
+        expect(await path(`p${index}`, view, "superficial"), view).toBeNull();
+        expect(await label(view, "deep_2", index), view).toBeNull();
+      }
+      for (const bad of ["Front", "front view", "", "2nd", "front-left"]) {
+        expect(await path(`bad-${bad}`, bad, "surface"), JSON.stringify(bad)).toMatch(/diagram_paths_view_check/);
+        expect(await path(`bad-layer-${bad}`, "front", bad), JSON.stringify(bad)).toMatch(/diagram_paths_layer_check/);
+        expect(await label(bad, "surface", 90), JSON.stringify(bad)).toMatch(/diagram_labels_view_check/);
+      }
+      await db.query("delete from specialization.diagram_assets where id = $1", [asset.id]);
+    });
   });
 
   it("accepts every measurement posture and condition the app records, and nothing else", async () => {
@@ -297,13 +387,13 @@ describe("reference content, as a signed-in user", () => {
     expect(hidden).toBe(0);
   });
 
-  it("sees the published mapping version's reviewed rows only: not its 5 drafts, not an unpublished version", async () => {
+  it("sees the published mapping version's reviewed rows only: not its drafts, not an unpublished version", async () => {
     const versions = await as(db, userA, () => rows<{ version_key: string }>(db, "select version_key from specialization.mapping_versions"));
     expect(versions.map((row) => row.version_key)).toEqual(["forearm_mappings_v1"]);
     const seen = await as(db, userA, () => rows<{ review_status: string; n: number }>(db, "select review_status, count(*)::int as n from specialization.variant_mappings group by 1"));
-    expect(seen).toEqual([{ review_status: "reviewed", n: 399 }]);
+    expect(seen).toEqual([{ review_status: "reviewed", n: reviewedMappingCount }]);
     const drafts = await count(db, "select 1 from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where v.version_key = 'forearm_mappings_v1' and m.review_status = 'draft'");
-    expect(drafts).toBe(5);
+    expect(drafts).toBe(draftMappingCount);
     const visibleSources = await count(
       db,
       "select 1 from specialization.mapping_sources s join specialization.variant_mappings m on m.id = s.mapping_id join specialization.mapping_versions v on v.id = m.version_id where v.state = 'published' and m.review_status = 'reviewed'",
@@ -320,7 +410,7 @@ describe("reference content, as a signed-in user", () => {
                 (select count(*)::int from specialization.exercise_variants) as variants, (select count(*)::int from specialization.catalog_exercises) as catalog`,
       ),
     );
-    expect(seen[0]).toEqual({ rules: ["specialization_exposure_v1"], sources: 71, actions: 20, variants: 117, catalog: 117 });
+    expect(seen[0]).toEqual({ rules: ["specialization_exposure_v1"], sources: forearmRegionData.sources.length, actions: forearmRegionData.actions.length, variants: forearmRegionData.variants.length, catalog: catalogCount });
   });
 
   it("cannot insert, update, delete or truncate any reference table", async () => {
@@ -529,9 +619,21 @@ describe("anatomy integrity", () => {
       const insert = "insert into specialization.node_actions (node_id, action_id, role, claim_id) select 'forearm.fcr', 'wrist.extension', 'assist', id from specialization.claims where claim_key = $1";
       expect(await failure(db, insert, ["forearm:fcu.function"])).toMatch(/node_actions_function_claim_of_same_node/);
       expect(await failure(db, insert, ["forearm:fcr.appearance"])).toMatch(/node_actions_function_claim_of_same_node/);
-      expect(await failure(db, "update specialization.claims set kind = 'appearance' where claim_key = 'forearm:fcr.function'")).toMatch(/node_actions_function_claim_of_same_node/);
+      // Turning the claim under a node action into another kind, on a muscle no published
+      // version maps (on a mapped one the claim is frozen outright: see below).
+      await insertTestNode("forearm.zz_fk", "forearm.anterior", "reviewed");
+      await db.exec(`
+        insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status, reviewed_on) values ('test:zz_fk.function', 'forearm.zz_fk', 'function', 'Test.', 'established_anatomy', 'reviewed', '2026-10-16');
+        insert into specialization.node_actions (node_id, action_id, role, claim_id) select 'forearm.zz_fk', 'wrist.flexion', 'assist', id from specialization.claims where claim_key = 'test:zz_fk.function';
+      `);
+      expect(await failure(db, "update specialization.claims set kind = 'appearance' where claim_key = 'test:zz_fk.function'")).toMatch(/node_actions_function_claim_of_same_node/);
       expect(await failure(db, insert, ["forearm:fcr.function"])).toBeNull();
       await db.query("delete from specialization.node_actions where node_id = 'forearm.fcr' and action_id = 'wrist.extension'");
+      await db.exec(`
+        delete from specialization.node_actions where node_id = 'forearm.zz_fk';
+        delete from specialization.claims where claim_key = 'test:zz_fk.function';
+        delete from specialization.nodes where id = 'forearm.zz_fk';
+      `);
     });
   });
 });
@@ -571,6 +673,179 @@ describe("a published mapping version is immutable", () => {
       expect(await failure(db, "delete from specialization.mapping_versions where version_key = 'forearm_mappings_v1'")).toMatch(/is published; it cannot be deleted/);
       expect(await failure(db, "insert into specialization.mapping_versions (version_key, region_id, state, published_at, method_notes) values ('zz_born_published', 'forearm', 'published', now(), 'x')")).toMatch(/must be created as a draft/);
     });
+  });
+});
+
+describe("what a published mapping version rests on is frozen with it", () => {
+  const owners = ["service_role", "postgres"] as const;
+
+  it("a variant it uses cannot change or be deleted, for the owner too; an update that changes nothing passes", async () => {
+    for (const who of owners) {
+      await as(db, who, async () => {
+        // cat-403 maps FDS and FDP as direct isometric work: this flag moves them between deliberate and incidental holds.
+        expect(await failure(db, "update specialization.exercise_variants set deliberate_hold = not deliberate_hold where variant_key = 'cat-403'"), who).toMatch(
+          /variant cat-403 is used by mapping version forearm_mappings_v1 \(published\); it cannot change or be deleted/,
+        );
+        expect(await failure(db, "update specialization.exercise_variants set straps = 'yes' where variant_key = 'cat-139'"), who).toMatch(/variant cat-139 is used by mapping version forearm_mappings_v1/);
+        expect(await failure(db, "delete from specialization.exercise_variants where variant_key = 'cat-139'"), who).toMatch(/variant cat-139 is used by mapping version forearm_mappings_v1/);
+        expect(await failure(db, "update specialization.exercise_variants set notes = notes where variant_key = 'cat-139'"), who).toBeNull();
+      });
+    }
+  });
+
+  it("a node action its mappings name cannot change or be removed; a muscle it maps stays reviewed but may be renamed", async () => {
+    for (const who of owners) {
+      await as(db, who, async () => {
+        const named = /node action forearm\.fcu wrist\.flexion is named by mapping version forearm_mappings_v1 \(published\); it cannot change or be deleted/;
+        expect(await failure(db, "update specialization.node_actions set role = case role when 'prime' then 'assist' else 'prime' end where node_id = 'forearm.fcu' and action_id = 'wrist.flexion'"), who).toMatch(named);
+        expect(await failure(db, "delete from specialization.node_actions where node_id = 'forearm.fcu' and action_id = 'wrist.flexion'"), who).toMatch(named);
+        const mapped = /node forearm\.fcr is mapped by mapping version forearm_mappings_v1 \(published\); it must stay reviewed and cannot be deleted/;
+        expect(await failure(db, "update specialization.nodes set status = 'draft' where id = 'forearm.fcr'"), who).toMatch(mapped);
+        expect(await failure(db, "delete from specialization.nodes where id = 'forearm.fcr'"), who).toMatch(mapped);
+      });
+    }
+    await as(db, "service_role", async () => {
+      expect(await failure(db, "update specialization.nodes set name = name || ' (renamed)' where id = 'forearm.fcr'")).toBeNull();
+      expect(await failure(db, "update specialization.nodes set name = replace(name, ' (renamed)', '') where id = 'forearm.fcr'")).toBeNull();
+    });
+  });
+
+  it("a muscle, claim and node action no published version uses stay free", async () => {
+    await as(db, "service_role", async () => {
+      await insertTestNode("forearm.zz_free", "forearm.anterior", "reviewed");
+      await db.exec(`
+        insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status, reviewed_on) values ('test:zz_free.function', 'forearm.zz_free', 'function', 'Test.', 'established_anatomy', 'reviewed', '2026-10-16');
+        insert into specialization.claim_sources (claim_id, source_id, locator) select c.id, s.id, 'Test' from specialization.claims c, specialization.sources s where c.claim_key = 'test:zz_free.function' and s.source_key = 'S2';
+        insert into specialization.node_actions (node_id, action_id, role, claim_id) select 'forearm.zz_free', 'wrist.flexion', 'prime', id from specialization.claims where claim_key = 'test:zz_free.function';
+      `);
+      for (const sql of [
+        "update specialization.node_actions set role = 'assist' where node_id = 'forearm.zz_free'",
+        "update specialization.claims set statement = 'Rewritten.' where claim_key = 'test:zz_free.function'",
+        "update specialization.claim_sources set locator = 'Elsewhere' where claim_id = (select id from specialization.claims where claim_key = 'test:zz_free.function')",
+        "update specialization.nodes set status = 'draft' where id = 'forearm.zz_free'",
+        "delete from specialization.node_actions where node_id = 'forearm.zz_free'",
+        "delete from specialization.claims where claim_key = 'test:zz_free.function'",
+        "delete from specialization.nodes where id = 'forearm.zz_free'",
+      ]) {
+        expect(await failure(db, sql), sql).toBeNull();
+      }
+    });
+  });
+
+  it("a reviewed claim of a mapped muscle keeps its key, node, kind, statement and review, and stays; its note may change; a draft claim is free", async () => {
+    const frozen = /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\) maps; its key, node, kind, statement and review status cannot change/;
+    for (const who of owners) {
+      await as(db, who, async () => {
+        for (const change of ["statement = 'Rewritten.'", "review_status = 'draft'", "review_status = 'rejected'", "kind = 'appearance'", "node_id = 'forearm.fcr'", "claim_key = 'forearm:fcu.function.renamed'"]) {
+          expect(await failure(db, `update specialization.claims set ${change} where claim_key = 'forearm:fcu.function'`), `${who}: ${change}`).toMatch(frozen);
+        }
+        expect(await failure(db, "delete from specialization.claims where claim_key = 'forearm:fcu.function'"), who).toMatch(frozen);
+      });
+    }
+    await as(db, "service_role", async () => {
+      const [{ note }] = await rows<{ note: string | null }>(db, "select review_note as note from specialization.claims where claim_key = 'forearm:fcu.function'");
+      expect(await failure(db, "update specialization.claims set review_note = 'Checked again.' where claim_key = 'forearm:fcu.function'")).toBeNull();
+      expect(await failure(db, "update specialization.claims set review_note = $1 where claim_key = 'forearm:fcu.function'", [note])).toBeNull();
+      // The draft claim set up for the read tests is free; a new claim may be added and reviewed, and is then frozen like the rest.
+      expect(await failure(db, "update specialization.claims set statement = 'Draft claim, rewritten.' where claim_key = 'test:fcu.draft'")).toBeNull();
+      expect(await failure(db, "insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status) values ('test:fcu.added', 'forearm.fcu', 'variation', 'Added later.', 'unknown', 'draft')")).toBeNull();
+      expect(await failure(db, "update specialization.claims set review_status = 'reviewed', reviewed_on = '2026-10-17' where claim_key = 'test:fcu.added'")).toBeNull();
+      expect(await failure(db, "delete from specialization.claims where claim_key = 'test:fcu.added'")).toMatch(/claim test:fcu\.added is a reviewed claim on forearm\.fcu/);
+    });
+  });
+
+  it("the sources of such a claim cannot be added, changed or removed; a draft claim's can", async () => {
+    await as(db, "service_role", async () => {
+      const ofClaim = (key: string) => `claim_id = (select id from specialization.claims where claim_key = '${key}')`;
+      const frozen = /the sources of claim forearm:fcu\.function cannot change: it is a reviewed claim on a muscle that mapping version forearm_mappings_v1 \(published\) maps/;
+      expect(await failure(db, `update specialization.claim_sources set locator = 'Elsewhere' where ${ofClaim("forearm:fcu.function")}`)).toMatch(frozen);
+      expect(await failure(db, `delete from specialization.claim_sources where ${ofClaim("forearm:fcu.function")}`)).toMatch(frozen);
+      expect(
+        await failure(
+          db,
+          `insert into specialization.claim_sources (claim_id, source_id, locator)
+           select c.id, s.id, 'New' from specialization.claims c, specialization.sources s
+           where c.claim_key = 'forearm:fcu.function' and s.source_key = 'S1'`,
+        ),
+      ).toMatch(frozen);
+      expect(await failure(db, `update specialization.claim_sources set locator = 'Elsewhere' where ${ofClaim("test:fcu.draft")}`)).toBeNull();
+    });
+  });
+
+  it("a source it cites keeps its key, url, title and evidence type and is not deleted; its notes may change; an uncited source is free", async () => {
+    // One cited by a mapping, and one cited only by a reviewed claim of a mapped muscle.
+    const [{ key: claimOnly }] = await rows<{ key: string }>(
+      db,
+      `select s.source_key as key from specialization.sources s
+       where not exists (select 1 from specialization.mapping_sources ms where ms.source_id = s.id)
+         and exists (select 1 from specialization.claim_sources cs join specialization.claims c on c.id = cs.claim_id join specialization.variant_mappings m on m.node_id = c.node_id
+                     where cs.source_id = s.id and c.review_status = 'reviewed')
+       order by 1 limit 1`,
+    );
+    for (const who of owners) {
+      await as(db, who, async () => {
+        for (const key of ["S4", claimOnly]) {
+          const cited = new RegExp(`source ${key} is cited by mapping version forearm_mappings_v1 \\(published\\); its key, url, title and evidence type cannot change and it cannot be deleted`);
+          for (const change of ["evidence_type = 'product_assumption'", "url = 'https://example.invalid/moved'", "title = title || ' (2nd edition)'", "source_key = source_key || 'x'"]) {
+            expect(await failure(db, `update specialization.sources set ${change} where source_key = '${key}'`), `${who}: ${key} ${change}`).toMatch(cited);
+          }
+          expect(await failure(db, `delete from specialization.sources where source_key = '${key}'`), `${who}: delete ${key}`).toMatch(cited);
+        }
+      });
+    }
+    await as(db, "service_role", async () => {
+      const [{ notes }] = await rows<{ notes: string | null }>(db, "select notes from specialization.sources where source_key = 'S4'");
+      expect(await failure(db, "update specialization.sources set notes = 'Re-checked.' where source_key = 'S4'")).toBeNull();
+      expect(await failure(db, "update specialization.sources set notes = $1 where source_key = 'S4'", [notes])).toBeNull();
+      await db.query("insert into specialization.sources (source_key, url, title, evidence_type, retrieved_on) values ('ZZ1', 'https://example.invalid/zz1', 'Test source', 'anatomy', '2026-10-17')");
+      expect(await failure(db, "update specialization.sources set title = 'Retitled', evidence_type = 'emg' where source_key = 'ZZ1'")).toBeNull();
+      expect(await failure(db, "delete from specialization.sources where source_key = 'ZZ1'")).toBeNull();
+    });
+  });
+
+  it("after all of that the published version still passes its publication rule", async () => {
+    const [{ problems }] = await rows<{ problems: string | null }>(db, "select specialization.mapping_version_problems(id) as problems from specialization.mapping_versions where version_key = 'forearm_mappings_v1'");
+    expect(problems).toBeNull();
+  });
+
+  // Last: it publishes a second version over forearm.fcu and S4, which the messages above name alone.
+  it("a variant only drafts use may change, until a version using it is published", async () => {
+    await as(db, "service_role", async () => {
+      await db.exec(`
+        insert into specialization.catalog_exercises (catalog_id, name) values (9001, 'Test exercise');
+        insert into specialization.exercise_variants (variant_key, catalog_id, organization, forearm_orientation, wrist_position, grip_type, straps, laterality, phase, measure, deliberate_hold)
+          values ('zz-variant', 9001, 'single_joint', 'neutral', 'neutral', 'overhand', 'no', 'bilateral', 'concentric_eccentric', 'reps', false);
+      `);
+      await newDraftVersion("zz_variant_v1");
+      await addMapping("zz_variant_v1", "zz:variant", { variant: "zz-variant", node: "forearm.fcu", action: "wrist.flexion", sources: [{ key: "S4", locator: "Table" }] });
+      expect(await failure(db, "update specialization.exercise_variants set deliberate_hold = true where variant_key = 'zz-variant'")).toBeNull();
+      expect(await publish("zz_variant_v1")).toBeNull();
+      expect(await failure(db, "update specialization.exercise_variants set deliberate_hold = false where variant_key = 'zz-variant'")).toMatch(/variant zz-variant is used by mapping version zz_variant_v1 \(published\)/);
+    });
+  });
+});
+
+describe("truncate", () => {
+  it("the service role holds no TRUNCATE on any table", async () => {
+    await as(db, "service_role", async () => {
+      for (const table of ALL_TABLES) expect(await failure(db, `truncate specialization.${table}`), table).toMatch(new RegExp(`permission denied for table ${table}`));
+    });
+  });
+
+  it("the owner is refused truncating anything a published version rests on, through CASCADE too, and nothing is emptied", async () => {
+    const sizes = async () => Object.fromEntries(await Promise.all(FROZEN_TABLES.map(async (table) => [table, await count(db, `select 1 from specialization.${table}`)] as const)));
+    const before = await sizes();
+    for (const table of FROZEN_TABLES) {
+      // Without CASCADE a table other tables point at is refused by its foreign keys first.
+      expect(await failure(db, `truncate specialization.${table}`), table).toMatch(/cannot be truncated|cannot truncate a table referenced in a foreign key constraint/);
+      expect(await failure(db, `truncate specialization.${table} cascade`), `${table} cascade`).toMatch(/cannot be truncated/);
+    }
+    expect(await failure(db, "truncate specialization.rule_versions")).toMatch(/rule_versions holds a published rule version; it cannot be truncated/);
+    expect(await failure(db, "truncate specialization.mapping_sources")).toMatch(/mapping_sources holds rows that published or retired mapping versions rest on; it cannot be truncated/);
+    // Reached only through CASCADE from a table that has no guard of its own.
+    expect(await failure(db, "truncate specialization.regions cascade")).toMatch(/cannot be truncated/);
+    expect(await failure(db, "truncate specialization.catalog_exercises cascade")).toMatch(/cannot be truncated/);
+    expect(await sizes()).toEqual(before);
   });
 });
 
@@ -722,6 +997,13 @@ describe("rollback", () => {
     const fresh = await createSupabaseLikeDb();
     try {
       await applyMigration(fresh, SCHEMA_MIGRATION_PATH);
+      // Before anything is published, the reference tables can still be cleared.
+      await fresh.exec(`
+        insert into specialization.regions (id, label, heading, status, entry_label) values ('zz_region', 'Test', 'Test', 'fixture', 'Test');
+        insert into specialization.mapping_versions (version_key, region_id, method_notes) values ('zz_draft', 'zz_region', 'Draft.');
+      `);
+      expect(await scriptFailure(fresh, "truncate specialization.mapping_versions, specialization.rule_versions cascade")).toBeNull();
+      expect(await scriptFailure(fresh, "delete from specialization.regions where id = 'zz_region'")).toBeNull();
       await applyMigration(fresh, SEED_MIGRATION_PATH);
       await fresh.query("select set_config('request.jwt.claim.sub', $1, false)", [USER_A]);
       await fresh.exec("set role authenticated");
@@ -737,9 +1019,93 @@ describe("rollback", () => {
       await applyMigration(fresh, SCHEMA_MIGRATION_PATH);
       await applyMigration(fresh, SEED_MIGRATION_PATH);
       const [after] = (await fresh.query<{ mappings: number; goals: number }>("select (select count(*)::int from specialization.variant_mappings) as mappings, (select count(*)::int from specialization.goals) as goals")).rows;
-      expect(after).toEqual({ mappings: 404, goals: 0 });
+      expect(after).toEqual({ mappings: forearmRegionData.mappings.length, goals: 0 });
     } finally {
       await fresh.close();
+    }
+  }, SETUP);
+});
+
+// ---------------------------------------------------------------- how it reaches production
+
+/** Everything the migrations decide, comparable across two databases: random uuids become the keys of the rows they name. */
+async function snapshot(database: PGlite) {
+  const q = <T = Record<string, unknown>>(sql: string) => rows<T>(database, sql);
+  const ns = "n.nspname = 'specialization'";
+  const catalog = {
+    schema: await q("select nspacl::text as acl, obj_description(oid, 'pg_namespace') as comment from pg_namespace where nspname = 'specialization'"),
+    relations: await q<{ relname: string; relkind: string }>(
+      `select c.relname, c.relkind::text as relkind, c.relrowsecurity, c.relforcerowsecurity, c.relacl::text as acl, obj_description(c.oid, 'pg_class') as comment
+       from pg_class c join pg_namespace n on n.oid = c.relnamespace where ${ns} order by 1`,
+    ),
+    columns: await q(
+      `select table_name, column_name, ordinal_position, data_type, is_nullable, column_default, is_generated, generation_expression,
+              col_description(format('specialization.%I', table_name)::regclass, ordinal_position) as comment
+       from information_schema.columns where table_schema = 'specialization' order by 1, 3`,
+    ),
+    constraints: await q(`select t.relname, c.conname, pg_get_constraintdef(c.oid) as def from pg_constraint c join pg_class t on t.oid = c.conrelid join pg_namespace n on n.oid = t.relnamespace where ${ns} order by 1, 2`),
+    indexes: await q("select tablename, indexname, indexdef from pg_indexes where schemaname = 'specialization' order by 1, 2"),
+    triggers: await q(`select c.relname, t.tgname, pg_get_triggerdef(t.oid) as def, t.tgenabled::text as enabled from pg_trigger t join pg_class c on c.oid = t.tgrelid join pg_namespace n on n.oid = c.relnamespace where ${ns} and not t.tgisinternal order by 1, 2`),
+    functions: await q(`select p.oid::regprocedure::text as fn, pg_get_functiondef(p.oid) as def, p.proacl::text as acl, obj_description(p.oid, 'pg_proc') as comment from pg_proc p join pg_namespace n on n.oid = p.pronamespace where ${ns} order by 1`),
+    policies: await q("select tablename, policyname, permissive, roles::text as roles, cmd, qual, with_check from pg_policies where schemaname = 'specialization' order by 1, 2"),
+    defaultAcls: await q("select defaclrole::regrole::text as role, defaclnamespace::regnamespace::text as schema, defaclobjtype::text as kind, defaclacl::text as acl from pg_default_acl order by 1, 2, 3"),
+    extensions: await q("select extname, extnamespace::regnamespace::text as schema from pg_extension order by 1"),
+  };
+  const tables = catalog.relations.filter((relation) => relation.relkind === "r").map((relation) => relation.relname);
+  const raw: Record<string, Record<string, unknown>[]> = {};
+  for (const table of tables) raw[table] = (await q<{ row: Record<string, unknown> }>(`select to_jsonb(t) as row from specialization.${table} t`)).map((entry) => entry.row);
+  const names = new Map<unknown, string>();
+  for (const row of raw.sources) names.set(row.id, `source ${row.source_key}`);
+  for (const row of raw.claims) names.set(row.id, `claim ${row.claim_key}`);
+  for (const row of raw.diagram_assets) names.set(row.id, `asset ${row.asset_key} v${row.version}`);
+  for (const row of raw.mapping_versions) names.set(row.id, `version ${row.version_key}`);
+  for (const row of raw.variant_mappings) names.set(row.id, `mapping ${names.get(row.version_id)} ${row.mapping_key}`);
+  const data = Object.fromEntries(
+    tables.map((table) => [table, raw[table].map((row) => JSON.stringify(Object.fromEntries(Object.entries(row).map(([key, value]) => [key, names.get(value) ?? value])))).sort()]),
+  );
+  return { catalog, data };
+}
+
+describe("applied as one DO block per file, the way it reaches production", () => {
+  it("wraps a file as exactly one statement, with quote tags the file does not contain", () => {
+    for (const path of [SCHEMA_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+      const text = readMigration(path);
+      const block = asDoBlock(text);
+      expect(block.startsWith("do $outer$ declare body text := $body$")).toBe(true);
+      expect(block.endsWith("$body$; begin execute body; end $outer$;")).toBe(true);
+      expect(block.slice("do $outer$ declare body text := $body$".length, -"$body$; begin execute body; end $outer$;".length)).toBe(text);
+      // Nothing a function's EXECUTE cannot run: no transaction control, nothing CONCURRENTLY.
+      const code = text.split("\n").filter((line) => !/^\s*--/.test(line)).join("\n");
+      expect(code).not.toMatch(/\b(commit|rollback|savepoint|release)\b\s*;|\bstart\s+transaction\b|\bbegin\s*(transaction|work)?\s*;|\bconcurrently\b/i);
+    }
+    expect(asDoBlock("select '$body$ and $outer$'")).toMatch(/^do \$outer1\$ declare body text := \$body1\$/);
+  });
+
+  it("gives the same database as applying the files directly, and refuses a changed seed the same way, applying none of it", async () => {
+    const direct = await createSupabaseLikeDb();
+    const wrapped = await createSupabaseLikeDb();
+    try {
+      for (const path of [SCHEMA_MIGRATION_PATH, SCHEMA_MIGRATION_PATH, SEED_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+        await applyMigration(direct, path);
+        await applyMigrationAsDoBlock(wrapped, path);
+      }
+      const expected = await snapshot(direct);
+      expect(expected.data.variant_mappings).toHaveLength(forearmRegionData.mappings.length);
+      expect(expected.catalog.triggers.length).toBeGreaterThan(20);
+      expect(await snapshot(wrapped)).toEqual(expected);
+
+      const changed = emitSeedSql({
+        ...productionSeedInput(),
+        regions: [{ ...forearmRegionData, variants: forearmRegionData.variants.map((variant) => (variant.id === "cat-403" ? { ...variant, deliberateHold: !variant.deliberateHold } : variant)) }],
+      });
+      const refusal = /variant cat-403 is used by mapping version forearm_mappings_v1 \(published\)/;
+      expect(await scriptFailure(direct, changed)).toMatch(refusal);
+      expect(await scriptFailure(wrapped, asDoBlock(changed))).toMatch(refusal);
+      expect(await snapshot(wrapped)).toEqual(expected);
+      expect(await snapshot(direct)).toEqual(expected);
+    } finally {
+      await direct.close();
+      await wrapped.close();
     }
   }, SETUP);
 });

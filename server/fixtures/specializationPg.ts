@@ -95,6 +95,32 @@ export async function applyMigration(db: PGlite, path: string): Promise<void> {
   await db.exec(readMigration(path));
 }
 
+/** A dollar-quote tag (`$name$`, `$name1$`, ...) whose opening `$name` the text never contains. */
+function freeTag(text: string, name: string): string {
+  for (let n = 0; ; n += 1) {
+    const tag = `$${name}${n || ""}$`;
+    if (!text.includes(tag.slice(0, -1))) return tag;
+  }
+}
+
+/**
+ * A migration's text as ONE statement, the way it is applied to production through a
+ * single SQL call: `do $outer$ declare body text := $body$<file>$body$; begin execute body;
+ * end $outer$`. The file runs inside a function's EXECUTE, so it must hold no transaction
+ * control and nothing a function cannot run; server/specializationSchema.test.ts checks
+ * that this gives the same database as applying the file directly.
+ */
+export function asDoBlock(sql: string): string {
+  const body = freeTag(sql, "body");
+  const outer = freeTag(sql + body, "outer");
+  return `do ${outer} declare body text := ${body}${sql}${body}; begin execute body; end ${outer};`;
+}
+
+/** Applies a migration file as the one DO block above. */
+export async function applyMigrationAsDoBlock(db: PGlite, path: string): Promise<void> {
+  await db.exec(asDoBlock(readMigration(path)));
+}
+
 export type Identity = "postgres" | "anon" | "service_role" | { user: string };
 
 /**
