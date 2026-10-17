@@ -13,7 +13,7 @@ What the workout logger now asks and stores for the atlas (`02-design.md` §6), 
 | `sideDefault` | the arm shown before any set is logged | `both` for `either`, nothing for `unilateral` |
 | `strapsSensitive` | straps change what the set earns | any non-rejected mapping of that variant with `requiresNoStraps` |
 
-An exercise the atlas does not map gets the default policy (reps, no arm, no straps), which is the logger exactly as it was. Fixture regions (the test-only deltoid) are never read. Variants and mappings are injectable, so tests supply their own; the production arrays were empty on this branch while the mappings lane filled them.
+An exercise the atlas does not map gets the default policy (reps, no arm, no straps), which is the logger exactly as it was. Fixture regions (the test-only deltoid) are never read. Variants and mappings are injectable, so tests supply their own; in production they are the forearm's reviewed variants and mappings (05-mappings.md).
 
 Only the two screens that need the policy import it: the live tracker (`DeviceWorkoutTracker.tsx`) and the swap sheet (`ExerciseSwapSheet.tsx`), both loaded lazily. `setEntryFields.ts` and `workoutSwap.ts` take the measure as an argument instead of importing the atlas, because they load with the app's first screens (through `sessionRecap.ts`), and the atlas's region data should load only with the screens that use it. In a production build the policy and the region data land in the tracker's chunk only.
 
@@ -96,7 +96,7 @@ All fields are optional and validated by the one normalizer every screen reads t
 | `client/src/components/DeviceWorkoutTracker.atlas.test.ts` | registry mocked: Seconds instead of Reps, Next/Done, carried seconds, no drop set, arm control (only one-arm and either-arm, alternating, recorded), straps (only with `askStraps` and a straps-sensitive mapping), ids, swapping a hold, the saved recap |
 | `client/src/components/WorkoutSessionDetail.holds.test.ts` | the detail screen's lines, straps line and correcting a hold in seconds |
 
-The other tracker suites (`DeviceWorkoutTracker.*.test.ts`) run against the empty production data and are unchanged: with no variants, the logger behaves as before.
+The other tracker suites (`DeviceWorkoutTracker.*.test.ts`) run against the real forearm data and pass unchanged: an exercise they log that the atlas does not map behaves as before, and the straps question needs `askStraps`, which they do not pass.
 
 ## Phone check
 

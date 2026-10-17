@@ -109,8 +109,8 @@ Brief §11 rows, with the test that holds each (`describe` › `it`):
 | Edit/delete old record | `brief11.test.ts` › brief §11: changes to the records and the plan › Edit/delete old record → relevant historical total recalculated; `useSpecializationSummary.test.ts` › recalculates when a set is edited or a workout removed, including an old one, and only then |
 | Calendar week / rolling 7 days | `brief11.test.ts` › brief §11: windows › (both tests); `time.test.ts` › calendar week: … › is 167 hours across a spring change and 169 across an autumn one, with exact ends; the first instant of a local day › (Havana, Santiago) |
 | New deltoid region fixture | `regionAgnostic.test.ts` › the same calculator on the deltoid region › (both tests); › no region is named in the calculator, the windows, the goals or the adapters |
-| View/layer change, small muscle selected | Page lane (not in this file set). |
-| User A queries user B, ordinary user edits mapping | Database lane (PGlite RLS tests). |
+| View/layer change, small muscle selected | `SpecializationDiagram.render.test.ts` › selection › keeps a selection that is not on this layer, and says where it is; › tap targets on a phone › gives every muscle a square at least 44 px across at the phone's drawing width, and › places each square where it covers little of other muscles as drawn |
+| User A queries user B, ordinary user edits mapping | `server/specializationSchema.test.ts` (Postgres 17 in PGlite: RLS for anon, two signed-in users and the service role; reference tables refuse writes from a signed-in user) |
 
 Brief §5 worked fixture: `brief11.test.ts` › brief §5: the worked accounting fixture › left arm / right arm: 7 distinct bouts; flexors 2, extensors 2, grip 3 holds = 90 s; wrist-exercise grip incidental › FCR and FCU both appearing in two bouts is two wrist-curl bouts, not four › makes no claim that any muscle received seven hypertrophy sets.
 
@@ -120,6 +120,6 @@ All calculator tests run on `__fixtures__/syntheticForearm.ts`, a forearm-shaped
 
 ## 8. Known limits
 
-- `DeviceSetLog.side`, `holdSeconds` and `warmup`, and `DeviceWorkoutExercise.straps`, are read only once the logger keeps them through `normalizeSet` / `loadDeviceWorkoutSessions`. Until then, history read through the hook has unknown sides (except two-handed variants), no hold seconds and no warm-up flags.
+- History logged before this release has no `side`, `holdSeconds`, `warmup` or `straps`: it reads as no arm recorded (except two-handed variants, which count for both arms), holds as "time not recorded", no warm-ups and unknown straps. The logger keeps all four from this release on (`normalizeSet`, `loadDeviceWorkoutSessions`; 07-logger.md).
 - `DiagramViewId` is `palm | back | thumb`; the deltoid fixture uses `back` as its posterior view.
 - Planned bouts have no load, and an assumed side for one-arm work; the ledger says so.
