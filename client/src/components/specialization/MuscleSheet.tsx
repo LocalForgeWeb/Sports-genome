@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ArrowRight, ChevronDown, Plus } from "lucide-react";
+import { useEffect } from "react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import type { SpecializationExclusions } from "@/lib/specialization/exclusions";
 import type { Recommendations } from "@/lib/specialization/recommendations";
 import type { StoreWrite } from "@/lib/specialization/stores";
@@ -8,7 +8,9 @@ import type { AnatomyNode, ArmSide, GoalProgress, NodeExposure, SpecializationGo
 import { ActionGlyph } from "./ActionGlyph";
 import { categoryLabel, formatSegment, holdTime, layerLabels, ledgerByExercise, sideLabels } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
+import { Suggestions } from "./Suggestions";
 import { TargetsEditor } from "./TargetsEditor";
+import { WhyThisCounts } from "./WhyThisCounts";
 
 const basisLabels: Record<string, string> = {
   established_anatomy: "Established anatomy",
@@ -24,10 +26,12 @@ const basisLabels: Record<string, string> = {
  * contribution ledger behind every number (exercise → bout → segment); your target;
  * exercises for it, with why; and the sources and method.
  */
-export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, initialSection, paired, exclusions, onSetExerciseExcluded, onSetEquipmentExcluded, onSaveGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onClose }: {
+export function MuscleSheet({ data, node, exposure, loading = false, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, initialSection, paired, pairNote = null, exclusions, onSetExerciseExcluded, onSetEquipmentExcluded, onSaveGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onClose }: {
   data: SpecializationRegionData;
   node: AnatomyNode;
   exposure: NodeExposure | null;
+  /** Planned mode while the plan is still loading: no numbers yet, and none shown as zero or as "not mapped". */
+  loading?: boolean;
   side: ArmSide;
   mode: SummaryMode;
   intervalLabel: string;
@@ -41,6 +45,8 @@ export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, w
   initialSection?: "exercises";
   /** The paired view (design §4): this week's logged work beside the plan week as written, or the reverse. */
   paired: { label: string; exposure: NodeExposure | null } | null;
+  /** Why there is no pair, when the plan week shown is not the week being trained (design §4). */
+  pairNote?: string | null;
   exclusions: SpecializationExclusions;
   onSetExerciseExcluded: (catalogExerciseId: number, excluded: boolean) => StoreWrite;
   onSetEquipmentExcluded: (equipment: string, excluded: boolean) => StoreWrite;
@@ -60,21 +66,12 @@ export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, w
   const armWord = side === "left" ? "left arm" : "right arm";
   const ledger = exposure ? ledgerByExercise(exposure.contributions) : [];
   const notCounted = exposure?.notCounted ?? [];
-  const [excludedNow, setExcludedNow] = useState<{ id: number; name: string } | null>(null);
-  const [exclusionError, setExclusionError] = useState<string | null>(null);
   useEffect(() => {
     if (initialSection !== "exercises") return;
     // After the heading has taken focus: bring the exercises into view without moving focus.
     const frame = window.requestAnimationFrame(() => document.getElementById("spz-exercises")?.scrollIntoView({ block: "start" }));
     return () => window.cancelAnimationFrame(frame);
   }, [initialSection, node.id]);
-  const exclude = (id: number, name: string) => {
-    const result = onSetExerciseExcluded(id, true);
-    if (result.ok) { setExcludedNow({ id, name }); setExclusionError(null); } else setExclusionError(result.reason);
-  };
-  const candidateEquipment = recommendations?.kind === "candidates" ? recommendations.candidates.map((item) => item.equipment).filter((item): item is string => Boolean(item)) : [];
-  const equipmentChoices = Array.from(new Set([...candidateEquipment, ...exclusions.equipment])).sort((left, right) => left.localeCompare(right));
-  const excludedExercises = exclusions.catalogExerciseIds.map((id) => ({ id, name: data.variants.find((variant) => variant.catalogExerciseId === id)?.catalogName ?? `Exercise ${id}` }));
 
   return <SpecializationSheet
     id="spz-muscle"
@@ -104,7 +101,8 @@ export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, w
 
     <section className="spz-sheet-section" aria-labelledby="spz-exposure">
       <h3 id="spz-exposure">{mode === "planned" ? "Planned" : "Completed"} · {intervalLabel} · {armWord}</h3>
-      {!exposure || exposure.mappingCoverage === "none"
+      {loading ? <p className="spz-note">Loading your plan…</p>
+        : !exposure || exposure.mappingCoverage === "none"
         ? <p className="spz-note">No exercise is mapped to this muscle yet, so there is nothing to count. That is missing mapping, not missing training.</p>
         : <dl className="spz-numbers">
           <div><dt>Direct dynamic bouts</dt><dd>{exposure.directDynamicBouts}{exposure.directDynamicReps ? <small> · {exposure.directDynamicReps} reps</small> : null}</dd></div>
@@ -117,12 +115,13 @@ export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, w
           {exposure.pendingReviewBouts > 0 && <div><dt>Mapping under review</dt><dd>{exposure.pendingReviewBouts}<small> · shown, not counted</small></dd></div>}
         </dl>}
       {exposure?.mappingCoverage === "pending_review" && <p className="spz-note">Its exercise mapping is still under review, so nothing is counted for it yet.</p>}
-      {paired && exposure?.mappingCoverage === "reviewed" && <p className="spz-note"><b>{paired.label}:</b> {paired.exposure ? `${paired.exposure.directDynamicBouts} direct dynamic · ${paired.exposure.contributingDynamicBouts} other dynamic · ${paired.exposure.deliberateHoldBouts} holds` : "nothing"}, {side === "left" ? "left" : "right"} arm.</p>}
+      {!loading && paired && exposure?.mappingCoverage === "reviewed" && <p className="spz-note"><b>{paired.label}:</b> {paired.exposure ? `${paired.exposure.directDynamicBouts} direct dynamic · ${paired.exposure.contributingDynamicBouts} other dynamic · ${paired.exposure.deliberateHoldBouts} holds` : "nothing"}, {side === "left" ? "left" : "right"} arm.</p>}
+      {!loading && !paired && pairNote && exposure?.mappingCoverage === "reviewed" && <p className="spz-note">{pairNote}</p>}
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-ledger">
       <h3 id="spz-ledger">Where the numbers come from</h3>
-      {ledger.length || notCounted.length ? <div className="spz-ledger">
+      {loading ? <p className="spz-note">Loading your plan…</p> : ledger.length || notCounted.length ? <div className="spz-ledger">
         {ledger.map((group) => <details key={group.key} className="spz-disclosure">
           <summary><span><b>{group.name}</b><small>{group.rows.length} bout{group.rows.length === 1 ? "" : "s"}{group.matchedBy === "name" ? " · matched by name" : ""}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
           <ol className="spz-bouts">
@@ -138,6 +137,7 @@ export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, w
               {row.sessionId && <button type="button" className="spz-link" onClick={() => onOpenSession(row.sessionId!)}>Open this workout <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
             </li>)}
           </ol>
+          <WhyThisCounts data={data} mappingIds={group.rows.flatMap((row) => row.parts.map((part) => part.mappingId))} />
           <button type="button" className="spz-link" onClick={() => onInspectExercise(group.catalogExerciseId, group.name)}>About {group.name} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
         </details>)}
         {notCounted.length > 0 && <details className="spz-disclosure">
@@ -149,37 +149,14 @@ export function MuscleSheet({ data, node, exposure, side, mode, intervalLabel, w
 
     <section className="spz-sheet-section" aria-labelledby="spz-target">
       <h3 id="spz-target">Your target</h3>
-      <TargetsEditor regionId={data.region.id} nodeId={node.id} nodeName={node.name} side={side} goals={goals} progress={progress} timeZone={timeZone} todayKey={todayKey} onSave={onSaveGoals} onRemove={onRemoveGoal} />
+      {/* While the plan loads there is no progress to read, and the editor would show each target at 0. */}
+      {loading ? <p className="spz-note">Your targets and their progress appear once your plan has loaded.</p>
+        : <TargetsEditor regionId={data.region.id} nodeId={node.id} nodeName={node.name} side={side} goals={goals} progress={progress} timeZone={timeZone} todayKey={todayKey} onSave={onSaveGoals} onRemove={onRemoveGoal} />}
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-exercises">
       <h3 id="spz-exercises">Exercises for this muscle</h3>
-      {!recommendations ? <p className="spz-note">Exercises appear once your plan has loaded.</p>
-        : recommendations.kind === "mapping_not_reviewed" ? <p className="spz-note">{recommendations.message}</p>
-        : recommendations.kind === "at_target" ? <p className="spz-note">{recommendations.note}</p>
-        : recommendations.candidates.length ? <ul className="spz-candidates">
-          {recommendations.candidates.slice(0, 5).map((candidate) => <li key={candidate.catalogExerciseId} className="spz-candidate">
-            <span><b>{candidate.name}</b><small>{candidate.why}</small>{candidate.alsoLoads.length > 0 && <small>Also loads {candidate.alsoLoads.slice(0, 4).map((item) => item.name).join(", ")}{candidate.alsoLoads.length > 4 ? ` and ${candidate.alsoLoads.length - 4} more` : ""}.</small>}</span>
-            <span className="spz-candidate-actions">
-              <button type="button" className="spz-button" onClick={() => onChooseExercise(candidate.catalogExerciseId)}><Plus className="h-4 w-4" aria-hidden="true" />Add or swap</button>
-              <button type="button" className="spz-link" onClick={() => onInspectExercise(candidate.catalogExerciseId, candidate.name)}>About it</button>
-              <button type="button" className="spz-link" onClick={() => exclude(candidate.catalogExerciseId, candidate.name)} aria-label={`Do not suggest ${candidate.name}`}>Not for me</button>
-            </span>
-          </li>)}
-        </ul> : <p className="spz-note">{recommendations.emptyReason ?? "No reviewed exercise fits your equipment and choices."}</p>}
-      {excludedNow && <p className="spz-inline-status" role="status">{excludedNow.name} will not be suggested. <button type="button" className="spz-link" onClick={() => { if (onSetExerciseExcluded(excludedNow.id, false).ok) setExcludedNow(null); }}>Undo</button></p>}
-      {exclusionError && <p className="spz-error" role="alert">{exclusionError}</p>}
-      {(equipmentChoices.length > 0 || excludedExercises.length > 0) && <details className="spz-disclosure">
-        <summary><span><b>What is suggested</b><small>{exclusions.catalogExerciseIds.length + exclusions.equipment.length ? `${exclusions.catalogExerciseIds.length + exclusions.equipment.length} left out by you` : "Nothing left out"}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
-        {equipmentChoices.length > 0 && <div className="spz-chips" role="group" aria-label="Equipment to leave out of suggestions">
-          {equipmentChoices.map((item) => {
-            const off = exclusions.equipment.includes(item);
-            return <button key={item} type="button" className="spz-chip" aria-pressed={off} onClick={() => { const result = onSetEquipmentExcluded(item, !off); setExclusionError(result.ok ? null : result.reason); }}><span>{item}</span><small>{off ? "Left out" : "Suggested"}</small></button>;
-          })}
-        </div>}
-        {excludedExercises.length > 0 && <ul className="spz-exercise-list">{excludedExercises.map((item) => <li key={item.id}><span><b>{item.name}</b><small>Not suggested</small></span><button type="button" className="spz-link" onClick={() => onSetExerciseExcluded(item.id, false)}>Suggest again</button></li>)}</ul>}
-      </details>}
-      {recommendations && recommendations.kind !== "mapping_not_reviewed" && recommendations.alreadyCoveredBy.length > 0 && <p className="spz-note"><b>Already covered by</b> {recommendations.alreadyCoveredBy.map((item) => `${item.name} (${item.days.map((day) => day.label).join(", ")})`).join("; ")}.</p>}
+      <Suggestions data={data} recommendations={recommendations} exclusions={exclusions} onSetExerciseExcluded={onSetExerciseExcluded} onSetEquipmentExcluded={onSetEquipmentExcluded} onChooseExercise={onChooseExercise} onInspectExercise={onInspectExercise} />
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-sources">

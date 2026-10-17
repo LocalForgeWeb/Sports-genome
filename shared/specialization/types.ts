@@ -489,6 +489,25 @@ export interface SummaryCompleteness {
   boutsExcluded: { notCompleted: number; warmup: number };
 }
 
+/**
+ * One bout behind a region-level total: the set record a region count is made of (brief §1,
+ * "Every total opens the contributing exercises and actual set records"; §9 source bout ids).
+ * No node and no category: a region total is distinct bouts, not credit to any one muscle.
+ */
+export interface RegionBoutRow {
+  boutId: string;
+  side: BoutSide;
+  sideSource: SideSource;
+  catalogExerciseId: number | null;
+  exerciseName: string;
+  matchedBy: "id" | "name" | "none";
+  sessionId: string | null;
+  sessionLabel: string;
+  performedAt: string | null;
+  kind: "standard" | "drop";
+  segments: ContributionSegment[];
+}
+
 export interface SpecializationSummary {
   regionId: RegionId;
   interval: SummaryInterval;
@@ -504,6 +523,12 @@ export interface SpecializationSummary {
   regionUnknownSideBouts: number;
   /** Region-level work the atlas cannot attribute to a node (generic "forearms" tags). */
   regionUnclassified: { bouts: number; exercises: { name: string; catalogExerciseId: number | null; bouts: number }[] };
+  /** The bouts behind `regionDistinctBouts`, one row each, oldest first. */
+  regionBoutRows?: RegionBoutRow[];
+  /** The bouts behind `regionUnknownSideBouts`, one row each, oldest first. */
+  regionUnknownSideRows?: RegionBoutRow[];
+  /** The bouts behind `regionUnclassified`, one row each (each names its exercise), oldest first. */
+  regionUnclassifiedRows?: RegionBoutRow[];
   goals: GoalProgress[];
   completeness: SummaryCompleteness;
   calculatedAt: string;

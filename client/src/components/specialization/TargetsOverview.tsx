@@ -36,6 +36,8 @@ export type TargetsOverviewProps = {
   onRemove: (goalId: string) => StoreWrite;
   /** Opens the muscle's sheet. */
   onOpenMuscle: (nodeId: string) => void;
+  /** Opens the movement's sheet: the sets behind its number, and exercises for it. */
+  onOpenMovement?: (actionId: string) => void;
 };
 
 type Group = { key: string; subject: TargetSubject; goals: SpecializationGoal[] };
@@ -43,10 +45,10 @@ type Group = { key: string; subject: TargetSubject; goals: SpecializationGoal[] 
 /**
  * The page's Targets disclosure: every target of the region, grouped by what it is for — a
  * muscle or a movement — with this arm's progress ("8 of your 20") or "Not targeted on the
- * right arm", Change / End / Remove in place, Open for a muscle, and "Add a target" with the
+ * right arm", Change / End / Remove in place, Open for a muscle or a movement, and "Add a target" with the
  * subject chosen here. Nothing is suggested or filled in: every target is one the athlete set.
  */
-export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey, onSave, onRemove, onOpenMuscle }: TargetsOverviewProps) {
+export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey, onSave, onRemove, onOpenMuscle, onOpenMovement }: TargetsOverviewProps) {
   const subjects = useMemo(() => targetSubjectsFor(data), [data]);
   const subjectGroups = useMemo(() => [
     { label: "Muscles", options: subjects.muscles },
@@ -85,6 +87,7 @@ export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey
         <div className="spz-tg-group-head">
           <span><b>{group.subject.name}</b><small>{group.subject.kind === "muscle" ? "Muscle" : "Movement"}</small></span>
           {group.subject.kind === "muscle" && <button type="button" className="spz-button" onClick={() => onOpenMuscle(group.subject.id)} aria-label={`Open ${group.subject.name}`}>Open</button>}
+          {group.subject.kind === "movement" && onOpenMovement && <button type="button" className="spz-button" onClick={() => onOpenMovement(group.subject.id)} aria-label={`Open ${group.subject.name}`}>Open</button>}
         </div>
         {!group.goals.some((goal) => goal.side === side) && <p className="spz-note"><b>Not targeted on the {side} arm.</b></p>}
         <TargetRows goals={group.goals} side={side} progress={progress} edits={edits} subjectName={subjectName} todayKey={todayKey} progressReady={summaryHere !== null} />

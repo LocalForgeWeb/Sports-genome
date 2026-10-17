@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { Contribution, GoalProgress, NodeExposure, SpecializationGoal, SpecializationSummary } from "@shared/specialization/types";
+import type { Contribution, GoalProgress, NodeExposure, RegionBoutRow, SpecializationGoal, SpecializationSummary } from "@shared/specialization/types";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
-import { directWorkBouts, overlapsInWindow, exposureSentence, fillForNode, findingsFor, formatSegment, holdTime, ledgerByExercise, selectableNodes, sortForList, targetStep, volumeStep } from "./model";
+import { directWorkBouts, evidenceBasisLabels, overlapsInWindow, exposureSentence, fillForNode, findingsFor, formatSegment, holdTime, latestSessionDayLabel, ledgerByExercise, mappingsBehind, movementFocusNodeId, movementLedger, regionBoutRows, selectableNodes, sortForList, targetStep, volumeStep } from "./model";
 
 /**
  * The page's own reading of a summary (design §7): fixed bins, honest blanks, the ledger's
@@ -163,6 +163,95 @@ describe("the review of repeated exposure", () => {
     ] });
     const result = overlapsInWindow(summary({ nodes: forearmRegionData.nodes.map((item) => (item.id === "forearm.fcr" ? fcr : node({ nodeId: item.id }))) }), forearmRegionData);
     expect(result.map((item) => [item.sessionLabel, item.nodeShortName, item.exercises])).toEqual([["Push", "FCR", ["One-Arm Dumbbell Wrist Curl", "Wrist Curl"]]]);
+  });
+});
+
+describe("totals that open their sets (brief §1: every total opens the set records)", () => {
+  const movementGoal = (value: number): GoalProgress => {
+    const target = goal({ id: "mv", nodeId: null, actionId: "wrist.extension", target: 10 });
+    return { goal: target, value, fraction: value / 10, label: `${value} of your 10` };
+  };
+  it("gives a movement target behind its own action: the movement's sets and exercises", () => {
+    const finding = findingsFor({ data: forearmRegionData, summary: summary({ goals: [movementGoal(3)] }), otherSide: null })[0];
+    expect(finding.title).toBe("Wrist extension: 3 of your 10");
+    expect(finding.action).toEqual({ kind: "movement", actionId: "wrist.extension" });
+    expect(finding.actionLabel).toBe("See its sets and exercises");
+  });
+  it("opens the sets with no arm and the work mapped to no muscle, not only the method", () => {
+    const findings = findingsFor({ data: forearmRegionData, summary: summary({ regionUnknownSideBouts: 2, regionUnclassified: { bouts: 1, exercises: [{ name: "Dumbbell Pullover", catalogExerciseId: 24, bouts: 1 }] } }), otherSide: null });
+    expect(findings.find((item) => item.id === "unknown-side")).toMatchObject({ action: { kind: "bouts", list: "unknown-side" }, actionLabel: "See these sets" });
+    expect(findings.find((item) => item.id === "region-only")).toMatchObject({ action: { kind: "bouts", list: "region-only" }, actionLabel: "See these sets" });
+  });
+  it("hands back the rows behind each region total, and none for a summary made without them", () => {
+    const row: RegionBoutRow = { boutId: "r1", side: "bilateral", sideSource: "recorded", catalogExerciseId: 24, exerciseName: "Dumbbell Pullover", matchedBy: "id", sessionId: "s1", sessionLabel: "Pull", performedAt: "2026-10-13T17:00:00.000Z", kind: "standard", segments: [] };
+    const withRows = summary({ regionBoutRows: [{ ...row, boutId: "a" }], regionUnknownSideRows: [{ ...row, boutId: "u", side: "unknown" }], regionUnclassifiedRows: [row] });
+    expect(regionBoutRows(withRows, "region").map((item) => item.boutId)).toEqual(["a"]);
+    expect(regionBoutRows(withRows, "unknown-side").map((item) => item.boutId)).toEqual(["u"]);
+    expect(regionBoutRows(withRows, "region-only").map((item) => item.boutId)).toEqual(["r1"]);
+    expect(regionBoutRows(summary(), "region")).toEqual([]);
+    // The ledger groups any row that names its exercise, region rows included.
+    expect(ledgerByExercise([row, { ...row, boutId: "r2" }]).map((group) => [group.name, group.rows.length])).toEqual([["Dumbbell Pullover", 2]]);
+  });
+});
+
+describe("a movement's own ledger (brief §7: targets attach to a muscle or an action)", () => {
+  const part = (mappingId: string, actionId: string | null, category: Contribution["category"]): Contribution["parts"][number] => ({ mappingId, actionId, relationship: "direct", muscleMode: "dynamic", category });
+  const withNodes = (rows: Record<string, Contribution[]>) => summary({ nodes: forearmRegionData.nodes.map((item) => node({ nodeId: item.id, contributions: rows[item.id] ?? [] })) });
+  it("lists each bout once however many muscles moved it, with the muscles and the kinds of work", () => {
+    const result = movementLedger(withNodes({
+      "forearm.ecrl": [contribution({ boutId: "rw1", nodeId: "forearm.ecrl", exerciseName: "Reverse Wrist Curl", catalogExerciseId: 140, parts: [part("m-ecrl", "wrist.extension", "direct_dynamic")] })],
+      "forearm.ecu": [contribution({ boutId: "rw1", nodeId: "forearm.ecu", exerciseName: "Reverse Wrist Curl", catalogExerciseId: 140, parts: [part("m-ecu", "wrist.extension", "direct_dynamic")] })],
+      "forearm.ed": [contribution({ boutId: "rw1", nodeId: "forearm.ed", exerciseName: "Reverse Wrist Curl", catalogExerciseId: 140, parts: [part("m-ed", "wrist.extension", "contributing_dynamic")] })],
+      "forearm.br": [contribution({ boutId: "rc1", nodeId: "forearm.br", exerciseName: "Reverse Curl", catalogExerciseId: 135, parts: [part("m-br", "elbow.flexion", "direct_dynamic"), part("m-br2", "wrist.extension", "incidental_isometric")] })],
+      "forearm.fcr": [contribution({ boutId: "x1", nodeId: "forearm.fcr", side: "unknown", parts: [part("m-fcr", "wrist.extension", "direct_dynamic")] })],
+      "forearm.fcu": [contribution({ boutId: "w1", nodeId: "forearm.fcu", parts: [part("m-fcu", "wrist.flexion", "direct_dynamic")] })],
+    }), forearmRegionData, "wrist.extension");
+    const byId = new Map(result.bouts.map((bout) => [bout.boutId, bout] as const));
+    expect(Array.from(byId.keys()).sort()).toEqual(["rc1", "rw1", "x1"]);
+    expect(byId.get("rw1")).toMatchObject({ nodeIds: ["forearm.ecrl", "forearm.ecu", "forearm.ed"], categories: ["direct_dynamic", "contributing_dynamic"], mappingIds: ["m-ecrl", "m-ecu", "m-ed"] });
+    expect(byId.get("rc1")).toMatchObject({ nodeIds: ["forearm.br"], categories: ["incidental_isometric"], mappingIds: ["m-br2"] });
+    // As a movement target counts: distinct bouts, this arm's only; no arm is apart and counted for neither.
+    expect(result.totals).toEqual({ directDynamicBouts: 1, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, otherBouts: 1, unknownSideBouts: 1 });
+  });
+  it("reads only the region's own muscles, as the movement target does", () => {
+    const external = summary({ nodes: [node({ nodeId: "upper_arm.biceps", contributions: [contribution({ boutId: "c1", nodeId: "upper_arm.biceps", parts: [part("m-bi", "elbow.flexion", "contributing_dynamic")] })] })] });
+    expect(movementLedger(external, forearmRegionData, "elbow.flexion").bouts).toEqual([]);
+  });
+  it("counts hold seconds once per bout", () => {
+    const hold = (nodeId: string) => contribution({ boutId: "h1", nodeId, category: "deliberate_isometric", holdSeconds: 40, parts: [{ ...part(`m-${nodeId}`, "fingers.pip_flexion", "deliberate_isometric"), muscleMode: "isometric" }] });
+    const result = movementLedger(withNodes({ "forearm.fds": [hold("forearm.fds")], "forearm.fdp": [hold("forearm.fdp")] }), forearmRegionData, "fingers.pip_flexion");
+    expect(result.totals).toMatchObject({ deliberateHoldBouts: 1, deliberateHoldSeconds: 40 });
+  });
+  it("leads an add for a movement with the muscle the chosen exercise is credited with for it", () => {
+    const regionIds = new Set(forearmRegionData.nodes.filter((item) => item.regionId === "forearm").map((item) => item.id));
+    const mapping = forearmRegionData.mappings.find((item) => item.reviewStatus === "reviewed" && item.actionId === "wrist.extension" && regionIds.has(item.nodeId))!;
+    expect(movementFocusNodeId(forearmRegionData, "wrist.extension", [mapping.id])).toBe(mapping.nodeId);
+    const mover = movementFocusNodeId(forearmRegionData, "wrist.extension", []);
+    expect(forearmRegionData.nodeActions.some((row) => row.nodeId === mover && row.actionId === "wrist.extension")).toBe(true);
+  });
+});
+
+describe("why an exercise counts (brief §2–§3: mapping-level evidence, told apart)", () => {
+  it("finds the mappings behind a credit, each once, skipping ids the region does not have", () => {
+    const [first, second] = forearmRegionData.mappings;
+    expect(mappingsBehind(forearmRegionData, [first.id, "nope", second.id, first.id]).map((item) => item.id)).toEqual([first.id, second.id]);
+  });
+  it("labels inference, anatomy reference and measurement differently", () => {
+    expect(new Set([evidenceBasisLabels.inference, evidenceBasisLabels.anatomy, evidenceBasisLabels.emg]).size).toBe(3);
+    expect(evidenceBasisLabels.inference).toBe("Inferred from anatomy");
+    expect(evidenceBasisLabels.emg).toBe("Measured by EMG");
+  });
+});
+
+describe("the plan week being trained", () => {
+  it("is read from the latest workout that names a plan day", () => {
+    expect(latestSessionDayLabel([
+      { dayLabel: "Week 1 · Day 01 · Push", startedAt: "2026-10-12T17:00:00.000Z" },
+      { dayLabel: "Week 2 · Day 02 · Pull", startedAt: "2026-10-14T17:00:00.000Z" },
+      { dayLabel: "", startedAt: "2026-10-15T17:00:00.000Z" },
+      { dayLabel: "Week 3 · Day 01 · Push", startedAt: "not a date" },
+    ])).toBe("Week 2 · Day 02 · Pull");
+    expect(latestSessionDayLabel([])).toBeNull();
   });
 });
 
