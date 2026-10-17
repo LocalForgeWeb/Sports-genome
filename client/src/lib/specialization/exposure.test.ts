@@ -5,6 +5,7 @@ import { externalContributorIds as ext, forearmActionIds as a, forearmGroupIds a
 import { categoryFor } from "@shared/specialization/rules";
 import { calendarWeekInterval, customInterval, planWeekInterval } from "@shared/specialization/time";
 import type { ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummaryRequest } from "@shared/specialization/types";
+import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { syntheticForearm } from "./__fixtures__/syntheticForearm";
 import { catalogMusclesLookup } from "./useSpecializationSummary";
 
@@ -211,12 +212,42 @@ describe("sides", () => {
       const summary = summarize(bouts, { side });
       const fcr = row(summary, m.flexorCarpiRadialis);
       expect(fcr.directDynamicBouts).toBe(0);
-      expect(fcr.unknownSide).toEqual({ bouts: 3, directDynamicBouts: 3, deliberateHoldBouts: 0, deliberateHoldSeconds: 0 });
+      expect(fcr.unknownSide).toEqual({ bouts: 3, directDynamicBouts: 3, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 0 });
       expect(fcr.contributions.every((item) => item.side === "unknown")).toBe(true);
       expect(summary.regionDistinctBouts).toBe(0);
       expect(summary.regionUnknownSideBouts).toBe(3);
       expect(summary.completeness.boutsUnknownSide).toBe(3);
     }
+  });
+
+  it("keeps unknown-side work a draft mapping matched off both arms' under-review count, in its own bucket", () => {
+    const bouts = times(2, () => hold(142, 40, { side: "unknown", sideSource: "unknown" }));
+    for (const side of ["left", "right"] as const) {
+      const summary = summarize(bouts, { side });
+      const fpl = row(summary, m.flexorPollicisLongus);
+      expect([fpl.pendingReviewBouts, fpl.unknownSide.pendingReviewBouts, fpl.unknownSide.bouts], side).toEqual([0, 2, 0]);
+      expect(fpl.notCounted!.map((item) => item.side), side).toEqual(["unknown", "unknown"]);
+      // The whole-window breakdown still lists them, as the sets with no arm they are.
+      expect(summary.completeness).toMatchObject({ boutsPendingReview: 2, boutsUnknownSide: 2 });
+    }
+  });
+
+  it("real forearm data: a one-arm carry with no arm recorded is under review for neither arm, and its credited grip is kept apart", () => {
+    // Suitcase Carry (409): one-handed, timed; FDS and FDP reviewed, FPL still a draft mapping.
+    const carries = times(2, () => hold(409, 40, { side: "unknown", sideSource: "unknown", straps: "no" }));
+    for (const side of ["left", "right"] as const) {
+      const summary = summarize(carries, { region: forearmRegionData, side });
+      const fpl = row(summary, m.flexorPollicisLongus);
+      expect([fpl.pendingReviewBouts, fpl.unknownSide.pendingReviewBouts], side).toEqual([0, 2]);
+      expect(fpl.notCounted!.map((item) => [item.side, item.notes.includes("Mapping pending review")]), side).toEqual([["unknown", true], ["unknown", true]]);
+      const fds = row(summary, m.flexorDigitorumSuperficialis);
+      expect([fds.deliberateHoldBouts, fds.unknownSide.deliberateHoldBouts, fds.unknownSide.deliberateHoldSeconds], side).toEqual([0, 2, 80]);
+      expect(summary.nodes.reduce((total, node) => total + node.pendingReviewBouts, 0), side).toBe(0);
+    }
+    // Logged on the right, the same carries are the right arm's under-review work and not the left's.
+    const right = times(2, () => hold(409, 40, { side: "right", straps: "no" }));
+    expect(row(summarize(right, { region: forearmRegionData, side: "right" }), m.flexorPollicisLongus).pendingReviewBouts).toBe(2);
+    expect(row(summarize(right, { region: forearmRegionData, side: "left" }), m.flexorPollicisLongus).pendingReviewBouts).toBe(0);
   });
 });
 

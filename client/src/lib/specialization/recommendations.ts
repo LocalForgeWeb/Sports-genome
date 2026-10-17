@@ -487,9 +487,16 @@ function noSideWords(sets: number, noSide: number): string {
   return noSide === sets ? " with no arm recorded" : `, ${noSide} with no arm recorded`;
 }
 
+/**
+ * Why the list is empty, naming every cause and only a true one. With no candidate, each
+ * exercise that trains this was either left out by the athlete (the exercise or its
+ * equipment, under "What is suggested") or skipped as answering a target already met; when
+ * both happened the sentence says "either", as `missingActionNote` in model.ts does.
+ */
 function emptyReasonFor(input: { excludedCount: number; skippedAtTarget: number; targetNote: string | null }): string {
   const lead = input.targetNote ? `${input.targetNote} ` : "";
-  if (input.excludedCount) return `${lead}Every reviewed exercise for this is excluded by your settings.`;
+  if (input.excludedCount && input.skippedAtTarget) return `${lead}The exercises that train this either answer a target you have already met or are left out by your choices under What is suggested.`;
+  if (input.excludedCount) return `${lead}Every reviewed exercise for this is left out by your choices under What is suggested.`;
   if (input.skippedAtTarget) return `${lead}The exercises that train this answer a target you have already met. Nothing is suggested to add more.`;
   return input.targetNote ?? "No reviewed exercise trains this directly or as a main helper yet.";
 }

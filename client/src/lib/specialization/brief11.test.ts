@@ -88,6 +88,24 @@ describe("brief §11: sides", () => {
       expect(summary.completeness).toMatchObject({ boutsNameMatched: 3, boutsUnknownSide: 3 });
     }
   });
+
+  // Final review F-accounting-2: "never silently duplicated to both arms" holds for work a draft mapping matched, too.
+  it("Unknown side on a mapping still under review → kept apart, not under review on both arms", () => {
+    // Plate pinch is one-handed and only draft-mapped to FPL: with no arm tapped, its sets have no arm.
+    const sessions = one([exercise("e1", "Plate Pinch", 142, sets(2, { holdSeconds: "40" }))]);
+    for (const side of ["left", "right"] as const) {
+      const fpl = row(summaryOf(sessions, side), m.flexorPollicisLongus);
+      expect(fpl.pendingReviewBouts, side).toBe(0);
+      expect(fpl.unknownSide, side).toMatchObject({ bouts: 0, pendingReviewBouts: 2 });
+      // Still in the ledger, labelled with its missing arm, and counted nowhere.
+      expect(fpl.notCounted!.map((item) => [item.side, item.notes]), side).toEqual(Array(2).fill(["unknown", ["Mapping pending review"]]));
+      expect(touched(summaryOf(sessions, side), m.flexorPollicisLongus)).toBe(0);
+    }
+    // With the arm recorded, the same sets are that arm's under-review work, and only that arm's.
+    const leftOnly = one([exercise("e1", "Plate Pinch", 142, sets(2, { side: "left", holdSeconds: "40" }))]);
+    expect(row(summaryOf(leftOnly, "left"), m.flexorPollicisLongus)).toMatchObject({ pendingReviewBouts: 2, unknownSide: { pendingReviewBouts: 0 } });
+    expect(row(summaryOf(leftOnly, "right"), m.flexorPollicisLongus)).toMatchObject({ pendingReviewBouts: 0, unknownSide: { pendingReviewBouts: 0 }, notCounted: [] });
+  });
 });
 
 describe("brief §11: bouts, segments and categories", () => {

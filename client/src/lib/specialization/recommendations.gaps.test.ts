@@ -145,6 +145,32 @@ describe("a suggestion names only a target gap the calculator would fill with it
     expect(result.targetNote).toBe("No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week.");
   });
 
+  /**
+   * Final review F-accounting-1: with one target met and one not, most exercises are left out
+   * as answering the met target; when the athlete then leaves out the rest, the empty list
+   * names both causes, never "every exercise is excluded".
+   */
+  it("forearm: an empty list after exclusions names both causes when some exercises answer a met target", () => {
+    const goals = [goal({ id: "dyn", side: "right", metric: "direct_dynamic_bouts", target: 3 }), goal({ id: "holds", side: "right", metric: "deliberate_hold_bouts", target: 3 })];
+    const base = { side: "right" as const, summary: summary(forearmRegionData, [bout(139), bout(139), bout(139)], "right", goals) };
+    const open = recommend(forearmRegionData, { nodeId: m.flexorCarpiRadialis }, base);
+    expect([namesOf(open), open.skippedAtTarget, open.excludedCount]).toEqual([["Wrist Roller", "Wrist Roller, Extension Wind"], 4, 0]);
+    const targetNote = "No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week.";
+    const both = `${targetNote} The exercises that train this either answer a target you have already met or are left out by your choices under What is suggested.`;
+    // Left out one by one, or through their equipment: the same two causes either way.
+    for (const exclusions of [{ catalogExerciseIds: [141, 415] }, { equipment: ["Free weights"] }]) {
+      const result = recommend(forearmRegionData, { nodeId: m.flexorCarpiRadialis }, { ...base, exclusions });
+      expect([result.candidates, result.excludedCount, result.skippedAtTarget, result.emptyReason]).toEqual([[], 2, 4, both]);
+      expect(result.emptyReason).not.toMatch(/Every/);
+    }
+    // With nothing met, the exclusions are the only cause, and "every" is true.
+    const unmetOnly = { side: "right" as const, summary: summary(forearmRegionData, [], "right", [goals[1]]) };
+    const all = recommend(forearmRegionData, { nodeId: m.flexorCarpiRadialis }, unmetOnly).candidates.map((candidate) => candidate.catalogExerciseId);
+    expect(all.length).toBeGreaterThan(2);
+    const none = recommend(forearmRegionData, { nodeId: m.flexorCarpiRadialis }, { ...unmetOnly, exclusions: { catalogExerciseIds: all } });
+    expect([none.candidates, none.excludedCount, none.skippedAtTarget, none.emptyReason]).toEqual([[], all.length, 0, `${targetNote} Every reviewed exercise for this is left out by your choices under What is suggested.`]);
+  });
+
   it("synthetic: a hold target leads with holds, a dynamic target with the dynamic exercise, and neither claims the other", () => {
     const holds = recommend(extended, { nodeId: m.flexorDigitorumSuperficialis }, { summary: summary(extended, [], "left", [goal({ nodeId: m.flexorDigitorumSuperficialis, metric: "deliberate_hold_bouts", target: 2 })]) });
     expect(namesOf(holds)).toEqual(["Dead Hang", "Farmer Hold", "Finger Curl"]);
