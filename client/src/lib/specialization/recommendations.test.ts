@@ -11,8 +11,9 @@ import { deltoidIds, deltoidRegionData } from "./__fixtures__/deltoidRegion";
 import { syntheticForearm } from "./__fixtures__/syntheticForearm";
 
 /**
- * "Exercises for this muscle" (brief §7, design §8): reviewed mappings only, ranked by
- * relevance → equipment → overlap → laterality, exclusions removed, and nothing suggested
+ * "Exercises for this muscle" (brief §7, design §8): reviewed mappings only, ranked by an unmet
+ * target the calculator would fill → a missing main action → relevance → equipment → overlap →
+ * laterality (more in recommendations.gaps.test.ts), exclusions removed, and nothing suggested
  * merely to raise a number.
  */
 

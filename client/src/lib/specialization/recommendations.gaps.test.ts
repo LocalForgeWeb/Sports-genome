@@ -273,6 +273,38 @@ describe("a main action of the muscle with no direct work in the window comes fi
     expect(both.missingActions).toEqual([]);
   });
 
+  it("forearm: work with no arm recorded is not the arm's direct work, so no missing action is named beside 'it has no direct work'", () => {
+    const noSide = [bout(410, "unknown"), bout(410, "unknown")];
+    const result = recommend(forearmRegionData, { nodeId: m.flexorCarpiUlnaris }, { side: "right", summary: summary(forearmRegionData, noSide, "right") });
+    expect(result.missingActions).toEqual([]);
+    expect(result.candidates.every((candidate) => !candidate.why.includes(": no direct work"))).toBe(true);
+    expect(why(result, "Lever Ulnar Deviation")).toMatch(/^Direct ulnar deviation for flexor carpi ulnaris; it has no direct work in this window\./);
+    // Still the exercise just done: overlap, said with its missing side.
+    const curl = result.candidates.find((candidate) => candidate.catalogExerciseId === 410)!;
+    expect([curl.alreadyLogged, curl.loggedBouts]).toEqual([true, 2]);
+    expect(curl.why).toMatch(/Already logged in this window: 2 sets with no arm recorded\.$/);
+    expect(result.alreadyCoveredBy.map((item) => item.days.map((day) => day.label))).toEqual([["2 sets logged in this window with no arm recorded"]]);
+  });
+
+  it("forearm: work with no arm recorded on a main action still covers it", () => {
+    const result = recommend(forearmRegionData, { nodeId: m.flexorCarpiUlnaris }, { side: "right", summary: summary(forearmRegionData, [bout(139, "right"), bout(408, "unknown")], "right") });
+    expect(result.missingActions).toEqual([]);
+    expect(result.candidates.every((candidate) => !candidate.why.includes(": no direct work"))).toBe(true);
+    const lever = result.candidates.find((candidate) => candidate.catalogExerciseId === 408)!;
+    expect(lever.why).toMatch(/Already logged in this window: 1 set with no arm recorded\.$/);
+    // Some sets on the arm, some with no arm recorded: both counted, the second named.
+    const some = recommend(forearmRegionData, { nodeId: m.flexorCarpiUlnaris }, { side: "right", summary: summary(forearmRegionData, [bout(410, "right"), bout(410, "unknown")], "right") });
+    expect(some.alreadyCoveredBy.map((item) => [item.loggedBouts, item.days.map((day) => day.label)])).toEqual([[2, ["2 sets logged in this window, 1 with no arm recorded"]]]);
+  });
+
+  it("synthetic: a set counted as mixed is not direct work in the totals, so no missing action is named", () => {
+    // The roller moves the wrist and steadies it in one set: mixed for flexor carpi radialis.
+    const result = recommend(extended, { nodeId: m.flexorCarpiRadialis }, { summary: summary(extended, [bout(141)]) });
+    expect(result.missingActions).toEqual([]);
+    expect(why(result, "Lever Radial Deviation")).toMatch(/^Direct radial deviation for flexor carpi radialis; it has no direct work in this window\./);
+    for (const candidate of result.candidates) expect(candidate.why).not.toContain(": no direct work");
+  });
+
   it("in the plan, it says what is planned", () => {
     const result = recommend(extended, { nodeId: m.flexorCarpiRadialis }, { summary: plannedSummary(extended, [plannedBout(139), plannedBout(139)]), plannedExercises: [pullDay(139)] });
     expect(result.candidates[0].why).toBe("Radial deviation: no direct work planned in this week. Direct radial deviation for flexor carpi radialis; 2 direct dynamic and 0 hold bouts planned in this week, no target set.");

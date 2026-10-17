@@ -96,7 +96,7 @@ export type RecommendationCandidate = {
   targetGap?: GoalProgress | null;
   /** The muscle's main actions with no direct work in the window that it trains directly. Always set by `recommendFor`. */
   missingActions?: ActionId[];
-  /** Completed mode: already logged in the window on this arm, so it ranks lower like a planned one. Always set by `recommendFor`. */
+  /** Completed mode: already logged in the window on this arm (or with no arm recorded), so it ranks lower like a planned one. Always set by `recommendFor`. */
   alreadyLogged?: boolean;
   /** Sets of it logged in the window that loaded the target (0 when none). Always set by `recommendFor`. */
   loggedBouts?: number;
@@ -105,7 +105,7 @@ export type RecommendationCandidate = {
 export type AlreadyCovered = {
   catalogExerciseId: number;
   name: string;
-  /** Its days in the plan week, then, when it was logged in the window, one "N sets logged in this window" entry (key "logged"). */
+  /** Its days in the plan week, then, when it was logged in the window, one "N sets logged in this window" entry (key "logged"; it says how many had no arm recorded). */
   days: PlannedExercise["days"];
   category: ExposureCategory;
   /** Sets logged in the window that loaded the target; present only when it was logged (completed mode). */
@@ -239,12 +239,13 @@ function creditedBy(mappings: readonly VariantMapping[], variant: ExerciseVarian
   return target.nodeId !== undefined && categories.size > 1 ? new Set<ExposureCategory>(["mixed"]) : categories;
 }
 
-type Logged = { catalogExerciseId: number; name: string; bouts: Set<string>; categories: Set<ExposureCategory> };
+type Logged = { catalogExerciseId: number; name: string; bouts: Set<string>; unknownSide: Set<string>; categories: Set<ExposureCategory> };
 
 /**
- * Completed mode: the exercises logged in the window, on this arm, whose credited work loads
- * the target. They overlap exactly as a planned exercise does. Incidental holding is not
- * "covered", for the same reason it is not a suggestion.
+ * Completed mode: the exercises logged in the window, on this arm or with no arm recorded,
+ * whose credited work loads the target. They overlap exactly as a planned exercise does. Sets
+ * with no arm recorded are not in the arm's totals, so they are named as such. Incidental
+ * holding is not "covered", for the same reason it is not a suggestion.
  */
 function loggedFor(request: RecommendationRequest, names: ReadonlyMap<number, string>): Map<number, Logged> {
   const out = new Map<number, Logged>();
@@ -260,8 +261,9 @@ function loggedFor(request: RecommendationRequest, names: ReadonlyMap<number, st
       const parts = contribution.parts.filter((part) => (target.actionId === undefined || part.actionId === target.actionId) && relevanceFrom(part.relationship, part.category) !== null);
       if (!parts.length) continue;
       const id = contribution.catalogExerciseId;
-      const entry = out.get(id) ?? { catalogExerciseId: id, name: names.get(id) ?? contribution.exerciseName, bouts: new Set<string>(), categories: new Set<ExposureCategory>() };
+      const entry = out.get(id) ?? { catalogExerciseId: id, name: names.get(id) ?? contribution.exerciseName, bouts: new Set<string>(), unknownSide: new Set<string>(), categories: new Set<ExposureCategory>() };
       entry.bouts.add(contribution.boutId);
+      if (contribution.side === "unknown") entry.unknownSide.add(contribution.boutId);
       if (target.nodeId !== undefined) entry.categories.add(contribution.category);
       else for (const part of parts) entry.categories.add(part.category);
       out.set(id, entry);
@@ -278,9 +280,15 @@ function loggedFor(request: RecommendationRequest, names: ReadonlyMap<number, st
 function missingPrimeActions(request: RecommendationRequest): ActionId[] {
   const { region, summary, target } = request;
   if (target.nodeId === undefined) return [];
-  const primes = Array.from(new Set(region.nodeActions.filter((row) => row.nodeId === target.nodeId && row.role === "prime").map((row) => row.actionId)));
+  const row = nodeRow(summary, target.nodeId);
+  // "Had direct work" is the arm's own count, the one the gap clause reads. Work whose side was
+  // not recorded, or a set counted as mixed, is not in that count: naming a missing action then
+  // would sit beside "it has no direct work in this window" and contradict it.
+  if (!row || row.directDynamicBouts + row.deliberateHoldBouts === 0) return [];
+  const primes = Array.from(new Set(region.nodeActions.filter((item) => item.nodeId === target.nodeId && item.role === "prime").map((item) => item.actionId)));
+  // Any direct work on an action covers it, whatever its side: a missing action is never claimed while work for it exists.
   const covered = new Set<ActionId>();
-  for (const contribution of nodeRow(summary, target.nodeId)?.contributions ?? []) {
+  for (const contribution of row.contributions) {
     for (const part of contribution.parts) if (part.actionId && isDirectWork(part)) covered.add(part.actionId);
   }
   if (!covered.size) return [];
@@ -336,7 +344,7 @@ export function recommendFor(request: RecommendationRequest): Recommendations {
     coveredBy.set(entry.catalogExerciseId, {
       catalogExerciseId: entry.catalogExerciseId,
       name: existing?.name ?? entry.name,
-      days: [...(existing?.days ?? []), { key: "logged", label: `${plural(count, "set")} logged in this window` }],
+      days: [...(existing?.days ?? []), { key: "logged", label: `${plural(count, "set")} logged in this window${noSideWords(count, entry.unknownSide.size)}` }],
       category: mergeCategories([...Array.from(entry.categories), ...(existing ? [existing.category] : [])]),
       loggedBouts: count,
     });
@@ -405,7 +413,8 @@ export function recommendFor(request: RecommendationRequest): Recommendations {
     }
     const equipmentAvailable = request.equipmentProfile === null ? true : equipment !== null && equipmentMatchesProfile(equipment, request.equipmentProfile.availableEquipment);
     const alreadyPlanned = planned.has(variant.catalogExerciseId);
-    const loggedBouts = logged.get(variant.catalogExerciseId)?.bouts.size ?? 0;
+    const loggedEntry = logged.get(variant.catalogExerciseId);
+    const loggedBouts = loggedEntry?.bouts.size ?? 0;
     const targetNodes = new Set(mappings.map((mapping) => mapping.nodeId));
     const others = allReviewed.filter((mapping) => mapping.variantId === variant.id && !targetNodes.has(mapping.nodeId));
     const alsoLoads = alsoLoadedBy(region, variant, others);
@@ -435,6 +444,7 @@ export function recommendFor(request: RecommendationRequest): Recommendations {
         side,
         alreadyPlanned,
         loggedBouts,
+        loggedNoSide: loggedEntry?.unknownSide.size ?? 0,
         equipmentAvailable,
         equipment,
       }),
@@ -469,6 +479,12 @@ export function recommendFor(request: RecommendationRequest): Recommendations {
     targetNote,
     missingActions: missing,
   };
+}
+
+/** Logged sets with no arm recorded are not in the arm's totals: " with no arm recorded", ", 1 with no arm recorded" or nothing. */
+function noSideWords(sets: number, noSide: number): string {
+  if (!noSide) return "";
+  return noSide === sets ? " with no arm recorded" : `, ${noSide} with no arm recorded`;
 }
 
 function emptyReasonFor(input: { excludedCount: number; skippedAtTarget: number; targetNote: string | null }): string {
@@ -525,7 +541,7 @@ function gapClause(input: { request: RecommendationRequest; nodeName: string | n
   return `${row.directDynamicBouts} direct dynamic and ${row.deliberateHoldBouts} hold bouts ${where}, no target set`;
 }
 
-function whySentence(input: { relevance: Relevance; actions: string[]; nodeName: string | null; gap: string; missing: string[]; where: string; shared: string[]; trailing: boolean; side: ArmSide; alreadyPlanned: boolean; loggedBouts: number; equipmentAvailable: boolean; equipment: string | null }): string {
+function whySentence(input: { relevance: Relevance; actions: string[]; nodeName: string | null; gap: string; missing: string[]; where: string; shared: string[]; trailing: boolean; side: ArmSide; alreadyPlanned: boolean; loggedBouts: number; loggedNoSide: number; equipmentAvailable: boolean; equipment: string | null }): string {
   const what = input.actions.length ? listWords(input.actions) : "work";
   const lead = input.relevance === "direct_dynamic" ? `Direct ${what}` : input.relevance === "direct_isometric" ? `Direct ${what} hold` : `Helps with ${what}`;
   const sentences: string[] = [];
@@ -535,7 +551,7 @@ function whySentence(input: { relevance: Relevance; actions: string[]; nodeName:
   if (input.shared.length) sentences.push(`The work is shared with ${listWords(input.shared.map(lowerFirst))}; the evidence does not split it between them.`);
   if (input.trailing) sentences.push(`Done one arm at a time, so the ${input.side} arm can be trained on its own.`);
   if (input.alreadyPlanned) sentences.push("Already in this plan week.");
-  if (input.loggedBouts) sentences.push(`Already logged in this window: ${plural(input.loggedBouts, "set")}.`);
+  if (input.loggedBouts) sentences.push(`Already logged in this window: ${plural(input.loggedBouts, "set")}${noSideWords(input.loggedBouts, input.loggedNoSide)}.`);
   if (!input.equipmentAvailable) sentences.push(input.equipment ? `Needs ${input.equipment.toLowerCase()}, which is not in your equipment.` : "Its equipment is not listed.");
   return sentences.join(" ");
 }
