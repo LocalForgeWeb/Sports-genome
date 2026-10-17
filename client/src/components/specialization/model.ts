@@ -1,5 +1,5 @@
 import { formatDisplayWeight, type DisplayWeightUnit } from "@/lib/weightUnits";
-import { exposureCategoryLabels } from "@shared/specialization/rules";
+import { categoryFor, exposureCategoryLabels } from "@shared/specialization/rules";
 import type { AnatomyNode, Contribution, ContributionSegment, ExposureCategory, GoalMetric, GoalProgress, MappingEvidenceBasis, MuscleMode, NodeExposure, NodeId, RegionBoutRow, Relationship, SpecializationRegionData, SpecializationSummary, VariantMapping } from "@shared/specialization/types";
 
 /**
@@ -384,6 +384,104 @@ export function regionBoutRows(summary: SpecializationSummary, list: RegionBoutL
   if (list === "region") return summary.regionBoutRows ?? [];
   if (list === "unknown-side") return summary.regionUnknownSideRows ?? [];
   return summary.regionUnclassifiedRows ?? [];
+}
+
+/**
+ * The bouts behind one bar of "Exercises in this window" (bouts per day): the region's
+ * distinct bouts on this arm done on that local day, the same bouts `boutsByDay` counts.
+ */
+export function regionBoutRowsOnDay(summary: SpecializationSummary, dayKey: string, dayKeyOf: (iso: string) => string): RegionBoutRow[] {
+  return regionBoutRows(summary, "region").filter((row) => row.performedAt !== null && dayKeyOf(row.performedAt) === dayKey);
+}
+
+// ---------------------------------------------------------------- exercises for a muscle, in words
+
+/** The key of the entry the recommender adds to `AlreadyCovered.days` for sets logged in the window (recommendations.ts). */
+export const LOGGED_ENTRY_KEY = "logged";
+
+function listWords(items: readonly string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
+/**
+ * One "Already covered by" entry in words: the plan days it is on, then what was logged.
+ * The recommender carries logged work as an extra entry in `days` whose label is already a
+ * phrase ("4 sets logged in this window"); it is said as that phrase, never as a day.
+ */
+export function coveredWords(item: { name: string; days: readonly { key: string; label: string }[] }): string {
+  const planned = item.days.filter((day) => day.key !== LOGGED_ENTRY_KEY).map((day) => day.label);
+  const logged = item.days.filter((day) => day.key === LOGGED_ENTRY_KEY).map((day) => day.label);
+  const parts = [...(planned.length ? [`planned on ${listWords(planned)}`] : []), ...logged];
+  return parts.length ? `${item.name}: ${parts.join("; ")}` : item.name;
+}
+
+/** The parts of a recommendation result the missing-action line reads (recommendations.ts `Recommendations`, kind "candidates"). */
+export type MissingActionInput = {
+  missingActions?: readonly string[];
+  candidates: readonly { catalogExerciseId: number; missingActions?: readonly string[] }[];
+  excludedCount: number;
+  skippedAtTarget: number;
+};
+
+/**
+ * One neutral line for a main action of the muscle that has no direct work in the window and
+ * that no suggestion covers (brief §7, "Recommendations explain a missing action"): plainly
+ * why nothing is offered for it. Usually no reviewed exercise trains it directly (supination
+ * for the biceps: only a lever supination, which the biceps helps with); otherwise the
+ * exercises that do were left out by the athlete or answer a target already met. A fact
+ * about the records and the mapping, never a shortfall: there is no target in it.
+ */
+export function missingActionNote(input: {
+  data: SpecializationRegionData;
+  nodeId: NodeId;
+  result: MissingActionInput;
+  mode: SpecializationSummary["mode"];
+  excludedExerciseIds?: readonly number[];
+}): string | null {
+  const { data, nodeId, result } = input;
+  const covered = new Set(result.candidates.flatMap((candidate) => candidate.missingActions ?? []));
+  const uncovered = (result.missingActions ?? []).filter((actionId) => !covered.has(actionId));
+  if (!uncovered.length) return null;
+  const variantById = new Map(data.variants.map((variant) => [variant.id, variant] as const));
+  /** The exercises the recommender counts as direct work on this action for this muscle: a reviewed direct mapping it credits (moved, or held on purpose). */
+  const directExercises = (actionId: string) => new Set(data.mappings
+    .filter((mapping) => mapping.versionKey === data.mappingVersion.key && mapping.reviewStatus === "reviewed" && mapping.nodeId === nodeId && mapping.actionId === actionId && mapping.relationship === "direct")
+    .filter((mapping) => {
+      const variant = variantById.get(mapping.variantId);
+      if (!variant) return false;
+      const category = categoryFor(mapping.relationship, mapping.muscleMode, variant.deliberateHold);
+      return category !== "incidental_isometric" && category !== "unknown";
+    })
+    .map((mapping) => variantById.get(mapping.variantId)!.catalogExerciseId));
+  const excluded = new Set(input.excludedExerciseIds ?? []);
+  const label = (actionId: string) => data.actions.find((action) => action.id === actionId)?.label ?? actionId;
+  const lowerFirst = (text: string) => (text ? text.charAt(0).toLowerCase() + text.slice(1) : text);
+  const where = input.mode === "planned" ? "planned in this week" : "in this window";
+
+  const groups = new Map<string, string[]>();
+  for (const actionId of uncovered) {
+    const exercises = Array.from(directExercises(actionId));
+    const reason = !exercises.length ? "none"
+      : exercises.every((id) => excluded.has(id)) ? "excluded"
+      : result.skippedAtTarget && !result.excludedCount ? "met"
+      : result.excludedCount && !result.skippedAtTarget ? "excluded"
+      : "either";
+    groups.set(reason, [...(groups.get(reason) ?? []), actionId]);
+  }
+  const sentences: string[] = [];
+  const many = uncovered.length > 1;
+  const names = listWords(uncovered.map((actionId, position) => (position ? lowerFirst(label(actionId)) : label(actionId))));
+  sentences.push(`${names}, ${many ? "main actions of this muscle, have" : "one of this muscle's main actions, has"} no direct work ${where}.`);
+  for (const [reason, actionIds] of Array.from(groups.entries())) {
+    const them = actionIds.length > 1 ? "them" : "it";
+    const which = groups.size > 1 ? ` (${listWords(actionIds.map((actionId) => lowerFirst(label(actionId))))})` : "";
+    if (reason === "none") sentences.push(`No reviewed exercise trains ${them}${which} directly yet, so none is suggested for ${them}.`);
+    else if (reason === "excluded") sentences.push(`The exercises that train ${them}${which} directly are left out by your choices under What is suggested.`);
+    else if (reason === "met") sentences.push(`The exercises that train ${them}${which} directly answer a target you have already met, so none is suggested.`);
+    else sentences.push(`The exercises that train ${them}${which} directly are not suggested: your choices under What is suggested leave them out, or they answer a target you have already met.`);
+  }
+  return sentences.join(" ");
 }
 
 // ---------------------------------------------------------------- a movement

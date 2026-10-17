@@ -93,16 +93,16 @@ Tests for `shared/` code live under `client/src/lib/specialization/` (vitest doe
 
 **Entry points:** Body Lab tab; the Muscles map's next step when the forearm or brachioradialis is selected; Review → Week → forearm muscle detail, "Explore forearm coverage" (opens with that plan week and `mode=planned`); universal search "Forearm specialization".
 
-**Phone layout (390 × 844 first):**
-1. Heading "Forearm specialization" and one line saying what is counted.
-2. Controls in two wrapping rows: window (This week · Rolling 7 days · Custom), Planned / Completed, Left / Right arm.
-3. Diagram card: view (Palm · Back · Thumb side), layer (Surface · Middle · Deep, as each view has them: the palm side has a middle layer, FDS), map (Volume · Target). Thumb side and pinky side labelled on the drawing, mirrored for the left arm. Fixed bins with a numeric legend: 0 · 1–2 · 3–5 · 6–9 · 10–14 · 15+ bouts, on the existing `--sg-exposure-*` ramp (never the rank or role colours). Hatching means mapping not reviewed; an empty outline means mapped, no work. Target mode bins: under 25 %, 25–49 %, 50–74 %, 75–99 %, 100 % and over, with the number always shown.
-4. Selected muscle line: name, layer badge, one exposure sentence, and one CTA: "Inspect coverage" (opens the sheet), or "Add targeted exercise" when it has no work in the window.
+**Phone layout (390 × 844 first; the selected muscle and the top of the drawing are on the first screen at 375 × 667 and 430 × 932 too):**
+1. Heading "Forearm specialization", on one line from 375 px. The tab row above it already names Body Lab · Specialize, so there is no eyebrow. What is counted is said under the map card.
+2. Controls in two rows: Planned / Completed beside Left / Right arm; then the window (This week · Rolling 7 days · Custom, with two date fields for Custom), or the plan weeks in Planned mode. Then one line: the window in words, the arm, and for this week the pair from §4 (logged beside planned). The pair is a total, so with a pair the whole line is one button (44 px tall, the pair in link ink, an arrow at its end) that opens the sets behind it: this week's logged bouts on the arm (and any with no arm recorded), then the plan week's.
+3. Diagram card, its controls in two rows: the heading beside the view (Palm · Back · Thumb side); the layer (Surface · Middle · Deep, as each view has them: the palm side has a middle layer, FDS) beside the map (Volume · Target). Each segment wraps to a row of its own rather than push the page sideways. Thumb side and pinky side labelled on the drawing, mirrored for the left arm. Fixed bins with a numeric legend: 0 · 1–2 · 3–5 · 6–9 · 10–14 · 15+ bouts, on the existing `--sg-exposure-*` ramp (never the rank or role colours). Hatching means mapping not reviewed; an empty outline means mapped, no work. Target mode bins: under 25 %, 25–49 %, 50–74 %, 75–99 %, 100 % and over, with the number always shown.
+4. Selected muscle, inside the card between its controls and the drawing: name, layer badge, one exposure sentence, its targets, and one CTA: "Inspect coverage" (opens the sheet), or "Add targeted exercise" when it has no work in the window. A tap on the drawing that changes this strip's height scrolls the page by as much, so the drawing stays under the finger.
 5. Muscle list, sorted by direct bouts: name, layer badge, a stacked bar (direct, other dynamic, holds, incidental) and numbers. Deep muscles are marked "Deep".
 6. "Coverage to review": the three most useful findings, then "Show N more".
-7. Disclosures: Exercises in this window · Targets · Progress (measurements) · How this is counted (rule and sources).
+7. Disclosures: Exercises in this window (bouts per day, each day with work a button that opens that day's bouts) · Targets · Progress (measurements) · How this is counted (rule and sources).
 
-**Muscle sheet** (bottom sheet, the existing sheet pattern), in the brief's order: name, location, layer badge → What it does (with a small action glyph) → How it contributes to shape → exposure for the window and arm → contribution ledger (exercise → bout → segment) → your target (inline editor) → exercises for this muscle (reviewed relevance, already-covered list) → sources and method.
+**Muscle sheet** (bottom sheet, the existing sheet pattern), in the brief's order: name, location, layer badge → What it does (with a small action glyph) → How it contributes to shape → exposure for the window and arm → contribution ledger (exercise → bout → segment) → your target (inline editor) → exercises for this muscle (§8: what nothing here can do said once above them, each with why, the already-covered list) → sources and method.
 
 **Add or swap sheet:** pick the exercise → choose plan week and day → Add, or Swap with an exercise already in that day → preview the change in planned totals only (before → after per affected node, other muscles affected, overlap with exercises already there) → Save. Save writes that exact day, shows a toast with Undo, and leaves the page where it was.
 
@@ -110,14 +110,18 @@ Tests for `shared/` code live under `client/src/lib/specialization/` (vitest doe
 
 ## 8. Recommendations
 
-Candidates are exercises with a **reviewed** direct mapping to the selected node or action, ranked by:
-1. relevance (direct dynamic above direct isometric above contributing);
-2. equipment available in the athlete's profile;
-3. overlap (exercises already in the plan for this node rank lower; already-planned exercises are shown under "Already covered by");
-4. laterality preference, when the selected arm is behind the other;
-5. exclusions the athlete set.
+Candidates are exercises with a **reviewed** mapping that the calculator credits as work for the selected node or action: direct dynamic work, a direct deliberate hold, or a contributing mover's work. Relevance is read through the counting rule (`categoryFor`), so work counted only as incidental grip or steadying is never a candidate and never "already covered by". `recommendFor` (`client/src/lib/specialization/recommendations.ts`) ranks them by:
+1. work that counts toward one of the athlete's unmet targets for it, as the calculator counts it: a dynamic-bouts target takes direct dynamic sets, a hold target takes deliberate holds, and a set that loads a muscle two ways counts as mixed, for neither;
+2. direct work on one of the muscle's main (prime) actions that had no direct work in the window, when another of its actions had some on this arm;
+3. relevance (direct dynamic above direct hold above contributing);
+4. equipment available in the athlete's profile;
+5. overlap: an exercise already in the plan week, or, in completed mode, already logged in the window (on this arm or with no arm recorded), ranks lower and is listed under "Already covered by", with its plan days and then the sets logged ("Wrist Curl: planned on Day 01 · Pull; 4 sets logged in this window");
+6. laterality: one-arm work first when the selected arm is behind the other;
+7. name.
 
-Each candidate says why it fits ("Direct wrist extension; your back-of-forearm muscles have 0 of your 10 this week"). A node with no reviewed mapping gets "This muscle's exercise mapping is not reviewed yet" instead of suggestions. Nothing is suggested only to raise a number. An above-target node gets no suggestions; it gets a neutral note on how much it already gets.
+Exclusions the athlete set (exercises, equipment) remove candidates outright. A kind of work whose every target is already met is not suggested again; contributing work, which answers no target, stays below the work that does.
+
+Each candidate says why it fits and names only a target it can fill ("Direct wrist extension for extensor carpi ulnaris; 2 of your 10 direct dynamic bouts this week"); one that fills none of the athlete's targets says so, and why when the reason is the kind of work ("not a hold, so it does not count toward your target of 3 deliberate hold bouts this week"). A candidate for a missing main action leads with it ("Ulnar deviation: no direct work in this window."). Said once above the suggestions, never per candidate only: a target no reviewed exercise can fill ("No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week."), and a main action with no direct work that no suggestion covers, with why (no reviewed exercise trains it directly yet, as for the biceps and supination; the athlete left those exercises out; or they answer a target already met). A node with no reviewed mapping gets "This muscle's exercise mapping is not reviewed yet" instead of suggestions. Nothing is suggested only to raise a number. An above-target node gets no suggestions; it gets a neutral note on how much it already gets.
 
 ## 9. Database
 

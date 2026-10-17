@@ -162,7 +162,7 @@ describe("the specialization page", () => {
   it("sets this week's logged work beside the plan week as written", () => {
     render(createElement(Harness));
     const line = document.querySelector(".spz-window")!.textContent!;
-    expect(line).toMatch(/^This week · \d+–\d+ Oct · right arm: 3 bouts logged for the forearms · \d+ planned in Plan Week 1$/);
+    expect(line).toMatch(/^This week · \d+–\d+ Oct · right arm: 3 bouts logged · \d+ planned in Plan Week 1$/);
   });
 
   it("drops a muscle the region does not have from the address", async () => {
@@ -286,6 +286,101 @@ describe("totals for the whole region open their sets (brief §1)", () => {
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: "The sets of Hammer Curl" })); });
     const sheet = screen.getByRole("dialog", { name: "Hammer Curl" });
     expect(within(sheet).getAllByRole("button", { name: /Open this workout/ })).toHaveLength(3);
+  });
+
+  it("opens a day's bouts from its bar in Exercises in this window; a day with none is not a button", async () => {
+    const onOpenSession = vi.fn();
+    logged([...sessions, extra]);
+    render(createElement(Harness, { onOpenSession }));
+    const days = screen.getByRole("list", { name: "Distinct bouts per day in this window" });
+    // Thursday's pullovers are mapped to no muscle and its one-arm wrist curl has no arm recorded,
+    // so only Tuesday's hammer curls make a bar with work, and only that bar is a button.
+    expect(within(days).getAllByRole("listitem")).toHaveLength(7);
+    const bars = within(days).getAllByRole("button");
+    expect(bars.map((bar) => bar.getAttribute("aria-label"))).toEqual([expect.stringMatching(/13.*: 3 distinct bouts\. See these sets$/)]);
+    await act(async () => { fireEvent.click(bars[0]); });
+    const sheet = screen.getByRole("dialog", { name: bars[0].getAttribute("aria-label")!.replace(/: 3 distinct bouts\. See these sets$/, "") });
+    expect(sheet.textContent).toMatch(/3 distinct bouts that day: every set that loaded a muscle of the forearms on the right arm/);
+    expect(within(sheet).getByText("Hammer Curl")).not.toBeNull();
+    const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
+    expect(open).toHaveLength(3);
+    await act(async () => { fireEvent.click(open[0]); });
+    expect(onOpenSession).toHaveBeenCalledWith("s-tue");
+  });
+});
+
+describe("the window line's pair opens its sets (brief §1: every total opens the set records)", () => {
+  it("in completed mode the whole line is one button, and it opens this week's logged bouts beside the plan week's", async () => {
+    const onOpenSession = vi.fn();
+    render(createElement(Harness, { onOpenSession }));
+    const line = document.querySelector(".spz-window")!;
+    const button = within(line as HTMLElement).getByRole("button");
+    expect(button.textContent).toBe(line.textContent);
+    expect(button.textContent).toMatch(/: 3 bouts logged · \d+ planned in Plan Week 1$/);
+    await act(async () => { fireEvent.click(button); });
+    const sheet = screen.getByRole("dialog", { name: /^3 logged · \d+ planned$/ });
+    const headings = within(sheet).getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent);
+    expect(headings).toEqual(["Logged on the right arm: 3 sets", expect.stringMatching(/^Planned in Plan Week 1: \d+ sets$/)]);
+    expect(sheet.textContent).toMatch(/This week · \d+–\d+ Oct, logged, beside Plan Week 1, as written\./);
+    // Only the logged sets have a workout to open.
+    const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
+    expect(open).toHaveLength(3);
+    await act(async () => { fireEvent.click(open[0]); });
+    expect(onOpenSession).toHaveBeenCalledWith("s-tue");
+  });
+
+  it("in planned mode, on the week being trained, opens the same sets", async () => {
+    render(createElement(Harness, { initial: { mode: "planned" } }));
+    const button = within(document.querySelector(".spz-window") as HTMLElement).getByRole("button");
+    expect(button.textContent).toMatch(/^Plan Week 1, as written · right arm: \d+ bouts planned · 3 logged this week$/);
+    await act(async () => { fireEvent.click(button); });
+    const sheet = screen.getByRole("dialog", { name: /^3 logged · \d+ planned$/ });
+    expect(within(sheet).getAllByRole("button", { name: /Open this workout/ })).toHaveLength(3);
+  });
+
+  it("is plain words with no pair to open: another window, or a plan week that is not the one trained", async () => {
+    render(createElement(Harness, { initial: { window: "7d" } }));
+    expect(within(document.querySelector(".spz-window") as HTMLElement).queryByRole("button")).toBeNull();
+  });
+});
+
+describe("the exercises for a muscle, beyond each suggestion (brief §7)", () => {
+  const section = (sheet: HTMLElement) => within(sheet).getByRole("heading", { name: "Exercises for this muscle" }).closest("section")!;
+
+  it("says once, above the list, a target of yours that no reviewed exercise can count toward", async () => {
+    saveSpecializationGoals([
+      target({ id: "dyn", nodeId: "forearm.fcr", metric: "direct_dynamic_bouts", target: 10 }),
+      target({ id: "hold", nodeId: "forearm.fcr", metric: "deliberate_hold_bouts", target: 3 }),
+    ], null);
+    render(createElement(Harness));
+    await act(async () => { fireEvent.click(row(/^Flexor carpi radialis,/)); });
+    const exercisesSection = section(screen.getByRole("dialog", { name: "Flexor carpi radialis" }));
+    const note = "No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week.";
+    const notes = Array.from(exercisesSection.querySelectorAll(".spz-suggest-note")).map((item) => item.textContent);
+    expect(notes).toEqual([note]);
+    const list = exercisesSection.querySelector(".spz-candidates")!;
+    expect(exercisesSection.querySelector(".spz-suggest-note")!.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // The exercises that fill the dynamic target name only that one.
+    const first = list.querySelector(".spz-candidate small")!.textContent!;
+    expect(first).toMatch(/of your 10 direct dynamic bouts this week/);
+    expect(first).not.toMatch(/hold/);
+  });
+
+  it("says plainly when a main action has no direct work and no reviewed exercise trains it directly", async () => {
+    logged([{ ...sessions[0], exercises: [{ id: "c1", exerciseName: "Barbell Curl", catalogId: 121, plannedPrescription: "3 × 10", sets: [set(60, 10), set(60, 10), set(60, 8)] }] }]);
+    render(createElement(Harness));
+    await act(async () => { fireEvent.click(row(/^Biceps brachii,/)); });
+    const exercisesSection = section(screen.getByRole("dialog", { name: "Biceps brachii" }));
+    const notes = Array.from(exercisesSection.querySelectorAll(".spz-suggest-note")).map((item) => item.textContent);
+    expect(notes).toEqual(["Supination, one of this muscle's main actions, has no direct work in this window. No reviewed exercise trains it directly yet, so none is suggested for it."]);
+  });
+
+  it("lists what already covers the muscle in words: the plan days, then the sets logged, never as a day", async () => {
+    render(createElement(Harness));
+    await act(async () => { fireEvent.click(row(/^Brachioradialis,/)); });
+    const covered = section(screen.getByRole("dialog", { name: "Brachioradialis" })).querySelector(".spz-covered")!;
+    expect(within(covered as HTMLElement).getByText("Already covered by")).not.toBeNull();
+    expect(Array.from(covered.querySelectorAll("li")).map((item) => item.textContent)).toContain("Hammer Curl: planned on Day 02 · Pull; 3 sets logged in this window");
   });
 });
 

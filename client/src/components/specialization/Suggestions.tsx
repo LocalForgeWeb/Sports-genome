@@ -3,7 +3,8 @@ import { ChevronDown, Plus } from "lucide-react";
 import type { SpecializationExclusions } from "@/lib/specialization/exclusions";
 import type { Recommendations } from "@/lib/specialization/recommendations";
 import type { StoreWrite } from "@/lib/specialization/stores";
-import type { SpecializationRegionData } from "@shared/specialization/types";
+import type { SpecializationRegionData, SummaryMode } from "@shared/specialization/types";
+import { coveredWords, missingActionNote } from "./model";
 import { WhyThisCounts } from "./WhyThisCounts";
 
 export type SuggestionsProps = {
@@ -15,6 +16,10 @@ export type SuggestionsProps = {
   onSetEquipmentExcluded: (equipment: string, excluded: boolean) => StoreWrite;
   onChooseExercise: (catalogExerciseId: number) => void;
   onInspectExercise: (catalogExerciseId: number | null, name: string) => void;
+  /** The muscle the exercises are for (the muscle sheet), so a main action nothing here trains is said plainly. */
+  nodeId?: string | null;
+  /** Completed or planned: whether "no direct work" is in the window or in the plan week. */
+  mode?: SummaryMode;
 };
 
 /**
@@ -22,8 +27,11 @@ export type SuggestionsProps = {
  * sheet and the movement sheet: each with why it fits, the other muscles it loads, "Why this
  * counts" (the reviewed mappings and their sources), Add or swap, About it, and Not for me
  * with Undo; what the athlete left out, as toggles; and what in the plan already covers it.
+ * Above the list, once: a target of the athlete's that no reviewed exercise can count toward
+ * (the recommender's `targetNote`), and a main action of the muscle with no direct work that
+ * no suggestion covers, with why (`missingActionNote`).
  */
-export function Suggestions({ data, recommendations, exclusions, onSetExerciseExcluded, onSetEquipmentExcluded, onChooseExercise, onInspectExercise }: SuggestionsProps) {
+export function Suggestions({ data, recommendations, exclusions, onSetExerciseExcluded, onSetEquipmentExcluded, onChooseExercise, onInspectExercise, nodeId = null, mode = "completed" }: SuggestionsProps) {
   const [excludedNow, setExcludedNow] = useState<{ id: number; name: string } | null>(null);
   const [exclusionError, setExclusionError] = useState<string | null>(null);
   const exclude = (id: number, name: string) => {
@@ -33,8 +41,14 @@ export function Suggestions({ data, recommendations, exclusions, onSetExerciseEx
   const candidateEquipment = recommendations?.kind === "candidates" ? recommendations.candidates.map((item) => item.equipment).filter((item): item is string => Boolean(item)) : [];
   const equipmentChoices = Array.from(new Set([...candidateEquipment, ...exclusions.equipment])).sort((left, right) => left.localeCompare(right));
   const excludedExercises = exclusions.catalogExerciseIds.map((id) => ({ id, name: data.variants.find((variant) => variant.catalogExerciseId === id)?.catalogName ?? `Exercise ${id}` }));
+  const candidatesResult = recommendations?.kind === "candidates" ? recommendations : null;
+  // With no candidate the empty reason already leads with the target note, so it is said once either way.
+  const targetNote = candidatesResult && candidatesResult.candidates.length ? candidatesResult.targetNote ?? null : null;
+  const missingNote = candidatesResult && nodeId ? missingActionNote({ data, nodeId, result: candidatesResult, mode, excludedExerciseIds: exclusions.catalogExerciseIds }) : null;
 
   return <>
+    {targetNote && <p className="spz-note spz-suggest-note">{targetNote}</p>}
+    {missingNote && <p className="spz-note spz-suggest-note">{missingNote}</p>}
     {!recommendations ? <p className="spz-note">Exercises appear once your plan has loaded.</p>
       : recommendations.kind === "mapping_not_reviewed" ? <p className="spz-note">{recommendations.message}</p>
       : recommendations.kind === "at_target" ? <p className="spz-note">{recommendations.note}</p>
@@ -61,6 +75,9 @@ export function Suggestions({ data, recommendations, exclusions, onSetExerciseEx
       </div>}
       {excludedExercises.length > 0 && <ul className="spz-exercise-list">{excludedExercises.map((item) => <li key={item.id}><span><b>{item.name}</b><small>Not suggested</small></span><button type="button" className="spz-link" onClick={() => onSetExerciseExcluded(item.id, false)}>Suggest again</button></li>)}</ul>}
     </details>}
-    {recommendations && recommendations.kind !== "mapping_not_reviewed" && recommendations.alreadyCoveredBy.length > 0 && <p className="spz-note"><b>Already covered by</b> {recommendations.alreadyCoveredBy.map((item) => `${item.name} (${item.days.map((day) => day.label).join(", ")})`).join("; ")}.</p>}
+    {recommendations && recommendations.kind !== "mapping_not_reviewed" && recommendations.alreadyCoveredBy.length > 0 && <div className="spz-covered">
+      <p className="spz-note"><b>Already covered by</b></p>
+      <ul className="spz-caveats">{recommendations.alreadyCoveredBy.map((item) => <li key={item.catalogExerciseId}>{coveredWords(item)}</li>)}</ul>
+    </div>}
   </>;
 }

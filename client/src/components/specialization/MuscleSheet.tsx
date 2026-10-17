@@ -156,7 +156,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
 
     <section className="spz-sheet-section" aria-labelledby="spz-exercises">
       <h3 id="spz-exercises">Exercises for this muscle</h3>
-      <Suggestions data={data} recommendations={recommendations} exclusions={exclusions} onSetExerciseExcluded={onSetExerciseExcluded} onSetEquipmentExcluded={onSetEquipmentExcluded} onChooseExercise={onChooseExercise} onInspectExercise={onInspectExercise} />
+      <Suggestions data={data} nodeId={node.id} mode={mode} recommendations={recommendations} exclusions={exclusions} onSetExerciseExcluded={onSetExerciseExcluded} onSetEquipmentExcluded={onSetEquipmentExcluded} onChooseExercise={onChooseExercise} onInspectExercise={onInspectExercise} />
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-sources">
