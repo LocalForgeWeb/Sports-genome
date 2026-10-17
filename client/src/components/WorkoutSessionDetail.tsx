@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { ArrowLeft, Check, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { deviceWorkoutHistoryEvent, deviceWorkoutHistoryKey, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { correctSet, elapsedText, exerciseOutcomeLine, removeSet, sessionRecap, updateFinishedSession, withNote, type MeasureOf } from "@/lib/sessionRecap";
-import { loggingPolicyFor } from "@shared/specialization/loggingPolicy";
+import { catalogMeasureOf } from "@shared/specialization/holdCatalogIds";
 import { decimalEntryText } from "@/lib/numericEntry";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
@@ -23,12 +23,13 @@ export type SessionDetailVariant = "saved" | "history";
 const findSession = (id: string) => loadDeviceWorkoutSessions().find((session) => session.id === id && session.status === "completed") ?? null;
 
 /**
- * How each exercise is measured, from the atlas's logging policy: a set with no reps on an
- * exercise measured in seconds is a hold, so Correct a set asks for its seconds and never stores
- * them as reps. This screen loads with the tracker and with Progress, both lazily; the policy
- * reads only the atlas's variants and mappings (shared/specialization/loggingRegions.ts).
+ * How each exercise is measured: a set with no reps on an exercise measured in seconds is a hold,
+ * so Correct a set asks for its seconds and never stores them as reps. Read from the light list
+ * of holds (shared/specialization/holdCatalogIds, kept equal to the atlas's variants by a test),
+ * the same reading as an exercise's history (sessionRecap `exerciseHistory`), so this screen,
+ * which Progress opens, loads none of the atlas's region data.
  */
-const measureOf: MeasureOf = (catalogExerciseId) => loggingPolicyFor(catalogExerciseId).measure;
+const measureOf: MeasureOf = catalogMeasureOf;
 
 export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, onOpenProgress, onOpenNext, onBack, onRemove, onRepeat }: {
   sessionId: string;

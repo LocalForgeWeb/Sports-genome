@@ -1,5 +1,5 @@
 import type { Exercise } from "./exerciseCatalog";
-import { isCompletedSet, isDraftSet, isDropInProgress, settleDropSet, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession } from "./deviceWorkoutLog";
+import { isCompletedSet, isDraftSet, isDropInProgress, settleDropSet, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession, type SetSide } from "./deviceWorkoutLog";
 import { renderableSetCount } from "./setPrescription";
 import { setEntryFieldsFor, type SetDoseMeasure } from "./setEntryFields";
 import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
@@ -17,6 +17,11 @@ import { loadConventionFor, type LoadConvention } from "@shared/loadConventions"
  *   typed seconds carry only to another hold, and reps only to an exercise logged in reps.
  * - A drop set under way: its added stages stay with the original as the set they were.
  * - Every set done: nothing is left to hand on, so the choice is to add the new exercise.
+ * - Sets laid out per arm (`perArm`, for an athlete tracking per-arm totals): a planned set of a
+ *   one-arm exercise is two rows, Right then Left. A swap counts in planned sets, so the plan's
+ *   work stays the same whichever exercise does it (`swapSets`): two one-arm rows left become one
+ *   set of a two-handed exercise, a two-handed set left becomes a Right and a Left row of a
+ *   one-arm exercise, and one-arm rows passed to another one-arm exercise keep their arms.
  *
  * Load never crosses exercises - 40 lb on a sissy squat says nothing about a barbell squat - and
  * the rest timer is not touched. The new exercise's "last logged" comes from its own history,
@@ -25,8 +30,9 @@ import { loadConventionFor, type LoadConvention } from "@shared/loadConventions"
 
 export type SwapTarget = Pick<Exercise, "name"> & { id?: number };
 
-/** A plan entry's catalog exercise: a duplicated entry has an id of its own and names its catalog exercise separately. */
-export const catalogIdOf = (exercise: Exercise) => (exercise as Exercise & { catalogExerciseId?: number }).catalogExerciseId || exercise.id;
+// The readers the first screens need (catalogIdOf, swapNote) live in workoutSwapRecord.ts, so this
+// module loads only with the screens that swap.
+export { catalogIdOf, swapNote } from "./workoutSwapRecord";
 export type DraftChoice = "keep" | "discard" | "reuse";
 export type PartialDropChoice = "keep" | "discard";
 
@@ -71,6 +77,14 @@ export type SwapOptions = {
    * exercises measured the same way: seconds held never become reps, nor reps seconds.
    */
   measureOf?: (target: SwapTarget) => SetDoseMeasure;
+  /**
+   * Lay the new exercise's sets out per arm, two rows per planned set (the tracker passes it for a
+   * one-arm exercise when the athlete tracks per-arm totals, as it builds a planned one). Off by
+   * default: every set is one row, as before.
+   */
+  perArm?: boolean;
+  /** The new exercise's planned prescription, as its own measure reads it; the original's text when not given. */
+  prescription?: string;
 };
 
 /** Everything needed to take a swap back while no new work has been logged on it. */
@@ -87,6 +101,73 @@ export type SwapReceipt = {
 const emptySet = (): DeviceSetLog => ({ weight: "", reps: "", completed: false });
 /** An empty set, with an id when the caller gives sets ids at creation. */
 const newSetWith = (newSetId: (() => string) | undefined) => (): DeviceSetLog => (newSetId ? { id: newSetId(), ...emptySet() } : emptySet());
+
+/**
+ * Planned sets as rows per arm: Right then Left for each, as the tracker lays out a planned
+ * one-arm exercise for an athlete tracking per-arm totals (DeviceWorkoutTracker `perArmSets`).
+ */
+export function perArmRowSides(plannedSets: number): SetSide[] {
+  return Array.from({ length: Math.max(0, plannedSets) * 2 }, (_, row) => (row % 2 === 0 ? "right" : "left"));
+}
+
+/** The original's sets that stay with it, the ones that move on, and a typed set to reuse. */
+function partitionSets(original: DeviceWorkoutExercise, draft: DraftChoice, partialDrop: PartialDropChoice) {
+  const kept: DeviceSetLog[] = [];
+  const moved: DeviceSetLog[] = [];
+  let reusable: DeviceSetLog | null = null;
+  for (const set of original.sets) {
+    if (isCompletedSet(set)) { kept.push(set); continue; }
+    if (isDropInProgress(set)) { if (partialDrop === "keep") kept.push(settleDropSet(set)); else moved.push(set); continue; }
+    if (isDraftSet(set)) {
+      if (draft === "keep") { kept.push(set); continue; }
+      if (draft === "reuse" && !reusable) reusable = set;
+    }
+    moved.push(set);
+  }
+  return { kept, moved, reusable };
+}
+
+/**
+ * The arm of each row the new exercise gets for the rows that move on, counted in planned sets:
+ * - one-arm rows to a one-arm exercise laid out per arm: the same rows, each with its arm;
+ * - one-arm rows to anything else: one set for each two rows (an odd one left rounds up);
+ * - sets of anything else to a one-arm exercise laid out per arm: a Right and a Left row each;
+ * - otherwise one set for each, as before.
+ * A swap always leaves something to do: with no row moving, the new exercise gets one planned set.
+ */
+function movedRowSides(original: DeviceWorkoutExercise, moved: readonly DeviceSetLog[], toPerArm: boolean): (SetSide | undefined)[] {
+  const fromPerArm = Boolean(original.perArm);
+  if (!moved.length) return toPerArm ? perArmRowSides(1) : [undefined];
+  if (fromPerArm && toPerArm) return moved.map((set) => set.side);
+  if (fromPerArm) return Array.from({ length: Math.ceil(moved.length / 2) }, () => undefined);
+  if (toPerArm) return perArmRowSides(moved.length);
+  return moved.map(() => undefined);
+}
+
+/** What a swap gives the new exercise, for the sheet to say before the confirm: the very count `applySwap` makes. */
+export type SwapSets = {
+  /** Rows of the original that move on: neither logged nor kept with it. */
+  moving: number;
+  /** Rows the new exercise gets. */
+  sets: number;
+  /** The planned sets those rows are: half of them when laid out per arm. */
+  plannedSets: number;
+  /** The new exercise's rows are laid out per arm. */
+  perArm: boolean;
+};
+
+export function swapSets(original: DeviceWorkoutExercise, options: { draft?: DraftChoice; partialDrop?: PartialDropChoice; perArm?: boolean } = {}): SwapSets {
+  const { moved } = partitionSets(original, options.draft ?? "keep", options.partialDrop ?? "keep");
+  const perArm = Boolean(options.perArm);
+  const sides = movedRowSides(original, moved, perArm);
+  return { moving: moved.length, sets: sides.length, plannedSets: perArm ? Math.ceil(sides.length / 2) : sides.length, perArm };
+}
+
+/** What an add gives the new exercise: one row per planned set of the prescription, two when laid out per arm. */
+export function addSets(prescription: string, perArm = false): { sets: number; plannedSets: number; perArm: boolean } {
+  const plannedSets = renderableSetCount(prescription);
+  return { sets: perArm ? plannedSets * 2 : plannedSets, plannedSets, perArm };
+}
 
 /** True when both exercises record a box height, so a typed height means the same on each. */
 function bothUseHeight(from: SwapTarget | undefined, to: SwapTarget | undefined, catalog: readonly Exercise[]) {
@@ -107,35 +188,27 @@ export function applySwap(session: DeviceWorkoutSession, exerciseId: string, tar
   const original = session.exercises[index];
   if (original.replacedBy) return { session, receipt: null };
 
-  const kept: DeviceSetLog[] = [];
-  let reused: Pick<DeviceSetLog, "reps" | "height" | "holdSeconds"> | null = null;
   const from: SwapTarget = { name: original.exerciseName, id: original.catalogId };
   const measureOf = options.measureOf ?? (() => "reps" as const);
   const dose = measureOf(from) === measureOf(target) ? measureOf(target) : null;
-  for (const set of original.sets) {
-    if (isCompletedSet(set)) { kept.push(set); continue; }
-    if (isDropInProgress(set)) { if ((options.partialDrop ?? "keep") === "keep") kept.push(settleDropSet(set)); continue; }
-    if (isDraftSet(set)) {
-      const choice = options.draft ?? "keep";
-      if (choice === "keep") kept.push(set);
-      else if (choice === "reuse" && !reused) reused = {
-        // The typed reps, or a hold's typed seconds, only where the new exercise takes the same dose.
-        reps: dose === "reps" ? set.reps : "",
-        ...(dose === "seconds" && set.holdSeconds ? { holdSeconds: set.holdSeconds } : {}),
-        height: bothUseHeight(from, target, catalog) ? set.height : "",
-      };
-    }
-  }
+  const { kept, moved, reusable } = partitionSets(original, options.draft ?? "keep", options.partialDrop ?? "keep");
+  const reused: Pick<DeviceSetLog, "reps" | "height" | "holdSeconds"> | null = reusable && {
+    // The typed reps, or a hold's typed seconds, only where the new exercise takes the same dose.
+    reps: dose === "reps" ? reusable.reps : "",
+    ...(dose === "seconds" && reusable.holdSeconds ? { holdSeconds: reusable.holdSeconds } : {}),
+    height: bothUseHeight(from, target, catalog) ? reusable.height : "",
+  };
   const completedOnOriginal = kept.filter(isCompletedSet).length;
-  // Every slot not kept by the original moves on; a swap always leaves something to do.
-  const moved = Math.max(1, original.sets.length - kept.length);
-  const sets = Array.from({ length: moved }, newSetWith(options.newSetId));
+  // Every slot not kept by the original moves on, counted in planned sets (`movedRowSides`).
+  const newSet = newSetWith(options.newSetId);
+  const sets = movedRowSides(original, moved, Boolean(options.perArm)).map((side) => (side ? { ...newSet(), side } : newSet()));
   if (reused) sets[0] = { ...sets[0], reps: reused.reps, ...(reused.holdSeconds ? { holdSeconds: reused.holdSeconds } : {}), ...(reused.height ? { height: reused.height } : {}) };
   const replacement: DeviceWorkoutExercise = {
     id: options.newExerciseId,
     exerciseName: target.name,
     ...(target.id !== undefined ? { catalogId: target.id } : {}),
-    plannedPrescription: original.plannedPrescription,
+    plannedPrescription: options.prescription ?? original.plannedPrescription,
+    ...(options.perArm ? { perArm: true } : {}),
     sets,
     swappedFrom: { swapId: options.swapId, exerciseName: original.exerciseName, ...(original.catalogId !== undefined ? { catalogId: original.catalogId } : {}), afterSets: completedOnOriginal, at: options.at },
   };
@@ -151,20 +224,26 @@ export function applySwap(session: DeviceWorkoutSession, exerciseId: string, tar
 }
 
 /**
- * Adds an exercise straight after one whose planned sets are all done - the "nothing left to
- * swap" case - with that exercise's prescription as its starting point.
+ * Adds an exercise straight after another - Add exercise, or the "nothing left to swap" case -
+ * with that exercise's prescription as its starting point: one row per planned set, or a Right
+ * and a Left row per planned set when `perArm` lays a one-arm exercise out per arm, exactly as a
+ * planned one is built. An anchor laid out per arm passes on its planned sets, not its rows.
  */
-export function addAfter(session: DeviceWorkoutSession, exerciseId: string, target: SwapTarget, options: { newExerciseId: string; at: string; newSetId?: () => string }): DeviceWorkoutSession {
+export function addAfter(session: DeviceWorkoutSession, exerciseId: string, target: SwapTarget, options: { newExerciseId: string; at: string; newSetId?: () => string; perArm?: boolean; prescription?: string }): DeviceWorkoutSession {
   if (session.exercises.some((exercise) => exercise.id === options.newExerciseId)) return session;
   const index = session.exercises.findIndex((exercise) => exercise.id === exerciseId);
   if (index < 0) return session;
   const anchor = session.exercises[index];
+  const plannedPrescription = options.prescription ?? anchor.plannedPrescription;
+  const newSet = newSetWith(options.newSetId);
+  const { plannedSets } = addSets(plannedPrescription);
   const added: DeviceWorkoutExercise = {
     id: options.newExerciseId,
     exerciseName: target.name,
     ...(target.id !== undefined ? { catalogId: target.id } : {}),
-    plannedPrescription: anchor.plannedPrescription,
-    sets: Array.from({ length: renderableSetCount(anchor.plannedPrescription) }, newSetWith(options.newSetId)),
+    plannedPrescription,
+    ...(options.perArm ? { perArm: true } : {}),
+    sets: options.perArm ? perArmRowSides(plannedSets).map((side) => ({ ...newSet(), side })) : Array.from({ length: plannedSets }, newSet),
     addedDuringWorkout: { at: options.at, afterExerciseName: anchor.exerciseName },
   };
   const exercises = [...session.exercises];
@@ -202,15 +281,6 @@ export function undoSwap(session: DeviceWorkoutSession, receipt: SwapReceipt): D
   return { ...session, exercises };
 }
 
-/** "Switched from Sissy Squat after 2 sets" / "Switched to Barbell Squat after 2 sets". */
-export function swapNote(exercise: DeviceWorkoutExercise): string | null {
-  const count = (record: { afterSets: number }) => (record.afterSets === 0 ? "before any sets" : `after ${record.afterSets} ${record.afterSets === 1 ? "set" : "sets"}`);
-  if (exercise.swappedFrom) return `Switched from ${exercise.swappedFrom.exerciseName} ${count(exercise.swappedFrom)}`;
-  if (exercise.replacedBy) return `Switched to ${exercise.replacedBy.exerciseName} ${count(exercise.replacedBy)}`;
-  if (exercise.addedDuringWorkout) return `Added after ${exercise.addedDuringWorkout.afterExerciseName}`;
-  return null;
-}
-
 const conventionWords: Record<LoadConvention, string> = {
   total_external_load: "the whole load (bar and plates, or the bell)",
   per_implement: "the weight of one dumbbell",
@@ -229,6 +299,8 @@ export function swapMeasurementNotes(
   prescription: string,
   /** Whether an exercise is logged in reps or in seconds held (the atlas's logging policy); reps when not said. */
   measureOf: (exercise: Exercise | undefined) => SetDoseMeasure = () => "reps",
+  /** The prescription the new exercise starts from, as its own measure reads it; the plan's when not said. */
+  incomingPrescription: string = prescription,
 ): string[] {
   const notes: string[] = [];
   const fromName = from?.name ?? "the current exercise";
@@ -244,6 +316,9 @@ export function swapMeasurementNotes(
   const toSeconds = measureOf(to) === "seconds";
   if (fromSeconds !== toSeconds) notes.push(toSeconds ? `${toName} is logged in seconds held, not reps.` : `${toName} is logged in reps, not seconds.`);
   if (!toSeconds && /\d\s*(s|sec|secs|seconds|min|mins|minutes)\b/i.test(prescription)) notes.push(`The plan's target (${prescription}) is a time; sets here are logged in reps, so set the reps as you go.`);
+  // A rep target meeting a hold: the goal's rep default is read as a hold's, and a bare number as seconds.
+  if (toSeconds && !fromSeconds && incomingPrescription !== prescription) notes.push(`The plan's ${prescription} is the goal's rep default, so ${toName} starts from a hold's: ${incomingPrescription}.`);
+  else if (toSeconds && !fromSeconds && /^\s*\d+\s*(?:×|x)\s*\d[\d\s–—/-]*$/i.test(prescription)) notes.push(`The plan's target (${prescription}) gives no unit; on ${toName} its numbers are seconds.`);
   return notes;
 }
 

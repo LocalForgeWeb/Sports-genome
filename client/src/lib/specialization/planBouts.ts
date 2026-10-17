@@ -2,7 +2,7 @@ import type { Exercise } from "@/lib/exerciseCatalog";
 import { parseSetCount } from "@/lib/sessionVolume";
 import { parsePrescription } from "@/lib/setPrescription";
 import type { DaySlot, WeeklyDayStore } from "@/lib/trainingDayPlan";
-import { getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
+import { prescriptionOf, type TrainingGoal } from "@/lib/workoutPlanner";
 import { catalogIdOf } from "@/lib/workoutSwap";
 import type { BoutSide, ExerciseVariant, ExposureBout, SideSource } from "@shared/specialization/types";
 import { variantLookup } from "./bouts";
@@ -38,54 +38,11 @@ export type PlanBoutInput = {
 export type PlannedMeasure = ExerciseVariant["measure"];
 
 /**
- * A hold's default target. The goal's defaults are rep ranges ("3 × 6–10"), and a rep range on a
- * hold reads as seconds on the set card ("6–10 sec") while meaning nothing the athlete chose; a
- * hold gets a hold's target instead.
+ * The prescription every plan reader uses for an entry, and a hold's default ("4 × 30 sec" where
+ * the goal says "4 × 3–6"): one reading, in workoutPlanner.ts beside the goal's defaults, so Home
+ * reads it without loading the atlas. The tracker reads its planned sets through it too.
  */
-export const holdDefaultTarget = "30 sec";
-/** A hold's default with no goal to take a set count from. */
-export const holdDefaultPrescription = `3 × ${holdDefaultTarget}`;
-
-/**
- * The default for an entry with nothing of its own. A rep exercise takes the goal's default for
- * its position. A hold takes the goal's set count for that position with a hold's target
- * ("4 × 30 sec" where the goal says "4 × 3–6"), so every plan reader that counts sets from the
- * goal's default (the weekly volume map, Today, the week review) still counts the same sets.
- */
-function defaultPrescriptionOf(index: number, goal: TrainingGoal | undefined, measure: PlannedMeasure | undefined): string | undefined {
-  const goalDefault = goal ? getGoalPrescription(goal, index) : undefined;
-  if (measure !== "seconds") return goalDefault;
-  return goalDefault ? `${parseSetCount(goalDefault)} × ${holdDefaultTarget}` : holdDefaultPrescription;
-}
-
-/** Every goal's default for every place in a day: the texts the planner pins on an entry it builds. */
-const trainingGoals = ["Athleticism", "Muscle growth", "Max strength", "Capacity"] as const satisfies readonly TrainingGoal[];
-// Every goal is listed: a goal added to TrainingGoal and not here fails to compile.
-const everyGoalListed: Exclude<TrainingGoal, (typeof trainingGoals)[number]> extends never ? true : never = true;
-void everyGoalListed;
-const pinnedGoalDefaults: ReadonlySet<string> = new Set(trainingGoals.flatMap((goal) => [0, 1, 2, 3].map((index) => getGoalPrescription(goal, index))));
-
-/**
- * The prescription every plan reader uses for an entry: the saved one, else the default for its
- * position (`defaultPrescriptionOf`), so a hold never gets a rep default. The tracker reads its
- * planned sets through this same function, so the card and the planned totals start from the
- * same text.
- *
- * On a hold, a saved prescription that is one of the goals' defaults is read as the default it
- * is, with its own set count: "3 × 6–10" on a hang is "3 × 30 sec". The planner pins that text
- * on every entry when it builds a day or a week (and Home hands the tracker the day's map with
- * it filled in), so it says nothing the athlete chose; read literally it would be a rep range
- * taken as seconds. It is matched against every goal's default for every position, not only
- * this entry's: an entry moved within its day, or a goal changed after the week was built,
- * keeps the text it was pinned with. Any other saved text is the athlete's and is kept.
- */
-export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal, measure?: PlannedMeasure): string;
-export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal | undefined, measure?: PlannedMeasure): string | undefined;
-export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal | undefined, measure?: PlannedMeasure): string | undefined {
-  if (saved && measure === "seconds" && pinnedGoalDefaults.has(saved.trim())) return `${parseSetCount(saved)} × ${holdDefaultTarget}`;
-  if (saved) return saved;
-  return defaultPrescriptionOf(index, goal, measure);
-}
+export { holdDefaultPrescription, holdDefaultTarget, prescriptionOf } from "@/lib/workoutPlanner";
 
 const TIME_UNIT = /^(s|sec|secs|second|seconds|min|mins|minute|minutes)$/i;
 

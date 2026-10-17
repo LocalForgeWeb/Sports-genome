@@ -6,7 +6,7 @@ import { rankExerciseMatches } from "@/lib/exerciseSearch";
 import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 import { trapTabWithin } from "@/lib/modalBackground";
 import { ExerciseMedia } from "@/components/ExerciseMedia";
-import { swapMeasurementNotes, swapSuggestions, type DraftChoice, type PartialDropChoice, type SwapAssessment } from "@/lib/workoutSwap";
+import { addSets, swapMeasurementNotes, swapSets, swapSuggestions, type DraftChoice, type PartialDropChoice, type SwapAssessment } from "@/lib/workoutSwap";
 import type { DeviceWorkoutExercise } from "@/lib/deviceWorkoutLog";
 import { loggingPolicyFor } from "@shared/specialization/loggingPolicy";
 import "../exercise-swap.css";
@@ -25,7 +25,12 @@ export type SwapPlanOption = { available: true; slot: string } | { available: fa
 
 export type ExerciseSwapChoice = { target: Exercise; draft: DraftChoice; partialDrop: PartialDropChoice; alsoPlan: boolean };
 
-export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment, inWorkout, lastLoggedFor, planOptionFor, onConfirm, onAdd, onClose, addOnly = false }: {
+/** How the tracker builds a chosen exercise: laid out per arm or not, and the sets and reps it starts from. */
+export type IncomingExercise = { perArm: boolean; prescription: string };
+
+const setsWord = (count: number) => `${count} ${count === 1 ? "set" : "sets"}`;
+
+export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment, inWorkout, lastLoggedFor, planOptionFor, incomingFor, onConfirm, onAdd, onClose, addOnly = false }: {
   /** The session exercise being replaced - or, with `addOnly`, the one the new exercise goes after. */
   exercise: DeviceWorkoutExercise;
   /**
@@ -43,6 +48,12 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
   lastLoggedFor: (exercise: Exercise) => string | null;
   /** Whether "Also update this day in my plan" can be offered for a candidate, and the slot it changes. Null hides it. */
   planOptionFor?: (exercise: Exercise) => SwapPlanOption | null;
+  /**
+   * How the tracker will build a candidate (DeviceWorkoutTracker `incomingFor`): per arm for a
+   * one-arm exercise when the athlete tracks per-arm totals, and the prescription it starts from.
+   * Without it, every candidate is one row per set from the same prescription.
+   */
+  incomingFor?: (exercise: Exercise) => IncomingExercise;
   onConfirm: (choice: ExerciseSwapChoice) => void;
   onAdd: (target: Exercise) => void;
   onClose: () => void;
@@ -86,8 +97,9 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
   const results = useMemo(() => (query.trim() ? rankExerciseMatches(candidates, query).map((match) => match.exercise).filter(byEquipment).slice(0, 40) : candidates.filter(byEquipment).slice().sort((a, b) => a.name.localeCompare(b.name))), [candidates, query, equipment]);
   const selected = selectedId === null ? null : candidates.find((item) => item.id === selectedId) ?? null;
   const planOption = selected && planOptionFor ? planOptionFor(selected) : null;
+  const incoming: IncomingExercise | null = selected ? incomingFor?.(selected) ?? { perArm: false, prescription: exercise.plannedPrescription } : null;
   // Reps or seconds held, as the atlas's logging policy says for each exercise.
-  const notes = selected ? swapMeasurementNotes(catalogEntry, selected, exercise.plannedPrescription, (item) => loggingPolicyFor(item?.id).measure) : [];
+  const notes = selected ? swapMeasurementNotes(catalogEntry, selected, exercise.plannedPrescription, (item) => loggingPolicyFor(item?.id).measure, incoming?.prescription) : [];
   /**
    * What a typed-but-unlogged set can hand on: its reps, or a hold's seconds, and only to an
    * exercise logged the same way. Between a hold and a rep exercise nothing carries, so that
@@ -99,13 +111,42 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
   const nothingLeft = assessment.kind === "nothing_left";
   const adding = addOnly || nothingLeft;
 
+  /**
+   * The sets the chosen exercise gets, counted exactly as the swap or the add makes them
+   * (lib/workoutSwap `swapSets`, `addSets`). Rows laid out per arm are named as such: a planned
+   * one-arm "3 × 12" is 6 sets, Right and Left, and two one-arm sets left are one two-handed set.
+   */
+  const moving = swapSets(exercise, { draft: draftChoice, partialDrop, perArm: incoming?.perArm });
+  const added = incoming?.perArm ? addSets(incoming.prescription, true) : null;
+  const eachArm = (planned: number, rows: number) => `${setsWord(planned)}, done once with each arm: ${rows} sets`;
+  const perArmFrom = Boolean(exercise.perArm);
+  // Named once rows per arm come into it, since the count then depends on the exercise chosen.
+  const named = Boolean(selected && (perArmFrom || moving.perArm));
+  const who = named && selected ? selected.name : "The exercise you choose";
+  const planned = (count: number) => `${count} planned ${count === 1 ? "set" : "sets"}`;
+  const takesPlace = (() => {
+    if (!perArmFrom && !moving.perArm) return moving.moving === exercise.sets.length ? `the same ${setsWord(moving.sets)}` : setsWord(moving.sets);
+    if (moving.perArm) return `the same ${planned(moving.plannedSets)}, done once with each arm: ${moving.sets} sets`;
+    // A one-arm exercise's rows, before anything is chosen: what the plan holds, not the rows.
+    if (!selected) return `the same ${planned(moving.sets)}`;
+    return `the same ${planned(moving.sets)}, not one per arm`;
+  })();
+  const takesRest = (() => {
+    if (!perArmFrom && !moving.perArm) return `the remaining ${setsWord(moving.sets)}`;
+    if (!selected) return `the ${moving.moving} one-arm ${moving.moving === 1 ? "set" : "sets"} left`;
+    if (perArmFrom && moving.perArm) return `the remaining ${setsWord(moving.sets)}, each with the same arm`;
+    if (perArmFrom) return `the ${moving.moving} one-arm ${moving.moving === 1 ? "set" : "sets"} left as ${setsWord(moving.sets)}, not one per arm`;
+    return `the remaining ${eachArm(moving.plannedSets, moving.sets)}`;
+  })();
   const what = addOnly
-    ? `It goes in straight after ${name}, starting from the same sets and reps. Nothing logged changes.`
+    ? added && selected
+      ? `${selected.name} goes in straight after ${name}, starting from the same sets and reps: ${eachArm(added.plannedSets, added.sets)}. Nothing logged changes.`
+      : `It goes in straight after ${name}, starting from the same sets and reps. Nothing logged changes.`
     : nothingLeft
-    ? `Every set of ${name} is logged, so there is nothing left to swap. You can add another exercise straight after it instead.`
+    ? `Every set of ${name} is logged, so there is nothing left to swap. You can add another exercise straight after it instead.${added && selected ? ` ${selected.name} would start from the same sets and reps: ${eachArm(added.plannedSets, added.sets)}.` : ""}`
     : assessment.kind === "replace"
-      ? `Nothing is logged for ${name} yet, so the exercise you choose takes its place with the same ${assessment.openSets} ${assessment.openSets === 1 ? "set" : "sets"}.`
-      : `Your ${assessment.completedSets} logged ${assessment.completedSets === 1 ? "set stays" : "sets stay"} with ${name}. The exercise you choose takes the remaining ${assessment.openSets} ${assessment.openSets === 1 ? "set" : "sets"}.`;
+      ? `Nothing is logged for ${name} yet, so ${named && selected ? selected.name : "the exercise you choose"} takes its place with ${takesPlace}.`
+      : `Your ${assessment.completedSets} logged ${assessment.completedSets === 1 ? "set stays" : "sets stay"} with ${name}. ${who} takes ${takesRest}.`;
 
   const confirm = () => {
     if (!selected || confirmed.current) return;
@@ -178,6 +219,8 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
           <div className="swap-logging">
             <h3>Logging {selected.name}</h3>
             <ul>
+              {/* The count again beside the confirm: on a phone the line at the top has often scrolled away. */}
+              {named && <li>{selected.name} gets {setsWord(moving.sets)}{moving.perArm ? ", one arm at a time" : ""}.</li>}
               <li>No load is carried over from {name}. {lastLoggedFor(selected) ? `Last logged ${selected.name}: ${lastLoggedFor(selected)}.` : `No ${selected.name} logged on this device yet.`}</li>
               {notes.map((note) => <li key={note}>{note}</li>)}
               <li>The rest timer is not changed.</li>

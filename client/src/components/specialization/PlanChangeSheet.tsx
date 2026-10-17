@@ -148,14 +148,16 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
   // Beside a disabled Save, why it is disabled: the choice still to make, or why this change cannot be
   // saved (on a phone the preview's own line is often below the fold).
   const hint = !slot ? "Choose a day" : swapping && replaceEntryId === null ? "Choose the exercise to swap out" : outcome && !outcome.ok ? outcome.reason : null;
-  const plannedAs = outcome?.ok && !swapping && incoming ? prescriptionOf(outcome.record.prescriptions[incoming.id], outcome.index, goal) : undefined;
+  // Read with each exercise's measure, as the preview's planned bouts and Train read it: a hold's default is "4 × 30 sec".
+  const measureOf = (catalogExerciseId: number) => variantForCatalogId(data, catalogExerciseId)?.measure;
+  const plannedAs = outcome?.ok && !swapping && incoming ? prescriptionOf(outcome.record.prescriptions[incoming.id], outcome.index, goal, measureOf(incoming.id)) : undefined;
   // An add ahead of other exercises moves them down a place. One without a prescription of its
   // own reads as its place's default, so where that default differs its planned sets change: said
   // here, not left for the totals to show silently.
   const shifted = outcome?.ok && !swapping && dayRecord ? dayRecord.workout.slice(outcome.index).flatMap((entry, offset) => {
     if (dayRecord.prescriptions[entry.id]) return [];
-    const was = prescriptionOf(undefined, outcome.index + offset, goal);
-    const now = prescriptionOf(undefined, outcome.index + offset + 1, goal);
+    const was = prescriptionOf(undefined, outcome.index + offset, goal, measureOf(catalogIdOf(entry)));
+    const now = prescriptionOf(undefined, outcome.index + offset + 1, goal, measureOf(catalogIdOf(entry)));
     return was && now && was !== now ? [{ id: entry.id, name: entry.name, was, now }] : [];
   }) : [];
 
