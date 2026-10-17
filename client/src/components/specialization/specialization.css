@@ -1,8 +1,9 @@
 /* -- Body Lab → Specialize (Oct 16 forearm brief §6, design §7) ------------------ *
 
-   One column on the dark Body Lab ground, phone first: heading and one line; the
-   controls in wrapping rows; the map card; the selected muscle with one action;
-   the muscle list; coverage to review; then disclosures. Sheets slide up from the
+   One column on the dark Body Lab ground, phone first: the heading, the controls
+   in two rows and the window line, kept short so the map card's selected muscle and
+   the top of its drawing are on a 375 x 667 first screen; the muscle list; coverage
+   to review; then disclosures. Sheets slide up from the
    bottom on a phone and sit as a dialog from 720 px, on the navy of the app's
    other sheets.
 
@@ -22,16 +23,21 @@
 }
 .spz-page :is(h1, h2, h3, p, dl, dd, ul, ol) { margin: 0; }
 
-.spz-head { display: grid; gap: .35rem; justify-items: start; min-width: 0; }
-.spz-head .metric-label { color: var(--sg-text-subtle-on-dark); }
-.spz-title { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.9rem, 6.5vw, 2.7rem); font-weight: 800; line-height: .95; text-transform: uppercase; overflow-wrap: anywhere; }
+/* The top: heading, controls and window line, closer together than the page's sections, so
+   the selected muscle and the drawing's top stay on a 375 x 667 first screen even under a
+   "Back to …" link. The link is 44 px tall with its words centred, which already spaces it
+   from the heading. */
+.spz-top { display: grid; gap: .375rem; min-width: 0; margin-bottom: -.25rem; }
+.spz-head { display: grid; gap: 0; justify-items: start; min-width: 0; }
+/* One line from 375 px, even in a fallback sans before the display face loads. */
+.spz-title { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.5rem, 6.4vw, 2.7rem); font-weight: 800; line-height: .95; text-transform: uppercase; overflow-wrap: anywhere; }
 .spz-lede { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-back { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); font-weight: 700; }
 .spz-back:focus-visible, .spz-link:focus-visible, .spz-button:focus-visible, .spz-primary:focus-visible, .spz-row:focus-visible, .spz-chip:focus-visible, .spz-icon-button:focus-visible, .spz-close:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 
 /* Segments: a pill with one lit part. It wraps to two lines rather than push the page sideways at 320 px. */
-.spz-controls, .spz-diagram-controls { display: flex; flex-wrap: wrap; gap: .5rem; min-width: 0; }
-.spz-segment { display: inline-flex; flex-wrap: wrap; max-width: 100%; min-width: 0; border: 1px solid var(--sg-control-border-on-dark); border-radius: 1.45rem; padding: 2px; }
+.spz-controls, .spz-diagram-controls { display: flex; flex-wrap: wrap; gap: .375rem .5rem; min-width: 0; }
+.spz-segment { display: inline-flex; flex-wrap: wrap; max-width: 100%; min-width: 0; border: 1px solid var(--sg-control-border-on-dark); border-radius: 1.45rem; padding: 1px; }
 .spz-segment button { display: inline-flex; flex: 1 1 auto; align-items: center; justify-content: center; min-width: 0; min-height: 2.75rem; border-radius: var(--sg-radius-pill); padding: 0 .5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-weight: 700; text-align: center; white-space: normal; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
 .spz-segment button[aria-pressed="true"] { background: rgb(255 255 255 / .14); color: var(--sg-text-on-dark); }
 .spz-segment button:disabled { color: var(--sg-text-subtle-on-dark); cursor: not-allowed; }
@@ -39,8 +45,17 @@
 .spz-dates { display: flex; flex-wrap: wrap; gap: .5rem .75rem; width: 100%; }
 .spz-window { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-window b { color: var(--sg-text-on-dark); }
-.spz-pair { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-variant-numeric: tabular-nums; line-height: var(--sg-leading-body); }
-.spz-pair b { color: var(--sg-text-on-dark); }
+/* With a pair (logged beside planned), a total, the line is one button that opens the sets
+   behind it: the pair underlined and an arrow at the end, visible at rest; 44 px tall. The
+   pair's words are on-dark ink, not link ink: the Body Lab blue under this line is lighter
+   than the app's dark surfaces, and link ink reads only 3.8:1 on it (AA for 16 px text is
+   4.5:1). The underline and the arrow carry the link colour (3:1 is enough for them). */
+.spz-window-open { display: flex; align-items: center; justify-content: space-between; gap: .5rem; width: 100%; min-height: 2.75rem; color: inherit; font-size: inherit; line-height: inherit; text-align: left; }
+.spz-window-open > svg { flex: 0 0 auto; color: var(--sg-link-on-dark); }
+.spz-window-open:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.spz-pair { color: var(--sg-text-on-dark); font-weight: 700; font-variant-numeric: tabular-nums; text-decoration: underline; text-decoration-color: var(--sg-link-on-dark); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.spz-pair b { color: inherit; font-weight: 800; }
+.spz-pair-note { color: var(--sg-text-muted-on-dark); }
 
 .spz-field { display: grid; gap: .3rem; min-width: 0; flex: 1 1 9rem; }
 .spz-field > span { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
@@ -52,6 +67,13 @@
 .spz-section-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; }
 .spz-section-head h2, .spz-group h3 { color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: var(--sg-leading-snug); text-transform: uppercase; }
 .spz-group { display: grid; gap: .35rem; }
+/* The map card: the heading beside the view, then the layer beside what the colours show, so
+   its controls take two rows on a phone; each segment wraps to a row of its own when it must.
+   Segment buttons here keep a 44 px square and give up a little side padding to fit. */
+.spz-map { gap: .375rem; padding-top: .5rem; }
+.spz-map > .spz-section-head { gap: .375rem .5rem; }
+.spz-map .spz-diagram-controls { justify-content: space-between; }
+.spz-map .spz-segment button { min-width: 2.75rem; padding: 0 .4rem; }
 .spz-group + .spz-group { margin-top: .5rem; }
 .spz-group h3 { color: var(--sg-text-muted-on-dark); }
 .spz-note { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
@@ -71,9 +93,9 @@
    It sits between the view and layer controls and the drawing, so a tap on the drawing
    changes the words right above it on a 390 × 844 screen. Gold edge while a muscle is
    selected; a plain edge for the region line when none is. */
-.spz-strip { display: grid; gap: .35rem; min-width: 0; border-left: 2px solid var(--sg-selected-on-dark); padding: .1rem 0 .1rem .75rem; }
+.spz-strip { display: grid; gap: .25rem; min-width: 0; border-left: 2px solid var(--sg-selected-on-dark); padding: .1rem 0 .1rem .75rem; }
 .spz-strip[data-empty] { border-left-color: var(--sg-control-border-on-dark); }
-.spz-strip-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; }
+.spz-strip-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; line-height: var(--sg-leading-snug); }
 .spz-strip-name b { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 800; }
 .spz-strip-line, .spz-strip-goal { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-strip-goal { color: var(--sg-text-on-dark); font-weight: 700; }
@@ -141,6 +163,9 @@
 .spz-candidate > span:first-child { flex: 1 1 14rem; }
 .spz-candidate-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .75rem; }
 .spz-candidate-why { flex: 1 1 100%; min-width: 0; }
+/* Said once above the suggestions: a target nothing can count toward, a main action nothing here trains. */
+.spz-suggest-note { border-left: 2px solid var(--sg-control-border-on-dark); padding-left: .6rem; }
+.spz-covered { display: grid; gap: .25rem; }
 
 /* -- Why this counts: the mappings behind an exercise's credit, with their sources ------ */
 .spz-why { border-top: 1px dashed rgb(164 200 232 / .22); }
@@ -155,10 +180,20 @@
 .spz-sources small { font-size: var(--sg-text-sm); }
 .spz-why .spz-sources small { display: block; color: var(--sg-text-muted-on-dark); }
 
-.spz-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: .6rem; gap: .3rem; margin-bottom: .6rem; padding: 0; list-style: none; }
-.spz-days li { display: grid; justify-items: center; gap: .15rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-variant-numeric: tabular-nums; }
-.spz-days li b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }
+/* Bouts per day. A day with work is a button (it opens its sets), outlined at rest; seven
+   columns reach into the card's padding so each is at least 44 px wide from 370 px (45.5 at
+   375), and a narrower phone takes four to a row. The margins name the page so they win over
+   its reset of list and paragraph margins. */
+.spz-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .6rem .15rem; padding: 0; list-style: none; }
+.spz-page .spz-days { margin: 0 -.75rem .4rem; }
+@media (max-width: 369px) { .spz-days { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.spz-days li { display: grid; min-width: 0; }
+.spz-day { display: grid; justify-items: center; align-content: start; gap: .15rem; min-width: 0; min-height: 2.75rem; border: 1px solid transparent; border-radius: var(--sg-radius-sm); padding: .35rem .1rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-variant-numeric: tabular-nums; }
+button.spz-day { border-color: var(--sg-control-border-on-dark); }
+button.spz-day:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.spz-day b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }
 .spz-days li[data-today] small { color: var(--sg-selected-on-dark); font-weight: 800; }
+.spz-page .spz-days-note { margin-bottom: .6rem; }
 .spz-day-bar { position: relative; display: block; width: 100%; max-width: 2rem; height: 3rem; background: rgb(255 255 255 / .07); }
 .spz-day-bar i { position: absolute; right: 0; bottom: 0; left: 0; background: var(--spz-direct); transition: height var(--sg-motion-base) var(--sg-ease); }
 

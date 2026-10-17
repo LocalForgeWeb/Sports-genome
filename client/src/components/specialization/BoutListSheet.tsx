@@ -5,14 +5,16 @@ import { BoutItem, boutDay } from "./BoutItem";
 import { ledgerByExercise, sideLabels } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
 
-/** One list in the sheet: the bouts behind one total, with what that total is. */
-export type BoutList = { key: string; heading: string | null; note: string | null; rows: readonly RegionBoutRow[] };
+/** One list in the sheet: the bouts behind one total, with what that total is, and what to say when it is 0. */
+export type BoutList = { key: string; heading: string | null; note: string | null; rows: readonly RegionBoutRow[]; empty?: string };
 
 /**
  * The set records behind a region-level total (brief §1, "Every total opens the contributing
  * exercises and actual set records"): the region's distinct bouts on this arm, the sets with
- * no arm recorded, or the work tagged with the region and mapped to no muscle. Exercise →
- * bout → segment, as the muscle sheet's ledger reads, each logged bout with "Open this workout".
+ * no arm recorded, the work tagged with the region and mapped to no muscle, one day's bouts
+ * (a bar in "Exercises in this window"), or this week's logged bouts beside the plan week's
+ * (the pair in the window line). Exercise → bout → segment, as the muscle sheet's ledger
+ * reads, each logged bout with "Open this workout".
  */
 export function BoutListSheet({ eyebrow, title, intro, lists, weightUnit, onOpenSession, onInspectExercise, onOpenMethod, onClose }: {
   eyebrow: string;
@@ -42,7 +44,7 @@ export function BoutListSheet({ eyebrow, title, intro, lists, weightUnit, onOpen
             </ol>
             <button type="button" className="spz-link" onClick={() => onInspectExercise(group.catalogExerciseId, group.name)}>About {group.name} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
           </details>)}
-        </div> : <p className="spz-note">No set records are kept for this total.</p>}
+        </div> : <p className="spz-note">{list.empty ?? "No set records are kept for this total."}</p>}
       </section>;
     })}
     <section className="spz-sheet-section">

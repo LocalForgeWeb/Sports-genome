@@ -98,7 +98,7 @@ export function MovementSheet({ data, actionId, summary, loading, side, mode, in
 
     <section className="spz-sheet-section" aria-labelledby="spz-move-exercises">
       <h3 id="spz-move-exercises">Exercises for this movement</h3>
-      <Suggestions {...suggestions} data={data} />
+      <Suggestions {...suggestions} data={data} mode={mode} />
     </section>
 
     <section className="spz-sheet-section">

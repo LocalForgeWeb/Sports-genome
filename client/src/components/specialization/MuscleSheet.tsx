@@ -26,7 +26,7 @@ const basisLabels: Record<string, string> = {
  * contribution ledger behind every number (exercise → bout → segment); your target;
  * exercises for it, with why; and the sources and method.
  */
-export function MuscleSheet({ data, node, exposure, loading = false, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, initialSection, paired, pairNote = null, exclusions, onSetExerciseExcluded, onSetEquipmentExcluded, onSaveGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onClose }: {
+export function MuscleSheet({ data, node, exposure, loading = false, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, initialSection, paired, pairNote = null, exclusions, equipmentOf, onSetExerciseExcluded, onSetEquipmentExcluded, onSaveGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onClose }: {
   data: SpecializationRegionData;
   node: AnatomyNode;
   exposure: NodeExposure | null;
@@ -48,6 +48,8 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
   /** Why there is no pair, when the plan week shown is not the week being trained (design §4). */
   pairNote?: string | null;
   exclusions: SpecializationExclusions;
+  /** An exercise's equipment, from the catalog the recommender read (why a main action has no suggestion). */
+  equipmentOf?: (catalogExerciseId: number) => string | null;
   onSetExerciseExcluded: (catalogExerciseId: number, excluded: boolean) => StoreWrite;
   onSetEquipmentExcluded: (equipment: string, excluded: boolean) => StoreWrite;
   onSaveGoals: (goals: SpecializationGoal[]) => StoreWrite;
@@ -156,7 +158,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
 
     <section className="spz-sheet-section" aria-labelledby="spz-exercises">
       <h3 id="spz-exercises">Exercises for this muscle</h3>
-      <Suggestions data={data} recommendations={recommendations} exclusions={exclusions} onSetExerciseExcluded={onSetExerciseExcluded} onSetEquipmentExcluded={onSetEquipmentExcluded} onChooseExercise={onChooseExercise} onInspectExercise={onInspectExercise} />
+      <Suggestions data={data} nodeId={node.id} mode={mode} equipmentOf={equipmentOf} recommendations={recommendations} exclusions={exclusions} onSetExerciseExcluded={onSetExerciseExcluded} onSetEquipmentExcluded={onSetEquipmentExcluded} onChooseExercise={onChooseExercise} onInspectExercise={onInspectExercise} />
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-sources">

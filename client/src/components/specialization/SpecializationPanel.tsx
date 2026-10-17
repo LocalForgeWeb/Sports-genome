@@ -24,7 +24,7 @@ import { splitTargets } from "./TargetsEditor";
 import { TargetsOverview } from "./TargetsOverview";
 import { PlanChangeSheet } from "./PlanChangeSheet";
 import { SpecializationDiagram } from "./SpecializationDiagram";
-import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricLabels, holdTime, goalsForNode, latestSessionDayLabel, layerLabels, movementFocusNodeId, overlapsInWindow, regionBoutRows, selectableNodes, sortForList, targetBins, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
+import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricLabels, holdTime, goalsForNode, latestSessionDayLabel, layerLabels, movementFocusNodeId, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
 import "@/components/anatomy/anatomy-figure.css";
 import "./specialization.css";
 
@@ -62,8 +62,12 @@ type SheetState =
   | { kind: "movement"; actionId: string }
   /** An add or swap, started from a muscle's exercises or from a movement's. */
   | { kind: "change"; exerciseId: number; from: { kind: "muscle" } | { kind: "movement"; actionId: string } }
-  /** The bouts behind a region total; `exerciseKey` narrows the region's bouts to one exercise. */
-  | { kind: "bouts"; list: RegionBoutList; exerciseKey?: string };
+  /**
+   * The bouts behind a region total; `exerciseKey` narrows the region's bouts to one exercise,
+   * `dayKey` to one local day (a bar of bouts per day). "pair" is the window line's logged
+   * beside planned: this week's logged bouts, then the plan week's.
+   */
+  | { kind: "bouts"; list: RegionBoutList | "pair"; exerciseKey?: string; dayKey?: string };
 
 /**
  * Body Lab → Specialize (Oct 16 forearm brief §6, design §7): one region, muscle by muscle,
@@ -157,6 +161,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     return recommendFor({ region: data, target: { nodeId: selected.id }, side: state.limb, summary, otherSideSummary: otherSummary, plannedExercises, catalog, equipmentProfile, exclusions });
   }, [selected, summary, otherSummary, plannedExercises, catalog, equipmentProfile, data, state.limb, exclusions]);
   const candidates = recommendations?.kind === "candidates" ? recommendations.candidates : [];
+  /** An exercise's equipment from the catalog the recommender read, so the muscle sheet can say why a main action has no suggestion. */
+  const equipmentById = useMemo(() => new Map(catalog.map((exercise) => [exercise.id, exercise.equipment ?? null] as const)), [catalog]);
   // A movement's exercises (brief §7: "A suggested exercise explicitly addresses the selected muscle/action").
   const movementId = sheet?.kind === "movement" ? sheet.actionId : sheet?.kind === "change" && sheet.from.kind === "movement" ? sheet.from.actionId : null;
   const movementRecommendations = useMemo(() => {
@@ -281,7 +287,14 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     for (let key = first; key <= last && keys.length <= 31; key = addDaysToDateKey(key, 1)) keys.push(key);
     if (keys.length > 31) return "too-long" as const;
     const counts = boutsByDay(summary, data, (iso) => localDateKey(iso, timeZone));
-    return keys.map((key) => ({ key, label: new Date(`${key}T12:00:00Z`).toLocaleDateString(undefined, keys.length > 7 ? { day: "numeric", month: "short", timeZone: "UTC" } : { weekday: "short", timeZone: "UTC" }), bouts: counts.get(key) ?? 0 }));
+    const noon = (key: string) => new Date(`${key}T12:00:00Z`);
+    return keys.map((key) => ({
+      key,
+      label: noon(key).toLocaleDateString(undefined, keys.length > 7 ? { day: "numeric", month: "short", timeZone: "UTC" } : { weekday: "short", timeZone: "UTC" }),
+      /** "Tue 14 Oct": the bar's name, and the title of the sheet it opens. */
+      long: noon(key).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }),
+      bouts: counts.get(key) ?? 0,
+    }));
   }, [summary, data, state.mode, interval.startAt, interval.endAtExclusive, timeZone]);
   const overlaps = summary ? overlapsInWindow(summary, data) : [];
   /** Notes the athlete left on the workouts that loaded the region in this window (design §5: the existing session note). */
@@ -294,6 +307,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   // Planned against completed for the whole region, said as a plain count (brief §10: reward completed planned work, nothing more).
   const plannedBouts = state.mode === "planned" ? summary?.regionDistinctBouts ?? null : pairSummary?.regionDistinctBouts ?? null;
   const completedBouts = state.mode === "completed" ? (state.window === "week" ? summary?.regionDistinctBouts ?? null : null) : pairSummary?.regionDistinctBouts ?? null;
+  const pairShown = plannedBouts !== null && completedBouts !== null && (plannedBouts > 0 || completedBouts > 0);
 
   /** The sets behind a region total (brief §1: every total opens its set records). */
   const boutSheet = useMemo<null | { eyebrow: string; title: string; intro: string; lists: BoutList[] }>(() => {
@@ -301,6 +315,30 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     const eyebrow = `${data.region.label} · ${armWord}`;
     // A plan has done nothing yet: its sets are planned for a muscle, not sets that loaded one.
     const planned = summary.mode === "planned";
+    if (sheet.list === "pair") {
+      // The window line's pair (design §4): this calendar week's logged bouts, then the plan week being trained, as written.
+      const logged = summary.mode === "completed" ? summary : pairSummary;
+      const asWritten = summary.mode === "planned" ? summary : pairSummary;
+      if (!logged || !asWritten || logged.mode !== "completed" || asWritten.mode !== "planned") return null;
+      const unknown = regionBoutRows(logged, "unknown-side");
+      // "Bouts", as the line that opened it counts them: each set once, however many muscles it loads.
+      return {
+        eyebrow,
+        title: `${logged.regionDistinctBouts} logged · ${asWritten.regionDistinctBouts} planned`,
+        intro: `${logged.interval.label}, logged, beside ${asWritten.interval.label}. Each set is one bout, however many muscles of the ${regionWord} it loads.`,
+        lists: [
+          { key: "logged", heading: `Logged on the ${armWord}: ${plural(logged.regionDistinctBouts, "bout")}`, note: null, rows: regionBoutRows(logged, "region"), empty: `Nothing logged for a muscle of the ${regionWord} on the ${armWord} this week.` },
+          ...(unknown.length ? [{ key: "unknown", heading: `Logged with no arm recorded: ${plural(unknown.length, "bout")}`, note: "Kept apart and counted for neither arm.", rows: unknown }] : []),
+          { key: "planned", heading: `Planned in Plan Week ${trainingWeek}: ${plural(asWritten.regionDistinctBouts, "bout")}`, note: null, rows: regionBoutRows(asWritten, "region"), empty: `Nothing planned for a muscle of the ${regionWord} on the ${armWord} in Plan Week ${trainingWeek}.` },
+        ],
+      };
+    }
+    if (sheet.list === "region" && sheet.dayKey) {
+      // One bar of bouts per day: the same distinct bouts the bar counts, on that local day.
+      const rows = regionBoutRowsOnDay(summary, sheet.dayKey, (iso) => localDateKey(iso, timeZone));
+      const day = new Date(`${sheet.dayKey}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+      return { eyebrow, title: day, intro: `${plural(rows.length, "distinct bout")} that day: every set that loaded a muscle of the ${regionWord} on the ${armWord}, each counted once however many muscles it loaded.`, lists: [{ key: "arm", heading: null, note: null, rows }] };
+    }
     if (sheet.list === "region") {
       const onArm = regionBoutRows(summary, "region");
       if (sheet.exerciseKey) {
@@ -326,64 +364,76 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     }
     const rows = regionBoutRows(summary, "region-only");
     return { eyebrow, title: `${plural(rows.length, "set")} for the ${regionWord} as a whole`, intro: `Tagged with the ${regionWord} in the exercise catalog, but no reviewed mapping says which muscles they train, so they add to no single muscle.`, lists: [{ key: "region-only", heading: null, note: null, rows }] };
-  }, [sheet, summary, data.region.label, armWord, interval.label, regionWord]);
+  }, [sheet, summary, pairSummary, trainingWeek, timeZone, data.region.label, armWord, interval.label, regionWord]);
 
   const completeness = summary?.completeness;
   const hasWork = selectedExposure ? barParts(selectedExposure).direct + barParts(selectedExposure).other + barParts(selectedExposure).holds + barParts(selectedExposure).incidental + barParts(selectedExposure).rest > 0 : false;
   const regionBoutsBehind = summary ? summary.regionDistinctBouts + summary.regionUnknownSideBouts : 0;
 
   return <section className="spz-page" aria-labelledby="spz-heading">
-    <header className="spz-head">
-      {onBack && backLabel && <button type="button" className="spz-back" onClick={onBack}><ArrowLeft className="h-4 w-4" aria-hidden="true" />Back to {backLabel}</button>}
-      <p className="metric-label">Body Lab · Specialize</p>
-      <h1 id="spz-heading" className="spz-title">{data.region.heading}</h1>
-    </header>
+    {/* The top of the page is kept short, so the selected muscle and the top of the drawing are on
+        a 375 × 667 phone's first screen too (brief §6 "Mobile overview"): the heading on one line
+        (the tab row above already says Body Lab · Specialize), the controls in two rows, and one
+        line for the window and its totals. */}
+    <div className="spz-top">
+      <header className="spz-head">
+        {onBack && backLabel && <button type="button" className="spz-back" onClick={onBack}><ArrowLeft className="h-4 w-4" aria-hidden="true" />Back to {backLabel}</button>}
+        <h1 id="spz-heading" className="spz-title">{data.region.heading}</h1>
+      </header>
 
-    <div className="spz-controls">
-      <div className="spz-segment" role="group" aria-label="Planned or completed">
-        <button type="button" aria-pressed={state.mode === "completed"} onClick={() => update({ mode: "completed" })}>Completed</button>
-        <button type="button" aria-pressed={state.mode === "planned"} onClick={() => update({ mode: "planned" })}>Planned</button>
-      </div>
-      <div className="spz-segment" role="group" aria-label="Arm">
-        <button type="button" aria-pressed={state.limb === "left"} onClick={() => update({ limb: "left" })}>Left arm</button>
-        <button type="button" aria-pressed={state.limb === "right"} onClick={() => update({ limb: "right" })}>Right arm</button>
-      </div>
-      {state.mode === "completed"
-        ? <div className="spz-segment" role="group" aria-label="Time window">
-          <button type="button" aria-pressed={state.window === "week"} onClick={() => chooseWindow("week")}>This week</button>
-          <button type="button" aria-pressed={state.window === "7d"} onClick={() => chooseWindow("7d")}>Rolling 7 days</button>
-          <button type="button" aria-pressed={state.window === "custom"} onClick={() => chooseWindow("custom")}>Custom</button>
+      <div className="spz-controls">
+        <div className="spz-segment" role="group" aria-label="Planned or completed">
+          <button type="button" aria-pressed={state.mode === "completed"} onClick={() => update({ mode: "completed" })}>Completed</button>
+          <button type="button" aria-pressed={state.mode === "planned"} onClick={() => update({ mode: "planned" })}>Planned</button>
         </div>
-        : <div className="spz-segment" role="group" aria-label="Plan week">
-          {(builtWeeks.length ? builtWeeks : [planWeek]).map((week) => <button key={week} type="button" aria-pressed={week === planWeek} onClick={() => update({ planWeek: week === trainingWeek ? null : week })}>Week {week}</button>)}
+        <div className="spz-segment" role="group" aria-label="Arm">
+          <button type="button" aria-pressed={state.limb === "left"} onClick={() => update({ limb: "left" })}>Left arm</button>
+          <button type="button" aria-pressed={state.limb === "right"} onClick={() => update({ limb: "right" })}>Right arm</button>
+        </div>
+        {state.mode === "completed"
+          ? <div className="spz-segment" role="group" aria-label="Time window">
+            <button type="button" aria-pressed={state.window === "week"} onClick={() => chooseWindow("week")}>This week</button>
+            <button type="button" aria-pressed={state.window === "7d"} onClick={() => chooseWindow("7d")}>Rolling 7 days</button>
+            <button type="button" aria-pressed={state.window === "custom"} onClick={() => chooseWindow("custom")}>Custom</button>
+          </div>
+          : <div className="spz-segment" role="group" aria-label="Plan week">
+            {(builtWeeks.length ? builtWeeks : [planWeek]).map((week) => <button key={week} type="button" aria-pressed={week === planWeek} onClick={() => update({ planWeek: week === trainingWeek ? null : week })}>Week {week}</button>)}
+          </div>}
+        {state.mode === "completed" && state.window === "custom" && <div className="spz-dates">
+          <label className="spz-field"><span>From</span><input type="date" value={state.from ?? ""} max={todayKey} onChange={(event) => setCustom("from", event.target.value)} /></label>
+          <label className="spz-field"><span>To</span><input type="date" value={state.to ?? ""} max={todayKey} onChange={(event) => setCustom("to", event.target.value)} /></label>
         </div>}
-      {state.mode === "completed" && state.window === "custom" && <div className="spz-dates">
-        <label className="spz-field"><span>From</span><input type="date" value={state.from ?? ""} max={todayKey} onChange={(event) => setCustom("from", event.target.value)} /></label>
-        <label className="spz-field"><span>To</span><input type="date" value={state.to ?? ""} max={todayKey} onChange={(event) => setCustom("to", event.target.value)} /></label>
-      </div>}
+      </div>
+      {/* One line: the window, the arm, and (for this week) logged beside planned (design §4). The
+          pair is a total, so it opens the sets behind it: with a pair the whole line is one
+          button (44 px tall, the pair underlined and an arrow at its end), which keeps it to
+          two lines on a phone. "Plan Week" and its number are joined by a no-break space. */}
+      {pairShown
+        ? <p className="spz-window"><button type="button" className="spz-window-open" onClick={() => setSheet({ kind: "bouts", list: "pair" })}><span><b>{interval.label}</b> · {armWord}: <span className="spz-pair">{state.mode === "planned"
+          ? <><b>{plannedBouts}</b> bout{plannedBouts === 1 ? "" : "s"} planned · <b>{completedBouts}</b> logged this week</>
+          : <><b>{completedBouts}</b> bout{completedBouts === 1 ? "" : "s"} logged · <b>{plannedBouts}</b> planned in Plan Week{"\u00a0"}{trainingWeek}</>}</span></span><ArrowRight className="h-4 w-4" aria-hidden="true" /></button></p>
+        : <p className="spz-window"><b>{interval.label}</b> · {armWord}{state.mode === "planned" && !planInput ? (plan.ready ? ` · Week ${planWeek} has nothing planned yet` : " · your plan is loading") : ""}{noPairNote && <span className="spz-pair-note">: not the week you train from (Week {trainingWeek}), so there is no logged week to compare</span>}</p>}
     </div>
-    {/* One line: the window, the arm, and (for this week) logged beside planned (design §4), so the drawing starts higher. */}
-    <p className="spz-window"><b>{interval.label}</b> · {armWord}{state.mode === "planned" && !planInput ? (plan.ready ? ` · Week ${planWeek} has nothing planned yet` : " · your plan is loading") : ""}{plannedBouts !== null && completedBouts !== null && (plannedBouts > 0 || completedBouts > 0) && <span className="spz-pair">{state.mode === "planned"
-      ? <>: <b>{plannedBouts}</b> bout{plannedBouts === 1 ? "" : "s"} planned for the {regionWord} · <b>{completedBouts}</b> logged this week</>
-      : <>: <b>{completedBouts}</b> bout{completedBouts === 1 ? "" : "s"} logged for the {regionWord} · <b>{plannedBouts}</b> planned in Plan Week {trainingWeek}</>}</span>}{noPairNote && <span className="spz-pair">: not the week you train from (Week {trainingWeek}), so there is no logged week to compare</span>}</p>
 
     {here.status === "error" && <p className="spz-error" role="alert">The totals could not be worked out: {here.message}</p>}
 
-    <section className="spz-card" aria-labelledby="spz-map-title">
+    <section className="spz-card spz-map" aria-labelledby="spz-map-title">
+      {/* Two rows of controls on a phone: the heading beside the view, then the layer beside what
+          the colours show. Each segment wraps onto its own row rather than push the page sideways. */}
       <div className="spz-section-head">
         <h2 id="spz-map-title">Muscle map</h2>
-        {asset && <div className="spz-segment" role="group" aria-label="Colour by">
-          <button type="button" aria-pressed={state.map === "volume"} onClick={() => update({ map: "volume" })}>Volume</button>
-          <button type="button" aria-pressed={state.map === "target"} onClick={() => update({ map: "target" })}>Target</button>
+        {asset && <div className="spz-segment" role="group" aria-label="View">
+          {views.map((item) => <button key={item.id} type="button" aria-pressed={item.id === view} onClick={() => update({ view: item.id === views[0].id ? null : item.id })}>{item.label}</button>)}
         </div>}
       </div>
       {asset && <div className="spz-diagram-controls">
-        <div className="spz-segment" role="group" aria-label="View">
-          {views.map((item) => <button key={item.id} type="button" aria-pressed={item.id === view} onClick={() => update({ view: item.id === views[0].id ? null : item.id })}>{item.label}</button>)}
-        </div>
         {layers.length > 1 && <div className="spz-segment" role="group" aria-label="Layer">
           {layers.map((item) => <button key={item} type="button" aria-pressed={item === layer} onClick={() => update({ layer: item })}>{layerControlLabels[item]}</button>)}
         </div>}
+        <div className="spz-segment" role="group" aria-label="Colour by">
+          <button type="button" aria-pressed={state.map === "volume"} onClick={() => update({ map: "volume" })}>Volume</button>
+          <button type="button" aria-pressed={state.map === "target"} onClick={() => update({ map: "target" })}>Target</button>
+        </div>
       </div>}
       {/* The selected muscle sits between the controls and the drawing (brief §6 "Mobile overview"):
           a tap on the drawing changes the words right above it, on the same screen. One action. */}
@@ -445,9 +495,20 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     <div className="spz-disclosures">
       <details className="spz-disclosure spz-card">
         <summary><span><b>Exercises in this window</b><small>{!summary ? waiting : windowItems.length ? `${windowItems.length} exercise${windowItems.length === 1 ? "" : "s"}` : "None yet"}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
-        {days === "too-long" ? <p className="spz-note">Choose 31 days or fewer to see the work day by day.</p> : days && <ol className="spz-days" aria-label="Distinct bouts per day in this window">
-          {days.map((day) => <li key={day.key} data-today={day.key === todayKey || undefined}><span className="spz-day-bar"><i style={{ height: `${Math.min(100, (day.bouts / 12) * 100)}%` }} /></span><b>{day.bouts}</b><small>{day.label}</small></li>)}
-        </ol>}
+        {days === "too-long" ? <p className="spz-note">Choose 31 days or fewer to see the work day by day.</p> : days && <>
+          {/* Each bar is a total, so a day with work opens its sets (brief §1); a day with none has nothing to open. */}
+          <ol className="spz-days" aria-label="Distinct bouts per day in this window">
+            {days.map((day) => {
+              const bar = <><span className="spz-day-bar"><i style={{ height: `${Math.min(100, (day.bouts / 12) * 100)}%` }} /></span><b>{day.bouts}</b><small>{day.label}</small></>;
+              return <li key={day.key} data-today={day.key === todayKey || undefined}>
+                {day.bouts > 0
+                  ? <button type="button" className="spz-day" onClick={() => setSheet({ kind: "bouts", list: "region", dayKey: day.key })} aria-label={`${day.long}: ${plural(day.bouts, "distinct bout")}. See these sets`}>{bar}</button>
+                  : <span className="spz-day">{bar}</span>}
+              </li>;
+            })}
+          </ol>
+          {days.some((day) => day.bouts > 0) && <p className="spz-note spz-days-note">A day with work opens its sets.</p>}
+        </>}
         {!summary ? <p className="spz-note">{waiting}</p> : windowItems.length ? <ul className="spz-exercise-list">
           {windowItems.map((item) => <li key={`${item.catalogExerciseId ?? item.name}`}>
             <span><b>{item.name}</b><small>{item.bouts} bout{item.bouts === 1 ? "" : "s"}{item.directFor.length ? ` · direct for ${item.directFor.join(", ")}` : " · no muscle here is its target"}</small></span>
@@ -512,6 +573,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       paired={pairMode && pairSummary ? { label: pairMode === "planned" ? `Plan Week ${trainingWeek}, as written` : "Logged this week", exposure: pairSummary.nodes.find((node) => node.nodeId === selected.id) ?? null } : null}
       pairNote={noPairNote}
       exclusions={exclusions}
+      equipmentOf={(catalogExerciseId) => equipmentById.get(catalogExerciseId) ?? null}
       onSetExerciseExcluded={setExerciseExcluded}
       onSetEquipmentExcluded={setEquipmentExcluded}
       onSaveGoals={(next) => saveGoals(next)}
