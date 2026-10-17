@@ -404,12 +404,12 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       </div>
       {/* One line: the window, the arm, and (for this week) logged beside planned (design §4). The
           pair is a total, so it opens the sets behind it: with a pair the whole line is one
-          button (44 px tall, the pair in link ink and an arrow at its end), which keeps it to
-          two lines on a phone. */}
+          button (44 px tall, the pair underlined and an arrow at its end), which keeps it to
+          two lines on a phone. "Plan Week" and its number are joined by a no-break space. */}
       {pairShown
         ? <p className="spz-window"><button type="button" className="spz-window-open" onClick={() => setSheet({ kind: "bouts", list: "pair" })}><span><b>{interval.label}</b> · {armWord}: <span className="spz-pair">{state.mode === "planned"
           ? <><b>{plannedBouts}</b> bout{plannedBouts === 1 ? "" : "s"} planned · <b>{completedBouts}</b> logged this week</>
-          : <><b>{completedBouts}</b> bout{completedBouts === 1 ? "" : "s"} logged · <b>{plannedBouts}</b> planned in Plan Week{" "}{trainingWeek}</>}</span></span><ArrowRight className="h-4 w-4" aria-hidden="true" /></button></p>
+          : <><b>{completedBouts}</b> bout{completedBouts === 1 ? "" : "s"} logged · <b>{plannedBouts}</b> planned in Plan Week{"\u00a0"}{trainingWeek}</>}</span></span><ArrowRight className="h-4 w-4" aria-hidden="true" /></button></p>
         : <p className="spz-window"><b>{interval.label}</b> · {armWord}{state.mode === "planned" && !planInput ? (plan.ready ? ` · Week ${planWeek} has nothing planned yet` : " · your plan is loading") : ""}{noPairNote && <span className="spz-pair-note">: not the week you train from (Week {trainingWeek}), so there is no logged week to compare</span>}</p>}
     </div>
 

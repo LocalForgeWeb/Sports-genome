@@ -46,11 +46,14 @@
 .spz-window { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-window b { color: var(--sg-text-on-dark); }
 /* With a pair (logged beside planned), a total, the line is one button that opens the sets
-   behind it: the pair in link ink and an arrow at the end, visible at rest; 44 px tall. */
+   behind it: the pair underlined and an arrow at the end, visible at rest; 44 px tall. The
+   pair's words are on-dark ink, not link ink: the Body Lab blue under this line is lighter
+   than the app's dark surfaces, and link ink reads only 3.8:1 on it (AA for 16 px text is
+   4.5:1). The underline and the arrow carry the link colour (3:1 is enough for them). */
 .spz-window-open { display: flex; align-items: center; justify-content: space-between; gap: .5rem; width: 100%; min-height: 2.75rem; color: inherit; font-size: inherit; line-height: inherit; text-align: left; }
 .spz-window-open > svg { flex: 0 0 auto; color: var(--sg-link-on-dark); }
 .spz-window-open:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
-.spz-pair { color: var(--sg-link-on-dark); font-weight: 700; font-variant-numeric: tabular-nums; }
+.spz-pair { color: var(--sg-text-on-dark); font-weight: 700; font-variant-numeric: tabular-nums; text-decoration: underline; text-decoration-color: var(--sg-link-on-dark); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .spz-pair b { color: inherit; font-weight: 800; }
 .spz-pair-note { color: var(--sg-text-muted-on-dark); }
 

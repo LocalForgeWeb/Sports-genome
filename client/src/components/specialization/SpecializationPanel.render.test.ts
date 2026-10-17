@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { readFileSync } from "node:fs";
 import React, { createElement, useState } from "react";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -343,6 +344,28 @@ describe("the window line's pair opens its sets (brief §1: every total opens th
   it("is plain words with no pair to open: another window, or a plan week that is not the one trained", async () => {
     render(createElement(Harness, { initial: { window: "7d" } }));
     expect(within(document.querySelector(".spz-window") as HTMLElement).queryByRole("button")).toBeNull();
+  });
+
+  it("reads at AA on the Body Lab blue under it: on-dark ink, underlined, never link ink", () => {
+    // The line sits on the page's own blue, lighter than the app's dark surfaces. Its lightest
+    // point was measured at #1d5c94 in headless Chromium (375 x 667 and 390 x 844), where link
+    // ink reads 3.8:1, under the 4.5:1 that 16 px text needs. The underline and the arrow may
+    // stay in link ink: a non-text cue needs 3:1.
+    const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
+    const tokens = read("../../index.css");
+    const token = (name: string) => tokens.match(new RegExp(`${name}:\\s*(#[0-9a-f]{6})`, "i"))![1];
+    const luminance = (hex: string) => {
+      const [r, g, b] = [1, 3, 5].map((at) => parseInt(hex.slice(at, at + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const ratio = (a: string, b: string) => (Math.max(luminance(a), luminance(b)) + 0.05) / (Math.min(luminance(a), luminance(b)) + 0.05);
+    const ground = "#1d5c94";
+    const pair = read("./specialization.css").match(/\.spz-pair \{([^}]*)\}/)![1];
+    expect(pair).toMatch(/(^|;)\s*color: var\(--sg-text-on-dark\)/);
+    expect(pair).toMatch(/text-decoration: underline/);
+    expect(ratio(token("--sg-text-on-dark"), ground)).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(token("--sg-link-on-dark"), ground)).toBeLessThan(4.5);
+    expect(ratio(token("--sg-link-on-dark"), ground)).toBeGreaterThanOrEqual(3);
   });
 });
 
