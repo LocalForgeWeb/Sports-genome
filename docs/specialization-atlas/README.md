@@ -37,7 +37,13 @@ Owner's brief: [`brief-2026-10-16.md`](brief-2026-10-16.md). This page is the br
 
 ## Extensibility: the deltoid fixture
 
-`client/src/lib/specialization/__fixtures__/deltoidRegion.ts` is a non-production deltoid region (anterior, lateral, posterior heads; a triceps external contributor; its own actions, variants, mappings and a small diagram). `regionAgnostic.test.ts` runs the same calculator, windows, goals and adapters on it, and a source scan checks that none of them names a region. The renderer's tests draw the deltoid diagram too. Adding a production region is data in `shared/specialization/registry.ts` and `regionIndex.ts`.
+`client/src/lib/specialization/__fixtures__/deltoidRegion.ts` is a non-production deltoid region, complete as a second region: anterior, lateral and posterior heads and a triceps external contributor; its own actions, variants and mappings; its own drawing from the front, the side and the rear (`viewOrder`: Front · Side · Rear, the lateral head drawn from the side); its own page words (`wording`) and circumference as its only measure (`measurementMetrics`).
+
+- `regionAgnostic.test.ts` runs the same calculator, windows, goals, adapters and suggestions on it. Its source scan fails if the calculator, the adapters or any page source file (every non-test `.tsx`/`.ts` in `client/src/components/specialization/`) names a region or the forearm's view and group words in code or strings.
+- `SpecializationPanel.deltoid.render.test.ts` renders the page on it with no deltoid code: Deltoid specialization, Front · Side · Rear, its own group heading and incidental word, circumference only, and no forearm word outside the published rule's text.
+- `server/specializationSeed.test.ts` seeds it with no schema change (views are rows of `diagram_views`, region words and measures are columns of `regions`) and reads it back whole.
+
+Adding a production region is data: its region record (with its words and measures) in `regionIndex.ts`, its content and drawing in `registry.ts`, and a regenerated seed. No table, column, type or component changes. The published rule's text under "How this is counted" (`specialization_exposure_v1`) speaks of grip; a region without grip work would publish its own rule version.
 
 ## Tests
 

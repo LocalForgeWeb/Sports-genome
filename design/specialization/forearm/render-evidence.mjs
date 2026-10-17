@@ -48,7 +48,8 @@ const nodeOrder = [...new Set(Object.values(asset.views).flatMap((layers) => Obj
 const demoFills = Object.fromEntries(nodeOrder.map((id, index) => [id, cycle[index % cycle.length]]));
 const restFills = {};
 const selectedFor = { "palm-surface": "forearm.fcu", "palm-intermediate": "forearm.fds", "palm-deep": "forearm.fpl", "back-surface": "forearm.ecrb", "back-deep": "forearm.epl", "thumb-surface": "forearm.br", "thumb-deep": "forearm.supinator" };
-const viewNames = { palm: "Palm", back: "Back", thumb: "Thumb side" };
+/** The words on the page's view buttons, from the drawing itself (asset.viewOrder). */
+const viewNames = Object.fromEntries(asset.viewOrder.map((view) => [view.id, view.label]));
 const layerNames = { surface: "Surface", intermediate: "Middle", deep: "Deep" };
 
 const figures = [];
