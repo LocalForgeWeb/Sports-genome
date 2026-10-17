@@ -43,15 +43,32 @@ describe("a bare target, read by the exercise's measure", () => {
 });
 
 describe("a hold never gets a rep default", () => {
-  it("defaults a hold to 3 × 30 sec and a rep exercise to the goal's default", () => {
+  it("defaults a hold to 30-second sets, with the goal's set count, and a rep exercise to the goal's default", () => {
     expect(holdDefaultPrescription).toBe("3 × 30 sec");
     expect(prescriptionOf(undefined, 0, "Muscle growth", "seconds")).toBe("3 × 30 sec");
+    // The goal's count for the place in the day, so the weekly volume map counts the same sets.
+    expect(getGoalPrescription("Athleticism", 0)).toBe("4 × 3–6");
+    expect(prescriptionOf(undefined, 0, "Athleticism", "seconds")).toBe("4 × 30 sec");
+    expect(prescriptionOf(undefined, 2, "Athleticism", "seconds")).toBe("3 × 30 sec");
     expect(prescriptionOf(undefined, 0, undefined, "seconds")).toBe("3 × 30 sec");
     expect(prescriptionOf(undefined, 0, "Muscle growth", "reps")).toBe(getGoalPrescription("Muscle growth", 0));
     expect(prescriptionOf(undefined, 2, "Athleticism")).toBe(getGoalPrescription("Athleticism", 2));
     expect(prescriptionOf(undefined, 0, undefined)).toBeUndefined();
-    // A saved prescription is the athlete's, whatever the measure.
+  });
+
+  it("keeps what the athlete saved, and reads the goal's default pinned on a hold as the default", () => {
     expect(prescriptionOf("3 × 40", 0, "Muscle growth", "seconds")).toBe("3 × 40");
+    expect(prescriptionOf("4 × 3–6", 1, "Athleticism", "reps")).toBe("4 × 3–6");
+    // The planner and Home fill an unset entry with the goal's default; on a hold that is not a choice.
+    expect(prescriptionOf(getGoalPrescription("Athleticism", 1), 1, "Athleticism", "seconds")).toBe("4 × 30 sec");
+    expect(prescriptionOf(getGoalPrescription("Muscle growth", 0), 0, "Muscle growth", "seconds")).toBe("3 × 30 sec");
+    // The same text in another place, where it is not the default, is kept as written.
+    expect(prescriptionOf("4 × 3–6", 3, "Athleticism", "seconds")).toBe("4 × 3–6");
+  });
+
+  it("plans a pinned goal default on a hang as 30-second holds", () => {
+    const bouts = plan(day([{ id: deadHang.id, prescription: getGoalPrescription("Muscle growth", 0) }]));
+    expect(bouts.map((bout) => [bout.segments[0].reps, bout.segments[0].holdSeconds])).toEqual([[null, 30], [null, 30], [null, 30]]);
   });
 
   it("plans a saved 3 × 40 hang as 40 seconds a set, on both hands", () => {

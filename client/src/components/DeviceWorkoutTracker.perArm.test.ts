@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { deviceWorkoutHistoryKey, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { buildDaySlots, emptyDayStore, type WeeklyDayStore } from "@/lib/trainingDayPlan";
-import type { TrainingGoal } from "@/lib/workoutPlanner";
+import { getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
 import { boutsFromSessions } from "@/lib/specialization/bouts";
 import { boutsFromPlan } from "@/lib/specialization/planBouts";
 import { catalogMusclesLookup } from "@/lib/specialization/useSpecializationSummary";
@@ -133,6 +133,7 @@ describe("A planned one-arm set, for an athlete with a target", () => {
     fireEvent.click(screen.getByText("Full workout"));
     const headers = Array.from(document.querySelectorAll(".session-set-row > strong")).map((node) => node.textContent);
     expect(headers).toEqual(["Set 1 · Right", "Set 2 · Left", "Set 3 · Right", "Set 4 · Left", "Set 5 · Right", "Set 6 · Left"]);
+    expect(document.querySelector(".session-exercise .exercise-media-dense small")!.textContent).toBe("3 × 12 · each arm");
   });
 
   it("reads a per-set prescription once per arm: 10, 10, 8, 8, 6, 6", () => {
@@ -200,6 +201,15 @@ describe("A hold's default is a hold's (R1)", () => {
     expect(rows[1]).toMatch(/^3 × \d+–\d+$/);
     startWorkout();
     expect(stored()[0].exercises[0].plannedPrescription).toBe("3 × 30 sec");
+    expect(card().querySelector(".live-set-prescription strong")!.textContent).toBe("30 sec");
+  });
+
+  it("treats the goal's default that Home fills in for an unset hold as the default, keeping its set count", () => {
+    // Home hands the tracker the day's map with every unset entry filled from the goal (dayPrescriptions).
+    mount([deadHang], { prescriptions: { [deadHang.id]: getGoalPrescription("Athleticism", 0) }, goal: "Athleticism" });
+    expect(document.querySelector(".session-prestart-name small")!.textContent).toBe("4 × 30 sec");
+    startWorkout();
+    expect(stored()[0].exercises[0].sets).toHaveLength(4);
     expect(card().querySelector(".live-set-prescription strong")!.textContent).toBe("30 sec");
   });
 

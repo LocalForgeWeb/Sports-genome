@@ -997,7 +997,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
                 from before ids were kept, its name), and a name the catalog no longer
                 has gets the placeholder frame rather than a guess. */}
             <ExerciseMedia exerciseId={catalogEntry?.id ?? -1} exerciseName={exercise.exerciseName} equipment={catalogEntry?.equipment} variant="thumb" />
-            <div><strong>{exercise.exerciseName}</strong><small>{exerciseSkipped ? "Skipped · nothing recorded" : exercise.plannedPrescription}</small>{note && <small className="session-swap-note">{note}</small>}</div>
+            <div><strong>{exercise.exerciseName}</strong><small>{exerciseSkipped ? "Skipped · nothing recorded" : `${exercise.plannedPrescription}${exercise.perArm ? " · each arm" : ""}`}</small>{note && <small className="session-swap-note">{note}</small>}</div>
             {!exercise.replacedBy && <span className="session-exercise-actions">
               <button type="button" className="session-exercise-skip" onClick={() => setSwapForId(exercise.id)} aria-label={`Swap ${exercise.exerciseName}`}>
                 <ArrowLeftRight className="h-3.5 w-3.5" /><span>Swap</span>

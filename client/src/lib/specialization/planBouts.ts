@@ -38,25 +38,43 @@ export type PlanBoutInput = {
 export type PlannedMeasure = ExerciseVariant["measure"];
 
 /**
- * The default for an exercise measured in seconds that has no saved prescription. The goal's
- * defaults are rep ranges ("3 × 6–10"), and a rep range on a hold reads as seconds on the set
- * card ("6–10 sec") while meaning nothing the athlete chose; a hold gets a hold's default.
+ * A hold's default target. The goal's defaults are rep ranges ("3 × 6–10"), and a rep range on a
+ * hold reads as seconds on the set card ("6–10 sec") while meaning nothing the athlete chose; a
+ * hold gets a hold's target instead.
  */
-export const holdDefaultPrescription = "3 × 30 sec";
+export const holdDefaultTarget = "30 sec";
+/** A hold's default with no goal to take a set count from. */
+export const holdDefaultPrescription = `3 × ${holdDefaultTarget}`;
+
+/**
+ * The default for an entry with nothing of its own. A rep exercise takes the goal's default for
+ * its position. A hold takes the goal's set count for that position with a hold's target
+ * ("4 × 30 sec" where the goal says "4 × 3–6"), so every plan reader that counts sets from the
+ * goal's default (the weekly volume map, Today, the week review) still counts the same sets.
+ */
+function defaultPrescriptionOf(index: number, goal: TrainingGoal | undefined, measure: PlannedMeasure | undefined): string | undefined {
+  const goalDefault = goal ? getGoalPrescription(goal, index) : undefined;
+  if (measure !== "seconds") return goalDefault;
+  return goalDefault ? `${parseSetCount(goalDefault)} × ${holdDefaultTarget}` : holdDefaultPrescription;
+}
 
 /**
  * The prescription every plan reader uses for an entry: the saved one, else the default for its
- * position. The default is the goal's for an exercise measured in reps, and
- * `holdDefaultPrescription` for one measured in seconds, so a hold never gets a rep default. The
- * tracker reads its planned sets through this same function, so the card and the planned totals
- * start from the same text.
+ * position (`defaultPrescriptionOf`), so a hold never gets a rep default. The tracker reads its
+ * planned sets through this same function, so the card and the planned totals start from the
+ * same text.
+ *
+ * On a hold, a saved prescription that is exactly the goal's default for its position is read as
+ * the default it is. The planner pins that text when it builds a day (and Home hands the tracker
+ * the day's map with it filled in), so it says nothing the athlete chose; read literally it would
+ * be a rep range taken as seconds. Any other saved text is the athlete's and is kept.
  */
 export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal, measure?: PlannedMeasure): string;
 export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal | undefined, measure?: PlannedMeasure): string | undefined;
 export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal | undefined, measure?: PlannedMeasure): string | undefined {
-  if (saved) return saved;
-  if (measure === "seconds") return holdDefaultPrescription;
-  return goal ? getGoalPrescription(goal, index) : undefined;
+  const pinnedGoalDefault = measure === "seconds" && goal !== undefined && saved === getGoalPrescription(goal, index);
+  if (saved && !pinnedGoalDefault) return saved;
+  return defaultPrescriptionOf(index, goal, measure);
 }
 
 const TIME_UNIT = /^(s|sec|secs|second|seconds|min|mins|minute|minutes)$/i;
