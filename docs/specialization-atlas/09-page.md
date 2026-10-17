@@ -51,9 +51,9 @@ Where it lands, measured in headless Chromium emulating an iPhone (viewport, `is
 | Viewport | Bottom bar top | Strip (name to action) | Drawing top | On the first screen |
 |---|---|---|---|---|
 | 390 × 844 | 775 | 600–704 | 716 | the strip whole, and the drawing's top 59 px |
-| 375 × 667 | 598 | 600–704 | 716 | neither: the strip starts 2 px under the bar's top edge; a scroll of about 110 px brings both |
+| 375 × 667 | 598 | 600–704 | 716 | neither: the strip starts 2 px under the bar's top edge; a scroll of about 130 px brings the strip and the drawing's top |
 
-Scrolled so the strip sits under the tab row, the strip and about 80 % of the drawing (every muscle belly of the palm view) share one screen at 390 × 844, and about two thirds at 375 × 667. No horizontal overflow at 320, 375 or 390. Before this change the selected muscle's name was at 1532 and its action at 1592–1636 at 390 × 844, about two screens under the drawing's top.
+Scrolled so the strip sits just under the sticky tab row (strip 57–161), the strip shares the screen with 89 % of the drawing at 390 × 844 (drawing 173–851, bar at 775; all six palm-surface muscle bellies wholly on screen) and 65 % at 375 × 667 (bar at 598; five of the six wholly, the sixth partly). No horizontal overflow at 320, 375 or 390. Before this change the selected muscle's name was at 1532 and its action at 1592–1636 at 390 × 844, about two screens under the drawing's top. Screenshots and the numbers: `evidence/page-fixes-2026-10-17/` (`page-checks.json`).
 
 ## Choices made inside the design
 
