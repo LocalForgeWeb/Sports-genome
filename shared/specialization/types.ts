@@ -49,6 +49,26 @@ export interface SpecializationRegion {
    * muscle selected ("brachioradialis" → BR); a broader key ("forearms") opens the region.
    */
   nodeForBodyMapKey?: Record<string, NodeId>;
+  /** What the page says about this region in its own words, so no component names one (design §10). */
+  wording: RegionWording;
+  /**
+   * What Progress offers to record for this region, in this order (the forearm: circumference,
+   * then grip on a dynamometer). A measure the region does not list is never offered.
+   */
+  measurementMetrics: MeasurementMetric[];
+}
+
+/** The page's region-specific words. Plain text; the page adds no region words of its own. */
+export interface RegionWording {
+  /** The list's heading over the muscles of another region credited here: "Upper-arm muscles credited here". */
+  externalGroup: string;
+  /**
+   * The kind of incidental work, said on the muscle bars and in their key: "grip" gives
+   * "Incidental grip" in the key and "3 grip" on a bar.
+   */
+  incidentalWork: string;
+  /** The line under "Progress": "Circumference and grip, by arm". */
+  progressSubtitle: string;
 }
 
 export interface AnatomyNode {
@@ -241,7 +261,18 @@ export interface RuleVersion {
 
 // ---------------------------------------------------------------- diagram
 
-export type DiagramViewId = "palm" | "back" | "thumb";
+/**
+ * A view's id is the drawing's own: lowercase letters, digits and underscores, starting with a
+ * letter (`^[a-z][a-z0-9_]*$`, the shape the database checks). The forearm is drawn from the
+ * palm, the back and the thumb side; another region may be drawn from the front, side and rear.
+ */
+export type DiagramViewId = string;
+
+export interface DiagramView {
+  id: DiagramViewId;
+  /** The words on its button and in captions: "Palm", "Thumb side", "Rear". */
+  label: string;
+}
 /**
  * `intermediate` exists where anatomy really has a middle layer (the palm side: FDS lies
  * between the superficial flexors and FDP/FPL/PQ). Views without one offer surface and deep.
@@ -284,6 +315,12 @@ export interface DiagramAsset {
   version: number;
   regionId: RegionId;
   viewBox: { width: number; height: number };
+  /**
+   * The drawing's views in the order the page offers them, each with the words on its button
+   * (the forearm: Palm · Back · Thumb side). It lists every key of `views`, once each, and
+   * nothing else; the first is the view the page opens on.
+   */
+  viewOrder: DiagramView[];
   views: Partial<Record<DiagramViewId, Partial<Record<DiagramLayerId, DiagramLayer>>>>;
   licenseNote: string;
 }

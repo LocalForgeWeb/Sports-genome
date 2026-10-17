@@ -63,6 +63,13 @@ describe("the forearm drawing is the region's diagram", () => {
     expect(committed).toContain("Do not edit by hand");
   });
 
+  it("carries its views in the page's order with the words on their buttons, exactly the views drawn", () => {
+    expect(asset.viewOrder).toEqual([{ id: "palm", label: "Palm" }, { id: "back", label: "Back" }, { id: "thumb", label: "Thumb side" }]);
+    expect(asset.viewOrder.map((view) => view.id)).toEqual(VIEWS);
+    expect(Object.keys(asset.views)).toEqual(asset.viewOrder.map((view) => view.id));
+    for (const view of asset.viewOrder) expect(view.id, view.label).toMatch(/^[a-z][a-z0-9_]*$/);
+  });
+
   it("has the views and layers anatomy has: a middle layer on the palm side only", () => {
     expect(Object.keys(asset.views).sort()).toEqual(["back", "palm", "thumb"]);
     expect(Object.keys(asset.views.palm!)).toEqual(["surface", "intermediate", "deep"]);

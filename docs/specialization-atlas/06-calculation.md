@@ -121,5 +121,5 @@ All calculator tests run on `__fixtures__/syntheticForearm.ts`, a forearm-shaped
 ## 8. Known limits
 
 - History logged before this release has no `side`, `holdSeconds`, `warmup` or `straps`: it reads as no arm recorded (except two-handed variants, which count for both arms), holds as "time not recorded", no warm-ups and unknown straps. The logger keeps all four from this release on (`normalizeSet`, `loadDeviceWorkoutSessions`; 07-logger.md).
-- `DiagramViewId` is `palm | back | thumb`; the deltoid fixture uses `back` as its posterior view.
+- `DiagramViewId` is the drawing's own id (any `^[a-z][a-z0-9_]*$`), and each drawing lists its views with their words in `viewOrder`: the forearm's palm, back and thumb side, the deltoid fixture's front, side and rear (02-design.md §10). The calculator reads no view.
 - Planned bouts have no load, and an assumed side for one-arm work; the ledger says so.

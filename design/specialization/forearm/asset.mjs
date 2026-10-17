@@ -14,6 +14,17 @@ import { CANVAS } from "./silhouettes.mjs";
 export const ASSET_KEY = "forearm_schematic";
 export const ASSET_VERSION = 1;
 
+/**
+ * The views in the order the page offers them, with the words on their buttons and in its
+ * captions. The page reads these from the asset; it names no view itself. Every authored view
+ * is listed once, and nothing else is.
+ */
+export const VIEW_ORDER = [
+  { id: "palm", label: "Palm" },
+  { id: "back", label: "Back" },
+  { id: "thumb", label: "Thumb side" },
+];
+
 /** The node each abbreviation draws. Checked by test against the region's node catalog. */
 export const NODE_FOR_SHORT_NAME = {
   BR: "forearm.br", FCR: "forearm.fcr", FCU: "forearm.fcu", PL: "forearm.pl", FDS: "forearm.fds", FDP: "forearm.fdp", FPL: "forearm.fpl",
@@ -29,9 +40,18 @@ export const LICENSE_NOTE =
 
 export function buildAsset() {
   const views = buildViews();
+  const authored = Object.keys(views);
+  const listed = VIEW_ORDER.map((view) => view.id);
+  if (authored.length !== listed.length || authored.some((view) => !listed.includes(view)) || new Set(listed).size !== listed.length) {
+    throw new Error(`VIEW_ORDER (${listed.join(", ")}) must list each authored view (${authored.join(", ")}) exactly once`);
+  }
+  for (const view of VIEW_ORDER) {
+    if (!/^[a-z][a-z0-9_]*$/.test(view.id) || !view.label.trim()) throw new Error(`View ${JSON.stringify(view)}: an id of lowercase letters, digits and underscores, and a label`);
+  }
   const outcrops = [];
   const out = {};
-  for (const [view, layers] of Object.entries(views)) {
+  for (const { id: view } of VIEW_ORDER) {
+    const layers = views[view];
     out[view] = {};
     for (const [layer, drawn] of Object.entries(layers)) {
       const counters = new Map();
@@ -50,7 +70,7 @@ export function buildAsset() {
     }
   }
   return {
-    asset: { key: ASSET_KEY, version: ASSET_VERSION, regionId: "forearm", viewBox: { width: CANVAS.width, height: CANVAS.height }, views: out, licenseNote: LICENSE_NOTE },
+    asset: { key: ASSET_KEY, version: ASSET_VERSION, regionId: "forearm", viewBox: { width: CANVAS.width, height: CANVAS.height }, viewOrder: VIEW_ORDER.map((view) => ({ ...view })), views: out, licenseNote: LICENSE_NOTE },
     outcrops,
   };
 }

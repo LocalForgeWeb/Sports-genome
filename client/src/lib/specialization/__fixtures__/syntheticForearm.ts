@@ -77,7 +77,7 @@ const grip = (catalogExerciseId: number, relationship: VariantMapping["relations
 ];
 
 export const syntheticForearm: SpecializationRegionData = {
-  region: { id: REGION_ID, label: "Forearms", heading: "Forearm specialization", sortOrder: 10, status: "fixture", bodyMapKeys: ["forearms"], entryLabel: "Explore forearm coverage" },
+  region: { id: REGION_ID, label: "Forearms", heading: "Forearm specialization", sortOrder: 10, status: "fixture", bodyMapKeys: ["forearms"], entryLabel: "Explore forearm coverage", wording: { externalGroup: "Upper-arm muscles credited here", incidentalWork: "grip", progressSubtitle: "Circumference and grip, by arm" }, measurementMetrics: ["circumference_cm", "grip_force_n"] },
   nodes: [
     node(g.anterior, "Anterior compartment", "Palm side", null, { kind: "compartment", role: "group", layer: "mixed" }),
     node(g.posterior, "Posterior compartment", "Back side", null, { kind: "compartment", role: "group", layer: "mixed" }),

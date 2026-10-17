@@ -9,7 +9,7 @@ The drawing on the specialization page (brief §6 "Diagram specification", desig
 | Curve helpers (centripetal Catmull-Rom, bands, cross-sections) | `design/specialization/forearm/geometry.mjs` |
 | Arm outlines and their edges | `design/specialization/forearm/silhouettes.mjs` |
 | The three views, layer by layer | `design/specialization/forearm/views/{palm,back,thumb}.mjs` |
-| Ids, node ids, licence note | `design/specialization/forearm/asset.mjs` |
+| Ids, node ids, the views in order with their button words (`VIEW_ORDER`), licence note | `design/specialization/forearm/asset.mjs` |
 | Writer of the generated asset | `design/specialization/forearm/emit.mjs` → `shared/specialization/regions/forearm/diagram.generated.ts` |
 | Gutter and overlap check while drawing | `design/specialization/forearm/check.mjs` |
 | Quick preview, no app | `design/specialization/forearm/preview.mjs` |
@@ -45,6 +45,13 @@ The manifest test fails if the committed asset is not exactly what `emit.mjs` wr
 
 Every palm and back layer is labelled "Thumb side", "Pinky side", "Elbow" and "Wrist"; every thumb-side layer "Palm side", "Back side", "Elbow" and "Wrist". The renderer mirrors the drawing for the left arm and re-places the labels (x mirrored, start and end anchors swapped), so the words land on the right side and are never drawn backwards.
 
+## Views are the drawing's own
+
+- **Ids and words are data.** `asset.mjs` lists the views in `VIEW_ORDER`, in the order the page offers them, with the words on their buttons: `palm` "Palm", `back` "Back", `thumb` "Thumb side". `emit.mjs` writes them into the asset as `viewOrder`. The build refuses a view that is drawn but not listed or listed but not drawn, and an id that is not `^[a-z][a-z0-9_]*$`; the manifest test checks the same.
+- **Nothing else names a view.** `DiagramViewId` is a string. The page's view buttons, the drawing's caption and accessible name, and the "drawn in Palm · Middle" note read `viewOrder`; `placementsOf` walks the views in that order. Another region draws its own views under its own ids with no code change: the deltoid fixture has `front`, `side` and `rear` (Front · Side · Rear), and the seed stores each drawing's views in `diagram_views` (04-database.md).
+- **The address.** The page opens on the drawing's first view and writes `view` to the address only when another one is chosen; an address naming a view the drawing does not have shows the first view.
+- **Layers** stay one anatomical vocabulary for every region: surface, intermediate (shown as Middle) and deep, each view offering the ones it draws.
+
 ## What each layer shows
 
 | View · layer | Bellies (selectable) | Also drawn |
@@ -71,7 +78,7 @@ All 19 core muscles are drawn as a belly in at least one view and layer (tested)
 
 ## The renderer
 
-- **Contract.** `SpecializationDiagram` keeps the page's props (`asset`, `view`, `layer`, `mirrored`, `fillFor`, `selectedNodeId`, `onSelect`, `labelFor`, `describeFor`, `caption`) and names no region: a test reads its source for region and muscle words, and the deltoid fixture renders through it unchanged.
+- **Contract.** `SpecializationDiagram` keeps the page's props (`asset`, `view`, `layer`, `mirrored`, `fillFor`, `selectedNodeId`, `onSelect`, `labelFor`, `describeFor`, `caption`) and names no region and no view: a test reads its source for region and muscle words, the deltoid fixture renders through it unchanged from each of its own views, and a view's words come from the asset's `viewOrder` (a test renames one and the note follows).
 - **Fills match the legend beside it.** `bin` n paints `--sg-exposure-n` (held to 1–5), `zero` the resting muscle tone with a dashed `#9fb3c8` edge ("Mapped, no direct work"), `hatch` the legend's own hatch (`#2e3a49` with `#6f7d90` stripes slanting the same way, "Mapping not reviewed"; on the left arm the pattern is flipped back inside the mirrored drawing, so the stripes still slant the legend's way, tested), `none` the resting tone ("Not targeted"). The test compares these with `specialization.css`. Tendons are a cool neutral grey that is not on the ramp; ghosts are dashed outlines; bone is a lighter dark with its own edge. Rank colours are never used.
 - **Selection** is an outline and a name, not a hue: from the edge outwards a dark keyline, a gold line, a dark keyline and a soft gold halo, drawn round the muscle's bellies and tendons as one shape (the outline is masked off inside them, so there are no crossing lines where a tendon starts inside its belly; readable on the palest exposure step and on the dark ground), and the muscle's abbreviation in a pill in the margin on its side, with a leader line to the muscle's widest point on the canvas (a belly that runs off the top, such as BR from behind, is pointed at where it is drawn), kept off the anatomy labels.
 - **A selection never drops.** When the selected muscle is not on the layer shown, the caption says where it is ("FDS is not drawn on this layer. It is drawn in Palm · Middle."), as a note the drawing points to with `aria-describedby`; when it lies above the layer, its dashed ghost turns gold and the note says so.

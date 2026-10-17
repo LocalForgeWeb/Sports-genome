@@ -329,16 +329,35 @@ describe("tap targets on a phone", () => {
 });
 
 describe("region-agnostic", () => {
-  it("draws another region's asset with no code of its own (the deltoid fixture)", () => {
+  it("draws another region's asset with no code of its own (the deltoid fixture, from the side)", () => {
     const fixture = deltoidRegionData.diagram as DiagramAsset;
     const onSelect = vi.fn();
     render(createElement(SpecializationDiagram, {
-      asset: fixture, view: "back", layer: "surface", mirrored: false,
+      asset: fixture, view: "side", layer: "surface", mirrored: false,
       fillFor: () => ({ kind: "bin", step: 2 }), selectedNodeId: deltoidIds.lateral, onSelect,
       labelFor: (id: string) => id, caption: "Deltoids",
     }));
     expect(screen.getAllByRole("button").map((button) => button.getAttribute("data-node")).sort()).toEqual([deltoidIds.anterior, deltoidIds.lateral, deltoidIds.posterior].sort());
     expect(screen.getByText("Front")).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /^deltoid\.anterior/ }));
+    expect(onSelect).toHaveBeenCalledWith(deltoidIds.anterior);
+  });
+
+  it("names views in the asset's own words: where a muscle is drawn, and the drawing's label", () => {
+    const fixture = deltoidRegionData.diagram as DiagramAsset;
+    const short = new Map(deltoidRegionData.nodes.map((node) => [node.id, node.shortName] as const));
+    const { container } = render(createElement(SpecializationDiagram, {
+      asset: fixture, view: "rear", layer: "surface", mirrored: false,
+      fillFor: () => ({ kind: "none" }), selectedNodeId: deltoidIds.anterior, onSelect: () => {}, labelFor: (id: string) => short.get(id) ?? id,
+    }));
+    expect(screen.getByRole("note").textContent).toBe("AD is not drawn on this layer. It is drawn in Front · Surface, Side · Surface.");
+    expect(container.querySelector("svg")!.getAttribute("aria-label")).toBe("Rear view, surface layer. 2 muscles to choose from.");
+    cleanup();
+    // The same muscle, the forearm's drawing with one view's words changed: the note follows the asset.
+    const renamed: DiagramAsset = { ...asset, viewOrder: asset.viewOrder.map((view) => (view.id === "palm" ? { ...view, label: "Palm side" } : view)) };
+    draw({ asset: renamed, layer: "deep", selectedNodeId: m.flexorDigitorumSuperficialis, caption: undefined });
+    expect(screen.getByRole("note").textContent).toBe("FDS is not drawn on this layer. It is drawn in Palm side · Middle.");
+    expect(screen.getByRole("group").getAttribute("aria-label")).toMatch(/^Palm side view, deep layer\. \d+ muscles to choose from\.$/);
   });
 
   it("says when a view is not drawn instead of failing", () => {

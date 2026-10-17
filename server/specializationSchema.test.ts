@@ -35,7 +35,7 @@ const SETUP = 120_000;
 
 const REFERENCE_TABLES = [
   "regions", "actions", "nodes", "sources", "claims", "claim_sources", "node_actions",
-  "diagram_assets", "diagram_paths", "diagram_labels", "catalog_exercises", "exercise_variants",
+  "diagram_assets", "diagram_views", "diagram_paths", "diagram_labels", "catalog_exercises", "exercise_variants",
   "mapping_versions", "variant_mappings", "mapping_sources", "rule_versions",
 ];
 const PERSONAL_TABLES = ["goals", "measurements"];
@@ -44,7 +44,7 @@ const ALL_TABLES = [...REFERENCE_TABLES, ...PERSONAL_TABLES];
 /** A text column per reference table, for an UPDATE that would change nothing. */
 const UPDATABLE: Record<string, string> = {
   regions: "label", actions: "label", nodes: "name", sources: "title", claims: "statement", claim_sources: "locator",
-  node_actions: "role", diagram_assets: "license_note", diagram_paths: "d", diagram_labels: "label_text",
+  node_actions: "role", diagram_assets: "license_note", diagram_views: "label", diagram_paths: "d", diagram_labels: "label_text",
   catalog_exercises: "name", exercise_variants: "notes", mapping_versions: "method_notes", variant_mappings: "rationale",
   mapping_sources: "locator", rule_versions: "notes",
 };
@@ -286,34 +286,76 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
   });
 
   it("diagram view and layer ids are the drawing's own: any lowercase id (front, side, rear), no fixed list", async () => {
-    for (const table of ["diagram_paths", "diagram_labels"]) {
+    for (const [table, columns] of [["diagram_views", ["view"]], ["diagram_paths", ["view", "layer"]], ["diagram_labels", ["view", "layer"]]] as const) {
       const defs = (await rows<{ def: string }>(
         db,
         `select pg_get_constraintdef(c.oid) as def from pg_constraint c join pg_class t on t.oid = c.conrelid join pg_namespace n on n.oid = t.relnamespace
          where n.nspname = 'specialization' and t.relname = $1 and c.contype = 'c'`,
         [table],
       )).map((row) => row.def);
-      for (const column of ["view", "layer"]) {
+      for (const column of columns) {
         expect(defs.some((def) => def.includes(`(${column} ~ '^[a-z][a-z0-9_]*$'::text)`)), `${table}.${column}`).toBe(true);
         expect(defs.some((def) => new RegExp(`\\(${column} = ANY`).test(def)), `${table}.${column} has no fixed list`).toBe(false);
       }
     }
     await as(db, "service_role", async () => {
       const [asset] = await rows<{ id: string }>(db, "insert into specialization.diagram_assets (region_id, asset_key, version, view_box_width, view_box_height, license_note) values ('forearm', 'zz_views', 1, 10, 10, 'Test') returning id");
+      const view = (id: string, label: string, order: number) =>
+        failure(db, "insert into specialization.diagram_views (asset_id, view, label, sort_order) values ($1, $2, $3, $4)", [asset.id, id, label, order]);
       const path = (id: string, view: string, layer: string) =>
         failure(db, "insert into specialization.diagram_paths (asset_id, path_id, view, layer, kind, d, sort_order) values ($1, $2, $3, $4, 'outline', 'M0 0', 0)", [asset.id, id, view, layer]);
       const label = (view: string, layer: string, order: number) =>
         failure(db, "insert into specialization.diagram_labels (asset_id, view, layer, sort_order, label_text, x, y, anchor) values ($1, $2, $3, $4, 'Test', 1, 1, 'start')", [asset.id, view, layer, order]);
-      for (const [index, view] of ["front", "side", "rear", "palm"].entries()) {
-        expect(await path(`p${index}`, view, "superficial"), view).toBeNull();
-        expect(await label(view, "deep_2", index), view).toBeNull();
+      // A view is declared with the words on its button before anything is drawn in it.
+      expect(await path("undeclared", "front", "surface")).toMatch(/diagram_paths_view_declared/);
+      expect(await label("front", "surface", 0)).toMatch(/diagram_labels_view_declared/);
+      for (const [index, [id, words]] of [["front", "Front"], ["side", "Side"], ["rear", "Rear"], ["palm", "Palm"]].entries()) {
+        expect(await view(id, words, index), id).toBeNull();
+        expect(await path(`p${index}`, id, "superficial"), id).toBeNull();
+        expect(await label(id, "deep_2", index), id).toBeNull();
       }
+      expect(await view("front", "Front again", 9)).toMatch(/diagram_views_pkey/);
+      expect(await view("top", " ", 9)).toMatch(/diagram_views_label_check/);
       for (const bad of ["Front", "front view", "", "2nd", "front-left"]) {
+        expect(await view(bad, "Words", 90), JSON.stringify(bad)).toMatch(/diagram_views_view_check/);
         expect(await path(`bad-${bad}`, bad, "surface"), JSON.stringify(bad)).toMatch(/diagram_paths_view_check/);
         expect(await path(`bad-layer-${bad}`, "front", bad), JSON.stringify(bad)).toMatch(/diagram_paths_layer_check/);
         expect(await label(bad, "surface", 90), JSON.stringify(bad)).toMatch(/diagram_labels_view_check/);
       }
+      // A view still drawn in cannot be taken away; the asset takes its views with it.
+      expect(await failure(db, "delete from specialization.diagram_views where asset_id = $1 and view = 'side'", [asset.id])).toMatch(/diagram_paths_view_declared|diagram_labels_view_declared/);
       await db.query("delete from specialization.diagram_assets where id = $1", [asset.id]);
+      expect(await count(db, "select 1 from specialization.diagram_views where asset_id = $1", [asset.id])).toBe(0);
+    });
+  });
+
+  it("a region with a page carries its own words and the measures it offers; a reference region needs none", async () => {
+    const defs = (await rows<{ def: string }>(
+      db,
+      `select pg_get_constraintdef(c.oid) as def from pg_constraint c join pg_class t on t.oid = c.conrelid join pg_namespace n on n.oid = t.relnamespace
+       where n.nspname = 'specialization' and t.relname = 'regions' and c.contype = 'c'`,
+    )).map((row) => row.def);
+    // The measures a region may offer are the measurements table's own list, MeasurementMetric in types.ts.
+    const offered = defs.map((def) => /\(measurement_metrics <@ ARRAY\[([^\]]+)\]\)/.exec(def)?.[1]).find(Boolean);
+    expect(offered, "regions.measurement_metrics has a CHECK vocabulary").toBeDefined();
+    expect([...offered!.matchAll(/'([^']+)'::text/g)].map((match) => match[1]).sort()).toEqual(union("MeasurementMetric"));
+
+    await as(db, "service_role", async () => {
+      const insert = (id: string, status: string, columns: Record<string, string | string[] | null>) => {
+        const names = Object.keys(columns);
+        return failure(db, `insert into specialization.regions (id, label, status, ${names.join(", ")}) values ($1, 'Test', $2, ${names.map((_, index) => `$${index + 3}`).join(", ")})`, [id, status, ...Object.values(columns)]);
+      };
+      const page = { heading: "Test specialization", entry_label: "Explore test coverage", external_group: "Other muscles credited here", incidental_work: "bracing", progress_subtitle: "Circumference, by arm" };
+      expect(await insert("zz_page", "fixture", { ...page, measurement_metrics: ["circumference_cm"] })).toBeNull();
+      for (const missing of ["external_group", "incidental_work", "progress_subtitle"]) {
+        expect(await insert(`zz_no_${missing}`, "fixture", { ...page, [missing]: null }), missing).toMatch(/regions_page_copy/);
+        expect(await insert(`zz_blank_${missing}`, "fixture", { ...page, [missing]: "  " }), missing).toMatch(new RegExp(`regions_${missing}_check`));
+      }
+      expect(await insert("zz_metric", "fixture", { ...page, measurement_metrics: ["skinfold_mm"] })).toMatch(/regions_measurement_metrics_check/);
+      expect(await insert("zz_null_metric", "fixture", { ...page, measurement_metrics: [null as unknown as string] })).toMatch(/regions_measurement_metrics_check/);
+      expect(await insert("zz_reference", "reference", { heading: null })).toBeNull();
+      expect(await rows(db, "select measurement_metrics from specialization.regions where id = 'zz_reference'")).toEqual([{ measurement_metrics: [] }]);
+      await db.exec("delete from specialization.regions where id in ('zz_page', 'zz_reference')");
     });
   });
 
@@ -346,7 +388,7 @@ describe("reference content, as a signed-in user", () => {
     // Rows that must stay hidden, next to the seeded ones.
     await as(db, "service_role", async () => {
       await db.exec(`
-        insert into specialization.regions (id, label, heading, status, entry_label) values ('zz_fixture', 'Fixture', 'Fixture', 'fixture', 'Fixture');
+        insert into specialization.regions (id, label, heading, status, entry_label, external_group, incidental_work, progress_subtitle) values ('zz_fixture', 'Fixture', 'Fixture', 'fixture', 'Fixture', 'Other muscles', 'bracing', 'Circumference, by arm');
         insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status) values ('test:fcu.draft', 'forearm.fcu', 'selectivity', 'Draft claim.', 'unknown', 'draft');
         insert into specialization.claim_sources (claim_id, source_id, locator) select c.id, s.id, 'Test' from specialization.claims c, specialization.sources s where c.claim_key = 'test:fcu.draft' and s.source_key = 'S2';
         insert into specialization.rule_versions (id, specification, published_at, notes) values ('zz_rule_draft', '{}', null, 'Unpublished rule.');
@@ -999,7 +1041,7 @@ describe("rollback", () => {
       await applyMigration(fresh, SCHEMA_MIGRATION_PATH);
       // Before anything is published, the reference tables can still be cleared.
       await fresh.exec(`
-        insert into specialization.regions (id, label, heading, status, entry_label) values ('zz_region', 'Test', 'Test', 'fixture', 'Test');
+        insert into specialization.regions (id, label, heading, status, entry_label, external_group, incidental_work, progress_subtitle) values ('zz_region', 'Test', 'Test', 'fixture', 'Test', 'Test', 'test', 'Test');
         insert into specialization.mapping_versions (version_key, region_id, method_notes) values ('zz_draft', 'zz_region', 'Draft.');
       `);
       expect(await scriptFailure(fresh, "truncate specialization.mapping_versions, specialization.rule_versions cascade")).toBeNull();

@@ -23,6 +23,17 @@ const postureLabels: Record<MeasurementProtocol["posture"], string> = {
 };
 const conditionLabels: Record<MeasurementProtocol["condition"], string> = { unpumped: "Before training (unpumped)", pumped: "After training (pumped)", unknown: "Not noted" };
 
+/**
+ * What each measure is called and where a new reading of it starts: the usual place and posture
+ * for that measure, and the instrument. The athlete can change the place and posture; a change of
+ * measure puts both back to that measure's own, so a grip posture never carries over to a tape.
+ * Which measures a page offers is the region's (`measurementMetrics`), never this list.
+ */
+const metricDefaults: Record<MeasurementMetric, { button: string; landmark: string; posture: MeasurementProtocol["posture"]; instrument: string }> = {
+  circumference_cm: { button: "Circumference", landmark: "Thickest point", posture: "arm_relaxed_hanging", instrument: "Tape" },
+  grip_force_n: { button: "Grip strength", landmark: "Dynamometer grip", posture: "elbow_90_supported", instrument: "Dynamometer" },
+};
+
 let measurementSequence = 0;
 const newMeasurementId = () => `measure-${Date.now().toString(36)}-${(measurementSequence += 1).toString(36)}`;
 
@@ -132,11 +143,11 @@ export type MeasurementsPanelProps = {
 };
 
 /**
- * Progress beyond set totals (brief §10, design §5): circumference by arm with the protocol that
- * makes two readings comparable, grip strength on a dynamometer in its own unit and its own
- * chart (never mixed with exercise load), and the top set of one exercise per session. Exposure,
- * each measure and the exercise are separate charts on one time axis, each with its own scale,
- * and nothing says one caused the other.
+ * Progress beyond set totals (brief §10, design §5): the measures the region offers, by arm, with
+ * the protocol that makes two readings comparable (circumference; for the forearm also grip
+ * strength on a dynamometer in its own unit and its own chart, never mixed with exercise load),
+ * and the top set of one exercise per session. Exposure, each measure and the exercise are
+ * separate charts on one time axis, each with its own scale, and nothing says one caused the other.
  *
  * Everything the athlete has typed lives in this component's state and nothing resets it on a
  * re-render, so the page can keep it mounted while the disclosure is closed and reopened.
@@ -144,8 +155,11 @@ export type MeasurementsPanelProps = {
 export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, todayKey, measurements, onSave, onRemove }: MeasurementsPanelProps) {
   const units = progressUnitsFor(weightUnit);
   const nowTime = () => wallClockAt(Date.now(), timeZone).time;
+  // Only what the region offers (the forearm: circumference and grip), in its order.
+  const offered = data.region.measurementMetrics;
   const [open, setOpen] = useState(false);
-  const [metric, setMetric] = useState<MeasurementMetric>("circumference_cm");
+  const [chosenMetric, setMetric] = useState<MeasurementMetric | null>(offered[0] ?? null);
+  const metric: MeasurementMetric = chosenMetric && offered.includes(chosenMetric) ? chosenMetric : offered[0] ?? "circumference_cm";
   const [arm, setArm] = useState<ArmSide>(side);
   const [date, setDate] = useState(todayKey);
   const [time, setTime] = useState(nowTime);
@@ -153,9 +167,9 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
   const [dateEdited, setDateEdited] = useState(false);
   const [timeEdited, setTimeEdited] = useState(false);
   const [value, setValue] = useState("");
-  const [landmark, setLandmark] = useState("Thickest point");
+  const [landmark, setLandmark] = useState(() => metricDefaults[metric].landmark);
   const [distance, setDistance] = useState("");
-  const [posture, setPosture] = useState<MeasurementProtocol["posture"]>("arm_relaxed_hanging");
+  const [posture, setPosture] = useState<MeasurementProtocol["posture"]>(() => metricDefaults[metric].posture);
   const [condition, setCondition] = useState<MeasurementProtocol["condition"]>("unpumped");
   const [device, setDevice] = useState("");
   const [notes, setNotes] = useState("");
@@ -200,8 +214,11 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
 
   const armEntries = useMemo(() => measurements.filter((entry) => entry.side === side && entry.regionId === data.region.id), [measurements, side, data.region.id]);
   const dated = (metricOf: MeasurementMetric) => armEntries.filter((entry) => entry.metric === metricOf).map((item) => ({ item, dateKey: localDateKey(item.measuredAt, timeZone) }));
-  const circumference = dated("circumference_cm");
-  const grip = dated("grip_force_n");
+  // The region's first measure always has its chart (or a line saying there is nothing yet); its
+  // others once they have readings. Readings of a measure it no longer offers are still drawn.
+  const recorded = new Set(armEntries.map((entry) => entry.metric));
+  const others = (Object.keys(metricDefaults) as MeasurementMetric[]).filter((item) => !offered.includes(item) && recorded.has(item));
+  const charted = [...offered.filter((item) => item === offered[0] || recorded.has(item)), ...others];
 
   // Comparable exercise performance: exercises with two sessions or more inside the axis.
   const allSeries = useMemo(() => performanceSeries(sessions, { data, side, weightUnit, timeZone, catalog }), [sessions, data, side, weightUnit, timeZone, catalog]);
@@ -211,6 +228,11 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
     .sort((a, b) => b.inside[b.inside.length - 1].performedAt.localeCompare(a.inside[a.inside.length - 1].performedAt) || a.series.name.localeCompare(b.series.name)), [allSeries, axis]);
   const chosen = options.find((option) => option.series.key === exerciseKey) ?? options[0] ?? null;
 
+  const chooseMetric = (next: MeasurementMetric) => {
+    setMetric(next);
+    setLandmark(metricDefaults[next].landmark);
+    setPosture(metricDefaults[next].posture);
+  };
   const openForm = () => {
     const nextDate = dateEdited ? date : todayKey;
     focusNext.current = "form";
@@ -290,10 +312,12 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
       </svg>
       <p className="spz-chart-scale">Scale 0 to {maxBouts} bouts · weeks from {dayLabel(axis.firstMonday)}</p>
     </figure>
-    {circumference.length > 0
-      ? <ReadingChart metric="circumference_cm" entries={circumference} axis={axis} units={units} side={side} />
-      : <figure className="spz-chart"><figcaption>Circumference ({units.length})</figcaption><p className="spz-note">No circumference readings for the {side} arm yet.</p></figure>}
-    {grip.length > 0 && <ReadingChart metric="grip_force_n" entries={grip} axis={axis} units={units} side={side} />}
+    {charted.map((item) => {
+      const entries = dated(item);
+      return entries.length > 0
+        ? <ReadingChart key={item} metric={item} entries={entries} axis={axis} units={units} side={side} />
+        : <figure key={item} className="spz-chart"><figcaption>{item === "grip_force_n" ? `Grip strength (${units.force})` : `Circumference (${units.length})`}</figcaption><p className="spz-note">No {item === "grip_force_n" ? "grip" : "circumference"} readings for the {side} arm yet.</p></figure>;
+    })}
 
     {listed.length > 0 && <ul className="spz-measure-list" aria-label={`Latest readings, ${side} arm`}>
       {listed.map((entry) => {
@@ -310,12 +334,11 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
     {notice?.kind === "saved" && <p className="spz-inline-status" role="status">{notice.text}</p>}
     {listError && <p className="spz-error" role="alert">{listError}</p>}
 
-    {open ? <fieldset ref={formRef} className="spz-target-form">
+    {offered.length === 0 ? <p className="spz-note">There is nothing to measure for the {data.region.label.toLowerCase()} yet.</p> : open ? <fieldset ref={formRef} className="spz-target-form">
       <legend>New reading</legend>
-      <div className="spz-segment" role="group" aria-label="What was measured">
-        <button type="button" aria-pressed={metric === "circumference_cm"} onClick={() => { setMetric("circumference_cm"); setLandmark("Thickest point"); }}>Circumference</button>
-        <button type="button" aria-pressed={metric === "grip_force_n"} onClick={() => { setMetric("grip_force_n"); setLandmark("Dynamometer grip"); setPosture("elbow_90_supported"); }}>Grip strength</button>
-      </div>
+      {offered.length > 1 && <div className="spz-segment" role="group" aria-label="What was measured">
+        {offered.map((item) => <button key={item} type="button" aria-pressed={metric === item} onClick={() => chooseMetric(item)}>{metricDefaults[item].button}</button>)}
+      </div>}
       <div className="spz-segment" role="group" aria-label="Which arm">
         <button type="button" aria-pressed={arm === "left"} onClick={() => setArm("left")}>Left arm</button>
         <button type="button" aria-pressed={arm === "right"} onClick={() => setArm("right")}>Right arm</button>
@@ -330,7 +353,7 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
       {metric === "circumference_cm" && <label className="spz-field"><span>Distance from the landmark ({units.length}, optional)</span><input type="number" inputMode="decimal" min={0} step="any" value={distance} onChange={(event) => setDistance(event.target.value)} /></label>}
       <label className="spz-field"><span>Posture</span><select value={posture} onChange={(event) => setPosture(event.target.value as MeasurementProtocol["posture"])}>{(Object.keys(postureLabels) as MeasurementProtocol["posture"][]).map((item) => <option key={item} value={item}>{postureLabels[item]}</option>)}</select></label>
       <label className="spz-field"><span>Condition</span><select value={condition} onChange={(event) => setCondition(event.target.value as MeasurementProtocol["condition"])}>{(Object.keys(conditionLabels) as MeasurementProtocol["condition"][]).map((item) => <option key={item} value={item}>{conditionLabels[item]}</option>)}</select></label>
-      <label className="spz-field"><span>Tape or dynamometer (optional)</span><input type="text" value={device} onChange={(event) => setDevice(event.target.value)} /></label>
+      <label className="spz-field"><span>{metricDefaults[metric].instrument} (optional)</span><input type="text" value={device} onChange={(event) => setDevice(event.target.value)} /></label>
       <label className="spz-field"><span>Note (optional)</span><input type="text" value={notes} onChange={(event) => setNotes(event.target.value)} /></label>
       <p className="spz-note">The same place, posture, time of day and condition make two readings comparable.</p>
       {error && <p className="spz-error" role="alert">{error}</p>}
@@ -339,7 +362,7 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
 
     <section className="spz-subsection spz-progress-section" aria-labelledby={performanceHeading}>
       <h3 id={performanceHeading}>Exercise performance</h3>
-      <p className="spz-note">Same exercise only. A different grip, implement or range of motion is a different line.</p>
+      <p className="spz-note">Same exercise only. A change of hand position, implement or range of motion is a different line.</p>
       {chosen ? <>
         <label className="spz-field"><span>Exercise</span>
           <select value={chosen.series.key} onChange={(event) => setExerciseKey(event.target.value)}>
