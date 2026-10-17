@@ -7,11 +7,11 @@ describe("sport-relevant catalog expansion", () => {
   it("adds exactly 100 unique records after the original 300-exercise catalog", () => {
     expect(expandedExercises).toHaveLength(100);
     expect(expandedExercises.map((exercise) => exercise.id)).toEqual(Array.from({ length: 100 }, (_, index) => 301 + index));
-    // The forearm atlas brief of 16 Oct 2026 adds 14 forearm rows from id 401
-    // (exerciseCatalogForearm.ts), so the catalog holds 414; the expansion itself stays 301-400.
-    expect(forearmCatalogExercises).toHaveLength(14);
-    expect(exercises).toHaveLength(414);
-    expect(new Set(exercises.map((exercise) => exercise.id)).size).toBe(414);
+    // The forearm atlas brief of 16 Oct 2026 adds 16 forearm rows from id 401
+    // (exerciseCatalogForearm.ts), so the catalog holds 416; the expansion itself stays 301-400.
+    expect(forearmCatalogExercises).toHaveLength(16);
+    expect(exercises).toHaveLength(416);
+    expect(new Set(exercises.map((exercise) => exercise.id)).size).toBe(416);
     const baseNames = new Set(baseExercises.map((exercise) => exercise.name.toLowerCase()));
     const expansionNames = expandedExercises.map((exercise) => exercise.name.toLowerCase());
     expect(new Set(expansionNames).size).toBe(100);

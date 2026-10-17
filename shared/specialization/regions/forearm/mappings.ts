@@ -201,6 +201,29 @@ function wristRoller(id: number): VariantMapping[] {
   ];
 }
 
+/**
+ * The wrist roller with its direction recorded. Palms down, rolling the top of the roller
+ * toward you is made of wrist extensions against the hanging weight, so the wrist extensors
+ * lift it (direct, dynamic) and the flexors only control the hand between turns
+ * (contributing); rolling it away is made of wrist flexions, and the roles swap. This is
+ * the direction of the joint action, read from anatomy; no study separates the two winds.
+ */
+function wristRollerWind(id: number, lifting: "extension" | "flexion"): VariantMapping[] {
+  const wind = lifting === "extension" ? "rolling the top of the roller toward you, palms down" : "rolling the top of the roller away from you, palms down";
+  const lifts = `Winding by ${wind} is a series of wrist ${lifting === "extension" ? "extensions" : "flexions"} against the hanging weight, one of this muscle's main actions: direct, dynamic work.`;
+  const controls = `Winding by ${wind} is driven by the ${lifting === "extension" ? "extensors" : "flexors"}; this muscle steadies and returns the hand between turns: contributing, not direct.`;
+  const flexion = { action: a.wristFlexion, mode: "dynamic" as const, basis: "anatomy" as const, relationship: lifting === "flexion" ? "direct" as const : "contributing" as const, rationale: lifting === "flexion" ? lifts : controls };
+  const extension = { action: a.wristExtension, mode: "dynamic" as const, basis: "anatomy" as const, relationship: lifting === "extension" ? "direct" as const : "contributing" as const, rationale: lifting === "extension" ? lifts : controls };
+  return [
+    mapping(id, m.flexorCarpiRadialis, { ...flexion, sources: [src.fcr] }),
+    mapping(id, m.flexorCarpiUlnaris, { ...flexion, sources: [src.fcu] }),
+    mapping(id, m.extensorCarpiRadialisLongus, { ...extension, sources: [src.ecrl] }),
+    mapping(id, m.extensorCarpiRadialisBrevis, { ...extension, sources: [src.ecrb] }),
+    mapping(id, m.extensorCarpiUlnaris, { ...extension, sources: [src.ecu] }),
+    ...gripHold(id, "The fingers hold the roller's handle throughout: incidental grip, shared between FDS and FDP."),
+  ];
+}
+
 function deviation(id: number, action: ActionId, muscles: [NodeId, MappingSourceRef][], side: string): VariantMapping[] {
   return [
     ...muscles.map(([nodeId, ref]) => mapping(id, nodeId, { action, relationship: "direct", mode: "dynamic", basis: "anatomy", allocation: "shared", sources: [ref], rationale: `Tilting the hand toward the ${side} side is done by the flexor and extensor on that side together, so each is direct and the work is shared; how the split moves with a slightly flexed or extended wrist is not known, so no split is given.` })),
@@ -246,6 +269,8 @@ export const forearmMappings: VariantMapping[] = [
   ...reverseWristCurl(411),
   ...reverseWristCurl(350),
   ...wristRoller(141),
+  ...wristRollerWind(415, "extension"),
+  ...wristRollerWind(416, "flexion"),
   ...deviation(407, a.radialDeviation, [[m.flexorCarpiRadialis, src.fcr], [m.extensorCarpiRadialisLongus, src.ecrl], [m.extensorCarpiRadialisBrevis, src.ecrb]], "thumb"),
   ...deviation(408, a.ulnarDeviation, [[m.flexorCarpiUlnaris, src.fcu], [m.extensorCarpiUlnaris, src.ecu]], "pinky"),
 

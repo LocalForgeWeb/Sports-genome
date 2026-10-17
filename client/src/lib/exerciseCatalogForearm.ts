@@ -16,6 +16,11 @@ import type { Exercise } from "./exerciseCatalog";
  * curls; scripts/exercise-photos/curate.mjs). Muscle tags stay on the catalog's own keys:
  * `forearms` here, the named forearm muscles live in the atlas layer.
  *
+ * The wrist roller has a row per winding direction (415, 416) beside the original 141, whose
+ * direction is not recorded: which way it is wound decides whether the extensors or the
+ * flexors lift the weight (brief §4: "Wrist action by direction ... not an indiscriminate
+ * all-forearms exercise").
+ *
  * Sport-fit grades are kept modest. These are small-muscle and grip exercises; the grade says
  * how directly the work serves the sport's grip or forearm demand, not that it moves the needle
  * on the sport's main actions. No row is graded above A.
@@ -285,6 +290,44 @@ export const forearmCatalogExercises: Exercise[] = [
       soccer: { grade: "D", movementHelp: "general hand strength" },
       baseball: { grade: "C", movementHelp: "moving the thumb away from the hand against resistance" },
       combat: { grade: "C", movementHelp: "opening the hand to change grips" },
+    },
+  },
+  {
+    id: 415,
+    name: "Wrist Roller, Extension Wind",
+    sourceGroup: "Forearm Specialization (Oct 2026)",
+    category: "Arms & grip",
+    equipment: "Free weights",
+    movement: "Wrist extension",
+    primaryMuscles: ["forearms"],
+    secondaryMuscles: [],
+    qualities: ["hypertrophy", "grip", "endurance"],
+    muscleGrade: "A",
+    sportFit: {
+      tennis: { grade: "B", movementHelp: "wrist extension endurance for the backhand" },
+      basketball: { grade: "C", movementHelp: "general wrist strength" },
+      soccer: { grade: "D", movementHelp: "general wrist strength" },
+      baseball: { grade: "B", movementHelp: "wrist extension for bat control" },
+      combat: { grade: "A", movementHelp: "wrist strength for grip fighting" },
+    },
+  },
+  {
+    id: 416,
+    name: "Wrist Roller, Flexion Wind",
+    sourceGroup: "Forearm Specialization (Oct 2026)",
+    category: "Arms & grip",
+    equipment: "Free weights",
+    movement: "Wrist flexion",
+    primaryMuscles: ["forearms"],
+    secondaryMuscles: [],
+    qualities: ["hypertrophy", "grip", "endurance"],
+    muscleGrade: "A",
+    sportFit: {
+      tennis: { grade: "B", movementHelp: "wrist flexion endurance for racket control" },
+      basketball: { grade: "C", movementHelp: "wrist flexion for the shooting release" },
+      soccer: { grade: "D", movementHelp: "general wrist strength" },
+      baseball: { grade: "B", movementHelp: "wrist flexion through ball release and bat control" },
+      combat: { grade: "A", movementHelp: "wrist strength for grip fighting" },
     },
   },
 ];

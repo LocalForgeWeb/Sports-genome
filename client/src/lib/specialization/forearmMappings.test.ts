@@ -133,10 +133,27 @@ describe("forearm mappings", () => {
       expect(nodes.size, variant.catalogName).toBeLessThan(coreForearmMuscleIds.length);
       if (nodes.size > 6) widest.push([variant.catalogName, nodes.size]);
     }
-    // The only exercise past six muscles is the wrist roller: both wrist groups (its winding
-    // direction is not recorded) plus the grip on its handle, all as contributing or incidental.
-    expect(widest).toEqual([["Wrist Roller", 7]]);
+    // The only exercises past six muscles are the wrist rollers: both wrist groups plus the grip
+    // on the handle. Where the winding direction is not recorded (141) nothing is direct; a row
+    // that names its direction (415, 416) credits only the group lifting the weight as direct.
+    expect(widest).toEqual([["Wrist Roller", 7], ["Wrist Roller, Extension Wind", 7], ["Wrist Roller, Flexion Wind", 7]]);
     expect(mappingsFor(141).every((mapping) => mapping.relationship !== "direct")).toBe(true);
+  });
+
+  it("credits a wrist roller by its winding direction", () => {
+    const flexors = [m.flexorCarpiRadialis, m.flexorCarpiUlnaris];
+    const extensors = [m.extensorCarpiRadialisLongus, m.extensorCarpiRadialisBrevis, m.extensorCarpiUlnaris];
+    const direct = (id: number) => mappingsFor(id).filter((mapping) => mapping.relationship === "direct").map((mapping) => mapping.nodeId).sort();
+    expect(direct(415)).toEqual([...extensors].sort());
+    expect(direct(416)).toEqual([...flexors].sort());
+    for (const nodeId of flexors) expect(mappingOf(415, nodeId)!.relationship).toBe("contributing");
+    for (const nodeId of extensors) expect(mappingOf(416, nodeId)!.relationship).toBe("contributing");
+    for (const id of [415, 416]) {
+      expect(mappingOf(id, m.flexorDigitorumSuperficialis)!.relationship).toBe("incidental");
+      expect(mappingsFor(id).every((mapping) => mapping.reviewStatus === "reviewed"), String(id)).toBe(true);
+    }
+    expect(byId.get(415)!.movement).toBe("Wrist extension");
+    expect(byId.get(416)!.movement).toBe("Wrist flexion");
   });
 
   it("ask for bare hands only where straps exist, and on every pull, hinge, shrug and hang grip", () => {
@@ -257,6 +274,7 @@ describe("forearm rows added to the catalog (ids 401+)", () => {
     [405, "Lever Pronation"], [406, "Lever Supination"], [407, "Lever Radial Deviation"], [408, "Lever Ulnar Deviation"],
     [409, "Suitcase Carry"], [410, "One-Arm Dumbbell Wrist Curl"], [411, "One-Arm Dumbbell Reverse Wrist Curl"],
     [412, "Band Thumb Flexion"], [413, "Band Thumb Extension"], [414, "Band Thumb Abduction"],
+    [415, "Wrist Roller, Extension Wind"], [416, "Wrist Roller, Flexion Wind"],
   ];
 
   it("appear once each, after every older row, with the ids written down", () => {

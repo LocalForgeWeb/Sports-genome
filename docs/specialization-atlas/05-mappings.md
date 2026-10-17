@@ -5,7 +5,7 @@ Which catalog exercises the forearm atlas maps, how each is done, and which fore
 - `shared/specialization/regions/forearm/variants.ts`: one default variant per mapped catalog exercise, plus the two lists of exercises deliberately left unmapped.
 - `shared/specialization/regions/forearm/mappings.ts`: the mappings and the published mapping version `forearm_mappings_v1`.
 - `shared/specialization/regions/forearm/mappingSources.ts`: sources M1-M8 added for the mappings.
-- `client/src/lib/exerciseCatalogForearm.ts`: the 14 new catalog rows (ids 401-414).
+- `client/src/lib/exerciseCatalogForearm.ts`: the 16 new catalog rows (ids 401-416).
 - `client/src/lib/specialization/forearmMappings.test.ts`: the rules below, as tests.
 
 ## Method
@@ -32,7 +32,7 @@ So a reverse curl is dynamic elbow flexion for the brachioradialis and isometric
 
 **Evidence and review.** `evidenceBasis` is `anatomy` where the mapping rests on what the muscle does (a wrist flexor in a wrist curl), `inference` where it rests on a judgement about role or size of part (a grip called incidental, the brachioradialis called a target of the hammer curl), and `emg` only where an EMG source is cited. A mapping is `reviewed` when the muscle's action is sourced (S4 forearm tables, S7, S8, and M8 for the biceps and brachialis) and its relationship is explained in its rationale; otherwise it is `draft`, shown as pending review and never counted. Every mapping, draft or not, cites at least one source with a locator and a limitation.
 
-**What is not done.** No percentage split between muscles. No exercise is mapped to every forearm muscle (the widest is the wrist roller: seven, none of them direct). No muscle of the hand itself (thenar muscles, interossei, lumbricals) is credited to the forearm; where they do real work (a pinch, a band spreading the fingers) the rationale says so. No mapping to a compartment group. No credit for a load the exercise does not define: the Zottman curl's turn at the top is not credited to the pronators or supinator, because a dumbbell turned about its own handle gives little resistance to the turn.
+**What is not done.** No percentage split between muscles. No exercise is mapped to every forearm muscle (the widest are the wrist rollers, at seven: the undirected one with none direct, each directed one with only the group lifting the weight direct). No muscle of the hand itself (thenar muscles, interossei, lumbricals) is credited to the forearm; where they do real work (a pinch, a band spreading the fingers) the rationale says so. No mapping to a compartment group. No credit for a load the exercise does not define: the Zottman curl's turn at the top is not credited to the pronators or supinator, because a dumbbell turned about its own handle gives little resistance to the turn.
 
 **For the calculator.** `allocation: "shared"` means the work is real but cannot be split among the other shared mappings of the same variant with the same relationship and mode (FDS with FDP; PT with PQ; FCR, ECRL and ECRB in radial deviation). Two shared groups can sit in one variant (the deviation levers have the shared deviators and the shared grip), so `sharedWith` should be read within relationship and mode, not across the whole variant. `requiresNoStraps` is true on the finger flexors of every pull, hinge, shrug, hang and carry, and only where the variant's straps are not `not_applicable` (tested).
 
@@ -42,7 +42,7 @@ So a reverse curl is dynamic elbow flexion for the brachioradialis and isometric
 
 Downstream effects checked: the full suite passed after the fixes with only the catalog-size pin changing; the movement-support broad-pattern rule (more than 15 exercises) is unaffected ("Grip isometric" drops to 5, the new movement labels hold 1-2 each, "Trunk flexion / anti-extension" was already broad); the familiar ranking lifts (`rankRecommendations.ts`) read the database's rankable snapshot, not catalog tags, so Wrist Curl and Hanging Knee Raise keep their roles; `scripts/movement-support-report.ts` re-checks its 232 note against the data, so the fixed defect drops out of the next report.
 
-**New rows (ids 401-414).** Appended after the closed 301-400 expansion with literal ids, so no stored id moves. Each carries every engine field (source group, category, equipment from the existing vocabulary, movement, catalog muscle keys only, qualities, muscle grade, sport fit for all five sports with a plain cue). Sport-fit grades are modest; none is above A.
+**New rows (ids 401-416).** Appended after the closed 301-400 expansion with literal ids, so no stored id moves. Each carries every engine field (source group, category, equipment from the existing vocabulary, movement, catalog muscle keys only, qualities, muscle grade, sport fit for all five sports with a plain cue). Sport-fit grades are modest; none is above A.
 
 | Id | Name | Equipment | Movement | Load convention | Photo |
 |---|---|---|---|---|---|
@@ -60,6 +60,10 @@ Downstream effects checked: the full suite passed after the fixes with only the 
 | 412 | Band Thumb Flexion | Band | Thumb flexion | total load (default) | none |
 | 413 | Band Thumb Extension | Band | Thumb extension | total load (default) | none |
 | 414 | Band Thumb Abduction | Band | Thumb abduction | total load (default) | none |
+| 415 | Wrist Roller, Extension Wind | Free weights | Wrist extension | total load | none |
+| 416 | Wrist Roller, Flexion Wind | Free weights | Wrist flexion | total load | none |
+
+The wrist roller (141) does not say which way it is wound, so it credits neither wrist group as direct. Rows 415 and 416 name the direction (brief §4: direction-specific segments): winding with palms down so the top of the roller turns toward you is a run of wrist extensions against the hanging weight; turning it away is a run of wrist flexions. The lifting group is direct dynamic, the other group contributing (it steadies and returns the hand between turns), and the grip on the handle incidental. An athlete who winds both ways in one set logs it as 141.
 
 Grippers use the catalog's "Free weights" equipment, the nearest existing value for a small hand-held implement (Plate Pinch and Wrist Roller use it too); the equipment filter therefore offers them to anyone with dumbbells, a barbell or kettlebells. Load conventions for ids 401+ are the app's own (`APP_ONLY` in `shared/loadConventions.ts`), because the database's scoring policy has no rows for them; band rows take the default, as Band Pull-Apart and Lateral Band Walk already do.
 
@@ -78,6 +82,7 @@ Not taken: `Dumbbell_Lying_Pronation` and `Dumbbell_Lying_Supination`. The frame
 | Wrist curls | 139, 410 | FCR, FCU direct dynamic wrist flexion; PL contributing (absent in some people); grip incidental |
 | Reverse wrist curls | 140, 411, 350 | ECRL, ECRB, ECU direct dynamic wrist extension (no selectivity between the radial pair is claimed); ED contributing (it assists wrist extension; this is not finger extension); grip incidental |
 | Wrist roller | 141 | FCR, FCU, ECRL, ECRB, ECU contributing dynamic, shared, because the winding direction is not recorded; grip incidental |
+| Wrist roller by direction | 415, 416 | Extension wind: ECRL, ECRB, ECU direct dynamic, FCR and FCU contributing. Flexion wind: FCR and FCU direct dynamic, the three extensors contributing. Grip incidental on both |
 | Deviation levers | 407, 408 | radial: FCR, ECRL, ECRB direct dynamic, shared; ulnar: FCU, ECU direct dynamic, shared; grip incidental |
 | Rotation levers | 405, 406 | pronation: PT, PQ direct dynamic, shared (M5: PQ leads at low torque, PT rises with torque); supination: supinator direct, biceps contributing, shared, with the elbow angle recorded (M5, M6); grip incidental |
 | Finger flexion | 401, 402, 403 | FDS+FDP direct, shared: dynamic for the finger curl and gripper close, isometric for the gripper hold |
@@ -218,6 +223,8 @@ Abbreviations: dyn dynamic, iso isometric, contrib. contributing; "(shared)" all
 | 412 | Band Thumb Flexion | single-joint · unknown · wrist neutral · grip thumb · straps not applicable · unilateral · reps | FPL direct dyn |
 | 413 | Band Thumb Extension | single-joint · unknown · wrist neutral · grip thumb · straps not applicable · unilateral · reps | EPL direct dyn (shared); EPB direct dyn (shared) |
 | 414 | Band Thumb Abduction | single-joint · unknown · wrist neutral · grip thumb · straps not applicable · unilateral · reps | APL direct dyn |
+| 415 | Wrist Roller, Extension Wind | single-joint · pronated · wrist changing · grip overhand · straps not applicable · bilateral · reps | FCR contrib. dyn; FCU contrib. dyn; ECRL direct dyn; ECRB direct dyn; ECU direct dyn; FDS+FDP incidental iso (shared) |
+| 416 | Wrist Roller, Flexion Wind | single-joint · pronated · wrist changing · grip overhand · straps not applicable · bilateral · reps | FCR direct dyn; FCU direct dyn; ECRL contrib. dyn; ECRB contrib. dyn; ECU contrib. dyn; FDS+FDP incidental iso (shared) |
 
 ## Counts
 
@@ -256,7 +263,7 @@ The anatomy table S4 itself could not be opened from this build environment (its
 
 ## Unresolved
 
-1. **Lever pronation and supination photos.** The only candidate pairs were not used (see Photos). Eleven of the 14 new rows show the placeholder frame and are not yet in `docs/exercise-photo-checklist/`.
+1. **Lever pronation and supination photos.** The only candidate pairs were not used (see Photos). Thirteen of the 16 new rows show the placeholder frame and are not yet in `docs/exercise-photo-checklist/`.
 2. **Five draft mappings** (above). They need a source on thumb loading in handle grips, and one on elbow-flexor work in the upright row, or they stay draft.
 3. **Drafts inside a published version.** The version is published with its five drafts visible as pending review, as `02-design.md` §3 describes. The database lane's publish check ("fails while a mapping lacks a source or review") must accept draft rows in a published version, or the drafts must move to the next version. Every mapping has at least one source, so a source check alone passes.
 4. **`sharedWith` semantics.** The calculator should group shared mappings within the same variant, relationship and mode (see Method), so the deviation levers' shared deviators are not listed as shared with their grip.

@@ -94,6 +94,9 @@ export const forearmVariants: ExerciseVariant[] = [
   variant(139, "Wrist Curl", isolation("supinated", "underhand", "bilateral", "Barbell, kneeling, forearms on a flat bench, palms up, wrists over the edge (as photographed).")),
   variant(140, "Reverse Wrist Curl", isolation("pronated", "overhand", "bilateral", "Barbell, kneeling, forearms on a flat bench, palms down, wrists over the edge (as photographed).")),
   variant(141, "Wrist Roller", isolation("pronated", "overhand", "bilateral", "Standing, arms held out in front, palms down, winding the cord up and back down (as photographed). Which way the roller is turned is not recorded.")),
+  // The same roller with the direction recorded: palms down, the hands take turns winding.
+  variant(415, "Wrist Roller, Extension Wind", isolation("pronated", "overhand", "bilateral", "Palms down, arms held out in front, winding the cord up by rolling the top of the roller toward you: each wrist bends back (extends) to wind, then the weight is lowered the same way.")),
+  variant(416, "Wrist Roller, Flexion Wind", isolation("pronated", "overhand", "bilateral", "Palms down, arms held out in front, winding the cord up by rolling the top of the roller away from you: each wrist curls down (flexes) to wind, then the weight is lowered the same way.")),
   variant(350, "Cable Wrist Extension", isolation("pronated", "overhand", "either", "Palms down against a low pulley; the catalog does not say bar or single handle, or whether the forearm is supported.")),
   variant(410, "One-Arm Dumbbell Wrist Curl", isolation("supinated", "underhand", "unilateral", "Seated, forearm along the thigh, palm up, wrist past the knee (as photographed).")),
   variant(411, "One-Arm Dumbbell Reverse Wrist Curl", isolation("pronated", "overhand", "unilateral", "Seated, forearm along the thigh, palm down, wrist past the knee (as photographed).")),
