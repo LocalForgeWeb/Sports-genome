@@ -42,9 +42,12 @@ const sessions = [{
 }];
 
 let lastState: SpecializationViewState | null = null;
+/** The address changing under the open page (Back, a link), as Home would hand it a new state. */
+let setHarnessState: ((next: SpecializationViewState) => void) | null = null;
 function Harness(props: { initial?: Partial<SpecializationViewState> }) {
   const [state, setState] = useState<SpecializationViewState>({ ...defaultSpecializationState("deltoid"), ...props.initial });
   lastState = state;
+  setHarnessState = setState;
   const props_: SpecializationPanelProps = {
     state,
     onStateChange: setState,
@@ -171,5 +174,21 @@ describe("the same page on the forearm, for contrast", () => {
     expect(within(mapCard()).getByRole("group", { name: /^Forearms, right arm, thumb side view, surface layer\./ })).not.toBeNull();
     await act(async () => { fireEvent.click(viewButtons()[0]); });
     expect(lastState?.view).toBeNull();
+  });
+
+  it("starts another region's reading afresh: a grip half-entered on the forearm leaves no dynamometer posture on the deltoids", async () => {
+    render(createElement(Harness, { initial: { regionId: "forearm" } }));
+    const details = () => screen.getByText("Progress").closest("details")!;
+    await act(async () => { details().open = true; fireEvent(details(), new Event("toggle")); });
+    await act(async () => { fireEvent.click(within(details()).getByRole("button", { name: "Add a reading" })); });
+    await act(async () => { fireEvent.click(within(details()).getByRole("button", { name: "Grip strength" })); });
+    expect((within(details()).getByLabelText(/^Posture$/) as HTMLSelectElement).value).toBe("elbow_90_supported");
+    await act(async () => { setHarnessState!({ ...lastState!, regionId: "deltoid", nodeId: null, view: null }); });
+    expect(screen.getByRole("heading", { level: 1, name: "Deltoid specialization" })).not.toBeNull();
+    await act(async () => { fireEvent.click(within(details()).getByRole("button", { name: "Add a reading" })); });
+    expect(within(details()).queryByRole("button", { name: "Grip strength" })).toBeNull();
+    expect((within(details()).getByLabelText(/^Where \(landmark\)$/) as HTMLInputElement).value).toBe("Thickest point");
+    expect((within(details()).getByLabelText(/^Posture$/) as HTMLSelectElement).value).toBe("arm_relaxed_hanging");
+    expect(details().textContent).not.toMatch(/grip|dynamometer|forearm/i);
   });
 });

@@ -475,7 +475,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       <details className="spz-disclosure spz-card" onToggle={(event) => { if (event.currentTarget.open) setProgressOpened(true); }}>
         <summary><span><b>Progress</b><small>{data.region.wording.progressSubtitle}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
         {/* Mounted when first opened, then kept: its weekly chart reads eight weeks of history. */}
-        {progressOpened && <MeasurementsPanel data={data} side={state.limb} catalog={catalog} weightUnit={weightUnit} timeZone={timeZone} todayKey={todayKey} measurements={measurements} onSave={saveMeasurement} onRemove={removeMeasurement} />}
+        {progressOpened && <MeasurementsPanel key={data.region.id} data={data} side={state.limb} catalog={catalog} weightUnit={weightUnit} timeZone={timeZone} todayKey={todayKey} measurements={measurements} onSave={saveMeasurement} onRemove={removeMeasurement} />}
       </details>
 
       <details ref={methodRef} className="spz-disclosure spz-card" id="spz-method">

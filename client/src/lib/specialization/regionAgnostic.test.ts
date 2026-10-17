@@ -134,16 +134,19 @@ describe("no region is named in the calculator, the windows, the goals or the ad
 });
 
 /**
- * The page's components (every .tsx here and the page model) by the same rule, plus the words
+ * The page's components (every source file here: the .tsx components, the page model and the
+ * drawing's geometry, which once listed the forearm's views itself) by the same rule, plus the words
  * the forearm page once hard-coded (its view names, "upper-arm"): a region's words come from its
  * data (`region.wording`, `measurementMetrics`, the drawing's `viewOrder`). Comments are not
  * read, since they may cite the forearm brief or give a forearm id as an example; strings and
  * code are. `grip` is not on the list: it is also a measure (`grip_force_n`, offered only when the
- * region lists it) and a kind of mapping (straps), which the components name as such.
+ * region lists it) and a kind of mapping (straps), which the components name as such. So the
+ * muscle sheet's "Incidental grip or steadying" (MuscleSheet.tsx, model.ts `exposureParts`) is
+ * not caught here; it is the one forearm word left on every region's page (02-design.md §10).
  */
 describe("no region is named in the page's components", () => {
   const dir = "client/src/components/specialization";
-  const files = [...readdirSync(join(process.cwd(), dir)).filter((name) => name.endsWith(".tsx")).sort(), "model.ts"];
+  const files = readdirSync(join(process.cwd(), dir)).filter((name) => /\.tsx?$/.test(name) && !/\.test\.tsx?$/.test(name)).sort();
   const pageWords = new RegExp(`${regionWords.source}|thumb.side|pinky|\\bpalm|upper.arm`, "i");
   /** Lines that must stay, by file and exact code, each with its reason. */
   const allowed: { file: string; code: string; why: string }[] = [
@@ -176,7 +179,8 @@ describe("no region is named in the page's components", () => {
   };
 
   it("finds the page's components, and reads strings and code but not comments", () => {
-    expect(files).toEqual(expect.arrayContaining(["SpecializationPanel.tsx", "SpecializationDiagram.tsx", "MeasurementsPanel.tsx", "MuscleSheet.tsx", "model.ts"]));
+    expect(files).toEqual(expect.arrayContaining(["SpecializationPanel.tsx", "SpecializationDiagram.tsx", "MeasurementsPanel.tsx", "MuscleSheet.tsx", "model.ts", "diagramGeometry.ts"]));
+    expect(files.some((name) => name.includes(".test."))).toBe(false);
     const sample = 'const a = "Thumb side"; // forearm\n/** forearm */\nconst b = <p>{/* forearm */}upper-arm</p>;';
     expect(codeLines("sample.tsx", sample).map((line) => pageWords.test(line))).toEqual([true, false, true]);
     expect(codeLines("sample.tsx", sample)[0].trimEnd()).toBe('const a = "Thumb side";');

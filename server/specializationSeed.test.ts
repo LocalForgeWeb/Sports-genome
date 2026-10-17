@@ -516,6 +516,8 @@ describe("the emitter refuses content it cannot seed faithfully", () => {
     const withRegion = (patch: Partial<typeof region>) => emitSeedSql(withRegions([forearmRegionData, { ...deltoidRegionData, region: { ...region, ...patch } }]));
     expect(() => withRegion({ wording: { ...region.wording, incidentalWork: "  " } })).toThrow(/Region deltoid: wording\.incidentalWork must be text/);
     expect(() => withRegion({ wording: undefined as unknown as typeof region.wording })).toThrow(/Region deltoid has no wording/);
+    const { progressSubtitle: _dropped, ...partial } = region.wording;
+    expect(() => withRegion({ wording: partial as typeof region.wording })).toThrow(/Region deltoid: wording\.progressSubtitle must be text/);
     expect(() => withRegion({ measurementMetrics: ["circumference_cm", "circumference_cm"] })).toThrow(/Duplicate measurement metric in region deltoid circumference_cm/);
   });
 

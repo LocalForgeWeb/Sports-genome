@@ -263,7 +263,8 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
     const claimById = new Map(data.claims.map((claim) => [claim.id, claim]));
     // The page's words and measures for the region are its data, like its heading.
     if (!data.region.wording) throw new Error(`Region ${data.region.id} has no wording`);
-    for (const [field, text] of Object.entries(data.region.wording)) {
+    for (const field of ["externalGroup", "incidentalWork", "progressSubtitle"] as const) {
+      const text: unknown = data.region.wording[field];
       if (typeof text !== "string" || !text.trim()) throw new Error(`Region ${data.region.id}: wording.${field} must be text`);
     }
     assertUnique(`measurement metric in ${where}`, data.region.measurementMetrics);

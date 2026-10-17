@@ -54,7 +54,7 @@ export const HIT_SQUARE_SHARE = 0.145;
 const LABEL_CLEARANCE = 24;
 
 /** A view's words are the drawing's own (its `viewOrder`); an id it does not list reads as itself. */
-const viewLabelOf =(asset: DiagramAsset, view: DiagramViewId): string => asset.viewOrder.find((item) => item.id === view)?.label ?? view;
+const viewLabelOf = (asset: DiagramAsset, view: DiagramViewId): string => asset.viewOrder.find((item) => item.id === view)?.label ?? view;
 const LAYER_NAMES: Record<DiagramLayerId, string> = { surface: "Surface", intermediate: "Middle", deep: "Deep" };
 
 const EXPOSURE_STEPS = 5;
