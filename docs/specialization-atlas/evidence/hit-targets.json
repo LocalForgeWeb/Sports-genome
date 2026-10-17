@@ -59,12 +59,12 @@
       "forearm.br": 48,
       "forearm.ecrl": 48,
       "forearm.anconeus": 48,
-      "forearm.fcu": 53,
+      "forearm.fcu": 54,
       "forearm.ecrb": 48,
-      "forearm.edm": 47,
-      "forearm.ed": 48,
+      "forearm.edm": 48,
+      "forearm.ed": 47,
       "forearm.ecu": 48,
-      "forearm.apl": 48,
+      "forearm.apl": 47,
       "forearm.epb": 48
     }
   },
@@ -74,32 +74,32 @@
       "forearm.br": 48,
       "forearm.ecrl": 48,
       "forearm.anconeus": 48,
-      "forearm.fcu": 53,
+      "forearm.fcu": 54,
       "forearm.ecrb": 48,
-      "forearm.edm": 47,
-      "forearm.ed": 48,
+      "forearm.edm": 48,
+      "forearm.ed": 47,
       "forearm.ecu": 48,
-      "forearm.apl": 48,
+      "forearm.apl": 47,
       "forearm.epb": 48
     }
   },
   "back-deep-right": {
     "svgWidth": 324,
     "squares": {
-      "forearm.supinator": 71,
+      "forearm.supinator": 75,
       "forearm.apl": 48,
-      "forearm.epl": 48,
-      "forearm.epb": 47,
+      "forearm.epl": 47,
+      "forearm.epb": 48,
       "forearm.ei": 47
     }
   },
   "back-deep-left": {
     "svgWidth": 324,
     "squares": {
-      "forearm.supinator": 71,
+      "forearm.supinator": 75,
       "forearm.apl": 48,
-      "forearm.epl": 48,
-      "forearm.epb": 47,
+      "forearm.epl": 47,
+      "forearm.epb": 48,
       "forearm.ei": 47
     }
   },
@@ -112,9 +112,9 @@
       "forearm.anconeus": 48,
       "forearm.ecrb": 47,
       "forearm.ed": 48,
-      "forearm.fcr": 47,
+      "forearm.fcr": 48,
       "forearm.apl": 48,
-      "forearm.epb": 48
+      "forearm.epb": 47
     }
   },
   "thumb-surface-left": {
@@ -126,9 +126,9 @@
       "forearm.anconeus": 48,
       "forearm.ecrb": 47,
       "forearm.ed": 48,
-      "forearm.fcr": 47,
+      "forearm.fcr": 48,
       "forearm.apl": 48,
-      "forearm.epb": 48
+      "forearm.epb": 47
     }
   },
   "thumb-deep-right": {
@@ -137,9 +137,9 @@
       "upper_arm.brachialis": 68,
       "forearm.supinator": 62,
       "forearm.fpl": 48,
-      "forearm.apl": 47,
+      "forearm.apl": 48,
       "forearm.epl": 48,
-      "forearm.epb": 48
+      "forearm.epb": 47
     }
   },
   "thumb-deep-left": {
@@ -148,9 +148,9 @@
       "upper_arm.brachialis": 68,
       "forearm.supinator": 62,
       "forearm.fpl": 48,
-      "forearm.apl": 47,
+      "forearm.apl": 48,
       "forearm.epl": 48,
-      "forearm.epb": 48
+      "forearm.epb": 47
     }
   },
   "fills-at-rest": {

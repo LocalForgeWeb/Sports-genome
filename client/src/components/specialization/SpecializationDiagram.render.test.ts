@@ -182,6 +182,34 @@ describe("the left arm", () => {
     expect(leftLabels.find((label) => label.text === "Thumb side")!.x).toBeGreaterThan(180);
   });
 
+  it("keeps the hatch slanting the legend's way on the left arm too", () => {
+    // The linear part of an SVG transform list (translate ignored: it does not change a slant).
+    const linear = (list: string | null) => {
+      let m = [1, 0, 0, 1];
+      const mul = (a: number[], b: number[]) => [a[0] * b[0] + a[1] * b[2], a[0] * b[1] + a[1] * b[3], a[2] * b[0] + a[3] * b[2], a[2] * b[1] + a[3] * b[3]];
+      for (const [, op, args] of Array.from((list ?? "").matchAll(/(\w+)\(([^)]*)\)/g))) {
+        const n = args.split(/[ ,]+/).filter(Boolean).map(Number);
+        const rad = (n[0] * Math.PI) / 180;
+        // Row-major [a, c, b, d] for x' = a x + c y, y' = b x + d y.
+        if (op === "scale") m = mul(m, [n[0], 0, 0, n[1] ?? n[0]]);
+        if (op === "rotate") m = mul(m, [Math.cos(rad), -Math.sin(rad), Math.sin(rad), Math.cos(rad)]);
+      }
+      return m;
+    };
+    const onScreen = (container: HTMLElement) => {
+      const art = container.querySelector(".spz-diagram-art")!.parentElement!;
+      const pattern = container.querySelector("pattern")!;
+      const both = linear(`${art.getAttribute("transform") ?? ""} ${pattern.getAttribute("patternTransform")}`);
+      return both.map((value) => Math.round(value * 1000) / 1000);
+    };
+    const right = onScreen(draw({ view: "back", layer: "surface" }).container);
+    cleanup();
+    const left = onScreen(draw({ view: "back", layer: "surface", mirrored: true }).container);
+    expect(left).toEqual(right);
+    // And that is the legend's slant: rotate(-45) on screen, stripes top-left to bottom-right.
+    expect(right).toEqual(linear("rotate(-45)").map((value) => Math.round(value * 1000) / 1000));
+  });
+
   it("moves the selected muscle's name to the side the muscle is drawn on", () => {
     const right = draw({ selectedNodeId: m.brachioradialis });
     const rightBox = Number(right.container.querySelector(".spz-diagram-callout rect")!.getAttribute("x"));

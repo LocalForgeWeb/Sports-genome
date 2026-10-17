@@ -155,8 +155,10 @@ export function SpecializationDiagram({ asset, view, layer, mirrored, fillFor, s
         aria-describedby={note ? noteId : undefined}
       >
         <defs>
-          {/* Mapping not reviewed: the legend's hatch, the same colours and slant. */}
-          <pattern id={hatchId} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(-45)">
+          {/* Mapping not reviewed: the legend's hatch, the same colours and slant. The pattern is
+              laid out in the space of the bellies that use it, which the left arm mirrors, so it
+              is flipped back there: the stripes slant the legend's way on either arm. */}
+          <pattern id={hatchId} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform={mirrored ? "scale(-1 1) rotate(-45)" : "rotate(-45)"}>
             <rect width="6" height="6" fill="#2e3a49" />
             <rect width="1.2" height="6" fill="#6f7d90" />
           </pattern>

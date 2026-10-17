@@ -157,6 +157,30 @@ export function bandPoints(spine, left, right = left, { samples = 11, sharpTips 
 
 export const band = (spine, left, right = left, options = {}) => closed(bandPoints(spine, left, right, options));
 
+/**
+ * The part of an outline (points as `closed` takes them) at or below the height `cut`, with a
+ * square edge where it is cut. This is how a deep muscle's outcrop is drawn: the very same
+ * outline as the whole muscle in the deep layer, cut where the surface muscles stop covering
+ * it, so the surface layer can never show the muscle anywhere the deep layer does not.
+ * Away from the cut the curve passes through the same points as the whole, so it is the same
+ * curve; only the cut edge and its two neighbouring segments are new.
+ */
+export function clipBelow(points, cut) {
+  const out = [];
+  const below = (p) => p[1] >= cut;
+  for (let i = 0; i < points.length; i++) {
+    const prev = points[(i + points.length - 1) % points.length];
+    const cur = points[i];
+    if (below(prev) !== below(cur)) {
+      const k = (cut - prev[1]) / (cur[1] - prev[1]);
+      out.push([prev[0] + (cur[0] - prev[0]) * k, cut, "corner"]);
+    }
+    if (below(cur)) out.push(cur);
+  }
+  if (out.length < 3) throw new Error(`Nothing of the outline lies below y ${cut}`);
+  return out;
+}
+
 /** A tendon: a narrow band, pointed where it leaves its belly, square where it attaches. */
 export function tendon(spine, startWidth, endWidth = startWidth, { taper = 0.1, samples } = {}) {
   const profile = [[0, 0], [taper, startWidth / 2], [1, endWidth / 2]];
