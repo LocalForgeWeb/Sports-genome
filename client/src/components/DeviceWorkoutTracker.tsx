@@ -7,7 +7,7 @@ import { WarmupPanel } from "@/components/WarmupPanel";
 import { ExerciseMedia } from "@/components/ExerciseMedia";
 import { exercisePhotoSet } from "@/lib/exercisePhotos";
 import {
-  activePosition, carriedEntryFor, countCompletedSets, countDraftSets, countPlannedSets, finalizeSession, freshId, newSetId,
+  activePosition, carriedEntryFor, countCompletedSets, countPlannedSets, finalizeSession, freshId, newSetId,
   deviceWorkoutHistoryKey, isCompletedSet, isCompletedWorkout, isDraftSet, isDropInProgress, isExerciseSkipped, lastCompletedSetFor, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, skipExercise,
   unskipExercise, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession, type SetSide, type StrapsUsed,
 } from "@/lib/deviceWorkoutLog";
@@ -325,6 +325,21 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    */
   const policyFor = (exercise: Pick<DeviceWorkoutExercise, "catalogId" | "exerciseName">) => loggingPolicyFor(exercise.catalogId ?? catalogFor(exercise)?.id);
   /**
+   * The prescription as this release reads it. A workout started before the release keeps the
+   * goal's rep default it was built with ("3 × 6–10") on a hold; read through the same
+   * `prescriptionOf` a new session is built with, that is "3 × 30 sec", and athlete text stays as
+   * typed. Nothing stored is rewritten.
+   */
+  const shownPrescription = (exercise: DeviceWorkoutExercise) => (exercise.plannedPrescription ? prescriptionOf(exercise.plannedPrescription, 0, goal, policyFor(exercise).measure) : exercise.plannedPrescription);
+  /**
+   * A set typed in but not logged. On an exercise measured in seconds there is no Reps box, so
+   * reps typed before it was (a workout left open across the release) are not a draft the
+   * athlete could see or finish; the stored set keeps them.
+   */
+  const isTypedDraft = (exercise: DeviceWorkoutExercise, set: DeviceSetLog) => (policyFor(exercise).measure === "seconds"
+    ? !set.completed && !set.skipped && Boolean(set.weight.trim() || (set.height || "").trim() || (set.holdSeconds || "").trim())
+    : isDraftSet(set));
+  /**
    * A plan entry as the workout is built from it, read once for the prestart counts, the rows and
    * the session: its saved prescription, else the default for its place (a hold's default on an
    * exercise measured in seconds, through the same `prescriptionOf` the atlas reads the plan with),
@@ -366,7 +381,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   };
   const completed = useMemo(() => (activeSession ? countCompletedSets(activeSession) : 0), [activeSession]);
   const planned = useMemo(() => (activeSession ? countPlannedSets(activeSession) : 0), [activeSession]);
-  const drafts = useMemo(() => (activeSession ? countDraftSets(activeSession) : 0), [activeSession]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const drafts = useMemo(() => (activeSession ? activeSession.exercises.reduce((total, exercise) => total + exercise.sets.filter((set) => isTypedDraft(exercise, set)).length, 0) : 0), [activeSession]);
   const position = useMemo(() => (activeSession ? activePosition(activeSession) : null), [activeSession]);
   const carried = useMemo(
     () => (activeSession && position ? carriedEntryFor(activeSession.exercises[position.exerciseIndex], position.setIndex, history, sessionUnit) : null),
@@ -1036,7 +1052,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
                 from before ids were kept, its name), and a name the catalog no longer
                 has gets the placeholder frame rather than a guess. */}
             <ExerciseMedia exerciseId={catalogEntry?.id ?? -1} exerciseName={exercise.exerciseName} equipment={catalogEntry?.equipment} variant="thumb" />
-            <div><strong>{exercise.exerciseName}</strong><small>{exerciseSkipped ? "Skipped · nothing recorded" : `${exercise.plannedPrescription}${exercise.perArm ? " · each arm" : ""}`}</small>{note && <small className="session-swap-note">{note}</small>}</div>
+            <div><strong>{exercise.exerciseName}</strong><small>{exerciseSkipped ? "Skipped · nothing recorded" : `${shownPrescription(exercise)}${exercise.perArm ? " · each arm" : ""}`}</small>{note && <small className="session-swap-note">{note}</small>}</div>
             {!exercise.replacedBy && <span className="session-exercise-actions">
               <button type="button" className="session-exercise-skip" onClick={() => setSwapForId(exercise.id)} aria-label={`Swap ${exercise.exerciseName}`}>
                 <ArrowLeftRight className="h-3.5 w-3.5" /><span>Swap</span>
@@ -1070,8 +1086,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             // A hold's row logs only with its seconds in, and says so in the row.
             const secondsMissing = queueHold && !set.completed && !holdSecondsReady(set.holdSeconds);
             const hintId = `${exercise.id}-${setIndex}-seconds-hint`;
-            return <div key={set.id ?? setIndex} className={`session-set-row ${set.completed ? "session-set-complete" : ""} ${isDraftSet(set) ? "session-set-draft" : ""} ${set.skipped ? "session-set-skipped" : ""}`}>
-            <strong>Set {setIndex + 1}{side ? ` · ${side}` : ""}{isDraftSet(set) ? " · typed, not logged" : ""}{set.skipped ? " · skipped" : ""}</strong>
+            return <div key={set.id ?? setIndex} className={`session-set-row ${set.completed ? "session-set-complete" : ""} ${isTypedDraft(exercise, set) ? "session-set-draft" : ""} ${set.skipped ? "session-set-skipped" : ""}`}>
+            <strong>Set {setIndex + 1}{side ? ` · ${side}` : ""}{isTypedDraft(exercise, set) ? " · typed, not logged" : ""}{set.skipped ? " · skipped" : ""}</strong>
             {queueLoadFields.map((field) => <label key={field.measure}>
               <span>{field.label}</span>
               <input value={set[setKeyOf(field.measure)] || ""} inputMode="decimal" type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { [setKeyOf(field.measure)]: sanitiseEntry(field.measure, event.target.value) })} placeholder="—" />
@@ -1249,7 +1265,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    * "30", "45" on a hold's target: the bare number is seconds there, not reps. On rows laid out per
    * arm, rows 1 and 2 are planned set 1 (once per arm), so "3 × 10/8/6" reads 10, 10, 8, 8, 6, 6.
    */
-  const activeTarget = position && activeExercise ? repsForSet(activeExercise.plannedPrescription, activeExercise.perArm ? Math.floor(position.setIndex / 2) : position.setIndex) : "";
+  const activeTarget = position && activeExercise ? repsForSet(shownPrescription(activeExercise), activeExercise.perArm ? Math.floor(position.setIndex / 2) : position.setIndex) : "";
   /** A hold waiting for its seconds: Log set stays off, and the card says what it needs. */
   const secondsMissing = Boolean(activeHold && !dropMode && !holdSecondsReady(shownEntries.seconds));
   const swapExercise = swapForId ? activeSession.exercises.find((exercise) => exercise.id === swapForId) ?? null : null;

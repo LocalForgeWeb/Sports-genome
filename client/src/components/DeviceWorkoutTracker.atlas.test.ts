@@ -277,3 +277,33 @@ describe("The saved workout shows what was recorded", () => {
     expect(stored()[0]).toMatchObject({ status: "completed", exercises: [{ straps: "yes", sets: [{ holdSeconds: "40", side: "left", reps: "" }] }] });
   });
 });
+
+describe("A workout left open across the release", () => {
+  it("reads a hold's pinned rep default as seconds, and does not call reps typed before a draft", async () => {
+    const { getGoalPrescription } = await import("@/lib/workoutPlanner");
+    // Built before holds were measured in seconds: the goal's rep default pinned on Dead Hang,
+    // set 1 logged in reps, set 2 with reps typed but not logged.
+    const pinned = getGoalPrescription("Athleticism", 0);
+    const legacy: DeviceWorkoutSession = {
+      id: "device-legacy", title: "Pull", dayLabel: "Week 1 · Day 01 · Pull", startedAt: new Date().toISOString(), status: "active",
+      exercises: [{ id: "hang", exerciseName: deadHang.name, catalogId: deadHang.id, plannedPrescription: pinned, sets: [
+        { weight: "", reps: "40", completed: true },
+        { weight: "", reps: "35", completed: false },
+        { weight: "", reps: "", completed: false },
+      ] }],
+    } as DeviceWorkoutSession;
+    window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([legacy]));
+    render(createElement(DeviceWorkoutTracker, { workout: [deadHang], prescriptions: {}, settings: {}, goal: "Athleticism", dayLabel: "Week 1 · Day 01 · Pull", weightUnit: "lb" }));
+    // The card reads the target as a new session would: "30 sec", never the rep range with "sec" on it.
+    const target = card().querySelector(".live-set-prescription")!.textContent!;
+    expect(target).toContain("30 sec");
+    expect(target).not.toMatch(/\d+[–-]\d+ sec/);
+    // The full list says the same, and the reps typed into set 2 (no Reps box on a hold) are not a draft.
+    fireEvent.click(document.querySelector(".live-session-queue > summary")!);
+    const list = document.querySelector(".session-exercise-list")!;
+    expect(list.textContent).toContain("× 30 sec");
+    expect(list.textContent).not.toContain("typed, not logged");
+    // Nothing stored was rewritten.
+    expect(stored()[0].exercises[0]).toMatchObject({ plannedPrescription: pinned, sets: [{ reps: "40" }, { reps: "35" }, { reps: "" }] });
+  });
+});
