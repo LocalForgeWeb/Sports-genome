@@ -86,7 +86,7 @@ describe("an add or swap from the specialization page, as Home writes it", () =>
     expect(dayIds("1-Pull")).toEqual([id, exercises[2].id, exercises[3].id]);
     // Its sets are the goal's default for the first place, as every plan reader reads an entry without its own.
     expect(dayPrescriptions("1-Pull")).not.toHaveProperty(String(id));
-    const notice = toasts.find((item) => item.title === `Added ${name} · Week 1 · Pull`)!;
+    const notice = toasts.find((item) => item.title === `Added ${name} · Week 1 · Day 02 · Pull`)!;
     expect(notice.options).toMatchObject({ id: "plan-add", description: "Now 1 of 3 in that day.", cancel: { label: "Undo" } });
     // Named, so an earlier add's "View workout" cannot carry over into this notice.
     expect(Object.prototype.hasOwnProperty.call(notice.options, "action")).toBe(true);
@@ -105,7 +105,7 @@ describe("an add or swap from the specialization page, as Home writes it", () =>
     await tick();
     expect(dayIds("0-Push")).toEqual([id, exercises[1].id]);
     expect(dayPrescriptions("0-Push")).toEqual({});
-    const notice = toasts.find((item) => item.title === `Swapped ${exercises[0].name} for ${name} · Week 1 · Push`)!;
+    const notice = toasts.find((item) => item.title === `Swapped ${exercises[0].name} for ${name} · Week 1 · Day 01 · Push`)!;
     expect(notice.options).toMatchObject({ id: "plan-add", description: "Sets you already logged keep the exercise they were logged as.", action: undefined });
     await act(async () => { notice.options!.cancel!.onClick(); });
     await tick();

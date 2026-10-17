@@ -1465,7 +1465,7 @@ export default function Home() {
     const undo = () => editDayInWeekRef.current(change.week, slot.key, revert);
     // Sonner merges a notice into the one already showing with its id, so every option is named:
     // an earlier add's description and its "View workout" would otherwise carry over to this one.
-    toast(`${outcome.summary} · Week ${change.week} · ${slot.day}`, {
+    toast(`${outcome.summary} · Week ${change.week} · ${slot.label}`, {
       id: "plan-add",
       description: outgoing ? "Sets you already logged keep the exercise they were logged as." : `Now ${outcome.index + 1} of ${after.workout.length} in that day.`,
       action: undefined,

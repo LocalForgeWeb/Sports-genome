@@ -29,3 +29,15 @@ describe("specialization view state in the URL (brief §6: persist region, muscl
     expect(params.toString()).toBe("workspace=catalog&muscle=forearms");
   });
 });
+
+describe("a custom window from a hand-edited address", () => {
+  const read = (from: string, to: string) => specializationStateFromParams(new URLSearchParams(`window=custom&from=${from}&to=${to}`), "forearm", new Set(["forearm"]));
+  it("keeps real calendar dates", () => {
+    expect(read("2026-02-01", "2026-02-28")).toMatchObject({ window: "custom", from: "2026-02-01", to: "2026-02-28" });
+  });
+  it("drops dates that do not exist, or that leave no next day, back to this week", () => {
+    for (const [from, to] of [["2026-02-30", "2026-03-02"], ["2026-13-01", "2026-13-05"], ["2026-01-01", "9999-12-31"], ["2026-04-31", "2026-05-01"]]) {
+      expect(read(from, to), `${from}..${to}`).toMatchObject({ window: "week", from: null, to: null });
+    }
+  });
+});

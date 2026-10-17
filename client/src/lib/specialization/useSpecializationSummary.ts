@@ -6,7 +6,7 @@ import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { exposureRuleV1 } from "@shared/specialization/rules";
-import { calendarWeekInterval, customInterval, planWeekInterval, rolling7dInterval } from "@shared/specialization/time";
+import { calendarWeekInterval, customInterval, isDateKey, planWeekInterval, rolling7dInterval } from "@shared/specialization/time";
 import type { ArmSide, ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummaryInterval, SummaryMode, SummaryRequest } from "@shared/specialization/types";
 import { boutsFromSessions, excludedRecordsFromSessions } from "./bouts";
 import { boutsFromPlan } from "./planBouts";
@@ -93,7 +93,8 @@ export function catalogMusclesLookup(catalog: readonly Exercise[]): SummaryReque
 export function intervalForView(view: { mode: SummaryMode; window: "week" | "7d" | "custom"; from: string | null; to: string | null; planWeek: number | null }, nowIso: string, timeZone: string, defaultPlanWeek = 1): SummaryInterval {
   if (view.mode === "planned") return planWeekInterval(view.planWeek ?? defaultPlanWeek, timeZone);
   if (view.window === "7d") return rolling7dInterval(nowIso, timeZone);
-  if (view.window === "custom" && view.from && view.to) return customInterval(view.from, view.to, timeZone);
+  // A window the address carries is validated there; this guard keeps any other caller from throwing.
+  if (view.window === "custom" && view.from && view.to && isDateKey(view.from) && isDateKey(view.to)) return customInterval(view.from, view.to, timeZone);
   return calendarWeekInterval(nowIso, timeZone);
 }
 

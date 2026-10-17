@@ -113,7 +113,7 @@ describe("The specialization page", () => {
     // The page stays where it was; the toast names the change and the day, with Undo.
     expect(window.location.search).toBe("?workspace=specialization&region=forearm&node=forearm.br");
     const notice = toasts.find((item) => item.title.startsWith(`Added ${chosenName}`));
-    expect(notice?.title).toBe(`Added ${chosenName} · Week 1 · Legs`);
+    expect(notice?.title).toBe(`Added ${chosenName} · Week 1 · Day 03 · Legs`);
     const chosenId = exercises.find((exercise) => exercise.name === chosenName)!.id;
     const legsIds = () => {
       const stored = JSON.parse(window.localStorage.getItem(PLAN_KEY) ?? "{}");
@@ -172,4 +172,11 @@ describe("The specialization page", () => {
     await startRowWorkout();
     expect(screen.getByRole("group", { name: "Straps on Underhand Barbell Row" })).not.toBeNull();
   }, 30000);
+  it("survives an impossible custom date in a hand-edited address, and drops it", async () => {
+    window.history.replaceState({}, "", "/?workspace=specialization&region=forearm&window=custom&from=2026-02-30&to=2026-03-02");
+    render(createElement(Home));
+    expect(await screen.findByRole("heading", { level: 1, name: "Forearm specialization" }, { timeout: 15000 })).not.toBeNull();
+    await tick();
+    expect(window.location.search).toBe("?workspace=specialization&region=forearm");
+  });
 });

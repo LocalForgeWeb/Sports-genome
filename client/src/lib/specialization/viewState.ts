@@ -1,3 +1,4 @@
+import { isDateKey } from "@shared/specialization/time";
 import type { ArmSide, DiagramLayerId, DiagramViewId, RegionId, SummaryMode } from "@shared/specialization/types";
 
 /**
@@ -32,7 +33,8 @@ export const specializationParamNames = ["region", "node", "limb", "window", "fr
 
 const VIEWS: readonly DiagramViewId[] = ["palm", "back", "thumb"];
 const LAYERS: readonly DiagramLayerId[] = ["surface", "intermediate", "deep"];
-const DATE_KEY = /^\d{4}-\d{2}-\d{2}$/;
+/** The last date a custom window may end on: a day after it has no next day to end at. */
+const LAST_DATE = "9999-12-30";
 
 export function defaultSpecializationState(regionId: RegionId): SpecializationViewState {
   return { regionId, nodeId: null, limb: "right", window: "week", from: null, to: null, mode: "completed", view: "palm", layer: "surface", map: "volume", planWeek: null };
@@ -52,7 +54,8 @@ export function specializationStateFromParams(params: URLSearchParams, defaultRe
   const from = params.get("from");
   const to = params.get("to");
   const planWeek = Number.parseInt(params.get("pweek") ?? "", 10);
-  const custom = windowParam === "custom" && from && to && DATE_KEY.test(from) && DATE_KEY.test(to) && from <= to;
+  // Real calendar dates only (2026-02-30 is not one), so a hand-edited address can never reach the calculator.
+  const custom = windowParam === "custom" && isDateKey(from) && isDateKey(to) && from <= to && to <= LAST_DATE;
   return {
     regionId,
     nodeId: params.get("node") || null,
