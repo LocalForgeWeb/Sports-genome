@@ -1,0 +1,40 @@
+[
+  {
+    "width": 390,
+    "file": "diagram-page-390-viewport.png"
+  },
+  {
+    "width": 390,
+    "file": "diagram-page-390-palm-surface-right.png",
+    "svgWidth": 321,
+    "noOverflow": true
+  },
+  {
+    "width": 390,
+    "file": "diagram-page-390-fcu-selected.png",
+    "pressed": "true"
+  },
+  {
+    "width": 390,
+    "file": "diagram-page-390-back-surface-left.png"
+  },
+  {
+    "width": 375,
+    "file": "diagram-page-375-viewport.png"
+  },
+  {
+    "width": 375,
+    "file": "diagram-page-375-palm-surface-right.png",
+    "svgWidth": 307,
+    "noOverflow": true
+  },
+  {
+    "width": 375,
+    "file": "diagram-page-375-fcu-selected.png",
+    "pressed": "true"
+  },
+  {
+    "width": 375,
+    "file": "diagram-page-375-back-surface-left.png"
+  }
+]
