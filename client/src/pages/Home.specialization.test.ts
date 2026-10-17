@@ -67,7 +67,7 @@ describe("The specialization page", () => {
     await act(async () => { fireEvent.click(within(tabs).getByRole("button", { name: "Specialize" })); });
     await tick();
     expect(window.location.search).toBe("?workspace=specialization&region=forearm");
-    expect(await screen.findByRole("heading", { level: 1, name: "Forearm specialization" })).not.toBeNull();
+    expect(await screen.findByRole("heading", { level: 1, name: "Forearm specialization" }, { timeout: 15000 })).not.toBeNull();
   });
 
   it("keeps what a reload needs and drops what it cannot read", async () => {

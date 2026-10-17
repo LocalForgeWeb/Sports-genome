@@ -32,7 +32,7 @@
 /* Segments: a pill with one lit part. It wraps to two lines rather than push the page sideways at 320 px. */
 .spz-controls, .spz-diagram-controls { display: flex; flex-wrap: wrap; gap: .5rem; min-width: 0; }
 .spz-segment { display: inline-flex; flex-wrap: wrap; max-width: 100%; min-width: 0; border: 1px solid var(--sg-control-border-on-dark); border-radius: 1.45rem; padding: 2px; }
-.spz-segment button { display: inline-flex; flex: 1 1 auto; align-items: center; justify-content: center; min-width: 0; min-height: 2.75rem; border-radius: var(--sg-radius-pill); padding: 0 .6rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-weight: 700; text-align: center; white-space: normal; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
+.spz-segment button { display: inline-flex; flex: 1 1 auto; align-items: center; justify-content: center; min-width: 0; min-height: 2.75rem; border-radius: var(--sg-radius-pill); padding: 0 .5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-weight: 700; text-align: center; white-space: normal; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
 .spz-segment button[aria-pressed="true"] { background: rgb(255 255 255 / .14); color: var(--sg-text-on-dark); }
 .spz-segment button:disabled { color: var(--sg-text-subtle-on-dark); cursor: not-allowed; }
 .spz-segment button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
@@ -67,12 +67,17 @@
 .spz-legend .spz-swatch-none { background: var(--sg-role-neutral-on-dark); }
 .spz-legend .spz-swatch-hatch { background: var(--spz-hatch); }
 
-/* -- The selected muscle: name, one sentence, one action ------------------------ */
-.spz-selected { display: grid; gap: .45rem; border-left: 2px solid var(--sg-selected-on-dark); padding: .15rem 0 .15rem .85rem; }
-.spz-selected-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .6rem; }
-.spz-selected-name b { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 800; }
-.spz-selected-line, .spz-selected-goal { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
-.spz-selected-goal { color: var(--sg-text-on-dark); font-weight: 700; }
+/* -- The selected muscle, inside the map card: name, one sentence, one action ------ *
+   It sits between the view and layer controls and the drawing, so a tap on the drawing
+   changes the words right above it on a 390 × 844 screen. Gold edge while a muscle is
+   selected; a plain edge for the region line when none is. */
+.spz-strip { display: grid; gap: .35rem; min-width: 0; border-left: 2px solid var(--sg-selected-on-dark); padding: .1rem 0 .1rem .75rem; }
+.spz-strip[data-empty] { border-left-color: var(--sg-control-border-on-dark); }
+.spz-strip-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; }
+.spz-strip-name b { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 800; }
+.spz-strip-line, .spz-strip-goal { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.spz-strip-goal { color: var(--sg-text-on-dark); font-weight: 700; }
+.spz-strip .spz-actions { gap: .25rem .75rem; }
 .spz-badge { display: inline-flex; align-items: center; min-height: 1.4rem; border: 1px solid rgb(164 200 232 / .3); border-radius: var(--sg-radius-pill); padding: 0 .5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; white-space: nowrap; }
 
 .spz-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; }
@@ -135,6 +140,18 @@
 .spz-candidate { align-items: flex-start; flex-wrap: wrap; }
 .spz-candidate > span:first-child { flex: 1 1 14rem; }
 .spz-candidate-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .75rem; }
+.spz-candidate-why { flex: 1 1 100%; min-width: 0; }
+
+/* -- Why this counts: the mappings behind an exercise's credit, with their sources ------ */
+.spz-why { border-top: 1px dashed rgb(164 200 232 / .22); }
+.spz-why > summary b { font-size: var(--sg-text-base); }
+.spz-why-list { display: grid; gap: .8rem; padding: 0; list-style: none; }
+.spz-why-list > li { display: grid; gap: .25rem; border-left: 2px solid rgb(164 200 232 / .25); padding-left: .6rem; }
+.spz-why-head b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; }
+.spz-why-line, .spz-why-rationale { color: #d6e2ee; font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.spz-why-basis { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; }
+.spz-why-basis small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+.spz-why .spz-sources small { display: block; color: var(--sg-text-muted-on-dark); }
 
 .spz-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: .6rem; gap: .3rem; margin-bottom: .6rem; padding: 0; list-style: none; }
 .spz-days li { display: grid; justify-items: center; gap: .15rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-variant-numeric: tabular-nums; }
@@ -214,7 +231,7 @@
 .spz-sheet-section > p { color: #d6e2ee; font-size: var(--sg-text-lg); line-height: var(--sg-leading-body); }
 .spz-actions-list { display: grid; gap: .5rem; padding: 0; list-style: none; }
 .spz-actions-list li { display: flex; align-items: flex-start; gap: .7rem; }
-.spz-actions-list li > span { display: grid; gap: .1rem; min-width: 0; }
+.spz-actions-list li > span { display: grid; flex: 1 1 auto; gap: .1rem; min-width: 0; }
 .spz-actions-list b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; }
 .spz-actions-list small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-glyph { flex: 0 0 auto; color: var(--spz-other, #6fa3d9); }

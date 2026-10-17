@@ -58,9 +58,9 @@ function EditorHarness({ side = "right" as ArmSide }) {
   return createElement(TargetsEditor, { regionId: "forearm", nodeId: BR, nodeName: "Brachioradialis", side, goals: mine, progress, timeZone: ZONE, todayKey: TODAY, onSave: save, onRemove: remove });
 }
 
-function OverviewHarness({ side = "right" as ArmSide, onOpenMuscle = (() => {}) as (nodeId: string) => void, summaryOf = ((goals, arm) => summaryFor(goals, arm)) as (goals: readonly SpecializationGoal[], arm: ArmSide) => SpecializationSummary | null }) {
+function OverviewHarness({ side = "right" as ArmSide, onOpenMuscle = (() => {}) as (nodeId: string) => void, onOpenMovement = undefined as ((actionId: string) => void) | undefined, summaryOf = ((goals, arm) => summaryFor(goals, arm)) as (goals: readonly SpecializationGoal[], arm: ArmSide) => SpecializationSummary | null }) {
   const { goals, save, remove } = useSpecializationGoals(null);
-  return createElement(TargetsOverview, { data: forearmRegionData, summary: summaryOf(goals, side), goals, side, timeZone: ZONE, todayKey: TODAY, onSave: save, onRemove: remove, onOpenMuscle });
+  return createElement(TargetsOverview, { data: forearmRegionData, summary: summaryOf(goals, side), goals, side, timeZone: ZONE, todayKey: TODAY, onSave: save, onRemove: remove, onOpenMuscle, onOpenMovement });
 }
 
 const click = async (element: HTMLElement) => { await act(async () => { fireEvent.click(element); }); };
@@ -261,7 +261,17 @@ describe("the Targets overview", () => {
     const group = screen.getByText("Elbow flexion").closest("li")!;
     expect(within(group).getByText("Movement")).not.toBeNull();
     expect(within(group).getByText(/8 of your 20/)).not.toBeNull();
+    // Without a movement view to open, no Open is offered.
     expect(within(group).queryByRole("button", { name: /^Open/ })).toBeNull();
+  });
+
+  it("opens a movement target as the page wires it: the sets behind its number and exercises for it", async () => {
+    const onOpenMovement = vi.fn();
+    seed(goal({ id: "move", nodeId: null, actionId: ELBOW_FLEXION }));
+    render(createElement(OverviewHarness, { onOpenMovement }));
+    const group = screen.getByText("Elbow flexion").closest("li")!;
+    await click(within(group).getByRole("button", { name: "Open Elbow flexion" }));
+    expect(onOpenMovement).toHaveBeenCalledWith(ELBOW_FLEXION);
   });
 
   it("says Not targeted on an arm without a target, and opens the muscle", async () => {

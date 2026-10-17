@@ -10,6 +10,7 @@ import type {
   MappingCoverage,
   NodeExposure,
   NodeId,
+  RegionBoutRow,
   SpecializationGoal,
   SpecializationRegionData,
   SpecializationSummary,
@@ -199,6 +200,23 @@ export function sharedPartnersOf(region: SpecializationRegionData, variant: Exer
   return sharedWithOf(index, variant, nodeId, own);
 }
 
+/** A bout as a region total lists it: the set record, with no node and no category. */
+function regionRowOf(bout: ExposureBout): RegionBoutRow {
+  return {
+    boutId: bout.id,
+    side: bout.side,
+    sideSource: bout.sideSource,
+    catalogExerciseId: bout.catalogExerciseId,
+    exerciseName: bout.exerciseName,
+    matchedBy: bout.matchedBy,
+    sessionId: bout.sessionId,
+    sessionLabel: bout.sessionLabel,
+    performedAt: bout.performedAt,
+    kind: bout.kind,
+    segments: segmentsOf(bout),
+  };
+}
+
 function contributionOf(bout: ExposureBout, nodeId: NodeId, category: ExposureCategory, parts: Part[], notes: string[], sharedWith: NodeId[]): Contribution {
   const segments = segmentsOf(bout);
   return {
@@ -293,7 +311,7 @@ function addToUnknownSide(node: NodeExposure, contribution: Contribution): void 
 /** Natural order, so "…/2" sorts before "…/10". */
 const naturalCompare = (a: string, b: string) => a.localeCompare(b, "en", { numeric: true });
 
-function byTimeThenId(a: Contribution, b: Contribution): number {
+function byTimeThenId(a: Pick<Contribution, "performedAt" | "boutId">, b: Pick<Contribution, "performedAt" | "boutId">): number {
   if (a.performedAt !== b.performedAt) {
     if (a.performedAt === null) return 1;
     if (b.performedAt === null) return -1;
@@ -336,9 +354,11 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
   };
 
   const nodes = new Map(region.nodes.map((node) => [node.id, emptyNode(node.id, index.coverage.get(node.id) ?? "none")] as const));
-  const regionBouts = new Set<string>();
-  const regionUnknownSide = new Set<string>();
+  // Region totals keep the bouts they count, so every total opens its set records (brief §1).
+  const regionBouts = new Map<string, RegionBoutRow>();
+  const regionUnknownSide = new Map<string, RegionBoutRow>();
   const unclassified = new Map<string, { name: string; catalogExerciseId: number | null; bouts: number }>();
+  const unclassifiedRows: RegionBoutRow[] = [];
   const completeness: SummaryCompleteness = {
     boutsConsidered: 0,
     boutsWithReviewedMapping: 0,
@@ -370,6 +390,7 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
       const entry = unclassified.get(key) ?? { name: bout.exerciseName, catalogExerciseId: bout.catalogExerciseId, bouts: 0 };
       entry.bouts += 1;
       unclassified.set(key, entry);
+      unclassifiedRows.push(regionRowOf(bout));
       continue;
     }
 
@@ -395,10 +416,10 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
       node.contributions.push(contribution);
       if (bout.side === "unknown") {
         addToUnknownSide(node, contribution);
-        if (index.regionNodeIds.has(nodeId)) regionUnknownSide.add(bout.id);
+        if (index.regionNodeIds.has(nodeId) && !regionUnknownSide.has(bout.id)) regionUnknownSide.set(bout.id, regionRowOf(bout));
       } else {
         addToArm(node, contribution);
-        if (index.regionNodeIds.has(nodeId)) regionBouts.add(bout.id);
+        if (index.regionNodeIds.has(nodeId) && !regionBouts.has(bout.id)) regionBouts.set(bout.id, regionRowOf(bout));
       }
     }
   }
@@ -424,6 +445,9 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
       bouts: Array.from(unclassified.values()).reduce((total, entry) => total + entry.bouts, 0),
       exercises: Array.from(unclassified.values()).sort((a, b) => b.bouts - a.bouts || naturalCompare(a.name, b.name)),
     },
+    regionBoutRows: Array.from(regionBouts.values()).sort(byTimeThenId),
+    regionUnknownSideRows: Array.from(regionUnknownSide.values()).sort(byTimeThenId),
+    regionUnclassifiedRows: unclassifiedRows.sort(byTimeThenId),
     goals: goalProgressFor(request, index, all, classOf),
     completeness,
     calculatedAt: request.now,
