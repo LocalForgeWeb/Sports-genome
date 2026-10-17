@@ -1,10 +1,12 @@
+import { readFileSync, readdirSync } from "node:fs";
+import { basename, resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { specializationRegions } from "@shared/specialization/registry";
 import { exposureRuleV1 } from "@shared/specialization/rules";
 import { deltoidIds, deltoidRegionData } from "@/lib/specialization/__fixtures__/deltoidRegion";
-import { emitSeedSql, productionSeedInput, quote, referenceRegionLabels, type SeedInput } from "../scripts/specialization/emit-seed";
-import { SEED_MIGRATION_PATH, USER_A, applyMigration, as, count, createSeededDb, readMigration, rows, scriptFailure, stubExercises } from "./fixtures/specializationPg";
+import { SEED_MIGRATION_PATH as EMITTED_SEED_PATH, emitSeedSql, productionSeedInput, quote, referenceRegionLabels, type SeedInput } from "../scripts/specialization/emit-seed";
+import { SCHEMA_MIGRATION_PATH, SEED_MIGRATION_PATH, USER_A, applyMigration, as, count, createSeededDb, readMigration, rows, scriptFailure, stubExercises } from "./fixtures/specializationPg";
 import type { DiagramAsset, SpecializationRegionData } from "@shared/specialization/types";
 
 /**
@@ -98,10 +100,38 @@ describe("drift guard", () => {
       const b = emitted.split("\n");
       const line = a.findIndex((text, index) => text !== b[index]);
       throw new Error(
-        `supabase/migrations/20261016120100_specialization_atlas_seed_v1.sql is stale (first difference at line ${line + 1}). ` +
+        `supabase/migrations/${basename(SEED_MIGRATION_PATH)} is stale (first difference at line ${line + 1}). ` +
           "Run: npx tsx scripts/specialization/emit-seed.ts",
       );
     }
+  });
+
+  /**
+   * The two files are renamed to the versions Supabase records after the production apply
+   * (04-database.md §9). Every reference to them must follow, or the tests read a file that is
+   * not there; this names any that did not.
+   */
+  it("names only migration files that exist, and the seed names neither file by version", () => {
+    const root = process.cwd();
+    const inDir = (dir: string, keep: (name: string) => boolean) => readdirSync(resolve(root, dir)).filter(keep).map((name) => `${dir}/${name}`);
+    const files = [
+      ...inDir("docs/specialization-atlas", (name) => name.endsWith(".md")),
+      "docs/infrastructure-v2/deployment.md",
+      ...inDir("scripts/specialization", (name) => name.endsWith(".ts")),
+      ...inDir("server/fixtures", (name) => name.startsWith("specialization")),
+      ...inDir("server", (name) => /^specialization.*\.test\.ts$/.test(name)),
+      ...inDir("supabase/migrations", (name) => name.includes("specialization_atlas")),
+    ];
+    const existing = new Set(readdirSync(resolve(root, "supabase/migrations")));
+    const references = files.flatMap((file) => Array.from(readFileSync(resolve(root, file), "utf8").matchAll(/\b\d{14}_specialization_atlas_[a-z0-9_]+\.sql\b/g), (match) => ({ file, name: match[0] })));
+    expect(references.filter((reference) => !existing.has(reference.name))).toEqual([]);
+    // The scan reaches the places the tests and the generator read the files from.
+    expect(Array.from(new Set(references.map((reference) => reference.file)))).toEqual(expect.arrayContaining(["server/fixtures/specializationPg.ts", "scripts/specialization/emit-seed.ts", "docs/specialization-atlas/04-database.md"]));
+    // The tests and the generator read the same seed file, and the seed's text names neither file by version, so the rename leaves what production ran unchanged.
+    expect(SEED_MIGRATION_PATH).toBe(EMITTED_SEED_PATH);
+    expect(basename(SCHEMA_MIGRATION_PATH)).toMatch(/^\d{14}_specialization_atlas_schema\.sql$/);
+    expect(readMigration(SEED_MIGRATION_PATH)).toContain("-- Applies after the schema migration (…_specialization_atlas_schema.sql), and can be applied again:");
+    expect(readMigration(SEED_MIGRATION_PATH)).not.toMatch(/\d{14}_specialization_atlas_/);
   });
 
   it("is deterministic and does not depend on the order regions are listed in", () => {
@@ -269,6 +299,7 @@ describe("changing content", () => {
 
   it("refuses rewriting what the published version rests on, and applies nothing of that seed", async () => {
     const f = forearmRegionData;
+    const decides = /node forearm\.fdp is mapped by mapping version forearm_mappings_v1 \(published\); it must stay reviewed and cannot be deleted, and its region, role and catalog muscle key, which decide what its work counts toward, cannot change/;
     const cases: [what: string, edited: SpecializationRegionData, refusal: RegExp][] = [
       // cat-403 maps FDS and FDP as direct isometric work: the flag moves them between deliberate and incidental holds.
       ["a variant's deliberate hold", { ...f, variants: f.variants.map((v) => (v.id === "cat-403" ? { ...v, deliberateHold: !v.deliberateHold } : v)) }, /variant cat-403 is used by mapping version forearm_mappings_v1 \(published\); it cannot change/],
@@ -279,6 +310,16 @@ describe("changing content", () => {
       ["a claim's review", { ...f, claims: f.claims.map((c) => (c.id === "fcu.function" ? { ...c, reviewStatus: "draft" as const, reviewedAt: null } : c)) }, /claim forearm:fcu\.function is a reviewed claim/],
       ["a node action's role", { ...f, nodeActions: f.nodeActions.map((n) => (n.nodeId === "forearm.fcu" && n.actionId === "wrist.flexion" ? { ...n, role: "assist" as const } : n)) }, /node action forearm\.fcu wrist\.flexion is named by mapping version forearm_mappings_v1 \(published\)/],
       ["a mapped muscle's review", { ...f, nodes: f.nodes.map((n) => (n.id === "forearm.fcr" ? { ...n, status: "draft" as const } : n)) }, /node forearm\.fcr is mapped by mapping version forearm_mappings_v1 \(published\); it must stay reviewed/],
+      // What decides counting on a mapped muscle (final review F-database-2): region and role decide whether its bouts are the forearm's, role and catalog key which tagged work is region work.
+      ["a mapped muscle's role", { ...f, nodes: f.nodes.map((n) => (n.id === "forearm.fdp" ? { ...n, role: "adjacent" as const } : n)) }, decides],
+      ["a mapped muscle's catalog muscle key", { ...f, nodes: f.nodes.map((n) => (n.id === "forearm.fdp" ? { ...n, catalogMuscleKey: null } : n)) }, decides],
+      ["a mapped muscle's region", { ...f, nodes: f.nodes.map((n) => (n.id === "forearm.fdp" ? { ...n, regionId: "upper_arm", role: "external" as const } : n)) }, decides],
+      // The provenance label users read beside the claim.
+      [
+        "a claim's basis",
+        { ...f, claims: f.claims.map((c) => (c.id === "fcu.function" ? { ...c, basis: c.basis === "product_assumption" ? ("anatomical_inference" as const) : ("product_assumption" as const) } : c)) },
+        /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\) maps; its key, node, kind, statement, basis and review status cannot change/,
+      ],
     ];
     const before = await rowVersions();
     for (const [what, edited, refusal] of cases) expect(await reapplied(edited), what).toMatch(refusal);

@@ -752,6 +752,32 @@ describe("what a published mapping version rests on is frozen with it", () => {
     });
   });
 
+  // Final review F-database-2: what decides counting on a mapped muscle is frozen with the version.
+  it("a muscle it maps keeps its region, role and catalog muscle key; its kind, parent, words and database muscle may change", async () => {
+    // Region and role decide whether FDP's bouts are the forearm's (regionNodeIds); role and catalog key decide which catalog-tagged work is region work.
+    const decides = /node forearm\.fdp is mapped by mapping version forearm_mappings_v1 \(published\); it must stay reviewed and cannot be deleted, and its region, role and catalog muscle key, which decide what its work counts toward, cannot change/;
+    const before = await rows(db, "select * from specialization.nodes where id = 'forearm.fdp'");
+    for (const who of owners) {
+      await as(db, who, async () => {
+        for (const change of ["region_id = 'upper_arm'", "role = 'external'", "role = 'adjacent'", "region_id = 'upper_arm', role = 'external'", "catalog_muscle_key = null", "catalog_muscle_key = 'forearm_flexors'"]) {
+          expect(await failure(db, `update specialization.nodes set ${change} where id = 'forearm.fdp'`), `${who}: ${change}`).toMatch(decides);
+        }
+        // An update that changes nothing passes, whatever columns it names.
+        expect(await failure(db, "update specialization.nodes set region_id = region_id, role = role, catalog_muscle_key = catalog_muscle_key, status = status where id = 'forearm.fdp'"), who).toBeNull();
+        // What only places or describes it may change, and change back.
+        for (const [change, back] of [["kind = 'head'", "kind = 'muscle'"], ["parent_id = 'forearm.posterior'", "parent_id = 'forearm.anterior'"], ["short_name = 'FDP (edited)'", "short_name = 'FDP'"]]) {
+          expect(await failure(db, `update specialization.nodes set ${change} where id = 'forearm.fdp'`), `${who}: ${change}`).toBeNull();
+          expect(await failure(db, `update specialization.nodes set ${back} where id = 'forearm.fdp'`), `${who}: ${back}`).toBeNull();
+        }
+      });
+    }
+    // database_muscle follows public.muscles (on update cascade): the guard lets the cascade through.
+    expect(await failure(db, "update public.muscles set canonical_name = 'forearm_flexors_renamed' where canonical_name = 'forearm_flexors'")).toBeNull();
+    expect(await rows(db, "select database_muscle from specialization.nodes where id = 'forearm.fdp'")).toEqual([{ database_muscle: "forearm_flexors_renamed" }]);
+    expect(await failure(db, "update public.muscles set canonical_name = 'forearm_flexors' where canonical_name = 'forearm_flexors_renamed'")).toBeNull();
+    expect(await rows(db, "select * from specialization.nodes where id = 'forearm.fdp'")).toEqual(before);
+  });
+
   it("a muscle, claim and node action no published version uses stay free", async () => {
     await as(db, "service_role", async () => {
       await insertTestNode("forearm.zz_free", "forearm.anterior", "reviewed");
@@ -764,6 +790,7 @@ describe("what a published mapping version rests on is frozen with it", () => {
         "update specialization.node_actions set role = 'assist' where node_id = 'forearm.zz_free'",
         "update specialization.claims set statement = 'Rewritten.' where claim_key = 'test:zz_free.function'",
         "update specialization.claim_sources set locator = 'Elsewhere' where claim_id = (select id from specialization.claims where claim_key = 'test:zz_free.function')",
+        "update specialization.nodes set role = 'adjacent', catalog_muscle_key = null where id = 'forearm.zz_free'",
         "update specialization.nodes set status = 'draft' where id = 'forearm.zz_free'",
         "delete from specialization.node_actions where node_id = 'forearm.zz_free'",
         "delete from specialization.claims where claim_key = 'test:zz_free.function'",
@@ -774,20 +801,25 @@ describe("what a published mapping version rests on is frozen with it", () => {
     });
   });
 
-  it("a reviewed claim of a mapped muscle keeps its key, node, kind, statement and review, and stays; its note may change; a draft claim is free", async () => {
-    const frozen = /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\) maps; its key, node, kind, statement and review status cannot change/;
+  it("a reviewed claim of a mapped muscle keeps its key, node, kind, statement, basis and review, and stays; its note and review date may change; a draft claim is free", async () => {
+    const frozen = /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\) maps; its key, node, kind, statement, basis and review status cannot change/;
+    // The basis is the provenance label users read beside the claim (MuscleSheet): relabelling it rewrites what was published.
+    const [{ basis }] = await rows<{ basis: string }>(db, "select basis from specialization.claims where claim_key = 'forearm:fcu.function'");
+    const otherBasis = basis === "product_assumption" ? "anatomical_inference" : "product_assumption";
     for (const who of owners) {
       await as(db, who, async () => {
-        for (const change of ["statement = 'Rewritten.'", "review_status = 'draft'", "review_status = 'rejected'", "kind = 'appearance'", "node_id = 'forearm.fcr'", "claim_key = 'forearm:fcu.function.renamed'"]) {
+        for (const change of ["statement = 'Rewritten.'", "review_status = 'draft'", "review_status = 'rejected'", "kind = 'appearance'", "node_id = 'forearm.fcr'", "claim_key = 'forearm:fcu.function.renamed'", `basis = '${otherBasis}'`]) {
           expect(await failure(db, `update specialization.claims set ${change} where claim_key = 'forearm:fcu.function'`), `${who}: ${change}`).toMatch(frozen);
         }
         expect(await failure(db, "delete from specialization.claims where claim_key = 'forearm:fcu.function'"), who).toMatch(frozen);
+        // An update that changes nothing passes.
+        expect(await failure(db, "update specialization.claims set basis = basis, statement = statement where claim_key = 'forearm:fcu.function'"), who).toBeNull();
       });
     }
     await as(db, "service_role", async () => {
-      const [{ note }] = await rows<{ note: string | null }>(db, "select review_note as note from specialization.claims where claim_key = 'forearm:fcu.function'");
-      expect(await failure(db, "update specialization.claims set review_note = 'Checked again.' where claim_key = 'forearm:fcu.function'")).toBeNull();
-      expect(await failure(db, "update specialization.claims set review_note = $1 where claim_key = 'forearm:fcu.function'", [note])).toBeNull();
+      const [{ note, reviewedOn }] = await rows<{ note: string | null; reviewedOn: string }>(db, "select review_note as note, reviewed_on::text as \"reviewedOn\" from specialization.claims where claim_key = 'forearm:fcu.function'");
+      expect(await failure(db, "update specialization.claims set review_note = 'Checked again.', reviewed_on = '2026-10-18' where claim_key = 'forearm:fcu.function'")).toBeNull();
+      expect(await failure(db, "update specialization.claims set review_note = $1, reviewed_on = $2 where claim_key = 'forearm:fcu.function'", [note, reviewedOn])).toBeNull();
       // The draft claim set up for the read tests is free; a new claim may be added and reviewed, and is then frozen like the rest.
       expect(await failure(db, "update specialization.claims set statement = 'Draft claim, rewritten.' where claim_key = 'test:fcu.draft'")).toBeNull();
       expect(await failure(db, "insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status) values ('test:fcu.added', 'forearm.fcu', 'variation', 'Added later.', 'unknown', 'draft')")).toBeNull();
@@ -938,6 +970,75 @@ describe("publishing a mapping version", () => {
       const message = await publish("zz_rejected");
       expect(message).toMatch(/rejected mappings must be removed first: zz:rejected/);
       expect(message).toMatch(/a movement their muscle has no node action for: zz:wrong-action/);
+    });
+  });
+
+  // Final review F-database-1: a reviewed mapping never rests on a claim users cannot read, or one with no citation.
+  it("refuses a reviewed mapping whose node action rests on a draft or unsourced function claim; a draft row may; the claim it rests on is then frozen", async () => {
+    await as(db, "service_role", async () => {
+      await insertTestNode("forearm.zz_claims", "forearm.anterior", "reviewed");
+      await insertTestNode("forearm.zz_draftnode", "forearm.anterior", "draft");
+      await db.exec(`
+        insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status, reviewed_on) values
+          ('test:zz_claims.function', 'forearm.zz_claims', 'function', 'Reviewed and sourced.', 'established_anatomy', 'reviewed', '2026-10-16'),
+          ('test:zz_claims.unsourced', 'forearm.zz_claims', 'function', 'Reviewed, with no source.', 'established_anatomy', 'reviewed', '2026-10-16'),
+          ('test:zz_draftnode.function', 'forearm.zz_draftnode', 'function', 'Reviewed claim of a draft muscle.', 'established_anatomy', 'reviewed', '2026-10-16');
+        insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status) values
+          ('test:zz_claims.draft', 'forearm.zz_claims', 'function', 'Still a draft.', 'anatomical_inference', 'draft');
+        insert into specialization.claim_sources (claim_id, source_id, locator)
+          select c.id, s.id, 'Test' from specialization.claims c, specialization.sources s
+          where c.claim_key in ('test:zz_claims.function', 'test:zz_claims.draft', 'test:zz_draftnode.function') and s.source_key = 'S2';
+        insert into specialization.node_actions (node_id, action_id, role, claim_id)
+          select c.node_id, a.action_id, 'prime', c.id from specialization.claims c
+          join (values ('wrist.flexion', 'test:zz_claims.function'), ('wrist.extension', 'test:zz_claims.draft'), ('wrist.ulnar_deviation', 'test:zz_claims.unsourced'), ('wrist.flexion', 'test:zz_draftnode.function')) as a (action_id, claim_key)
+            on a.claim_key = c.claim_key;
+      `);
+    });
+    const located = [{ key: "S4", locator: "Table" }];
+    for (const who of ["service_role", "postgres"] as const) {
+      await as(db, who, async () => {
+        const key = `zz_claims_${who}`;
+        await newDraftVersion(key);
+        await addMapping(key, `${key}:flexion`, { variant: "cat-139", node: "forearm.zz_claims", action: "wrist.flexion", sources: located });
+        await addMapping(key, `${key}:extension`, { variant: "cat-140", node: "forearm.zz_claims", action: "wrist.extension", sources: located });
+        await addMapping(key, `${key}:ulnar`, { variant: "cat-408", node: "forearm.zz_claims", action: "wrist.ulnar_deviation", sources: located });
+        await addMapping(key, `${key}:draft-muscle`, { variant: "cat-139", node: "forearm.zz_draftnode", action: "wrist.flexion", status: "draft", sources: located });
+        const message = await publish(key);
+        expect(message, who).toMatch(new RegExp(`reviewed mappings rest on a function claim that is not reviewed: ${key}:extension \\(test:zz_claims\\.draft\\)(;|$)`));
+        expect(message, who).toMatch(new RegExp(`reviewed mappings rest on a function claim with no source: ${key}:ulnar \\(test:zz_claims\\.unsourced\\)(;|$)`));
+        expect(message, who).not.toMatch(/:flexion|:draft-muscle/);
+      });
+    }
+    await as(db, "service_role", async () => {
+      expect(await failure(db, "delete from specialization.mapping_versions where version_key = 'zz_claims_postgres'")).toBeNull();
+      // As draft rows they may rest on those claims: users never see them and nothing counts them.
+      expect(await failure(db, "update specialization.variant_mappings set review_status = 'draft' where mapping_key in ('zz_claims_service_role:extension', 'zz_claims_service_role:ulnar')")).toBeNull();
+      expect(await problemsOf("zz_claims_service_role")).toBeNull();
+      expect(await publish("zz_claims_service_role")).toBeNull();
+    });
+    // A signed-in user reads the reviewed mapping and the node action under it; the draft claim's node action stays hidden.
+    const seen = await as(db, userA, async () => ({
+      mappings: (await rows<{ mapping_key: string }>(db, "select mapping_key from specialization.variant_mappings where mapping_key like 'zz_claims_service_role:%' order by 1")).map((row) => row.mapping_key),
+      actions: (await rows<{ action_id: string }>(db, "select action_id from specialization.node_actions where node_id = 'forearm.zz_claims' order by 1")).map((row) => row.action_id),
+      // Across every published version: no reviewed mapping a user reads rests on a node action the user cannot read.
+      orphans: await count(db, "select 1 from specialization.variant_mappings m where m.action_id is not null and not exists (select 1 from specialization.node_actions na where na.node_id = m.node_id and na.action_id = m.action_id)"),
+    }));
+    expect(seen).toEqual({ mappings: ["zz_claims_service_role:flexion"], actions: ["wrist.flexion", "wrist.ulnar_deviation"], orphans: 0 });
+    for (const who of ["service_role", "postgres"] as const) {
+      await as(db, who, async () => {
+        const frozen = /claim test:zz_claims\.function is a reviewed claim on forearm\.zz_claims, which mapping version zz_claims_service_role \(published\) maps/;
+        expect(await failure(db, "update specialization.claims set review_status = 'rejected', statement = 'Rewritten.' where claim_key = 'test:zz_claims.function'"), who).toMatch(frozen);
+        expect(await failure(db, "update specialization.claims set basis = 'product_assumption' where claim_key = 'test:zz_claims.function'"), who).toMatch(frozen);
+        expect(await failure(db, "delete from specialization.claim_sources where claim_id = (select id from specialization.claims where claim_key = 'test:zz_claims.function')"), who).toMatch(/the sources of claim test:zz_claims\.function cannot change/);
+        // The draft claim behind a draft row is free, and so is a draft muscle a draft row maps, until it is reviewed.
+        expect(await failure(db, "update specialization.claims set statement = 'Still a draft, rewritten.' where claim_key = 'test:zz_claims.draft'"), who).toBeNull();
+        expect(await failure(db, "update specialization.nodes set role = 'adjacent' where id = 'forearm.zz_draftnode'"), who).toBeNull();
+        expect(await failure(db, "update specialization.nodes set role = 'target' where id = 'forearm.zz_draftnode'"), who).toBeNull();
+      });
+    }
+    await as(db, "service_role", async () => {
+      expect(await failure(db, "update specialization.nodes set status = 'reviewed' where id = 'forearm.zz_draftnode'")).toBeNull();
+      expect(await failure(db, "update specialization.nodes set role = 'adjacent' where id = 'forearm.zz_draftnode'")).toMatch(/node forearm\.zz_draftnode is mapped by mapping version zz_claims_service_role \(published\); .* its region, role and catalog muscle key/);
     });
   });
 
@@ -1122,6 +1223,40 @@ describe("applied as one DO block per file, the way it reaches production", () =
     }
     expect(asDoBlock("select '$body$ and $outer$'")).toMatch(/^do \$outer1\$ declare body text := \$body1\$/);
   });
+
+  /**
+   * The runbook (04-database.md §9) names every existing table the two files lock, so the
+   * owner can choose the moment to apply them. The schema's foreign keys take SHARE ROW
+   * EXCLUSIVE on what they reference, which blocks writes there (sign-ups, sign-ins and
+   * account deletions on auth.users) until it commits; the seed only reads and key-shares.
+   */
+  it("locks only the existing tables the runbook names: auth.users, public.muscles and public.exercises", async () => {
+    const fresh = await createSupabaseLikeDb();
+    const held = () =>
+      rows<{ relation: string; mode: string }>(
+        fresh,
+        `select n.nspname || '.' || c.relname as relation, l.mode from pg_locks l
+         join pg_class c on c.oid = l.relation join pg_namespace n on n.oid = c.relnamespace
+         where l.locktype = 'relation' and l.pid = pg_backend_pid() and c.relkind in ('r', 'p')
+           and n.nspname not in ('specialization', 'pg_catalog', 'information_schema')
+         order by 1, 2`,
+      );
+    try {
+      await fresh.exec("begin");
+      await applyMigration(fresh, SCHEMA_MIGRATION_PATH);
+      expect(await held()).toEqual(
+        ["auth.users", "public.exercises", "public.muscles"].flatMap((relation) => [{ relation, mode: "AccessShareLock" }, { relation, mode: "ShareRowExclusiveLock" }]),
+      );
+      await fresh.exec("commit");
+      await fresh.exec("begin");
+      await applyMigration(fresh, SEED_MIGRATION_PATH);
+      // Reads public.exercises for the catalog links; foreign-key checks key-share the rows they name. Neither blocks ordinary writes.
+      expect(await held()).toEqual([{ relation: "public.exercises", mode: "AccessShareLock" }, { relation: "public.exercises", mode: "RowShareLock" }, { relation: "public.muscles", mode: "RowShareLock" }]);
+      await fresh.exec("rollback");
+    } finally {
+      await fresh.close();
+    }
+  }, SETUP);
 
   it("gives the same database as applying the files directly, and refuses a changed seed the same way, applying none of it", async () => {
     const direct = await createSupabaseLikeDb();

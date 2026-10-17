@@ -25,6 +25,7 @@ import { btree_gist } from "@electric-sql/pglite/contrib/btree_gist";
  * guard against them are described in the migration and in 04-database.md.
  */
 
+// Renamed with the files after the first production apply (04-database.md §9 lists every place that names them).
 export const SCHEMA_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261016120000_specialization_atlas_schema.sql");
 export const SEED_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261016120100_specialization_atlas_seed_v1.sql");
 

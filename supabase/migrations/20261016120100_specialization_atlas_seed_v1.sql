@@ -6,14 +6,15 @@
 -- Regions: forearm, upper_arm. Contents: 24 nodes, 20 actions, 38 node actions, 60 claims, 71 sources, 119 catalog exercises, 119 variants, 418 mappings, 934 mapping sources, 1 diagram assets, 1 rule versions.
 -- Mapping version forearm_mappings_v1 (published): 413 reviewed, 5 draft (cat-144:forearm.fpl, cat-145:forearm.fpl, cat-299:forearm.fpl, cat-317:forearm.br, cat-409:forearm.fpl).
 --
--- Applies after 20261016120000_specialization_atlas_schema.sql, and can be applied again:
+-- Applies after the schema migration (…_specialization_atlas_schema.sql), and can be applied again:
 -- every write is an upsert keyed by the content's own keys that skips unchanged rows, and
 -- the sets the content owns (a version's mappings and their sources, a region's claims with
 -- their sources and node actions, a drawing's views, paths and labels) lose the rows the
 -- content no longer has. A published mapping or rule version is immutable, and so is what a
--- published version rests on (its variants, node actions, reviewed claims and their
--- sources, cited sources), so a change or removal under such a key is refused here and
--- nothing of this file is applied; give the change new keys and a new version. See
+-- published version rests on (its variants; its muscles' review, region, role and catalog
+-- key; node actions; reviewed claims with their basis and sources; cited sources), so a
+-- change or removal under such a key is refused here and nothing of this file is
+-- applied; give the change new keys and a new version. See
 -- docs/specialization-atlas/04-database.md.
 --
 -- Rollback: the schema's (drop schema if exists specialization cascade). Published

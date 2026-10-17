@@ -40,8 +40,9 @@
 --     (specialization.mapping_version_problems, documented on the function);
 --   * what a published or retired mapping version rests on is frozen with it: its
 --     variants, the node actions its mappings name, the reviewed claims of the muscles it
---     maps and their sources, those muscles' reviewed status, and the sources it cites
---     (key, url, title, evidence type). Changed content needs new keys and a new version;
+--     maps (key, node, kind, statement, basis, review) and their sources, those muscles'
+--     reviewed status, region, role and catalog muscle key, and the sources it cites (key,
+--     url, title, evidence type). Changed content needs new keys and a new version;
 --   * a published rule version is immutable;
 --   * TRUNCATE, which fires no row trigger, is refused on the tables holding any of that
 --     while a published or retired version (or a published rule) exists;
@@ -474,10 +475,15 @@ create or replace trigger nodes_refuse_parent_cycle
 --   5. every mapped muscle has a reviewed function claim;
 --   6. every muscle a reviewed mapping credits is itself reviewed;
 --   7. every mapping that names a joint action names one its muscle performs (a
---      node_actions row, which rests on that muscle's function claim).
+--      node_actions row, which rests on that muscle's function claim);
+--   8. the function claim behind a reviewed mapping's node action is itself reviewed;
+--   9. and it has at least one source.
+-- Rules 8 and 9 mean a reviewed mapping never rests on a claim users cannot read or one
+-- with no citation; once published, that claim and its sources are frozen with the version
+-- (guard_published_claim, guard_published_claim_source: a reviewed claim of a mapped muscle).
 -- Draft rows may be published with the version: they keep their source and the
--- pending-review label, users never see them, and no total counts them. Moving one to
--- reviewed means a new version.
+-- pending-review label, users never see them, and no total counts them, so their node
+-- action may still rest on a draft claim. Moving one to reviewed means a new version.
 create or replace function specialization.mapping_version_problems(p_version_id uuid)
 returns text
 language sql
@@ -531,6 +537,21 @@ as $fn$
         select 1 from specialization.node_actions na
         where na.node_id = m.node_id and na.action_id = m.action_id
       )
+    having count(*) > 0
+    union all
+    select 8, 'reviewed mappings rest on a function claim that is not reviewed: ' || string_agg(m.mapping_key || ' (' || c.claim_key || ')', ', ' order by m.mapping_key)
+    from m
+    join specialization.node_actions na on na.node_id = m.node_id and na.action_id = m.action_id
+    join specialization.claims c on c.id = na.claim_id
+    where m.review_status = 'reviewed' and c.review_status <> 'reviewed'
+    having count(*) > 0
+    union all
+    select 9, 'reviewed mappings rest on a function claim with no source: ' || string_agg(m.mapping_key || ' (' || c.claim_key || ')', ', ' order by m.mapping_key)
+    from m
+    join specialization.node_actions na on na.node_id = m.node_id and na.action_id = m.action_id
+    join specialization.claims c on c.id = na.claim_id
+    where m.review_status = 'reviewed'
+      and not exists (select 1 from specialization.claim_sources cs where cs.claim_id = c.id)
     having count(*) > 0
   )
   select string_agg(problem, '; ' order by ord) from listed
@@ -752,11 +773,12 @@ create or replace trigger rule_versions_guard
 -- ---------------------------------------------------------------------------
 
 -- A mapping version is more than its rows: a variant's deliberate_hold decides whether a
--- direct isometric mapping counts as a deliberate hold, the publication rule rests on the
--- muscles' reviewed function claims and node actions, and users read the claims and
--- sources behind every row. While any published or retired version depends on one of
--- these rows, a change that would rewrite or remove it is refused, for every role, the
--- owner included. Adding is allowed (a new claim, node action, source or variant), and so
+-- direct isometric mapping counts as a deliberate hold, a mapped muscle's region, role and
+-- catalog muscle key decide whether its work is the region's, the publication rule rests
+-- on the muscles' reviewed function claims and node actions, and users read the claims
+-- (with their basis) and sources behind every row. While any published or retired
+-- version depends on one of these rows, a change that would rewrite or remove it is
+-- refused, for every role, the owner included. Adding is allowed (a new claim, node action, source or variant), and so
 -- is an update that changes nothing (the seed applied again). A changed row needs a new
 -- key and, where mappings must point at it, a new mapping version.
 --
@@ -834,8 +856,11 @@ create or replace trigger node_actions_guard_published
   before update or delete on specialization.node_actions
   for each row execute function specialization.guard_published_node_action();
 
--- A mapped muscle stays reviewed (users read its rows only while it is). Its names and
--- descriptions may still be edited; a draft node is free.
+-- A mapped muscle stays reviewed (users read its rows only while it is), and keeps what
+-- decides what its work counts toward: its region (whether its bouts are the region's),
+-- its role and its catalog muscle key (which catalog-tagged work is region work). Its
+-- names, descriptions, kind, parent and database muscle (which follows public.muscles on
+-- update) may still be edited; a draft node is free.
 create or replace function specialization.guard_published_node()
 returns trigger
 language plpgsql
@@ -844,7 +869,10 @@ as $fn$
 declare
   v_versions text;
 begin
-  if tg_op = 'UPDATE' and (old.status <> 'reviewed' or new.status = 'reviewed') then
+  if tg_op = 'UPDATE'
+     and (old.status <> 'reviewed'
+          or (new.status = 'reviewed'
+              and (new.region_id, new.role, new.catalog_muscle_key) is not distinct from (old.region_id, old.role, old.catalog_muscle_key))) then
     return new;
   end if;
   select string_agg(label, ', ' order by label) into v_versions
@@ -855,7 +883,7 @@ begin
     where m.node_id = old.id and v.state <> 'draft'
   ) as used;
   if v_versions is not null then
-    raise exception 'node % is mapped by mapping version %; it must stay reviewed and cannot be deleted', old.id, v_versions
+    raise exception 'node % is mapped by mapping version %; it must stay reviewed and cannot be deleted, and its region, role and catalog muscle key, which decide what its work counts toward, cannot change. Add the changed muscle under a new id and map it in a new version', old.id, v_versions
       using errcode = '23514';
   end if;
   if tg_op = 'DELETE' then
@@ -869,9 +897,10 @@ create or replace trigger nodes_guard_published
   before update or delete on specialization.nodes
   for each row execute function specialization.guard_published_node();
 
--- A reviewed claim on a mapped muscle keeps its key, node, kind and statement, stays
--- reviewed, and is not deleted. Its basis, review date and note may still be edited; a
--- draft or rejected claim was never shown or relied on, and is free.
+-- A reviewed claim on a mapped muscle keeps its key, node, kind, statement and basis (the
+-- provenance label users read beside it: established anatomy, experimental, inference,
+-- product assumption), stays reviewed, and is not deleted. Its review date and note may
+-- still be edited; a draft or rejected claim was never shown or relied on, and is free.
 create or replace function specialization.guard_published_claim()
 returns trigger
 language plpgsql
@@ -883,7 +912,7 @@ begin
   if old.review_status <> 'reviewed'
      or (tg_op = 'UPDATE'
          and new.review_status = 'reviewed'
-         and (new.claim_key, new.node_id, new.kind, new.statement) is not distinct from (old.claim_key, old.node_id, old.kind, old.statement)) then
+         and (new.claim_key, new.node_id, new.kind, new.statement, new.basis) is not distinct from (old.claim_key, old.node_id, old.kind, old.statement, old.basis)) then
     if tg_op = 'DELETE' then
       return old;
     end if;
@@ -897,7 +926,7 @@ begin
     where m.node_id = old.node_id and v.state <> 'draft'
   ) as used;
   if v_versions is not null then
-    raise exception 'claim % is a reviewed claim on %, which mapping version % maps; its key, node, kind, statement and review status cannot change and it cannot be deleted. Add the corrected claim under a new key', old.claim_key, old.node_id, v_versions
+    raise exception 'claim % is a reviewed claim on %, which mapping version % maps; its key, node, kind, statement, basis and review status cannot change and it cannot be deleted. Add the corrected claim under a new key', old.claim_key, old.node_id, v_versions
       using errcode = '23514';
   end if;
   if tg_op = 'DELETE' then
