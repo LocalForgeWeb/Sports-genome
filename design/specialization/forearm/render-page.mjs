@@ -1,5 +1,5 @@
 /**
- * Screenshots the diagram on the real page: the production client build (`npx vite build`,
+ * Screenshots the page and its drawing as the athlete sees them: the production client build (`npx vite build`,
  * served from dist/public by a small static server here), device stores seeded with a week of
  * forearm work, opened at ?workspace=specialization&region=forearm. Headless Chromium emulating
  * an iPhone (390 × 844 and 375 × 667 pt, device scale 3, touch): not an iPhone, not Safari.
@@ -46,6 +46,11 @@ const sessions = [
   ] },
 ];
 
+/** The four-day Upper/Lower split the profile builds, with forearm work on both Upper days, so planned totals and the add preview have days to show. */
+const entries = (ids) => ids.map((id) => ({ entryId: id, catalogExerciseId: id }));
+const planWeek = { customWorkoutIds: [], weeklyPlanIds: {}, weeklyPlanEntries: { "0-Upper": entries([1, 45, 132]), "1-Lower": entries([167]), "2-Upper": entries([3, 139, 140]), "3-Lower": entries([168]) }, prescriptions: {}, exerciseSettings: {}, weeklyPrescriptions: {}, weeklySettings: {}, importedPlanContext: {}, activeDayIndex: 0 };
+const plan = { version: 2, ...planWeek, weeks: { "1": planWeek }, activeWeek: 1 };
+
 const browser = await chromium.launch();
 const shots = [];
 for (const [width, height] of [[390, 844], [375, 667]]) {
@@ -57,8 +62,9 @@ for (const [width, height] of [[390, 844], [375, 667]]) {
     sessionStorage.setItem("diagram-seeded", "1");
     localStorage.setItem("sports-genome-launch-experience-enabled-v1", "off");
     localStorage.setItem("gym-optimizer-athlete-profile-v1", JSON.stringify({ version: 3, sportId: "", sportContextMode: "general", goal: "Muscle growth", trainingDays: 4, gymMinutes: 60, movementId: "", baseline: { experience: "Intermediate", weightUnit: "lb", sexForReference: "male", birthYear: 1995, bodyWeight: 180 } }));
-    localStorage.setItem("sports-genome-device-workout-history-v1", JSON.stringify(seed));
-  }, sessions);
+    localStorage.setItem("sports-genome-device-workout-history-v1", JSON.stringify(seed.sessions));
+    localStorage.setItem("gym-optimizer-workout-plan-v1", JSON.stringify(seed.plan));
+  }, { sessions, plan });
   await page.goto(`${base}/?workspace=specialization&region=forearm`);
   const card = page.locator("section.spz-card", { has: page.locator(".spz-diagram-svg") });
   await card.waitFor({ timeout: 30000 });
@@ -109,6 +115,39 @@ for (const [width, height] of [[390, 844], [375, 667]]) {
   await page.waitForTimeout(300);
   await shootCard(name("back-surface-left"));
   shots.push({ width, file: name("back-surface-left") });
+
+  // The deep layer (brief §11: surface and deep views), palm side, right arm.
+  await page.getByRole("button", { name: "Right arm" }).click();
+  await page.getByRole("group", { name: "View" }).getByRole("button", { name: "Palm" }).click();
+  await page.getByRole("group", { name: "Layer" }).getByRole("button", { name: "Deep" }).click();
+  await page.waitForTimeout(300);
+  await shootCard(name("palm-deep-right"));
+  shots.push({ width, file: name("palm-deep-right") });
+
+  // The contribution ledger: FCU's sheet, scrolled to where its numbers come from.
+  await page.getByRole("button", { name: /Inspect coverage/ }).first().click();
+  const sheet = page.getByRole("dialog").first();
+  await sheet.waitFor();
+  const ledger = sheet.getByRole("heading", { name: "Where the numbers come from" });
+  await ledger.evaluate((element) => element.scrollIntoView({ block: "start" }));
+  // The first exercise's bouts, opened, as an athlete checks what was counted.
+  await sheet.locator(".spz-ledger > details > summary").first().click();
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: join(outDir, name("ledger")) });
+  shots.push({ width, file: name("ledger"), ledgerOnScreen: await ledger.evaluate((element) => { const box = element.getBoundingClientRect(); return box.top >= 0 && box.bottom <= window.innerHeight; }) });
+
+  // The add preview: the first suggestion's Add or swap, a day chosen, the planned totals before → after.
+  const addOrSwap = sheet.getByRole("button", { name: /Add or swap/ }).first();
+  await addOrSwap.scrollIntoViewIfNeeded();
+  await addOrSwap.click();
+  const change = page.getByRole("dialog", { name: "Add to your plan" });
+  await change.waitFor();
+  await change.getByRole("button", { name: /^Day 02 · Lower/ }).click();
+  const preview = change.getByRole("heading", { name: /^Planned totals, Week 1/ });
+  await preview.evaluate((element) => element.scrollIntoView({ block: "start" }));
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: join(outDir, name("add-preview")) });
+  shots.push({ width, file: name("add-preview"), noOverflow: await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth) });
   await context.close();
 }
 await browser.close();
