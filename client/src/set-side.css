@@ -73,3 +73,39 @@
 
 .live-set-side button:focus-visible,
 .live-set-straps button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+
+/* A hold waits for its seconds (02-design.md §6): Log set is outlined, not filled, until whole
+   seconds of at least 1 are in, and the reason sits beside it at rest, in readable text - never a
+   faint or hover-only state. The same on a hold's row in the full workout list. Full opacity: the
+   app's disabled-button rule (index.css, opacity .5) would fade it to a faint control. */
+.device-workout-tracker .live-set-commit:disabled {
+  border: 1px solid rgb(176 214 247 / .45);
+  background: transparent;
+  color: var(--sg-text-muted-on-dark);
+  cursor: not-allowed;
+  opacity: 1;
+  transform: none;
+}
+.live-set-dose-hint {
+  margin-top: .75rem;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-base);
+  font-weight: 700;
+}
+.device-workout-tracker .session-set-row button.session-set-log:disabled {
+  border-color: rgb(176 214 247 / .45);
+  background: transparent;
+  color: var(--sg-text-muted-on-dark);
+  cursor: not-allowed;
+  opacity: 1;
+}
+.device-workout-tracker .session-set-row .session-set-dose-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-base);
+  font-weight: 700;
+}
+/* The full workout list's boxes take what the live card's take, a hold's seconds included: at 16 px
+   so iOS Safari does not zoom the page when one is focused. */
+.device-workout-tracker .session-set-row input { font-size: var(--sg-text-lg); }

@@ -1,5 +1,5 @@
 import type { ExerciseVariant, VariantMapping } from "./types";
-import { specializationRegions } from "./registry";
+import { specializationLoggingRegions } from "./loggingRegions";
 
 /**
  * What the workout logger asks of one exercise, read from the atlas's variant data
@@ -15,6 +15,10 @@ import { specializationRegions } from "./registry";
  *
  * Region-agnostic on purpose: it reads every production region's variants, so a
  * deltoid or calf region added to the registry is picked up with no change here.
+ *
+ * It reads the regions through `loggingRegions.ts` (variants and mappings only), never through
+ * `registry.ts`: the tracker and the swap sheet import this module, and the registry would
+ * bring the atlas's drawing, claims and sources into the workout logger's download.
  */
 export type LoggedSide = "left" | "right" | "both";
 
@@ -23,6 +27,12 @@ export interface LoggingPolicy {
   measure: "reps" | "seconds";
   /** Ask which arm: the variant can be (or must be) done one arm at a time. */
   askSide: boolean;
+  /**
+   * The variant is one arm at a time by definition (laterality `unilateral`, not `either`): a
+   * planned set of it is done once with each arm. The tracker reads this to lay a planned set
+   * out as two rows, one per arm, for an athlete tracking per-arm totals.
+   */
+  oneArm: boolean;
   /**
    * The side shown selected before the athlete has logged a set of this exercise in the
    * session. `both` for an exercise usually done with both arms that may be done with
@@ -34,9 +44,9 @@ export interface LoggingPolicy {
 }
 
 /** The logger as it always was: reps, no side, no straps. */
-export const defaultLoggingPolicy: LoggingPolicy = Object.freeze({ measure: "reps", askSide: false, sideDefault: null, strapsSensitive: false });
+export const defaultLoggingPolicy: LoggingPolicy = Object.freeze({ measure: "reps", askSide: false, oneArm: false, sideDefault: null, strapsSensitive: false });
 
-const productionRegions = () => specializationRegions.filter((data) => data.region.status === "production");
+const productionRegions = () => specializationLoggingRegions.filter((data) => data.region.status === "production");
 
 /** Every production region's variants: the default the logger reads. */
 export function productionVariants(): ExerciseVariant[] {
@@ -69,6 +79,7 @@ export function loggingPolicyFor(
   return {
     measure: variant.measure === "seconds" ? "seconds" : "reps",
     askSide,
+    oneArm: variant.laterality === "unilateral",
     // A two-handed implement never asks. "Either" is usually two arms at once (a pair of
     // dumbbells), so it starts on Both; a one-arm exercise starts unset.
     sideDefault: variant.laterality === "either" ? "both" : null,

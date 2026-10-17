@@ -3,8 +3,10 @@ import { exercises as catalog } from "./exerciseCatalog";
 import { isCompletedSet, isHoldSet, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, type DeviceSetLog, type DeviceWorkoutSession, type SetSide, type StrapsUsed } from "./deviceWorkoutLog";
 import { loadSyncedKeys, loadSyncQueue, removeQueuedLiftsForSession, saveSyncQueue } from "./strengthSyncQueue";
 import { workoutObservationId } from "./workoutStrengthRecord";
-import { dropSetSummary, isDropSet, performedSetLine, setVolume, volumeText } from "./dropSets";
+import { dropSetSummary, isDropSet, performedSetLine, setVolume, stageLoadText, volumeText } from "./dropSets";
 import { swapNote } from "./workoutSwap";
+import type { SetDoseMeasure } from "./setEntryFields";
+import type { LoadConvention } from "@shared/loadConventions";
 import type { DisplayWeightUnit } from "./weightUnits";
 import type { IncomingDraftDay } from "./planImport";
 
@@ -76,7 +78,29 @@ export type SessionRecap = {
 const byId = new Map(catalog.map((exercise) => [exercise.id, exercise]));
 const byName = new Map(catalog.map((exercise) => [exercise.name, exercise]));
 
-export function sessionRecap(session: DeviceWorkoutSession, fallbackUnit: DisplayWeightUnit): SessionRecap {
+/**
+ * What an exercise's sets are measured in, by its catalog id: the atlas's logging policy, which
+ * the screen passes in (this module loads with the app's first screens and does not import the
+ * atlas). Without it every set is read by what it holds, as before.
+ */
+export type MeasureOf = (catalogExerciseId: number | undefined) => SetDoseMeasure;
+
+/**
+ * Whether a logged set is a hold: it holds seconds, or it is on an exercise measured in seconds and
+ * holds no reps (a hold logged before its seconds were required). A set of such an exercise logged
+ * in reps before it was measured in seconds keeps its reps: they are never read as seconds.
+ */
+function isHoldOn(set: DeviceSetLog, measure: SetDoseMeasure | undefined): boolean {
+  return isHoldSet(set) || (measure === "seconds" && !set.reps.trim() && !isDropSet(set));
+}
+
+/** "Seconds not recorded", or "70 lb · seconds not recorded" with a load: a hold with no time on it. */
+function holdWithoutSecondsLine(set: DeviceSetLog, unit: DisplayWeightUnit, convention: LoadConvention): string {
+  const loaded = set.weight.trim() !== "" && Number(set.weight) > 0;
+  return loaded ? `${stageLoadText({ weight: set.weight, unit: set.unit }, unit, convention)} · seconds not recorded` : "Seconds not recorded";
+}
+
+export function sessionRecap(session: DeviceWorkoutSession, fallbackUnit: DisplayWeightUnit, measureOf?: MeasureOf): SessionRecap {
   const completedAt = new Date(session.completedAt ?? session.startedAt);
   const started = Date.parse(session.startedAt);
   const finished = session.completedAt ? Date.parse(session.completedAt) : NaN;
@@ -84,6 +108,7 @@ export function sessionRecap(session: DeviceWorkoutSession, fallbackUnit: Displa
   const exercises = session.exercises.map((exercise): RecapExercise => {
     const catalogEntry = (exercise.catalogId !== undefined ? byId.get(exercise.catalogId) : undefined) ?? byName.get(exercise.exerciseName);
     const convention = loadConventionFor(catalogEntry?.id);
+    const measure = measureOf?.(catalogEntry?.id ?? exercise.catalogId);
     const done = exercise.sets.map((set, index) => ({ set, index })).filter(({ set }) => isCompletedSet(set));
     // A record from before planned counts were kept still holds any set it left open: those are
     // evidence of the plan, so they count; with none left open the plan is simply unknown.
@@ -105,7 +130,10 @@ export function sessionRecap(session: DeviceWorkoutSession, fallbackUnit: Displa
         const drop = isDropSet(set);
         const volume = drop ? setVolume(set, unit, convention, fallbackUnit) : null;
         const side = sideLabel(set.side);
-        return { index, set, line: `${performedSetLine(set, unit, convention)}${side ? ` · ${side}` : ""}`, detail: drop ? `${dropSetSummary(set)}${volume ? ` · ${volumeText(volume)}` : ""}` : null, drop, hold: isHoldSet(set), side };
+        const hold = isHoldOn(set, measure);
+        // A hold logged with no seconds says so, rather than "— lb × —"; Correct a set adds them.
+        const performed = hold && !isHoldSet(set) ? holdWithoutSecondsLine(set, unit, convention) : performedSetLine(set, unit, convention);
+        return { index, set, line: `${performed}${side ? ` · ${side}` : ""}`, detail: drop ? `${dropSetSummary(set)}${volume ? ` · ${volumeText(volume)}` : ""}` : null, drop, hold, side };
       }),
     };
   });
@@ -147,8 +175,13 @@ export function elapsedText(minutes: number): string {
 /**
  * A hold is corrected in seconds and keeps no reps; any other set in reps. Everything else on the
  * set - its side, its unit, its effort, its id - and the exercise's straps record stay as they were.
+ *
+ * Whether a set is a hold is read from the set and, where the screen passes `measureOf`, from its
+ * exercise: a set with no reps on an exercise measured in seconds is a hold whose seconds were
+ * never typed, so it is corrected in seconds and a reps patch is refused. Seconds never become
+ * reps. A set of that exercise logged in reps before it was measured in seconds keeps its reps.
  */
-export function correctSet(session: DeviceWorkoutSession, exerciseId: string, setIndex: number, patch: { weight: string; reps?: string; holdSeconds?: string }, at = new Date().toISOString()): DeviceWorkoutSession {
+export function correctSet(session: DeviceWorkoutSession, exerciseId: string, setIndex: number, patch: { weight: string; reps?: string; holdSeconds?: string }, at = new Date().toISOString(), measureOf?: MeasureOf): DeviceWorkoutSession {
   const weight = patch.weight.trim() === "" ? 0 : Number(patch.weight);
   if (!Number.isFinite(weight) || weight < 0) return session;
   const wholeIn = (value: string | undefined, max: number) => {
@@ -160,7 +193,9 @@ export function correctSet(session: DeviceWorkoutSession, exerciseId: string, se
     ...exercise,
     sets: exercise.sets.map((set, index) => {
       if (index !== setIndex || !isCompletedSet(set) || set.type === "drop") return set;
-      if (isHoldSet(set)) {
+      // The exercise as the recap reads it: by the id it kept, else by its name.
+      const entry = (exercise.catalogId !== undefined ? byId.get(exercise.catalogId) : undefined) ?? byName.get(exercise.exerciseName);
+      if (isHoldOn(set, measureOf?.(entry?.id ?? exercise.catalogId))) {
         const seconds = wholeIn(patch.holdSeconds, 86_400);
         if (seconds === null) return set;
         changed = true;

@@ -92,6 +92,13 @@ export type DeviceWorkoutExercise = {
   catalogId?: number;
   plannedPrescription: string;
   sets: DeviceSetLog[];
+  /**
+   * The rows were built per arm: a one-arm exercise planned for an athlete with a specialization
+   * target, where "3 × 12" is three sets for each arm, so each planned set is two rows, Right then
+   * Left (components/DeviceWorkoutTracker.tsx `perArmSets`). Row `n` follows planned set
+   * `floor(n / 2)`. Absent on every other exercise, and on workouts from before it existed.
+   */
+  perArm?: boolean;
   /** This exercise took over the rest of another one's work mid-workout. */
   swappedFrom?: ExerciseSwapRecord;
   /** The rest of this exercise's work was handed to another one; what it holds stays its own. */

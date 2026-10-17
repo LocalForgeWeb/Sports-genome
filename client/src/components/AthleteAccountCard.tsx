@@ -3,6 +3,7 @@ import { CloudUpload, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { attachEmailToIdentity, upsertAthleteProfile, type IdentityState } from "@/lib/athleteIdentity";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
+import { useLiftsKeptOnDevice } from "@/lib/useAthleteSync";
 
 /**
  * What the athlete can see and decide about the account their lifts are saved
@@ -17,12 +18,20 @@ import { emitInteractionFeedback } from "@/lib/interactionFeedback";
  *     column defaults to false and stays false until they answer here; an app
  *     that assumed yes would be answering a consent question on their behalf.
  */
-export function AthleteAccountCard({ identity, pending, optedIn, onOptIn }: {
+export function AthleteAccountCard({ identity, pending, keptOnDevice, optedIn, onOptIn }: {
   identity: IdentityState;
+  /** Lifts a sync can send, waiting for a session and a network. */
   pending: number;
+  /**
+   * Lifts kept on this device because their exercise cannot be uploaded to the account yet (no
+   * reference mapping, as for the forearm rows 401–414). Read from the stored queue when not given.
+   */
+  keptOnDevice?: number;
   optedIn: boolean;
   onOptIn: (next: boolean) => void;
 }) {
+  const storedKept = useLiftsKeptOnDevice();
+  const kept = keptOnDevice ?? storedKept;
   const [email, setEmail] = useState("");
   const [linking, setLinking] = useState(false);
 
@@ -58,6 +67,8 @@ export function AthleteAccountCard({ identity, pending, optedIn, onOptIn }: {
     <div className="about-me-card-head"><CloudUpload className="h-4 w-4" /><span>Your record &amp; account</span></div>
     <p className="about-me-account-status">{statusCopy}</p>
     {pending > 0 && <p className="about-me-account-pending" role="status">{pending} {pending === 1 ? "lift is" : "lifts are"} waiting to upload. They are already saved here.</p>}
+    {/* Not "waiting": no sync sends these until the account can take their exercise, so they are named apart. */}
+    {kept > 0 && <p className="about-me-account-pending">{kept} {kept === 1 ? "lift is" : "lifts are"} kept on this device because {kept === 1 ? "its exercise" : "their exercises"} cannot be uploaded to your account yet.</p>}
 
     {identity.userId && identity.anonymous && <label className="about-me-account-email"><span>Add an email (optional)</span>
       <div className="about-me-inline">
