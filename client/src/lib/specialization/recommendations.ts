@@ -527,7 +527,8 @@ function gapClause(input: { request: RecommendationRequest; nodeName: string | n
   if (answers.length) return progressPhrase(summary, answers[0]);
   if (unmet.length) {
     const targets = listWords(unmet.map((progress) => targetPhrase(summary, progress)));
-    if (unfillable.length === unmet.length) return `no reviewed exercise for this ${target.nodeId !== undefined ? "muscle" : "movement"} counts toward ${targets}`;
+    // The result's targetNote, shown once above the list, says which target nothing can fill and why.
+    if (unfillable.length === unmet.length) return "it counts toward none of your targets here";
     if (target.nodeId !== undefined && credits.has("mixed")) return `one set of it loads this muscle two ways, so it counts as mixed work, not toward ${targets}`;
     const wanted = new Set(unmet.map((progress) => metricCategory[progress.goal.metric]));
     if (wanted.size === 1 && wanted.has("deliberate_isometric") && credits.has("direct_dynamic")) return `not a hold, so it does not count toward ${targets}`;

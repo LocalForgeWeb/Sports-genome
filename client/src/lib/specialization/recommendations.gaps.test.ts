@@ -139,7 +139,8 @@ describe("a suggestion names only a target gap the calculator would fill with it
     // The dynamic target is met, so the direct curls, the flexion-wind roller and the radial-deviation
     // lever are not offered again; the two rollers that only contribute to wrist flexion stay.
     expect([namesOf(result), result.skippedAtTarget]).toEqual([["Wrist Roller", "Wrist Roller, Extension Wind"], 4]);
-    expect(result.candidates[0].why).toMatch(/^Helps with wrist flexion for flexor carpi radialis; no reviewed exercise for this muscle counts toward your target of 3 deliberate hold bouts this week\./);
+    expect(result.candidates[0].why).toMatch(/^Helps with wrist flexion for flexor carpi radialis; it counts toward none of your targets here\./);
+    expect(result.candidates[0].why).not.toMatch(/no reviewed exercise/);
     expect(result.candidates[0].why).not.toMatch(/0 of your 3/);
     expect(result.targetNote).toBe("No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week.");
   });
