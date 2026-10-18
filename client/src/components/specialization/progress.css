@@ -1,0 +1,33 @@
+/* -- Body Lab → Specialize → Progress (Oct 16 forearm brief §10, design §5) -------- *
+
+   Additions to the Progress disclosure's charts and form in specialization.css: the
+   date and time of a reading side by side (wrapping on a narrow phone), the
+   exercise-performance line, and its marker for a set that recorded no arm, which is
+   a different shape (a square), not a fainter dot; the best so far; the weeks that
+   open their bouts. Tokens only; inputs stay at 16 px through .spz-field. */
+
+.spz-progress-when { display: flex; flex-wrap: wrap; gap: .7rem; min-width: 0; }
+.spz-progress-when > .spz-field { flex: 1 1 9rem; }
+
+.spz-progress-section { gap: .6rem; border-top: 1px solid rgb(164 200 232 / .2); padding-top: .8rem; }
+.spz-progress-section .spz-field select { text-overflow: ellipsis; }
+
+.spz-progress-line { fill: none; stroke: var(--spz-other); stroke-width: 1.5; stroke-linejoin: round; }
+.spz-progress-marker { fill: var(--spz-other); stroke: var(--spz-other); stroke-width: 1; }
+
+/* A measured best so far: a ring in the selection gold around its mark, and one line in
+   on-dark ink saying what and when. A reading taken at a different place or posture from the
+   one before is a diamond (a shape, not a fainter dot); the scale line counts them. */
+.spz-chart-best { fill: none; stroke: var(--sg-selected-on-dark); stroke-width: 2; }
+.spz-chart-best-line { color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 600; line-height: var(--sg-leading-body); }
+
+/* The weeks of the exposure chart, as buttons that open their bouts: two rows of four, oldest
+   first, each at least 44 px (about 58 px wide at 320). A week with work is outlined at rest;
+   a week with none is not a button. The current week's date is in the selection gold. */
+.spz-weeks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .4rem; padding: 0; list-style: none; }
+.spz-weeks li { display: grid; min-width: 0; }
+.spz-week { display: grid; justify-items: center; align-content: center; gap: .05rem; min-width: 0; min-height: 2.75rem; border: 1px solid transparent; border-radius: var(--sg-radius-sm); padding: .3rem .2rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-variant-numeric: tabular-nums; }
+button.spz-week { border-color: var(--sg-control-border-on-dark); }
+button.spz-week:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.spz-week b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }
+.spz-weeks li[data-current] small { color: var(--sg-selected-on-dark); font-weight: 800; }

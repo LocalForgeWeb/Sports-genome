@@ -22,6 +22,12 @@ const curated = {
   178: 'Elevated Back Lunge', 204: 'Romanian Deadlift', 232: 'Hanging Leg Raise', 255: 'Landmine Linear Jammer', 256: 'Bent Over One-Arm Long Bar Row',
   258: 'T-Bar Row with Handle', 268: 'Landmine Linear Jammer', 283: 'Supine Two-Arm Overhead Throw', 295: 'Single Leg Push-off', 310: 'Pallof Press', 313: 'Cable Crossover',
   326: 'Kneeling High Pulley Row', 329: 'Shotgun Row', 377: 'Standing Cable Lift', 385: "Landmine 180's", 395: 'Linear Depth Jump',
+  // October 16 forearm rows (ids 401+): each row was defined to match its photograph, frames viewed
+  // (seated, forearms on the thighs, palms up for the finger curl and wrist curl, palms down for the
+  // reverse wrist curl; one dumbbell for the one-arm rows). Not taken, with reasons in
+  // docs/specialization-atlas/05-mappings.md: Dumbbell_Lying_Pronation and _Supination (the source's
+  // text describes shoulder rotation and the frames do not show which way the forearm turns).
+  401: 'Finger Curls', 410: 'Seated One-Arm Dumbbell Palms-Up Wrist Curl', 411: 'Seated One-Arm Dumbbell Palms-Down Wrist Curl',
 };
 const byAppName = { 'Pec Deck Fly': 'Butterfly', 'Dumbbell Fly': 'Dumbbell Flyes', 'Reverse Pec Deck': 'Reverse Machine Flyes', 'Pendlay Row': 'Bent Over Barbell Row', 'Chest-Supported Dumbbell Row': 'Dumbbell Incline Row', 'Seal Row': 'Incline Bench Pull', 'Machine Low Row': 'Leverage Iso Row', 'Ring Row': 'Suspended Row', 'Rope Face Pull with External Rotation': 'Face Pull', 'Back Squat': 'Barbell Squat', 'High-Bar Back Squat': 'Barbell Full Squat', 'Forward Lunge': 'Dumbbell Lunges', 'Stiff-Leg Deadlift': 'Stiff-Legged Barbell Deadlift', 'Hip Abduction Machine': 'Thigh Abductor', 'Stability-Ball Hamstring Curl': 'Ball Leg Curl', 'Single-Leg Hip Thrust': 'Single Leg Glute Bridge', 'Captain’s-Chair Leg Raise': 'Knee/Hip Raise On Parallel Bars', 'Farmer’s Carry': "Farmer's Walk", "Farmer's Carry": "Farmer's Walk" };
 // Plausible but incorrect variations (October 1 brief §2): the source photographs the

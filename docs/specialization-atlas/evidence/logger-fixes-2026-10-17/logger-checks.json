@@ -1,0 +1,365 @@
+[
+  {
+    "width": 390,
+    "screen": "plan",
+    "rows": [
+      {
+        "name": "Dead Hang",
+        "line": "4 × 30 sec · RPE 7 · 90 sec"
+      },
+      {
+        "name": "Hammer Curl",
+        "line": "4 × 3–6 · RPE 7 · 90 sec"
+      },
+      {
+        "name": "Farmer’s Walk",
+        "line": "3 × 30 sec · RPE 7 · 90 sec"
+      }
+    ],
+    "editor": {
+      "sets": "4",
+      "target": {
+        "value": "30 sec",
+        "fontSize": "16px",
+        "height": 44
+      }
+    },
+    "horizontalOverflow": false
+  },
+  {
+    "width": 390,
+    "screen": "swap two-handed → one-arm",
+    "what": "Nothing is logged for Hammer Curl yet, so One-Arm Dumbbell Wrist Curl takes its place with the same 3 planned sets, done once with each arm: 6 sets.",
+    "whatBox": {
+      "top": 52,
+      "bottom": 115,
+      "fontSize": "14px"
+    },
+    "detailsLine": "Logging One-Arm Dumbbell Wrist CurlOne-Arm Dumbbell Wrist Curl gets 6 sets, one arm at a time.No load is carried over from Hammer Curl. No One-Arm Dumbbell Wrist Curl logged on this device yet.The rest timer is not changed.",
+    "confirm": {
+      "w": 260,
+      "h": 48
+    },
+    "cardLine": "Set 1 of 612 reps",
+    "arm": [
+      {
+        "label": "Left",
+        "pressed": "false",
+        "w": 78,
+        "h": 44
+      },
+      {
+        "label": "Right",
+        "pressed": "true",
+        "w": 78,
+        "h": 44
+      },
+      {
+        "label": "Both",
+        "pressed": "false",
+        "w": 78,
+        "h": 44
+      }
+    ],
+    "rowHeaders": [
+      "Set 1 · Right",
+      "Set 2 · Left",
+      "Set 3 · Right",
+      "Set 4 · Left",
+      "Set 5 · Right",
+      "Set 6 · Left",
+      "Set 1",
+      "Set 2",
+      "Set 3",
+      "Set 4"
+    ],
+    "horizontalOverflow": false
+  },
+  {
+    "width": 390,
+    "screen": "swap one-arm → two-handed",
+    "before": "Set 1 of 612 reps",
+    "what": "Nothing is logged for One-Arm Dumbbell Wrist Curl yet, so Wrist Curl takes its place with the same 3 planned sets, not one per arm.",
+    "cardLine": "Set 1 of 312 reps",
+    "horizontalOverflow": false
+  },
+  {
+    "width": 390,
+    "screen": "swap hold → rep exercise",
+    "before": "Set 1 of 430 sec",
+    "notes": [
+      {
+        "text": "No load is carried over from Dead Hang. No Wrist Curl logged on this device yet.",
+        "fontSize": "12px"
+      },
+      {
+        "text": "Wrist Curl is logged in reps, not seconds.",
+        "fontSize": "12px"
+      },
+      {
+        "text": "4 × 30 sec is Dead Hang's default as a hold, so Wrist Curl starts from the goal's: 4 × 3–6.",
+        "fontSize": "12px"
+      },
+      {
+        "text": "The rest timer is not changed.",
+        "fontSize": "12px"
+      }
+    ],
+    "planLine": "Upper, exercise 1 of 2: Dead Hang becomes Wrist Curl. Its sets and reps (4 × 3–6) stay.",
+    "cardLine": "Set 1 of 43–6 reps",
+    "horizontalOverflow": false
+  },
+  {
+    "width": 390,
+    "screen": "add rep exercise after a hold",
+    "what": "Wrist Curl goes in straight after Dead Hang, starting from 4 × 3–6. Nothing logged changes.",
+    "whatBox": {
+      "top": 248,
+      "bottom": 290,
+      "fontSize": "14px"
+    },
+    "horizontalOverflow": false
+  },
+  {
+    "width": 375,
+    "screen": "plan",
+    "rows": [
+      {
+        "name": "Dead Hang",
+        "line": "4 × 30 sec · RPE 7 · 90 sec"
+      },
+      {
+        "name": "Hammer Curl",
+        "line": "4 × 3–6 · RPE 7 · 90 sec"
+      },
+      {
+        "name": "Farmer’s Walk",
+        "line": "3 × 30 sec · RPE 7 · 90 sec"
+      }
+    ],
+    "editor": {
+      "sets": "4",
+      "target": {
+        "value": "30 sec",
+        "fontSize": "16px",
+        "height": 44
+      }
+    },
+    "horizontalOverflow": false
+  },
+  {
+    "width": 375,
+    "screen": "swap two-handed → one-arm",
+    "what": "Nothing is logged for Hammer Curl yet, so One-Arm Dumbbell Wrist Curl takes its place with the same 3 planned sets, done once with each arm: 6 sets.",
+    "whatBox": {
+      "top": 41,
+      "bottom": 104,
+      "fontSize": "14px"
+    },
+    "detailsLine": "Logging One-Arm Dumbbell Wrist CurlOne-Arm Dumbbell Wrist Curl gets 6 sets, one arm at a time.No load is carried over from Hammer Curl. No One-Arm Dumbbell Wrist Curl logged on this device yet.The rest timer is not changed.",
+    "confirm": {
+      "w": 247,
+      "h": 48
+    },
+    "cardLine": "Set 1 of 612 reps",
+    "arm": [
+      {
+        "label": "Left",
+        "pressed": "false",
+        "w": 74,
+        "h": 44
+      },
+      {
+        "label": "Right",
+        "pressed": "true",
+        "w": 74,
+        "h": 44
+      },
+      {
+        "label": "Both",
+        "pressed": "false",
+        "w": 74,
+        "h": 44
+      }
+    ],
+    "rowHeaders": [
+      "Set 1 · Right",
+      "Set 2 · Left",
+      "Set 3 · Right",
+      "Set 4 · Left",
+      "Set 5 · Right",
+      "Set 6 · Left",
+      "Set 1",
+      "Set 2",
+      "Set 3",
+      "Set 4"
+    ],
+    "horizontalOverflow": false
+  },
+  {
+    "width": 375,
+    "screen": "swap one-arm → two-handed",
+    "before": "Set 1 of 612 reps",
+    "what": "Nothing is logged for One-Arm Dumbbell Wrist Curl yet, so Wrist Curl takes its place with the same 3 planned sets, not one per arm.",
+    "cardLine": "Set 1 of 312 reps",
+    "horizontalOverflow": false
+  },
+  {
+    "width": 375,
+    "screen": "swap hold → rep exercise",
+    "before": "Set 1 of 430 sec",
+    "notes": [
+      {
+        "text": "No load is carried over from Dead Hang. No Wrist Curl logged on this device yet.",
+        "fontSize": "12px"
+      },
+      {
+        "text": "Wrist Curl is logged in reps, not seconds.",
+        "fontSize": "12px"
+      },
+      {
+        "text": "4 × 30 sec is Dead Hang's default as a hold, so Wrist Curl starts from the goal's: 4 × 3–6.",
+        "fontSize": "12px"
+      },
+      {
+        "text": "The rest timer is not changed.",
+        "fontSize": "12px"
+      }
+    ],
+    "planLine": "Upper, exercise 1 of 2: Dead Hang becomes Wrist Curl. Its sets and reps (4 × 3–6) stay.",
+    "cardLine": "Set 1 of 43–6 reps",
+    "horizontalOverflow": false
+  },
+  {
+    "width": 375,
+    "screen": "add rep exercise after a hold",
+    "what": "Wrist Curl goes in straight after Dead Hang, starting from 4 × 3–6. Nothing logged changes.",
+    "whatBox": {
+      "top": 71,
+      "bottom": 113,
+      "fontSize": "14px"
+    },
+    "horizontalOverflow": false
+  },
+  {
+    "width": 320,
+    "screen": "plan",
+    "rows": [
+      {
+        "name": "Dead Hang",
+        "line": "4 × 30 sec · RPE 7 · 90 sec"
+      },
+      {
+        "name": "Hammer Curl",
+        "line": "4 × 3–6 · RPE 7 · 90 sec"
+      },
+      {
+        "name": "Farmer’s Walk",
+        "line": "3 × 30 sec · RPE 7 · 90 sec"
+      }
+    ],
+    "editor": {
+      "sets": "4",
+      "target": {
+        "value": "30 sec",
+        "fontSize": "16px",
+        "height": 44
+      }
+    },
+    "horizontalOverflow": false
+  },
+  {
+    "width": 320,
+    "screen": "swap two-handed → one-arm",
+    "what": "Nothing is logged for Hammer Curl yet, so One-Arm Dumbbell Wrist Curl takes its place with the same 3 planned sets, done once with each arm: 6 sets.",
+    "whatBox": {
+      "top": 35,
+      "bottom": 119,
+      "fontSize": "14px"
+    },
+    "detailsLine": "Logging One-Arm Dumbbell Wrist CurlOne-Arm Dumbbell Wrist Curl gets 6 sets, one arm at a time.No load is carried over from Hammer Curl. No One-Arm Dumbbell Wrist Curl logged on this device yet.The rest timer is not changed.",
+    "confirm": {
+      "w": 193,
+      "h": 48
+    },
+    "cardLine": "Set 1 of 612 reps",
+    "arm": [
+      {
+        "label": "Left",
+        "pressed": "false",
+        "w": 56,
+        "h": 44
+      },
+      {
+        "label": "Right",
+        "pressed": "true",
+        "w": 56,
+        "h": 44
+      },
+      {
+        "label": "Both",
+        "pressed": "false",
+        "w": 56,
+        "h": 44
+      }
+    ],
+    "rowHeaders": [
+      "Set 1 · Right",
+      "Set 2 · Left",
+      "Set 3 · Right",
+      "Set 4 · Left",
+      "Set 5 · Right",
+      "Set 6 · Left",
+      "Set 1",
+      "Set 2",
+      "Set 3",
+      "Set 4"
+    ],
+    "horizontalOverflow": false
+  },
+  {
+    "width": 320,
+    "screen": "swap one-arm → two-handed",
+    "before": "Set 1 of 612 reps",
+    "what": "Nothing is logged for One-Arm Dumbbell Wrist Curl yet, so Wrist Curl takes its place with the same 3 planned sets, not one per arm.",
+    "cardLine": "Set 1 of 312 reps",
+    "horizontalOverflow": false
+  },
+  {
+    "width": 320,
+    "screen": "swap hold → rep exercise",
+    "before": "Set 1 of 430 sec",
+    "notes": [
+      {
+        "text": "No load is carried over from Dead Hang. No Wrist Curl logged on this device yet.",
+        "fontSize": "12px"
+      },
+      {
+        "text": "Wrist Curl is logged in reps, not seconds.",
+        "fontSize": "12px"
+      },
+      {
+        "text": "4 × 30 sec is Dead Hang's default as a hold, so Wrist Curl starts from the goal's: 4 × 3–6.",
+        "fontSize": "12px"
+      },
+      {
+        "text": "The rest timer is not changed.",
+        "fontSize": "12px"
+      }
+    ],
+    "planLine": "Upper, exercise 1 of 2: Dead Hang becomes Wrist Curl. Its sets and reps (4 × 3–6) stay.",
+    "cardLine": "Set 1 of 43–6 reps",
+    "horizontalOverflow": false
+  },
+  {
+    "width": 320,
+    "screen": "add rep exercise after a hold",
+    "what": "Wrist Curl goes in straight after Dead Hang, starting from 4 × 3–6. Nothing logged changes.",
+    "whatBox": {
+      "top": 35,
+      "bottom": 98,
+      "fontSize": "14px"
+    },
+    "horizontalOverflow": false
+  }
+]

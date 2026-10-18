@@ -4433,6 +4433,66 @@
    ],
    "thumbnailBytes": 5965
   },
+  "Finger_Curls": {
+   "exerciseIds": [
+    401
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Finger_Curls/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "6ab1e5c6fca0982d91cbdcc8b2b97aabb3b110759317fdf6f81ab0acdd1c41f4",
+   "originalSize": [
+    750,
+    500
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Finger_Curls.jpg",
+   "thumbnailSha256": "8cd7b61d19ccf4303d35194f0c553d92bb3354527f1fb87fcc76bb769387ff70",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10442
+  },
+  "Seated_One-Arm_Dumbbell_Palms-Up_Wrist_Curl": {
+   "exerciseIds": [
+    410
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_One-Arm_Dumbbell_Palms-Up_Wrist_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "588c2f0bba62063e835f74af71cdc17a124581d5c4d73cd375aa871cdcd663be",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Seated_One-Arm_Dumbbell_Palms-Up_Wrist_Curl.jpg",
+   "thumbnailSha256": "e208fdaae82f8b9b06406101086efa6e48a7922fbd60ef31d23bc463854cf8bf",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9148
+  },
+  "Seated_One-Arm_Dumbbell_Palms-Down_Wrist_Curl": {
+   "exerciseIds": [
+    411
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_One-Arm_Dumbbell_Palms-Down_Wrist_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "babf6237db4846896126ea02cb986f79d14799eca928b7bc0bc0569826f99743",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Seated_One-Arm_Dumbbell_Palms-Down_Wrist_Curl.jpg",
+   "thumbnailSha256": "af40d2b8f1350d5bd7051e7edfa072bb526ecf7b7d0a90b7874ce38481d00463",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9107
+  },
   "Ankle_Circles": {
    "exerciseIds": [],
    "drillIds": [

@@ -70,7 +70,7 @@ describe("workspace side navigation", () => {
     expect(source).toContain('onClick={(event) => navigateDockDestination(dockTarget(item), event)}');
     expect(source).toContain("item.id === activePrimaryDestination ? workspace : item.defaultWorkspace!");
     expect(source).toContain('aria-current={active ? "page" : undefined}');
-    expect(source).toContain('window.history.pushState({ workspace: next }, "", url)');
+    expect(source).toContain('window.history.pushState(origin ? { workspace: next, specializationOrigin: origin } : { workspace: next }, "", url)');
     expect(source).toContain('window.addEventListener("popstate", restoreWorkspace)');
     expect(source).not.toContain('className="apex-rail');
     expect(source).not.toContain('className="rail-scrim"');

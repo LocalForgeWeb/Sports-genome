@@ -1,0 +1,600 @@
+{
+ "note": "Headless Chromium emulating an iPhone (viewport, isMobile, hasTouch, deviceScaleFactor 3); not an iPhone, not Safari. Production build (npx vite build) served from dist/public, device stores seeded with a week of forearm work (Tue: Hammer Curl x3, Wrist Curl x4; Thu: Reverse Wrist Curl x3, Wrist Curl x4, Barbell Curl x3) and a 4-day Upper/Lower plan; 17 Oct 2026. Page coordinates in CSS px from the top of the screen.",
+ "firstScreen": [
+  {
+   "viewport": "390x844",
+   "bottomBarTop": 775,
+   "stripTop": 435,
+   "stripBottom": 534,
+   "drawingTop": 540,
+   "drawingOnFirstScreenPx": 235,
+   "horizontalOverflowPx": 0,
+   "controlsUnder44px": [],
+   "headingLines": 1,
+   "drawingShiftOnTapPx": 0.391
+  },
+  {
+   "viewport": "375x667",
+   "bottomBarTop": 598,
+   "stripTop": 434,
+   "stripBottom": 533,
+   "drawingTop": 539,
+   "drawingOnFirstScreenPx": 59,
+   "horizontalOverflowPx": 0,
+   "controlsUnder44px": [],
+   "headingLines": 1,
+   "drawingShiftOnTapPx": 0.391
+  },
+  {
+   "viewport": "430x932",
+   "bottomBarTop": 863,
+   "stripTop": 438,
+   "stripBottom": 536,
+   "drawingTop": 542,
+   "drawingOnFirstScreenPx": 321,
+   "horizontalOverflowPx": 0,
+   "controlsUnder44px": [],
+   "headingLines": 1,
+   "drawingShiftOnTapPx": 0.391
+  },
+  {
+   "viewport": "320x568",
+   "bottomBarTop": 499,
+   "stripTop": 601,
+   "stripBottom": 699,
+   "drawingTop": 705,
+   "drawingOnFirstScreenPx": -206,
+   "horizontalOverflowPx": 0,
+   "controlsUnder44px": [],
+   "headingLines": 2,
+   "drawingShiftOnTapPx": 0.391
+  }
+ ],
+ "states": [
+  {
+   "width": 390,
+   "height": 844,
+   "name": "completed-week",
+   "ok": true,
+   "stripTop": 435.3,
+   "stripBottom": 533.9,
+   "drawingTop": 539.9,
+   "barTop": 775,
+   "drawingVisible": 235,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "name": "completed-7d",
+   "ok": true,
+   "stripTop": 412.3,
+   "stripBottom": 510.9,
+   "drawingTop": 516.9,
+   "barTop": 775,
+   "drawingVisible": 258,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "name": "completed-custom",
+   "ok": true,
+   "stripTop": 485.1,
+   "stripBottom": 583.7,
+   "drawingTop": 589.7,
+   "barTop": 775,
+   "drawingVisible": 185,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "name": "planned",
+   "ok": true,
+   "stripTop": 435.3,
+   "stripBottom": 533.9,
+   "drawingTop": 539.9,
+   "barTop": 775,
+   "drawingVisible": 235,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "name": "planned-from-review",
+   "ok": true,
+   "stripTop": 479.3,
+   "stripBottom": 577.9,
+   "drawingTop": 583.9,
+   "barTop": 775,
+   "drawingVisible": 191,
+   "back": true,
+   "overflow": 0
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "name": "completed-from-muscles",
+   "ok": true,
+   "stripTop": 479.3,
+   "stripBottom": 577.9,
+   "drawingTop": 583.9,
+   "barTop": 775,
+   "drawingVisible": 191,
+   "back": true,
+   "overflow": 0
+  },
+  {
+   "width": 375,
+   "height": 667,
+   "name": "completed-week",
+   "ok": true,
+   "stripTop": 434.4,
+   "stripBottom": 533,
+   "drawingTop": 539,
+   "barTop": 598,
+   "drawingVisible": 59,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 375,
+   "height": 667,
+   "name": "completed-7d",
+   "ok": true,
+   "stripTop": 411.4,
+   "stripBottom": 510,
+   "drawingTop": 516,
+   "barTop": 598,
+   "drawingVisible": 82,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 375,
+   "height": 667,
+   "name": "completed-custom",
+   "ok": true,
+   "stripTop": 484.2,
+   "stripBottom": 582.8,
+   "drawingTop": 588.8,
+   "barTop": 598,
+   "drawingVisible": 9,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 375,
+   "height": 667,
+   "name": "planned",
+   "ok": true,
+   "stripTop": 434.4,
+   "stripBottom": 533,
+   "drawingTop": 539,
+   "barTop": 598,
+   "drawingVisible": 59,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 375,
+   "height": 667,
+   "name": "planned-from-review",
+   "ok": true,
+   "stripTop": 478.4,
+   "stripBottom": 577,
+   "drawingTop": 583,
+   "barTop": 598,
+   "drawingVisible": 15,
+   "back": true,
+   "overflow": 0
+  },
+  {
+   "width": 375,
+   "height": 667,
+   "name": "completed-from-muscles",
+   "ok": true,
+   "stripTop": 478.4,
+   "stripBottom": 577,
+   "drawingTop": 583,
+   "barTop": 598,
+   "drawingVisible": 15,
+   "back": true,
+   "overflow": 0
+  },
+  {
+   "width": 430,
+   "height": 932,
+   "name": "completed-week",
+   "ok": true,
+   "stripTop": 437.7,
+   "stripBottom": 536.3,
+   "drawingTop": 542.3,
+   "barTop": 863,
+   "drawingVisible": 321,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 430,
+   "height": 932,
+   "name": "completed-7d",
+   "ok": true,
+   "stripTop": 414.7,
+   "stripBottom": 513.3,
+   "drawingTop": 519.3,
+   "barTop": 863,
+   "drawingVisible": 344,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 430,
+   "height": 932,
+   "name": "completed-custom",
+   "ok": true,
+   "stripTop": 487.5,
+   "stripBottom": 586.1,
+   "drawingTop": 592.1,
+   "barTop": 863,
+   "drawingVisible": 271,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 430,
+   "height": 932,
+   "name": "planned",
+   "ok": true,
+   "stripTop": 437.7,
+   "stripBottom": 536.3,
+   "drawingTop": 542.3,
+   "barTop": 863,
+   "drawingVisible": 321,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 430,
+   "height": 932,
+   "name": "planned-from-review",
+   "ok": true,
+   "stripTop": 481.7,
+   "stripBottom": 580.3,
+   "drawingTop": 586.3,
+   "barTop": 863,
+   "drawingVisible": 277,
+   "back": true,
+   "overflow": 0
+  },
+  {
+   "width": 430,
+   "height": 932,
+   "name": "completed-from-muscles",
+   "ok": true,
+   "stripTop": 481.7,
+   "stripBottom": 580.3,
+   "drawingTop": 586.3,
+   "barTop": 863,
+   "drawingVisible": 277,
+   "back": true,
+   "overflow": 0
+  },
+  {
+   "width": 320,
+   "height": 568,
+   "name": "completed-week",
+   "ok": false,
+   "stripTop": 600.9,
+   "stripBottom": 699.5,
+   "drawingTop": 705.5,
+   "barTop": 499,
+   "drawingVisible": -206,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 320,
+   "height": 568,
+   "name": "completed-7d",
+   "ok": false,
+   "stripTop": 558.9,
+   "stripBottom": 657.5,
+   "drawingTop": 663.5,
+   "barTop": 499,
+   "drawingVisible": -164,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 320,
+   "height": 568,
+   "name": "completed-custom",
+   "ok": false,
+   "stripTop": 706.5,
+   "stripBottom": 805.1,
+   "drawingTop": 811.1,
+   "barTop": 499,
+   "drawingVisible": -312,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 320,
+   "height": 568,
+   "name": "planned",
+   "ok": false,
+   "stripTop": 527.9,
+   "stripBottom": 626.5,
+   "drawingTop": 632.5,
+   "barTop": 499,
+   "drawingVisible": -133,
+   "back": false,
+   "overflow": 0
+  },
+  {
+   "width": 320,
+   "height": 568,
+   "name": "planned-from-review",
+   "ok": false,
+   "stripTop": 571.9,
+   "stripBottom": 670.5,
+   "drawingTop": 676.5,
+   "barTop": 499,
+   "drawingVisible": -177,
+   "back": true,
+   "overflow": 0
+  },
+  {
+   "width": 320,
+   "height": 568,
+   "name": "completed-from-muscles",
+   "ok": false,
+   "stripTop": 644.9,
+   "stripBottom": 743.5,
+   "drawingTop": 749.5,
+   "barTop": 499,
+   "drawingVisible": -250,
+   "back": true,
+   "overflow": 0
+  }
+ ],
+ "shots": [
+  {
+   "width": 390,
+   "shot": "first-screen-fcu",
+   "url": "?workspace=specialization&region=forearm&node=forearm.fcu",
+   "stripTop": 435.28125,
+   "stripBottom": 533.859375,
+   "drawingTop": 539.859375,
+   "barTop": 775,
+   "dialog": false,
+   "name": "Flexor carpi ulnaris",
+   "overflow": 0
+  },
+  {
+   "width": 390,
+   "shot": "sheet-fcr-notes",
+   "notes": [
+    "No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week.",
+    "Radial deviation, a main action of this muscle, has no direct work in this window, and the exercises that train it directly answer a target you have already met, so none is suggested."
+   ],
+   "sheetOverflow": 0,
+   "overflow": 0
+  },
+  {
+   "width": 390,
+   "shot": "sheet-biceps-missing-action",
+   "notes": [
+    "Supination, a main action of this muscle, has no direct work in this window, and no reviewed exercise trains it directly yet."
+   ],
+   "covered": [
+    "Barbell Curl: 3 sets logged in this window",
+    "Hammer Curl: planned on Day 01 · Upper; 3 sets logged in this window"
+   ],
+   "sheetOverflow": 0,
+   "overflow": 0
+  },
+  {
+   "width": 390,
+   "shot": "window-bars + day-bouts-sheet",
+   "bars": [
+    {
+     "tag": "SPAN",
+     "w": 47.2,
+     "h": 101.4,
+     "label": null
+    },
+    {
+     "tag": "BUTTON",
+     "w": 47.2,
+     "h": 101.4,
+     "label": "Tue, Oct 13: 7 distinct bouts. See these sets"
+    },
+    {
+     "tag": "SPAN",
+     "w": 47.2,
+     "h": 101.4,
+     "label": null
+    },
+    {
+     "tag": "BUTTON",
+     "w": 47.2,
+     "h": 101.4,
+     "label": "Thu, Oct 15: 10 distinct bouts. See these sets"
+    },
+    {
+     "tag": "SPAN",
+     "w": 47.2,
+     "h": 101.4,
+     "label": null
+    },
+    {
+     "tag": "SPAN",
+     "w": 47.2,
+     "h": 101.4,
+     "label": null
+    },
+    {
+     "tag": "SPAN",
+     "w": 47.2,
+     "h": 101.4,
+     "label": null
+    }
+   ],
+   "opened": "Tue, Oct 13: 7 distinct bouts. See these sets",
+   "title": "Tue, Oct 13",
+   "workouts": 0,
+   "sheetOverflow": 0,
+   "overflow": 0
+  },
+  {
+   "width": 390,
+   "shot": "pair-sheet",
+   "title": "17 logged · 12 planned",
+   "headings": [
+    "Logged on the right arm: 17 bouts",
+    "Planned in Plan Week 1: 12 bouts"
+   ],
+   "overflow": 0
+  },
+  {
+   "width": 375,
+   "shot": "first-screen-fcu",
+   "url": "?workspace=specialization&region=forearm&node=forearm.fcu",
+   "stripTop": 434.375,
+   "stripBottom": 532.953125,
+   "drawingTop": 538.953125,
+   "barTop": 598,
+   "dialog": false,
+   "name": "Flexor carpi ulnaris",
+   "overflow": 0
+  },
+  {
+   "width": 375,
+   "shot": "sheet-fcr-notes",
+   "notes": [
+    "No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week.",
+    "Radial deviation, a main action of this muscle, has no direct work in this window, and the exercises that train it directly answer a target you have already met, so none is suggested."
+   ],
+   "sheetOverflow": 0,
+   "overflow": 0
+  },
+  {
+   "width": 375,
+   "shot": "sheet-biceps-missing-action",
+   "notes": [
+    "Supination, a main action of this muscle, has no direct work in this window, and no reviewed exercise trains it directly yet."
+   ],
+   "covered": [
+    "Barbell Curl: 3 sets logged in this window",
+    "Hammer Curl: planned on Day 01 · Upper; 3 sets logged in this window"
+   ],
+   "sheetOverflow": 0,
+   "overflow": 0
+  },
+  {
+   "width": 375,
+   "shot": "window-bars + day-bouts-sheet",
+   "bars": [
+    {
+     "tag": "SPAN",
+     "w": 45.3,
+     "h": 101.4,
+     "label": null
+    },
+    {
+     "tag": "BUTTON",
+     "w": 45.3,
+     "h": 101.4,
+     "label": "Tue, Oct 13: 7 distinct bouts. See these sets"
+    },
+    {
+     "tag": "SPAN",
+     "w": 45.3,
+     "h": 101.4,
+     "label": null
+    },
+    {
+     "tag": "BUTTON",
+     "w": 45.3,
+     "h": 101.4,
+     "label": "Thu, Oct 15: 10 distinct bouts. See these sets"
+    },
+    {
+     "tag": "SPAN",
+     "w": 45.3,
+     "h": 101.4,
+     "label": null
+    },
+    {
+     "tag": "SPAN",
+     "w": 45.3,
+     "h": 101.4,
+     "label": null
+    },
+    {
+     "tag": "SPAN",
+     "w": 45.3,
+     "h": 101.4,
+     "label": null
+    }
+   ],
+   "opened": "Tue, Oct 13: 7 distinct bouts. See these sets",
+   "title": "Tue, Oct 13",
+   "workouts": 0,
+   "sheetOverflow": 0,
+   "overflow": 0
+  },
+  {
+   "width": 375,
+   "shot": "pair-sheet",
+   "title": "17 logged · 12 planned",
+   "headings": [
+    "Logged on the right arm: 17 bouts",
+    "Planned in Plan Week 1: 12 bouts"
+   ],
+   "overflow": 0
+  },
+  {
+   "width": 320,
+   "shot": "day widths",
+   "min": 67.7,
+   "columns": 4,
+   "overflow": 0
+  },
+  {
+   "width": 340,
+   "shot": "day widths",
+   "min": 72.7,
+   "columns": 4,
+   "overflow": 0
+  },
+  {
+   "width": 359,
+   "shot": "day widths",
+   "min": 77.4,
+   "columns": 4,
+   "overflow": 0
+  },
+  {
+   "width": 360,
+   "shot": "day widths",
+   "min": 77.6,
+   "columns": 4,
+   "overflow": 0
+  },
+  {
+   "width": 375,
+   "shot": "day widths",
+   "min": 45.3,
+   "columns": 7,
+   "overflow": 0
+  }
+ ]
+}

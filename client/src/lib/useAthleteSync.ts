@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ensureAthleteIdentity, upsertAthleteProfile, type IdentityState } from "@/lib/athleteIdentity";
 import { loadCachedReferenceMap, refreshReferenceMap, type ReferenceMap } from "@/lib/supabaseReferenceMap";
-import { enqueueLifts, flushSyncQueue, loadSyncQueue, loadSyncedKeys, saveSyncQueue, type QueuedLift } from "@/lib/strengthSyncQueue";
+import { enqueueLifts, flushSyncQueue, loadSyncQueue, loadSyncedKeys, saveSyncQueue, strengthSyncEvent, type QueuedLift } from "@/lib/strengthSyncQueue";
 import { workoutStrengthObservations } from "@/lib/workoutStrengthRecord";
 import { deviceWorkoutHistoryEvent, loadDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
 import { bodyWeightLogEvent, currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
@@ -39,9 +39,56 @@ function onReconnect(retry: () => void): () => void {
   };
 }
 
+/**
+ * Queued lifts the account cannot take yet: the reference map has loaded and holds no uuid for the
+ * lift's catalog exercise (the forearm rows 401–416 have no `app_exercise_source_mappings` row).
+ * They stay in the queue, untouched, and are sent once their mapping exists, but they are not
+ * "waiting to upload": no sync will send them as things stand, so counting them there showed an
+ * upload that never finished.
+ *
+ * Before the map has loaded nothing can be said, so every queued lift counts as waiting. A map
+ * with no exercise mapping at all is treated the same way: an empty read says nothing about which
+ * exercises the account lacks.
+ */
+export function liftsKeptOnDevice(queue: readonly QueuedLift[], referenceMap: ReferenceMap | null): number {
+  const known = referenceMap?.exerciseUuidByCatalogId;
+  if (!known || Object.keys(known).length === 0) return 0;
+  return queue.filter((item) => !known[item.lift.catalogExerciseId]).length;
+}
+
+/** Queued lifts a sync can send: everything queued except the lifts kept on this device. */
+export function liftsWaitingToUpload(queue: readonly QueuedLift[], referenceMap: ReferenceMap | null): number {
+  return queue.length - liftsKeptOnDevice(queue, referenceMap);
+}
+
+/** Said when the sync's reference map changes, so a count read from the cached map is read again. */
+export const referenceMapChangedEvent = "sports-genome:reference-map";
+
+/**
+ * The lifts kept on this device, read from the stored queue and the cached reference map (the
+ * map the sync reads), and read again whenever the queue is saved or the sync's map changes
+ * (the first load of the map is what turns a waiting lift into a kept one). For a screen that is
+ * not handed the sync's own status.
+ */
+export function useLiftsKeptOnDevice(): number {
+  const read = () => liftsKeptOnDevice(loadSyncQueue(), loadCachedReferenceMap());
+  const [kept, setKept] = useState(read);
+  useEffect(() => {
+    const refresh = () => setKept(read());
+    refresh();
+    const events = [strengthSyncEvent, referenceMapChangedEvent, "storage"];
+    events.forEach((name) => window.addEventListener(name, refresh));
+    return () => events.forEach((name) => window.removeEventListener(name, refresh));
+  }, []);
+  return kept;
+}
+
 export type AthleteSyncStatus = {
   identity: IdentityState;
+  /** Queued lifts a sync can send, waiting for a session and a network. */
   pending: number;
+  /** Queued lifts kept on this device because their exercise cannot be uploaded yet (`liftsKeptOnDevice`). */
+  keptOnDevice: number;
   lastSyncedAt?: string;
   /**
    * The catalog actually in force: the server's when it is connected, otherwise
@@ -68,7 +115,10 @@ export function useAthleteSync(options: {
   const { sexForReference, birthYear, sportId, sportContextMode, weightUnit, appSports, capacityFocus, targetCatalog, onCapacityRestored, enabled = true } = options;
   const [identity, setIdentity] = useState<IdentityState>({ userId: null, anonymous: true });
   const [referenceMap, setReferenceMap] = useState<ReferenceMap | null>(() => loadCachedReferenceMap());
-  const [pending, setPending] = useState(() => loadSyncQueue().length);
+  // What the outbox holds, split once the reference map says which lifts the account can take.
+  const [queued, setQueued] = useState(() => loadSyncQueue());
+  const pending = liftsWaitingToUpload(queued, referenceMap);
+  const keptOnDevice = liftsKeptOnDevice(queued, referenceMap);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | undefined>();
   const running = useRef(false);
   // A sync asked for while one is in flight runs once that one settles, through the latest
@@ -91,6 +141,14 @@ export function useAthleteSync(options: {
     refreshReferenceMap(appSports).then((map) => { if (!cancelled && map) setReferenceMap(map); });
     return () => { cancelled = true; };
   }, [enabled, appSports]);
+
+  // A screen counting the kept lifts from the cached map reads it again once the map has changed:
+  // refreshReferenceMap caches the map before handing it over, so the cache is this map.
+  const firstMap = useRef(true);
+  useEffect(() => {
+    if (firstMap.current) { firstMap.current = false; return; }
+    window.dispatchEvent(new Event(referenceMapChangedEvent));
+  }, [referenceMap]);
 
   // An offline launch leaves identity "unreachable" and the map unread, and About me promises
   // the record syncs when the service is back, so both are asked for again on reconnect.
@@ -242,11 +300,11 @@ export function useAthleteSync(options: {
 
     const queue = enqueueLifts(loadSyncQueue(), loadSyncedKeys(), candidates);
     saveSyncQueue(queue);
-    setPending(queue.length);
+    setQueued(queue);
 
     flushSyncQueue(identity.userId, (catalogId) => referenceMap?.exerciseUuidByCatalogId[catalogId])
       .then((result) => {
-        setPending(loadSyncQueue().length);
+        setQueued(loadSyncQueue());
         if (result.sent) setLastSyncedAt(new Date().toISOString());
       })
       .finally(() => {
@@ -275,5 +333,5 @@ export function useAthleteSync(options: {
     };
   }, [enabled, syncNow]);
 
-  return { identity, pending, lastSyncedAt, targetCatalog: effectiveCatalog, syncNow };
+  return { identity, pending, keptOnDevice, lastSyncedAt, targetCatalog: effectiveCatalog, syncNow };
 }

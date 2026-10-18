@@ -12,7 +12,7 @@ import { muscleCanonicalNameToRegionId } from "@shared/capabilityRank";
  * comparison group and it works one of the group's muscles as a primary or secondary mover. A
  * muscle a lift only steadies is never ranked by it. `rankableExercises.json` is that list, read
  * from the scorer itself (scripts/strength/rankable-exercises.sql): 244 of the 400 catalog
- * exercises, each with how it is scored and the muscles it works. So a suggestion here is a lift
+ * exercises the catalog held when it was read (the 16 Oct forearm rows are not scored yet), each with how it is scored and the muscles it works. So a suggestion here is a lift
  * that will actually produce the rank, not one that merely trains the muscle.
  *
  * Order, best first:

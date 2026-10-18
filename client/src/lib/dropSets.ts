@@ -1,5 +1,5 @@
 import type { LoadConvention } from "@shared/loadConventions";
-import type { DeviceSetLog, DropStage } from "./deviceWorkoutLog";
+import { holdSecondsOf, isHoldSet, type DeviceSetLog, type DropStage } from "./deviceWorkoutLog";
 import { displayWeightToKilograms, kilogramsToDisplayWeight, type DisplayWeightUnit } from "./weightUnits";
 
 /**
@@ -15,6 +15,10 @@ import { displayWeightToKilograms, kilogramsToDisplayWeight, type DisplayWeightU
  *   before, so they say nothing about what a fresh set could do; the stages are never added
  *   together into one estimate.
  * - Two stages at least: one stage is an ordinary set (deviceWorkoutLog.settleDropSet).
+ *
+ * The readers here also meet holds (a set with `holdSeconds` and no reps): a hold is shown in
+ * seconds, adds no reps, and has no volume - seconds are never multiplied by a load. Holds are
+ * never drop sets: the logger does not offer one on an exercise measured in seconds.
  */
 
 /** A drop set that counts as one: completed, with at least one drop. */
@@ -72,6 +76,8 @@ export type SetVolume = { value: number; unit: DisplayWeightUnit; basis: "total"
 
 export function setVolume(set: DeviceSetLog, unit: DisplayWeightUnit, convention: LoadConvention = "total_external_load", fallbackUnit: DisplayWeightUnit = unit): SetVolume | null {
   if (convention === "bodyweight_reps") return null;
+  // A hold's seconds are not reps: load x seconds is not volume-load, and no conversion is invented.
+  if (isHoldSet(set)) return null;
   let value = 0;
   let counted = false;
   for (const stage of stagesOf(set)) {
@@ -92,12 +98,23 @@ export function volumeText(volume: SetVolume): string {
   return `${amount} ${volume.unit}·reps${volume.basis === "per_implement" ? " per dumbbell" : volume.basis === "per_hand" ? " per hand" : ""}`;
 }
 
+/** "30 s": a hold's duration as every record shows it. */
+export function holdText(seconds: number): string {
+  return `${formatLoad(seconds)} s`;
+}
+
 /**
  * One performed set as every record shows it: "185 lb × 5", "bodyweight × 12", "+20 lb × 5",
- * "24 in box × 8", or a drop set's collapsed row.
+ * "24 in box × 8", a drop set's collapsed row, or a hold: "30 s", "70 lb × 30 s", "+20 lb × 30 s".
  */
 export function performedSetLine(set: DeviceSetLog, unit: DisplayWeightUnit, convention: LoadConvention = "total_external_load"): string {
   if (set.type === "drop" && (set.stages?.length ?? 0) >= 2) return dropSetLine(set, unit, convention);
+  const seconds = holdSecondsOf(set);
+  if (seconds !== null) {
+    // A hold with no load is the body alone: just the time, never "— lb" or "bodyweight × 30 s".
+    const loaded = set.weight.trim() !== "" && number(set.weight) > 0;
+    return loaded ? `${stageLoadText({ weight: set.weight, unit: set.unit }, unit, convention)} × ${holdText(seconds)}` : holdText(seconds);
+  }
   const reps = set.reps.trim() || "—";
   if ((set.height || "").trim() && !set.weight.trim()) return `${set.height} in box × ${reps}`;
   const load = stageLoadText({ weight: set.weight, unit: set.unit }, unit, convention);
