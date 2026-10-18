@@ -18,11 +18,11 @@ Body Lab → **Specialize** is the forearm page the brief asks for (§6). This n
 | Where an Undo, or a section a sheet sends you to, lands on a phone | `reveal.ts` (clear of the bottom dock and the sticky tab row) |
 | What the page says about a summary | `model.ts` (pure) |
 | Drawing | `SpecializationDiagram.tsx` (renderer contract, `02-design.md` §12) |
-| Styles | `specialization.css` |
+| Styles | `specialization.css`, `specialization-diagram.css`, `plan-change.css`, `targets.css`, `progress.css` (all in the same folder) |
 | URL state, plan-change contract | `client/src/lib/specialization/viewState.ts`, `planChange.ts` |
 | Home wiring | `client/src/pages/Home.tsx` (workspace `specialization`) |
 
-Home imports only `shared/specialization/regionIndex.ts` (the region's name, map keys and entry label), so the anatomy, mappings and calculator load with the page's own chunk and not with Home.
+Home imports the region index (`regionIndex.ts`: the region's name, map keys and entry label), the hold list (`holdCatalogIds.ts`), the goal store (`client/src/lib/specialization/stores.ts`) and `isGoalActiveAt` (`goals.ts`), and the page's address and plan-change helpers (`viewState.ts`, `planChange.ts`). None of them carries the anatomy, the mappings, the drawing or the exposure calculator (`exposure.ts`), which load with the page's own chunk.
 
 ## Ways in, and Back
 
@@ -93,4 +93,5 @@ At 375 × 667, FCU selected, the strip and the drawing's top are on the first sc
 - `client/src/components/specialization/reveal.test.ts`: an Undo under the dock lifted 12 px clear of it though already on screen, one under the tab row brought down, one already clear left alone, one in a sheet left to the sheet; a section a sheet sends you to placed under the tab row, without animation under reduced motion.
 - `client/src/components/specialization/Targets.render.test.ts`: a movement target's Open; Undo lifted clear of the dock after Remove.
 - `client/src/lib/specialization/regionRows.test.ts`: the rows the calculator keeps behind region totals.
+- `client/src/pages/Home.specializationJourney.test.ts`: one whole journey (brief §11 checklist): a muscle with no work → Add targeted exercise → Day 03 · Legs → Train → that day's workout, one set logged and finished → the muscle's row and its drawing show the bout.
 - `client/src/pages/Home.specialization.test.ts`: the tab, the address (kept, validated, stripped elsewhere, restored on Back), an add written into the named day with Undo taking back that one change, and Review's link opening planned mode on its week with Back to Review.

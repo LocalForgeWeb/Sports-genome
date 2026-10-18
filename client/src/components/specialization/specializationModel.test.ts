@@ -89,6 +89,10 @@ describe("what the page says about a muscle", () => {
     const sentence = exposureSentence(node({ directDynamicBouts: 6, contributingDynamicBouts: 2, deliberateHoldBouts: 2, deliberateHoldSeconds: 60, unknownSide: { bouts: 1, directDynamicBouts: 1, deliberateHoldBouts: 0, deliberateHoldSeconds: 0 } }), "grip");
     expect(sentence).toBe("6 direct dynamic bouts · 2 other dynamic · 2 deliberate holds, 1 min. 1 set with no arm recorded is kept apart.");
   });
+  it("names sets under review with no arm recorded apart from this arm's own", () => {
+    const sentence = exposureSentence(node({ pendingReviewBouts: 1, unknownSide: { bouts: 0, directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 2 } }), "grip");
+    expect(sentence).toBe("No work for it in this window. 1 set matched a mapping still under review and is not counted. 2 sets with no arm recorded matched a mapping still under review and are not counted.");
+  });
   it("names incidental work in the region's own word", () => {
     expect(exposureSentence(node({ incidentalBouts: 4 }), "grip")).toBe("4 incidental grip or steadying.");
     expect(exposureSentence(node({ incidentalBouts: 4 }), "bracing")).toBe("4 incidental bracing or steadying.");
@@ -145,6 +149,11 @@ describe("coverage to review", () => {
     expect(findings[0].detail).toMatch(/The target is yours, not a prescription/);
     expect(findings.map((item) => item.id).slice(1, 3)).toEqual(["unknown-side", "region-only"]);
     expect(findings.find((item) => item.id === "region-only")!.detail).toBe("Cable Deadlift is tagged with the forearms but not mapped to a muscle yet, so it adds to no single muscle.");
+  });
+  it("counts sets under review with no arm recorded once, and says so", () => {
+    const nodes = forearmRegionData.nodes.map((item) => node({ nodeId: item.id, ...(item.id === "forearm.fpl" ? { pendingReviewBouts: 1, mappingCoverage: "pending_review" as const, unknownSide: { bouts: 0, directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 2 } } : {}) }));
+    const finding = findingsFor({ data: forearmRegionData, summary: summary({ nodes }), otherSide: null }).find((item) => item.id === "pending-review")!;
+    expect(finding.detail).toMatch(/^3 sets .* matched a mapping that is not reviewed yet, 2 of them with no arm recorded\. They are shown in the ledger and not counted\.$/);
   });
   it("says nothing about a target already met", () => {
     expect(findingsFor({ data: forearmRegionData, summary: summary({ goals: [progress(25)] }), otherSide: null }).some((item) => item.id.startsWith("goal:"))).toBe(false);

@@ -136,6 +136,10 @@ A set on an exercise now measured in seconds that holds reps was logged before t
 
 Its reps are never read as seconds, and nothing converts it. A set with neither reps nor seconds on such an exercise is a hold whose time was not recorded. The rule lives in one place, `isHoldOn` in `client/src/lib/sessionRecap.ts` (and the card's carried-dose line in `DeviceWorkoutTracker.tsx`); if the owner prefers to read such sets as holds, or to ask the athlete, those are the places to change.
 
+### A workout left open across the release
+
+A workout started before this release and resumed after it keeps what it was built with: on a hold, the goal's rep default pinned as its prescription ("3 × 6–10"), and any reps typed into a hold set. The tracker reads that workout the way it builds a new one, without rewriting anything stored: the card and the full list read the prescription through the same `prescriptionOf`, so a pinned goal default on a hold reads "3 × 30 sec" and athlete text stays as typed; and on an exercise measured in seconds, reps typed into a set that was not logged do not make it a draft (there is no Reps box to show them in, so "typed, not logged" never appears over empty boxes). Sets logged in reps stay rep sets, as above. Test: `DeviceWorkoutTracker.atlas.test.ts` › A workout left open across the release.
+
 ## Every reader of reps and load meets holds
 
 | Reader | A hold |

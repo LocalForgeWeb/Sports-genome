@@ -101,9 +101,11 @@ export function exposureSentence(node: NodeExposure | null, incidentalWork: stri
   if (!node || node.mappingCoverage === "none") return "No exercise is mapped to this muscle yet, so nothing can be counted for it.";
   const parts = exposureParts(node, incidentalWork);
   const pending = node.pendingReviewBouts ? `${plural(node.pendingReviewBouts, "set")} matched a mapping still under review and ${node.pendingReviewBouts === 1 ? "is" : "are"} not counted.` : "";
+  const noArmPending = node.unknownSide.pendingReviewBouts ?? 0;
+  const pendingNoArm = noArmPending ? `${plural(noArmPending, "set")} with no arm recorded matched a mapping still under review and ${noArmPending === 1 ? "is" : "are"} not counted.` : "";
   const unknownSide = node.unknownSide.bouts ? `${plural(node.unknownSide.bouts, "set")} with no arm recorded ${node.unknownSide.bouts === 1 ? "is" : "are"} kept apart.` : "";
   const head = parts.length ? `${parts.join(" · ")}.` : node.mappingCoverage === "pending_review" ? "Its exercise mapping is still under review." : "No work for it in this window.";
-  return [head, pending, unknownSide].filter(Boolean).join(" ");
+  return [head, pending, pendingNoArm, unknownSide].filter(Boolean).join(" ");
 }
 
 /** Every bout counted in the list's bar, by kind, on this arm. */
@@ -258,12 +260,16 @@ export function findingsFor(input: {
     });
   }
 
-  const pending = summary.nodes.filter((node) => node.pendingReviewBouts > 0);
+  // Sets with no arm recorded are in neither arm's count (unknownSide), and are named as such.
+  const noArmPendingOf = (node: NodeExposure) => node.unknownSide.pendingReviewBouts ?? 0;
+  const pending = summary.nodes.filter((node) => node.pendingReviewBouts > 0 || noArmPendingOf(node) > 0);
   if (pending.length) {
+    const onArm = pending.reduce((sum, node) => sum + node.pendingReviewBouts, 0);
+    const noArm = pending.reduce((sum, node) => sum + noArmPendingOf(node), 0);
     findings.push({
       id: "pending-review",
       title: `Mapping under review for ${pending.slice(0, 2).map((node) => nameOf(node.nodeId)).join(" and ")}${pending.length > 2 ? ` and ${pending.length - 2} more` : ""}`,
-      detail: `${plural(pending.reduce((sum, node) => sum + node.pendingReviewBouts, 0), "set")} ${window} matched a mapping that is not reviewed yet. ${pending.length === 1 ? "It is" : "They are"} shown in the ledger and not counted.`,
+      detail: `${plural(onArm + noArm, "set")} ${window} matched a mapping that is not reviewed yet${noArm ? `, ${noArm} of them with no arm recorded` : ""}. ${onArm + noArm === 1 ? "It is" : "They are"} shown in the ledger and not counted.`,
       action: { kind: "inspect", nodeId: pending[0].nodeId },
       actionLabel: "Inspect coverage",
     });
