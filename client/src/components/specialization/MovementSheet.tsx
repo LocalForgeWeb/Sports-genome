@@ -75,7 +75,8 @@ export function MovementSheet({ data, actionId, summary, loading, side, mode, in
           <div><dt>Other work for it</dt><dd>{ledger.totals.otherBouts}<small> · helping or steadying</small></dd></div>
           {ledger.totals.unknownSideBouts > 0 && <div><dt>No arm recorded</dt><dd>{ledger.totals.unknownSideBouts}<small> · counted for neither arm</small></dd></div>}
         </dl>
-        <p className="spz-note">Each set counts once for the movement, however many muscles did it.</p>
+        {/* A plan has done nothing yet: its sets are planned for the movement, not sets muscles did. */}
+        <p className="spz-note">{mode === "planned" ? "Each planned set counts once for the movement, however many muscles it is planned for." : "Each set counts once for the movement, however many muscles did it."}</p>
       </>}
       {progress.map((item) => <p key={item.goal.id} className="spz-note"><b>{goalMetricLabels[item.goal.metric]}: {item.label}</b>, {mode === "planned" ? intervalLabel : item.goal.period === "calendar_week" ? "this calendar week" : "the last 7 days"}. The target is yours, not a prescription.</p>)}
     </section>

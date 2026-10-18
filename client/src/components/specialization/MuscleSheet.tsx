@@ -6,6 +6,7 @@ import type { StoreWrite } from "@/lib/specialization/stores";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import type { AnatomyNode, ArmSide, GoalProgress, NodeExposure, SpecializationGoal, SpecializationRegionData, SummaryMode } from "@shared/specialization/types";
 import { ActionGlyph } from "./ActionGlyph";
+import { BoutItem, boutDay } from "./BoutItem";
 import { categoryLabel, formatSegment, holdTime, layerLabels, ledgerByExercise, sideLabels } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
 import { Suggestions } from "./Suggestions";
@@ -144,7 +145,10 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
         </details>)}
         {notCounted.length > 0 && <details className="spz-disclosure">
           <summary><span><b>Not counted</b><small>{notCounted.length} bout{notCounted.length === 1 ? "" : "s"} matched but earned nothing</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
-          <ol className="spz-bouts">{notCounted.map((row) => <li key={`${row.boutId}-nc`} className="spz-bout"><div className="spz-bout-head"><b>{row.exerciseName}</b><small>{[row.sessionLabel, sideLabels[row.side]].join(" · ")}</small></div><p className="spz-note">{row.notes.join(" · ") || "Not counted."}</p></li>)}</ol>
+          {/* The same set records as the ledger above (brief §1): its segments as logged and the workout it was in, with why it earned nothing. */}
+          <ol className="spz-bouts">{notCounted.map((row) => <BoutItem key={`${row.boutId}-nc`} row={row} title={row.exerciseName} meta={[row.sessionLabel, boutDay(row.performedAt), sideLabels[row.side], row.matchedBy === "name" ? "matched by name" : null].filter(Boolean).join(" · ")} weightUnit={weightUnit} onOpenSession={onOpenSession}>
+            <p className="spz-note">{row.notes.join(" · ") || "Not counted."}</p>
+          </BoutItem>)}</ol>
         </details>}
       </div> : <p className="spz-note">Nothing {mode === "planned" ? "planned" : "logged"} for it in this window.</p>}
     </section>

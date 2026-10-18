@@ -30,6 +30,8 @@ const reading = (id: string, measuredAt: string, value: number, extra: Partial<S
 });
 
 let saved: SpecializationMeasurement[] = [];
+let opened: string[] = [];
+let methodOpened = 0;
 let setFromOutside: ((props: Partial<MeasurementsPanelProps>) => void) | null = null;
 
 function Harness(props: Partial<MeasurementsPanelProps> & { initial?: SpecializationMeasurement[] }) {
@@ -55,6 +57,9 @@ function Harness(props: Partial<MeasurementsPanelProps> & { initial?: Specializa
     measurements: entries,
     onSave,
     onRemove,
+    onOpenSession: (id: string) => { opened.push(id); },
+    onInspectExercise: () => {},
+    onOpenMethod: () => { methodOpened += 1; },
     ...props,
     ...overrides,
   });
@@ -69,6 +74,8 @@ beforeEach(() => {
   vi.setSystemTime(new Date("2026-10-16T12:00:00.000Z"));
   window.localStorage.clear();
   saved = [];
+  opened = [];
+  methodOpened = 0;
   setFromOutside = null;
 });
 afterEach(() => { cleanup(); vi.useRealTimers(); });
@@ -138,7 +145,7 @@ describe("the charts' eight weeks", () => {
       reading("future", "2026-12-01T07:00:00.000Z", 29),
     ] }));
     const chart = figure(/^Circumference/);
-    expect(chart.querySelectorAll("circle")).toHaveLength(2);
+    expect(chart.querySelectorAll("circle.spz-chart-dot")).toHaveLength(2);
     expect(chart.textContent).toMatch(/Scale 30\.0 to 31\.0 cm · open dots were pumped/);
     expect(chart.textContent).toMatch(/1 older reading is not shown\./);
     expect(chart.textContent).toMatch(/1 reading is dated after this week and not shown\./);
@@ -151,7 +158,7 @@ describe("the charts' eight weeks", () => {
       workout("w2", "2026-10-14", [logged("e", "Hammer Curl", 132, [set(35, 10)])]),
     ]));
     render(createElement(Harness, { initial: [reading("a", "2026-10-01T07:00:00.000Z", 30), reading("b", "2026-10-14T07:00:00.000Z", 31)] }));
-    const xs = (caption: RegExp) => Array.from(figure(caption).querySelectorAll("circle")).map((dot) => dot.getAttribute("cx"));
+    const xs = (caption: RegExp) => Array.from(figure(caption).querySelectorAll("circle.spz-chart-dot")).map((dot) => dot.getAttribute("cx"));
     expect(xs(/^Circumference/)).toEqual(xs(/^Hammer Curl/));
     const ticks = (caption: RegExp) => Array.from(figure(caption).querySelectorAll("g line")).map((line) => line.getAttribute("x1")).join(",");
     expect(ticks(/^Circumference/)).toBe(ticks(/^Distinct/));
@@ -276,8 +283,10 @@ describe("exercise performance", () => {
     render(createElement(Harness, { weightUnit: "lb" }));
     const chart = figure(/^Hammer Curl: top set each session, right arm/);
     const summary = within(chart).getByRole("list");
-    expect(Array.from(summary.querySelectorAll("li")).map((item) => item.textContent)).toEqual(["1 Oct: 35 lb × 10", "8 Oct: 44.09 lb × 8"]);
+    expect(Array.from(summary.querySelectorAll("li")).map((item) => item.textContent)).toEqual(["1 Oct: 35 lb × 10", "8 Oct: 44.09 lb × 8, heaviest top set so far"]);
     expect(chart.querySelector("svg")?.getAttribute("aria-label")).toMatch(/2 sessions from 1 Oct to 8 Oct, first 35 lb × 10, latest 44\.09 lb × 8/);
+    // Heavier than every earlier session, the March one included: said as the record it is.
+    expect(chart.querySelector(".spz-chart-best-line")?.textContent).toBe("Heaviest top set so far: 44.09 lb × 8, 8 Oct (ringed)");
     expect(chart.textContent).toMatch(/Scale 35 to 44\.09 lb/);
     expect(chart.textContent).toMatch(/1 older session is not shown\./);
   });
@@ -291,7 +300,7 @@ describe("exercise performance", () => {
     const chart = figure(/^One-Arm Dumbbell Wrist Curl/);
     expect(chart.querySelectorAll('[data-side="unrecorded"]')).toHaveLength(1);
     expect(chart.querySelectorAll('[data-side="recorded"]')).toHaveLength(1);
-    expect(Array.from(within(chart).getByRole("list").querySelectorAll("li")).map((item) => item.textContent)).toEqual(["1 Oct: 25 lb × 12", "8 Oct: 27.5 lb × 10, no arm recorded"]);
+    expect(Array.from(within(chart).getByRole("list").querySelectorAll("li")).map((item) => item.textContent)).toEqual(["1 Oct: 25 lb × 12", "8 Oct: 27.5 lb × 10, no arm recorded, heaviest top set so far"]);
     expect(chart.textContent).toMatch(/Squares: that set recorded no arm/);
   });
 
@@ -303,8 +312,8 @@ describe("exercise performance", () => {
     ]));
     render(createElement(Harness, { weightUnit: "lb" }));
     const chart = figure(/^Hammer Curl: top set each session, right arm/);
-    expect(chart.querySelectorAll("circle")).toHaveLength(2);
-    expect(Array.from(within(chart).getByRole("list").querySelectorAll("li")).map((item) => item.textContent)).toEqual(["1 Oct: 30 lb × 10", "8 Oct: 35 lb × 8"]);
+    expect(chart.querySelectorAll("circle.spz-chart-dot")).toHaveLength(2);
+    expect(Array.from(within(chart).getByRole("list").querySelectorAll("li")).map((item) => item.textContent)).toEqual(["1 Oct: 30 lb × 10", "8 Oct: 35 lb × 8, heaviest top set so far"]);
     expect(chart.textContent).toMatch(/Scale 30 to 35 lb/);
     expect(chart.textContent).toMatch(/1 session with no load entered is not shown\./);
     expect((screen.getByLabelText("Exercise") as HTMLSelectElement).options[0].textContent).toBe("Hammer Curl · 2 sessions");
@@ -354,5 +363,167 @@ describe("kept across re-renders", () => {
     expect(screen.getByRole("status").textContent).toMatch(/Reading removed/);
     await click("Undo");
     expect(saved.map((entry) => entry.id)).toEqual(["a"]);
+  });
+});
+
+describe("the weekly bars open their bouts (brief §1: every total opens its set records)", () => {
+  it("makes each week with work a button that opens that week's bouts with Open this workout; a week with none is not a button", async () => {
+    window.localStorage.setItem(historyKey, JSON.stringify([
+      workout("w1", "2026-10-01", [logged("a", "Hammer Curl", 132, [set(30, 10), set(30, 10)])]),
+      workout("w2", "2026-10-14", [logged("a", "Hammer Curl", 132, [set(35, 10)])]),
+    ]));
+    render(createElement(Harness));
+    const weeks = screen.getByRole("list", { name: "Distinct bouts per week, right arm" });
+    expect(within(weeks).getAllByRole("listitem")).toHaveLength(8);
+    const buttons = within(weeks).getAllByRole("button");
+    expect(buttons.map((button) => button.getAttribute("aria-label"))).toEqual(["Week of 28 Sep: 2 distinct bouts. See these sets", "Week of 12 Oct: 1 distinct bout. See these sets"]);
+    // The count a week's button shows is the bar's, and the sheet lists the same bouts.
+    expect(buttons[0].textContent).toBe("28 Sep2");
+    await click("Week of 28 Sep: 2 distinct bouts. See these sets");
+    const sheet = screen.getByRole("dialog", { name: "Week of 28 Sep" });
+    expect(sheet.textContent).toMatch(/28 Sep – 4 Oct: 2 distinct bouts, every set that loaded a muscle of the forearms on the right arm/);
+    expect(within(sheet).getByText("Hammer Curl")).not.toBeNull();
+    const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
+    expect(open).toHaveLength(2);
+    await act(async () => { fireEvent.click(open[0]); });
+    expect(opened).toEqual(["w1"]);
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("hands How this is counted to the page, closing the week's sheet", async () => {
+    window.localStorage.setItem(historyKey, JSON.stringify([workout("w2", "2026-10-14", [logged("a", "Hammer Curl", 132, [set(35, 10)])])]));
+    render(createElement(Harness));
+    await click(/^Week of 12 Oct/);
+    await click("How this is counted", screen.getByRole("dialog"));
+    expect(methodOpened).toBe(1);
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+});
+
+describe("measured bests so far (brief §10: measured performance milestones, nothing about growth)", () => {
+  const hold = (seconds: number): DeviceSetLog => ({ weight: "", reps: "", holdSeconds: String(seconds), unit: "lb", completed: true }) as DeviceSetLog;
+  const addDays = (key: string, days: number) => new Date(Date.parse(`${key}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+  const hangs = (values: number[]) => values.map((seconds, index) => workout(`h${index}`, addDays("2026-09-30", 7 * index), [logged("a", "Dead Hang", 143, [hold(seconds)])]));
+
+  it("rings the session whose longest hold beats every earlier one, and says it as a fact", async () => {
+    window.localStorage.setItem(historyKey, JSON.stringify(hangs([40, 80, 75])));
+    render(createElement(Harness));
+    const chart = figure(/^Dead Hang: longest hold each session, right arm/);
+    expect(chart.querySelectorAll("[data-best]")).toHaveLength(1);
+    expect(chart.querySelector(".spz-chart-best-line")?.textContent).toBe("Longest hold so far: 80 s, 7 Oct (ringed)");
+    // The ring sits on the 80 s session's dot.
+    const dots = Array.from(chart.querySelectorAll("circle.spz-chart-dot"));
+    const ring = chart.querySelector("[data-best]")!;
+    expect(ring.getAttribute("cx")).toBe(dots[1].getAttribute("cx"));
+    expect(ring.getAttribute("cy")).toBe(dots[1].getAttribute("cy"));
+    expect(chart.querySelector("svg")?.getAttribute("aria-label")).toMatch(/Longest hold so far: 80 s, 7 Oct\.$/);
+    expect(chart.textContent).not.toMatch(/grow|gain|stronger|improv|because/i);
+  });
+
+  it("says nothing when no session has beaten the ones before it", async () => {
+    window.localStorage.setItem(historyKey, JSON.stringify(hangs([80, 40, 75])));
+    render(createElement(Harness));
+    const chart = figure(/^Dead Hang: longest hold each session, right arm/);
+    expect(chart.querySelector("[data-best]")).toBeNull();
+    expect(chart.querySelector(".spz-chart-best-line")).toBeNull();
+  });
+
+  it("reads the whole history: a session older than the eight weeks still counts as an earlier one", async () => {
+    window.localStorage.setItem(historyKey, JSON.stringify([
+      workout("old", "2026-03-02", [logged("a", "Dead Hang", 143, [hold(90)])]),
+      ...hangs([40, 80, 75]),
+    ]));
+    render(createElement(Harness));
+    const chart = figure(/^Dead Hang: longest hold each session, right arm/);
+    expect(chart.querySelector(".spz-chart-best-line")).toBeNull();
+  });
+
+  it("rings the highest grip reading taken the same way, and gives circumference no best", () => {
+    const grip = (id: string, at: string, kg: number, protocol: Partial<SpecializationMeasurement["protocol"]> = {}) => {
+      const entry = reading(id, at, kg * NEWTONS_PER_KGF, { metric: "grip_force_n" });
+      entry.protocol = { ...entry.protocol, landmark: "Dynamometer grip", posture: "elbow_90_supported", ...protocol };
+      return entry;
+    };
+    render(createElement(Harness, { initial: [
+      grip("g1", "2026-09-30T07:00:00.000Z", 40),
+      grip("g2", "2026-10-07T07:00:00.000Z", 45),
+      // Pumped, so another protocol: neither beaten by nor beating the unpumped readings.
+      grip("g3", "2026-10-10T19:00:00.000Z", 50, { condition: "pumped" }),
+      grip("g4", "2026-10-14T07:00:00.000Z", 42),
+      reading("c1", "2026-10-01T07:00:00.000Z", 30),
+      reading("c2", "2026-10-14T07:00:00.000Z", 31),
+    ] }));
+    const gripChart = figure(/^Grip strength on a dynamometer/);
+    expect(gripChart.querySelector(".spz-chart-best-line")?.textContent).toBe("Highest grip reading so far at this place, posture and condition: 45.0 kg on a dynamometer, 7 Oct (ringed)");
+    expect(gripChart.querySelectorAll("[data-best]")).toHaveLength(1);
+    const circumference = figure(/^Circumference/);
+    expect(circumference.querySelector("[data-best]")).toBeNull();
+    expect(circumference.querySelector(".spz-chart-best-line")).toBeNull();
+  });
+});
+
+describe("a repeatable protocol (brief §10: location, distance, posture, time and condition)", () => {
+  const select = (name: RegExp) => screen.getByLabelText(name) as HTMLSelectElement;
+  const taped = (id: string, at: string, value: number, protocol: Partial<SpecializationMeasurement["protocol"]>) => {
+    const entry = reading(id, at, value);
+    entry.protocol = { ...entry.protocol, ...protocol };
+    return entry;
+  };
+  const week1 = { landmark: "5 cm below elbow crease", distanceFromLandmarkCm: 5, posture: "elbow_90_supported" as const, condition: "unpumped" as const, device: "Gulick tape" };
+
+  it("starts a new reading from the last one of the same measure on the same arm, and says so", async () => {
+    render(createElement(Harness, { initial: [taped("a", "2026-10-07T07:00:00.000Z", 31.5, week1)] }));
+    await click("Add a reading");
+    expect(field(/^Where \(landmark\)$/).value).toBe("5 cm below elbow crease");
+    expect(field(/^Distance from the landmark \(cm, optional\)$/).value).toBe("5");
+    expect(select(/^Posture$/).value).toBe("elbow_90_supported");
+    expect(select(/^Condition$/).value).toBe("unpumped");
+    expect(field(/^Tape \(optional\)$/).value).toBe("Gulick tape");
+    expect(screen.getByText(/^Filled in from your last reading on the right arm \(7 Oct\): place, posture, condition and tape\./)).not.toBeNull();
+    await type(/^Circumference \(cm\)$/, "31.8");
+    await click("Save reading");
+    expect(saved[0].protocol).toMatchObject({ landmark: "5 cm below elbow crease", distanceFromLandmarkCm: 5, posture: "elbow_90_supported", device: "Gulick tape" });
+  });
+
+  it("falls back to a measure's own defaults where it has no reading, per measure and per arm", async () => {
+    render(createElement(Harness, { initial: [taped("a", "2026-10-07T07:00:00.000Z", 31.5, week1)] }));
+    await click("Add a reading");
+    // Grip has no reading: its own place and posture, never the tape's.
+    await click("Grip strength");
+    expect(field(/^Where \(landmark\)$/).value).toBe("Dynamometer grip");
+    expect(select(/^Posture$/).value).toBe("elbow_90_supported");
+    expect(field(/^Dynamometer \(optional\)$/).value).toBe("");
+    await click("Circumference");
+    expect(field(/^Where \(landmark\)$/).value).toBe("5 cm below elbow crease");
+    // The left arm has no reading yet.
+    await click("Left arm", screen.getByRole("group", { name: "Which arm" }));
+    expect(field(/^Where \(landmark\)$/).value).toBe("Thickest point");
+    expect(field(/^Distance from the landmark \(cm, optional\)$/).value).toBe("");
+    expect(screen.queryByText(/^Filled in from your last reading/)).toBeNull();
+  });
+
+  it("keeps what the athlete typed when the arm changes, and shows a distance in inches for an lb profile", async () => {
+    render(createElement(Harness, { weightUnit: "lb", initial: [taped("a", "2026-10-07T07:00:00.000Z", 31.75, { ...week1, distanceFromLandmarkCm: 5.08 })] }));
+    await click("Add a reading");
+    expect(field(/^Distance from the landmark \(in, optional\)$/).value).toBe("2");
+    await type(/^Where \(landmark\)$/, "Wrist crease");
+    expect(screen.queryByText(/^Filled in from your last reading/)).toBeNull();
+    await click("Left arm", screen.getByRole("group", { name: "Which arm" }));
+    expect(field(/^Where \(landmark\)$/).value).toBe("Wrist crease");
+  });
+
+  it("draws a reading taken at a different place or posture as a diamond, and the scale line counts them", () => {
+    render(createElement(Harness, { initial: [
+      taped("a", "2026-09-30T07:00:00.000Z", 31.5, week1),
+      taped("b", "2026-10-07T07:00:00.000Z", 31.6, { ...week1, landmark: "  5 CM below elbow crease " }),
+      taped("c", "2026-10-14T07:00:00.000Z", 33, { ...week1, landmark: "Thickest point", distanceFromLandmarkCm: null }),
+      taped("d", "2026-10-15T07:00:00.000Z", 33.1, { ...week1, landmark: "Thickest point", distanceFromLandmarkCm: null, posture: "arm_relaxed_hanging" }),
+    ] }));
+    const chart = figure(/^Circumference/);
+    // Case and spacing in the landmark are not a change; a new landmark, distance or posture is.
+    expect(chart.querySelectorAll('polygon[data-protocol="changed"]')).toHaveLength(2);
+    expect(chart.querySelectorAll("circle.spz-chart-dot")).toHaveLength(2);
+    expect(chart.textContent).toMatch(/Scale 31\.5 to 33\.1 cm · 2 diamonds: readings at a different place or posture than the one before/);
+    expect(chart.querySelector("svg")?.getAttribute("aria-label")).toMatch(/2 taken at a different place or posture than the one before\./);
   });
 });

@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import type { DeviceSetLog, DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { exercises } from "@/lib/exerciseCatalog";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
+import type { SpecializationMeasurement } from "@shared/specialization/types";
 import {
-  CM_PER_INCH, KG_PER_LB, NEWTONS_PER_KGF, chartPerformance, directlyMappedCatalogIds, formatPerformance, formatReading, formatScale, performanceSeries, progressAxis,
-  progressUnitsFor, splitByAxis, toShownValue, toStoredValue, valueScale, wallClockAt, zonedDateTimeToIso,
+  CM_PER_INCH, KG_PER_LB, NEWTONS_PER_KGF, bestSoFar, chartPerformance, directlyMappedCatalogIds, formatPerformance, formatReading, formatScale, latestReading, performanceBest,
+  performanceBestLabel, performanceSeries, progressAxis, progressUnitsFor, protocolChanges, readingBest, samePlaceAndPosture, sameProtocol, splitByAxis, toShownValue,
+  toStoredValue, typedLength, valueScale, wallClockAt, zonedDateTimeToIso, type PerformancePoint,
 } from "./progressSeries";
 
 /**
@@ -195,5 +197,78 @@ describe("comparable exercise performance", () => {
       session("b", "2026-10-08", [exercise("e", "Farmer Hold", 145, [set(100, "", { holdSeconds: "35" })])]),
     ], input());
     expect(series.map((item) => [item.key, item.straps, item.points.length]).sort()).toEqual([["145", false, 1], ["145:straps", true, 1]]);
+  });
+});
+
+const measured = (id: string, measuredAt: string, value: number, protocol: Partial<SpecializationMeasurement["protocol"]> = {}, extra: Partial<SpecializationMeasurement> = {}): SpecializationMeasurement => ({
+  id, regionId: "forearm", side: "right", measuredAt, metric: "circumference_cm", value,
+  protocol: { landmark: "Thickest point", distanceFromLandmarkCm: null, posture: "arm_relaxed_hanging", condition: "unpumped", device: null, timeOfDay: measuredAt.slice(11, 16), ...protocol },
+  notes: null, ...extra,
+});
+
+describe("a repeatable protocol", () => {
+  it("finds the latest reading of one measure on one arm of a region, by the instant it was taken", () => {
+    const readings = [
+      measured("late-left", "2026-10-15T07:00:00.000Z", 30, {}, { side: "left" }),
+      measured("b", "2026-10-14T07:00:00.000Z", 31),
+      measured("a", "2026-10-01T07:00:00.000Z", 30),
+      measured("grip", "2026-10-15T07:00:00.000Z", 400, {}, { metric: "grip_force_n" }),
+      measured("delt", "2026-10-15T07:00:00.000Z", 48, {}, { regionId: "deltoid" }),
+    ];
+    expect(latestReading(readings, { regionId: "forearm", side: "right", metric: "circumference_cm" })?.id).toBe("b");
+    expect(latestReading(readings, { regionId: "forearm", side: "left", metric: "grip_force_n" })).toBeNull();
+  });
+
+  it("calls a new landmark, distance or posture a change of place or posture, and not case, spacing or condition", () => {
+    const base = { landmark: "5 cm below elbow crease", distanceFromLandmarkCm: 5, posture: "elbow_90_supported" as const };
+    const changed = protocolChanges([
+      measured("d", "2026-10-15T07:00:00.000Z", 33, { ...base, distanceFromLandmarkCm: 6 }),
+      measured("a", "2026-09-30T07:00:00.000Z", 31, base),
+      measured("b", "2026-10-07T07:00:00.000Z", 31, { ...base, landmark: " 5 CM below  elbow crease", condition: "pumped" }),
+      measured("c", "2026-10-14T07:00:00.000Z", 32, { ...base, distanceFromLandmarkCm: 5.02 }),
+      measured("e", "2026-10-16T07:00:00.000Z", 33, { ...base, distanceFromLandmarkCm: 6, posture: "arm_relaxed_hanging" }),
+    ]);
+    expect(Array.from(changed).sort()).toEqual(["d", "e"]);
+    expect(samePlaceAndPosture({ ...base, distanceFromLandmarkCm: null }, base)).toBe(false);
+    expect(sameProtocol(measured("x", "2026-10-01T07:00:00.000Z", 1, base).protocol, measured("y", "2026-10-02T07:00:00.000Z", 1, { ...base, condition: "pumped" }).protocol)).toBe(false);
+  });
+
+  it("shows a stored distance in the athlete's unit as the form types it", () => {
+    expect(typedLength(5, "cm")).toBe("5");
+    expect(typedLength(5.08, "in")).toBe("2");
+    expect(typedLength(null, "in")).toBe("");
+  });
+});
+
+describe("measured bests so far", () => {
+  it("takes the item that beats every earlier one and that nothing later beats; a first item is never one", () => {
+    const best = (values: (number | null)[]) => bestSoFar(values.map((value, index) => ({ index, value })), (item) => item.value)?.index ?? null;
+    expect(best([40, 80, 75])).toBe(1);
+    expect(best([40, 55, 75])).toBe(2);
+    expect(best([80, 40, 75])).toBeNull();
+    // A later tie does not take the record over; an item with no value is skipped.
+    expect(best([40, 50, null, 50])).toBe(1);
+    expect(best([null, 40, 45])).toBe(2);
+    expect(best([40])).toBeNull();
+    expect(best([])).toBeNull();
+  });
+
+  it("compares a session on what its chart draws: seconds, the top set's load, or its reps; a load line skips a session with none", () => {
+    const point = (sessionId: string, value: Partial<PerformancePoint>): PerformancePoint => ({ sessionId, performedAt: "2026-10-01T18:00:00.000Z", dateKey: "2026-10-01", load: null, reps: null, seconds: null, sideUnrecorded: false, ...value });
+    const hammer = { catalogExerciseId: 132, points: [point("a", { load: 30, reps: 10 }), point("b", { load: null, reps: 20 }), point("c", { load: 35, reps: 6 })] };
+    expect(performanceBest(hammer, "load")?.sessionId).toBe("c");
+    expect(performanceBest(hammer, "reps")?.sessionId).toBe("b");
+    expect(performanceBest({ catalogExerciseId: 143, points: [point("a", { seconds: 40 }), point("b", { seconds: 80 }), point("c", { seconds: 75 })] }, "seconds")?.sessionId).toBe("b");
+    // A bodyweight exercise's empty load is the body alone, +0, and is compared as such.
+    expect(performanceBest({ catalogExerciseId: 26, points: [point("a", { load: null, reps: 8 }), point("b", { load: 10, reps: 6 })] }, "load")?.sessionId).toBe("b");
+    expect([performanceBestLabel("seconds"), performanceBestLabel("load"), performanceBestLabel("reps")]).toEqual(["Longest hold so far", "Heaviest top set so far", "Most reps in a top set so far"]);
+  });
+
+  it("rings a grip reading only against readings taken the same way as the latest, and never a circumference", () => {
+    const grip = (id: string, at: string, value: number, protocol: Partial<SpecializationMeasurement["protocol"]> = {}) => measured(id, at, value, { landmark: "Dynamometer grip", posture: "elbow_90_supported", ...protocol }, { metric: "grip_force_n" });
+    expect(readingBest([grip("a", "2026-10-01T07:00:00.000Z", 400), grip("b", "2026-10-08T07:00:00.000Z", 450), grip("p", "2026-10-09T19:00:00.000Z", 500, { condition: "pumped" }), grip("c", "2026-10-14T07:00:00.000Z", 420)])?.id).toBe("b");
+    // The latest is pumped: only pumped readings are its series, and one reading has nothing to beat.
+    expect(readingBest([grip("a", "2026-10-01T07:00:00.000Z", 400), grip("p", "2026-10-09T19:00:00.000Z", 500, { condition: "pumped" })])).toBeNull();
+    expect(readingBest([measured("a", "2026-10-01T07:00:00.000Z", 30), measured("b", "2026-10-08T07:00:00.000Z", 31)])).toBeNull();
   });
 });

@@ -5,6 +5,7 @@ import { goalProgressLabel, goalsForBothArms } from "@shared/specialization/goal
 import { addDaysToDateKey } from "@shared/specialization/time";
 import type { ArmSide, GoalMetric, GoalPeriod, GoalProgress, SpecializationGoal } from "@shared/specialization/types";
 import { goalMetricLabels } from "./model";
+import { revealClearOfBars } from "./reveal";
 import "./targets.css";
 
 /*
@@ -128,15 +129,15 @@ export function useTargetEdits({ onSave, onRemove, todayKey, subjectName }: {
   const [focus, setFocus] = useState<{ on: "undo" | "status"; count: number }>({ on: "undo", count: 0 });
   // The control that held focus is gone (a removed row, or Undo itself): focus moves to Undo,
   // the next thing anyone would want, or after Undo to the message saying what came back.
-  // The message sits under the whole list, which on a phone is often below the fold: it is
-  // scrolled just into view (clear of the bottom dock, see targets.css), so Undo is never off screen.
+  // The message sits under the whole list, which on a phone is often below the fold or under
+  // the bottom dock: it is brought into view and measured against the dock and the tab row
+  // (`revealClearOfBars`; scroll-margin alone misses an Undo already on screen under the dock).
   useEffect(() => {
     if (!focus.count) return;
     const target = focus.on === "undo" ? undoRef.current : statusRef.current;
     if (!target) return;
     target.focus({ preventScroll: true });
-    // Optional call: jsdom has no scrollIntoView.
-    target.scrollIntoView?.({ block: "nearest" });
+    revealClearOfBars(target);
   }, [focus]);
 
   const record = (entry: Undoable) => {

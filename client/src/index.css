@@ -3866,6 +3866,9 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .toaster [data-sonner-toast][data-styled="true"] [data-title] { color: var(--sg-text-on-dark); font-weight: 700; }
 .toaster [data-sonner-toast][data-styled="true"] [data-button] { background: var(--sg-action-fill); color: #fff; font-weight: 700; }
 .toaster [data-sonner-toast][data-styled="true"] [data-cancel] { background: rgb(255 255 255 / .1); color: var(--sg-text-on-dark); font-weight: 700; }
+/* A toast's action and cancel (an Undo, "View workout") are 44 x 44 touch targets (CLAUDE.md,
+   Apple's HIG); sonner draws them 24 px tall. Both carry [data-button]. */
+.toaster [data-sonner-toast][data-styled="true"] [data-button] { justify-content: center; min-width: 2.75rem; min-height: 2.75rem; padding-inline: .75rem; }
 /* The one rule for where toasts sit: above the bottom navigation, and above whatever else pins
    controls to the bottom of the screen. Those surfaces register in lib/feedbackClearance.ts,
    which sets --sg-feedback-clear to the height of the highest one on screen. */
