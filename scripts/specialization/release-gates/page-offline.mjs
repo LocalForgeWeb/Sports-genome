@@ -23,9 +23,7 @@ mkdirSync(outDir, { recursive: true });
 const publicDir = join(root, "dist/public");
 if (!existsSync(join(publicDir, "index.html"))) throw new Error("Build the client first: npx vite build");
 const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".json": "application/json", ".woff2": "font/woff2", ".webmanifest": "application/manifest+json" };
-const requests = [];
 const server = createServer((request, response) => {
-  requests.push(request.url);
   const path = decodeURIComponent(new URL(request.url, "http://x").pathname);
   let file = join(publicDir, path);
   if (!file.startsWith(publicDir) || !existsSync(file) || statSync(file).isDirectory()) file = join(publicDir, "index.html");
@@ -48,9 +46,15 @@ const plan = { version: 2, ...planWeek, weeks: { "1": planWeek }, activeWeek: 1 
 
 const browser = await chromium.launch();
 const results = {};
+const offline = { on: false, urls: [] };
+async function goOffline(context) { await context.setOffline(true); offline.on = true; offline.urls = []; }
+async function goOnline(context) { await context.setOffline(false); offline.on = false; }
 async function phone() {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
   const page = await context.newPage();
+  // What the page itself asks for. A request made offline never reaches the server, so the
+  // server's log cannot show it: count it here, where the browser starts it.
+  page.on("request", (request) => { if (offline.on) offline.urls.push(request.url().replace(base, "")); });
   page.on("pageerror", (error) => { results.pageErrors = [...(results.pageErrors ?? []), String(error.message).slice(0, 200)]; });
   await page.route("**/api/trpc/**", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(new URL(route.request().url()).searchParams.get("batch") ? [{ result: { data: { json: null } } }] : { result: { data: { json: null } } }) }));
   await page.addInitScript((seed) => {
@@ -70,8 +74,7 @@ const bodyText = (page) => page.evaluate(() => document.body.innerText.replace(/
   const { context, page } = await phone();
   await page.goto(`${base}/?workspace=specialization&region=forearm`);
   await page.locator(".spz-diagram-svg").waitFor({ timeout: 30000 });
-  await context.setOffline(true);
-  const before = requests.length;
+  await goOffline(context);
   await page.getByRole("button", { name: "Left arm" }).click();
   await page.getByRole("button", { name: "Planned" }).first().click();
   await page.waitForTimeout(300);
@@ -86,7 +89,8 @@ const bodyText = (page) => page.evaluate(() => document.body.innerText.replace(/
   await sheet.waitFor({ timeout: 5000 });
   const sheetOpen = await sheet.isVisible();
   await page.screenshot({ path: join(outDir, "offline-after-load-390.png") });
-  results.afterLoad = { requestsWhileOffline: requests.length - before, plannedLine, fcuSelected, sheetOpen, noOverflow: await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth) };
+  results.afterLoad = { requestsWhileOffline: offline.urls.length, offlineRequests: [...offline.urls], plannedLine, fcuSelected, sheetOpen, noOverflow: await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth) };
+  await goOnline(context);
   await context.close();
 }
 
@@ -95,13 +99,13 @@ const bodyText = (page) => page.evaluate(() => document.body.innerText.replace(/
   const { context, page } = await phone();
   await page.goto(`${base}/?workspace=body`);
   await page.waitForTimeout(2500);
-  await context.setOffline(true);
+  await goOffline(context);
   await page.getByRole("button", { name: "Specialize" }).first().click();
   await page.waitForTimeout(3000);
   await page.screenshot({ path: join(outDir, "offline-before-load-390.png") });
-  results.beforeLoad = { drawing: await page.locator(".spz-diagram-svg").count(), alert: await page.getByRole("alert").count(), text: await bodyText(page) };
+  results.beforeLoad = { drawing: await page.locator(".spz-diagram-svg").count(), alert: await page.getByRole("alert").count(), text: await bodyText(page), offlineRequests: [...offline.urls] };
   // Back online, and Reload tapped.
-  await context.setOffline(false);
+  await goOnline(context);
   await page.getByRole("button", { name: /Reload/ }).first().click().catch(() => {});
   await page.waitForTimeout(3000);
   results.beforeLoadThenOnline = { drawing: await page.locator(".spz-diagram-svg").count(), url: page.url().replace(base, "") };

@@ -1,6 +1,7 @@
 {
   "afterLoad": {
     "requestsWhileOffline": 0,
+    "offlineRequests": [],
     "plannedLine": "12 distinct bouts touched the forearms on the left arm. Choose a muscle on the drawing or in the list for its numbers.",
     "fcuSelected": "true",
     "sheetOpen": true,
@@ -9,7 +10,12 @@
   "beforeLoad": {
     "drawing": 0,
     "alert": 1,
-    "text": "Sports Genome hit a problem Nothing you have saved was changed. Reloading usually fixes this. Reload Technical detail"
+    "text": "Sports Genome hit a problem Nothing you have saved was changed. Reloading usually fixes this. Reload Technical detail",
+    "offlineRequests": [
+      "/assets/SpecializationPanel-BWN7dMra.js",
+      "/assets/mappings-C_89ZzXQ.js",
+      "/assets/SpecializationPanel-B5wtXQDl.css"
+    ]
   },
   "beforeLoadThenOnline": {
     "drawing": 1,

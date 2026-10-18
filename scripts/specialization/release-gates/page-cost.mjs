@@ -1,7 +1,9 @@
 /**
- * The page's own cost with a long device history: from tapping Specialize (its code already
- * loaded) to the drawing on screen, then Custom, an arm switch, the arm back and the switch
- * again, each to the next painted frame. Headless Chromium emulating an iPhone (390 × 844,
+ * The page's cost with a long device history: from tapping Specialize on Body Lab to the drawing
+ * on screen, then Custom, an arm switch, the arm back and the switch again, each to the next
+ * painted frame. Home does not preload the page's lazy chunk, so the first figure includes
+ * fetching it (from a local server: no network latency) and running it; `chunkOnTap` records that
+ * the chunk was requested after the tap. Headless Chromium emulating an iPhone (390 × 844,
  * isMobile, hasTouch, device scale 3) on the production build, on whatever CPU runs it: not a
  * phone, not Safari. Results: docs/specialization-atlas/README.md, "Release gates".
  *
@@ -53,6 +55,8 @@ for (const [label, sessions] of [["one week", history(1, 4)], ["a year, 4 a week
   for (let run = 0; run < 3; run += 1) {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
     const page = await context.newPage();
+    const chunkRequests = [];
+    page.on("request", (request) => { if (/\/assets\/SpecializationPanel-[^/]*\.js$/.test(request.url())) chunkRequests.push(request.url()); });
     await page.route("**/api/trpc/**", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(new URL(route.request().url()).searchParams.get("batch") ? [{ result: { data: { json: null } } }] : { result: { data: { json: null } } }) }));
     await page.addInitScript((seed) => {
       if (sessionStorage.getItem("cost-seeded")) return;
@@ -62,9 +66,10 @@ for (const [label, sessions] of [["one week", history(1, 4)], ["a year, 4 a week
       localStorage.setItem("sports-genome-device-workout-history-v1", JSON.stringify(seed.sessions));
       localStorage.setItem("gym-optimizer-workout-plan-v1", JSON.stringify(seed.plan));
     }, { sessions, plan });
-    // Home first, so the page's chunk is loaded and the timing below is the page's own work.
+    // Body Lab first, settled, so the timing below starts at the tap.
     await page.goto(`${base}/?workspace=body`);
     await page.waitForTimeout(1500);
+    const chunkBeforeTap = chunkRequests.length;
     const open = await page.evaluate(async () => {
       const button = [...document.querySelectorAll("button")].find((b) => b.textContent.trim() === "Specialize");
       const t0 = performance.now();
@@ -84,7 +89,7 @@ for (const [label, sessions] of [["one week", history(1, 4)], ["a year, 4 a week
     const left = await tap("Left arm");
     const right = await tap("Right arm");
     const leftAgain = await tap("Left arm");
-    results.push({ history: label, sessions: sessions.length, run, openMs: Math.round(open), customMs: Math.round(custom), leftArmFirstMs: Math.round(left), rightArmBackMs: Math.round(right), leftArmAgainMs: Math.round(leftAgain) });
+    results.push({ history: label, sessions: sessions.length, run, chunkOnTap: chunkBeforeTap === 0 && chunkRequests.length > 0, openMs: Math.round(open), customMs: Math.round(custom), leftArmFirstMs: Math.round(left), rightArmBackMs: Math.round(right), leftArmAgainMs: Math.round(leftAgain) });
     await context.close();
   }
 }

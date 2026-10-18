@@ -7,7 +7,7 @@ import type { FlushResult, QueuedLift } from "./strengthSyncQueue";
 import type { ReferenceMap } from "./supabaseReferenceMap";
 
 /**
- * Lifts on catalog rows the account has no mapping for (the forearm rows 401–414) stay queued and
+ * Lifts on catalog rows the account has no mapping for (the forearm rows 401–416) stay queued and
  * are never sent, as intended. They used to count as "waiting to upload" forever (R3). Once the
  * reference map has loaded they are counted apart, and the account card says they are kept on this
  * device; the queue itself is unchanged.
