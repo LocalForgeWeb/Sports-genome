@@ -9,7 +9,7 @@ import { getSupabaseClient } from "@/lib/supabaseClient";
  * database — `app_exercise_source_mappings` holds catalog ids 1–400 against
  * their uuids, marked approved — so this reads it rather than re-deriving a
  * mapping the project has already reviewed. The forearm rows added on 16 Oct
- * (401–414) have no mapping yet: their lifts stay on the device, and the sync
+ * (401–416) have no mapping yet: their lifts stay on the device, and the sync
  * queue counts them as unmappable rather than sending a wrong id.
  *
  * Sports are matched by normalised name. Two of the app's twenty (skiing,

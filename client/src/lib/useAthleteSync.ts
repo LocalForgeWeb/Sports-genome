@@ -41,7 +41,7 @@ function onReconnect(retry: () => void): () => void {
 
 /**
  * Queued lifts the account cannot take yet: the reference map has loaded and holds no uuid for the
- * lift's catalog exercise (the forearm rows 401–414 have no `app_exercise_source_mappings` row).
+ * lift's catalog exercise (the forearm rows 401–416 have no `app_exercise_source_mappings` row).
  * They stay in the queue, untouched, and are sent once their mapping exists, but they are not
  * "waiting to upload": no sync will send them as things stand, so counting them there showed an
  * upload that never finished.

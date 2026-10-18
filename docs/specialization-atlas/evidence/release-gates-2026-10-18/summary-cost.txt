@@ -1,0 +1,22 @@
+
+== a year, 4 workouts a week, 6 exercises, 3-4 sets: 208 workouts, 4056 sets, 497725 bytes of JSON
+sourceRevision (once per change to the log)                         56.10 ms
+boutsFromSessions + excluded records (once per change to the log)    10.45 ms
+  bouts: 4056
+getSpecializationSummary, calendar week, one arm                    19.02 ms
+getSpecializationSummary, rolling 7 days, one arm                   11.33 ms
+getSpecializationSummary, custom, the whole year, one arm          240.37 ms
+page render, both arms this week: cache cold                        15.04 ms
+page render, both arms this week: cache hit (arm or window back)    0.069 ms
+Progress: bouts + 8 weekly summaries (each on its week's bouts), one arm    58.21 ms
+
+== a heavy year, 6 workouts a week, sets x2.5: 312 workouts, 15912 sets, 1531561 bytes of JSON
+sourceRevision (once per change to the log)                        177.58 ms
+boutsFromSessions + excluded records (once per change to the log)    33.85 ms
+  bouts: 15912
+getSpecializationSummary, calendar week, one arm                    29.39 ms
+getSpecializationSummary, rolling 7 days, one arm                   34.09 ms
+getSpecializationSummary, custom, the whole year, one arm          861.13 ms
+page render, both arms this week: cache cold                        75.87 ms
+page render, both arms this week: cache hit (arm or window back)    0.089 ms
+Progress: bouts + 8 weekly summaries (each on its week's bouts), one arm   214.77 ms
