@@ -376,6 +376,33 @@
       "noOverflow": true
     },
     {
+      "scene": "touch-targets-sheets",
+      "viewport": "390x844",
+      "scope": "the wrist flexion movement sheet with every disclosure open; the add sheet with a day chosen; this week's bouts from Progress with every exercise open",
+      "movementSheetUnder44": [],
+      "addSheetUnder44": [],
+      "weekSheetUnder44": [],
+      "noOverflow": true
+    },
+    {
+      "scene": "touch-targets-sheets",
+      "viewport": "375x667",
+      "scope": "the wrist flexion movement sheet with every disclosure open; the add sheet with a day chosen; this week's bouts from Progress with every exercise open",
+      "movementSheetUnder44": [],
+      "addSheetUnder44": [],
+      "weekSheetUnder44": [],
+      "noOverflow": true
+    },
+    {
+      "scene": "touch-targets-sheets",
+      "viewport": "320x568",
+      "scope": "the wrist flexion movement sheet with every disclosure open; the add sheet with a day chosen; this week's bouts from Progress with every exercise open",
+      "movementSheetUnder44": [],
+      "addSheetUnder44": [],
+      "weekSheetUnder44": [],
+      "noOverflow": true
+    },
+    {
       "scene": "toast-add-undo",
       "viewport": "390x844",
       "toast": {

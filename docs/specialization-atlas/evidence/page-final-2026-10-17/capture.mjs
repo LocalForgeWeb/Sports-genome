@@ -297,6 +297,43 @@ if (want("touch")) for (const [width, height] of [[390, 844], [375, 667], [320, 
   await context.close();
 }
 
+// The other sheets: a movement (from its target in Targets, every disclosure open), the add sheet
+// with a day chosen, and a week's bouts from Progress with every exercise open.
+if (want("touch")) for (const [width, height] of [[390, 844], [375, 667], [320, 568]]) {
+  const movementGoal = { ...goal("t5", null, "right", 10), actionId: "wrist.flexion" };
+  const { context, page } = await open(width, height, { goals: [movementGoal], query: "&node=forearm.fcu" });
+  const targets = page.locator("details.spz-disclosure", { has: page.locator("summary b", { hasText: /^Targets$/ }) });
+  await targets.locator("summary").evaluate((element) => element.click());
+  await page.waitForTimeout(300);
+  await tap(page, targets.getByRole("button", { name: /^Open Wrist flexion/ }));
+  let sheet = page.getByRole("dialog").first();
+  await sheet.waitFor();
+  for (const summary of await sheet.locator("details > summary").all()) { if (!(await summary.evaluate((element) => element.parentElement.open))) await summary.evaluate((element) => element.click()); }
+  await page.waitForTimeout(300);
+  const movementSmall = await smallControls(page, ".spz-sheet");
+  await tap(page, sheet.getByRole("button", { name: "Close" }));
+  await tap(page, page.getByRole("button", { name: /Inspect coverage/ }).first());
+  sheet = page.getByRole("dialog").first();
+  await sheet.waitFor();
+  await tap(page, sheet.getByRole("button", { name: /Add or swap/ }).first());
+  const change = page.getByRole("dialog", { name: "Add to your plan" });
+  await change.waitFor();
+  await tap(page, change.getByRole("button", { name: /^Day 02 · Lower/ }));
+  const addSmall = await smallControls(page, ".spz-sheet");
+  await tap(page, change.getByRole("button", { name: "Close" }));
+  const progress = page.locator("details.spz-disclosure", { has: page.locator("summary b", { hasText: /^Progress$/ }) });
+  await progress.locator("summary").evaluate((element) => element.click());
+  await page.waitForTimeout(400);
+  await tap(page, page.getByRole("list", { name: /^Distinct bouts per week/ }).getByRole("button").last());
+  sheet = page.getByRole("dialog").first();
+  await sheet.waitFor();
+  for (const summary of await sheet.locator("details > summary").all()) { if (!(await summary.evaluate((element) => element.parentElement.open))) await summary.evaluate((element) => element.click()); }
+  await page.waitForTimeout(300);
+  const weekSmall = await smallControls(page, ".spz-sheet");
+  record({ scene: "touch-targets-sheets", viewport: `${width}x${height}`, scope: "the wrist flexion movement sheet with every disclosure open; the add sheet with a day chosen; this week's bouts from Progress with every exercise open", movementSheetUnder44: movementSmall, addSheetUnder44: addSmall, weekSheetUnder44: weekSmall, noOverflow: await noOverflow(page) });
+  await context.close();
+}
+
 // ---------------------------------------------------------------- toasts: the add's Undo, and the app's other toasts
 
 if (want("toast")) for (const [width, height] of [[390, 844], [375, 667], [320, 568]]) {
