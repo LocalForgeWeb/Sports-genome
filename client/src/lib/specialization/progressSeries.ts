@@ -4,7 +4,7 @@ import type { Exercise } from "@/lib/exerciseCatalog";
 import { kilogramsToDisplayWeight, type DisplayWeightUnit } from "@/lib/weightUnits";
 import { loadConventionFor } from "@shared/loadConventions";
 import { addDaysToDateKey, dateRangeLabel, isDateKey, localDateKey, mondayIndexOfDateKey } from "@shared/specialization/time";
-import type { ArmSide, MeasurementMetric, SetMeasure, SpecializationRegionData } from "@shared/specialization/types";
+import type { ArmSide, MeasurementMetric, MeasurementProtocol, SetMeasure, SpecializationMeasurement, SpecializationRegionData } from "@shared/specialization/types";
 import { holdSecondsOf, sideOf, variantLookup } from "./bouts";
 
 /**
@@ -15,7 +15,13 @@ import { holdSecondsOf, sideOf, variantLookup } from "./bouts";
  * - time: a reading's local date and time of day, in the page's zone, as one instant;
  * - the time axis every Progress chart shares, and what falls outside it;
  * - comparable exercise performance: one point per session for one catalog exercise, its
- *   top set (or longest hold) on one arm, matched by catalog id and never by name.
+ *   top set (or longest hold) on one arm, matched by catalog id and never by name;
+ * - a repeatable protocol: the last reading's place, posture, condition and device as the
+ *   next one's starting point, and which readings were taken at a different place or posture
+ *   from the one before;
+ * - measured milestones (brief §10, "reward ... measured performance milestones without
+ *   fabricating tissue growth"): the session or reading that beats every earlier one in the
+ *   same comparable series, said as a fact about the records and nothing more.
  */
 
 // ---------------------------------------------------------------- units
@@ -351,4 +357,108 @@ export function formatPerformance(point: PerformancePoint, series: Pick<Performa
 export function formatPerformanceScale(low: number, high: number, metric: PerformanceMetric, weightUnit: DisplayWeightUnit): string {
   const unit = metric === "load" ? weightUnit : metric === "reps" ? "reps" : "s";
   return low === high ? `${formatLoad(low)} ${unit}` : `${formatLoad(low)} to ${formatLoad(high)} ${unit}`;
+}
+
+// ---------------------------------------------------------------- a repeatable protocol
+
+/** Readings oldest first, by the instant they were taken (then id, so equal instants keep one order). */
+export function readingsInOrder(readings: readonly SpecializationMeasurement[]): SpecializationMeasurement[] {
+  return [...readings].sort((a, b) => Date.parse(a.measuredAt) - Date.parse(b.measuredAt) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
+/** The latest reading of one measure on one arm of a region: where the next one starts from. Null when there is none. */
+export function latestReading(readings: readonly SpecializationMeasurement[], match: { regionId: string; side: ArmSide; metric: MeasurementMetric }): SpecializationMeasurement | null {
+  const same = readings.filter((entry) => entry.regionId === match.regionId && entry.side === match.side && entry.metric === match.metric);
+  const ordered = readingsInOrder(same);
+  return ordered[ordered.length - 1] ?? null;
+}
+
+const landmarkKey = (landmark: string) => landmark.trim().replace(/\s+/g, " ").toLowerCase();
+/** Two distances from a landmark are the same when both are absent or they agree to half a millimetre. */
+const sameDistance = (a: number | null, b: number | null) => (a === null || b === null ? a === b : Math.abs(a - b) < 0.05);
+
+/** The same place and posture: the landmark (ignoring case and spacing), the distance from it, and the posture. */
+export function samePlaceAndPosture(a: Pick<MeasurementProtocol, "landmark" | "distanceFromLandmarkCm" | "posture">, b: Pick<MeasurementProtocol, "landmark" | "distanceFromLandmarkCm" | "posture">): boolean {
+  return landmarkKey(a.landmark) === landmarkKey(b.landmark) && sameDistance(a.distanceFromLandmarkCm, b.distanceFromLandmarkCm) && a.posture === b.posture;
+}
+
+/** The same protocol for comparing two readings as better or worse: the same place and posture, and the same condition (pumped or not). */
+export function sameProtocol(a: MeasurementProtocol, b: MeasurementProtocol): boolean {
+  return samePlaceAndPosture(a, b) && a.condition === b.condition;
+}
+
+/**
+ * The readings of one series (one measure, one arm) taken at a different place or posture from
+ * the reading before them, by id. The first reading has nothing before it and is never one.
+ * A pumped reading is already drawn apart, so a change of condition alone is not counted here.
+ */
+export function protocolChanges(readings: readonly SpecializationMeasurement[]): Set<string> {
+  const ordered = readingsInOrder(readings);
+  const changed = new Set<string>();
+  ordered.forEach((entry, index) => { if (index > 0 && !samePlaceAndPosture(entry.protocol, ordered[index - 1].protocol)) changed.add(entry.id); });
+  return changed;
+}
+
+/** A distance in the athlete's unit as the form shows it: "5", "2", "5.5"; empty when there is none. */
+export function typedLength(cm: number | null, unit: LengthUnit): string {
+  return cm === null ? "" : formatLoad(cmToLength(cm, unit));
+}
+
+// ---------------------------------------------------------------- measured milestones
+
+/**
+ * The best so far in a series given oldest first: the item whose value beats every earlier one
+ * (with at least one earlier to beat) and that nothing later beats; a later tie does not take
+ * it over. Items with no value (null) are skipped: they neither beat nor are beaten. Null when
+ * no item ever beat the ones before it, as for a series whose first item is still its best.
+ */
+export function bestSoFar<T>(items: readonly T[], valueOf: (item: T) => number | null): T | null {
+  let high: number | null = null;
+  let best: T | null = null;
+  for (const item of items) {
+    const value = valueOf(item);
+    if (value === null || !Number.isFinite(value)) continue;
+    if (high === null) { high = value; continue; }
+    if (value > high) { high = value; best = item; }
+  }
+  return best;
+}
+
+/**
+ * The value a session is compared on, as its chart draws it: seconds held, the top set's reps,
+ * or its load. On a load line a session with no load entered is not compared (the chart leaves
+ * it off too), except for a bodyweight exercise, where an empty load is the body alone (+0).
+ */
+function comparedValue(point: PerformancePoint, metric: PerformanceMetric, bodyweight: boolean): number | null {
+  if (metric === "seconds") return point.seconds;
+  if (metric === "reps") return point.reps;
+  return point.load ?? (bodyweight ? 0 : null);
+}
+
+/**
+ * The session of one exercise (one catalog id, straps or not, one arm) whose top set or longest
+ * hold beats every earlier session of it, all its history included, on the measure its chart
+ * draws: the longest hold, the heaviest top set, or the most reps in a top set.
+ */
+export function performanceBest(series: Pick<PerformanceSeries, "catalogExerciseId" | "points">, metric: PerformanceMetric): PerformancePoint | null {
+  const bodyweight = loadConventionFor(series.catalogExerciseId) === "bodyweight_reps";
+  return bestSoFar(series.points, (point) => comparedValue(point, metric, bodyweight));
+}
+
+/** "Longest hold so far", "Heaviest top set so far", "Most reps in a top set so far". */
+export function performanceBestLabel(metric: PerformanceMetric): string {
+  return metric === "seconds" ? "Longest hold so far" : metric === "load" ? "Heaviest top set so far" : "Most reps in a top set so far";
+}
+
+/**
+ * The reading that beats every earlier one of the same measure and arm taken the same way (the
+ * same place, posture and condition as the latest reading), all its history included. Only
+ * for a measure of performance: grip on a dynamometer. Circumference has no best, since a
+ * tape takes in every tissue under it and a larger reading is not a performance.
+ */
+export function readingBest(readings: readonly SpecializationMeasurement[]): SpecializationMeasurement | null {
+  const ordered = readingsInOrder(readings);
+  const latest = ordered[ordered.length - 1];
+  if (!latest || latest.metric !== "grip_force_n") return null;
+  return bestSoFar(ordered.filter((entry) => entry.metric === latest.metric && entry.side === latest.side && entry.regionId === latest.regionId && sameProtocol(entry.protocol, latest.protocol)), (entry) => entry.value);
 }

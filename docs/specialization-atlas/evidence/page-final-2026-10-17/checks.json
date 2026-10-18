@@ -1,0 +1,814 @@
+{
+  "note": "Headless Chromium emulating an iPhone (viewport, isMobile, hasTouch, deviceScaleFactor 3); not an iPhone, not Safari. Production build (npx vite build) served from dist/public; device stores seeded (this week: Hammer Curl x3 and Wrist Curl x4 on Monday, Reverse Wrist Curl x3 and Wrist Curl x4 on Tuesday; Dead Hang 40 s, 80 s, 75 s on three earlier weeks; circumference and grip readings, one taken at a different place; a 4-day Upper/Lower plan). Run on 2026-10-18, UTC. Page coordinates are CSS px from the top of the screen.",
+  "scenes": [
+    {
+      "scene": "not-for-me-undo",
+      "viewport": "390x844",
+      "excluded": "Lever Ulnar Deviation",
+      "tappedY": 776.5,
+      "sheetBody": {
+        "top": 203.8,
+        "bottom": 844
+      },
+      "undo": {
+        "top": 737.9,
+        "bottom": 781.9,
+        "width": 51.8,
+        "height": 44
+      },
+      "undoInSheetView": true,
+      "focusAfterExclude": {
+        "tag": "BUTTON",
+        "text": "Undo"
+      },
+      "focusAfterUndo": {
+        "tag": "BUTTON",
+        "text": "Do not suggest Lever Ulnar Deviation"
+      },
+      "file": "not-for-me-undo-390.png"
+    },
+    {
+      "scene": "not-for-me-undo",
+      "viewport": "375x667",
+      "excluded": "Lever Ulnar Deviation",
+      "tappedY": 598.9,
+      "sheetBody": {
+        "top": 193.2,
+        "bottom": 667
+      },
+      "undo": {
+        "top": 542.3,
+        "bottom": 586.3,
+        "width": 51.8,
+        "height": 44
+      },
+      "undoInSheetView": true,
+      "focusAfterExclude": {
+        "tag": "BUTTON",
+        "text": "Undo"
+      },
+      "focusAfterUndo": {
+        "tag": "BUTTON",
+        "text": "Do not suggest Lever Ulnar Deviation"
+      },
+      "file": "not-for-me-undo-375.png"
+    },
+    {
+      "scene": "not-for-me-undo",
+      "viewport": "320x568",
+      "excluded": "Lever Ulnar Deviation",
+      "tappedY": 499.8,
+      "sheetBody": {
+        "top": 208.3,
+        "bottom": 568
+      },
+      "undo": {
+        "top": 444.2,
+        "bottom": 488.2,
+        "width": 51.8,
+        "height": 44
+      },
+      "undoInSheetView": true,
+      "focusAfterExclude": {
+        "tag": "BUTTON",
+        "text": "Undo"
+      },
+      "focusAfterUndo": {
+        "tag": "BUTTON",
+        "text": "Do not suggest Lever Ulnar Deviation"
+      },
+      "file": "not-for-me-undo-320.png"
+    },
+    {
+      "scene": "targets-undo",
+      "viewport": "390x844",
+      "removeTappedAtY": 439.7,
+      "undo": {
+        "top": 718.2,
+        "bottom": 762.2
+      },
+      "dockTop": 774,
+      "clearOfDockPx": 11.8,
+      "elementAtUndoCentre": "Undo",
+      "focus": {
+        "tag": "BUTTON",
+        "text": "Undo"
+      },
+      "file": "targets-undo-390-440.png"
+    },
+    {
+      "scene": "targets-undo",
+      "viewport": "390x844",
+      "removeTappedAtY": 479.7,
+      "undo": {
+        "top": 718.2,
+        "bottom": 762.2
+      },
+      "dockTop": 774,
+      "clearOfDockPx": 11.8,
+      "elementAtUndoCentre": "Undo",
+      "focus": {
+        "tag": "BUTTON",
+        "text": "Undo"
+      },
+      "file": "targets-undo-390-480.png"
+    },
+    {
+      "scene": "targets-undo",
+      "viewport": "375x667",
+      "removeTappedAtY": 520,
+      "undo": {
+        "top": 540.5,
+        "bottom": 584.5
+      },
+      "dockTop": 597,
+      "clearOfDockPx": 12.5,
+      "elementAtUndoCentre": "Undo",
+      "focus": {
+        "tag": "BUTTON",
+        "text": "Undo"
+      },
+      "file": "targets-undo-375-520.png"
+    },
+    {
+      "scene": "targets-undo",
+      "viewport": "320x568",
+      "removeTappedAtY": 430.1,
+      "undo": {
+        "top": 441.6,
+        "bottom": 485.6
+      },
+      "dockTop": 498,
+      "clearOfDockPx": 12.4,
+      "elementAtUndoCentre": "Undo",
+      "focus": {
+        "tag": "BUTTON",
+        "text": "Undo"
+      }
+    },
+    {
+      "scene": "method-from-sheet",
+      "viewport": "390x844",
+      "focus": {
+        "tag": "SUMMARY",
+        "text": "How this is countedspecialization_exposure_v1 · forearm_mappings_v1"
+      },
+      "methodSummary": {
+        "top": 77.5,
+        "bottom": 153.5,
+        "height": 76,
+        "width": 320.9
+      },
+      "tabRowBottom": 49,
+      "summaryClearOfTabRow": true,
+      "file": "method-from-sheet-390.png"
+    },
+    {
+      "scene": "method-from-sheet",
+      "viewport": "375x667",
+      "focus": {
+        "tag": "SUMMARY",
+        "text": "How this is countedspecialization_exposure_v1 · forearm_mappings_v1"
+      },
+      "methodSummary": {
+        "top": 77.9,
+        "bottom": 153.8,
+        "height": 76,
+        "width": 307.3
+      },
+      "tabRowBottom": 49,
+      "summaryClearOfTabRow": true,
+      "file": "method-from-sheet-375.png"
+    },
+    {
+      "scene": "planned-strip",
+      "viewport": "390x844",
+      "strip": "12 distinct bouts are planned for the forearms on the right arm in Plan Week 1. Choose a muscle on the drawing or in the list for its numbers.  See these sets",
+      "saysTouched": false,
+      "file": "planned-strip-390.png"
+    },
+    {
+      "scene": "planned-strip",
+      "viewport": "375x667",
+      "strip": "12 distinct bouts are planned for the forearms on the right arm in Plan Week 1. Choose a muscle on the drawing or in the list for its numbers.  See these sets",
+      "saysTouched": false,
+      "file": "planned-strip-375.png"
+    },
+    {
+      "scene": "progress",
+      "viewport": "390x844",
+      "circumference": "Circumference (in) |  | Scale 12.4 to 12.8 in · 2 diamonds: readings at a different place or posture than the one before",
+      "diamonds": 2,
+      "grip": "Grip strength on a dynamometer (lb; its own measure, not exercise load) |  | Scale 88.2 to 99.2 lb |  | Highest grip reading so far: 99.2 lb on a dynamometer, 28 Sep (ringed)",
+      "gripRings": 1,
+      "deadHang": "Dead Hang: longest hold each session, right arm |  | Scale 40 to 80 s · first 40 s (22 Sep), latest 75 s (6 Oct) |  | Longest hold so far: 80 s, 29 Sep (ringed) |  | 22 Sep: 40 s | 29 Sep: 80 s, longest hold so far | 6 Oct: 75 s",
+      "hangRings": 1,
+      "weekButtons": [
+        {
+          "label": "Week of 21 Sep: 2 distinct bouts. See these sets",
+          "width": 75.4,
+          "height": 47.8
+        },
+        {
+          "label": "Week of 28 Sep: 2 distinct bouts. See these sets",
+          "width": 75.4,
+          "height": 47.8
+        },
+        {
+          "label": "Week of 5 Oct: 2 distinct bouts. See these sets",
+          "width": 75.4,
+          "height": 47.8
+        },
+        {
+          "label": "Week of 12 Oct: 14 distinct bouts. See these sets",
+          "width": 75.4,
+          "height": 47.8
+        }
+      ],
+      "noOverflow": true,
+      "smallControls": [],
+      "files": [
+        "progress-weeks-390.png",
+        "progress-readings-390.png",
+        "progress-performance-390.png"
+      ]
+    },
+    {
+      "scene": "week-bouts",
+      "viewport": "390x844",
+      "title": "WEEK OF 12 OCT",
+      "intro": "12–18 Oct: 14 distinct bouts, every set that loaded a muscle of the forearms on the right arm, each counted once however many muscles it loaded.",
+      "exercises": [
+        "Wrist Curl",
+        "Reverse Wrist Curl",
+        "Hammer Curl"
+      ],
+      "openThisWorkoutInFirstExercise": 8,
+      "smallControls": [],
+      "file": "week-bouts-390.png"
+    },
+    {
+      "scene": "progress",
+      "viewport": "375x667",
+      "circumference": "Circumference (in) |  | Scale 12.4 to 12.8 in · 2 diamonds: readings at a different place or posture than the one before",
+      "diamonds": 2,
+      "grip": "Grip strength on a dynamometer (lb; its own measure, not exercise load) |  | Scale 88.2 to 99.2 lb |  | Highest grip reading so far: 99.2 lb on a dynamometer, 28 Sep (ringed)",
+      "gripRings": 1,
+      "deadHang": "Dead Hang: longest hold each session, right arm |  | Scale 40 to 80 s · first 40 s (22 Sep), latest 75 s (6 Oct) |  | Longest hold so far: 80 s, 29 Sep (ringed) |  | 22 Sep: 40 s | 29 Sep: 80 s, longest hold so far | 6 Oct: 75 s",
+      "hangRings": 1,
+      "weekButtons": [
+        {
+          "label": "Week of 21 Sep: 2 distinct bouts. See these sets",
+          "width": 72,
+          "height": 47.8
+        },
+        {
+          "label": "Week of 28 Sep: 2 distinct bouts. See these sets",
+          "width": 72,
+          "height": 47.8
+        },
+        {
+          "label": "Week of 5 Oct: 2 distinct bouts. See these sets",
+          "width": 72,
+          "height": 47.8
+        },
+        {
+          "label": "Week of 12 Oct: 14 distinct bouts. See these sets",
+          "width": 72,
+          "height": 47.8
+        }
+      ],
+      "noOverflow": true,
+      "smallControls": [],
+      "files": [
+        "progress-weeks-375.png",
+        "progress-readings-375.png",
+        "progress-performance-375.png"
+      ]
+    },
+    {
+      "scene": "week-bouts",
+      "viewport": "375x667",
+      "title": "WEEK OF 12 OCT",
+      "intro": "12–18 Oct: 14 distinct bouts, every set that loaded a muscle of the forearms on the right arm, each counted once however many muscles it loaded.",
+      "exercises": [
+        "Wrist Curl",
+        "Reverse Wrist Curl",
+        "Hammer Curl"
+      ],
+      "openThisWorkoutInFirstExercise": 8,
+      "smallControls": [],
+      "file": "week-bouts-375.png"
+    },
+    {
+      "scene": "progress",
+      "viewport": "320x568",
+      "circumference": "Circumference (in) |  | Scale 12.4 to 12.8 in · 2 diamonds: readings at a different place or posture than the one before",
+      "diamonds": 2,
+      "grip": "Grip strength on a dynamometer (lb; its own measure, not exercise load) |  | Scale 88.2 to 99.2 lb |  | Highest grip reading so far: 99.2 lb on a dynamometer, 28 Sep (ringed)",
+      "gripRings": 1,
+      "deadHang": "Dead Hang: longest hold each session, right arm |  | Scale 40 to 80 s · first 40 s (22 Sep), latest 75 s (6 Oct) |  | Longest hold so far: 80 s, 29 Sep (ringed) |  | 22 Sep: 40 s | 29 Sep: 80 s, longest hold so far | 6 Oct: 75 s",
+      "hangRings": 1,
+      "weekButtons": [
+        {
+          "label": "Week of 21 Sep: 2 distinct bouts. See these sets",
+          "width": 58.7,
+          "height": 47.8
+        },
+        {
+          "label": "Week of 28 Sep: 2 distinct bouts. See these sets",
+          "width": 58.7,
+          "height": 47.8
+        },
+        {
+          "label": "Week of 5 Oct: 2 distinct bouts. See these sets",
+          "width": 58.7,
+          "height": 47.8
+        },
+        {
+          "label": "Week of 12 Oct: 14 distinct bouts. See these sets",
+          "width": 58.7,
+          "height": 47.8
+        }
+      ],
+      "noOverflow": true,
+      "smallControls": [],
+      "files": []
+    },
+    {
+      "scene": "week-bouts",
+      "viewport": "320x568",
+      "title": "WEEK OF 12 OCT",
+      "intro": "12–18 Oct: 14 distinct bouts, every set that loaded a muscle of the forearms on the right arm, each counted once however many muscles it loaded.",
+      "exercises": [
+        "Wrist Curl",
+        "Reverse Wrist Curl",
+        "Hammer Curl"
+      ],
+      "openThisWorkoutInFirstExercise": 8,
+      "smallControls": []
+    },
+    {
+      "scene": "touch-targets",
+      "viewport": "390x844",
+      "scope": "every disclosure on the page open; the FCU sheet with every disclosure open; the no-arm sets sheet",
+      "pageUnder44": [],
+      "muscleSheetUnder44": [],
+      "boutSheetUnder44": [],
+      "noOverflow": true
+    },
+    {
+      "scene": "touch-targets",
+      "viewport": "375x667",
+      "scope": "every disclosure on the page open; the FCU sheet with every disclosure open; the no-arm sets sheet",
+      "pageUnder44": [],
+      "muscleSheetUnder44": [],
+      "boutSheetUnder44": [],
+      "noOverflow": true
+    },
+    {
+      "scene": "touch-targets",
+      "viewport": "320x568",
+      "scope": "every disclosure on the page open; the FCU sheet with every disclosure open; the no-arm sets sheet",
+      "pageUnder44": [],
+      "muscleSheetUnder44": [],
+      "boutSheetUnder44": [],
+      "noOverflow": true
+    },
+    {
+      "scene": "toast-add-undo",
+      "viewport": "390x844",
+      "toast": {
+        "top": 662.9,
+        "bottom": 754.4,
+        "height": 91.5
+      },
+      "dockTop": 774,
+      "buttons": [
+        {
+          "text": "Undo",
+          "width": 59.1,
+          "height": 44,
+          "top": 687
+        }
+      ],
+      "text": "Added Lever Ulnar Deviation · Week 1 · Day 02 · Lower | Now 2 of 2 in that day. | Undo",
+      "file": "toast-add-undo-390.png"
+    },
+    {
+      "scene": "toast-add-undo",
+      "viewport": "375x667",
+      "toast": {
+        "top": 485.9,
+        "bottom": 577.4,
+        "height": 91.5
+      },
+      "dockTop": 597,
+      "buttons": [
+        {
+          "text": "Undo",
+          "width": 59.1,
+          "height": 44,
+          "top": 510
+        }
+      ],
+      "text": "Added Lever Ulnar Deviation · Week 1 · Day 02 · Lower | Now 2 of 2 in that day. | Undo",
+      "file": "toast-add-undo-375.png"
+    },
+    {
+      "scene": "toast-add-undo",
+      "viewport": "320x568",
+      "toast": {
+        "top": 367.4,
+        "bottom": 478.4,
+        "height": 111
+      },
+      "dockTop": 498,
+      "buttons": [
+        {
+          "text": "Undo",
+          "width": 59.1,
+          "height": 44,
+          "top": 401
+        }
+      ],
+      "text": "Added Lever Ulnar Deviation · Week 1 · Day 02 · Lower | Now 2 of 2 in that day. | Undo"
+    },
+    {
+      "scene": "toast-plan",
+      "viewport": "390x844",
+      "toasts": [
+        {
+          "toast": "removed from the day",
+          "text": "Barbell Bench Press removed | Undo",
+          "toastHeight": 78,
+          "buttons": [
+            {
+              "text": "Undo",
+              "width": 59.1,
+              "height": 44
+            }
+          ],
+          "file": "toast-plan-remove-390.png"
+        },
+        {
+          "toast": "moved later",
+          "text": "Moved Barbell Bench Press later | Now 2 of 3 in Upper. | Undo",
+          "toastHeight": 78,
+          "buttons": [
+            {
+              "text": "Undo",
+              "width": 59.1,
+              "height": 44
+            }
+          ],
+          "file": "toast-plan-move-390.png"
+        }
+      ]
+    },
+    {
+      "scene": "toast-plan",
+      "viewport": "375x667",
+      "toasts": [
+        {
+          "toast": "removed from the day",
+          "text": "Barbell Bench Press removed | Undo",
+          "toastHeight": 78,
+          "buttons": [
+            {
+              "text": "Undo",
+              "width": 59.1,
+              "height": 44
+            }
+          ],
+          "file": "toast-plan-remove-375.png"
+        },
+        {
+          "toast": "moved later",
+          "text": "Moved Barbell Bench Press later | Now 2 of 3 in Upper. | Undo",
+          "toastHeight": 78,
+          "buttons": [
+            {
+              "text": "Undo",
+              "width": 59.1,
+              "height": 44
+            }
+          ],
+          "file": "toast-plan-move-375.png"
+        }
+      ]
+    },
+    {
+      "scene": "first-screen",
+      "state": "FCU selected",
+      "viewport": "390x844",
+      "bottomBarTop": 774,
+      "navTop": 775,
+      "stripTop": 435,
+      "stripBottom": 534,
+      "drawingTop": 540,
+      "drawingOnFirstScreenPx": 234,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "FCU selected",
+      "viewport": "375x667",
+      "bottomBarTop": 597,
+      "navTop": 598,
+      "stripTop": 420,
+      "stripBottom": 519,
+      "drawingTop": 523,
+      "drawingOnFirstScreenPx": 74,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "FCU selected",
+      "viewport": "430x932",
+      "bottomBarTop": 862,
+      "navTop": 863,
+      "stripTop": 438,
+      "stripBottom": 536,
+      "drawingTop": 542,
+      "drawingOnFirstScreenPx": 320,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "FCU selected",
+      "viewport": "320x568",
+      "bottomBarTop": 498,
+      "navTop": 499,
+      "stripTop": 581,
+      "stripBottom": 679,
+      "drawingTop": 683,
+      "drawingOnFirstScreenPx": -185,
+      "stripPastBarPx": 181,
+      "stripWhole": false,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "with a target",
+      "viewport": "375x667",
+      "back": false,
+      "bottomBarTop": 597,
+      "navTop": 598,
+      "stripTop": 420,
+      "stripBottom": 544,
+      "drawingTop": 548,
+      "drawingOnFirstScreenPx": 49,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "Custom dates",
+      "viewport": "375x667",
+      "back": false,
+      "bottomBarTop": 597,
+      "navTop": 598,
+      "stripTop": 468,
+      "stripBottom": 567,
+      "drawingTop": 571,
+      "drawingOnFirstScreenPx": 26,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "Custom dates and a target",
+      "viewport": "375x667",
+      "back": false,
+      "bottomBarTop": 597,
+      "navTop": 598,
+      "stripTop": 468,
+      "stripBottom": 592,
+      "drawingTop": 596,
+      "drawingOnFirstScreenPx": 1,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "Back to Muscle map",
+      "viewport": "375x667",
+      "back": true,
+      "bottomBarTop": 597,
+      "navTop": 598,
+      "stripTop": 464,
+      "stripBottom": 563,
+      "drawingTop": 567,
+      "drawingOnFirstScreenPx": 30,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "Back to Muscle map and a target",
+      "viewport": "375x667",
+      "back": true,
+      "bottomBarTop": 597,
+      "navTop": 598,
+      "stripTop": 464,
+      "stripBottom": 588,
+      "drawingTop": 592,
+      "drawingOnFirstScreenPx": 5,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "Back to Muscle map and Custom dates",
+      "viewport": "375x667",
+      "back": true,
+      "bottomBarTop": 597,
+      "navTop": 598,
+      "stripTop": 512,
+      "stripBottom": 611,
+      "drawingTop": 615,
+      "drawingOnFirstScreenPx": -18,
+      "stripPastBarPx": 14,
+      "stripWhole": false,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "Back to Muscle map, Custom dates and a target",
+      "viewport": "375x667",
+      "back": true,
+      "bottomBarTop": 597,
+      "navTop": 598,
+      "stripTop": 512,
+      "stripBottom": 636,
+      "drawingTop": 640,
+      "drawingOnFirstScreenPx": -43,
+      "stripPastBarPx": 39,
+      "stripWhole": false,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "with a target",
+      "viewport": "390x844",
+      "back": false,
+      "bottomBarTop": 774,
+      "navTop": 775,
+      "stripTop": 435,
+      "stripBottom": 559,
+      "drawingTop": 565,
+      "drawingOnFirstScreenPx": 209,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "Custom dates",
+      "viewport": "390x844",
+      "back": false,
+      "bottomBarTop": 774,
+      "navTop": 775,
+      "stripTop": 485,
+      "stripBottom": 584,
+      "drawingTop": 590,
+      "drawingOnFirstScreenPx": 184,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "Custom dates and a target",
+      "viewport": "390x844",
+      "back": false,
+      "bottomBarTop": 774,
+      "navTop": 775,
+      "stripTop": 485,
+      "stripBottom": 609,
+      "drawingTop": 615,
+      "drawingOnFirstScreenPx": 159,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "Back to Muscle map",
+      "viewport": "390x844",
+      "back": true,
+      "bottomBarTop": 774,
+      "navTop": 775,
+      "stripTop": 479,
+      "stripBottom": 578,
+      "drawingTop": 584,
+      "drawingOnFirstScreenPx": 190,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "Back to Muscle map and a target",
+      "viewport": "390x844",
+      "back": true,
+      "bottomBarTop": 774,
+      "navTop": 775,
+      "stripTop": 479,
+      "stripBottom": 603,
+      "drawingTop": 609,
+      "drawingOnFirstScreenPx": 165,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "Back to Muscle map and Custom dates",
+      "viewport": "390x844",
+      "back": true,
+      "bottomBarTop": 774,
+      "navTop": 775,
+      "stripTop": 529,
+      "stripBottom": 628,
+      "drawingTop": 634,
+      "drawingOnFirstScreenPx": 140,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "state": "Back to Muscle map, Custom dates and a target",
+      "viewport": "390x844",
+      "back": true,
+      "bottomBarTop": 774,
+      "navTop": 775,
+      "stripTop": 529,
+      "stripBottom": 653,
+      "drawingTop": 659,
+      "drawingOnFirstScreenPx": 115,
+      "stripPastBarPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "drawing-under-the-finger",
+      "viewport": "390x844",
+      "selected": "Flexor carpi ulnaris",
+      "stripHeightChangePx": -15.6,
+      "drawingMovedPx": 0.4
+    },
+    {
+      "scene": "drawing-under-the-finger",
+      "viewport": "375x667",
+      "selected": "Flexor carpi ulnaris",
+      "stripHeightChangePx": -15.6,
+      "drawingMovedPx": 0.4
+    },
+    {
+      "scene": "drawing-under-the-finger",
+      "viewport": "430x932",
+      "selected": "Flexor carpi ulnaris",
+      "stripHeightChangePx": -15.6,
+      "drawingMovedPx": 0.4
+    },
+    {
+      "scene": "drawing-under-the-finger",
+      "viewport": "320x568",
+      "selected": "Flexor carpi ulnaris",
+      "stripHeightChangePx": -36.6,
+      "drawingMovedPx": 0.4
+    }
+  ]
+}

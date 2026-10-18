@@ -193,6 +193,31 @@ describe("the muscle sheet's targets", () => {
     }
   });
 
+  it("lifts Undo clear of the bottom dock when it lands under it on screen (a phone at 390 × 844)", async () => {
+    // Remove tapped at y = 480 with the Targets disclosure open: Undo is drawn at 795–839, under
+    // the dock that starts at 774. Already on screen, so scrollIntoView and scroll-margin do nothing.
+    const dock = document.createElement("nav");
+    dock.className = "mobile-workspace-dock";
+    document.body.appendChild(dock);
+    const at = (top: number, height: number) => ({ top, bottom: top + height, left: 16, right: 374, width: 358, height, x: 16, y: top, toJSON: () => ({}) }) as DOMRect;
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      return this === dock ? at(774, 70) : this.textContent === "Undo" ? at(795, 44) : at(0, 0);
+    });
+    Object.defineProperty(window, "innerHeight", { value: 844, configurable: true });
+    const scrollBy = vi.spyOn(window, "scrollBy").mockImplementation(() => {});
+    try {
+      seed(goal());
+      render(createElement(OverviewHarness));
+      await click(screen.getByRole("button", { name: /^Remove the right-arm target/ }));
+      expect(document.activeElement).toBe(screen.getByRole("button", { name: "Undo" }));
+      expect(scrollBy).toHaveBeenCalledWith({ top: 839 - (774 - 12), behavior: "instant" });
+    } finally {
+      vi.restoreAllMocks();
+      dock.remove();
+      Object.defineProperty(window, "innerHeight", { value: 768, configurable: true });
+    }
+  });
+
   it("keeps a pending Undo when Change is saved with the same number, and writes nothing", async () => {
     seed(goal({ id: "a", side: "left" }), goal({ id: "b", side: "right" }));
     render(createElement(EditorHarness));

@@ -15,7 +15,7 @@ import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { regionDataFor } from "@shared/specialization/registry";
 import { exposureCategoryLabels, exposureRuleV1 } from "@shared/specialization/rules";
 import { addDaysToDateKey, calendarWeekInterval, isDateKey, localDateKey, planWeekInterval } from "@shared/specialization/time";
-import type { AnatomyNode, DiagramLayerId, NodeExposure, SpecializationRegionData, SummaryMode } from "@shared/specialization/types";
+import type { AnatomyNode, DiagramLayerId, NodeExposure, SpecializationRegionData, SummaryCompleteness, SummaryMode } from "@shared/specialization/types";
 import { BoutListSheet, type BoutList } from "./BoutListSheet";
 import { MeasurementsPanel } from "./MeasurementsPanel";
 import { MovementSheet } from "./MovementSheet";
@@ -23,6 +23,7 @@ import { MuscleSheet } from "./MuscleSheet";
 import { splitTargets } from "./TargetsEditor";
 import { TargetsOverview } from "./TargetsOverview";
 import { PlanChangeSheet } from "./PlanChangeSheet";
+import { scrollToTopClear } from "./reveal";
 import { SpecializationDiagram } from "./SpecializationDiagram";
 import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricLabels, goalMetricShortLabels, holdTime, goalsForNode, latestSessionDayLabel, layerLabels, movementFocusNodeId, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
 import "@/components/anatomy/anatomy-figure.css";
@@ -240,12 +241,22 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interval.label, state.limb, state.mode]);
 
+  /**
+   * "How this is counted" from a sheet: the sheet closes, the method opens, and the athlete is
+   * taken to it with focus on its heading (the summary), so the next swipe or Tab reads the
+   * method, not the row the sheet was opened from. The frame runs after the sheet has unmounted
+   * and handed focus back to its opener; this then moves it on. The page scrolls the method's
+   * top to just under the sticky tab row.
+   */
   const openMethod = () => {
     setSheet(null);
     const details = methodRef.current;
     if (!details) return;
     details.open = true;
-    window.requestAnimationFrame(() => details.scrollIntoView({ block: "start", behavior: "smooth" }));
+    window.requestAnimationFrame(() => {
+      details.querySelector<HTMLElement>(":scope > summary")?.focus({ preventScroll: true });
+      scrollToTopClear(details);
+    });
   };
   const inspect = (catalogExerciseId: number | null, name: string) => {
     const exercise = catalog.find((item) => (catalogExerciseId !== null ? item.id === catalogExerciseId : item.name === name));
@@ -377,6 +388,17 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const completeness = summary?.completeness;
   const hasWork = selectedExposure ? barParts(selectedExposure).direct + barParts(selectedExposure).other + barParts(selectedExposure).holds + barParts(selectedExposure).incidental + barParts(selectedExposure).rest > 0 : false;
   const regionBoutsBehind = summary ? summary.regionDistinctBouts + summary.regionUnknownSideBouts : 0;
+  /**
+   * The strip with nothing selected: the region's distinct bouts on this arm. Logged work
+   * touched the region; a plan has done nothing yet, so its sets are planned for it.
+   */
+  const regionLine = !summary ? waiting
+    : summary.mode === "planned"
+      ? `${plural(summary.regionDistinctBouts, "distinct bout")} ${summary.regionDistinctBouts === 1 ? "is" : "are"} planned for the ${regionWord} on the ${armWord} in Plan Week ${planWeek}${summary.regionUnknownSideBouts ? `, and ${summary.regionUnknownSideBouts} more name no arm` : ""}.`
+      : `${plural(summary.regionDistinctBouts, "distinct bout")} touched the ${regionWord} on the ${armWord}${summary.regionUnknownSideBouts ? `, and ${summary.regionUnknownSideBouts} more had no arm recorded` : ""}.`;
+  // Behind the completeness counts in "How this is counted": the lists that exist open; what is not kept as a list is said.
+  const regionOnlyRows = summary ? regionBoutRows(summary, "region-only") : [];
+  const unknownSideRows = summary ? regionBoutRows(summary, "unknown-side") : [];
 
   return <section className="spz-page" aria-labelledby="spz-heading">
     {/* The top of the page is kept short, so the selected muscle and the top of the drawing are on
@@ -459,7 +481,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
             <button type="button" className="spz-link spz-link-box" onClick={() => select(null)}>Clear</button>
           </div>
         </> : <>
-          <p className="spz-strip-line">{summary ? `${plural(summary.regionDistinctBouts, "distinct bout")} touched the ${regionWord} on the ${armWord}${summary.regionUnknownSideBouts ? `, and ${summary.regionUnknownSideBouts} more had no arm recorded` : ""}.` : waiting} Choose a muscle {asset ? "on the drawing or " : ""}in the list for its numbers.</p>
+          <p className="spz-strip-line">{regionLine} Choose a muscle {asset ? "on the drawing or " : ""}in the list for its numbers.</p>
           {regionBoutsBehind > 0 && <div className="spz-actions">
             <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "region" })}>See these sets <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
           </div>}
@@ -523,7 +545,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           {windowItems.map((item) => <li key={`${item.catalogExerciseId ?? item.name}`}>
             <span><b>{item.name}</b><small>{item.bouts} bout{item.bouts === 1 ? "" : "s"}{item.directFor.length ? ` · direct for ${item.directFor.join(", ")}` : " · no muscle here is its target"}</small></span>
             <span className="spz-candidate-actions">
-              <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "region", exerciseKey: exerciseKeyOf({ catalogExerciseId: item.catalogExerciseId, exerciseName: item.name }) })} aria-label={`The sets of ${item.name}`}>Sets</button>
+              <button type="button" className="spz-link spz-link-box" onClick={() => setSheet({ kind: "bouts", list: "region", exerciseKey: exerciseKeyOf({ catalogExerciseId: item.catalogExerciseId, exerciseName: item.name }) })} aria-label={`The sets of ${item.name}`}>Sets</button>
               {item.catalogExerciseId !== null && <button type="button" className="spz-link" onClick={() => inspect(item.catalogExerciseId, item.name)}>About it</button>}
             </span>
           </li>)}
@@ -534,7 +556,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
         </div>}
         {notes.length > 0 && <div className="spz-subsection">
           <h3>Your notes on these workouts</h3>
-          <ul className="spz-exercise-list">{notes.map((item) => <li key={item.id}><span><b>{item.label}</b><small>{item.note}</small></span><button type="button" className="spz-link" onClick={() => onOpenSession(item.id)}>Open</button></li>)}</ul>
+          <ul className="spz-exercise-list">{notes.map((item) => <li key={item.id}><span><b>{item.label}</b><small>{item.note}</small></span><button type="button" className="spz-link spz-link-box" onClick={() => onOpenSession(item.id)} aria-label={`Open ${item.label}`}>Open</button></li>)}</ul>
         </div>}
       </details>
 
@@ -546,7 +568,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       <details className="spz-disclosure spz-card" onToggle={(event) => { if (event.currentTarget.open) setProgressOpened(true); }}>
         <summary><span><b>Progress</b><small>{data.region.wording.progressSubtitle}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
         {/* Mounted when first opened, then kept: its weekly chart reads eight weeks of history. */}
-        {progressOpened && <MeasurementsPanel key={data.region.id} data={data} side={state.limb} catalog={catalog} weightUnit={weightUnit} timeZone={timeZone} todayKey={todayKey} measurements={measurements} onSave={saveMeasurement} onRemove={removeMeasurement} />}
+        {progressOpened && <MeasurementsPanel key={data.region.id} data={data} side={state.limb} catalog={catalog} weightUnit={weightUnit} timeZone={timeZone} todayKey={todayKey} measurements={measurements} onSave={saveMeasurement} onRemove={removeMeasurement} onOpenSession={openSession} onInspectExercise={inspect} onOpenMethod={openMethod} />}
       </details>
 
       <details ref={methodRef} className="spz-disclosure spz-card" id="spz-method">
@@ -560,6 +582,12 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           <p><b>Not counted:</b> {exposureRuleV1.specification.excludedFromCompleted.join(" ")}</p>
           <ul className="spz-caveats">{exposureRuleV1.specification.notConverted.map((line) => <li key={line}>{line}</li>)}</ul>
           {completeness && <p><b>This window, {armWord}:</b> {completeness.boutsConsidered} sets considered: {completeness.boutsWithReviewedMapping} with a reviewed mapping, {completeness.boutsPendingReview} under review, {completeness.boutsRegionOnly} {regionWord} only. {completeness.boutsNameMatched} matched by name, {completeness.boutsUnknownSide} with no arm recorded. Left out: {completeness.boutsExcluded.notCompleted} not completed, {completeness.boutsExcluded.warmup} warm-ups.</p>}
+          {/* Each count that has its set records opens them (brief §1); the rest say where they are, or that they are not kept as a list. */}
+          {completeness && (regionOnlyRows.length > 0 || unknownSideRows.length > 0) && <div className="spz-actions">
+            {regionOnlyRows.length > 0 && <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "region-only" })}>See the {plural(regionOnlyRows.length, "set")} for the {regionWord} only <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
+            {unknownSideRows.length > 0 && <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "unknown-side" })}>See the {plural(unknownSideRows.length, "set")} with no arm recorded <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
+          </div>}
+          {completeness && <CompletenessNote completeness={completeness} unknownSideListed={unknownSideRows.length} regionWord={regionWord} />}
           <p className="spz-note">{data.mappingVersion.methodNotes}</p>
         </div>
       </details>
@@ -674,6 +702,24 @@ function MuscleRow({ node, exposure, incidentalWork, waiting, selected, onOpen }
       </span>
     </button>
   </li>;
+}
+
+/**
+ * What the completeness counts cannot open, said plainly (brief §1): where those sets are
+ * listed instead, or that they are not kept as a list. Nothing when every count opens.
+ */
+function CompletenessNote({ completeness, unknownSideListed, regionWord }: { completeness: SummaryCompleteness; unknownSideListed: number; regionWord: string }) {
+  const lines: string[] = [];
+  if (completeness.boutsNameMatched > 0) lines.push("Sets matched by name are among those above, marked “matched by name” where they are listed.");
+  if (completeness.boutsPendingReview > 0) lines.push("Sets under review are listed under Not counted in each muscle's sheet.");
+  const unlisted = completeness.boutsUnknownSide - unknownSideListed;
+  if (unlisted > 0) {
+    lines.push(unknownSideListed > 0
+      ? `The other ${unlisted} with no arm recorded count for no muscle of the ${regionWord}, so that list leaves them out.`
+      : `The ${plural(unlisted, "set")} with no arm recorded ${unlisted === 1 ? "counts" : "count"} for no muscle of the ${regionWord}, so no list of ${unlisted === 1 ? "it" : "them"} opens here.`);
+  }
+  if (completeness.boutsExcluded.notCompleted + completeness.boutsExcluded.warmup > 0) lines.push("Sets not completed and warm-ups are left out of every total and not kept as a list, so they cannot be opened.");
+  return lines.length ? <p className="spz-note">{lines.join(" ")}</p> : null;
 }
 
 function MapLegend({ map }: { map: "volume" | "target" }) {

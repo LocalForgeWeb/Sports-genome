@@ -3,16 +3,20 @@ import { X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { boutsFromSessions } from "@/lib/specialization/bouts";
 import {
-  chartPerformance, dayLabel, dayOnAxis, formatLength, formatPerformance, formatPerformanceScale, formatReading, formatScale, isTimeOfDay, lengthToCm,
-  performanceSeries, performanceValue, progressAxis, progressUnitsFor, splitByAxis, toStoredValue, valueScale, wallClockAt, zonedDateTimeToIso,
+  chartPerformance, dayLabel, dayOnAxis, formatLength, formatPerformance, formatPerformanceScale, formatReading, formatScale, isTimeOfDay, latestReading, lengthToCm,
+  performanceBest, performanceBestLabel, performanceSeries, performanceValue, progressAxis, progressUnitsFor, protocolChanges, readingBest, sameProtocol, splitByAxis,
+  toStoredValue, typedLength, valueScale, wallClockAt, zonedDateTimeToIso,
   type ChartedPerformance, type PerformancePoint, type ProgressAxis, type ProgressUnits,
 } from "@/lib/specialization/progressSeries";
 import type { StoreWrite } from "@/lib/specialization/stores";
 import { catalogMusclesLookup, useDeviceWorkoutSessions } from "@/lib/specialization/useSpecializationSummary";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
-import { addDaysToDateKey, calendarWeekInterval, intervalContains, isDateKey, localDateKey, zonedStartOfDay } from "@shared/specialization/time";
-import type { ArmSide, MeasurementMetric, MeasurementProtocol, SpecializationMeasurement, SpecializationRegionData } from "@shared/specialization/types";
+import { addDaysToDateKey, calendarWeekInterval, dateRangeLabel, intervalContains, isDateKey, localDateKey, zonedStartOfDay } from "@shared/specialization/time";
+import type { ArmSide, MeasurementMetric, MeasurementProtocol, RegionBoutRow, SpecializationMeasurement, SpecializationRegionData } from "@shared/specialization/types";
+import { BoutListSheet } from "./BoutListSheet";
+import { regionBoutRows } from "./model";
+import { revealClearOfBars } from "./reveal";
 import "./progress.css";
 
 const postureLabels: Record<MeasurementProtocol["posture"], string> = {
@@ -24,10 +28,12 @@ const postureLabels: Record<MeasurementProtocol["posture"], string> = {
 const conditionLabels: Record<MeasurementProtocol["condition"], string> = { unpumped: "Before training (unpumped)", pumped: "After training (pumped)", unknown: "Not noted" };
 
 /**
- * What each measure is called and where a new reading of it starts: the usual place and posture
- * for that measure, and the instrument. The athlete can change the place and posture; a change of
- * measure puts both back to that measure's own, so a grip posture never carries over to a tape.
- * Which measures a page offers is the region's (`measurementMetrics`), never this list.
+ * What each measure is called and where a first reading of it starts: the usual place and
+ * posture for that measure, and the instrument. After that, a new reading starts from the last
+ * one of the same measure on the same arm (a repeatable protocol, brief §10). The athlete can
+ * change the place and posture; a change of measure puts them back to that measure's own (its
+ * last reading's, or these), so a grip posture never carries over to a tape. Which measures a
+ * page offers is the region's (`measurementMetrics`), never this list.
  */
 const metricDefaults: Record<MeasurementMetric, { button: string; landmark: string; posture: MeasurementProtocol["posture"]; instrument: string }> = {
   circumference_cm: { button: "Circumference", landmark: "Thickest point", posture: "arm_relaxed_hanging", instrument: "Tape" },
@@ -36,6 +42,7 @@ const metricDefaults: Record<MeasurementMetric, { button: string; landmark: stri
 
 let measurementSequence = 0;
 const newMeasurementId = () => `measure-${Date.now().toString(36)}-${(measurementSequence += 1).toString(36)}`;
+const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
 // Every Progress chart is drawn in the same box on the same axis, so a week sits at the same x in each.
 const CHART_WIDTH = 320;
@@ -57,8 +64,8 @@ function TimeAxis({ axis }: { axis: ProgressAxis }) {
 }
 
 /** "1 older reading is not shown. 2 readings are dated after this week and not shown." */
-function notShown(older: number, later: number, singular: string, plural: string): string {
-  const noun = (count: number) => (count === 1 ? `${singular} is` : `${plural} are`);
+function notShown(older: number, later: number, singular: string, pluralWord: string): string {
+  const noun = (count: number) => (count === 1 ? `${singular} is` : `${pluralWord} are`);
   return [
     older ? `${older} older ${noun(older)} not shown.` : "",
     later ? `${later} ${noun(later)} dated after this week and not shown.` : "",
@@ -67,7 +74,14 @@ function notShown(older: number, later: number, singular: string, plural: string
 
 type Dated<T> = { item: T; dateKey: string };
 
-/** One measure's chart: only what falls inside the axis is drawn, and the scale is read from that. */
+/**
+ * One measure's chart: only what falls inside the axis is drawn, and the scale is read from that.
+ * A reading taken at a different place or posture from the one before it is a diamond, not a
+ * dot, and the scale line says how many there are, so a moved tape never reads as a change on
+ * one line. For grip, a measure of performance, the reading that beats every earlier one taken
+ * the same way is ringed and said in one line; circumference has no best (a tape takes in every
+ * tissue under it, so a larger reading is not a performance).
+ */
 function ReadingChart({ metric, entries, axis, units, side }: { metric: MeasurementMetric; entries: readonly Dated<SpecializationMeasurement>[]; axis: ProgressAxis; units: ProgressUnits; side: ArmSide }) {
   const { inside, older, later } = splitByAxis(entries, (entry) => entry.dateKey, axis);
   const scale = valueScale(inside.map(({ item }) => item.value));
@@ -78,20 +92,41 @@ function ReadingChart({ metric, entries, axis, units, side }: { metric: Measurem
   const outside = notShown(older, later, "reading", "readings");
   // Any reading taken pumped is drawn hollow, grip as well as circumference, so the key goes with it.
   const pumped = inside.some(({ item }) => item.protocol.condition === "pumped");
+  const readings = entries.map(({ item }) => item);
+  const changed = protocolChanges(readings);
+  const moved = inside.filter(({ item }) => changed.has(item.id)).length;
+  const movedText = moved ? `${plural(moved, "diamond")}: ${moved === 1 ? "a reading" : "readings"} at a different place or posture than the one before` : "";
+  const best = readingBest(readings);
+  const bestDrawn = best ? inside.find(({ item }) => item.id === best.id) ?? null : null;
+  // Said with its protocol only when some reading was taken another way, so the claim is never wider than its series.
+  const bestText = bestDrawn ? `Highest grip reading so far${readings.some((item) => !sameProtocol(item.protocol, bestDrawn.item.protocol)) ? " at this place, posture and condition" : ""}: ${formatReading(metric, bestDrawn.item.value, units)}, ${dayLabel(bestDrawn.dateKey)}` : "";
   return <figure className="spz-chart">
     <figcaption>{title}</figcaption>
     {scale ? <>
-      <svg viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`} role="img" aria-label={`${inside.length} ${inside.length === 1 ? noun : `${noun}s`} on the ${side} arm in these ${axis.weeks} weeks, ${formatScale(metric, scale.low, scale.high, units)}.${outside ? ` ${outside}` : ""}`}>
+      <svg viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`} role="img" aria-label={`${inside.length} ${inside.length === 1 ? noun : `${noun}s`} on the ${side} arm in these ${axis.weeks} weeks, ${formatScale(metric, scale.low, scale.high, units)}.${moved ? ` ${moved} taken at a different place or posture than the one before.` : ""}${bestText ? ` ${bestText}.` : ""}${outside ? ` ${outside}` : ""}`}>
         <TimeAxis axis={axis} />
-        {inside.map(({ item, dateKey }) => <circle key={item.id} cx={xOfKey(dateKey)} cy={scale.y(item.value)} r="4" className="spz-chart-dot" data-condition={item.protocol.condition} />)}
+        {inside.map(({ item, dateKey }) => {
+          const x = xOfKey(dateKey);
+          const y = scale.y(item.value);
+          return changed.has(item.id)
+            ? <polygon key={item.id} points={`${x},${y - 5.5} ${x + 5.5},${y} ${x},${y + 5.5} ${x - 5.5},${y}`} className="spz-chart-dot" data-condition={item.protocol.condition} data-protocol="changed" />
+            : <circle key={item.id} cx={x} cy={y} r="4" className="spz-chart-dot" data-condition={item.protocol.condition} />;
+        })}
+        {bestDrawn && <circle cx={xOfKey(bestDrawn.dateKey)} cy={scale.y(bestDrawn.item.value)} r="8" className="spz-chart-best" data-best="" />}
       </svg>
-      <p className="spz-chart-scale">Scale {formatScale(metric, scale.low, scale.high, units)}{pumped ? " · open dots were pumped" : ""}</p>
+      <p className="spz-chart-scale">Scale {formatScale(metric, scale.low, scale.high, units)}{pumped ? " · open dots were pumped" : ""}{movedText ? ` · ${movedText}` : ""}</p>
+      {bestText && <p className="spz-chart-best-line">{bestText} (ringed)</p>}
     </> : <p className="spz-note">No {grip ? "grip" : "circumference"} readings for the {side} arm in these {axis.weeks} weeks.</p>}
     {outside && <p className="spz-chart-scale">{outside}</p>}
   </figure>;
 }
 
-/** One exercise's top set (or longest hold) per session, on the same axis, with its own scale. */
+/**
+ * One exercise's top set (or longest hold) per session, on the same axis, with its own scale.
+ * The session whose top set or longest hold beats every earlier session of the same exercise
+ * (its whole history, not only these weeks) is ringed and said in one line ("Longest hold so
+ * far: 80 s, 14 Oct"): a fact about the records, never a claim about the muscle.
+ */
 function PerformanceChart({ option, axis, side, weightUnit }: { option: ChartedPerformance; axis: ProgressAxis; side: ArmSide; weightUnit: DisplayWeightUnit }) {
   const { series, metric, inside, older, later, noLoad } = option;
   const { xOfKey } = axisGeometry(axis);
@@ -104,24 +139,31 @@ function PerformanceChart({ option, axis, side, weightUnit }: { option: ChartedP
   const text = (point: PerformancePoint) => formatPerformance(point, series, weightUnit);
   const unrecorded = inside.some((point) => point.sideUnrecorded);
   const outside = notShown(older, later, "session", "sessions");
+  const best = performanceBest(series, metric);
+  const bestDrawn = best ? points.find(({ point }) => point.sessionId === best.sessionId) ?? null : null;
+  const bestLabel = performanceBestLabel(metric);
+  const bestText = bestDrawn ? `${bestLabel}: ${text(bestDrawn.point)}, ${dayLabel(bestDrawn.point.dateKey)}${bestDrawn.point.sideUnrecorded ? ", no arm recorded" : ""}` : "";
   return <figure className="spz-chart">
     <figcaption>{name}: {what} each session, {side} arm</figcaption>
-    <svg viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`} role="img" aria-label={`${name}, ${what} each session on the ${side} arm: ${inside.length} sessions from ${dayLabel(first.dateKey)} to ${dayLabel(last.dateKey)}, first ${text(first)}, latest ${text(last)}.`}>
+    <svg viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`} role="img" aria-label={`${name}, ${what} each session on the ${side} arm: ${inside.length} sessions from ${dayLabel(first.dateKey)} to ${dayLabel(last.dateKey)}, first ${text(first)}, latest ${text(last)}.${bestText ? ` ${bestText}.` : ""}`}>
       <TimeAxis axis={axis} />
       <polyline points={points.map(({ x, y }) => `${x},${y}`).join(" ")} className="spz-progress-line" />
       {points.map(({ point, x, y }) => point.sideUnrecorded
         ? <rect key={point.sessionId} x={x - 4} y={y - 4} width="8" height="8" className="spz-progress-marker" data-side="unrecorded" />
         : <circle key={point.sessionId} cx={x} cy={y} r="4" className="spz-chart-dot" data-side="recorded" />)}
+      {bestDrawn && <circle cx={bestDrawn.x} cy={bestDrawn.y} r="8" className="spz-chart-best" data-best="" />}
     </svg>
     <p className="spz-chart-scale">Scale {formatPerformanceScale(scale.low, scale.high, metric, weightUnit)} · first {text(first)} ({dayLabel(first.dateKey)}), latest {text(last)} ({dayLabel(last.dateKey)})</p>
+    {bestText && <p className="spz-chart-best-line">{bestText} (ringed)</p>}
     {unrecorded && <p className="spz-chart-scale">Squares: that set recorded no arm, so it may have been either arm.</p>}
     {noLoad > 0 && <p className="spz-chart-scale">{noLoad === 1 ? "1 session with no load entered is" : `${noLoad} sessions with no load entered are`} not shown.</p>}
     {outside && <p className="spz-chart-scale">{outside}</p>}
-    <ol className="sr-only">{inside.map((point) => <li key={point.sessionId}>{dayLabel(point.dateKey)}: {text(point)}{point.sideUnrecorded ? ", no arm recorded" : ""}</li>)}</ol>
+    <ol className="sr-only">{inside.map((point) => <li key={point.sessionId}>{dayLabel(point.dateKey)}: {text(point)}{point.sideUnrecorded ? ", no arm recorded" : ""}{point.sessionId === bestDrawn?.point.sessionId ? `, ${bestLabel.toLowerCase()}` : ""}</li>)}</ol>
   </figure>;
 }
 
 type Notice = { kind: "removed"; entry: SpecializationMeasurement } | { kind: "saved"; text: string };
+type Week = { monday: string; sunday: string; bouts: number; rows: RegionBoutRow[] };
 
 export type MeasurementsPanelProps = {
   data: SpecializationRegionData;
@@ -140,6 +182,10 @@ export type MeasurementsPanelProps = {
   measurements: readonly SpecializationMeasurement[];
   onSave: (entry: SpecializationMeasurement) => StoreWrite;
   onRemove: (id: string) => StoreWrite;
+  /** A week's bouts open their set records (brief §1); these are what the page does with a row's links. */
+  onOpenSession: (sessionId: string) => void;
+  onInspectExercise: (catalogExerciseId: number | null, name: string) => void;
+  onOpenMethod: () => void;
 };
 
 /**
@@ -148,11 +194,12 @@ export type MeasurementsPanelProps = {
  * strength on a dynamometer in its own unit and its own chart, never mixed with exercise load),
  * and the top set of one exercise per session. Exposure, each measure and the exercise are
  * separate charts on one time axis, each with its own scale, and nothing says one caused the other.
+ * Each week of the exposure chart opens its bouts, as the page's day bars do.
  *
  * Everything the athlete has typed lives in this component's state and nothing resets it on a
  * re-render, so the page can keep it mounted while the disclosure is closed and reopened.
  */
-export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, todayKey, measurements, onSave, onRemove }: MeasurementsPanelProps) {
+export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, todayKey, measurements, onSave, onRemove, onOpenSession, onInspectExercise, onOpenMethod }: MeasurementsPanelProps) {
   const units = progressUnitsFor(weightUnit);
   const nowTime = () => wallClockAt(Date.now(), timeZone).time;
   // Only what the region offers (the forearm: circumference and grip), in its order.
@@ -172,15 +219,20 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
   const [posture, setPosture] = useState<MeasurementProtocol["posture"]>(() => metricDefaults[metric].posture);
   const [condition, setCondition] = useState<MeasurementProtocol["condition"]>("unpumped");
   const [device, setDevice] = useState("");
+  // The same for the protocol: untouched, it follows the last reading; once typed, it is kept.
+  const [protocolEdited, setProtocolEdited] = useState(false);
+  const [prefilledFrom, setPrefilledFrom] = useState<SpecializationMeasurement | null>(null);
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [listError, setListError] = useState<string | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [exerciseKey, setExerciseKey] = useState<string | null>(null);
+  const [openWeek, setOpenWeek] = useState<string | null>(null);
   const performanceHeading = useId();
 
   // The control that had focus goes away when the form opens or closes, a reading is removed or
-  // restored; focus moves to what replaces it (the form, "Add a reading", Undo), never the page top.
+  // restored; focus moves to what replaces it (the form, "Add a reading", Undo), never the page top,
+  // and it is brought into view clear of the bottom dock.
   const focusNext = useRef<"form" | "add" | "undo" | null>(null);
   const formRef = useRef<HTMLFieldSetElement>(null);
   const addRef = useRef<HTMLButtonElement>(null);
@@ -190,7 +242,10 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
     if (!target) return;
     focusNext.current = null;
     const first = () => formRef.current?.querySelector<HTMLElement>("button, input, select") ?? null;
-    (target === "undo" ? undoRef.current : target === "add" ? addRef.current ?? first() : first())?.focus();
+    const element = target === "undo" ? undoRef.current : target === "add" ? addRef.current ?? first() : first();
+    if (!element) return;
+    element.focus({ preventScroll: true });
+    revealClearOfBars(element);
   });
 
   const axis = useMemo(() => progressAxis(todayKey), [todayKey]);
@@ -198,7 +253,7 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
 
   // Weekly direct work on this arm, the same calculator as the page, over the axis's calendar weeks.
   const sessions = useDeviceWorkoutSessions();
-  const weeks = useMemo(() => {
+  const weeks = useMemo<Week[]>(() => {
     const bouts = boutsFromSessions(sessions, { catalog, variants: data.variants, fallbackUnit: weightUnit });
     const catalogMusclesFor = catalogMusclesLookup(catalog);
     return Array.from({ length: axis.weeks }, (_, index) => {
@@ -207,10 +262,13 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
       // Only that week's bouts: the same answer, without reading a year of history eight times.
       const weekBouts = bouts.filter((bout) => intervalContains(interval, bout.performedAt));
       const summary = getSpecializationSummary({ region: data, bouts: weekBouts, interval, side, mode: "completed", goals: [], catalogMusclesFor, sourceRevision: "", planRevision: null, now: interval.startAt ?? new Date().toISOString() });
-      return { monday, bouts: summary.regionDistinctBouts };
+      // The bar's count and the rows it opens are the same distinct bouts.
+      return { monday, sunday: addDaysToDateKey(monday, 6), bouts: summary.regionDistinctBouts, rows: regionBoutRows(summary, "region") };
     });
   }, [sessions, catalog, data, weightUnit, side, timeZone, axis]);
   const maxBouts = Math.max(5, ...weeks.map((week) => week.bouts));
+  const shownWeek = weeks.find((week) => week.monday === openWeek && week.bouts > 0) ?? null;
+  const regionWord = data.region.label.toLowerCase();
 
   const armEntries = useMemo(() => measurements.filter((entry) => entry.side === side && entry.regionId === data.region.id), [measurements, side, data.region.id]);
   const dated = (metricOf: MeasurementMetric) => armEntries.filter((entry) => entry.metric === metricOf).map((item) => ({ item, dateKey: localDateKey(item.measuredAt, timeZone) }));
@@ -228,10 +286,29 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
     .sort((a, b) => b.inside[b.inside.length - 1].performedAt.localeCompare(a.inside[a.inside.length - 1].performedAt) || a.series.name.localeCompare(b.series.name)), [allSeries, axis]);
   const chosen = options.find((option) => option.series.key === exerciseKey) ?? options[0] ?? null;
 
+  /**
+   * The protocol a new reading starts from: the last reading of this measure on this arm
+   * (landmark, distance, posture, condition and device), else the measure's own defaults.
+   */
+  const startProtocol = (armOf: ArmSide, metricOf: MeasurementMetric) => {
+    const latest = latestReading(measurements, { regionId: data.region.id, side: armOf, metric: metricOf });
+    const defaults = metricDefaults[metricOf];
+    setLandmark(latest?.protocol.landmark ?? defaults.landmark);
+    setDistance(metricOf === "circumference_cm" ? typedLength(latest?.protocol.distanceFromLandmarkCm ?? null, units.length) : "");
+    setPosture(latest?.protocol.posture ?? defaults.posture);
+    setCondition(latest?.protocol.condition ?? "unpumped");
+    setDevice(latest?.protocol.device ?? "");
+    setPrefilledFrom(latest);
+    setProtocolEdited(false);
+  };
+  const editProtocol = <T,>(set: (next: T) => void) => (next: T) => { set(next); setProtocolEdited(true); };
   const chooseMetric = (next: MeasurementMetric) => {
     setMetric(next);
-    setLandmark(metricDefaults[next].landmark);
-    setPosture(metricDefaults[next].posture);
+    startProtocol(arm, next);
+  };
+  const chooseArm = (next: ArmSide) => {
+    setArm(next);
+    if (!protocolEdited) startProtocol(next, metric);
   };
   const openForm = () => {
     const nextDate = dateEdited ? date : todayKey;
@@ -239,6 +316,7 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
     setOpen(true);
     setArm(side);
     setError(null);
+    if (!protocolEdited) startProtocol(side, metric);
     if (!dateEdited) setDate(todayKey);
     if (!timeEdited) setTime(nextDate === todayKey ? nowTime() : "");
   };
@@ -282,6 +360,8 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
     setNotes("");
     setDateEdited(false);
     setTimeEdited(false);
+    // The next reading starts from this one.
+    setProtocolEdited(false);
     focusNext.current = "add";
     setOpen(false);
     setNotice({ kind: "saved", text: `Saved ${formatReading(metric, entry.value, units)}, ${arm} arm, ${dayLabel(date)} at ${time}.${arm !== side ? ` Switch to the ${arm} arm to see it on the charts.` : ""}` });
@@ -298,11 +378,12 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
 
   const listed = [...armEntries].sort((left, right) => right.measuredAt.localeCompare(left.measuredAt)).slice(0, 8);
   const timeOf = (entry: SpecializationMeasurement) => entry.protocol.timeOfDay ?? wallClockAt(Date.parse(entry.measuredAt), timeZone).time;
+  const instrument = metricDefaults[metric].instrument.toLowerCase();
 
   return <div className="spz-measure">
     <p className="spz-note">Charts for the {side} arm on one time axis, {axis.label}, each with its own scale. A tape takes in every muscle under it, so circumference cannot show which muscle changed, and a change beside your training does not show the training caused it.</p>
     <figure className="spz-chart">
-      <figcaption>Distinct bouts per week on the {data.region.label.toLowerCase()}, completed</figcaption>
+      <figcaption>Distinct bouts per week on the {regionWord}, completed</figcaption>
       <svg viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`} role="img" aria-label={`Bouts per week on the ${side} arm for the last ${axis.weeks} weeks: ${weeks.map((week) => week.bouts).join(", ")}`}>
         <TimeAxis axis={axis} />
         {weeks.map((week, index) => {
@@ -311,6 +392,21 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
         })}
       </svg>
       <p className="spz-chart-scale">Scale 0 to {maxBouts} bouts · weeks from {dayLabel(axis.firstMonday)}</p>
+      {/* Each bar is a total, so a week with work opens its bouts (brief §1), as a day's bar does on the page.
+          Eight 44 px buttons do not fit one row on a phone, so they take two rows of four, oldest first. */}
+      {weeks.some((week) => week.bouts > 0) && <>
+        <ol className="spz-weeks" aria-label={`Distinct bouts per week, ${side} arm`}>
+          {weeks.map((week) => {
+            const inner = <><small>{dayLabel(week.monday)}</small><b>{week.bouts}</b></>;
+            return <li key={week.monday} data-current={week.monday <= todayKey && todayKey <= week.sunday || undefined}>
+              {week.bouts > 0
+                ? <button type="button" className="spz-week" onClick={() => setOpenWeek(week.monday)} aria-label={`Week of ${dayLabel(week.monday)}: ${plural(week.bouts, "distinct bout")}. See these sets`}>{inner}</button>
+                : <span className="spz-week">{inner}</span>}
+            </li>;
+          })}
+        </ol>
+        <p className="spz-chart-scale">A week with work opens its sets.</p>
+      </>}
     </figure>
     {charted.map((item) => {
       const entries = dated(item);
@@ -334,14 +430,14 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
     {notice?.kind === "saved" && <p className="spz-inline-status" role="status">{notice.text}</p>}
     {listError && <p className="spz-error" role="alert">{listError}</p>}
 
-    {offered.length === 0 ? <p className="spz-note">There is nothing to measure for the {data.region.label.toLowerCase()} yet.</p> : open ? <fieldset ref={formRef} className="spz-target-form">
+    {offered.length === 0 ? <p className="spz-note">There is nothing to measure for the {regionWord} yet.</p> : open ? <fieldset ref={formRef} className="spz-target-form">
       <legend>New reading</legend>
       {offered.length > 1 && <div className="spz-segment" role="group" aria-label="What was measured">
         {offered.map((item) => <button key={item} type="button" aria-pressed={metric === item} onClick={() => chooseMetric(item)}>{metricDefaults[item].button}</button>)}
       </div>}
       <div className="spz-segment" role="group" aria-label="Which arm">
-        <button type="button" aria-pressed={arm === "left"} onClick={() => setArm("left")}>Left arm</button>
-        <button type="button" aria-pressed={arm === "right"} onClick={() => setArm("right")}>Right arm</button>
+        <button type="button" aria-pressed={arm === "left"} onClick={() => chooseArm("left")}>Left arm</button>
+        <button type="button" aria-pressed={arm === "right"} onClick={() => chooseArm("right")}>Right arm</button>
       </div>
       <label className="spz-field"><span>{metric === "grip_force_n" ? `Grip (${units.force} on the dynamometer)` : `Circumference (${units.length})`}</span><input type="number" inputMode="decimal" min={0} step="any" value={value} onChange={(event) => setValue(event.target.value)} /></label>
       <div className="spz-progress-when">
@@ -349,11 +445,13 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
         <label className="spz-field"><span>Time</span><input type="time" value={time} required onChange={(event) => changeTime(event.target.value)} /></label>
       </div>
       {date !== todayKey && !time && <p className="spz-note">Enter the time the reading was taken on {dayLabel(date)}.</p>}
-      <label className="spz-field"><span>Where (landmark)</span><input type="text" value={landmark} onChange={(event) => setLandmark(event.target.value)} /></label>
-      {metric === "circumference_cm" && <label className="spz-field"><span>Distance from the landmark ({units.length}, optional)</span><input type="number" inputMode="decimal" min={0} step="any" value={distance} onChange={(event) => setDistance(event.target.value)} /></label>}
-      <label className="spz-field"><span>Posture</span><select value={posture} onChange={(event) => setPosture(event.target.value as MeasurementProtocol["posture"])}>{(Object.keys(postureLabels) as MeasurementProtocol["posture"][]).map((item) => <option key={item} value={item}>{postureLabels[item]}</option>)}</select></label>
-      <label className="spz-field"><span>Condition</span><select value={condition} onChange={(event) => setCondition(event.target.value as MeasurementProtocol["condition"])}>{(Object.keys(conditionLabels) as MeasurementProtocol["condition"][]).map((item) => <option key={item} value={item}>{conditionLabels[item]}</option>)}</select></label>
-      <label className="spz-field"><span>{metricDefaults[metric].instrument} (optional)</span><input type="text" value={device} onChange={(event) => setDevice(event.target.value)} /></label>
+      {/* Said once, above the fields it filled: where they came from, so a changed protocol is a choice, not an accident. */}
+      {prefilledFrom && !protocolEdited && <p className="spz-note">Filled in from your last reading on the {arm} arm ({dayLabel(localDateKey(prefilledFrom.measuredAt, timeZone))}): place, posture, condition and {instrument}. Change any you did differently.</p>}
+      <label className="spz-field"><span>Where (landmark)</span><input type="text" value={landmark} onChange={(event) => editProtocol(setLandmark)(event.target.value)} /></label>
+      {metric === "circumference_cm" && <label className="spz-field"><span>Distance from the landmark ({units.length}, optional)</span><input type="number" inputMode="decimal" min={0} step="any" value={distance} onChange={(event) => editProtocol(setDistance)(event.target.value)} /></label>}
+      <label className="spz-field"><span>Posture</span><select value={posture} onChange={(event) => editProtocol(setPosture)(event.target.value as MeasurementProtocol["posture"])}>{(Object.keys(postureLabels) as MeasurementProtocol["posture"][]).map((item) => <option key={item} value={item}>{postureLabels[item]}</option>)}</select></label>
+      <label className="spz-field"><span>Condition</span><select value={condition} onChange={(event) => editProtocol(setCondition)(event.target.value as MeasurementProtocol["condition"])}>{(Object.keys(conditionLabels) as MeasurementProtocol["condition"][]).map((item) => <option key={item} value={item}>{conditionLabels[item]}</option>)}</select></label>
+      <label className="spz-field"><span>{metricDefaults[metric].instrument} (optional)</span><input type="text" value={device} onChange={(event) => editProtocol(setDevice)(event.target.value)} /></label>
       <label className="spz-field"><span>Note (optional)</span><input type="text" value={notes} onChange={(event) => setNotes(event.target.value)} /></label>
       <p className="spz-note">The same place, posture, time of day and condition make two readings comparable.</p>
       {error && <p className="spz-error" role="alert">{error}</p>}
@@ -371,7 +469,19 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
         </label>
         <p className="spz-note">{chosen.metric === "seconds" ? "The longest hold of each session" : chosen.metric === "load" ? `The top set of each session: the heaviest load in ${weightUnit}, then the most reps` : "The top set of each session, drawn by its reps"}, from completed sets. A set done with both arms counts for each arm.</p>
         <PerformanceChart option={chosen} axis={axis} side={side} weightUnit={weightUnit} />
-      </> : <p className="spz-note">No exercise that works the {data.region.label.toLowerCase()} directly has two finished sessions on the {side} arm in these {axis.weeks} weeks.</p>}
+      </> : <p className="spz-note">No exercise that works the {regionWord} directly has two finished sessions on the {side} arm in these {axis.weeks} weeks.</p>}
     </section>
+
+    {shownWeek && <BoutListSheet
+      eyebrow={`${data.region.label} · ${side} arm`}
+      title={`Week of ${dayLabel(shownWeek.monday)}`}
+      intro={`${dateRangeLabel(shownWeek.monday, shownWeek.sunday)}: ${plural(shownWeek.bouts, "distinct bout")}, every set that loaded a muscle of the ${regionWord} on the ${side} arm, each counted once however many muscles it loaded.`}
+      lists={[{ key: "arm", heading: null, note: null, rows: shownWeek.rows }]}
+      weightUnit={weightUnit}
+      onOpenSession={(sessionId) => { setOpenWeek(null); onOpenSession(sessionId); }}
+      onInspectExercise={(catalogExerciseId, name) => { setOpenWeek(null); onInspectExercise(catalogExerciseId, name); }}
+      onOpenMethod={() => { setOpenWeek(null); onOpenMethod(); }}
+      onClose={() => setOpenWeek(null)}
+    />}
   </div>;
 }
