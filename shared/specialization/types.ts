@@ -491,8 +491,19 @@ export interface NodeExposure {
   directDynamicReps: number;
   contributingDynamicReps: number;
   /** Bouts mapped to this node whose side is unknown — never added to either arm. */
-  unknownSide: { bouts: number; directDynamicBouts: number; deliberateHoldBouts: number; deliberateHoldSeconds: number };
-  /** Draft mappings that matched work in the window: shown, not counted. */
+  unknownSide: {
+    bouts: number;
+    directDynamicBouts: number;
+    deliberateHoldBouts: number;
+    deliberateHoldSeconds: number;
+    /**
+     * Bouts with no arm recorded that matched only a draft mapping for this node: shown as
+     * "no arm recorded", never counted, and never in either arm's `pendingReviewBouts`. Always
+     * set by `getSpecializationSummary`; not part of `bouts`, which counts credited work.
+     */
+    pendingReviewBouts?: number;
+  };
+  /** Bouts on this arm (or two-handed) that matched only a draft mapping for this node: shown, not counted. Bouts with no arm recorded are in `unknownSide.pendingReviewBouts` instead. */
   pendingReviewBouts: number;
   /** Whether any reviewed mapping can credit this node at all. */
   mappingCoverage: MappingCoverage;

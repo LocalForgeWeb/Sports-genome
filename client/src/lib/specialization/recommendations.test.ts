@@ -154,7 +154,7 @@ describe("candidates", () => {
     const one = candidatesOf(recommendFor({ ...base, exclusions: { catalogExerciseIds: [93] } }));
     expect([one.candidates.map((candidate) => candidate.catalogExerciseId), one.excludedCount]).toEqual([[90], 1]);
     const none = candidatesOf(recommendFor({ ...base, exclusions: { catalogExerciseIds: [93], equipment: ["Free weights"] } }));
-    expect([none.candidates, none.excludedCount, none.emptyReason]).toEqual([[], 2, "Every reviewed exercise for this is excluded by your settings."]);
+    expect([none.candidates, none.excludedCount, none.skippedAtTarget, none.emptyReason]).toEqual([[], 2, 0, "Every reviewed exercise for this is left out by your choices under What is suggested."]);
   });
 });
 

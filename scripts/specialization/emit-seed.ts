@@ -53,6 +53,13 @@ import type {
 } from "../../shared/specialization/types";
 
 const here = dirname(fileURLToPath(import.meta.url));
+/**
+ * Where the seed is written. The two migration files keep their names until the first
+ * production apply, then take the versions Supabase records (04-database.md §9 lists every
+ * place that names them; server/specializationSeed.test.ts fails on any reference to a file
+ * that is not there). The seed's own text names neither file by version, so renaming it
+ * after the apply does not change what production ran.
+ */
 export const SEED_MIGRATION_PATH = resolve(here, "../../supabase/migrations/20261016120100_specialization_atlas_seed_v1.sql");
 
 /**
@@ -694,14 +701,15 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
       return `-- Mapping version ${data.mappingVersion.key} (${data.mappingVersion.state}): ${rows.filter((mapping) => mapping.reviewStatus === "reviewed").length} reviewed, ${draft.length} draft${draft.length ? ` (${draft.join(", ")})` : ""}.`;
     }),
     "--",
-    "-- Applies after 20261016120000_specialization_atlas_schema.sql, and can be applied again:",
+    "-- Applies after the schema migration (…_specialization_atlas_schema.sql), and can be applied again:",
     "-- every write is an upsert keyed by the content's own keys that skips unchanged rows, and",
     "-- the sets the content owns (a version's mappings and their sources, a region's claims with",
     "-- their sources and node actions, a drawing's views, paths and labels) lose the rows the",
     "-- content no longer has. A published mapping or rule version is immutable, and so is what a",
-    "-- published version rests on (its variants, node actions, reviewed claims and their",
-    "-- sources, cited sources), so a change or removal under such a key is refused here and",
-    "-- nothing of this file is applied; give the change new keys and a new version. See",
+    "-- published version rests on (its variants; its muscles' review, region, role and catalog",
+    "-- key; node actions; reviewed claims with their basis and sources; cited sources), so a",
+    "-- change or removal under such a key is refused here and nothing of this file is",
+    "-- applied; give the change new keys and a new version. See",
     "-- docs/specialization-atlas/04-database.md.",
     "--",
     "-- Rollback: the schema's (drop schema if exists specialization cascade). Published",

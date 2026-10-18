@@ -265,7 +265,7 @@ function emptyNode(nodeId: NodeId, coverage: MappingCoverage): NodeExposure {
     unknownBouts: 0,
     directDynamicReps: 0,
     contributingDynamicReps: 0,
-    unknownSide: { bouts: 0, directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0 },
+    unknownSide: { bouts: 0, directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 0 },
     pendingReviewBouts: 0,
     mappingCoverage: coverage,
     contributions: [],
@@ -406,7 +406,9 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
         if (effect.strapped.length) {
           node.notCounted!.push(contributionOf(bout, nodeId, categoryOfParts(effect.strapped.map((mapping) => partOf(mapping, found.variant))), effect.strapped.map((mapping) => partOf(mapping, found.variant)), notes, []));
         } else if (effect.pending.length) {
-          node.pendingReviewBouts += 1;
+          // Like credited work, a bout with no arm recorded is kept apart: it is never either arm's.
+          if (bout.side === "unknown") node.unknownSide.pendingReviewBouts = (node.unknownSide.pendingReviewBouts ?? 0) + 1;
+          else node.pendingReviewBouts += 1;
           const parts = effect.pending.map((mapping) => partOf(mapping, found.variant));
           node.notCounted!.push(contributionOf(bout, nodeId, categoryOfParts(parts), parts, [...notes, "Mapping pending review"], []));
         }
