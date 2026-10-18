@@ -24,7 +24,7 @@ export function AthleteAccountCard({ identity, pending, keptOnDevice, optedIn, o
   pending: number;
   /**
    * Lifts kept on this device because their exercise cannot be uploaded to the account yet (no
-   * reference mapping, as for the forearm rows 401–414). Read from the stored queue when not given.
+   * reference mapping, as for the forearm rows 401–416). Read from the stored queue when not given.
    */
   keptOnDevice?: number;
   optedIn: boolean;

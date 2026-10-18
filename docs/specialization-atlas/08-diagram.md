@@ -35,7 +35,7 @@ The manifest test fails if the committed asset is not exactly what `emit.mjs` wr
 - **Outlines.** Each arm outline is a list of points along its two edges, smoothed with centripetal Catmull-Rom curves (no loops, no overshoot). The back view's outline is the palm view's mirrored, since it is the same arm seen from behind.
 - **Bellies as cross-sections.** Most bellies are written as a table of horizontal slices, `[y, thumb-side edge, pinky-side edge]`, the way an atlas slices a limb, closed by a pointed origin and a tip or lobes where the muscle hands over to its tendons. Writing neighbours at the same heights is what keeps the gutter between them even; `check.mjs` reports every pair of bellies closer than 8 units, and the manifest test fails on any overlap. Oblique bellies (the thumb muscles crossing to the thumb) are bands along a centreline with a width profile.
 - **Tendons** are narrow bands along a centreline, pointed where they leave the belly (they start inside its tip, as the tendon forms within the muscle) and square where they attach.
-- **Output** is absolute `M`, `C`, `L`, `Z` only, one decimal, so the seed and any renderer read it the same way. 127 paths, 112 KB raw, about 32 KB gzipped, in the page's lazy `registry` chunk.
+- **Output** is absolute `M`, `C`, `L`, `Z` only, one decimal, so the seed and any renderer read it the same way. 127 paths and 28 labels; `diagram.generated.ts` is 114,749 bytes raw and 32,343 gzipped. In a build it sits in the specialization page's lazy chunk (`SpecializationPanel-*.js`) and in no other: Home, the logger and the recap do not load it (07-logger.md, "What each screen downloads").
 
 ## Orientation (right arm; the left arm is the mirror image)
 
@@ -107,10 +107,12 @@ On the real page (`npx vite build`, served from `dist/public`, device stores see
 
 | File | Checked |
 |---|---|
-| `diagram-page-390-viewport.png`, `diagram-page-375-viewport.png` | the first screen; no horizontal overflow (`diagram-page-checks.json`) |
+| `diagram-page-390-viewport.png`, `diagram-page-375-viewport.png` | the first screen as it was on 16 Oct; no horizontal overflow (`diagram-page-checks.json`) |
 | `diagram-page-390-palm-surface-right.png`, `-375-` | the map card with its controls, the drawing (321 and 307 px wide) and the page's legend, fills agreeing with the legend |
 | `diagram-page-390-fcu-selected.png`, `-375-` | FCU selected by a touchscreen tap on its target (`aria-pressed` became true): outline and name, no focus ring |
 | `diagram-page-390-back-surface-left.png`, `-375-` | left arm, back view: drawing flipped, thumb side on the left, words unmirrored, FCU still selected |
+
+These page screenshots were taken on 16 Oct (`2b977f7`), before the 17 Oct layout: they show the earlier top of the page and the map card's earlier controls. The current first screen, with the drawing's top on it, is in `evidence/page-followups-2026-10-17/` (`first-screen-fcu-*.png`, measured in 09-page.md). `render-page.mjs` now also captures the deep layer on the page, a muscle's contribution ledger and the add-exercise preview; those shots are to be committed with the release (README.md, Screenshots).
 
 ## Limits
 
@@ -119,10 +121,10 @@ On the real page (`npx vite build`, served from `dist/public`, device stores see
 - Some muscles appear in more than one view where they wrap round (BR, FCU, ECRL, ECRB, APL, EPB, supinator). The thumb-side view is the arm in anatomical position seen from its radial side.
 - The hand is a shortened stub (palm compressed, fingers cropped) whose only job is to show where tendons go. Intrinsic hand muscles are not drawn and belong to a separate region (brief §3).
 - No colour, shading or shape in it is a forecast of growth (brief §6: no pseudo-3D bulging). Brightness on the map is the page's fixed exposure bins, nothing else.
-- The anatomy follows the evidence file (`03-anatomy-evidence.md`, sources S4–S8 and A-references) and standard anatomical descriptions. It has not been reviewed by an anatomist; a reviewer should check the views against a reference atlas before the drawing is called reviewed.
+- The anatomy follows the evidence file (`03-anatomy-evidence.md`: the brief's sources S2, S3 and S6 and the anatomy references A1–A55) and standard anatomical descriptions. It has not been reviewed by an anatomist; a reviewer should check the views against a reference atlas before the drawing is called reviewed.
 
 ## Open items
 
-- The page puts the drawing below the first screen at 390 × 844 (controls and two lines take it); the brief asks for the illustration above the fold. That is the page's layout, not the drawing's.
-- The drawing is 360 × 760, so on a phone it is about 680 px tall; the page may want a height cap on wide screens.
+- The drawing's top is on the first screen at 390 × 844, 375 × 667 (except with Back to … and Custom dates together) and 430 × 932, and below it at 320 × 568, where the page's controls take a row each (09-page.md has the measurements). The whole drawing never fits the first screen of a phone: it is about 680 px tall at 390.
+- The drawing is 360 × 760 view-box units, drawn at the card's width up to 26rem (416 px), so at its widest it is about 880 px tall; a lower height on wide screens is left open.
 - A 3D viewer can replace this renderer behind the same props (design §12).

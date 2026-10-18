@@ -32,9 +32,11 @@ Measured with `npx vite build --outDir <scratch>` before and after this lane's c
 
 The App chunk is smaller because the swap logic moved out of it: `catalogIdOf` and `swapNote`, all the first screens read of a swap, live in `client/src/lib/workoutSwapRecord.ts`, and `workoutSwap.ts` (assess, apply, undo, add, the sheet's notes and suggestions) now loads with the tracker only. The diagram path ids, a mapping rationale, a claim statement and the planned-side note were searched for in the App chunk and are not there. Opening Train downloads the tracker, `mappings` and session-detail chunks, 30.7 kB gzip (0.5 kB more than before: the swap code that left App), on top of an App chunk 1.6 kB gzip smaller: 1.1 kB gzip less in all. Opening a workout from Progress no longer downloads `mappings`.
 
+Measured again at `1cb619a` (18 Oct, `npx vite build`, raw and gzip -9): `App` 893,916 (226,927), `DeviceWorkoutTracker` 55,880 (17,345), `mappings` 43,740 (10,759), `WorkoutSessionDetail` 8,066 (2,842), `SpecializationPanel` 351,217 (100,170). The drawing's paths are in `SpecializationPanel` and in no other chunk; there is no separate `registry` chunk.
+
 ## What is stored
 
-All fields are optional and validated by the one normalizer every screen reads through (`normalizeSet` and the exercise normalizer in `deviceWorkoutLog.ts`). Anything else stored there is dropped on load and on save, never read as a value.
+All fields are optional, and every screen reads them through the normalizers in `deviceWorkoutLog.ts`. `normalizeSet` rebuilds each set from the fields it knows and validates the set fields below, so anything else stored on a set is dropped on load and on save, never read as a value. The exercise normalizer validates `straps` only (anything but `yes` or `no` is dropped); other exercise fields, `perArm` among them, are kept as stored.
 
 | Field | On | Values kept | Written when |
 |---|---|---|---|
@@ -42,6 +44,7 @@ All fields are optional and validated by the one normalizer every screen reads t
 | `holdSeconds` | set | whole seconds as digits (`"30"`); a whole number is read as its digits, leading zeros dropped; text, negatives and fractions dropped | a set is logged on a hold with seconds typed |
 | `warmup` | set | `true` only | never by the logger (see below) |
 | `straps` | exercise | `yes`, `no` | the athlete taps Used or Not used |
+| `perArm` | exercise | `true` as written; kept as stored, not validated, and read as on or off | the tracker builds a one-arm exercise's rows per arm under the `perArmSets` gate, at the start or by a swap or add (below) |
 | `id` | set | any non-empty string | every new set, at creation |
 
 - **A hold** is a set with `holdSeconds` and empty `reps`. `isHoldSet()` and `holdSecondsOf()` (never NaN) are what readers use.
@@ -98,7 +101,7 @@ All fields are optional and validated by the one normalizer every screen reads t
 
 ### The account card (About me)
 
-Lifts on catalog rows the account cannot take yet (no reference mapping, as for the forearm rows 401–414) stay in the sync queue and on the device. They are not counted as "waiting to upload"; the card names them apart: "1 lift is kept on this device because its exercise cannot be uploaded to your account yet." The count is re-read when the queue is saved, when another tab writes it, and when the sync's reference map changes (`sports-genome:reference-map`, `useAthleteSync.ts`). The queue itself is unchanged.
+Lifts on catalog rows the account cannot take yet (no reference mapping, as for the forearm rows 401–416) stay in the sync queue and on the device. They are not counted as "waiting to upload"; the card names them apart: "1 lift is kept on this device because its exercise cannot be uploaded to your account yet." The count is re-read when the queue is saved, when another tab writes it, and when the sync's reference map changes (`sports-genome:reference-map`, `useAthleteSync.ts`). The queue itself is unchanged.
 
 ## One reading of a hold's prescription
 

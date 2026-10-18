@@ -148,7 +148,7 @@ export function isNotTheSameExercise(phrase: string, exerciseId: number): boolea
  * Catalog `movement` patterns too broad to relate two exercises on their own.
  *
  * Rule: a pattern is broad when it labels more than 15 catalog exercises (more than
- * one in 25 of the 400 the catalog held when the rule was set; 414 since 16 Oct). Every pattern above that size names a direction of force
+ * one in 25 of the 400 the catalog held when the rule was set; 416 since 16 Oct). Every pattern above that size names a direction of force
  * or a single joint action rather than one exercise family: "Horizontal push" holds
  * bench presses, flys, push-ups, dips, the landmine presses and the mis-tagged
  * Pallof Press and Leg-Press Calf Raise; "Squat / knee dominant" holds squats, the

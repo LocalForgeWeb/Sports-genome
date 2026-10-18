@@ -29,14 +29,14 @@ Wording was then rewritten until a sentence said no more than the sources: where
 
 | Id | Used? | What the search showed |
 |---|---|---|
-| S1 | Not cited by anatomy claims | Accounting evidence, not anatomy. Unchanged. |
+| S1 | Not cited, by a claim or a mapping | Accounting evidence, not anatomy. Unchanged. |
 | S2 | Cited by four selectivity claims | Abstract confirmed: surface EMG of ECRB, ECU, FCR, FCU in 40 healthy arms at a constant wrist torque of three quarters of the neutral maximum. ECRB higher in pronation; ECU unchanged; FCR higher in supination; FCU lower in pronation than neutral. ECRL not recorded. DOI added. |
 | S3 | Cited by `fds.selectivity.1` | Abstract confirmed: one finger flexing at half its maximum activated fewer than half of the units in other fingers' FDS parts; low-force spill-over mostly to adjacent fingers; ring and little fingers the most coupled. DOI added. |
-| S4 | Not cited | The forearm page never appeared in results; the same site's alphabetical upper-limb reference did (A38). Its title was reworded to drop the word "tables" (athlete copy never says "table"). |
-| S5 | Not cited | Not returned by search. |
+| S4 | Not cited by a claim; 251 mappings cite it (05-mappings.md) | The forearm page never appeared in results; the same site's alphabetical upper-limb reference did (A38). Its title was reworded to drop the word "tables" (athlete copy never says "table"). |
+| S5 | Not cited, by a claim or a mapping | Not returned by search. |
 | S6 | Cited by `anterior.function` | Abstract and introduction only: eight anterior muscles in superficial and deep groups. |
-| S7 | Not cited | Not returned by search; Kenhub (A6) and IMAIOS (A7) cover FCR. |
-| S8 | Not cited | The Bookshelf id NBK526046 could not be matched to the FDP article. The StatPearls FDP article was found as PubMed 30252302 and is cited as A14. |
+| S7 | Not cited by a claim; 2 mappings cite it | Not returned by search; Kenhub (A6) and IMAIOS (A7) cover FCR. |
+| S8 | Not cited by a claim; 114 mappings cite it | The Bookshelf id NBK526046 could not be matched to the FDP article. The StatPearls FDP article was found as PubMed 30252302 and is cited as A14. |
 | S9 | Removed | Not anatomy and cited by nothing; removed from the region's sources on 16 Oct (see open issue 1). |
 
 ## 4. Claims by node
@@ -106,7 +106,7 @@ Every claim below is `reviewed`. "Sources" gives each source id with the locator
 | Brachialis `upper_arm.brachialis` | reviewed | `brachialis.function` | function · established_anatomy | reviewed | A51 (Introduction) |
 |  |  | `brachialis.appearance` | appearance · anatomical_inference | reviewed | A51 (Introduction: deeper than the biceps) |
 
-Totals: 24 function, 24 appearance, 10 selectivity, 2 variation; 60 reviewed, 0 draft. 58 of the 64 region sources are cited (the uncited ones are S1, S4, S5, S7, S8, S9).
+Totals: 24 function, 24 appearance, 10 selectivity, 2 variation; 60 reviewed, 0 draft. 58 of the region's 63 anatomy sources (S1–S8, A1–A55) are cited by a claim; the other five are S1, S4, S5, S7 and S8, of which S4, S7 and S8 are cited by mappings and S1 and S5 by nothing. S9 is no longer in the sources (§3). The mapping sources M1–M8 are in 05-mappings.md.
 
 ## 5. Node actions
 

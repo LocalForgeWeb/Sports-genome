@@ -6,12 +6,12 @@ What will be built, and the decisions each part is held to. The brief is `brief-
 
 | Layer | Where | Owns |
 |---|---|---|
-| Reference model | `shared/specialization/types.ts`, `ids.ts`, `rules.ts`, `registry.ts` | Types, stable ids, the published accounting rule, the region registry. Region-agnostic. |
-| Region content | `shared/specialization/regions/forearm/*.ts` | Nodes, actions, node actions, claims, sources, variants, mappings for the forearm. Pure data. |
+| Reference model | `shared/specialization/types.ts`, `ids.ts`, `rules.ts`, `registry.ts`, `regionIndex.ts`, `loggingRegions.ts`, `loggingPolicy.ts`, `holdCatalogIds.ts` | Types, stable ids, the published accounting rule, the region registry (full data, for the page and the seed) and its light twins: the regions' names and entry points for the screens that link to the page, each region's variants and mappings for the workout logger, and the catalog ids measured in seconds for the first screens. Region-agnostic. |
+| Region content | `shared/specialization/regions/forearm/*.ts` | The region record, nodes, actions, node actions, claims, sources, variants, mappings and mapping sources for the forearm, gathered in `index.ts` (everything) and `logging.ts` (what the logger reads). Pure data. |
 | Calculator | `shared/specialization/exposure.ts`, `time.ts`, `goals.ts` | `getSpecializationSummary()` over plain bouts; zoned intervals; goal validation and progress. No React, no storage, no client imports. |
 | Device adapters | `client/src/lib/specialization/*.ts` | Plan and device sessions → bouts; goal and measurement stores; recommendations; the hook the page reads. |
-| Page | `client/src/components/specialization/*.tsx`, CSS `client/src/specialization.css` | The Body Lab "Specialize" workspace, the diagram, the muscle sheet, the add/swap sheet, targets, measurements. Region-agnostic: takes a `SpecializationRegionData`. |
-| Diagram geometry | `design/specialization/forearm/*.mjs` → `shared/specialization/regions/forearm/diagram.generated.ts` (generated; the seed reads it) | Palm, back and thumb-side views, surface and deep layers, bellies and tendons drawn apart, a path manifest validated against the node catalog. |
+| Page | `client/src/components/specialization/*.tsx`, CSS in the same folder (`specialization.css`, `specialization-diagram.css`, `plan-change.css`, `targets.css`, `progress.css`) | The Body Lab "Specialize" workspace, the diagram, the muscle sheet, the add/swap sheet, targets, measurements. Region-agnostic: takes a `SpecializationRegionData`. |
+| Diagram geometry | `design/specialization/forearm/*.mjs` → `shared/specialization/regions/forearm/diagram.generated.ts` (generated; the seed reads it) | Palm, back and thumb-side views, surface and deep layers (and a middle layer on the palm side), bellies and tendons drawn apart, a path manifest validated against the node catalog. |
 | Database | `supabase/migrations/*_specialization_*.sql`, `scripts/specialization/emit-seed.ts`, `server/specialization*.test.ts` | Schema `specialization`: reference tables seeded from the TypeScript content, goals and measurements with owner RLS. Tested in PGlite under anon, user A, user B and service roles. |
 
 Tests for `shared/` code live under `client/src/lib/specialization/` (vitest does not collect `shared/`), and every test is a `.test.ts` file.
@@ -23,7 +23,7 @@ Tests for `shared/` code live under `client/src/lib/specialization/` (vitest doe
 - Actions: `<joint>.<action>`, for example `wrist.flexion`, `forearm.pronation`, `fingers.dip_flexion`, `thumb.ip_flexion`. The full list is `ids.ts`.
 - Variants: `cat-<catalogId>` (one default variant per catalog exercise).
 - Mapping version `forearm_mappings_v1`. Rule version `specialization_exposure_v1`.
-- Sources: short stable keys, `S1`–`S9` as in the brief plus `A<n>` for anatomy references added during review.
+- Sources: short stable keys: `S1`–`S8` as in the brief (its S9 was removed: cited by nothing, 03-anatomy-evidence.md §3), `A1`–`A55` for anatomy references added during review, `M1`–`M8` for mapping sources.
 
 ## 3. Counting model (`specialization_exposure_v1`)
 
@@ -59,7 +59,7 @@ Tests for `shared/` code live under `client/src/lib/specialization/` (vitest doe
 
 **Not converted.** Hold seconds never become sets; external load × reps is labelled external volume-load, never muscle force; an incidental grip is never dynamic credit; a missing effort stays unknown.
 
-**Unreviewed or missing mappings.** Draft mappings do not enter node totals; they appear as "pending review". An exercise tagged `forearms` in the catalog with no atlas mapping counts only in the **region-level unclassified** bucket and never fans out to nodes. A node with no reviewed mapping for anything in the window is drawn hatched ("mapping not reviewed"); a node with mappings but no work is drawn empty. Unknown never reads as zero.
+**Unreviewed or missing mappings.** Draft mappings do not enter node totals; they appear as "pending review". An exercise tagged `forearms` in the catalog with no atlas mapping counts only in the **region-level unclassified** bucket and never fans out to nodes. A node with no reviewed mapping in the current mapping version, whatever the window, is drawn hatched ("mapping not reviewed"); a node with reviewed mappings but no work in the window is drawn empty. Unknown never reads as zero.
 
 **Region total.** Distinct bout ids that touched any node of the region, per side. This is not the sum of node rows.
 
@@ -76,16 +76,17 @@ Tests for `shared/` code live under `client/src/lib/specialization/` (vitest doe
 - **Goal:** `{regionId, nodeId | actionId, side, metric, target, period, startsOn, endsOn?, timezone}`. Metrics are `direct_dynamic_bouts`, `deliberate_hold_bouts` and `deliberate_hold_seconds`. Any positive target is allowed, including above 15. There is no default target and no automatic increase. One active goal per region, target, side, metric and period: an overlapping one is refused with the reason. A "both arms" entry writes two explicit goals.
 - **Progress copy:** "8 of your 20" / "40% of your target". Never "optimal". With no goal: "Not targeted".
 - **Measurements:** circumference (cm) and grip force (N) per side, with a protocol: landmark, distance from it, posture, pumped or not, device, time of day. Charts sit beside exposure on aligned time axes, never one shared y axis. No inference from circumference to a single muscle.
-- **Notes:** the session note that already exists. The page lists recent notes from sessions that had forearm work. No new questionnaire.
-- **Storage:** device, under `scopedKey("sports-genome-specialization-goals-v1")` and `scopedKey("sports-genome-specialization-measurements-v1")`, validated on load and tolerant of corrupt or refused storage.
+- **Notes:** the session note that already exists. The page lists recent notes from sessions that had work on the region. No new questionnaire.
+- **Storage:** device, under `scopedKey("sports-genome-specialization-goals-v1")` and `scopedKey("sports-genome-specialization-measurements-v1")` (and the suggestion exclusions under `scopedKey("sports-genome-specialization-exclusions-v1")`), validated on load and tolerant of corrupt or refused storage.
 
 ## 6. Logger changes (only where relevant)
 
 - New sets get `id` at creation.
-- **Side:** a three-way control (`Left · Right · Both`) on the live set card only for atlas variants whose laterality is `unilateral` or `either`. It defaults to the last side logged for that exercise in the session, and alternates after each logged set for unilateral work. Two-handed exercises never show it.
+- **Side:** a three-way control (`Left · Right · Both`) on the live set card only for atlas variants whose laterality is `unilateral` or `either`. After a one-arm set it offers the other arm, after a Both set Both; before any set is logged on the exercise in that workout, an either-arm exercise starts on Both and a one-arm exercise with nothing chosen. Two-handed exercises never show it.
 - **Hold seconds:** a "Seconds" box replaces reps for variants whose measure is `seconds`. A set completes with seconds and no reps.
-- **Straps:** `Straps · Used / Not used` on the exercise in the live workout, only for variants with a straps-sensitive grip mapping, and only after the athlete has set a forearm goal ("until relevant").
-- All three survive `normalizeSet` and appear in the recap. Strength estimates, volume and percentiles skip hold sets.
+- **Straps:** `Straps · Used / Not used` on the exercise in the live workout, only for variants with a straps-sensitive grip mapping, and only once the athlete has an active specialization target ("until relevant").
+- **Sets per arm:** with an active target, a planned set of a one-arm exercise is two rows, Right then Left, because the atlas counts a one-arm exercise's planned sets per arm (07-logger.md).
+- Side and hold seconds survive `normalizeSet`, straps the exercise normalizer, and all three appear in the recap. Strength estimates, volume and percentiles skip hold sets.
 
 ## 7. Page
 
@@ -93,7 +94,7 @@ Tests for `shared/` code live under `client/src/lib/specialization/` (vitest doe
 
 **Entry points:** Body Lab tab; the Muscles map's next step when the forearm or brachioradialis is selected; Review → Week → forearm muscle detail, "Explore forearm coverage" (opens with that plan week and `mode=planned`); universal search "Forearm specialization".
 
-**Phone layout (390 × 844 first; the selected muscle and the top of the drawing are on the first screen at 375 × 667 and 430 × 932 too):**
+**Phone layout (390 × 844 first; the selected muscle and the top of the drawing are on the first screen at 375 × 667 and 430 × 932 too, except at 375 × 667 with Back to … and Custom dates together, 09-page.md):**
 1. Heading "Forearm specialization", on one line from 375 px, under "Back to …" when another page opened it. The tab row above it already names Body Lab · Specialize, so there is no eyebrow. What is counted is said under the map card.
 2. Controls in two rows: Completed / Planned beside Left / Right arm; then the window (This week · Rolling 7 days · Custom, with two date fields for Custom), or the plan weeks in Planned mode. Then one line: the window in words, the arm, and for this week the pair from §4 (logged beside planned). The pair is a total, so with a pair the whole line is one button (44 px tall, the pair underlined in link colour with an arrow at its end; its words stay on-dark ink, which reads at AA on the Body Lab blue where link ink does not) that opens the sets behind it: this week's logged bouts on the arm (and any with no arm recorded), then the plan week's.
 3. Diagram card, its controls in two rows: the heading beside the view (Palm · Back · Thumb side); the layer (Surface · Middle · Deep, as each view has them: the palm side has a middle layer, FDS) beside the map (Volume · Target). Each segment wraps to a row of its own rather than push the page sideways. Thumb side and pinky side labelled on the drawing, mirrored for the left arm. Fixed bins with a numeric legend: 0 · 1–2 · 3–5 · 6–9 · 10–14 · 15+ bouts, on the existing `--sg-exposure-*` ramp (never the rank or role colours). Hatching means mapping not reviewed; an empty outline means mapped, no work. Target mode bins: under 25 %, 25–49 %, 50–74 %, 75–99 %, 100 % and over, with the number always shown.
@@ -148,7 +149,7 @@ The schema `specialization` holds:
 - Triggers refuse a parent cycle.
 - A composite foreign key keeps each claim on its own node.
 - Published mapping and rule versions are immutable.
-- Publishing a mapping version fails while a mapping lacks a source or review.
+- Publishing a mapping version runs the publication rule (04-database.md §4): every mapping needs a source, and reviewed mappings need what they rest on reviewed. Draft rows may stay in a published version: hidden from users, labelled pending review on the page, never counted.
 - An exclusion constraint (btree_gist) refuses overlapping active goals.
 - A trigger validates IANA zones against `pg_timezone_names`.
 
@@ -164,7 +165,7 @@ The schema `specialization` holds:
 
 **Tests.** Migrations, constraints and RLS are tested in PGlite (real Postgres in WASM): apply, re-apply, roll back, re-apply.
 
-**Production.** Applied additively through the Supabase MCP, then verified read-only. Each file is committed under the version Supabase recorded.
+**Production.** Applied additively through the Supabase MCP, then verified read-only. Each file is committed under the version Supabase recorded. Owner-gated and not yet done (04-database.md §9). There is no staging database, so PGlite is the only rehearsal.
 
 ## 10. Extensibility check
 
@@ -175,7 +176,9 @@ A `deltoid` fixture (`client/src/lib/specialization/__fixtures__/deltoidRegion.t
 
 Tests: the calculator, adapters and suggestions run on the fixture (`regionAgnostic.test.ts`); the page renders it with no deltoid code (`SpecializationPanel.deltoid.render.test.ts`: heading, Front · Side · Rear, the fixture's group heading and incidental word, the drawing's muscles selectable, circumference only, and no forearm, grip, palm or thumb-side word on the page outside "How this is counted"); the seed loads it with no schema change and reads it back whole (`specializationSeed.test.ts`); and a source scan fails if the calculator, the adapters or any page source file (every non-test `.tsx` and `.ts` in `client/src/components/specialization/`: the components, `model.ts`, `diagramGeometry.ts`) names a region or the forearm's view and group words in its code or strings (comments aside), with one allowed line, ActionGlyph's action-verb pattern.
 
-Still forearm-worded on every region's page: "How this is counted" shows the published rule's own text (`rules.ts`, `specialization_exposure_v1`), which speaks of grip credit and straps, and the muscle sheet's "Incidental grip or steadying" line and the exposure sentence's "incidental grip or steadying" (`MuscleSheet.tsx`, `model.ts`) do not yet read `wording.incidentalWork`.
+Still forearm-worded on every region's page: "How this is counted" shows the published rule's own text (`rules.ts`, `specialization_exposure_v1`), which speaks of grip credit and straps. The muscle sheet's "Incidental … or steadying" line and the exposure sentence take their incidental word from `wording.incidentalWork` (`MuscleSheet.tsx`, `exposureParts` in `model.ts`).
+
+A few things outside region data still name the forearm or assume an arm: the browser tab title and the search destination (Home, universal search), the region the Specialize tab opens, the one rule version, the word "arm" on the page and in the logger, and the two measures. README.md ("Adding a production region") lists them with every file and list a new region needs.
 
 ## 11. Ownership for parallel work
 
@@ -197,7 +200,7 @@ The page never depends on how the forearm is drawn. Any renderer takes the same 
 - `view` (one of the asset's view ids) and `layer`;
 - `mirrored` (left arm);
 - `fillFor(nodeId)`, returning `bin n`, `zero`, `hatch` or `none`;
-- `selectedNodeId`, `onSelect(nodeId)`, `labelFor(nodeId)`, `describeFor(nodeId)`.
+- `selectedNodeId`, `onSelect(nodeId)`, `labelFor(nodeId)`, `describeFor(nodeId)`, and an optional `caption`.
 
 The counting, list, ledger, targets and add/swap flows read node ids only. Neither the page nor the renderer names a view: the view buttons, the drawing's caption and the "drawn in Palm · Middle" note read the asset's `viewOrder`.
 
