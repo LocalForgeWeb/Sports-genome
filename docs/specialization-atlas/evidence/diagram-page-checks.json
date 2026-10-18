@@ -19,13 +19,27 @@
     "file": "diagram-page-390-back-surface-left.png"
   },
   {
+    "width": 390,
+    "file": "diagram-page-390-palm-deep-right.png"
+  },
+  {
+    "width": 390,
+    "file": "diagram-page-390-ledger.png",
+    "ledgerOnScreen": true
+  },
+  {
+    "width": 390,
+    "file": "diagram-page-390-add-preview.png",
+    "noOverflow": true
+  },
+  {
     "width": 375,
     "file": "diagram-page-375-viewport.png"
   },
   {
     "width": 375,
     "file": "diagram-page-375-palm-surface-right.png",
-    "svgWidth": 307,
+    "svgWidth": 315,
     "noOverflow": true
   },
   {
@@ -36,5 +50,19 @@
   {
     "width": 375,
     "file": "diagram-page-375-back-surface-left.png"
+  },
+  {
+    "width": 375,
+    "file": "diagram-page-375-palm-deep-right.png"
+  },
+  {
+    "width": 375,
+    "file": "diagram-page-375-ledger.png",
+    "ledgerOnScreen": true
+  },
+  {
+    "width": 375,
+    "file": "diagram-page-375-add-preview.png",
+    "noOverflow": true
   }
 ]
