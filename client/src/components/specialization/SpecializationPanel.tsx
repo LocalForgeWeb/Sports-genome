@@ -587,7 +587,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
             {regionOnlyRows.length > 0 && <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "region-only" })}>See the {plural(regionOnlyRows.length, "set")} for the {regionWord} only <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
             {unknownSideRows.length > 0 && <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "unknown-side" })}>See the {plural(unknownSideRows.length, "set")} with no arm recorded <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
           </div>}
-          {completeness && <CompletenessNote completeness={completeness} unknownSideListed={unknownSideRows.length} regionWord={regionWord} />}
+          {completeness && <CompletenessNote completeness={completeness} unknownSideListed={unknownSideRows.length} regionOnlyWithNoArm={regionOnlyRows.filter((row) => row.side === "unknown").length} regionWord={regionWord} />}
           <p className="spz-note">{data.mappingVersion.methodNotes}</p>
         </div>
       </details>
@@ -708,15 +708,23 @@ function MuscleRow({ node, exposure, incidentalWork, waiting, selected, onOpen }
  * What the completeness counts cannot open, said plainly (brief §1): where those sets are
  * listed instead, or that they are not kept as a list. Nothing when every count opens.
  */
-function CompletenessNote({ completeness, unknownSideListed, regionWord }: { completeness: SummaryCompleteness; unknownSideListed: number; regionWord: string }) {
+function CompletenessNote({ completeness, unknownSideListed, regionOnlyWithNoArm, regionWord }: { completeness: SummaryCompleteness; unknownSideListed: number; regionOnlyWithNoArm: number; regionWord: string }) {
   const lines: string[] = [];
   if (completeness.boutsNameMatched > 0) lines.push("Sets matched by name are among those above, marked “matched by name” where they are listed.");
   if (completeness.boutsPendingReview > 0) lines.push("Sets under review are listed under Not counted in each muscle's sheet.");
-  const unlisted = completeness.boutsUnknownSide - unknownSideListed;
-  if (unlisted > 0) {
-    lines.push(unknownSideListed > 0
-      ? `The other ${unlisted} with no arm recorded count for no muscle of the ${regionWord}, so that list leaves them out.`
-      : `The ${plural(unlisted, "set")} with no arm recorded ${unlisted === 1 ? "counts" : "count"} for no muscle of the ${regionWord}, so no list of ${unlisted === 1 ? "it" : "them"} opens here.`);
+  // The sets with no arm recorded fall in three places: those that loaded a muscle of the region
+  // are the no-arm list; those tagged with the region and mapped to no muscle (which have an arm
+  // only when the set recorded one: no variant says the exercise is two-handed) are in the
+  // region-only list; the rest count for no muscle of it.
+  if (regionOnlyWithNoArm > 0) {
+    const one = regionOnlyWithNoArm === 1;
+    lines.push(`${plural(regionOnlyWithNoArm, "set")} with no arm recorded ${one ? "is" : "are"} among the sets for the ${regionWord} only, and ${one ? "opens" : "open"} there.`);
+  }
+  const elsewhere = completeness.boutsUnknownSide - unknownSideListed - regionOnlyWithNoArm;
+  if (elsewhere > 0) {
+    const one = elsewhere === 1;
+    const other = unknownSideListed + regionOnlyWithNoArm > 0;
+    lines.push(`${other ? "The other" : "The"} ${one ? "set" : `${elsewhere} sets`} with no arm recorded ${one ? "counts" : "count"} for no muscle of the ${regionWord}, so no list of ${one ? "it" : "them"} opens here.`);
   }
   if (completeness.boutsExcluded.notCompleted + completeness.boutsExcluded.warmup > 0) lines.push("Sets not completed and warm-ups are left out of every total and not kept as a list, so they cannot be opened.");
   return lines.length ? <p className="spz-note">{lines.join(" ")}</p> : null;

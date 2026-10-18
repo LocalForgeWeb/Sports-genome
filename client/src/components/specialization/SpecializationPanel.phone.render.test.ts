@@ -8,6 +8,8 @@ import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { buildDaySlots, commitDay, emptyDayStore } from "@/lib/trainingDayPlan";
+import { saveSpecializationGoals } from "@/lib/specialization/stores";
+import { forearmActionIds } from "@shared/specialization/ids";
 
 /**
  * The page on a phone, after the final review (17 Oct): Not for me says so where the athlete
@@ -99,6 +101,46 @@ describe("Not for me says so where the athlete is (F-phone-1)", () => {
     await click(within(sheet).getByRole("button", { name: "Suggest again" }));
     expect(within(sheet).queryByRole("button", { name: "Undo" })).toBeNull();
   });
+
+  it("moves focus on from Suggest again, whose row goes, and says nothing stale once the equipment changes", async () => {
+    render(createElement(Harness, { initial: { nodeId: "forearm.br" } }));
+    await openSheet(/Inspect coverage/);
+    const sheet = screen.getByRole("dialog", { name: "Brachioradialis" });
+    for (let index = 0; index < 2; index += 1) await click(within(sheet).getAllByRole("button", { name: /^Do not suggest / })[0]);
+    const again = () => within(sheet).queryAllByRole("button", { name: "Suggest again" });
+    expect(again()).toHaveLength(2);
+
+    // The first row goes: focus moves to the one left, not to the page body.
+    await click(again()[0]);
+    expect(again()).toHaveLength(1);
+    expect(document.activeElement).toBe(again()[0]);
+    // The last one goes: focus moves to the disclosure, which stays for its equipment choices.
+    await click(again()[0]);
+    expect(again()).toHaveLength(0);
+    const summary = within(sheet).getByText("What is suggested").closest("summary");
+    expect(document.activeElement).toBe(summary);
+    expect(document.activeElement).not.toBe(document.body);
+
+    // Every equipment left out: no suggestion is shown, and no line about the earlier "Suggest again" appears out of place.
+    for (const chip of within(sheet).getByRole("group", { name: "Equipment to leave out of suggestions" }).querySelectorAll<HTMLButtonElement>('button[aria-pressed="false"]')) await click(chip);
+    expect(candidateRows(sheet)).toHaveLength(0);
+    expect(sheet.textContent).not.toMatch(/is suggested again\./);
+  });
+
+  it("says a refused Suggest again, and keeps the exercise left out", async () => {
+    render(createElement(Harness, { initial: { nodeId: "forearm.br" } }));
+    await openSheet(/Inspect coverage/);
+    const sheet = screen.getByRole("dialog", { name: "Brachioradialis" });
+    await click(within(sheet).getAllByRole("button", { name: /^Do not suggest / })[0]);
+    const setItem = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("full"); });
+    try {
+      await click(within(sheet).getByRole("button", { name: "Suggest again" }));
+    } finally {
+      setItem.mockRestore();
+    }
+    expect(within(sheet).getByRole("alert").textContent).not.toBe("");
+    expect(within(sheet).getAllByRole("button", { name: "Suggest again" })).toHaveLength(1);
+  });
 });
 
 describe("How this is counted, from a sheet (F-phone-8)", () => {
@@ -122,6 +164,18 @@ describe("planned work is planned, not done (F-phone-7)", () => {
     const strip = screen.getByRole("group", { name: "Selected muscle" });
     expect(strip.textContent).toMatch(/^\d+ distinct bouts? (is|are) planned for the forearms on the right arm in Plan Week 1\./);
     expect(strip.textContent).not.toMatch(/touched/);
+  });
+
+  it("says a movement's planned sets are planned for it, not done by its muscles", async () => {
+    saveSpecializationGoals([{
+      id: "move", regionId: "forearm", nodeId: null, actionId: forearmActionIds.elbowFlexion, side: "right", metric: "direct_dynamic_bouts", target: 6,
+      period: "calendar_week", startsOn: "2026-10-01", endsOn: null, timezone: "UTC", createdAt: "2026-10-01T08:00:00.000Z", updatedAt: "2026-10-01T08:00:00.000Z",
+    }], null);
+    render(createElement(Harness, { initial: { mode: "planned" } }));
+    await click(screen.getByRole("button", { name: "Open Elbow flexion" }));
+    const sheet = screen.getByRole("dialog");
+    expect(sheet.textContent).toMatch(/Each planned set counts once for the movement, however many muscles it is planned for\./);
+    expect(sheet.textContent).not.toMatch(/muscles did it/);
   });
 
   it("still says logged work touched the region in completed mode", () => {
@@ -159,6 +213,9 @@ describe("the completeness counts open what they can (F-completeness-4)", () => 
     expect(method().textContent).toMatch(/Left out: 1 not completed, 1 warm-ups\./);
     expect(method().textContent).toMatch(/Sets not completed and warm-ups are left out of every total and not kept as a list, so they cannot be opened\./);
 
+    // The three forearms-only sets have no arm recorded too: said to be in their own list, never "left out".
+    expect(method().textContent).toMatch(/3 sets with no arm recorded are among the sets for the forearms only, and open there\./);
+    expect(method().textContent).not.toMatch(/count for no muscle|leaves them out/);
     await click(within(method()).getByRole("button", { name: /See the 3 sets for the forearms only/ }));
     let sheet = screen.getByRole("dialog", { name: "3 sets for the forearms as a whole" });
     expect(within(sheet).getByText("Dumbbell Pullover")).not.toBeNull();
@@ -169,6 +226,17 @@ describe("the completeness counts open what they can (F-completeness-4)", () => 
     expect(within(sheet).getByText("One-Arm Dumbbell Wrist Curl")).not.toBeNull();
     await click(within(sheet).getByRole("button", { name: /Open this workout/ }));
     expect(onOpenSession).toHaveBeenCalledWith("s-thu");
+  });
+
+  it("says which sets with no arm recorded are in which list, and which count for no muscle of the forearms", () => {
+    // A strapped one-leg Romanian deadlift: its only forearm credit is grip, which straps take away, and it names no arm.
+    const strapped = { id: "rdl", exerciseName: "Single-Leg Romanian Deadlift", catalogId: 188, plannedPrescription: "1 × 8", straps: "yes", sets: [set(60, 8)] };
+    logged([tuesday, { ...thursday, exercises: [...thursday.exercises, strapped] }]);
+    render(createElement(Harness));
+    const text = method().textContent ?? "";
+    expect(text).toMatch(/5 with no arm recorded/);
+    expect(text).toMatch(/3 sets with no arm recorded are among the sets for the forearms only, and open there\./);
+    expect(text).toMatch(/The other set with no arm recorded counts for no muscle of the forearms, so no list of it opens here\./);
   });
 
   it("has nothing to open, and says nothing extra, when every set counted", () => {

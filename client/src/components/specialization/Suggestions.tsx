@@ -47,10 +47,13 @@ export function Suggestions({ data, recommendations, exclusions, onSetExerciseEx
   const [excludedNow, setExcludedNow] = useState<{ id: number; name: string; index: number } | null>(null);
   const [restored, setRestored] = useState<{ id: number; name: string } | null>(null);
   const [exclusionError, setExclusionError] = useState<string | null>(null);
-  const [focusOn, setFocusOn] = useState<{ on: "undo" | "restored"; count: number }>({ on: "undo", count: 0 });
+  /** Where focus goes once a change is drawn; `index` is the place in "What is suggested" a Suggest again had. */
+  const [focusOn, setFocusOn] = useState<{ on: "undo" | "restored" | "excluded"; index: number; count: number }>({ on: "undo", index: 0, count: 0 });
   const undoRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const restoredRef = useRef<HTMLParagraphElement>(null);
+  const choicesRef = useRef<HTMLDetailsElement>(null);
+  const excludedListRef = useRef<HTMLUListElement>(null);
   const messageId = useId();
 
   const exclude = (id: number, name: string, index: number) => {
@@ -59,7 +62,7 @@ export function Suggestions({ data, recommendations, exclusions, onSetExerciseEx
     setExcludedNow({ id, name, index });
     setRestored(null);
     setExclusionError(null);
-    setFocusOn((current) => ({ on: "undo", count: current.count + 1 }));
+    setFocusOn((current) => ({ on: "undo", index: 0, count: current.count + 1 }));
   };
   const undo = (item: { id: number; name: string }) => {
     const result = onSetExerciseExcluded(item.id, false);
@@ -67,14 +70,34 @@ export function Suggestions({ data, recommendations, exclusions, onSetExerciseEx
     setExcludedNow(null);
     setRestored({ id: item.id, name: item.name });
     setExclusionError(null);
-    setFocusOn((current) => ({ on: "restored", count: current.count + 1 }));
+    setFocusOn((current) => ({ on: "restored", index: 0, count: current.count + 1 }));
   };
-  // Once the change is drawn: the new Undo, or the restored exercise's Not for me (else the line saying it is back).
+  /** "Suggest again" in What is suggested: its row goes, so focus moves to the next one left (or the disclosure). */
+  const suggestAgain = (item: { id: number; name: string }, index: number) => {
+    const result = onSetExerciseExcluded(item.id, false);
+    if (!result.ok) { setExclusionError(result.reason); return; }
+    setRestored({ id: item.id, name: item.name });
+    setExclusionError(null);
+    setFocusOn((current) => ({ on: "excluded", index, count: current.count + 1 }));
+  };
+  const toggleEquipment = (item: string, off: boolean) => {
+    const result = onSetEquipmentExcluded(item, !off);
+    setExclusionError(result.ok ? null : result.reason);
+    // The list changes under it: a line about an earlier restore would now be out of place.
+    if (result.ok) setRestored(null);
+  };
+  // Once the change is drawn: the new Undo; after Undo, the restored exercise's Not for me (else
+  // the line saying it is back); after Suggest again, the next exercise left out, else the
+  // disclosure, else the restored exercise as after Undo. Never the page body.
   useEffect(() => {
     if (!focusOn.count) return;
+    const restoredTarget = () => listRef.current?.querySelector<HTMLButtonElement>(`[data-exclude="${restored?.id ?? ""}"]`) ?? restoredRef.current;
+    const left = () => Array.from(excludedListRef.current?.querySelectorAll<HTMLButtonElement>("button") ?? []);
     const target = focusOn.on === "undo"
       ? undoRef.current
-      : listRef.current?.querySelector<HTMLButtonElement>(`[data-exclude="${restored?.id ?? ""}"]`) ?? restoredRef.current;
+      : focusOn.on === "restored"
+        ? restoredTarget()
+        : left()[Math.min(focusOn.index, left().length - 1)] ?? choicesRef.current?.querySelector<HTMLElement>(":scope > summary") ?? restoredTarget();
     if (!target) return;
     target.focus({ preventScroll: true });
     revealClearOfBars(target);
@@ -122,15 +145,15 @@ export function Suggestions({ data, recommendations, exclusions, onSetExerciseEx
     {/* Brought back but no longer among the five shown: said, so focus has somewhere to land. */}
     {restored && !restoredShown && <p ref={restoredRef} className="spz-inline-status" role="status" tabIndex={-1}>{restored.name} is suggested again.</p>}
     {exclusionError && <p className="spz-error" role="alert">{exclusionError}</p>}
-    {(equipmentChoices.length > 0 || excludedExercises.length > 0) && <details className="spz-disclosure">
+    {(equipmentChoices.length > 0 || excludedExercises.length > 0) && <details ref={choicesRef} className="spz-disclosure">
       <summary><span><b>What is suggested</b><small>{exclusions.catalogExerciseIds.length + exclusions.equipment.length ? `${exclusions.catalogExerciseIds.length + exclusions.equipment.length} left out by you` : "Nothing left out"}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
       {equipmentChoices.length > 0 && <div className="spz-chips" role="group" aria-label="Equipment to leave out of suggestions">
         {equipmentChoices.map((item) => {
           const off = exclusions.equipment.includes(item);
-          return <button key={item} type="button" className="spz-chip" aria-pressed={off} onClick={() => { const result = onSetEquipmentExcluded(item, !off); setExclusionError(result.ok ? null : result.reason); }}><span>{item}</span><small>{off ? "Left out" : "Suggested"}</small></button>;
+          return <button key={item} type="button" className="spz-chip" aria-pressed={off} onClick={() => toggleEquipment(item, off)}><span>{item}</span><small>{off ? "Left out" : "Suggested"}</small></button>;
         })}
       </div>}
-      {excludedExercises.length > 0 && <ul className="spz-exercise-list">{excludedExercises.map((item) => <li key={item.id}><span><b>{item.name}</b><small>Not suggested</small></span><button type="button" className="spz-link" onClick={() => onSetExerciseExcluded(item.id, false)}>Suggest again</button></li>)}</ul>}
+      {excludedExercises.length > 0 && <ul ref={excludedListRef} className="spz-exercise-list">{excludedExercises.map((item, index) => <li key={item.id}><span><b>{item.name}</b><small>Not suggested</small></span><button type="button" className="spz-link" onClick={() => suggestAgain(item, index)}>Suggest again</button></li>)}</ul>}
     </details>}
     {recommendations && recommendations.kind !== "mapping_not_reviewed" && recommendations.alreadyCoveredBy.length > 0 && <div className="spz-covered">
       <p className="spz-note"><b>Already covered by</b></p>
