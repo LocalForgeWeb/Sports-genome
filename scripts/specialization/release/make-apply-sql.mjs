@@ -1,11 +1,18 @@
 /**
- * Writes the SQL that applies the atlas migrations to production, one Supabase `apply_migration`
- * call per file (docs/specialization-atlas/04-database.md §9, step 2). The seed is too large for
- * one tool argument, so each call fetches its file at a commit already pushed to GitHub, refuses
- * it unless the HTTP status is 200 and the SHA-256 of its text equals the repository file's, and
- * executes it, all in the call's one transaction: a failed fetch, a checksum mismatch or an error
- * in the file leaves the database as it was. The `http` extension is created for the call and
- * dropped at its end.
+ * Writes the SQL that applies the atlas migrations to production, one statement per file
+ * (docs/specialization-atlas/04-database.md §9, step 2). The seed is too large for one tool
+ * argument, so each statement fetches its file at a commit already pushed to GitHub, refuses it
+ * unless the HTTP status is 200 and the SHA-256 of its text equals the repository file's,
+ * executes it, and records it in `supabase_migrations.schema_migrations` under the file's own
+ * version and name, as `supabase migration repair` would: all in one DO block, so one
+ * transaction. A failed fetch, a checksum mismatch or an error in the file leaves the database
+ * as it was, history included. The `http` extension is created if missing; it is dropped
+ * afterwards in a statement of its own (`drop-http.sql`), because on Supabase a DROP EXTENSION
+ * in the same DO block did not return (18 Oct 2026: probes with it hung past 60 s, probes
+ * without it took about a second).
+ *
+ * Run each file's output with the Supabase MCP `execute_sql` (the MCP `apply_migration` did not
+ * return within its 60 s limit either; it ran the same SQL, DROP EXTENSION included).
  *
  *   node scripts/specialization/release/make-apply-sql.mjs <full commit sha> <output dir>
  */
@@ -25,28 +32,31 @@ mkdirSync(outDir, { recursive: true });
 for (const file of files) {
   const text = readFileSync(join(root, "supabase/migrations", file), "utf8");
   const digest = createHash("sha256").update(Buffer.from(text, "utf8")).digest("hex");
+  const [, version, name] = file.match(/^(\d{14})_(.+)\.sql$/);
   const url = `https://raw.githubusercontent.com/LocalForgeWeb/Sports-genome/${sha}/supabase/migrations/${file}`;
-  // `set local`: behind a long-running write the call fails and can be run again, rather than
-  // holding sign-ins in a queue behind its locks; it ends with the call's transaction.
-  const sql = `set local lock_timeout = '5s';
-create extension if not exists http with schema extensions;
-do $apply$
+  // The lock timeout is transaction-local: behind a long-running write the statement fails within
+  // seconds and can be run again, rather than holding sign-ins in a queue behind its locks. The
+  // fetch has its own limit. `record` variables, because the http types do not exist until the
+  // extension is created inside the block.
+  const sql = `do $apply$
 declare
-  response extensions.http_response;
-  body text;
+  response record;
 begin
-  response := extensions.http_get('${url}');
+  perform set_config('lock_timeout', '5000', true);
+  create extension if not exists http with schema extensions;
+  perform extensions.http_set_curlopt('CURLOPT_TIMEOUT', '30');
+  select status, content into response from extensions.http_get('${url}');
   if response.status <> 200 then raise exception 'Could not fetch ${file} at ${sha.slice(0, 12)}: HTTP %', response.status; end if;
-  body := response.content;
-  if encode(sha256(convert_to(body, 'UTF8')), 'hex') <> '${digest}' then
-    raise exception 'Checksum mismatch for ${file}: got %', encode(sha256(convert_to(body, 'UTF8')), 'hex');
+  if encode(sha256(convert_to(response.content, 'UTF8')), 'hex') <> '${digest}' then
+    raise exception 'Checksum mismatch for ${file}: got %', encode(sha256(convert_to(response.content, 'UTF8')), 'hex');
   end if;
-  execute body;
+  execute response.content;
+  insert into supabase_migrations.schema_migrations (version, name, statements) values ('${version}', '${name}', array[response.content]);
 end
 $apply$;
-drop extension http;
 `;
   const out = join(outDir, file.replace(/\.sql$/, ".apply.sql"));
   writeFileSync(out, sql);
   console.log(`${file}: ${text.length} characters, sha256 ${digest} -> ${out}`);
 }
+writeFileSync(join(outDir, "drop-http.sql"), "drop extension if exists http;\n");
