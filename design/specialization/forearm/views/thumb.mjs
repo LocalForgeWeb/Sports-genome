@@ -17,11 +17,10 @@
  *   longus crossing to the thumb, brachialis in the stub; humerus, radius and the point of
  *   the ulna as bone; the radial muscles as ghosts.
  */
-import { band, bandPoints, clipBelow, closed, open, rowsShape, tendon } from "../geometry.mjs";
-import { CROP_TOP, thumbEdge, thumbSilhouette } from "../silhouettes.mjs";
+import { C, INSET, band, bandPoints, clipBelow, closed, ghostOf, labels, open, rowsShape, tendon } from "../../shared/geometry.mjs";
+import { CANVAS, CROP_TOP } from "../config.mjs";
+import { thumbEdge, thumbSilhouette } from "../silhouettes.mjs";
 
-const C = "corner";
-const INSET = 3;
 const backIn = (y) => thumbEdge("back", y) + INSET;
 const palmIn = (y) => thumbEdge("palm", y) - INSET;
 
@@ -166,7 +165,6 @@ export function thumbView() {
     { node: "Brachialis", d: tendon([[206, 100], [213, 120], [216, 136]], 9, 8) },
   ];
 
-  const ghostOf = (d, short) => ({ kind: "ghost", node: short, d });
   const deep = [
     skin,
     { kind: "bone", structure: "humerus", d: humerus },
@@ -182,12 +180,7 @@ export function thumbView() {
     ...deepTendons.map(({ node, d }) => ({ kind: "tendon", node, d })),
   ];
 
-  const labels = [
-    { text: "Back side", x: 10, y: 470, anchor: "start" },
-    { text: "Palm side", x: 350, y: 470, anchor: "end" },
-    { text: "Elbow", x: 10, y: 120, anchor: "start" },
-    { text: "Wrist", x: 10, y: 604, anchor: "start" },
-  ];
+  const words = labels(CANVAS.width, [["Back side", "left", 470], ["Palm side", "right", 470], ["Elbow", "left", 120], ["Wrist", "left", 604]]);
 
-  return { surface: { paths: surface, labels }, deep: { paths: deep, labels } };
+  return { surface: { paths: surface, labels: words }, deep: { paths: deep, labels: words } };
 }

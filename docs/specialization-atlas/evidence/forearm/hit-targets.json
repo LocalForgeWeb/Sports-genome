@@ -1,0 +1,374 @@
+{
+  "note": "Headless Chromium emulating a phone (viewport, isMobile, hasTouch, deviceScaleFactor 3): not an iPhone, not Safari. Each figure on an evidence card; the square is the largest one of screen whose every point, read with elementFromPoint every 1.5 px, selects that muscle.",
+  "gatePx": 44,
+  "widths": {
+    "375": {
+      "viewport": {
+        "width": 375,
+        "height": 667
+      },
+      "smallest": 45,
+      "figures": {
+        "palm-surface-right": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.br": 60,
+            "upper_arm.biceps": 59,
+            "forearm.pt": 45,
+            "forearm.fcu": 45,
+            "forearm.pl": 45,
+            "forearm.fcr": 47
+          }
+        },
+        "palm-surface-left": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.biceps": 59,
+            "forearm.br": 60,
+            "forearm.pt": 45,
+            "forearm.fcu": 45,
+            "forearm.pl": 45,
+            "forearm.fcr": 47
+          }
+        },
+        "palm-intermediate-right": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.fds": 119
+          }
+        },
+        "palm-intermediate-left": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.fds": 119
+          }
+        },
+        "palm-deep-right": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.brachialis": 69,
+            "forearm.supinator": 59,
+            "forearm.fdp": 87,
+            "forearm.fpl": 45,
+            "forearm.pq": 62
+          }
+        },
+        "palm-deep-left": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.brachialis": 69,
+            "forearm.supinator": 59,
+            "forearm.fdp": 87,
+            "forearm.fpl": 45,
+            "forearm.pq": 62
+          }
+        },
+        "back-surface-right": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.br": 45,
+            "forearm.ecrl": 45,
+            "forearm.anconeus": 45,
+            "forearm.fcu": 51,
+            "forearm.edm": 45,
+            "forearm.ecu": 45,
+            "forearm.ed": 45,
+            "forearm.ecrb": 45,
+            "forearm.apl": 45,
+            "forearm.epb": 45
+          }
+        },
+        "back-surface-left": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.br": 45,
+            "forearm.ecrl": 45,
+            "forearm.anconeus": 45,
+            "forearm.fcu": 51,
+            "forearm.edm": 45,
+            "forearm.ecrb": 45,
+            "forearm.ed": 45,
+            "forearm.ecu": 45,
+            "forearm.apl": 45,
+            "forearm.epb": 45
+          }
+        },
+        "back-deep-right": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.supinator": 71,
+            "forearm.apl": 45,
+            "forearm.epl": 45,
+            "forearm.epb": 45,
+            "forearm.ei": 45
+          }
+        },
+        "back-deep-left": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.supinator": 71,
+            "forearm.apl": 45,
+            "forearm.epl": 45,
+            "forearm.epb": 45,
+            "forearm.ei": 45
+          }
+        },
+        "thumb-surface-right": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.br": 57,
+            "upper_arm.biceps": 45,
+            "forearm.ecrl": 45,
+            "forearm.anconeus": 47,
+            "forearm.ecrb": 45,
+            "forearm.ed": 45,
+            "forearm.fcr": 45,
+            "forearm.apl": 47,
+            "forearm.epb": 45
+          }
+        },
+        "thumb-surface-left": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.biceps": 45,
+            "forearm.br": 57,
+            "forearm.ecrl": 45,
+            "forearm.anconeus": 47,
+            "forearm.ecrb": 45,
+            "forearm.ed": 45,
+            "forearm.fcr": 45,
+            "forearm.apl": 47,
+            "forearm.epb": 45
+          }
+        },
+        "thumb-deep-right": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.brachialis": 65,
+            "forearm.supinator": 59,
+            "forearm.fpl": 47,
+            "forearm.apl": 45,
+            "forearm.epl": 45,
+            "forearm.epb": 45
+          }
+        },
+        "thumb-deep-left": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.brachialis": 65,
+            "forearm.supinator": 59,
+            "forearm.fpl": 47,
+            "forearm.apl": 45,
+            "forearm.epl": 45,
+            "forearm.epb": 45
+          }
+        },
+        "fills-at-rest": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.br": 60,
+            "upper_arm.biceps": 59,
+            "forearm.pt": 45,
+            "forearm.fcu": 45,
+            "forearm.pl": 45,
+            "forearm.fcr": 47
+          }
+        },
+        "not-on-layer": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.brachialis": 69,
+            "forearm.supinator": 59,
+            "forearm.fdp": 87,
+            "forearm.fpl": 45,
+            "forearm.pq": 62
+          }
+        }
+      }
+    },
+    "390": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "smallest": 47,
+      "figures": {
+        "palm-surface-right": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.br": 63,
+            "upper_arm.biceps": 60,
+            "forearm.pt": 48,
+            "forearm.fcu": 48,
+            "forearm.pl": 48,
+            "forearm.fcr": 47
+          }
+        },
+        "palm-surface-left": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.biceps": 60,
+            "forearm.br": 63,
+            "forearm.pt": 48,
+            "forearm.fcu": 48,
+            "forearm.pl": 48,
+            "forearm.fcr": 47
+          }
+        },
+        "palm-intermediate-right": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.fds": 125
+          }
+        },
+        "palm-intermediate-left": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.fds": 125
+          }
+        },
+        "palm-deep-right": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.brachialis": 72,
+            "forearm.supinator": 62,
+            "forearm.fdp": 92,
+            "forearm.fpl": 48,
+            "forearm.pq": 65
+          }
+        },
+        "palm-deep-left": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.brachialis": 72,
+            "forearm.supinator": 62,
+            "forearm.fdp": 92,
+            "forearm.fpl": 48,
+            "forearm.pq": 65
+          }
+        },
+        "back-surface-right": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.br": 48,
+            "forearm.ecrl": 48,
+            "forearm.anconeus": 47,
+            "forearm.fcu": 54,
+            "forearm.edm": 47,
+            "forearm.ecu": 48,
+            "forearm.ed": 48,
+            "forearm.ecrb": 48,
+            "forearm.apl": 47,
+            "forearm.epb": 48
+          }
+        },
+        "back-surface-left": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.br": 48,
+            "forearm.ecrl": 48,
+            "forearm.anconeus": 47,
+            "forearm.fcu": 54,
+            "forearm.edm": 47,
+            "forearm.ecrb": 48,
+            "forearm.ed": 48,
+            "forearm.ecu": 48,
+            "forearm.apl": 47,
+            "forearm.epb": 48
+          }
+        },
+        "back-deep-right": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.supinator": 75,
+            "forearm.apl": 48,
+            "forearm.epl": 48,
+            "forearm.epb": 48,
+            "forearm.ei": 47
+          }
+        },
+        "back-deep-left": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.supinator": 75,
+            "forearm.apl": 48,
+            "forearm.epl": 48,
+            "forearm.epb": 48,
+            "forearm.ei": 47
+          }
+        },
+        "thumb-surface-right": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.br": 59,
+            "upper_arm.biceps": 48,
+            "forearm.ecrl": 48,
+            "forearm.anconeus": 48,
+            "forearm.ecrb": 48,
+            "forearm.ed": 47,
+            "forearm.fcr": 48,
+            "forearm.apl": 48,
+            "forearm.epb": 48
+          }
+        },
+        "thumb-surface-left": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.biceps": 48,
+            "forearm.br": 59,
+            "forearm.ecrl": 48,
+            "forearm.anconeus": 48,
+            "forearm.ecrb": 48,
+            "forearm.ed": 47,
+            "forearm.fcr": 48,
+            "forearm.apl": 48,
+            "forearm.epb": 48
+          }
+        },
+        "thumb-deep-right": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.brachialis": 68,
+            "forearm.supinator": 62,
+            "forearm.fpl": 48,
+            "forearm.apl": 48,
+            "forearm.epl": 48,
+            "forearm.epb": 48
+          }
+        },
+        "thumb-deep-left": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.brachialis": 68,
+            "forearm.supinator": 62,
+            "forearm.fpl": 48,
+            "forearm.apl": 48,
+            "forearm.epl": 48,
+            "forearm.epb": 48
+          }
+        },
+        "fills-at-rest": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.br": 63,
+            "upper_arm.biceps": 60,
+            "forearm.pt": 48,
+            "forearm.fcu": 48,
+            "forearm.pl": 48,
+            "forearm.fcr": 47
+          }
+        },
+        "not-on-layer": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.brachialis": 72,
+            "forearm.supinator": 62,
+            "forearm.fdp": 92,
+            "forearm.fpl": 48,
+            "forearm.pq": 65
+          }
+        }
+      }
+    }
+  }
+}
