@@ -1,0 +1,1140 @@
+[
+ {
+  "area": "Shared data model and calculator (shared/specialization/*.ts, regions/forearm/*.ts, client/src/lib/specialization/*.ts), with the seed and schema rules that constrain that model. I read the repository only. All writes went to /tmp/claude-0/-home-user-Sports-genome/1ff0a7bc-72e5-5e41-a8d9-937a97929500/scratchpad/multi-region/.",
+  "assumptions": [
+   {
+    "location": "shared/specialization/types.ts:30, 74-79 (AnatomyNode.regionId + role); regions/forearm/nodes.ts:266-283; schema 20261016120000:864-897 guard_published_node; emit-seed.ts:312 + 202-212 mergeByKey",
+    "assumes": "A node stores one region and one role, and 'external' is stored on the node. upper_arm.biceps and upper_arm.brachialis are stored with region upper_arm and role external. The seed merges nodes by id and requires the content to be identical in every region that lists them.",
+    "breaks": "The upper arm needs biceps and brachialis as targets. The forearm must keep them as external. In production, region, role and catalog key are frozen: 53 published forearm_mappings_v1 rows map these two nodes. I verified that the seed refuses the change: 'Node upper_arm.biceps differs between forearm and upper_arm'. If the frozen node is kept as it is, the upper-arm page lists biceps under the external heading of its own region (SpecializationPanel.tsx:294-296), TargetsOverview.tsx:19 offers no target for it, and regionCatalogKeys comes out empty (exposure.ts:111). With 9 regions, every muscle that crosses a joint into another region hits the same problem: rectus femoris, the long hamstring heads, gastrocnemius, the long heads of biceps and triceps, lats, pec major.",
+    "change": "Make role a property of the listing, not the node: roleIn(region, node) = node.regionId === region.id ? node.role (target/adjacent/group) : 'external'. TS: AnatomyNode.role becomes the role in the home region, and the upper_arm nodes become 'target'. DB v2: a new table region_nodes(region_id, node_id, role, sort_order) that readers use. nodes.role stays as a legacy column, and upper_arm.* keep 'external' there for good; seed v2 must not try to update it. Replace the reads of node.role at exposure.ts:111, recommendations.ts:521 and 617, SpecializationPanel.tsx:294-296, TargetsOverview.tsx:19, model.ts:278 and forearmMappings.test.ts:91-93."
+   },
+   {
+    "location": "shared/specialization/exposure.ts:63, 86-88 (regionNodeIds = nodes whose regionId is this region)",
+    "assumes": "A region's own muscles are the nodes whose home region it is. Each node has exactly one home region.",
+    "breaks": "Nothing breaks on its own. It does force a choice for muscles that two proposed regions both claim: rear delts (shoulders vs upperBack in back), traps, adductor magnus (hips vs thigh), rectus femoris (quads vs hipFlexors). Only one region can count such a muscle's work toward its total.",
+    "change": "Keep the rule. Write down 'one home region per node' and add a registry test: each node is a target in at most one production region, and each catalog key belongs to at most one region."
+   },
+   {
+    "location": "exposure.ts:109-113 (regionCatalogKeys), 151-155 (region_only reads primary AND secondary tags); types.ts:88 (one catalogMuscleKey per node)",
+    "assumes": "Region work is defined by the catalog keys of the target nodes, read from both primary and secondary tags. This works for the forearm only because every forearm target carries 'forearms'.",
+    "breaks": "(a) Broad keys that name no single muscle never count: catalog 'shoulders' (7 primary, 12 secondary), 'feet' (9 secondary) and 'serratusAnterior' (2 primary). (b) Secondary tags flood the region-only bucket. Core has 189 exercises tagged only as secondary, upper arm 146, shoulders 141. I verified that 161 Back Squat, 163 Front Squat, 1 Bench, 101 OHP and 41 Deadlift all land in a core region's region-only bucket.",
+    "change": "Add an explicit SpecializationRegion.catalogKeys, which may include broad keys, and regionOnlyTagScope: 'any' | 'primary'. Default it to 'any' so the forearm behaves as today; use 'primary' for core, shoulders and upper arm. Alternatively, each region keeps an unmappedTagged list as the forearm does (#29)."
+   },
+   {
+    "location": "types.ts:171-193 (ExerciseVariant fields forearmOrientation, wristPosition, gripType, straps, elbowAngleDeg); types.ts:159-164; schema 259-276 (NOT NULL columns); regions/forearm/variants.ts:4-31",
+    "assumes": "A variant's execution is described by forearm dimensions. The calculator reads none of them: only id, catalogExerciseId, laterality, measure and deliberateHold. Grep shows the forearm dimensions are read only by emit-seed.ts:584 and the fixtures.",
+    "breaks": "Chest, leg and core variants have to fill forearm columns with 'unknown'. They also cannot record the dimensions their mappings depend on: incline angle; squat depth and stance; knee straight or bent on a calf raise (gastrocnemius vs soleus); hip angle for the hamstrings; position of the trunk and of the load.",
+    "change": "Keep the forearm columns, because the 119 rows are frozen. Add a generic nullable dims record in TS (Partial<Record<VariantDimension, string | number>>), and in DB v2 a jsonb column or a variant_dimensions child table with a vocabulary per dimension. Never update the existing rows."
+   },
+   {
+    "location": "types.ts:165-166 (Laterality is defined for arms); regions/forearm/variants.ts:13-17, 188, 194, 125, 192",
+    "assumes": "laterality says whether both ARMS work in every set. There is one laterality per variant.",
+    "breaks": "Legs: cat-188 Single-Leg RDL and cat-264 are 'either' (one implement or two), yet every set uses one leg. cat-205 B-Stance is 'bilateral'. Split squats, lunges and step-ups (173-180, 356-359, 371-373) have no variant yet. Trunk: cat-409 Suitcase Carry is 'unilateral' for the hand, but the legs are bilateral and the obliques and QL loaded are on the other side. The rows are frozen (guard_published_variant, schema 791-822). I verified that the seed refuses a thigh region's own cat-188: 'Variant cat-188 differs between forearm and thigh'. Catalog qualities cannot fill the gap: 70 leg-primary rows carry 'unilateral', including 161 Back Squat and 169 Leg Press.",
+    "change": "Add new nullable fields legLaterality and sidedBy: 'arm' | 'leg' | null. sidedBy says which limb the logged side refers to. 'laterality' stays as the arm laterality. Where a frozen variant needs a different reading, publish a new variant key (see #6) rather than updating the row."
+   },
+   {
+    "location": "ids.ts:82 variantIdFor; exposure.ts:89-96 and bouts.ts:47-59 (prefer cat-<id>); loggingPolicy.ts:52-54, 76 (variants.find takes the first match in region order)",
+    "assumes": "Each catalog id has one canonical variant, cat-<id>. Variants are declared in per-region files but are global records (DB primary key variant_key at schema 260; seed merge at emit-seed.ts:323). The logger and the calculator use different tie-breaks.",
+    "breaks": "A region cannot have its own reading of an exercise. A replacement key such as cat-188.v2 loses to cat-188 in exposure and bouts, but in the logger it wins or loses depending on region order. I verified loggingPolicyFor(188): forearm first gives oneArm false, sideDefault 'both', strapsSensitive true; thigh first gives oneArm true, sideDefault null, strapsSensitive false.",
+    "change": "Create one shared variant library (shared/specialization/variants/) keyed by catalog id; regions reference variant ids. Add one resolver, variantFor(catalogId), used by exposure, bouts, planBouts, progressSeries, loggingPolicy and the holdCatalogIds test. Add an optional 'replaces' field so a replacement variant beats a frozen one."
+   },
+   {
+    "location": "loggingPolicy.ts:23-47, 70-88; loggingRegions.ts:18; DeviceWorkoutTracker.tsx:350, 380 (perArm from oneArm), 1375 (label 'Arm')",
+    "assumes": "One policy per catalog id, read from one variant. A side means an arm (askSide, oneArm). Exercises the forearm does not map get the old logger with no side question.",
+    "breaks": "Single-leg work the forearm does not map (173 Bulgarian split squat and others) never asks for a side, so all of its history has an unknown side and is credited to neither leg. Once the legs are mapped, the tracker labels the question 'Arm' and lays sets out per arm.",
+    "change": "Merge the policy across every production region's variant for the id. measure must agree, and a test enforces it. askSide is true when the arm or the leg laterality is sided. Add sideLimb (from sidedBy) for the label 'Arm' or 'Leg'. Rename oneArm to oneSide. strapsSensitive is true if any region's mapping has requiresNoStraps."
+   },
+   {
+    "location": "types.ts:345, 373 (one BoutSide per bout); bouts.ts:87-93 sideOf; planBouts.ts:80-84 plannedSide; exposure.ts:341 onArm, 375-377",
+    "assumes": "A set has one side. The adapter resolves it once from the region's variant, and every mapping of that bout credits the same side.",
+    "breaks": "A set can load a different side of a different limb: a single-leg RDL with the dumbbell in the opposite hand, or a suitcase carry where the left hand loads the right obliques and QL. I verified that a suitcase carry logged left credits only the LEFT oblique. With thigh's cat-188, one set logged 'both' (the logger's default inherited from the forearm's 'either') gives the hamstrings 1 direct bout on each leg, and a set with no side counts for neither leg.",
+    "change": "Each bout keeps the recorded side and its limb (sidedBy). Add an optional VariantMapping.sideRelation: 'same' | 'opposite' | 'both' (default 'same'). Before onArm, the calculator converts the bout side into the node's side per mapping. In a leg region, an arm-sided bout of a leg-bilateral variant is structurally bilateral."
+   },
+   {
+    "location": "types.ts:390, 398, 427, 562, 595 (ArmSide everywhere); exposure.ts:341, 375-377, 485, 492; goals.ts:62, 84-92; stores.ts:66, 145; viewState.ts:19, 46, 68; schema 344 (goals.side) and 377 (measurements.side) check left/right",
+    "assumes": "Every region has a left and a right, and that side is an arm.",
+    "breaks": "Trunk regions. I verified that a bilateral decline sit-up counts once on 'left' and once on 'right', so two identical summaries appear. 'Both arms' saves two goals. A side plank logged with a side appears on one 'arm' only, and one with no side recorded counts for neither. A waist measurement cannot be stored without a side. Legs work mechanically but every word says arm.",
+    "change": "Add SpecializationRegion.sideModel: 'paired_arm' | 'paired_leg' | 'midline'. Introduce Side = 'left' | 'right' and SummarySide = Side | 'midline'. In a midline region, summarize once and count every recorded or unknown side. Goals and measurements accept side 'midline', with the DB checks widened in a new migration. The limb word comes from the region. Owner decision: core as midline (obliques not split by side) or as a paired trunk using sideRelation."
+   },
+   {
+    "location": "rules.ts:10-44 (specialization_exposure_v1 text), 77 (label 'Incidental grip / stabilization'); exposure.ts:440; useSpecializationSummary.ts:8, 134; SpecializationPanel.tsx:575-580; model.ts:161-163 -> MuscleSheet.tsx:134; schema 750-769 (rule immutable)",
+    "assumes": "There is one published rule, and its words are grip, straps and arm: 'hangs, carries, pinches', 'gripping a bar during a row', 'counts once for each arm (3 sets are 3 per arm, not 6)', 'Grip credit that needs a bare hand', 'Incidental grip is never counted as dynamic work', and a region total 'on that arm'.",
+    "breaks": "Eight regions would show grip and arm wording, and the ledger on every region says 'Incidental grip / stabilization'. A midline region counting once and not per side is a change to the rule itself, not only to its wording.",
+    "change": "Publish specialization_exposure_v2 with limb-neutral text plus midline and side-relation clauses; categoryFor is unchanged. Add region.ruleVersionId, pass the rule in the request, and set summary.ruleVersion from it. The category label takes the region's wording.incidentalWork. v1 stays as history for the forearm."
+   },
+   {
+    "location": "types.ts:330-341 (one mappingVersion per region), 564; exposure.ts:97 (filter to that version); useSpecializationSummary.ts:44, 135",
+    "assumes": "A page reads one mapping version, and that version also holds the region's credits for external muscles.",
+    "breaks": "The forearm's 53 external rows (27 biceps, 26 brachialis, on 27 variants) live in forearm_mappings_v1, while upper_arm_mappings_v1 will map the same pairs. The two can disagree; for example, the hammer curl credits biceps as 'contributing' on the forearm page. The same muscle and set would then show different numbers on two pages.",
+    "change": "Smallest: each page keeps reading its own version, plus a consistency test. For every (variant, external node, action) that region A maps and the node's home region B also maps, relationship, mode, allocation and requiresNoStraps must agree. Later, optionally, SpecializationRegionData can carry the home regions' versions for external rows."
+   },
+   {
+    "location": "regions/forearm/claims.ts:41-47 (claim id drops the region); nodeActions.ts:22-27; emit-seed.ts:287-290 (a node action's claim must be in the same region's data), 328-333 (claim key = listing region:id; node actions merged by node+action including claimKey)",
+    "assumes": "A node's claims belong to the region that lists it.",
+    "breaks": "Production already has forearm:biceps.function, forearm:biceps.appearance, forearm:brachialis.function and forearm:brachialis.appearance. The node actions (biceps for elbow.flexion and forearm.supination; brachialis for elbow.flexion) rest on those claims and are frozen. I verified that an upper_arm region relisting them fails: 'Node action upper_arm.biceps elbow.flexion differs between forearm and upper_arm'. Listing the claims under its own key would give the node a second function claim, upper_arm:biceps.function. Listing the node without claims seeds fine, but the muscle sheet then shows no actions (MuscleSheet.tsx:65 reads data.nodeActions).",
+    "change": "Give each claim an owner. Claim key = ownerRegionId:id, where the owner defaults to the listing region, and the four upper-arm claims stay pinned to 'forearm'. A region may cite node actions and claims owned elsewhere. The registry composes each region's data from the node owners' claims and node actions."
+   },
+   {
+    "location": "ids.ts:7-8, 48-51 (externalContributorIds), 53-74 (forearmActionIds holds generic joints such as elbow.flexion and elbow.extension), 78 (FOREARM_MAPPING_VERSION); emit-seed.ts:313 (actions merged by identical content)",
+    "assumes": "The forearm owns the id constants, including joint actions every arm region shares.",
+    "breaks": "Eight regions redefining elbow, shoulder, hip and knee actions will drift apart. I verified that a reworded elbow.flexion fails: 'Action elbow.flexion differs between forearm and thigh'.",
+    "change": "A shared action library (shared/specialization/actions.ts) with one definition per joint action. Id constants per region. Region data references actions by id."
+   },
+   {
+    "location": "regions/forearm/sources.ts:22, mappingSources.ts:13 (ids S1, M1...); index.ts:19; schema 140 (source_key unique across all regions); emit-seed.ts:322",
+    "assumes": "Short source ids that only the forearm uses.",
+    "breaks": "Eight regions numbering S1, S2... collide, or merge into the wrong source.",
+    "change": "Namespace source ids per region (shoulders.S1) or use a shared source library, and add a registry-wide uniqueness test."
+   },
+   {
+    "location": "types.ts:61-72 (RegionWording); regions/forearm/region.ts:13-18",
+    "assumes": "One heading for external muscles ('Upper-arm muscles credited here'), one incidental word ('grip'), and a Progress subtitle 'by arm'.",
+    "breaks": "The shoulders page would credit chest, upper-arm and back muscles under a single heading. Leg pages read 'by arm'.",
+    "change": "Group external rows by the home region's label (from regionIndex) and keep externalGroup as a fallback. progressSubtitle wording follows sideModel."
+   },
+   {
+    "location": "types.ts:33, 91 (ForearmBorder: radial/ulnar/central/both); schema 129",
+    "assumes": "Edges are described as thumb side and pinky side.",
+    "breaks": "Legs and upper arm need medial and lateral (vastus medialis and lateralis, the gastrocnemius heads). Only the seed reads the field, so the risk is low.",
+    "change": "Leave it null outside the forearm, or widen it to a Border type with medial, lateral, anterior and posterior through a v2 migration."
+   },
+   {
+    "location": "types.ts:410, 416 (MeasurementMetric; arm postures); stores.ts:120-121, 147; progressSeries.ts:45-64, 454-463; schema 98, 379, 397-398",
+    "assumes": "Measures are circumference or grip force, taken in arm postures (arm_relaxed_hanging, arm_extended_supported, elbow_90_supported).",
+    "breaks": "Thigh, calf and chest circumference need standing postures. Waist is midline. There is no strength or performance measure beyond grip.",
+    "change": "Add postures such as standing_relaxed, standing_contracted, seated and lying in TS and in a v2 migration that widens the checks. Allow a midline side. Each region lists its own landmarks."
+   },
+   {
+    "location": "goals.ts:47-49, 56-82; stores.ts:58-86; exposure.ts:485, 496-503; schema 338-370",
+    "assumes": "A goal names a region and a node or action, and nothing checks that the node is that region's target.",
+    "breaks": "A muscle that is external in several regions could be given goals under any of them. Movement goals depend on the region: the same elbow.flexion counts brachioradialis and pronator teres on the forearm page, but biceps and brachialis on the upper-arm page.",
+    "change": "validateGoal takes the region's target ids and refuses node goals outside them. Movement-goal labels name the region ('Elbow flexion, forearm muscles')."
+   },
+   {
+    "location": "client/src/pages/Home.tsx:570 (askStraps and perArmSets = any active goal in any region); stores.ts:114-116 (hasActiveGoalForRegion is unused)",
+    "assumes": "The forearm is the only region with targets.",
+    "breaks": "A calf target switches on straps questions for deadlifts and per-arm rows for one-arm rows.",
+    "change": "Gate per exercise: only when an active goal sits in a region that maps the exercise, using strapsSensitive and the side limb from that region."
+   },
+   {
+    "location": "recommendations.ts:173-176, 315, 419-420, 509-524 (also-loads and candidates come from one region's mappings)",
+    "assumes": "Everything an exercise loads is mapped in the current region.",
+    "breaks": "A Bench Press suggested for the front delts would list only what the shoulder region maps; chest and triceps work would be missing.",
+    "change": "Build also-loads from the whole registry, keeping the consistency test from #11, or require each region to list every cross-region contributor as external."
+   },
+   {
+    "location": "recommendations.ts:193-213 armTrails, 434, 443, 459, 467, 484-487 ('no arm recorded'), 560 ('Done one arm at a time')",
+    "assumes": "The side behind is an arm, read from variant.laterality.",
+    "breaks": "Legs need the leg laterality. Midline regions have no trailing side.",
+    "change": "Read the limb laterality through the side model (#8, #9) and take words from the region's limb word. Skip the trailing-side logic for midline regions."
+   },
+   {
+    "location": "viewState.ts:16-19, 37, 45-47, 68 (limb: ArmSide, default 'right')",
+    "assumes": "Every page has a limb.",
+    "breaks": "Midline regions have none.",
+    "change": "Make it limb: Side | null, null for midline, and omit the URL param in that case."
+   },
+   {
+    "location": "useSpecializationSummary.ts:56 (CACHE_LIMIT 24), 194 (variants from the region)",
+    "assumes": "Only one region is computed at a time.",
+    "breaks": "A whole-body overview would need 9 regions x 2 sides x windows and modes, which evicts every entry from a 24-slot cache.",
+    "change": "Cache per region or raise the limit. For an overview, classify each bout once and fan out to the regions."
+   },
+   {
+    "location": "regionIndex.ts:8-9 (comment says a test keeps it in step), 11, 13 (default region is forearm), 16-19 (first matching body-map key wins)",
+    "assumes": "There is one region, and the comment says a test checks the lists agree.",
+    "breaks": "No test imports regionIndex.ts (grep finds none). A region present in registry.ts but missing from the index would pass. Overlapping body-map keys silently go to the first region. Body-map-only keys tfl, soleus, peroneals, rhomboids and serratusAnterior (AnatomyMap.tsx:45-57) and the catalog keys shoulders and feet are in no proposed region.",
+    "change": "Add tests: index ids equal registry ids in the same order; body-map keys do not overlap between regions; each nodeForBodyMapKey value is a target of its region. Assign the missing keys to regions."
+   },
+   {
+    "location": "loggingRegions.ts:18; loggingRegions.test.ts:58-66, 74-80 (the heavy-import regex hard-codes regions/forearm and checks only forearm's logging.ts)",
+    "assumes": "There is only one regions/<id>/logging.ts.",
+    "breaks": "A new region's logging.ts that imports index.ts or the drawing would still pass the check.",
+    "change": "Glob shared/specialization/regions/*/logging.ts and use a region-generic regex."
+   },
+   {
+    "location": "holdCatalogIds.ts:16-19; holdCatalogIds.test.ts:16-29 (find(Boolean) uses the first region's variant)",
+    "assumes": "The list of holds is the forearm's nine.",
+    "breaks": "Core and hip holds are measured in reps today: 217 Copenhagen Plank, 235 L-Sit, 245 Hollow-Body Hold, 246 RKC Plank, 247 Side Plank, 248 Weighted Plank. Nothing else in client/src/lib times them. Moving them to seconds changes logging, and existing reps history stays reps (README:142). Reading the first region's variant would hide a disagreement between regions on measure.",
+    "change": "Test that every production region agrees on measure for each catalog id. Add the new holds deliberately, after the owner decides what happens to existing reps history."
+   },
+   {
+    "location": "client/src/lib/specialization/regionAgnostic.test.ts:112, 115-125",
+    "assumes": "The words to keep out of region-agnostic code are the forearm and deltoid words.",
+    "breaks": "Words such as chest, glute, quad, hamstring, calf, lat, oblique or abdominis could be hard-coded into the calculator, adapters or page and nothing would fail.",
+    "change": "Build the regex from the registry (region ids and labels, node names, short names and aliases of 4 or more characters) plus the fixed list."
+   },
+   {
+    "location": "forearmMappings.test.ts:91-93 (external nodes must be biceps or brachialis); forearmAnatomy.test.ts:290-300",
+    "assumes": "The only external muscles are biceps and brachialis, and the body-map key rules are checked for the forearm only.",
+    "breaks": "Every new region adds external muscles, and these tests would refuse them or never check them.",
+    "change": "Write generic content tests that run over every registry region, and keep the per-region tests for region-specific facts."
+   },
+   {
+    "location": "regions/forearm/variants.ts:207-252 (regionOnlyExercises, unmappedForearmTaggedExercises)",
+    "assumes": "The list of 'tagged but deliberately unmapped' exercises is a forearm export, outside SpecializationRegionData.",
+    "breaks": "Each new region needs the same list, and there is no generic place to keep it or test it.",
+    "change": "Add SpecializationRegionData.unmappedTagged?: UnmappedExercise[], plus one generic test: every catalog row whose primary tag is a region key has a reviewed mapping or a listed reason."
+   },
+   {
+    "location": "types.ts:42 (status 'production' | 'fixture'); emit-seed.ts:70-72 (referenceRegionLabels has upper_arm); schema 86; seed_v1:24-28",
+    "assumes": "Reference regions exist only in the seed script. TS cannot express them.",
+    "breaks": "Promoting upper_arm works: the regions table has no guard, and the seed upsert can move the row from reference to production. upper_arm must also be removed from referenceRegionLabels, and any future reference-only region still cannot be expressed in TS.",
+    "change": "Add 'reference' to the TS status type, and make the promotion an explicit step in seed v2."
+   },
+   {
+    "location": "regions/forearm/mappings.ts:94-97 (mapping id = cat-<id>:<nodeId>); schema 309 (unique per version)",
+    "assumes": "Mapping ids are unique within one region's version.",
+    "breaks": "Two regions' versions will both contain cat-121:upper_arm.biceps. The calculator is fine, but any map keyed by mapping id across regions (a multi-region ledger, also-loads) would collide.",
+    "change": "Wherever two regions' mappings meet, key by versionKey/id."
+   },
+   {
+    "location": "exposure.ts:130, 151-155, 419-425",
+    "assumes": "A variant that has any mappings in the region is 'mapped', even when every mapping credits an external muscle.",
+    "breaks": "For such a variant, the region-tagged work reaches neither the region total nor the region-only bucket. No forearm variant is like this today, but it becomes likely with 9 regions.",
+    "change": "Classify the bout as region_only when none of its mappings credits a node of this region and the catalog tags it with the region's keys. Add a test."
+   },
+   {
+    "location": "types.ts:309-312 (drawn as the RIGHT arm; the left is the mirror)",
+    "assumes": "A drawing shows one limb, and mirroring it gives the other side.",
+    "breaks": "Core and chest drawings show the whole torso, so mirroring does nothing useful or gets it wrong.",
+    "change": "Add DiagramAsset.sides: 'right_mirrored' | 'whole', following sideModel."
+   },
+   {
+    "location": "types.ts:187-189 (measure and deliberateHold are global per variant); rules.ts:60",
+    "assumes": "Whether a set is a deliberate hold, and whether it is counted in seconds, is one choice per exercise.",
+    "breaks": "This mostly holds: deliberateHold matters only for direct or contributing isometric mappings. But Copenhagen Plank or Side Plank switching to seconds affects every region and the logger.",
+    "change": "No model change. Add the measure-agreement test from #26 and get the owner's sign-off on each new hold."
+   },
+   {
+    "location": "planBouts.ts:80-84",
+    "assumes": "A one-arm or 'either' exercise is planned as one set per arm (plan_assumption).",
+    "breaks": "Midline regions should treat it as structurally bilateral. Legs are correct once laterality is read per limb.",
+    "change": "Route it through the side model (#8, #9)."
+   },
+   {
+    "location": "regions/forearm/claims.ts:41 short() and nodeActions.ts:26 (claimId = node id without region + '.function')",
+    "assumes": "The short form of a node id is unique.",
+    "breaks": "Two regions with the same short id (for example serratus listed in both chest and shoulders) would get the same claim id. The seed prefixes keys with the region, but a region listing both nodes would be ambiguous.",
+    "change": "Make the claim id the full node id plus the kind for new regions, and leave existing ids unchanged."
+   }
+  ],
+  "facts": "Baseline: main at 3986178. node_modules is not installed in the repository, so I ran neither vitest nor tsc; installing would have written into the repository. The experiments ran with npx tsx (from the npx cache) against the real production modules. Scripts are in /tmp/claude-0/-home-user-Sports-genome/1ff0a7bc-72e5-5e41-a8d9-937a97929500/scratchpad/multi-region/: count-catalog.ts, odd-keys.ts, union.ts, experiments.ts, claims-exp.ts.\n\nForearm content today:\n- 24 nodes: 19 targets, 2 compartments, adjacent anconeus (catalog key 'triceps'), and 2 external nodes, upper_arm.biceps and upper_arm.brachialis.\n- 20 actions, 60 claims, 71 sources.\n- 119 variants, all with ids of the form cat-<id>: 85 bilateral, 26 unilateral, 8 either; 9 measured in seconds.\n- 418 mappings: 413 reviewed, 5 draft. 53 of them credit the upper arm (27 biceps, 26 brachialis) across 27 variants. 144 mappings on 72 variants require no straps.\n- Seed v1 in production holds the claim keys forearm:biceps.function, forearm:biceps.appearance, forearm:brachialis.function and forearm:brachialis.appearance, and an upper_arm region row with status 'reference'. The regions table has no guard; nodes, node_actions, claims and variants that a published version uses are frozen.\n\nCatalog: 416 rows, ids 1-416.\n\nExercises per proposed region. 'Primary' means at least one region key is a primary tag. 'Secondary-only' means region keys appear only as secondary tags. The number in brackets is how many already have a forearm cat-<id> variant.\n\n| Region | Primary | Secondary-only | Total |\n|---|---|---|---|\n| shoulders | 49 [2] | 141 [42] | 190 [44] |\n| chest | 80 [0] | 17 [0] | 97 [0] |\n| back | 85 [53] | 37 [15] | 122 [68] |\n| upper_arm | 48 [26] | 146 [47] | 194 [73] |\n| core | 48 [10] | 189 [13] | 237 [23] |\n| hips | 115 [12] | 55 [10] | 170 [22] |\n| thigh | 92 [12] | 30 [3] | 122 [15] |\n| lower_leg | 24 [0] | 49 [2] | 73 [2] |\n\nBy key (primary / secondary rows, forearm variants in brackets):\n- shoulders: frontDelts 22 [1] / 97 [1]; sideDelts 18 [1] / 0; rearDelts 17 [0] / 54 [41]; rotatorCuff 3 / 19.\n- chest: chest 80 / 17.\n- back: lats 54 [44] / 4 [1]; upperBack 56 [45] / 40 [18]; traps 26 [7] / 13; lowerBack 0 / 19 [13].\n- upper_arm: biceps 23 [23] / 60 [48]; brachialis 20 [20] / 5 [5]; triceps 23 [1] / 89 [1].\n- core: abs 30 [8] / 193 [13]; obliques 24 [3] / 36 [4].\n- hips: glutes 107 [12] / 40 [5]; abductors 8 / 14 [1]; hipFlexors 1 / 22 [4]; adductors 8 / 41.\n- thigh: quads 60 / 21 [3]; hamstrings 32 [12] / 29.\n- lower_leg: calves 20 / 50 [2]; tibialis 4 / 1.\n- For comparison, forearms: 29 [29] / 108 [87].\n\nOverlap between regions:\n- 395 rows touch at least one proposed key (392 as a primary tag), and 98 of them have a forearm variant.\n- Only the 21 forearm-only rows (139-145, 401-416) touch none.\n- 350 rows touch two or more of the 8 regions. Rows by number of regions touched: 1 region 45, 2 regions 76, 3 regions 116, 4 regions 135, 5 regions 18, 6 regions 5.\n\nKeys not covered by the proposal:\n- Catalog keys: shoulders (7 primary / 12 secondary: medicine-ball throws, thrusters, sleds), serratusAnterior (2 primary: 99, 322), feet (9 secondary).\n- Body-map-only keys: tfl, soleus, peroneals, rhomboids.\n\nLaterality:\n- The catalog quality 'unilateral' sits on 70 leg-primary rows, including 161 Back Squat, 163 Front Squat and 169 Leg Press.\n- By name there are 32 single-leg, split, lunge or step-up rows. Two of them have forearm variants, 188 and 264, both 'either' for the arms.\n- 22 forearm variants belong to exercises with a leg or core primary key: carries 299/409/300, hanging 231/232/234, 74, 379, hinges 41/42/186-189/202-205/263/264, battle ropes 399/400.\n\nHolds: 217, 235, 245, 246, 247 and 248 are logged in reps today. Catalog oddity: 249 Pallof Press is tagged primary chest.\n\nVerified failures:\n1. Seed refuses: 'Node upper_arm.biceps differs between forearm and upper_arm'.\n2. Seed refuses: 'Variant cat-188 differs between forearm and thigh'.\n3. Seed refuses: 'Action elbow.flexion differs between forearm and thigh'.\n4. Seed refuses: 'Node action upper_arm.biceps elbow.flexion differs between forearm and upper_arm'. Listing the node without claims or node actions seeds fine.\n5. The frozen external biceps in an upper_arm region gives regionCatalogKeys = [].\n6. loggingPolicyFor(188) depends on region order: forearm first gives {oneArm false, sideDefault both, strapsSensitive true}; thigh first gives {oneArm true, sideDefault null, strapsSensitive false}.\n7. Thigh hamstrings: a set logged 'both' counts 1 bout on each leg; a set with no side counts on neither.\n8. Core: a decline sit-up counts on both 'arms'; a suitcase carry logged left credits the left oblique (105 s left vs 0 s right); a side plank with no side counts on neither.\n9. Core's region-only bucket takes in 5 of 5 squat, bench, overhead-press and deadlift bouts.\n10. No test imports regionIndex.ts.",
+  "recommendations": "Build the platform before any region content. Leave schema v1 and seed v1 untouched; make every DB change a new migration (schema v2 + seed v2).\n\n1. Region membership instead of a role on the node. Add roleIn(region, node), where 'external' is derived from the home region, and a DB table region_nodes(region_id, node_id, role, sort_order). nodes.role stays as a legacy column: upper_arm.biceps and upper_arm.brachialis keep 'external' there, and seed v2 never updates it. Keep those node ids and promote upper_arm to production in place. Do not fork the ids: goals and history would split between two ids for one muscle.\n\n2. Shared libraries for global records:\n   - actions: one definition per joint action;\n   - sources: namespaced ids;\n   - variants: exactly one per catalog id, with a resolver used by exposure, bouts, planBouts, progressSeries and loggingPolicy, and a 'replaces' field for frozen rows;\n   - claims: owned by a region, with the four upper-arm claims pinned to the forearm.\n   The registry assembles each region's SpecializationRegionData, pulling external nodes' claims and node actions from their owners.\n\n3. Variant v2 fields: add sidedBy ('arm' | 'leg' | null), legLaterality, and a generic dims jsonb or child table. Never update the 119 frozen rows. Laterality must be set by review, not taken from catalog qualities.\n\n4. Side model:\n   - region.sideModel: paired_arm, paired_leg or midline;\n   - VariantMapping.sideRelation: same, opposite or both;\n   - a Side / SummarySide type with 'midline';\n   - goals and measurements accept 'midline', with the DB checks widened;\n   - limb words come from region data and policy.sideLimb (Arm or Leg).\n   Owner decision: core as midline (obliques not split by side) or as a paired trunk (side plank and carries via sideRelation).\n\n5. Logger policy merged across regions: measure must agree, askSide follows any sided limb, oneSide replaces oneArm, and strapsSensitive follows any region. Gate askStraps and perArmSets (Home.tsx:570) per exercise, by an active goal in a region that maps it.\n\n6. Rule specialization_exposure_v2: limb-neutral text with midline and side-relation clauses. Choose the rule per region (region.ruleVersionId) and pass it into the calculator request. The category label takes region.wording.incidentalWork.\n\n7. Region work definition: an explicit region.catalogKeys (including broad keys such as shoulders and feet) and regionOnlyTagScope. Use 'primary' for core, upper arm and shoulders, so 140-190 rows tagged only as secondary do not flood the region-only bucket. The forearm keeps 'any'. Move unmappedTagged into region data. A variant whose mappings credit only external muscles counts as region-only.\n\n8. Cross-region consistency: a test that external mappings agree with the home region's mappings for the same variant, node and action. Build also-loads from the whole registry. Key by versionKey/id wherever two regions' mappings meet.\n\n9. Lists and tests:\n   - an index-registry parity test (missing today, despite the regionIndex.ts comment);\n   - body-map keys that do not overlap, with tfl, soleus, peroneals, rhomboids and serratusAnterior assigned to regions;\n   - a loggingRegions heavy-import check that globs every region's logging.ts;\n   - a measure-agreement test across regions in place of the hand-kept holdCatalogIds;\n   - a region-word regex built from the registry;\n   - generic per-region content tests (anatomy, mappings, coverage, nodeForBodyMapKey);\n   - a test that each node is a target in at most one region.\n\n10. Owner decisions on holds: switching planks, the Copenhagen plank, the L-sit and the hollow-body hold to seconds changes the logger, and existing reps history stays reps. Measurement postures and landmarks per region need the owner too.\n\nSuggested region order, by how much each depends on the steps above:\n- chest: no forearm variants, arms, no frozen overlap. It proves membership, the shared libraries and the rule v2 wording.\n- shoulders: many external muscles, so it exercises external grouping and cross-region also-loads.\n- upper_arm: the reference-to-production promotion, the frozen external rows and claim ownership.\n- back: 68 frozen variants overlap the forearm, and straps matter.\n- lower_leg, then thigh and hips: leg laterality and sidedBy.\n- core: the midline model and the hold decisions."
+ },
+ {
+  "area": "Database and seed pipeline (schema `specialization`, the generated seed, the PGlite harness and tests, the production apply path), for making the forearm atlas multi-region",
+  "assumptions": [
+   {
+    "location": "supabase/migrations/20261016120000_specialization_atlas_schema.sql:117 (nodes.region_id NOT NULL), :120 (nodes.role)",
+    "assumes": "A node belongs to exactly one region and has one role. 'External' means the node's region_id is not the page's region. exposure.ts:88 and the page (TargetsOverview.tsx:14, model.ts:327, SpecializationPanel.tsx:294-296) read it that way.",
+    "breaks": "upper_arm.biceps and upper_arm.brachialis cannot be external in forearm and targets in upper_arm at the same time. Nothing in the DB lists which nodes the forearm page shows: the external rows only point at upper_arm.",
+    "change": "v2 table region_nodes(region_id, node_id, role, sort_order), PK (region_id, node_id). nodes.region_id becomes the home region and nodes.role a legacy column (comment it so)."
+   },
+   {
+    "location": "schema.sql:864-898 guard_published_node, freeze tuple at :875, any-region lookup at :883; seed v1 :59-60",
+    "assumes": "While any published version maps a node, its region_id, role and catalog_muscle_key are frozen. The lookup does not filter by region.",
+    "breaks": "upper_arm.biceps and upper_arm.brachialis are role 'external' and mapped by 53 reviewed forearm_mappings_v1 rows, so they can never become 'target'. Experiment 1, cases C1, C2 and C3, are refused with 'node upper_arm.biceps is mapped by mapping version forearm_mappings_v1 (published); … cannot change'.",
+    "change": "Leave nodes.role as it is ('external'). Per-region roles live in region_nodes. The emitter must keep writing the v1 value."
+   },
+   {
+    "location": "schema.sql:134 nodes.sort_order, :110 actions.sort_order; scripts/specialization/emit-seed.ts:252 (regions sorted by id), :315-321 firstIndex, :362, :372",
+    "assumes": "There is one display order: the record's index in the first region, by id, that lists it.",
+    "breaks": "back, chest and core sort before 'forearm'. A region among them that lists a forearm-listed node or action rewrites the forearm rows. Experiment 3: forearm plus a 'back' region listing biceps, elbow.extension and elbow.flexion moved biceps.sort_order 22→0, elbow.flexion 0→1 and elbow.extension 1→0. Nothing refused it, but the biceps row was rewritten (xmin 740→741), so the seed was no longer a no-op.",
+    "change": "Per-region order in region_nodes.sort_order and a new region_actions(region_id, action_id, sort_order). The global legacy order is computed from registry order with the forearm first (or pinned), so the v1 values never change."
+   },
+   {
+    "location": "schema.sql:127 catalog_muscle_key (one per node, frozen); shared/specialization/exposure.ts:109-112",
+    "assumes": "Region catalog keys come from nodes whose regionId equals the region and whose role is 'target'.",
+    "breaks": "Biceps keeps role 'external' (frozen), so 'biceps' never becomes an upper-arm region key. Unmapped work tagged biceps or brachialis would not count as upper-arm region work.",
+    "change": "Derive region catalog keys from region_nodes target memberships, in both the client and any server summary."
+   },
+   {
+    "location": "schema.sql:129 nodes.border CHECK ('radial','ulnar','central','both'); shared/specialization/types.ts:33 ForearmBorder; server/specializationSchema.test.ts:242",
+    "assumes": "Borders use a forearm vocabulary (thumb side and pinky side).",
+    "breaks": "Nothing breaks today. The column is nullable, it is not frozen (experiment 1 D3: changing border on mapped forearm.fcu is allowed), and no non-test code in shared/specialization, client/src/lib/specialization or client/src/components/specialization reads AnatomyNode.border. A medial/lateral or anterior/posterior wording would be refused.",
+    "change": "Write null for other regions. If a page needs an aspect, add a region-neutral column or replace the constraint in v2 (not frozen, so this is safe) and update the type and the vocabulary test."
+   },
+   {
+    "location": "schema.sql:128 database_muscle → public.muscles(canonical_name); server/fixtures/specializationPg.ts:66-73 (stub holds 5 arm rows)",
+    "assumes": "Every databaseMuscle value exists in production public.muscles. 04-database.md:29 says 'all five values exist'.",
+    "breaks": "The contents of production public.muscles are not in the repo. Any new-region value it lacks fails the whole seed on the foreign key, in production and in PGlite unless the stub has it.",
+    "change": "Read the canonical names from production read-only before writing content. Use null where there is no row, and extend the stub to the values the content uses."
+   },
+   {
+    "location": "schema.sql:259-274 exercise_variants: forearm_orientation :263, wrist_position :264, grip_type :265, straps :266 (all NOT NULL, forearm vocabularies), elbow_angle_deg :272 (the only angle), notes :273",
+    "assumes": "Every variant is described in forearm terms, and elbow angle is the only measured joint.",
+    "breaks": "A squat must say forearm_orientation 'unknown'. 'not_applicable' is refused (experiment 1 C12: violates exercise_variants_forearm_orientation_check). No column exists for shoulder position, torso angle, knee or hip angle, stance or grip width.",
+    "change": "v2: drop and re-add the two CHECKs with 'not_applicable'. That is DDL only and validates the 119 rows without writing them (experiment 2). Add the value to the ForearmOrientation and WristPosition unions and to the schema test's vocabulary list. New dimensions go in new tables (next entry)."
+   },
+   {
+    "location": "schema.sql:791-822 guard_published_variant (whole-row compare at :799); shared/specialization/ids.ts:82; emit-seed.ts:323 mergeByKey('Variant'); README.md:55",
+    "assumes": "One variant cat-<id> per catalog exercise, shared by every region, frozen as a whole row once any published version maps it.",
+    "breaks": "Among the forearm's 119 variants are the curls, rows, pulldowns, pull-ups, deadlifts and RDLs, shrugs, hanging raises and carries that the back, hips, thigh, upper-arm and core regions will map. An ALTER ADD COLUMN works, but filling it for those rows is an UPDATE the guard refuses (experiment 1 C8 elbow angle, C9 notes). Two regions describing cat-121 differently are refused by the emitter (C7).",
+    "change": "v2: variant_dimensions, variant_dimension_values and variant_attributes(variant_key, dimension_id, value, notes). Inserts are allowed on frozen variants; an existing attribute is frozen while a published version maps its variant. Verified in experiment 2. Define variants once, in a shared module every region imports."
+   },
+   {
+    "location": "schema.sql:176-186 node_actions PK (node_id, action_id); :825-857 guard; emit-seed.ts:329-334 (claim key = listing region prefix)",
+    "assumes": "One claim per (node, action) across all regions, keyed '<listing region>:<claim id>'.",
+    "breaks": "An upper-arm region declaring its own biceps.function makes 'upper_arm:biceps.function'. Its node action biceps elbow.flexion then clashes with the frozen one on 'forearm:biceps.function' (seed v1 :618-620). The emitter refuses ('Node action upper_arm.biceps elbow.flexion differs', C5); with only the upper arm seeded, the database refuses (C6).",
+    "change": "Keep node actions global. Let a region's nodeActions.claimId name another region's claim by its full key ('forearm:biceps.function'). The emitter resolves it against the merged claim set and de-duplicates claims by key, requiring identical content."
+   },
+   {
+    "location": "emit-seed.ts:258-302 per-region checks (claims :284, node actions :289-291, mappings :295-299)",
+    "assumes": "Everything a region's data points at is in that region's own lists.",
+    "breaks": "A region cannot reference another region's claim. C10: 'Node action upper_arm.biceps elbow.flexion: biceps.function is not a function claim of that node'.",
+    "change": "Check references against the merged, cross-region sets (nodes, claims, sources, variants)."
+   },
+   {
+    "location": "schema.sql:945-1003 guard_published_claim_source (INSERT checked at :956-964, reviewed filter at :984); emit-seed.ts:415-439",
+    "assumes": "No reviewed claim on a mapped muscle ever gains a source. The emitter writes claims with their final review status, then their sources.",
+    "breaks": "A new reviewed claim on biceps, brachialis, forearm.br, any of the 19 forearm targets, or any muscle a later published version maps cannot get its first source, so the whole seed fails. Experiment 2 #4: 'the sources of claim upper_arm:biceps.born_reviewed cannot change … forearm_mappings_v1 (published) maps'. Experiment 1 C6 hit the same refusal.",
+    "change": "The emitter writes new claims as drafts, then their sources, then sets review_status and reviewed_on, in three phases (like mapping versions). Experiment 2 #5 applied this and was a no-op the second time. Keep the guard."
+   },
+   {
+    "location": "schema.sql:904-941 guard_published_claim; emit-seed.ts:395-413 (ownership by claim-key prefix)",
+    "assumes": "The forearm's region prefix owns its claims on the upper-arm muscles ('forearm:biceps.function', 'forearm:biceps.appearance', and the brachialis pair).",
+    "breaks": "The forearm content can never drop them (C11 refused). They are the reviewed function claims an upper-arm version would rest on, so the upper arm must reuse them rather than copy them.",
+    "change": "Keep them in the forearm content forever. The upper-arm content references them by full key (previous entries)."
+   },
+   {
+    "location": "schema.sql:77-80 comment, :86 status 'reference'; seed v1 :26; emit-seed.ts:70-72 referenceRegionLabels, :279, :305-311",
+    "assumes": "upper_arm is a reference region with no page, written by any seed whose nodes live there. The regions table has no guard.",
+    "breaks": "Promoting it to production is allowed (experiment 1 D1). But any seed that includes the forearm and not the upper arm demotes it back to 'reference', and nothing refuses: seed v1 re-applied (experiment 1 D2) and a forearm-only emit (experiment 2 #5). With upper_arm dropped from referenceRegionLabels, :279 then refuses the forearm's biceps node.",
+    "change": "Remove upper_arm from referenceRegionLabels. Let :279 accept any region in the seed. Never re-run seed v1 after v2. Optionally add a guard so a region with a published version of its own cannot leave 'production'."
+   },
+   {
+    "location": "schema.sql:487-558 mapping_version_problems (rules 1-9); exposure.ts:402",
+    "assumes": "Mapped nodes are the region's own, with no check.",
+    "breaks": "A version can be published mapping a node its region does not list. The calculator then skips those rows without a word.",
+    "change": "v2 replaces the function with a rule 10: every mapped node is in region_nodes for the version's region. Prototype: forearm_mappings_v1 still passes; a violation is refused with 'mapped muscles the version's region does not list: forearm.fcu'."
+   },
+   {
+    "location": "schema.sql:566-650 guard_mapping_version (FOR SHARE locks at :601-631)",
+    "assumes": "Publishing rests only on variants, nodes, node actions, claims, claim sources and sources.",
+    "breaks": "New frozen tables (region_nodes, variant_attributes) are not locked at publish, which reopens the concurrency gap 04-database.md §4 closes.",
+    "change": "v2 restates the function in full with FOR SHARE on region_nodes (version's region × mapped nodes) and on variant_attributes (mapped variants). CREATE OR REPLACE keeps the ACL: service_role true, authenticated false, verified."
+   },
+   {
+    "location": "schema.sql:323-328 rule_versions",
+    "assumes": "One global accounting rule, not linked to a region or a mapping version. The v1 text speaks of grip and straps (README.md:69).",
+    "breaks": "A region needing its own rule wording or logic has no way to say so in the DB.",
+    "change": "Optional additive link in v2: a nullable mapping_versions.rule_version_id, or a region_rules table."
+   },
+   {
+    "location": "schema.sql:338-368 goals (node_id → nodes only :342, side left/right :344, exclusion :359-367); types.ts:390 ArmSide",
+    "assumes": "A goal's node can be any node, and every goal is per arm.",
+    "breaks": "A goal can target a muscle its region does not list. Midline regions such as abs have no side.",
+    "change": "v2: composite FK goals (region_id, node_id) → region_nodes. Verified, including that a non-member is refused; production goals are empty. Decide whether midline gets a side value (not null, which would defeat the exclusion constraint)."
+   },
+   {
+    "location": "schema.sql:373-407 measurements (side :377, metric :379, posture vocabulary :397); :98 regions.measurement_metrics; types.ts:410, :416",
+    "assumes": "Arm measures only: circumference and grip, arm postures, per arm.",
+    "breaks": "Thigh, calf, chest and waist postures such as 'standing' only fit 'other'. Waist circumference has no side.",
+    "change": "v2 replaces measurements_protocol_shape, and the side and metric checks if decided, kept in step with types.ts. The tables are empty in production."
+   },
+   {
+    "location": "schema.sql:293-311 variant_mappings.requires_no_straps :305-306",
+    "assumes": "Grip-specific straps logic.",
+    "breaks": "Nothing: it defaults to false for other regions.",
+    "change": "None."
+   },
+   {
+    "location": "schema.sql:189 comment 'drawn for the right arm'; :192-244 diagram tables",
+    "assumes": "Each drawing belongs to one region and shows the right arm. View and layer ids are checked by shape only.",
+    "breaks": "Nothing is enforced. A drawing may draw a frozen node (biceps), and the diagram tables have no guard.",
+    "change": "None. Update the comment."
+   },
+   {
+    "location": "schema.sql:1072-1086 TRUNCATE trigger list; :1134-1164 RLS loops; :1239-1259 revokes and grants 'on all tables/functions'",
+    "assumes": "These are the v1 tables and functions as of v1.",
+    "breaks": "Tables and functions created by v2 get no RLS, no grants (service_role included) and no truncate guard automatically. New functions are executable by PUBLIC until revoked.",
+    "change": "v2 names every new table and function explicitly (prototype section 3). refuse_truncate_while_published is generic (it reads tg_table_name), so only triggers are added."
+   },
+   {
+    "location": "schema.sql:1170-1172 nodes_read",
+    "assumes": "Reviewed means visible, whatever the region's status.",
+    "breaks": "Reviewed nodes of a fixture region would be visible (minor).",
+    "change": "Optional: region_nodes_read already filters by region status."
+   },
+   {
+    "location": "supabase/migrations/20261016120100_specialization_atlas_seed_v1.sql (header :6, regions :24-28, nodes :56-82, node actions :618-620, publish :3825-3826); applied to production",
+    "assumes": "It is the only seed, re-runnable at any time.",
+    "breaks": "After v2 it is no longer a no-op: it demotes upper_arm (D2) and would delete 'forearm:' claims added after v1. It is history and must not be edited.",
+    "change": "Keep it byte-identical (SHA-256 a267fdc4…89f8). Tests apply the files once, in file order."
+   },
+   {
+    "location": "emit-seed.ts:63 SEED_MIGRATION_PATH; :724-743 CLI --check and write",
+    "assumes": "The generator writes, checks and drift-guards the v1 file.",
+    "breaks": "Any content change makes the drift guard demand a regenerated v1, which would edit history.",
+    "change": "Point it at …_specialization_atlas_seed_v2.sql. Keep the v1 path as a constant whose hash is pinned in a test."
+   },
+   {
+    "location": "emit-seed.ts:254 (one mapping version per region); types.ts:330-340 (one mappingVersion per region data)",
+    "assumes": "A region's content carries one mapping version.",
+    "breaks": "When the forearm moves to forearm_mappings_v2, v1 drops out of the content. That is fine: the seed leaves versions not in the content alone.",
+    "change": "None, as long as a region's content never carries v1 and v2 together."
+   },
+   {
+    "location": "emit-seed.ts:312 mergeByKey('Node'); :372 every node column written from AnatomyNode",
+    "assumes": "A node record is identical in every region that lists it, including its role.",
+    "breaks": "A per-region role cannot live on AnatomyNode. Forearm plus upper arm with biceps as target is refused: 'Node upper_arm.biceps differs between forearm and upper_arm' (C4).",
+    "change": "Keep the AnatomyNode objects as they are (role = the legacy nodes.role; the home-region role for new nodes). Add a per-region members list {nodeId, role, sortOrder}, written to region_nodes."
+   },
+   {
+    "location": "emit-seed.ts:704 header sentence; server/specializationSeed.test.ts:133",
+    "assumes": "The seed follows schema v1.",
+    "breaks": "The v2 header must name schema v2.",
+    "change": "New sentence, with no version digits (the :134 rule still holds)."
+   },
+   {
+    "location": "emit-seed.ts:564-576 catalog links",
+    "assumes": "Re-applying changes nothing.",
+    "breaks": "In production a re-emit updates catalog_exercises.supabase_exercise_id if public.exercises has gained rows since 18 Oct (e.g. 401-416). This is intended and the table is unguarded, but it is not a strict no-op.",
+    "change": "Exclude this table from the 'no existing row touched' assertion, or name it as the expected change."
+   },
+   {
+    "location": "server/fixtures/specializationPg.ts:28-30 single schema and seed paths; :178-185 createSeededDb",
+    "assumes": "Two migration files.",
+    "breaks": "v2 needs the production order: schema v1, seed v1, schema v2, seed v2.",
+    "change": "An ordered MIGRATIONS list; createSeededDb applies it, with each schema file applied twice to prove idempotence. Extend the public.muscles and public.exercises stubs."
+   },
+   {
+    "location": "server/specializationSchema.test.ts:36-42 table lists, :45-50 UPDATABLE, :61 FROZEN_TABLES, :115-122, :145-172",
+    "assumes": "Exactly the v1 19 tables.",
+    "breaks": "The structure and grants tests fail on new tables.",
+    "change": "Add region_nodes, region_actions, variant_dimensions, variant_dimension_values and variant_attributes. Add region_nodes and variant_attributes to FROZEN_TABLES."
+   },
+   {
+    "location": "server/specializationSchema.test.ts:236-272 CHECK vocabularies (border :242, forearm_orientation :249, wrist_position :250, goals side :265, measurement metric :269, regions status :271)",
+    "assumes": "Forearm vocabularies.",
+    "breaks": "Widening fails the test until types.ts changes.",
+    "change": "Change types.ts and the constraint together."
+   },
+   {
+    "location": "server/specializationSchema.test.ts:406-409, :427 (24/60/38), :434, :455; :77-88 helpers on 'forearm'",
+    "assumes": "Only forearm content exists.",
+    "breaks": "Hard-coded counts and lists fail once more regions are seeded.",
+    "change": "Derive counts from the merged content."
+   },
+   {
+    "location": "server/specializationSchema.test.ts:1138-1170 rollback, :1213-1225 and :1261-1287 DO-block equivalence, :1233-1259 locks",
+    "assumes": "Only the v1 pair of files.",
+    "breaks": "v2 is not covered.",
+    "change": "Extend each test to the four files. The v2 lock test asserts nothing outside `specialization` is locked; the prototype locks [] outside."
+   },
+   {
+    "location": "server/specializationSeed.test.ts:95-107 drift guard; :114-135 references (scans scripts/specialization/*.ts, not release/*.mjs, :120)",
+    "assumes": "The v1 seed is the generated file.",
+    "breaks": "Same as the emitter path above.",
+    "change": "Move the drift guard to v2. Add a history test pinning the full SHA-256 of both v1 files. Scan release/*.mjs too."
+   },
+   {
+    "location": "server/specializationSeed.test.ts:143-153 (registry is ['forearm']), :172-219 (whole-table equality with forearm content), :243-247, :254-261 (upper_arm reference)",
+    "assumes": "Single-region content.",
+    "breaks": "These fail as soon as a second production region is seeded.",
+    "change": "Compare with the merged content per table. Expect upper_arm as a production region."
+   },
+   {
+    "location": "client/src/lib/specialization/__fixtures__/deltoidRegion.ts:108 (upper_arm.triceps, draft, external), :58-73 (cat-90/93/101/111 with 'unknown' forearm dims, notes 'Test fixture.'); seed test :369-414",
+    "assumes": "The fixture's ids and catalog variants are free.",
+    "breaks": "They collide with real upper-arm and shoulder content: 'Node upper_arm.triceps differs', 'Variant cat-111 differs'. After a shoulders version is published, seeding them would be refused.",
+    "change": "Make the fixture reuse the production records, or move it to fixture-only node ids and catalog ids."
+   },
+   {
+    "location": "docs/specialization-atlas/04-database.md:3, :28, :48, :66, :71, :151, :159, :163, :187, :199; README.md:20 ('19 tables'), :55",
+    "assumes": "One region; 'a second region is rows, not a new column or table'.",
+    "breaks": "These lines are false for an upper-arm region built on frozen external rows. :3 ('nothing applied') contradicts §9 (:177). :187 still plans DROP EXTENSION.",
+    "change": "Rewrite them alongside v2."
+   },
+   {
+    "location": "scripts/specialization/release/make-apply-sql.mjs:29 (file list), :36 (repo URL), :62 (writes drop-http.sql), comment :9-12",
+    "assumes": "The v1 pair, and that DROP EXTENSION works on its own.",
+    "breaks": "v2 files are not listed. 04-database.md:180 says DROP EXTENSION http does not return even on its own, yet the script still writes drop-http.sql.",
+    "change": "Take the files as arguments. Stop writing drop-http.sql, or label it 'do not run'."
+   }
+  ],
+  "facts": "I wrote nothing in the repository and `git status` is clean. The repo has no node_modules, so I installed PGlite 0.4.6 and tsx in the scratch folder. `harness.ts` there is `server/fixtures/specializationPg.ts` byte-for-byte, with absolute migration paths. Run each experiment from `/home/user/Sports-genome` with `<scratch>/node_modules/.bin/tsx --tsconfig <scratch>/tsconfig.json <scratch>/expN-….ts`, where `<scratch>` is `/tmp/claude-0/-home-user-Sports-genome/1ff0a7bc-72e5-5e41-a8d9-937a97929500/scratchpad/multi-region`.\n\nMy files there (other agents' files share the folder):\n- `exp1-noop-and-refusals.ts`\n- `exp2-schema-v2.ts`\n- `exp3-sort-order.ts`\n- `schema_v2_prototype.sql`\n- `schema_v2_prototype.assembled.sql` (the prototype plus the two restated v1 functions)\n\n**History files are intact**\n- Schema v1 SHA-256 is `b67a9cd7a90383c205686e17b029a55ffd5a59ee4d928189d3a7d16296da542d`, 62,043 characters.\n- Seed v1 SHA-256 is `a267fdc4997699401822c2f4166a97b427fe28d8081bebcba037f963a35189f8`, 733,616 characters (733,649 bytes).\n- Both match the prefixes 04-database.md §9 records for production.\n- `emitSeedSql()` today is byte-identical to seed v1.\n\n**(1) What assumes one region** (each item is in the assumptions list with file:line)\n- The single-region columns: nodes.region_id, role, catalog_muscle_key and sort_order; actions.sort_order.\n- The freeze of region_id, role and catalog key on any node a published version maps, with no region filter (schema.sql:875, :883).\n- Production holds `upper_arm.biceps` and `upper_arm.brachialis` as role 'external' (seed v1 :59-60). 53 reviewed forearm_mappings_v1 rows map them, and their node actions rest on 'forearm:biceps.function' and 'forearm:brachialis.function' (seed :618-620).\n- upper_arm is status 'reference' (seed :26). The regions table has no guard.\n- The forearm vocabularies are NOT NULL on exercise_variants (schema :263-266), and the whole row is frozen (:799).\n- The vocabularies: border (:129); measurement metrics (:98, :379); posture (:397); left/right side (:344, :377).\n- Node actions are global (:176-186).\n- guard_published_claim_source refuses the first source of any new reviewed claim on a mapped muscle (:956-964, :984).\n- The publication rule has no region-membership check.\n- The publish locks (:601-631) do not cover new tables.\n- RLS, grants and truncate lists are enumerated as of v1 (:1072-1086, :1134-1164, :1239-1259).\n\n**(3) PGlite experiment results**\n- Schema v1 then seed v1, then seed v1 again: no row touched (xmin@ctid compared on all 19 tables). The same holds for seed v1 again as one DO block, for schema v1 re-applied over the seeded database, and for a full re-emit of the current content.\n- Refused by the database, the whole script rolling back, no row touched afterwards:\n  - C1/C3: biceps role → target. Message: 'node upper_arm.biceps is mapped by mapping version forearm_mappings_v1 (published); … cannot change'.\n  - C2: biceps catalog key changed.\n  - C6: an upper-arm region with its own biceps claim. Message: 'the sources of claim upper_arm:biceps.function cannot change …'.\n  - C8/C9: an elbow angle or new notes on cat-121. Message: 'variant cat-121 is used by mapping version forearm_mappings_v1 (published)'.\n  - C11: dropping 'forearm:biceps.appearance'.\n  - C12: 'not_applicable' forearm orientation, refused by exercise_variants_forearm_orientation_check.\n- Refused by the emitter:\n  - C4: 'Node upper_arm.biceps differs between forearm and upper_arm'.\n  - C5: 'Node action upper_arm.biceps elbow.flexion differs'.\n  - C7: 'Variant cat-121 differs'.\n  - C10: an upper-arm node action naming the forearm's claim gets 'biceps.function is not a function claim of that node'.\n- Allowed:\n  - D1: promoting upper_arm to production.\n  - D2: seed v1 re-applied then demotes it back to reference, without refusal.\n  - D3: changing border on a mapped node.\n  - D4/D5: forearm plus an upper-arm region whose biceps record is identical (external) applies, and its upper_arm_mappings_v1 publishes, resting on 'forearm:biceps.function'. The DB accepts reuse across regions; only the emitter blocks it, and biceps is still the wrong role.\n- Experiment 3: a 'back' region (its id sorts before 'forearm') listing biceps and the elbow actions rewrote forearm rows with no refusal: biceps.sort_order 22→0, elbow.flexion 0→1, elbow.extension 1→0.\n\n**(2) and (4) Prototype schema v2, applied twice over schema v1 + seed v1**\n- No existing row touched.\n- Backfilled 21 memberships: forearm/target 19 and forearm/external 2 (biceps, brachialis).\n- forearm_mappings_v1 still passes the extended rule.\n- After the function replace: service_role can execute mapping_version_problems, authenticated cannot, and 0 functions are client-executable.\n- Seed v1 and the full re-emit, applied after schema v2: no-op.\n- A hand-written seed-v2 slice for the upper arm applied:\n  - biceps and brachialis as targets, triceps as a new target, forearm.br external;\n  - claims written draft → sources → reviewed;\n  - attributes added on the frozen cat-121, and a new variant using 'not_applicable';\n  - upper_arm_mappings_v1 published.\n  - Only one existing row changed (the upper_arm region row, intended). The second application touched no row.\n- Refused, as intended:\n  - biceps role in upper_arm or in forearm changed;\n  - biceps removed from forearm;\n  - cat-121 attribute changed or deleted;\n  - the v1 node role or triceps' catalog key changed;\n  - TRUNCATE of region_nodes or variant_attributes, as owner;\n  - rule 10 ('mapped muscles the version's region does not list: forearm.fcu');\n  - an attribute value outside its dimension's list (FK);\n  - a goal on a non-member (FK goals_node_in_region).\n- Allowed: sort_order changes; the anconeus' role (unmapped); a new attribute on the frozen cat-122.\n- RLS and grants:\n  - user A reads 28 memberships and cannot write ('permission denied for table region_nodes');\n  - anon is refused at the schema;\n  - new tables grant SELECT to authenticated and SELECT, INSERT, UPDATE, DELETE to service_role, nothing else.\n- Schema v2 as one DO block gives the same catalog and memberships as applying it directly.\n- Locks while applying v2: none outside `specialization`. ACCESS EXCLUSIVE on specialization.exercise_variants and goals (constraint replacement); SHARE ROW EXCLUSIVE on nodes and regions (new FKs).\n- PGlite timings: schema v1 166 ms, seed v1 230 ms, schema v2 22 ms.\n\n**(5) Apply path facts**\n- `make-apply-sql.mjs` writes one DO block per file:\n  - `set_config('lock_timeout', '5000', true)`;\n  - `create extension if not exists http`;\n  - CURLOPT_TIMEOUT 30;\n  - `http_get` of raw.githubusercontent.com/LocalForgeWeb/Sports-genome/<sha>/…;\n  - refuse unless HTTP 200 and the SHA-256 matches;\n  - `execute`;\n  - insert into supabase_migrations.schema_migrations (version, name, statements).\n- It is run with MCP execute_sql. apply_migration hung because DROP EXTENSION http does not return, so http 1.6 was left installed in `extensions` (04-database.md:179-181).\n- Its file list is hard-coded (:29), and it still writes drop-http.sql (:62).\n- The v1 commit c2b98e2 is not in local history; main has the squash 20d664a.\n- I did not query production.",
+  "recommendations": "**1. Schema v2.** Add `supabase/migrations/2026101912xxxx_specialization_atlas_schema_v2.sql`. It is additive and idempotent, has no transaction control, and runs both directly and as one DO block. Start from `schema_v2_prototype.assembled.sql`, which was tested.\n- **region_nodes**(region_id → regions, node_id → nodes, role in target/adjacent/external/group, sort_order), PK (region_id, node_id), index on node_id.\n  - Backfill only what published versions rest on, derived from frozen columns: for each non-draft version and mapped node, (v.region_id, node, role = nodes.role if the node lives there, else 'external'), with `on conflict do nothing`.\n  - Guard before update or delete: the role and the membership are frozen while a non-draft version of that region maps the node; sort_order stays free.\n  - Truncate trigger.\n  - Comment nodes.role as legacy. Never change it.\n- **region_actions**(region_id, action_id, sort_order). It is not in the prototype, so build it and test it before adopting it. Optionally a composite FK so a movement goal names one of its region's actions.\n- **variant_dimensions**(id, label, sort_order), **variant_dimension_values**(dimension_id, value, label, sort_order) and **variant_attributes**(variant_key, dimension_id, value, notes), with an FK (dimension_id, value) to the values table.\n  - Guard: an attribute of a variant a non-draft version maps cannot change or be deleted; new attributes may be added. If a future rule reads a dimension, also freeze inserts for it.\n  - Add a degrees column, or a 'degrees' dimension kind, for joint angles.\n  - Truncate trigger.\n- Widen the forearm_orientation and wrist_position CHECKs with 'not_applicable'.\n- Replace measurements_protocol_shape with non-arm postures, plus side and metric changes once the design decides them. goals and measurements are empty in production.\n- Add the FK goals (region_id, node_id) → region_nodes.\n- Restate mapping_version_problems in full with rule 10 (every mapped node is a member of the version's region). Restate guard_mapping_version with FOR SHARE locks on region_nodes and variant_attributes.\n- Optional:\n  - a guard keeping a region that has a published version in 'production';\n  - a nullable mapping_versions.rule_version_id.\n\n**2. RLS and grants (part 4)**\n- Enable RLS on every new table.\n- Policies:\n  - region_nodes: authenticated reads rows whose node is reviewed and whose region is production or reference;\n  - region_actions: the same region filter;\n  - dimension and attribute tables: `using (true)`, like exercise_variants.\n- Write no new default privileges.\n- Revoke all on each new table from public, anon, authenticated and service_role. Grant SELECT to authenticated and SELECT, INSERT, UPDATE, DELETE to service_role (never TRUNCATE, TRIGGER or REFERENCES).\n- Revoke all on each new function from public, anon, authenticated and service_role. Trigger functions need no grant. CREATE OR REPLACE keeps mapping_version_problems' ACL (verified).\n- Every function `set search_path = ''`, none SECURITY DEFINER.\n- Extend the schema test's table lists, frozen-table list, vocabularies and pg_proc walk.\n\n**3. Seed pipeline (part 3)**\n- Keep seed v1 byte-identical. Add a history test pinning the full SHA-256 of both v1 files.\n- Point `emit-seed.ts` SEED_MIGRATION_PATH, `--check` and the drift guard at `…_specialization_atlas_seed_v2.sql`: a full re-emit of every production region, forearm included.\n- Emitter changes:\n  - Reference checks run against the merged sets.\n  - A region may name another region's claim by full key; claims are de-duplicated by key with identical content.\n  - Variants and their attributes are defined once, in a shared module.\n  - The forearm's AnatomyNode objects stay unchanged and keep the legacy role. Each region gets a members list {nodeId, role, sortOrder} → region_nodes, an owned set whose stale rows are deleted (refused when frozen).\n  - Global nodes and actions sort_order come from registry order with the forearm first; per-region order goes in region_nodes and region_actions.\n  - New claims are written draft → claim sources → reviewed.\n  - upper_arm leaves referenceRegionLabels; nodes may live in any region in the seed.\n  - New sections for dimensions and attributes.\n  - The header names schema v2.\n- The harness applies schema v1, seed v1, schema v2, seed v2, in order; extend the muscle and exercise stubs.\n- Tests:\n  - seed v2 applied over (schema v1 + seed v1 + schema v2) leaves every existing row version in place, except the upper_arm region row and catalog links;\n  - seed v2 applied twice touches nothing;\n  - DO-block equivalence for all four files;\n  - no lock outside `specialization` for schema v2;\n  - every refusal above, per region.\n- Fix the deltoid fixture's colliding ids.\n- What would still refuse seed v2: any change or removal under forearm_mappings_v1 (C1-C3, C8, C9, C11), including content that makes biceps a target on the node row instead of in region_nodes. Fix the content, never the guard.\n\n**4. Production (part 5)**\n- Reuse `make-apply-sql.mjs`:\n  - take the file list as arguments;\n  - drop drop-http.sql;\n  - inside the DO block, fail fast unless 20261016120000 and 20261016120100 are recorded and the new version is not.\n- Read-only first:\n  - schema_migrations;\n  - `pg_extension` for http (if the owner removed it, the block re-creates it and leaves it installed);\n  - production public.muscles canonical names for the new content.\n- Push the commit. Run schema v2 with MCP execute_sql, verify, then run seed v2 the same way: separate transactions, each atomic with its history row.\n- Do not use apply_migration, and do not drop http (it hangs).\n- Lock timeout stays 5 s; schema v2 locks only `specialization` tables, which the app does not read; seed v2 locks like v1. The size will grow to several MB, but the fetch and execute stay fast (the PGlite seed v1 took 230 ms; production about 1 s).\n- Verify read-only afterwards:\n  - counts per region and region_nodes (biceps: forearm/external and upper_arm/target);\n  - versions and problems() still null for v1;\n  - RLS on all tables;\n  - grants;\n  - functions not executable by clients;\n  - PGRST106 (schema not exposed);\n  - advisors.\n- Update 04-database.md and the README."
+ },
+ {
+  "area": "Page, Home integration, logger UI and phone layout (Body Lab → Specialize, its entry points, search, Review's link, Back, the workout logger's atlas controls) for 9 regions",
+  "assumptions": [
+   {
+    "location": "shared/specialization/regionIndex.ts:26-28",
+    "assumes": "Only one production region exists (`[forearmRegion]`), and the forearm is the default region.",
+    "breaks": "Home, Body Lab, Review and search can reach only the forearm. Every place that falls back to `defaultSpecializationRegionId` opens the forearm.",
+    "change": "List all 9 region records here, in body order by `sortOrder`. Keep forearm as the last-resort default only."
+   },
+   {
+    "location": "shared/specialization/regionIndex.ts:31-34",
+    "assumes": "`regionForBodyMapKey` returns the first region whose `bodyMapKeys` holds the key, which is safe while there is one region.",
+    "breaks": "With 9 regions a key listed twice (biceps as an external of the forearm and a target of the upper arm, or traps in shoulders and back) silently opens whichever region comes first.",
+    "change": "Add a test that every body-map, catalog and Review key belongs to at most one production region, with an explicit list of keys that have no region (feet, serratusAnterior)."
+   },
+   {
+    "location": "shared/specialization/registry.ts:8,10-13 + client/src/components/specialization/SpecializationPanel.tsx:79",
+    "assumes": "The page can import every production region's full data in one place, and read it synchronously.",
+    "breaks": "The lazy page chunk would carry 9 drawings, claims and sources. The forearm alone is about 282 KB of source (diagram.generated.ts 115 KB, claims 30 KB, sources 32 KB, mappings 37 KB, variants 28 KB, nodes 22 KB), so 9 regions come to about 2.5 MB on a phone.",
+    "change": "Load each region with its own dynamic import (`loadRegionData(id)`). The page shows a loading line (no zeros) while a region loads. The picker reads the light regionIndex only."
+   },
+   {
+    "location": "client/src/pages/Home.tsx:261 (used at :2160 and :2237)",
+    "assumes": "`workspaceTitles.specialization` = \"Forearm specialization\" names the page.",
+    "breaks": "The browser tab and the search-return label say Forearm on every region's page.",
+    "change": "Set it to \"Specialize\". Derive document.title and the search-return label from the shown region's `heading` through regionIndex."
+   },
+   {
+    "location": "client/src/pages/Home.tsx:560",
+    "assumes": "With no address, the initial page state is `defaultSpecializationState(forearm)`.",
+    "breaks": "The first tap on the Specialize tab always lands on the forearm, with no sign that 8 other regions exist.",
+    "change": "Initial state: the address; else the last region remembered on the device per account (localStorage, wrapped in try/catch); else forearm with the region picker expanded once (see recommendations)."
+   },
+   {
+    "location": "client/src/pages/Home.tsx:1244-1245 (the tab via navigateWorkspace)",
+    "assumes": "The tab reopens the page as last left in this visit, which at first is the default region.",
+    "breaks": "Same as above. Nothing on the page changes region, so the tab can never reach another region.",
+    "change": "Keep the behaviour (last state), and add the on-page picker. The remembered region feeds the initial state."
+   },
+   {
+    "location": "client/src/pages/Home.tsx:1269-1272",
+    "assumes": "`openSpecialization` defaults `regionId` to forearm when an entry point names none.",
+    "breaks": "Any future entry point that forgets `regionId` opens the forearm.",
+    "change": "Require `regionId` on entry points (make the type non-optional), or default to the remembered region."
+   },
+   {
+    "location": "client/src/pages/Home.tsx:1282-1288, :2479",
+    "assumes": "One region refines a body-map key, labelled `region.entryLabel` (\"Explore forearm coverage\").",
+    "breaks": "Works for 9 regions only if every region supplies its own entryLabel and keys are unique (see the regionIndex rows).",
+    "change": "Supply entryLabel per region (\"Explore shoulder coverage\", \"Explore thigh coverage\", …). No code change beyond the key-uniqueness test."
+   },
+   {
+    "location": "client/src/pages/Home.tsx:2521 + client/src/components/weekReview/WeekReviewBoard.tsx:31-34,198,299",
+    "assumes": "Review offers the page for \"the forearm, today\" (comment). The key it passes is Review's catalog key, including the `shoulders` umbrella row (\"Deltoids\", weeklyVolume.ts:19).",
+    "breaks": "`shoulders`, `feet`, `hipFlexors` and `serratusAnterior` rows get no entry unless some region lists them.",
+    "change": "Put `shoulders` in the shoulders region's bodyMapKeys (region only, no muscle). Owner decides on feet and serratusAnterior. Update the comment."
+   },
+   {
+    "location": "client/src/lib/universalSearch.ts:204-206",
+    "assumes": "There is one destination, \"Forearm specialization\", with forearm terms (forearm, grip, wrist, brachioradialis).",
+    "breaks": "Searching \"thigh specialization\", \"calves specialize\" or \"core atlas\" finds nothing, or finds the forearm.",
+    "change": "Generate one destination per production region from regionIndex (id `specialization#<regionId>`, label = heading, context \"Body Lab · Specialize\"). Keep one generic \"Specialize\" destination."
+   },
+   {
+    "location": "client/src/pages/Home.tsx:2119-2123",
+    "assumes": "A destination id `workspace#x` means a scroll anchor x (Review's is a scope).",
+    "breaks": "`specialization#thigh` would try to reveal an element with the id \"thigh\" and open the last-left region.",
+    "change": "Add a branch: validate x against `specializationRegionIds`, then `navigateWorkspace(\"specialization\", { specialization: defaultSpecializationState(x) })`. No specializationFrom, so search still gets no Back, as today."
+   },
+   {
+    "location": "client/src/pages/Home.tsx:569-570 and :2307 (askStraps, perArmSets={askStraps}); DeviceWorkoutTracker.tsx:197-211 (doc says \"forearm goal\")",
+    "assumes": "Any active specialization target is a forearm target, so straps and per-arm rows are relevant to that athlete.",
+    "breaks": "An athlete with only a quads or core target is asked about straps on deadlifts (forearm grip mappings are straps-sensitive) and gets per-side rows on every one-sided exercise.",
+    "change": "askStraps: only when there is an active target in a region that has a `requiresNoStraps` mapping. perArmSets: only when there is an active target in a sided region that maps that exercise. Pass the active region ids to the tracker."
+   },
+   {
+    "location": "client/src/lib/specialization/viewState.ts:16-35,46,86",
+    "assumes": "`limb: ArmSide` always applies, defaults to right, and is written whenever it is not right.",
+    "breaks": "For core (no sides) the address can carry `limb=left` for nothing. The name and type say arm.",
+    "change": "Keep the `limb` param (it reads fine for legs). Write it only for sided regions. Keep the value in state across a core visit so a sided region gets its side back."
+   },
+   {
+    "location": "client/src/lib/specialization/viewState.ts (no region-change helper) + SpecializationPanel.tsx:191-201",
+    "assumes": "The region never changes on the page. A stale node or view is only a hand-edited address, fixed by an effect after render.",
+    "breaks": "Switching region would render one frame with the old region's nodeId and view and then fire a second replaceState.",
+    "change": "Add `withRegion(state, regionId, nodeId = null)`: nodeId → nodeId, view → null, layer → surface. Keep mode, window, from/to, planWeek, map and limb."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:84,87",
+    "assumes": "`SpecializationPage` mounts once per region (it is not keyed), so its local state belongs to one region.",
+    "breaks": "After a region change (picker or popstate), `sheet` (a movement sheet with the old actionId), `allFindings`, `progressOpened`, the open <details>, `keepDrawing` and the announcement all carry over.",
+    "change": "Render `<SpecializationPage key={data.region.id} …/>`."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:408-412 (and specialization.css:30-33)",
+    "assumes": "The page top is Back plus an h1 of `region.heading` (\"Forearm specialization\", one line from 375 px), with no way to change region.",
+    "breaks": "There is no region picker. \"Lower leg specialization\" leaves no room beside it for a control.",
+    "change": "A heading row: h1 = `region.label` beside a visible 44 px \"All regions\" toggle that expands an inline 3×3 grid (see recommendations). Keep `heading` for document.title and search."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:419-422",
+    "assumes": "Every region is per arm: a hard-coded \"Arm\" group with \"Left arm\" / \"Right arm\".",
+    "breaks": "Wrong words for thigh and lower leg (leg), and for chest, back and hips (side). Wrong to exist at all for core.",
+    "change": "Words from the region's side words. Do not render the group when `region.sides === \"none\"`."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:120,125 (otherSide, `there` summary)",
+    "assumes": "There is always another side to compute.",
+    "breaks": "For core it is a wasted second calculation, and it feeds the arm-difference finding and the trailing-arm suggestions.",
+    "change": "Skip it (null) for regions without sides."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:158,167 + client/src/lib/specialization/recommendations.ts:65-68,192-194,484-487,560",
+    "assumes": "The other side exists and is an arm (\"Done one arm at a time, so the {side} arm can be trained on its own\", \"with no arm recorded\").",
+    "breaks": "Arm words on leg and side regions; a trailing-side rationale on core.",
+    "change": "Use region side words. For core, `otherSideSummary` is null, so no trailing logic runs."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:210 (armWord) and every use: :240, :334, :347-351, :359, :365, :372-376, :380-383, :397-398, :442-445, :491 (caption), :584",
+    "assumes": "The side word is \"left arm\" / \"right arm\".",
+    "breaks": "Wrong on 6 of the 9 regions, and meaningless on core.",
+    "change": "Use the shared `sideWordsFor(region.sides)` helper. Omit the side clause entirely when sides is \"none\"."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:211 (regionWord = label.toLowerCase())",
+    "assumes": "The label reads after \"the\" in lowercase (\"the forearms\").",
+    "breaks": "Fine for Shoulders, Chest, Back, Upper arms, Core, Hips, Thighs and Lower legs, but only if labels are chosen that way.",
+    "change": "Choose labels that read after \"the\". Add a test that renders \"Muscles of the {label}\" for every region."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:239-242",
+    "assumes": "The aria-live announcement need not react to region (deps: interval, limb, mode).",
+    "breaks": "A screen-reader user switching region hears nothing.",
+    "change": "Announce \"{label}: N distinct bouts…\" on a region change (or rely on the key from the row above, plus an announcement on pick)."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:293-297; TargetsOverview.tsx:14,19; model.ts:278,327; shared/specialization/exposure.ts:111",
+    "assumes": "`node.role` and `node.regionId` are global facts of a node (upper_arm.biceps is external, region upper_arm).",
+    "breaks": "On the upper-arm page, biceps and brachialis must be targets while staying external on the forearm page (their role there is frozen by forearm_mappings_v1). A node shared by two regions breaks the `regionId === region.id` filters.",
+    "change": "The registry hands the page region-relative node copies (membership resolved), so `role` means the role in this region. The page code then stays as it is. Add a test per region."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:491 (mirrored={state.limb === \"left\"}) + shared/specialization/types.ts:309-312",
+    "assumes": "Every drawing shows the right limb, and the left side is its mirror image.",
+    "breaks": "A chest, back or core drawing of the whole torso must not be flipped. Mirroring paints the right pec on the left.",
+    "change": "DiagramAsset gains `symmetry: \"one_side\" | \"both_sides\"`. Mirror only one_side drawings. A both_sides drawing paints the chosen side and ghosts the other (drawing lane). For core, never mirror."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:497",
+    "assumes": "\"Each set counts once per muscle and once per arm\".",
+    "breaks": "Arm words on leg and side regions; false on core.",
+    "change": "Use side words. For core: \"Each set counts once per muscle\"."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:524",
+    "assumes": "\"every set in this window has an arm, a reviewed mapping…\".",
+    "breaks": "Arm words; on core no side exists.",
+    "change": "Use side words. Drop the side clause for core."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:574-583 + shared/specialization/rules.ts:27,32-33,36,40,77",
+    "assumes": "The single published rule `exposureRuleV1` speaks for every region: \"gripping a bar during a row\", \"two-handed bout counts once for each arm\", straps, \"Incidental grip\", and the category label \"Incidental grip / stabilization\" shown in every ledger row (model.ts:161-163, MuscleSheet.tsx:134).",
+    "breaks": "Every region's \"How this is counted\" and every ledger talk about grip and arms.",
+    "change": "Calculation lane: a region-neutral rule v2 (or per-region side and straps sentences). On the page, show the straps sentence only when the region has a straps-sensitive mapping."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:586-590, :711-731 (CompletenessNote)",
+    "assumes": "Unknown-side sets exist and are \"with no arm recorded\".",
+    "breaks": "Arm words on leg and side regions. On core there is no unknown side, so these lists and lines must not appear.",
+    "change": "Use side words. Hide them for regions without sides."
+   },
+   {
+    "location": "client/src/components/specialization/model.ts:101-108 (exposureSentence)",
+    "assumes": "\"N sets with no arm recorded … kept apart\".",
+    "breaks": "Arm words; core.",
+    "change": "Pass the side words in. No unknown-side sentence for core."
+   },
+   {
+    "location": "client/src/components/specialization/model.ts:194 (sideLabels), read by BoutItem.tsx:29, BoutListSheet.tsx:42, MuscleSheet.tsx:135,150",
+    "assumes": "A bout's side is \"Left arm\" / \"Right arm\" / \"Both arms\" / \"Arm not recorded\".",
+    "breaks": "Every ledger and bout row on leg, side and core regions.",
+    "change": "Make it a function of the region's side words. For core, show no side label."
+   },
+   {
+    "location": "client/src/components/specialization/model.ts:225,235,242-250,263-276",
+    "assumes": "Findings speak of \"{arm}\", \"no arm recorded\", and \"One-arm work logged from now on asks which arm\".",
+    "breaks": "Arm words; core never has unknown-side or per-side findings.",
+    "change": "Use side words. Skip these findings for core."
+   },
+   {
+    "location": "client/src/components/specialization/model.ts:289-308",
+    "assumes": "The arm-difference finding: \"on the left arm … Two-handed sets count for both arms; only one-arm sets make the arms differ\".",
+    "breaks": "Wrong noun for legs and sides; meaningless for core.",
+    "change": "Use side words (\"Sets done with both legs count for each; only one-leg sets make them differ\"). The finding cannot arise when otherSide is null."
+   },
+   {
+    "location": "client/src/components/specialization/model.ts:310-320",
+    "assumes": "The strapped finding's text is forearm text in page code (\"earned no grip credit … finger flexors\").",
+    "breaks": "It fires only where a region has straps-sensitive mappings (data-driven), but the region words are hard-coded in the page.",
+    "change": "Move the words to region or rule data (the regionAgnostic principle)."
+   },
+   {
+    "location": "client/src/components/specialization/MuscleSheet.tsx:69,106,117,119,122",
+    "assumes": "armWord, \"No arm recorded … counted for neither arm\", \"{side} arm\".",
+    "breaks": "Arm words; core.",
+    "change": "Use side words. Hide the unknown-side rows for core."
+   },
+   {
+    "location": "client/src/components/specialization/MovementSheet.tsx:37,53,70,76",
+    "assumes": "\"Movement · left arm\", \"No arm recorded\".",
+    "breaks": "Same as above.",
+    "change": "Same as above."
+   },
+   {
+    "location": "client/src/components/specialization/PlanChangeSheet.tsx:166,250",
+    "assumes": "\"For {muscle} · left arm\", \"Planned totals, Week N, {side} arm\".",
+    "breaks": "Same as above.",
+    "change": "Same as above. For core, no side in the eyebrow or the heading."
+   },
+   {
+    "location": "client/src/components/specialization/TargetsEditor.tsx:21,60,71,81,174,353,370,405-412,465-470,475; TargetsOverview.tsx:92,99",
+    "assumes": "Targets are per arm: \"Which arm · Both arms / Right arm only\", \"left-arm target\", \"Not targeted on the right arm\", and `goalsForBothArms`.",
+    "breaks": "Legs need \"Which leg · Both legs\". Core needs one target with no side, and no Which-arm control.",
+    "change": "Use side words. When sides is \"none\", there is no side control and one goal with side null."
+   },
+   {
+    "location": "shared/specialization/goals.ts:48,62,78,88-90",
+    "assumes": "A goal's side must be left or right (\"Choose the left or the right arm. A target for both arms is saved as two.\").",
+    "breaks": "No goal can be saved for core.",
+    "change": "Allow side null for regions without sides (validated against the region). Use side words in the reasons."
+   },
+   {
+    "location": "client/src/lib/specialization/stores.ts:66,145",
+    "assumes": "A device-stored goal or measurement whose side is not left/right is invalid, and is dropped on read.",
+    "breaks": "A core target or measurement would vanish on reload.",
+    "change": "Accept null for regions without sides."
+   },
+   {
+    "location": "supabase/migrations/20261016120000_specialization_atlas_schema.sql:344,377 (+ server/specializationSchema.test.ts:265,268,625)",
+    "assumes": "goals.side and measurements.side check `in ('left','right')`.",
+    "breaks": "Core targets and readings cannot sync.",
+    "change": "New migration (the applied file stays history): allow null where the region has no sides, enforced against `regions.sides`. Update the schema tests."
+   },
+   {
+    "location": "shared/specialization/types.ts:390,398,427,562,599",
+    "assumes": "`ArmSide` names the side of a goal, a measurement, a summary and a request.",
+    "breaks": "There is no way to say \"no side\". The name says arm.",
+    "change": "Add `BodySide = \"left\" | \"right\"`, with `side: BodySide | null` (null only for a region with sides \"none\"). Keep ArmSide as an alias during migration."
+   },
+   {
+    "location": "shared/specialization/types.ts:35-59 (SpecializationRegion)",
+    "assumes": "A region has no side model of its own; every region is paired by arm.",
+    "breaks": "There is no data from which a component could choose arm, leg, side or none, so components hard-code \"arm\".",
+    "change": "Add `sides: \"arms\" | \"legs\" | \"sides\" | \"none\"` (a new column on regions in the v2 migration; forearm = arms)."
+   },
+   {
+    "location": "shared/specialization/exposure.ts:341,375-377,385,419-425,485,492",
+    "assumes": "A bout counts for a side when it is bilateral or on that side. The other side's one-sided work is skipped. Unknown side is kept apart and never counted. A mapping applies to the bout's own side.",
+    "breaks": "(1) Core: a left Side Plank, or any set with no recorded side, should simply count once. (2) Midline muscles in a sided region: the erectors on a one-arm row work on both sides. (3) Contralateral load: a single-leg RDL with the dumbbell in the other hand credits the forearm of the leg's side.",
+    "change": "Region sides \"none\": every bout is on-side and never unknown. Add a mapping-level `sideRelation: \"same\" | \"opposite\" | \"both\"`, default \"same\", so every forearm_mappings_v1 row reads unchanged. Apply it where each node is credited (:400-426)."
+   },
+   {
+    "location": "client/src/lib/specialization/bouts.ts:87-93; planBouts.ts:69-84",
+    "assumes": "A recorded side means the arm. With no variant in this region the planned side is unknown.",
+    "breaks": "The values are limb-neutral, so they serve legs as-is. For a midline region, \"unknown\" must not withhold credit (see the exposure.ts row).",
+    "change": "No change to the stored values. The calculator's midline rule handles unknown."
+   },
+   {
+    "location": "shared/specialization/loggingPolicy.ts:23-44,78,82-85",
+    "assumes": "The side question is about an arm (`oneArm`; `askSide` for any unilateral/either variant), and \"either\" means two arms at once.",
+    "breaks": "No way to tell the tracker to say Leg or Side. Side Plank, mapped only by core, would ask a side nobody counts.",
+    "change": "The variant gains `sideLimb: \"arm\" | \"leg\" | \"trunk\"`, and the policy gains `sideLimb`. `askSide` = unilateral/either and at least one mapping of the variant is in a region whose sides is not \"none\". Rename `oneArm` to `oneSide` (keep an alias)."
+   },
+   {
+    "location": "shared/specialization/loggingPolicy.ts:49-59,76,86 (called per render per exercise at DeviceWorkoutTracker.tsx:326)",
+    "assumes": "Flattening every region's variants and mappings on each call is cheap, and the first variant found is the one.",
+    "breaks": "With 9 regions this is a flatMap of every variant plus linear find/some on every render of every exercise card.",
+    "change": "Build a module-level index once (catalogId → { measure, laterality, sideLimb, strapsSensitive })."
+   },
+   {
+    "location": "shared/specialization/loggingRegions.ts:52",
+    "assumes": "The tracker chunk can carry each region's full variants and mappings (rationales, sources).",
+    "breaks": "About 65 KB of source per region (forearm variants 28 KB + mappings 37 KB), times 9, in the workout logger's download.",
+    "change": "A generated compact logging table, kept equal by test like holdCatalogIds."
+   },
+   {
+    "location": "client/src/components/DeviceWorkoutTracker.tsx:1372-1377",
+    "assumes": "The set card's side group is labelled \"Arm\", with aria-label \"Arm for set N of X\".",
+    "breaks": "Wrong on Bulgarian split squats, single-leg RDLs, step-ups and Copenhagen planks.",
+    "change": "Label and aria from `policy.sideLimb`: Arm / Leg / Side. The Left · Right · Both choices stay (:183)."
+   },
+   {
+    "location": "client/src/components/DeviceWorkoutTracker.tsx:90,750,772,1055,1140-1141; client/src/components/ExerciseSwapSheet.tsx:121,129,132,138,231",
+    "assumes": "Per-side wording: \"· each arm\", \"one arm at a time\", \"done once with each arm\", \"not one per arm\".",
+    "breaks": "Leg exercises read as arm work.",
+    "change": "Words from the exercise's sideLimb. The stored `perArm` key (deviceWorkoutLog.ts:98-101) and `side` values (:62-64) stay, so history is untouched."
+   },
+   {
+    "location": "client/src/components/DeviceWorkoutTracker.tsx:136-145,173-181",
+    "assumes": "Per-arm alternation and defaults (after Left, offer Right; \"either\" starts on Both).",
+    "breaks": "Nothing breaks: the logic is limb-neutral and correct for legs (\"Both\" covers alternating lunges).",
+    "change": "None beyond the words."
+   },
+   {
+    "location": "shared/specialization/holdCatalogIds.ts:18",
+    "assumes": "The atlas's holds are the 9 forearm holds.",
+    "breaks": "Core holds (217 Copenhagen Plank, 235 L-Sit, 245 Hollow-Body Hold, 246 RKC Plank, 247 Side Plank, 248 Weighted Plank) become seconds-measured. The Plan and the tracker switch their Reps box to Seconds for every athlete, and old reps-logged planks read \"time not recorded\".",
+    "change": "List them (the test forces it). Treat this as a visible logger change and say so in the release. Check old history."
+   },
+   {
+    "location": "client/src/components/specialization/MeasurementsPanel.tsx:22-27,38-41 + shared/specialization/types.ts:410,416 + schema.sql:397",
+    "assumes": "Measures are forearm measures: postures arm_relaxed_hanging, arm_extended_supported and elbow_90_supported; grip on a dynamometer; and the copy \"A change of hand position…\" (:463).",
+    "breaks": "Thigh and calf circumference need leg postures (standing relaxed, seated knee 90°).",
+    "change": "Add leg postures (type plus a new migration), and decide each region's `measurementMetrics`: core probably [] (the empty path exists at :433)."
+   },
+   {
+    "location": "client/src/components/specialization/MeasurementsPanel.tsx:106,119,145,158,161,210,273,282,367,384,387,398,415,418,438-440,449,470,472,476-478",
+    "assumes": "Every reading and chart is per arm (\"Which arm\", \"{side} arm\", \"no arm recorded\", \"A set done with both arms counts for each arm\").",
+    "breaks": "Arm words on leg and side regions. Some circumferences are whole-body even in a sided region (chest, hips). Core has no side.",
+    "change": "Use side words. A per-metric (or per-landmark) `sided` flag; no side control or side filter when not sided."
+   },
+   {
+    "location": "client/src/lib/specialization/progressSeries.ts:191,236,269-271,369",
+    "assumes": "Performance series and latest readings are per arm.",
+    "breaks": "Core and unsided metrics.",
+    "change": "Accept side null (all sets)."
+   },
+   {
+    "location": "client/src/components/specialization/TargetsEditor.tsx:397 / specialization.css:66",
+    "assumes": "Inputs at --sg-text-lg (16 px).",
+    "breaks": "Nothing breaks: this already meets the iOS no-zoom rule.",
+    "change": "Keep it, and use the same rule for any picker search (none proposed)."
+   },
+   {
+    "location": "client/src/components/specialization/specialization.css:248 (.spz-chip min-width 6.5rem = 104 px)",
+    "assumes": "Chips sit in a wrapping flex row.",
+    "breaks": "A 3-column region grid gives 113 px columns at 390, 108 at 375 and 91 at 320. A 104 px minimum overflows at 320.",
+    "change": "New `.spz-regions` grid buttons with min-width 0, min-height 2.75rem, padding .5rem, and the 16 px label wrapping to two lines at 320."
+   },
+   {
+    "location": "client/src/components/specialization/ActionGlyph.tsx:10-16",
+    "assumes": "Action ids say flexion, extension, rotation or deviation, as wrist actions do.",
+    "breaks": "Mostly works (hip_extension, knee_flexion, trunk_rotation, plantar_flexion). Scapular retraction, protraction, elevation and depression fall back to \"steady\", which is misleading.",
+    "change": "Add glyph kinds for scapular glide and elevation, or accept the generic glyph. Low priority."
+   },
+   {
+    "location": "client/src/lib/specialization/regionAgnostic.test.ts:112,150",
+    "assumes": "The page-source scan forbids region and forearm words but not the side noun.",
+    "breaks": "\"arm\" can be (and is) hard-coded in page code, so the scan would not catch side words reappearing.",
+    "change": "Once side words are data, add `\\barms?\\b|\\blegs?\\b` (with an allow-list)."
+   },
+   {
+    "location": "client/src/pages/Home.specialization.test.ts:67-70,76,141,143,178 (and SpecializationPanel.render, Targets.render, MeasurementsPanel.render, SpecializationDiagram.render, DeviceWorkoutTracker.atlas, Home.specializationJourney tests)",
+    "assumes": "The h1 is \"Forearm specialization\", the entry is \"Explore forearm coverage\", and the words are \"Left arm\" / \"Right arm\".",
+    "breaks": "These tests will fail when the h1 becomes the region label and the words become data.",
+    "change": "Update them. Add tests for the picker (replace not push, origin kept, node and view reset), core (no side control), legs (leg words), search per region, key uniqueness, the logger's leg label and the gating."
+   },
+   {
+    "location": "client/src/lib/specialization/__fixtures__/deltoidRegion.ts:92-103",
+    "assumes": "The test-only deltoid fixture owns frontDelts, sideDelts and rearDelts and the id \"deltoid\", alongside production.",
+    "breaks": "A test that registers the fixture beside a production shoulders region would hit duplicate keys.",
+    "change": "Keep the fixture unregistered, and have the uniqueness test cover production only. Give the fixture `sides: \"arms\"`."
+   },
+   {
+    "location": "client/src/pages/Home.tsx:201-205 (comment)",
+    "assumes": "Specialize is \"Body Lab → Specialization → Forearms\".",
+    "breaks": "The comment is stale only; the brief §6 line 193 already implies a region level under Specialize.",
+    "change": "Reword the comment once the picker ships."
+   }
+  ],
+  "facts": "Not measured in a browser: a build writes dist/ inside the repo, and this lane is read-only. Layout figures come from docs/specialization-atlas/09-page.md (measured in headless Chromium emulating an iPhone) plus CSS arithmetic. The repo was not changed.\n\n1) WAYS IN TODAY. All of them read shared/specialization/regionIndex.ts, which lists only forearm (:26). The default region is forearm (:28).\n- Tab: Body Lab Movements · Muscles · Exercises · Specialize (Home.tsx:206-211). It calls navigateWorkspace(\"specialization\"), which reuses the last state in this visit (Home.tsx:1244-1245). The initial state is the address, else defaultSpecializationState(forearm) (Home.tsx:560). An unknown or missing region in the address falls back to forearm (viewState.ts:50-52).\n- Muscles map: AnatomyMap selection → activeMuscle → specializationEntryFor (Home.tsx:1282-1288) → a next-step button labelled region.entryLabel (Home.tsx:2479). Keys are forearms and brachioradialis; brachioradialis selects forearm.br (forearm/region.ts:98-100).\n- Review: Week → muscle detail → link (WeekReviewBoard.tsx:198,299), opened in planned mode on Review's week (Home.tsx:2521).\n- Search: a single destination \"Forearm specialization\" (universalSearch.ts:204-206). Home splits the id on '#' and treats the rest as a scroll anchor (Home.tsx:2119-2123).\n- Back: an entry point that names its origin pushes history state with specializationOrigin (Home.tsx:1251-1261). The page shows \"Back to {workspaceTitles[origin]}\" and calls history.back() (Home.tsx:2553-2554, SpecializationPanel.tsx:410). Changes made on the page use replaceState (Home.tsx:1274-1280). The tab, the dock and search give no Back.\n- Titles: workspaceTitles.specialization = \"Forearm specialization\" (Home.tsx:261). It feeds document.title (:2237) and the search-return label (:2160).\n\n2) THE PAGE TOP (SpecializationPanel.tsx:408-446).\n- Order: Back (44 px) → h1 = region.heading → controls row 1 (Completed·Planned beside Left arm·Right arm) → row 2 (windows or plan weeks) → the window line.\n- h1 size: .spz-title is clamp(1.5rem, 6.4vw, 2.7rem) at line-height .95, so the line is about 22.8 px tall at 375 and 23.7 px at 390 (specialization.css:33).\n- Tokens: --sg-text-base is 14 px and --sg-text-lg is 16 px (index.css:141-142). --sg-gutter is clamp(16px, 4.5vw, 20px) (index.css:179), so content width is 355 px at 390, 341 at 375, 288 at 320 and 391 at 430. Segment buttons are min-height 2.75rem (specialization.css:45).\n- Measured positions (09-page.md, FCU selected):\n  - 390×844: strip 435–534, drawing top 540, dock top 774.\n  - 375×667: strip 420–519, drawing top 523, dock top 597.\n- Drawing visible on the first screen at 375×667: 74 px with nothing extra, 49 with a target, 30 with Back, 5 with Back + target, 26 with Custom dates, 1 with Custom + target. Back + Custom already runs 14 px past the dock.\n\n3) THE SIDE MODEL TODAY.\n- Logged set side: set.side is \"left\" | \"right\" | \"both\" (deviceWorkoutLog.ts:62-64). The values are limb-neutral, and per-arm rows use the `perArm` key (:98-101).\n- When the side is asked: for a variant whose laterality is unilateral or either (loggingPolicy.ts:78). An \"either\" variant starts on Both; a unilateral one starts unset (:85).\n- Tracker: after a one-arm set it offers the other arm (DeviceWorkoutTracker.tsx:173-181). The label is \"Arm\" with Left·Right·Both (:183, :1374-1377). Per-arm rows appear when perArmSets && oneArm (:350, :380) and alternate (:136-145). Straps are asked only when askStraps && strapsSensitive (:1261, :1405-1409).\n- Home's gate: askStraps and perArmSets come from one value, \"any active goal in any region\" (Home.tsx:570, :2307).\n- Adapters: a recorded side is used as is; a bilateral variant gives bilateral (structural); otherwise unknown (bouts.ts:87-93). A planned bout is bilateral, structural or plan assumption; with no variant it is unknown (planBouts.ts:80-84).\n- Calculator: onArm = bilateral || side (exposure.ts:341). The other side's one-sided work is skipped (:375-377). Unknown side is kept apart and never counted (:385, :419-421). Goals are counted per side (:485, :492).\n- Where side must be left or right: summary and request side are ArmSide (types.ts:390, 562, 599). Goals and measurements are left/right (types.ts:398, 427). The database checks side in ('left','right') (schema.sql:344, 377). The device stores drop anything else (stores.ts:66, 145).\n\n4) KEYS.\n- Body map labels (AnatomyMap.tsx:45-59): upperBack, shoulders (an umbrella), feet, chest, frontDelts, sideDelts, rearDelts, biceps, brachialis, brachioradialis, triceps, forearms, abs, obliques, serratusAnterior, hipFlexors, tfl, quads, adductors, abductors, glutes, hamstrings, calves, soleus, tibialis, peroneals, lats, traps, rhomboids, lowerBack, rotatorCuff.\n- Not drawn on the figure: brachialis, serratusAnterior, tfl, peroneals and rotatorCuff (figureGeometry.ts:62). They can be chosen from the list only.\n- Review's keys add shoulders (\"Deltoids\"), feet, hipFlexors and serratusAnterior (weeklyVolume.ts:19-24).\n- Catalog tags: shoulders appears 7 times as primary and 12 as secondary, feet 9 as secondary, serratusAnterior once as primary.\n- rhomboids is an alias of upperBack (anatomyRegions.ts:37).\n- Proposed mapping:\n\n| Region | Keys |\n|---|---|\n| Shoulders | frontDelts, sideDelts, rearDelts, rotatorCuff, shoulders |\n| Chest | chest |\n| Back | lats, upperBack, rhomboids, traps, lowerBack |\n| Upper arm | biceps, brachialis, triceps |\n| Forearm | forearms, brachioradialis |\n| Core | abs, obliques |\n| Hips | glutes, abductors, tfl, hipFlexors, adductors |\n| Thigh | quads, hamstrings |\n| Lower leg | calves, soleus, tibialis, peroneals |\n| No region | feet, serratusAnterior (owner decides) |\n\n5) WEIGHT.\n- Forearm source by file: diagram 115 KB, claims 30, sources 32, mappings 37, variants 28, nodes 22, about 282 KB in all.\n- registry.ts:8 puts every region's full data into the page chunk.\n- loggingRegions.ts:52 puts every region's variants and mappings into the tracker chunk.\n\n6) HOLDS. holdCatalogIds.ts:18 lists 9 ids. These catalog core holds are not listed: 217 Copenhagen Plank, 235 L-Sit, 245 Hollow-Body Hold, 246 RKC Plank, 247 Side Plank, 248 Weighted Plank.\n\n7) PRECEDENT. The app already pairs a body noun with its plural: areaQuestion.ts:37,43 (arm/arms, leg/legs).\n\n8) TESTS that assert forearm or arm words: Home.specialization.test.ts:67-70,76,141,143,178, plus 7 other render and tracker tests. The source scan at regionAgnostic.test.ts:112,150 does not cover side nouns.",
+  "recommendations": "1. CHOOSING A REGION ON A PHONE: inline, in the heading row, no popup.\n- The row: replace the h1 line with a 44 px row. On the left, h1 = region.label (\"Forearms\"). On the right, a bordered button \"All regions ⌄\", visible at rest, with aria-expanded and aria-controls=\"spz-regions\".\n- The grid: a tap expands, directly under the row, a role=\"group\" aria-label=\"Body region\" 3×3 grid in body order:\n  - Shoulders · Chest · Back\n  - Upper arms · Forearms · Core\n  - Hips · Thighs · Lower legs\n- sortOrder values with gaps (shoulders 2, chest 4, back 6, upper arm 8, forearm 10, core 12, hips 14, thigh 16, lower leg 18), so the published forearm row keeps 10.\n- Each button:\n  - min-height 2.75rem and min-width 0; the 104 px .spz-chip minimum would overflow at 320;\n  - a 16 px bold label, with an optional 12 px line \"2 targets\" taken from the goals already loaded (SpecializationPanel.tsx:116);\n  - aria-pressed on the current region.\n  - Column widths are 113 px at 390, 108 at 375 and 91 at 320, where the label wraps to two lines. The grid is about 144 px tall.\n- Picking:\n  - calls onStateChange(withRegion(state, id)), which uses replaceState (Home.tsx:1274-1280), so Back and its label still return to the origin;\n  - collapses the grid and keeps focus on the toggle;\n  - announces \"Thighs: N distinct bouts on the right leg\".\n  - Tapping the current region, the toggle or Escape also collapses it.\n- Render the toggle only when more than one production region exists. Key SpecializationPage by region (:84).\n- The new helper viewState.withRegion resets node, view and layer, and keeps mode, window, plan week, map and limb.\n- First screen at 390×844: about +21 px, so the strip moves to about 456–555 and the drawing top to about 561.\n  - Expanded, the strip sits at about 606–705, under the dock's 774. The 9 regions and the selected muscle fit on one screen.\n- First screen at 375×667 (estimate): the drawing would show 53 px with nothing extra, 28 with a target, 9 with Back, −16 with Back + target, 5 with Custom, −20 with Custom + target.\n  - If the screenshots confirm the losses, fold Back into the region row on screens 700 px tall or less, as [‹ Review] [FOREARMS] [⌄], using the tab's short name. That saves about 50 px against today.\n- Default region: remember the last region per account on the device (localStorage, in try/catch) and use it for the tab (Home.tsx:560).\n  - On a first visit with no region in the address, open with the grid expanded once.\n  - Keep forearm as the final fallback so old links and tests hold.\n- Rejected:\n  - a horizontal chip scroller: 50 px at rest, with 5–6 regions off screen;\n  - a sheet: CLAUDE.md wants routine choices inline;\n  - a separate landing page: an extra level and an always-present Back row.\n\n2. ONE SIDE MODEL, AS DATA.\n- Add region.sides = \"arms\" | \"legs\" | \"sides\" | \"none\" (a new column in the v2 migration):\n  - arms: shoulders, upper arm, forearm;\n  - sides: chest, back, hips (owner may prefer legs for hips);\n  - legs: thigh, lower leg;\n  - none: core.\n- Add a shared helper sideWordsFor(sides): noun, plural, Left/Right/Both, \"No leg recorded\", \"one per leg\", and the group label. It replaces every armWord and \"arm\" literal listed in the assumptions.\n- Extend the regionAgnostic scan with \\barms?\\b|\\blegs?\\b.\n- The logger asks by the exercise; the page speaks by the region. Both connect through the same stored left/right value.\n\n3. CORE (no sides).\n- Page:\n  - no side segment, and no side word in the window line, lede, captions, sheets or bout rows;\n  - no \"there\" summary, so no side-difference finding and no trailing-side suggestions;\n  - no unknown-side lists or lines;\n  - the drawing is never mirrored;\n  - Targets: one target per subject, with no Which-arm control;\n  - Progress: no side control. measurementMetrics probably [] (the empty-state path exists).\n- Calculator: summary and request side become BodySide | null. When sides is \"none\", every in-window bout counts once, whatever its recorded side, unknown included.\n- Goals and measurements: side null, which needs:\n  - a new migration relaxing the checks against regions.sides;\n  - stores.ts accepting null;\n  - goals.ts validation and the server tests updated.\n\n4. LEGS IN THE LOGGER.\n- Data: the variant gains sideLimb (\"arm\" | \"leg\" | \"trunk\"), identical across regions. LoggingPolicy carries it.\n- Tracker words:\n  - \"Leg · Left · Right · Both\", with aria \"Leg for set 2 of Bulgarian Split Squat\";\n  - \"· each leg\", \"one leg at a time\", \"done once with each leg\" in the tracker and ExerciseSwapSheet.\n- Unchanged: stored set.side and perArm, defaults, alternation, and Both for alternating lunges. No history migration.\n- askSide only when a mapping of the variant sits in a region with sides (Side Plank mapped only by core asks nothing).\n- Gating:\n  - askStraps: only with an active target in a region that has straps-sensitive mappings;\n  - per-side rows: only with an active target in a sided region that maps the exercise (Home.tsx:570, :2307);\n  - owner decision: whether the side row itself becomes gated, since with 9 regions it appears on every one-sided exercise.\n- Performance: index the policy once at module level, and ship a generated compact logging table instead of 9 regions' mappings.\n\n5. SIDES ACROSS LIMBS (calculator lane, needed by the page).\n- Add mapping sideRelation \"same\" | \"opposite\" | \"both\", default \"same\" (forearm v1 reads unchanged):\n  - opposite: contralateral load (single-leg RDL with the dumbbell in the other hand);\n  - both: midline muscles in sided regions (erectors on a one-arm row), credited even when the side is unknown.\n- DiagramAsset.symmetry \"one_side\" | \"both_sides\": mirror only one_side; a both_sides drawing highlights the chosen side.\n\n6. ENTRY POINTS.\n- bodyMapKeys as in facts §4, with a uniqueness test.\n- nodeForBodyMapKey only where a key names one selectable muscle: frontDelts, sideDelts and rearDelts → heads; chest; lats; biceps → upper_arm.biceps; brachialis; triceps; calves → gastrocnemius; soleus; tibialis. Group keys (quads, glutes, upperBack, rotatorCuff) open the region with no muscle selected. traps against upperBack needs an anatomy decision.\n- entryLabel per region.\n- The registry resolves membership into region-relative nodes, so the page's role and regionId reads stay as they are.\n- In an external node's muscle sheet, add \"Open the upper-arms page\" when the node's own region has a page, as a withRegion change.\n- Review's link and the Body Lab button need nothing beyond data.\n\n7. SEARCH AND TITLES.\n- One destination per region from regionIndex (id specialization#<id>, label = heading), plus a generic \"Specialize\".\n- A Home branch validates the region and navigates with no Back.\n- workspaceTitles.specialization becomes \"Specialize\". document.title and the search-return label use the region's heading.\n\n8. CHUNKS. Per-region dynamic imports for the page data, with a loading line while a region loads. The picker and Home read regionIndex only.\n\n9. MEASURES AND RULE TEXT.\n- Leg postures, and a sided flag per metric or landmark (chest and hip circumference are whole-body). These need a new migration.\n- A region-neutral rule v2, or per-region sides and straps sentences.\n- The strapped finding's words move into data.\n\n10. VERIFY (CLAUDE.md). Headless Chromium iPhone emulation (isMobile, hasTouch, scale 3), not Safari, at 390×844 and 375×667 (also 430×932 and 320). Screenshot:\n- the picker closed and open;\n- a thigh page with Left leg / Right leg;\n- the core page with no side control, and its Targets and Progress;\n- the logger card for a Bulgarian split squat.\nThen run the 44 px touch sweep including the 9 grid buttons, and check for no horizontal overflow at 320.\nUpdate the wording tests, and add tests for the picker (replace not push, origin kept, node and view reset), core, legs, search, key uniqueness and logger gating."
+ },
+ {
+  "area": "Drawing pipeline and content production: design/specialization/forearm/* generator, SpecializationDiagram renderer contract, and the forearm anatomy/mapping content recipe, evidence standard and timing, applied to eight new regions (shoulders, chest, back, upper arm, core, hips, thigh, lower leg).",
+  "assumptions": [
+   {
+    "location": "design/specialization/forearm/asset.mjs:14-15",
+    "assumes": "There is one drawing, ASSET_KEY \"forearm_schematic\" version 1.",
+    "breaks": "A second region run through this module would emit the forearm key. diagram_assets is unique on (asset_key, version) (schema migration L192-201).",
+    "change": "Read the key from a per-region config (`<region>_schematic`, v1)."
+   },
+   {
+    "location": "design/specialization/forearm/asset.mjs:22-26",
+    "assumes": "VIEW_ORDER is palm, back and thumb, with forearm button words.",
+    "breaks": "Every other region needs its own views (front, side, back, outer side).",
+    "change": "Put VIEW_ORDER in design/specialization/<region>/config.mjs. Keep the existing checks: each drawn view listed once, id matches ^[a-z][a-z0-9_]*$, label not blank."
+   },
+   {
+    "location": "design/specialization/forearm/asset.mjs:29-34",
+    "assumes": "A hand-kept table maps short names to forearm ids plus the two upper_arm externals.",
+    "breaks": "With other regions' externals in a drawing the table drifts. Two nodes whose shortName lowercases to the same string give duplicate path ids, which assertUnique refuses (emit-seed.ts:498). Example: an \"LH\" long head of biceps and of triceps.",
+    "change": "Derive the table from the region data (nodes, external nodes included) by shortName. Fail the build on a duplicate lowercased shortName inside one drawing."
+   },
+   {
+    "location": "design/specialization/forearm/asset.mjs:60; client/src/lib/specialization/forearmDiagram.test.ts:85-89",
+    "assumes": "Path names are shortName.toLowerCase() and match ^[a-z][a-z0-9-]*$. The test regex also hard-codes (palm|back|thumb).",
+    "breaks": "Short names with spaces, dots or brackets (\"Glute max\", \"BF (LH)\") throw. Any new view id fails the test regex.",
+    "change": "Require shortName to be [A-Za-z][A-Za-z0-9-]* (test it in each region's anatomy test), or slug it. Build the regex from the asset's viewOrder."
+   },
+   {
+    "location": "design/specialization/forearm/asset.mjs:73",
+    "assumes": "regionId \"forearm\" is written literally into the asset.",
+    "breaks": "Every region's asset would claim to be the forearm's.",
+    "change": "Take regionId from the config, and test that it equals region.id."
+   },
+   {
+    "location": "design/specialization/forearm/asset.mjs:11-12; views/index.mjs:9-11; check.mjs:6; preview.mjs:10-11",
+    "assumes": "Every tool imports the forearm's views and CANVAS directly. There is no region parameter.",
+    "breaks": "check, preview, emit and evidence cannot run for another region without copying the folder.",
+    "change": "Move buildAsset, renderModule, check, preview and the evidence tools to design/specialization/shared/, each taking a region config and its buildViews()."
+   },
+   {
+    "location": "design/specialization/forearm/emit.mjs:16, :26-33, :58-63",
+    "assumes": "The output path is regions/forearm/diagram.generated.ts, with exports forearmDiagram and forearmDiagramOutcrops and a header that says \"The subject's RIGHT forearm\".",
+    "breaks": "Other regions need their own path, export names and side wording, and a core drawing is not mirrored.",
+    "change": "Generate from config: `${region}Diagram` and `${region}DiagramOutcrops`, plus side wording. Keep emit.mjs as a thin wrapper so forearmDiagram.test.ts:10 still imports renderModule."
+   },
+   {
+    "location": "design/specialization/forearm/emit.mjs:7-8; docs/specialization-atlas/08-diagram.md:21-30; scripts/specialization/emit-seed.ts:63, :740; server/specializationSeed.test.ts:94-131, :144",
+    "assumes": "After a drawing change you regenerate the seed. emit-seed writes supabase/migrations/20261016120100_specialization_atlas_seed_v1.sql, the drift guard compares that file with the whole registry, and the test expects registry == ['forearm'].",
+    "breaks": "Adding any region, or any byte of forearm drawing change, makes the applied production v1 file stale. Following the documented steps rewrites a migration that must never be edited again.",
+    "change": "Freeze the v1 file and its guard to a pinned forearm snapshot. Point emit-seed at a new _seed_v2.sql. Update the instructions in emit.mjs and 08-diagram.md before any drawing lane runs."
+   },
+   {
+    "location": "design/specialization/forearm/silhouettes.mjs:1-14 (CANVAS 360x760, CROP_TOP -14, CROP_BOTTOM 776), :17-103",
+    "assumes": "One limb is drawn vertically with fixed landmark heights shared by all views (epicondyles y≈104, wrist ≈600).",
+    "breaks": "Torso, pelvis and shoulder outlines are not one vertical limb. The heights mean nothing there.",
+    "change": "Give each region its own silhouettes.mjs and landmark heights. Keep a shared-landmark rule inside a region (the same muscle ends at the same height in every view, as forearmDiagram.test.ts:199-216 does)."
+   },
+   {
+    "location": "design/specialization/forearm/geometry.mjs:205-214 (edgeX); silhouettes.mjs:54-69 (palmEdge/backEdge/thumbEdge)",
+    "assumes": "An outline edge is single-valued in y, as on a vertical limb. Border muscles are inset from it per y.",
+    "breaks": "The shoulder cap, the trapezius line from neck to acromion, the iliac crest and the gluteal fold double back in y, so edgeX interpolates wrongly.",
+    "change": "Add edgeAt(points, axis, value) and an insetPolygon(outline, d) helper. Keep edgeX for limbs."
+   },
+   {
+    "location": "design/specialization/forearm/geometry.mjs:168-182 (clipBelow)",
+    "assumes": "A deep muscle surfaces only below a horizontal cut (APL and EPB above the wrist).",
+    "breaks": "Gluteus medius surfaces above gluteus maximus. Soleus shows beside and below gastrocnemius. Iliopsoas shows inside the femoral triangle. Infraspinatus and teres minor show in a window between deltoid, trapezius and teres major.",
+    "change": "Generalise to clipBy(points, {above|below|left|right}) and clipToPolygon(points, window) (Sutherland-Hodgman). Keep the invariant that an outcrop is cut from the very outline the node's own layer draws in that view."
+   },
+   {
+    "location": "design/specialization/forearm/geometry.mjs:198-202 (rowsShape)",
+    "assumes": "Bellies are written as horizontal cross-sections [y, left, right].",
+    "breaks": "Pectoralis major (sternocostal fibres), lower trapezius and the fan muscles (latissimus, deltoid, gluteus maximus) are awkward as horizontal slices, and gutters between them are hard to keep even.",
+    "change": "Add columnsShape ([x, top, bottom]), rotate(points, angle, centre) so rowsShape can be written in a rotated frame, and a fan(originEdge, insertion, widths) helper."
+   },
+   {
+    "location": "design/specialization/forearm/views/palm.mjs:22-26, :129, :208-213; back.mjs:22-26, :197, :213; thumb.mjs:23-26, :169, :185",
+    "assumes": "C, INSET = 3 and ghostOf are redefined in each view. Labels sit at x 10 and 350 on a 360-wide canvas, with forearm words.",
+    "breaks": "The helpers get copied eight more times. The label positions assume the 360 width.",
+    "change": "Export C, INSET, ghostOf and a labels(margin, words) helper from the shared geometry. Give each region its own direction words."
+   },
+   {
+    "location": "design/specialization/forearm/check.mjs:76, :82",
+    "assumes": "Canvas height is the literal 760. The gutter report threshold is 8 units.",
+    "breaks": "The skin-containment check gives wrong results on any canvas that is not 760 tall.",
+    "change": "Read the height from the asset's viewBox. Keep the 8-unit report (it is advice, not a failure; the forearm has many gutters of 1.4-7.6)."
+   },
+   {
+    "location": "design/specialization/forearm/preview.mjs:9, :32, :41; render-evidence.mjs:17; render-page.mjs:16",
+    "assumes": "The grid is 16 x 8 lines at 50 units and the viewport 830 tall, both sized to 360x760. Playwright is imported from /opt/node22/lib/node_modules/playwright.",
+    "breaks": "Other canvas sizes get a wrong grid. The scripts break outside this sandbox image.",
+    "change": "Size the grid and viewport from CANVAS. Resolve Playwright once in a shared helper."
+   },
+   {
+    "location": "design/specialization/forearm/render-evidence.mjs:21, :26, :50, :53, :58-64, :70-71",
+    "assumes": "Output goes to docs/specialization-atlas/evidence with region-less names (diagram-<view>-<layer>-<arm>.png, hit-targets.json). The selected muscle per layer is a forearm id, every region has two arms, captions say \"Forearms\", and the extra figures use palm and forearm.fds.",
+    "breaks": "Views named front or back in several regions would overwrite each other's PNGs and the one hit-targets.json. Core has no arms.",
+    "change": "Write to evidence/<region>/ and take selectedFor, sides (right/left or none), captions and extra figures from design/specialization/<region>/evidence.mjs."
+   },
+   {
+    "location": "design/specialization/forearm/render-evidence.mjs:84; docs/specialization-atlas/evidence/hit-targets.json",
+    "assumes": "Tap targets are measured only at a 390x844 viewport, where the drawing is 324 px wide. The smallest exclusive square is 47 px on every forearm layer.",
+    "breaks": "At 375 pt the drawing is 307 px, so 47 px scales to about 44.5 px. The 44 pt floor has almost no margin, and a new region measured only at 390 can pass there and fail at 375.",
+    "change": "Measure at 375x667 and 390x844, both at device scale 3, and fail under 44 px at either width."
+   },
+   {
+    "location": "design/specialization/forearm/evidence-entry.tsx:9, :15-16",
+    "assumes": "The evidence page draws forearmRegionData.diagram.",
+    "breaks": "No other region can be rendered through the real component.",
+    "change": "Read the region id from window.FIGURES and look it up in the registry, or pass the asset and nodes in."
+   },
+   {
+    "location": "design/specialization/forearm/render-page.mjs:35-52, :68, :103-108, :113-122, :128, :145",
+    "assumes": "The page is seeded with forearm sessions (catalog 132, 139, 140) and a forearm plan, opened at region=forearm. The script taps forearm.fcu and clicks \"Left arm\", \"Back\", \"Palm\", \"Deep\" and \"Day 02 · Lower\".",
+    "breaks": "Every other region needs its own seed, muscle, view words and side words.",
+    "change": "Make a per-region page config: sessions, plan, tap node, view to switch to, side buttons (or none)."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationDiagram.tsx:47, :54, :282-283; diagramGeometry.ts:185, :189; specialization-diagram.css:54",
+    "assumes": "HIT_HALO 9, LABEL_CLEARANCE 24, callout size 16 and pill 26, RASTER_CELL 2 and ANCHOR_MARGIN 14 are view-box units tuned to a 360-wide canvas. Label text is 14 user units (.875rem) and scales with the viewBox.",
+    "breaks": "A wider canvas shrinks labels and pills below legible size on a phone. The deltoid fixture (120x80, deltoidRegion.ts:154) draws them three times too large relative to the drawing.",
+    "change": "Fix the canvas width at 360 for every region and vary only the height, or scale these constants by viewBox.width/360. Test it per region."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationDiagram.tsx:53 (HIT_SQUARE_SHARE 0.145)",
+    "assumes": "The drawing fills the card (307 px at 375 pt) and each muscle has room for a 52.2-unit square, mostly inside its own belly.",
+    "breaks": "Thin or small bellies cannot hold the square without covering neighbours: teres minor, sartorius, gracilis, pectineus, levator scapulae, rhomboid minor, semimembranosus and soleus slivers, the iliopsoas outcrop.",
+    "change": "In each region's node design, merge or omit what cannot be tapped honestly (for example rhomboids as one node). Keep these nodes reachable from the list. Per layer, require the Chromium-measured exclusive square to be at least 44 px."
+   },
+   {
+    "location": "client/src/components/specialization/diagramGeometry.ts:262-298; SpecializationDiagram.render.test.ts:254-258, :293",
+    "assumes": "Greedy square placement always finds full room. Only the forearm's seven layers are tested, and the cover bounds are keyed by forearm view names.",
+    "breaks": "On a crowded layer (hips front surface, shoulders back surface) squares can overlap or cover a lot of a neighbour with no failing test.",
+    "change": "Run the non-overlap, on-canvas, cover-bound and anchor-on-canvas tests over every registered region's asset and layers, with per-region bounds kept in its diagram test."
+   },
+   {
+    "location": "client/src/components/specialization/diagramGeometry.ts:120-130 (sliceCentres)",
+    "assumes": "Label and tap anchors are taken from horizontal slices, which suits vertical limb muscles.",
+    "breaks": "Horizontally elongated thin bellies (lower trapezius fibres, teres major from behind, serratus digitations) get few or poor candidates.",
+    "change": "Add vertical slices as candidates as well (cheap), and check the anchors on the new regions."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationDiagram.tsx:15-16, :161, :177; shared/specialization/types.ts:309-312; schema migration comment L189 and diagram_assets L192-201",
+    "assumes": "Every drawing shows the subject's right side, and `mirrored` means the left arm. The asset records no side policy.",
+    "breaks": "A core drawing is of both sides and must never flip. A whole-trunk front view has the subject's right on the viewer's left.",
+    "change": "Add a side policy to the region or asset (sided: true/false, drawnSide: right). The page passes mirrored=false for unsided regions. Test it."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:420-421, :491 (and :210)",
+    "assumes": "The page offers Left arm and Right arm and sets mirrored = state.limb === 'left'. Captions say 'arm'.",
+    "breaks": "Legs say 'arm', and core would flip and offer sides it does not have.",
+    "change": "Take the side words from region data (arm, leg, or none). This is page-lane work, but the drawing configs depend on it."
+   },
+   {
+    "location": "shared/specialization/types.ts:280; SpecializationDiagram.tsx:58; diagramGeometry.ts:317",
+    "assumes": "There are three layer ids: surface, intermediate (shown as Middle) and deep. The database accepts any well-formed id (schema L223).",
+    "breaks": "Nothing breaks if each region keeps to three. Lower leg back, hips back, core and back each really have three layers.",
+    "change": "Keep the three ids and say per view which ones it draws."
+   },
+   {
+    "location": "shared/specialization/types.ts:290 (DiagramPath.nodeId single)",
+    "assumes": "A tendon belongs to one node.",
+    "breaks": "Shared tendons and aponeuroses (calcaneal tendon: gastrocnemius and soleus; quadriceps tendon; iliotibial band: TFL and gluteus maximus; thoracolumbar fascia) cannot be part of two muscles' selection outlines.",
+    "change": "Draw shared tendons as structure (kind outline, nodeId null), or as one strip per contributing node. Record the choice in each region's diagram note."
+   },
+   {
+    "location": "client/src/lib/specialization/forearmDiagram.test.ts:106-115 (kind === 'muscle')",
+    "assumes": "Every drawn node has kind 'muscle'.",
+    "breaks": "Deltoid heads, trapezius parts, gastrocnemius heads and triceps heads are kind 'head' (as in the fixture, deltoidRegion.ts:41).",
+    "change": "Allow muscle or head in the shared diagram contract test. Forbid group and compartment."
+   },
+   {
+    "location": "client/src/lib/specialization/forearmDiagram.test.ts:141-197 (L158 node.layer === 'deep'; L170-178 bellyOf(view,'deep'))",
+    "assumes": "Only deep nodes have outcrops, cut from the same view's deep layer.",
+    "breaks": "Soleus and gluteus medius are naturally intermediate and still surface. Brachialis, adductor magnus and infraspinatus are surface from one side and covered from another.",
+    "change": "Generalise: an outcrop is a node drawn on a layer above its own, cut from its own-layer outline in the same view. A view that shows an outcrop must also draw the node's own layer. surfaceVisibility must not be not_distinct."
+   },
+   {
+    "location": "client/src/lib/specialization/forearmDiagram.test.ts:20-23, :53, :243-250, :270-330",
+    "assumes": "Fixed views, viewBox 360x760, forearm structure words (humerus, radius, ulna, olecranon...). More than 30 tendons, each under 2200 units² of area. Orientation checks are thumb side and pinky side.",
+    "breaks": "None of this applies to another region.",
+    "change": "Split it in two. A shared diagramContract test runs over registry assets: manifest, numbering, node ties, path grammar, one skin first, own-layer rule with listed outcrops, no overlap, inside skin, labels on canvas, every tendon has a drawn belly. Each region keeps its own orientation and landmark test."
+   },
+   {
+    "location": "client/src/lib/specialization/regionAgnostic.test.ts:150",
+    "assumes": "The page-word scan looks only for forearm words (thumb side, pinky, palm, upper arm).",
+    "breaks": "A new region's words hard-coded in a component (inner thigh, shin, Front) would pass the scan.",
+    "change": "Build the regex from every registered region's view labels, label texts and wording."
+   },
+   {
+    "location": "client/src/components/specialization/ActionGlyph.tsx:10-16",
+    "assumes": "The glyph is picked from verbs in the action id: rotation, deviation/abduction/adduction, extension, flexion, else steady.",
+    "breaks": "elevation, depression, retraction, protraction, upward_rotation of the scapula, plantar_flexion/dorsiflexion, lateral_flexion and anti-rotation fall to a wrong or 'steady' glyph.",
+    "change": "The shared actions lane fixes the action-id vocabulary first and extends the glyph mapping with it (tested)."
+   },
+   {
+    "location": "shared/specialization/types.ts:33, :91 (ForearmBorder radial/ulnar/central/both)",
+    "assumes": "Borders are radial or ulnar.",
+    "breaks": "Other regions need medial and lateral, anterior and posterior.",
+    "change": "Use border null outside the forearm (as the fixture does), or generalise the type in the platform lane."
+   },
+   {
+    "location": "shared/specialization/types.ts:174-193 (ExerciseVariant); emit-seed.ts:582-584",
+    "assumes": "The execution dimensions are the forearm's: forearmOrientation, wristPosition, gripType, straps, elbowAngleDeg.",
+    "breaks": "Calves need knee angle (gastrocnemius vs soleus). Hips and thigh need stance, hip angle, depth and single-leg set-up. Chest and shoulders need bench incline, plane and grip width. Back needs pull angle and grip width.",
+    "change": "Platform lane: add per-region execution dimensions in a side record (variant dimensions). Never edit the 119 frozen forearm variants (04-database.md:63-66)."
+   },
+   {
+    "location": "scripts/specialization/emit-seed.ts:202-212, :323",
+    "assumes": "A variant `cat-<id>` mapped by two regions must be byte-identical in both.",
+    "breaks": "384 of 416 catalog rows are tagged in two or more of the nine regions (166 in four). Mapping lanes that each write variants collide on these objects, and 119 of them are frozen by forearm_mappings_v1.",
+    "change": "One shared variants lane owns shared/specialization/variants/**. Region mapping lanes read it and never write it."
+   },
+   {
+    "location": "shared/specialization/types.ts:24-30; scripts/specialization/emit-seed.ts:312; regions/forearm/nodes.ts:267-284; 04-database.md:66",
+    "assumes": "A node's role is one global value. upper_arm.biceps and upper_arm.brachialis are role 'external' in region upper_arm, mapped by the published forearm_mappings_v1, so their review, region, role and catalog key are frozen.",
+    "breaks": "The upper-arm region cannot make biceps or brachialis targets under these ids. mergeByKey refuses a second, different record of the same node.",
+    "change": "Decide first, in the platform lane: per-region membership with role (preferred) or new target ids. The anatomy and drawing lanes for the upper arm wait on that decision."
+   },
+   {
+    "location": "shared/specialization/regions/forearm/nodes.ts:270-283",
+    "assumes": "External nodes carry forearm-perspective text, for example \"It is an upper-arm muscle and does not add forearm size\" and \"not a forearm target\".",
+    "breaks": "The same node row shown on the upper-arm page would read wrongly.",
+    "change": "Move region-relative text (role caveats) into membership. Keep only neutral anatomy text on the node."
+   },
+   {
+    "location": "scripts/specialization/emit-seed.ts:329-333; schema migration L183 (node_actions PK node_id, action_id)",
+    "assumes": "A node action is unique per node and action, and its claim key carries the region.",
+    "breaks": "If the upper arm rests biceps / elbow.flexion on its own upper_arm:biceps.function claim, it collides with the forearm's row, which rests on forearm:biceps.function and is frozen.",
+    "change": "Reuse the existing node action and claim for shared node/action pairs, or move node actions to membership scope. Decide in the platform lane."
+   },
+   {
+    "location": "scripts/specialization/emit-seed.ts:322; regions/forearm/sources.ts:21-89; mappingSources.ts",
+    "assumes": "Source keys S1-S8, A1-A55 and M1-M8 are global and unprefixed.",
+    "breaks": "A new region's A1 collides, and reusing a StatPearls or Kenhub page needs a byte-identical record.",
+    "change": "Use a shared source library keyed by stable slug (statpearls-infraspinatus), or region-prefixed keys (shoulders.A1). Test that keys are unique across regions."
+   },
+   {
+    "location": "scripts/specialization/emit-seed.ts:313; regions/forearm/actions.ts; shared/specialization/ids.ts:53-74",
+    "assumes": "Actions merge by id, and the forearm's elbow.flexion and elbow.extension wording is the only definition.",
+    "breaks": "The upper arm, back and shoulders all need elbow and shoulder actions. Hips, thigh and lower leg share hip, knee and ankle actions. Divergent copies are refused.",
+    "change": "One shared actions catalogue (shared/specialization/actions/**) owned by the platform lane. Regions reference it."
+   },
+   {
+    "location": "shared/specialization/ids.ts:1-82",
+    "assumes": "One module holds every region's ids.",
+    "breaks": "Eight lanes editing ids.ts collide.",
+    "change": "Add shared/specialization/regions/<region>/ids.ts. ids.ts keeps only the cross-region constants."
+   },
+   {
+    "location": "shared/specialization/regions/forearm/claims.ts:41, :45-57; nodeActions.ts:22-27",
+    "assumes": "A claim id is the node id minus its region prefix, plus the kind. Node actions derive claimId the same way.",
+    "breaks": "Nothing breaks if node ids stay flat `<region>.<slug>`. Nested ids (shoulders.rotator_cuff.infraspinatus) make the ids ambiguous.",
+    "change": "Keep node ids flat. Test the claim-id derivation per region."
+   },
+   {
+    "location": "client/src/lib/specialization/forearmAnatomy.test.ts:266-289; regions/forearm/nodes.ts:9-20",
+    "assumes": "Copy rules are forearm words: thumb side and pinky side, never left or right. The 'deep muscles have little contour' wording is checked for the forearm.",
+    "breaks": "Other regions need inner/outer, front/back and toward the hip/knee. The trunk needs 'your left' and 'your right' on unmirrored drawings.",
+    "change": "Give each region its own anatomy test with its own direction vocabulary. Share the no-growth-promise, vendor-name and no-'table' checks."
+   },
+   {
+    "location": "shared/specialization/rules.ts:27, :33, :40, :77; regions/forearm/mappings.ts:30-32",
+    "assumes": "The published rule text talks about grip and straps, and requiresNoStraps exists on every mapping. Mappings cite S4 and M8 anatomy tables.",
+    "breaks": "Every region's page shows grip and strap words. Non-grip regions set requiresNoStraps false everywhere.",
+    "change": "Rule wording per region needs a new rule version (README: 'One rule for every region'). The content recipe sets requiresNoStraps false outside grip mappings."
+   },
+   {
+    "location": "shared/specialization/types.ts:390, :410-416; loggingPolicy.ts:28-43",
+    "assumes": "The side is an arm. Measures are forearm circumference and grip, with arm postures. 'Which arm' means the side whose muscles are credited.",
+    "breaks": "Legs need their own side words and measures. For trunk muscles, unilateral limb work loads the other side or both (a suitcase carry loads the obliques and QL opposite the hand), so crediting the working side is wrong.",
+    "change": "Core and midline back nodes take no side. Each region's mapping rationale says so. Leave contralateral credit out of v1 for all regions and state it as a limitation."
+   },
+   {
+    "location": "client/src/lib/exerciseCatalog*.ts muscle keys (measured with a scratch script)",
+    "assumes": "The eight proposed regions cover the catalog's keys.",
+    "breaks": "Three keys are not in the proposal: shoulders (7 primary, 12 secondary), serratusAnterior (2/0) and feet (0/9). Also, brachioradialis is a forearm key, and triceps is already the catalog key of forearm.anconeus (nodes.ts:258).",
+    "change": "Assign shoulders to the shoulders region, give serratusAnterior an owner (chest or shoulders), and say that feet stays out of scope."
+   },
+   {
+    "location": "client/src/components/specialization/SpecializationPanel.tsx:15; shared/specialization/registry.ts:8",
+    "assumes": "The page statically imports the full registry, so every region's drawing and content goes into one lazy chunk.",
+    "breaks": "Today that chunk is 361,507 B raw and 103,354 B gzip. Each drawing is about 115 KB raw and 32 KB gzip (forearm 114,749 / 32,343), so with nine regions an athlete downloads every region to see one.",
+    "change": "Lazy-load per region: a dynamic import of regions/<id>/index.ts. Keep regionIndex.ts light."
+   },
+   {
+    "location": "client/src/lib/specialization/__fixtures__/deltoidRegion.ts:20, :23-28, :108",
+    "assumes": "The test fixture owns region id 'deltoid' and the node ids deltoid.* and upper_arm.triceps (role external).",
+    "breaks": "A production shoulders or upper-arm region that reuses these ids collides with the fixture in seed and page tests. A production upper_arm.triceps as a target conflicts with the fixture's external record.",
+    "change": "Pick production ids that the fixture does not use (shoulders.*, upper_arm.triceps_long etc.), or rename the fixture ids in the platform lane."
+   },
+   {
+    "location": "docs/specialization-atlas/03-anatomy-evidence.md:9-16, :20-26",
+    "assumes": "Evidence can be gathered only through web search, because page fetches fail.",
+    "breaks": "Still true on 19 Oct 2026. curl through the proxy got CONNECT 403 for ncbi.nlm.nih.gov, pmc.ncbi.nlm.nih.gov, kenhub.com, anatomy.ttuhscep.edu, radiopaedia.org and elsevier.com. WebFetch got ENOTFOUND for ncbi and kenhub. WebSearch works and returns model-written summaries (a test query on infraspinatus returned a garbled phrase).",
+    "change": "Use the same method and limits for all eight regions, and say so on every claim. Plan a human or full-text review before publishing."
+   },
+   {
+    "location": "docs/specialization-atlas/08-diagram.md:124; README.md release gates ('Muscle map checked against anatomical references: Partly')",
+    "assumes": "The drawing is checked against the atlas's own notes by an automated review, not by an anatomist.",
+    "breaks": "Eight torso and limb drawings are harder to get right than one forearm. The forearm's automated review still found real errors after the first pass (b1f80181).",
+    "change": "Per region: an adversarial drawing review plus an anatomist check before the drawing is called reviewed."
+   }
+  ],
+  "facts": "I read everything below without changing the repository. The only files I wrote are in the scratch folder /tmp/claude-0/-home-user-Sports-genome/1ff0a7bc-72e5-5e41-a8d9-937a97929500/scratchpad/multi-region/: counts.ts and catalog.ts (tsx counters), timing.py, and pr96/ (PR #96 commit JSON from the GitHub REST API). `node design/specialization/forearm/emit.mjs --check` reports the drawing up to date, and check.mjs runs. vitest could not run because node_modules is not installed, so I made no test claims from a run.\n\n1. WHAT IN THE GENERATOR IS FORAMR-SPECIFIC\n- design/specialization/forearm/ has 13 files, 1,756 lines:\n  - asset.mjs 76, emit.mjs 80, geometry.mjs 218, silhouettes.mjs 103, check.mjs 89, preview.mjs 46\n  - views/palm 216, back 221, thumb 193, index 11\n  - render-evidence.mjs 147, evidence-entry.tsx 42, render-page.mjs 156, render-logger.mjs 200\n- geometry.mjs is generic except for three helpers:\n  - clipBelow (L168-182): horizontal cut only\n  - rowsShape (L198-202): horizontal slices only\n  - edgeX (L205-214): assumes an edge single-valued in y\n- The generic helpers are: closed/open (centripetal Catmull-Rom), sampleSpine, bandPoints/band, tendon, mirrorPoints, and the output grammar (absolute M/C/L/Z, one decimal).\n- check.mjs's flatten, inside, minDistance, overlapCount and area are generic. Its 760 (L76) is not.\n- Fully forearm-specific:\n  - silhouettes.mjs (canvas 360x760, crops, three outlines and edge functions)\n  - views/*\n  - asset.mjs (key, version, VIEW_ORDER, NODE_FOR_SHORT_NAME, regionId literal at L73)\n  - emit.mjs (path, export names, header)\n  - render-evidence.mjs (forearm selectedFor, arms, captions, evidence file names, 390-only measuring)\n  - evidence-entry.tsx (forearmRegionData)\n  - render-page.mjs (forearm seed, region=forearm, forearm.fcu, 'Left arm', 'Palm', 'Back')\n- The renderer names no region (regionAgnostic.test.ts scans it). Its contract:\n  - Props: SpecializationDiagram.tsx:11-23.\n  - Views come from asset.viewOrder.\n  - Paint order: skin, bone, ghost, belly, tendon, outline.\n  - Only bellies are selectable or exposure-filled (diagramGeometry.ts:226, 242; DB check diagram_paths_belly_has_node). Tendons and ghosts never are.\n  - A ghost turns gold when its node is selected but lies above the layer (tsx:143-146; css:30).\n  - The 'drawn in View · Layer' note comes from placementsOf, which walks the views surface to deep.\n  - Mirroring is translate(w 0) scale(-1 1). Labels are re-placed rather than mirrored, and the hatch is flipped back (tsx:154-161, 177).\n  - One square per muscle, 0.145 x drawing width, non-overlapping, on canvas, placed to cover the least of neighbours (diagramGeometry.ts:262-298).\n  - Roving tabindex, aria-pressed, and a callout anchored on the canvas.\n- Measured tap squares (hit-targets.json, drawing 324 px wide): the smallest exclusive square is 47 px on every forearm layer, worst muscles FCR, anconeus, ED and EI. At 307 px (375 pt) that is about 44.5 px.\n\n2. SIZE OF THE FOREARM CONTENT (counted from the code with tsx)\n- Nodes: 24.\n  - By role: 19 target, 2 group (compartments), 1 adjacent (anconeus), 2 external (upper_arm.biceps, upper_arm.brachialis).\n  - By layer: 12 surface, 1 intermediate, 9 deep, 2 mixed.\n  - By visibility: 13 partial, 8 not_distinct, 2 clear, 1 variable.\n  - 22 caveats on 19 nodes.\n- Actions: 20. Node actions: 38 (27 prime, 11 assist), each resting on `<node>.function`.\n- Claims: 60, all reviewed on 2026-10-16.\n  - By kind: 24 function, 24 appearance, 10 selectivity, 2 variation.\n  - By basis: 26 established_anatomy, 24 anatomical_inference, 10 experimental.\n  - 115 claim-source refs, all with a locator and 80 with a qualification.\n  - 17 claims rest on one source, 6 of them function claims. Mean statement length 207 characters.\n  - Two review notes, both ending 'automated review, not a clinician or anatomist'.\n- Sources: 71 (S 8, A 55, M 8).\n  - By type: 55 anatomy, 11 emg, 3 biomechanics, 2 systematic_review, 0 longitudinal.\n  - 8 have a DOI.\n  - Hosts: kenhub 18, NCBI Bookshelf 12, elsevier 9, pubmed 6, statpearls.com 4, pmc 4, doi.org 4, ttuhscep 4, radiopaedia 3, other 7.\n- Variants: 119.\n  - 68 multi_joint, 44 single_joint, 7 task.\n  - 85 bilateral, 26 unilateral, 8 either.\n  - 110 in reps, 9 in seconds; 104 with notes.\n- Mappings: 418, of which 413 reviewed and 5 draft.\n  - By relationship: 101 direct, 96 contributing, 206 incidental, 15 stabilizer.\n  - By mode: 171 dynamic, 247 isometric.\n  - By basis: 176 anatomy, 221 inference, 21 emg.\n  - By allocation: 171 individual, 247 shared. 144 have requiresNoStraps.\n  - 934 mapping-source refs. Only 63 distinct rationale strings: rationales are written per family, not per row.\n  - 53 mappings go to the two upper-arm externals.\n  - Most-cited mapping sources: S4 251 (its host could not be opened), S3 228, M3 138, S8 114, M1 91.\n- Drawing: 3 views, 7 layers, 127 paths, 28 labels, 4 outcrops, 42 selectable bellies across the layers (6/1/5 palm, 10/5 back, 9/6 thumb). diagram.generated.ts is 114,749 B raw, 32,343 B gzip.\n- File lines: nodes 284, actions 33, nodeActions 90, claims 453, sources 89, variants 253, mappings 346, mappingSources 84, diagram.generated 235. Evidence folder 9.8 MB (30 PNGs at the top level).\n\n3. HOW LONG EACH PIECE TOOK\n- On main, git log shows only the squash commit 20d664a for every file. I recovered per-file timing from PR #96's 250 commits through the GitHub REST API. 250 is GitHub's cap; the list includes the head 7d32f0e.\n- Times are wall clock between a lane's base commit and its commits, from automated parallel lanes. They exclude queueing and most review time.\n- Base: brief 0d90b561 at 16 Oct 19:01Z, design and model b956710f at 19:36Z, then b5d62fdd at 19:38:40Z, the base of both content lanes.\n- Anatomy lane (nodes, actions, nodeActions, claims, sources, forearmAnatomy.test.ts at 289 lines):\n  - 1b3c2767 at 19:58:22Z, 19m42s after its base.\n  - Evidence note 03 (165 lines) at 20:00:29Z, about 22 min in all.\n  - S9 dropped later, 8ba4a224 at 21:43Z.\n- Mappings lane:\n  - Catalog fixes and rows 9a161ef4 at 20:08:52Z.\n  - Variants, mappings, mappingSources and test (+249, +317, +82, +296 lines) a8d91250 at 20:09:24Z, about 31 min.\n  - Photos 20:14Z, note 05 a91d17fa at 20:16:55Z, about 38 min.\n  - Follow-up: wrist roller by direction, 4b4bb9f3 at 17 Oct 03:32Z.\n- Drawing lane:\n  - Base 1eef7e08 at 21:49:49Z.\n  - Generator, three views, renderer and tests 9510c393 at 22:39:13Z, 49 min: +1,318 lines in design/, +243 renderer, +210 geometry, +257 test.\n  - Evidence and note 08 2b977f77 at 22:47:58Z, about 58 min.\n  - Merged b5fe1a46 at 17 Oct 02:23Z. The 3.5 h before the merge include the review and unknown idle time.\n  - Review fix, anatomy and orientation: b1f80181 at 02:52Z, +156/-54 in design/, +66 test lines, 38 lines of the asset changed. Before the fix, half of the back-view APL outcrop lay outside APL, EPL turned to tendon 72 units higher in one view, and the ulna border sat up to 30 units off the bone.\n  - Review fix, tap targets, keyboard and selection: 692b6c1c at 03:14Z, +118/-9 geometry, +30/-10 renderer.\n  - Merged 03:18Z.\n- Views as data (second-region lane): a01a3148 at 05:47Z, 33 min after its base; its review 2f492e97 at 06:14Z.\n\n4. CATALOG SIZING PER PROPOSED REGION (416 rows; any-tagged / primary-tagged)\n- shoulders 190/49, chest 97/80, back 122/85, upper arm 194/48, core 237/48, hips 170/115, thigh 122/92, lower leg 73/24.\n- For comparison, forearm 137/29, of which 119 were mapped.\n- 384 rows are tagged in two or more regions, 166 in four.\n- Keys outside the proposal: shoulders 7/12, serratusAnterior 2/0, feet 0/9.\n\n5. EVIDENCE STANDARD THE FOREARM USED\n- Search order: NCBI Bookshelf (StatPearls), peer-reviewed papers, university anatomy pages (TTUHSC El Paso, UAMS), Kenhub, Elsevier Complete Anatomy, Radiopaedia, IMAIOS. Wikipedia was read but never cited.\n- Each source's note says what the search result showed and what could not be confirmed.\n- Every citation has a locator. Limits go in the qualification: abstract only, acute EMG, pilot study.\n- A claim is 'reviewed' only if the excerpts support every sentence; otherwise the content was left out (zero drafts).\n- Appearance claims are always anatomical_inference.\n- Selectivity claims are EMG or clinical findings, never growth and never a credit weight.\n- Function claims need two or more sources where possible; 6 rest on one StatPearls page.\n- A node is reviewed only when all its function claims are.\n- Mappings: basis anatomy, inference or emg; a rationale per mapping; at least one source with a locator and a limitation; draft when not established, with the reason.\n- Stated limits: excerpts, not full texts. Search summaries can misquote. Some bibliographic details are unconfirmed (A5, A16, A21, A26, A34). Not a clinician or anatomist.\n- Once published, reviewed claims, their sources and the mapped muscles' region, role and catalog key are frozen (04-database.md:63-73). A correction is a new key plus a v2 version. 04-database.md:200 recommends human review before publication.\n- 19 Oct check: page fetches are still blocked (proxy 403 and WebFetch ENOTFOUND), and WebSearch still returns generated summaries, so the same limits apply to all eight regions.\n\n6. PIPELINE HAZARD\nemit.mjs:7-8 and 08-diagram.md:26 tell you to run emit-seed after any drawing change. emit-seed.ts:63/:740 writes the applied production file _seed_v1.sql, and its drift guard (server/specializationSeed.test.ts:94-131, :144) expects the registry to hold only the forearm. Both must be redirected before any region lane runs.",
+  "recommendations": "A. TURN THE GENERATOR INTO A PER-REGION GENERATOR (platform lane, before any drawing lane)\n1. Shared code goes in design/specialization/shared/:\n   - geometry.mjs: today's helpers plus clipBy, clipToPolygon, columnsShape, rotate, fan, edgeAt, insetPolygon, C, INSET, ghostOf and a labels helper.\n   - asset.mjs: buildAsset(config, views).\n   - emit.mjs: renderModule(config), with a CLI taking `<region> [--check]`.\n   - check.mjs (reads viewBox), preview.mjs (grid from CANVAS), render-evidence.mjs (region argument; 375 and 390 at device scale 3; output to evidence/<region>/), evidence-entry.tsx (region from window), render-page.mjs (driven by config).\n2. Per region, design/specialization/<region>/ holds:\n   - config.mjs: REGION, ASSET_KEY `<region>_schematic`, VERSION, CANVAS with width fixed at 360 and the height chosen per region, CROP, VIEW_ORDER (at most 3 views, labels of 10 characters or fewer), side policy, LICENSE_NOTE, structure words.\n   - silhouettes.mjs, views/*.mjs, views/index.mjs.\n   - evidence.mjs: selectedFor per layer, captions, page seed, tap node, view and side button words.\n   - Output: shared/specialization/regions/<region>/diagram.generated.ts with `<region>Diagram` and `<region>DiagramOutcrops`.\n3. Derive NODE_FOR_SHORT_NAME from the region's nodes, external ones included. Fail on a duplicate lowercased shortName within a drawing.\n4. Golden rule for the refactor: the forearm's diagram.generated.ts stays byte-identical. emit --check must pass unchanged, and nothing in the v1 seed may change. Keep design/specialization/forearm/emit.mjs as a wrapper for forearmDiagram.test.ts:10.\n5. Tests:\n   - Extract a shared diagramContract test that runs over every registered asset: manifest, numbering, node ties, kind muscle or head, path grammar, skin first and only once, own-layer rule with a generalised outcrop rule, no overlap, inside the skin, labels on the canvas, tendons with a drawn belly, squares non-overlapping and on canvas, cover bounds per region, anchors on the canvas.\n   - Keep orientation and landmark checks in `<region>Diagram.test.ts`.\n   - Add the Chromium tap-square gate: at least 44 px at both 375 and 390.\n6. Before any lane runs, point emit-seed at _seed_v2.sql, pin the v1 drift guard to the forearm snapshot, and fix the instructions in emit.mjs and 08-diagram.md.\n7. Add side policy to the asset or region, with mirrored=false for core.\n8. Lazy-load each region's data and drawing.\n\nB. VIEWS AND LAYERS PER REGION\nThese are proposals for the anatomy and drawing lanes to confirm against sources. Every region keeps width 360 and the three layer ids. Each drawing shows the subject's right side unless noted.\n- Shoulders: mirrored. Front · Side · Back, roughly 360x560.\n  - Front: surface = anterior deltoid, lateral deltoid edge, clavicular pectoralis (external); deep = subscapularis (schematic, through the axilla), coracobrachialis (adjacent), humerus and scapula.\n  - Side: surface = three deltoid heads; deep = supraspinatus over the top, infraspinatus, teres minor.\n  - Back: surface = posterior deltoid, trapezius (external ghost), infraspinatus and teres minor as window outcrops (clipToPolygon), teres major (adjacent or external); deep = supraspinatus, infraspinatus, teres minor whole, scapula.\n  - Risk: teres minor is too thin for a 44 px square. Rotator cuff and deltoid are groups.\n- Chest: mirrored half-torso from the midline. Front (surface/deep) plus an optional Side, roughly 360x560.\n  - Surface: clavicular and sternocostal heads of pectoralis major, anterior deltoid (external), serratus anterior outcrop at the side.\n  - Deep: pectoralis minor, serratus anterior, sternum, clavicle and ribs as structure.\n  - Give serratusAnterior an owner here or in shoulders.\n- Back: mirrored half-back, spine at the canvas edge. Back (surface/intermediate/deep) plus Side (surface), 360x760.\n  - Surface: upper, middle and lower trapezius (parts), latissimus dorsi, teres major, erector spinae outcrop in the lumbar region, posterior deltoid and infraspinatus (external).\n  - Intermediate: rhomboids (one node), levator scapulae.\n  - Deep: erector spinae, multifidus, quadratus lumborum (or put QL in core).\n  - Side: the latissimus 'wing'.\n  - Midline nodes take no side credit.\n- Upper arm: mirrored. Front (surface/deep) · Back (surface/deep) · Outer side (surface), 360x760, with the elbow placed to line up with the forearm drawing.\n  - Front: surface = biceps (heads only if the evidence supports mapping them separately; brief §3 forbids made-up head splits); deep = brachialis, coracobrachialis, humerus.\n  - Back: surface = triceps long and lateral heads, anconeus (forearm.anconeus, external); deep = triceps medial head.\n  - Outer side: brachialis outcrop between biceps and triceps.\n  - Blocked until the frozen upper_arm.biceps and upper_arm.brachialis role question is decided.\n- Core: not mirrored, both sides drawn, labels 'Your right' and 'Your left'. Front · Side, each surface/intermediate/deep, roughly 360x600.\n  - Surface: rectus abdominis (two bellies of one node, intersections and linea alba drawn as outline), external oblique.\n  - Intermediate: internal oblique. Deep: transversus abdominis.\n  - Serratus anterior, latissimus and iliopsoas as externals.\n  - State that left/right oblique work is not credited by side.\n- Hips: mirrored. Back (surface/intermediate/deep) · Side (surface/deep) · Front (surface/deep), roughly 360x640.\n  - Back: surface = gluteus maximus, gluteus medius outcrop above it; intermediate = gluteus medius; deep = gluteus minimus, piriformis and deep rotators, pelvis and femur.\n  - Side: TFL, gluteus medius, iliotibial band as outline; deep = gluteus minimus.\n  - Front: surface = TFL, adductor longus, gracilis, pectineus, iliopsoas window outcrop, sartorius and rectus femoris (external); deep = iliopsoas, adductor brevis, adductor magnus.\n  - Risk: the front surface is crowded, so measure the tap squares early.\n- Thigh: mirrored. Front · Back, surface/deep, optional Outer side, 360x760.\n  - Front: surface = rectus femoris, vastus lateralis, vastus medialis, sartorius; deep = vastus intermedius, femur.\n  - Back: surface = biceps femoris long head, semitendinosus, semimembranosus outcrops; deep = biceps femoris short head, semimembranosus whole, adductor magnus (external).\n- Lower leg: mirrored. Back (surface/intermediate/deep) · Outer side (surface/deep) · Front (surface), 360x760.\n  - Back: surface = gastrocnemius medial and lateral heads, soleus outcrops; intermediate = soleus; deep = tibialis posterior and the deep flexors (adjacent).\n  - Outer side: fibularis (adjacent).\n  - Front: tibialis anterior.\n  - The calcaneal tendon is drawn as structure.\n  - Needs a knee-angle variant dimension.\n\nC. CONTENT RECIPE AND LANES THAT DO NOT COLLIDE\n- Recipe per region, as the forearm did it:\n  1. Ids.\n  2. Node identity, set by the platform: id, parent, kind, role, layer, surfaceVisibility, catalog key, database muscle.\n  3. Anatomy lane fills location, whatItDoes, shapeNote, caveats and aliases, under the region's direction-word rules.\n  4. Actions from the shared catalogue.\n  5. Node actions, each on its own node's function claim.\n  6. Claims: function, appearance, selectivity, variation, each with sources (locator and qualification) and review date and note.\n  7. Sources.\n  8. Variants (shared lane).\n  9. Mappings: one per variant and node, with action, relationship, mode, basis, allocation, requiresNoStraps (false outside grip), rationale, status, sources (locator and limitation); drafts with a reason; deliberately unmapped tagged rows listed with reasons.\n  10. Mapping sources.\n  11. Catalog rows in exerciseCatalog<Region>.ts, in id ranges reserved by the platform.\n  12. Drawing, tests and notes.\n- Size: at the forearm's ratios (about 2.5 claims per node, about 3 mappings per tagged row) the eight regions come to roughly 90 nodes, 220 claims and 3,500-4,000 mappings. That is about 9 times the forearm, and an estimate only.\n- Wave 0, platform (one lane): types, membership, variant dimensions, shared actions, shared source library with key scheme, node ownership table (each muscle owned by exactly one region, for example rectus femoris in thigh, sartorius in thigh, adductors in hips, QL in back or core, teres major, serratus), per-region ids.ts, the generator refactor, contract tests, seed v2 redirect, lazy loading.\n- Wave 1, shared variants (one lane): owns shared/specialization/variants/**. The 119 forearm variants are read-only.\n- Wave 2, per region, three lanes with disjoint files:\n  - Anatomy: regions/<r>/{nodes text, nodeActions, claims, sources}.ts, `<r>Anatomy.test.ts`, docs/specialization-atlas/regions/<r>/anatomy-evidence.md.\n  - Mappings: regions/<r>/{mappings, mappingSources}.ts, exerciseCatalog<R>.ts, `<r>Mappings.test.ts`, mappings.md.\n  - Drawing: design/specialization/<r>/**, regions/<r>/diagram.generated.ts, `<r>Diagram.test.ts`, diagram.md, evidence/<r>/**.\n  - Run regions in waves of two or three: upper arm (blocked on the membership decision), shoulders and chest; then back and core; then hips, thigh and lower leg.\n- Only the integration lane edits: registry.ts, regionIndex.ts, loggingRegions.ts, holdCatalogIds.ts, the exerciseCatalog.ts aggregator (L13444), emit-seed output, README, Home.tsx and search.\n- Adversarial review per lane, by a separate agent given the diff and the rules:\n  - Anatomy: re-search a sample of claims independently; check every sentence against its excerpt; check single-source claims, direction words, inference-only appearance claims, and that nothing promises growth.\n  - Mappings: check families against catalog definitions and photos, relationship versus mode, shared allocation, no fan-out, primary-tagged coverage. Run a cross-region consistency test: any variant and node pair mapped by two versions must agree, and the 53 forearm v1 biceps and brachialis rows are fixed.\n  - Drawing: orientation against the labels, layers against nodes.ts, outcrops cut from the own-layer outline, same-height ends across views, landmarks over bone, measured squares of at least 44 px at 375 and 390, and look at the left/right screenshots.\n- Budget one fix round per lane. The forearm drawing needed two.\n\nD. WHAT TO SAY PLAINLY ABOUT AN AUTOMATED REVIEW\n- 'Reviewed' means an automated agent checked each sentence against web-search excerpts and model-generated summaries on a given date. It was not checked against full texts, and not by a clinician or anatomist. Page fetches were refused both on 16 Oct and on 19 Oct.\n- The adversarial reviewer is also automated, with the same tool limits. Call it 'a second automated review', never peer review.\n- Drawings are original schematics checked against the atlas's notes, not reviewed by an anatomist.\n- Name single-source function claims and unconfirmed bibliographic details.\n- EMG and longitudinal findings, for example on triceps or hamstring regional growth, may appear only as selectivity claims, never as credit weights.\n- Publishing freezes reviewed claims and mapped muscles, so a human or full-text review should happen before each region's version is published, not after."
+ }
+]

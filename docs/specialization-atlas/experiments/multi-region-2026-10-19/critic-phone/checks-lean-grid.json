@@ -1,0 +1,362 @@
+[
+ {
+  "viewport": "390x844",
+  "state": "FCU",
+  "targetLinesInGrid": 0,
+  "gridHeight": 144,
+  "stripBottom": 705,
+  "dock": 774,
+  "drawingOnFirstScreenPx": 63,
+  "stripWhole": true
+ },
+ {
+  "viewport": "390x844",
+  "state": "FCU",
+  "targetLinesInGrid": 1,
+  "gridHeight": 144,
+  "stripBottom": 705,
+  "dock": 774,
+  "drawingOnFirstScreenPx": 63,
+  "stripWhole": true
+ },
+ {
+  "viewport": "390x844",
+  "state": "FCU",
+  "targetLinesInGrid": 3,
+  "gridHeight": 144,
+  "stripBottom": 705,
+  "dock": 774,
+  "drawingOnFirstScreenPx": 63,
+  "stripWhole": true
+ },
+ {
+  "viewport": "390x844",
+  "state": "FCU, target",
+  "targetLinesInGrid": 0,
+  "gridHeight": 144,
+  "stripBottom": 730,
+  "dock": 774,
+  "drawingOnFirstScreenPx": 38,
+  "stripWhole": true
+ },
+ {
+  "viewport": "390x844",
+  "state": "FCU, target",
+  "targetLinesInGrid": 1,
+  "gridHeight": 144,
+  "stripBottom": 730,
+  "dock": 774,
+  "drawingOnFirstScreenPx": 38,
+  "stripWhole": true
+ },
+ {
+  "viewport": "390x844",
+  "state": "FCU, target",
+  "targetLinesInGrid": 3,
+  "gridHeight": 144,
+  "stripBottom": 730,
+  "dock": 774,
+  "drawingOnFirstScreenPx": 38,
+  "stripWhole": true
+ },
+ {
+  "viewport": "390x844",
+  "state": "FCU, Custom, target",
+  "targetLinesInGrid": 0,
+  "gridHeight": 144,
+  "stripBottom": 780,
+  "dock": 774,
+  "drawingOnFirstScreenPx": -12,
+  "stripWhole": false
+ },
+ {
+  "viewport": "390x844",
+  "state": "FCU, Custom, target",
+  "targetLinesInGrid": 1,
+  "gridHeight": 144,
+  "stripBottom": 780,
+  "dock": 774,
+  "drawingOnFirstScreenPx": -12,
+  "stripWhole": false
+ },
+ {
+  "viewport": "390x844",
+  "state": "FCU, Custom, target",
+  "targetLinesInGrid": 3,
+  "gridHeight": 144,
+  "stripBottom": 780,
+  "dock": 774,
+  "drawingOnFirstScreenPx": -12,
+  "stripWhole": false
+ },
+ {
+  "viewport": "390x844",
+  "state": "FCU, Back, Custom, target",
+  "targetLinesInGrid": 0,
+  "gridHeight": 144,
+  "stripBottom": 780,
+  "dock": 774,
+  "drawingOnFirstScreenPx": -12,
+  "stripWhole": false
+ },
+ {
+  "viewport": "390x844",
+  "state": "FCU, Back, Custom, target",
+  "targetLinesInGrid": 1,
+  "gridHeight": 144,
+  "stripBottom": 780,
+  "dock": 774,
+  "drawingOnFirstScreenPx": -12,
+  "stripWhole": false
+ },
+ {
+  "viewport": "390x844",
+  "state": "FCU, Back, Custom, target",
+  "targetLinesInGrid": 3,
+  "gridHeight": 144,
+  "stripBottom": 780,
+  "dock": 774,
+  "drawingOnFirstScreenPx": -12,
+  "stripWhole": false
+ },
+ {
+  "viewport": "375x667",
+  "state": "FCU",
+  "targetLinesInGrid": 0,
+  "gridHeight": 144,
+  "stripBottom": 691,
+  "dock": 597,
+  "drawingOnFirstScreenPx": -98,
+  "stripWhole": false
+ },
+ {
+  "viewport": "375x667",
+  "state": "FCU",
+  "targetLinesInGrid": 1,
+  "gridHeight": 144,
+  "stripBottom": 691,
+  "dock": 597,
+  "drawingOnFirstScreenPx": -98,
+  "stripWhole": false
+ },
+ {
+  "viewport": "375x667",
+  "state": "FCU",
+  "targetLinesInGrid": 3,
+  "gridHeight": 144,
+  "stripBottom": 691,
+  "dock": 597,
+  "drawingOnFirstScreenPx": -98,
+  "stripWhole": false
+ },
+ {
+  "viewport": "375x667",
+  "state": "FCU, target",
+  "targetLinesInGrid": 0,
+  "gridHeight": 144,
+  "stripBottom": 716,
+  "dock": 597,
+  "drawingOnFirstScreenPx": -123,
+  "stripWhole": false
+ },
+ {
+  "viewport": "375x667",
+  "state": "FCU, target",
+  "targetLinesInGrid": 1,
+  "gridHeight": 144,
+  "stripBottom": 716,
+  "dock": 597,
+  "drawingOnFirstScreenPx": -123,
+  "stripWhole": false
+ },
+ {
+  "viewport": "375x667",
+  "state": "FCU, target",
+  "targetLinesInGrid": 3,
+  "gridHeight": 144,
+  "stripBottom": 716,
+  "dock": 597,
+  "drawingOnFirstScreenPx": -123,
+  "stripWhole": false
+ },
+ {
+  "viewport": "375x667",
+  "state": "FCU, Custom, target",
+  "targetLinesInGrid": 0,
+  "gridHeight": 144,
+  "stripBottom": 764,
+  "dock": 597,
+  "drawingOnFirstScreenPx": -171,
+  "stripWhole": false
+ },
+ {
+  "viewport": "375x667",
+  "state": "FCU, Custom, target",
+  "targetLinesInGrid": 1,
+  "gridHeight": 144,
+  "stripBottom": 764,
+  "dock": 597,
+  "drawingOnFirstScreenPx": -171,
+  "stripWhole": false
+ },
+ {
+  "viewport": "375x667",
+  "state": "FCU, Custom, target",
+  "targetLinesInGrid": 3,
+  "gridHeight": 144,
+  "stripBottom": 764,
+  "dock": 597,
+  "drawingOnFirstScreenPx": -171,
+  "stripWhole": false
+ },
+ {
+  "viewport": "375x667",
+  "state": "FCU, Back, Custom, target",
+  "targetLinesInGrid": 0,
+  "gridHeight": 144,
+  "stripBottom": 764,
+  "dock": 597,
+  "drawingOnFirstScreenPx": -171,
+  "stripWhole": false
+ },
+ {
+  "viewport": "375x667",
+  "state": "FCU, Back, Custom, target",
+  "targetLinesInGrid": 1,
+  "gridHeight": 144,
+  "stripBottom": 764,
+  "dock": 597,
+  "drawingOnFirstScreenPx": -171,
+  "stripWhole": false
+ },
+ {
+  "viewport": "375x667",
+  "state": "FCU, Back, Custom, target",
+  "targetLinesInGrid": 3,
+  "gridHeight": 144,
+  "stripBottom": 764,
+  "dock": 597,
+  "drawingOnFirstScreenPx": -171,
+  "stripWhole": false
+ },
+ {
+  "viewport": "430x932",
+  "state": "FCU",
+  "targetLinesInGrid": 0,
+  "gridHeight": 144,
+  "stripBottom": 705,
+  "dock": 862,
+  "drawingOnFirstScreenPx": 151,
+  "stripWhole": true
+ },
+ {
+  "viewport": "430x932",
+  "state": "FCU",
+  "targetLinesInGrid": 1,
+  "gridHeight": 144,
+  "stripBottom": 705,
+  "dock": 862,
+  "drawingOnFirstScreenPx": 151,
+  "stripWhole": true
+ },
+ {
+  "viewport": "430x932",
+  "state": "FCU",
+  "targetLinesInGrid": 3,
+  "gridHeight": 144,
+  "stripBottom": 705,
+  "dock": 862,
+  "drawingOnFirstScreenPx": 151,
+  "stripWhole": true
+ },
+ {
+  "viewport": "430x932",
+  "state": "FCU, target",
+  "targetLinesInGrid": 0,
+  "gridHeight": 144,
+  "stripBottom": 730,
+  "dock": 862,
+  "drawingOnFirstScreenPx": 126,
+  "stripWhole": true
+ },
+ {
+  "viewport": "430x932",
+  "state": "FCU, target",
+  "targetLinesInGrid": 1,
+  "gridHeight": 144,
+  "stripBottom": 730,
+  "dock": 862,
+  "drawingOnFirstScreenPx": 126,
+  "stripWhole": true
+ },
+ {
+  "viewport": "430x932",
+  "state": "FCU, target",
+  "targetLinesInGrid": 3,
+  "gridHeight": 144,
+  "stripBottom": 730,
+  "dock": 862,
+  "drawingOnFirstScreenPx": 126,
+  "stripWhole": true
+ },
+ {
+  "viewport": "430x932",
+  "state": "FCU, Custom, target",
+  "targetLinesInGrid": 0,
+  "gridHeight": 144,
+  "stripBottom": 780,
+  "dock": 862,
+  "drawingOnFirstScreenPx": 76,
+  "stripWhole": true
+ },
+ {
+  "viewport": "430x932",
+  "state": "FCU, Custom, target",
+  "targetLinesInGrid": 1,
+  "gridHeight": 144,
+  "stripBottom": 780,
+  "dock": 862,
+  "drawingOnFirstScreenPx": 76,
+  "stripWhole": true
+ },
+ {
+  "viewport": "430x932",
+  "state": "FCU, Custom, target",
+  "targetLinesInGrid": 3,
+  "gridHeight": 144,
+  "stripBottom": 780,
+  "dock": 862,
+  "drawingOnFirstScreenPx": 76,
+  "stripWhole": true
+ },
+ {
+  "viewport": "430x932",
+  "state": "FCU, Back, Custom, target",
+  "targetLinesInGrid": 0,
+  "gridHeight": 144,
+  "stripBottom": 780,
+  "dock": 862,
+  "drawingOnFirstScreenPx": 76,
+  "stripWhole": true
+ },
+ {
+  "viewport": "430x932",
+  "state": "FCU, Back, Custom, target",
+  "targetLinesInGrid": 1,
+  "gridHeight": 144,
+  "stripBottom": 780,
+  "dock": 862,
+  "drawingOnFirstScreenPx": 76,
+  "stripWhole": true
+ },
+ {
+  "viewport": "430x932",
+  "state": "FCU, Back, Custom, target",
+  "targetLinesInGrid": 3,
+  "gridHeight": 144,
+  "stripBottom": 780,
+  "dock": 862,
+  "drawingOnFirstScreenPx": 76,
+  "stripWhole": true
+ }
+]
