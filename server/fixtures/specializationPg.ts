@@ -25,9 +25,13 @@ import { btree_gist } from "@electric-sql/pglite/contrib/btree_gist";
  * guard against them are described in the migration and in 04-database.md.
  */
 
-// Renamed with the files after the first production apply (04-database.md §9 lists every place that names them).
+// Applied to production on 18 Oct 2026 and history from then: never edited (server/specializationHistory.test.ts pins them).
 export const SCHEMA_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261016120000_specialization_atlas_schema.sql");
-export const SEED_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261016120100_specialization_atlas_seed_v1.sql");
+export const SEED_V1_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261016120100_specialization_atlas_seed_v1.sql");
+/** The seed the emitter writes from the current content (scripts/specialization/emit-seed.ts), applied after every applied file. */
+export const SEED_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261019120100_specialization_atlas_seed_v2.sql");
+/** Every specialization migration production has recorded, in the order it applied them (04-database.md §9). */
+export const APPLIED_MIGRATION_PATHS = [SCHEMA_MIGRATION_PATH, SEED_V1_MIGRATION_PATH] as const;
 
 export const readMigration = (path: string) => readFileSync(path, "utf8");
 
@@ -175,11 +179,12 @@ export async function scriptFailure(db: PGlite, sql: string): Promise<string | n
   }
 }
 
-/** A complete database: bootstrap, schema twice (idempotence), seed. */
+/** A complete database as production will hold it: bootstrap, schema twice (idempotence), the applied seed, then the current seed over it. */
 export async function createSeededDb(): Promise<PGlite> {
   const db = await createSupabaseLikeDb();
   await applyMigration(db, SCHEMA_MIGRATION_PATH);
   await applyMigration(db, SCHEMA_MIGRATION_PATH);
+  await applyMigration(db, SEED_V1_MIGRATION_PATH);
   await applyMigration(db, SEED_MIGRATION_PATH);
   return db;
 }

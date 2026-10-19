@@ -358,7 +358,7 @@ A test maps every branch of `nodeSideFor` and of `indexRegion`'s version choice 
 
 ## 5. The database
 
-### 5.1 Schema v2: `supabase/migrations/20261019120000_specialization_atlas_schema_v2.sql`
+### 5.1 Schema v2: `supabase/migrations/…_specialization_atlas_schema_v2.sql` (version `20261019120000`)
 
 Additive and idempotent; no transaction control; runs directly and as one DO block. Built from the tested prototype (`experiments/multi-region-2026-10-19/schema_v2_prototype.assembled.sql`), with the changes marked *new* (several come from the critiques, appendix).
 

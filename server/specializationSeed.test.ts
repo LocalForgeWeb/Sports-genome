@@ -5,7 +5,7 @@ import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { specializationRegions } from "@shared/specialization/registry";
 import { exposureRuleV1 } from "@shared/specialization/rules";
 import { deltoidIds, deltoidRegionData } from "@/lib/specialization/__fixtures__/deltoidRegion";
-import { SEED_MIGRATION_PATH as EMITTED_SEED_PATH, emitSeedSql, productionSeedInput, quote, referenceRegionLabels, type SeedInput } from "../scripts/specialization/emit-seed";
+import { CURRENT_SEED_MIGRATION_PATH as EMITTED_SEED_PATH, emitSeedSql, productionSeedInput, quote, referenceRegionLabels, type SeedInput } from "../scripts/specialization/emit-seed";
 import { SCHEMA_MIGRATION_PATH, SEED_MIGRATION_PATH, USER_A, applyMigration, as, count, createSeededDb, readMigration, rows, scriptFailure, stubExercises } from "./fixtures/specializationPg";
 import type { DiagramAsset, SpecializationRegionData } from "@shared/specialization/types";
 

@@ -60,7 +60,9 @@ const here = dirname(fileURLToPath(import.meta.url));
  * that is not there). The seed's own text names neither file by version, so renaming it
  * after the apply does not change what production ran.
  */
-export const SEED_MIGRATION_PATH = resolve(here, "../../supabase/migrations/20261016120100_specialization_atlas_seed_v1.sql");
+// The seed this content is written to. Seed v1 (…_seed_v1.sql) was applied to production on 18 Oct 2026 and is
+// history: never written again (server/specializationHistory.test.ts pins it). Each release gets the next file.
+export const CURRENT_SEED_MIGRATION_PATH = resolve(here, "../../supabase/migrations/20261019120100_specialization_atlas_seed_v2.sql");
 
 /**
  * Regions that only appear as the home of another region's external contributors (the
@@ -727,17 +729,17 @@ if (isMain) {
   if (process.argv.includes("--check")) {
     let current = "";
     try {
-      current = readFileSync(SEED_MIGRATION_PATH, "utf8");
+      current = readFileSync(CURRENT_SEED_MIGRATION_PATH, "utf8");
     } catch {
       // Missing reads as stale.
     }
     if (current !== sql) {
-      console.error(`${SEED_MIGRATION_PATH} is stale: run npx tsx scripts/specialization/emit-seed.ts`);
+      console.error(`${CURRENT_SEED_MIGRATION_PATH} is stale: run npx tsx scripts/specialization/emit-seed.ts`);
       process.exit(1);
     }
     console.log("Seed is current.");
   } else {
-    writeFileSync(SEED_MIGRATION_PATH, sql);
-    console.log(`Wrote ${SEED_MIGRATION_PATH} (${sql.length} characters).`);
+    writeFileSync(CURRENT_SEED_MIGRATION_PATH, sql);
+    console.log(`Wrote ${CURRENT_SEED_MIGRATION_PATH} (${sql.length} characters).`);
   }
 }

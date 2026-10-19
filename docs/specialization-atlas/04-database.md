@@ -5,8 +5,10 @@ The Postgres side of the atlas, as built. The design is `02-design.md` §9; why 
 | File | What it is |
 |---|---|
 | `supabase/migrations/20261016120000_specialization_atlas_schema.sql` | Schema `specialization`: tables, rules as triggers, RLS, grants. Hand-written. Rollback in its header. |
-| `supabase/migrations/20261016120100_specialization_atlas_seed_v1.sql` | The reference content as upserts, with deletes for rows the content no longer has (§7). **Generated**; never edit it by hand. |
-| `scripts/specialization/emit-seed.ts` | The generator: `npx tsx scripts/specialization/emit-seed.ts` writes the seed, `--check` exits 1 when it is stale. |
+| `supabase/migrations/20261016120100_specialization_atlas_seed_v1.sql` | The reference content as upserts, with deletes for rows the content no longer has (§7). **Generated**; applied to production on 18 Oct 2026 and **history** from then: never written again, pinned by its SHA-256 in `server/specializationHistory.test.ts`. |
+| `supabase/migrations/20261019120100_specialization_atlas_seed_v2.sql` | The current seed: a full re-emit of the content, applied after every applied file (`10-multi-region.md` §5.2). **Generated**; the emitter writes it, and `--check` and the drift guard read it. Not yet applied. |
+| `scripts/specialization/emit-seed.ts` | The generator: `npx tsx scripts/specialization/emit-seed.ts` writes the current seed (`CURRENT_SEED_MIGRATION_PATH`), `--check` exits 1 when it is stale. |
+| `server/specializationHistory.test.ts` | Pins every migration file production has recorded by its full SHA-256, and checks that the test database replays them in production's order before the current seed. |
 | `server/fixtures/specializationPg.ts` | A Supabase-shaped Postgres 17 in WASM (PGlite) for the tests. |
 | `server/specializationSchema.test.ts` | Structure, grants (tables and functions), RLS as anon / user A / user B / service role, every constraint and trigger, TRUNCATE, rollback, and the DO-block application compared with a direct one. |
 | `server/specializationSeed.test.ts` | Drift guard (and every reference to a migration file names one that exists), idempotence, the content read back field by field (regions with their page words and measures, and each drawing whole with its views), versioning, refused rewrites and removals under a published version, a cleaned draft, a second region with its own words and a drawing with its own views. |
@@ -196,7 +198,7 @@ The plan as written before the apply, kept for the next migration:
 
 Owner-gated or open:
 - **Removing the `http` extension** the apply left installed (dashboard → Database → Extensions), and keeping the schema off the Data API.
-- **After the first production apply, the seed file is history.** A later content change must go into a new seed migration (e.g. `…_specialization_atlas_seed_v2.sql`, with the generator's output path and the drift guard moved to it), and changed mappings need a new version key: re-emitting into the applied file would make the repository disagree with what production ran.
+- **After the first production apply, the seed file is history.** Done on 19 Oct 2026: the generator, its `--check` and the drift guard now use `…_specialization_atlas_seed_v2.sql`, the test database replays schema v1 and seed v1 before it (`APPLIED_MIGRATION_PATHS`), and `server/specializationHistory.test.ts` pins both applied files by SHA-256. Changed mappings still need a new version key.
 - **Human review** of the 60 claims by a clinician or anatomist before the content is treated as reviewed (`03-anatomy-evidence.md` §8), and review of the 5 draft mappings, which then ship as `forearm_mappings_v2`. Best done before the first production apply: afterwards a reviewed claim a published version rests on cannot be edited or withdrawn (§4), so a correction is a new claim under a new key, and the old one stays readable, and stays in the content (the seed refuses dropping it), unless the owner decides how the page should treat it.
 - **Catalog rows 401–416** are not in `public.exercises`; until they are, their `supabase_exercise_id` is null.
 - **Retiring a version** is a hand-written `update ... set state = 'retired'` when a successor is live; the seed only publishes.
