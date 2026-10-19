@@ -47,9 +47,9 @@ npx vite build && node design/specialization/shared/render-page.mjs <region>
 For the forearm, `node design/specialization/forearm/emit.mjs [--check]` is the same as `emit.mjs forearm`. The tools read the members from TypeScript through tsx, as the seed's emitter is run; nothing is installed.
 
 **The contract** (`client/src/lib/specialization/diagramContract.test.ts`) holds every drawing the registry and the test fixtures provide:
-- the manifest: the committed file is the generator's output byte for byte, 360 units wide, its region's, views listed once each in the page's order;
+- the manifest: a region's committed file is the generator's output byte for byte and 360 units wide; every drawing is its region's, its views listed once each in the page's order;
 - path ids that name the view, layer and node's short name (or a structure word), numbered from 1 in draw order; every belly, tendon and ghost tied to a member, structure to none; muscles and heads only, and no node's parent;
-- the path grammar: absolute `M`, `C`, `L`, `Z`, one decimal, closed unless a line; one skin, first, on every layer;
+- the path grammar: absolute `M`, `C`, `L`, `Z` (a test fixture's hand-written paths may also use `Q`), one decimal, closed unless a line; one skin, first, on every layer;
 - every target muscle drawn as a belly on its own layer in at least one view (unless `LIST_ONLY` says why not);
 - a belly off its own layer only as a listed outcrop, on a layer above its own, of a muscle that anatomy says shows there, in a view that also draws its own layer, cut from that outline: 99 % of it inside the muscle as its own layer draws it, none of it where that layer draws the tendon, under three quarters of its area;
 - no layer without a muscle; no two bellies on a layer overlapping; every belly inside the skin; no tendon or ghost of a muscle not drawn as a belly; labels on the canvas;
