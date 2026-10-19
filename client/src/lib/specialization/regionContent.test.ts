@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { actionLibrary, actionsFor } from "@shared/specialization/actions";
-import { claimKeyOf, composeRegionData, diagramSidesOf, memberRole, sideRelationOf, versionedMappingKey } from "@shared/specialization/compose";
+import { claimKeyOf, composeRegionData, diagramSidesOf, memberRole, resolveMembers, sideRelationOf, versionedMappingKey } from "@shared/specialization/compose";
 import { defaultSpecializationRegionId, onSide, regionForBodyMapKey, regionIndexEntry, registeredRegionIndex, specializationRegionIndex } from "@shared/specialization/regionIndex";
 import { regionContentFor, regionDataFor, registeredRegionContents, specializationRegions } from "@shared/specialization/registry";
 import { forearmContent, forearmRegionData } from "@shared/specialization/regions/forearm";
@@ -310,6 +310,16 @@ describe("composition (§1.3, §4.2)", () => {
   const draft: MappingVersion = { key: "upper_arm_test_v1", state: "draft", publishedAt: null, methodNotes: "Test version." };
   const curl = forearmContent.mappings.find((mapping) => mapping.id === "cat-121:upper_arm.biceps")!;
   const homeMapping: VariantMapping = { ...curl, versionKey: draft.key, rationale: "The upper arm's own reading, for this test." };
+
+  it("resolves each member to its home record and the role the region lists it with", () => {
+    const members = resolveMembers(forearmContent, [upperArmContent]);
+    expect(members.map(({ node }) => node.id)).toEqual(forearmRegionData.nodes.map((node) => node.id));
+    expect(members.filter(({ role }) => role === "external").map(({ node, home }) => [node.id, home.region.id, node.role, node.storedRole])).toEqual([
+      ["upper_arm.biceps", "upper_arm", "target", "external"],
+      ["upper_arm.brachialis", "upper_arm", "target", "external"],
+    ]);
+    expect(members.filter(({ home }) => home === forearmContent).every(({ node, role }) => role === node.role)).toBe(true);
+  });
 
   it("shows another region's muscle with its home's node actions for the page's own actions only", () => {
     const upperArm: RegionContent = {

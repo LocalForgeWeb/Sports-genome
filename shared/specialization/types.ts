@@ -35,8 +35,6 @@ export type SurfaceVisibility = "clear" | "partial" | "not_distinct" | "variable
  * The role is a property of the listing: `memberRole` in compose.ts derives it.
  */
 export type NodeRole = "target" | "adjacent" | "external" | "group";
-/** A node's role in its home region. */
-export type HomeRole = Exclude<NodeRole, "external">;
 
 /** Thumb side or pinky side, in anatomical terms; never screen-left or screen-right. */
 export type ForearmBorder = "radial" | "ulnar" | "central" | "both";

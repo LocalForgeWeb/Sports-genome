@@ -70,6 +70,33 @@ function uniqueById<T extends { id: string }>(lists: readonly (readonly T[])[]):
   return out;
 }
 
+/** One of a region's members with the node's home record, the content it is kept in, and the role this region lists it with. */
+export interface ResolvedMember {
+  member: RegionMember;
+  /** The node as its home region holds it (home role, stored role). */
+  node: AnatomyNode;
+  home: RegionContent;
+  role: NodeRole;
+}
+
+/**
+ * A region's members in its order, each resolved against the region's own nodes and its homes'
+ * (`homes`: the content of the regions its external members belong to). What the database's
+ * region_nodes rows hold, and what a page groups its external rows by (`node.regionId`).
+ */
+export function resolveMembers(content: RegionContent, homes: readonly RegionContent[]): ResolvedMember[] {
+  const regionId = content.region.id;
+  // The region's own records last, so they are the ones found.
+  const byId = new Map([...homes, content].flatMap((home) => home.nodes.map((node) => [node.id, { node, home }] as const)));
+  return [...content.members]
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((member) => {
+      const found = byId.get(member.nodeId);
+      if (!found) throw new Error(`Region ${regionId} lists ${member.nodeId}, which is neither its own node nor one of the home regions passed in`);
+      return { member, node: found.node, home: found.home, role: memberRole(regionId, found.node) };
+    });
+}
+
 /**
  * `homes` are the content of the regions the external members belong to. A region with no
  * mapping version (a reference region) has no page and cannot be composed.
@@ -77,23 +104,16 @@ function uniqueById<T extends { id: string }>(lists: readonly (readonly T[])[]):
 export function composeRegionData(content: RegionContent, homes: readonly RegionContent[]): SpecializationRegionData {
   const regionId = content.region.id;
   if (!content.mappingVersion) throw new Error(`Region ${regionId} has no mapping version, so it has no page data`);
-  const ownNodeById = new Map(content.nodes.map((node) => [node.id, node]));
-  const homeNodeById = new Map(homes.flatMap((home) => home.nodes.map((node) => [node.id, { node, home }] as const)));
-
-  const members = [...content.members].sort((a, b) => a.sortOrder - b.sortOrder);
-  const nodes = members.map((member) => {
-    const node = ownNodeById.get(member.nodeId) ?? homeNodeById.get(member.nodeId)?.node;
-    if (!node) throw new Error(`Region ${regionId} lists ${member.nodeId}, which is neither its own node nor one of the home regions passed in`);
-    return memberNode(regionId, node, member);
-  });
-  const externals = nodes.filter((node) => !ownNodeById.has(node.id));
-  const externalIds = new Set(externals.map((node) => node.id));
+  const members = resolveMembers(content, homes);
+  const nodes = members.map(({ member, node }) => memberNode(regionId, node, member));
+  const externals = members.filter((resolved) => resolved.home !== content);
+  const externalIds = new Set(externals.map(({ node }) => node.id));
   const memberIds = new Set(nodes.map((node) => node.id));
 
   const actionIds = new Set(content.actions.map((action) => action.id));
   const nodeActions: NodeAction[] = [
     ...content.nodeActions,
-    ...externals.flatMap((node) => homeNodeById.get(node.id)!.home.nodeActions.filter((row) => row.nodeId === node.id && actionIds.has(row.actionId))),
+    ...externals.flatMap(({ node, home }) => home.nodeActions.filter((row) => row.nodeId === node.id && actionIds.has(row.actionId))),
   ];
 
   const behindNodeActions = new Set(nodeActions.map((row) => row.claimKey));
@@ -106,7 +126,7 @@ export function composeRegionData(content: RegionContent, homes: readonly Region
     return true;
   });
 
-  const externalHomes = Array.from(new Set(externals.map((node) => homeNodeById.get(node.id)!.home)));
+  const externalHomes = Array.from(new Set(externals.map(({ home }) => home)));
   const externalMappingVersions: ExternalMappingVersion[] = externalHomes.flatMap((home) => {
     const version = home.mappingVersion;
     if (!version || version.state !== "published") return [];
