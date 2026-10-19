@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import type { PGlite } from "@electric-sql/pglite";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { goalsForBothArms } from "@shared/specialization/goals";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
@@ -15,20 +14,22 @@ import {
   as,
   asDoBlock,
   count,
-  createSeededDb,
+  createReleaseDb,
   createSupabaseLikeDb,
   failure,
   readMigration,
   rows,
   scriptFailure,
+  snapshot,
 } from "./fixtures/specializationPg";
 
 /**
- * Schema `specialization` in real Postgres (PGlite, Postgres 17): the migration applied
- * twice, the seed on top, then every grant, policy, constraint and trigger exercised as
- * the caller it is meant for — anon, two signed-in users, the service role — switching
- * identity the way the API does (JWT subject, then SET ROLE). The design is
- * docs/specialization-atlas/04-database.md.
+ * Schema `specialization` in real Postgres (PGlite, Postgres 17): the migrations replayed in
+ * production's order (each schema file twice, schema v2 included, the current seed last),
+ * then every grant, policy, constraint and trigger exercised as the caller it is meant for —
+ * anon, two signed-in users, the service role — switching identity the way the API does (JWT
+ * subject, then SET ROLE). The design is docs/specialization-atlas/04-database.md; what
+ * schema v2 adds is tested on its own in server/specializationSchemaV2.test.ts.
  */
 
 const SETUP = 120_000;
@@ -37,6 +38,8 @@ const REFERENCE_TABLES = [
   "regions", "actions", "nodes", "sources", "claims", "claim_sources", "node_actions",
   "diagram_assets", "diagram_views", "diagram_paths", "diagram_labels", "catalog_exercises", "exercise_variants",
   "mapping_versions", "variant_mappings", "mapping_sources", "rule_versions",
+  // Schema v2.
+  "region_nodes", "region_actions", "variant_dimensions", "variant_dimension_values", "variant_attributes",
 ];
 const PERSONAL_TABLES = ["goals", "measurements"];
 const ALL_TABLES = [...REFERENCE_TABLES, ...PERSONAL_TABLES];
@@ -47,6 +50,7 @@ const UPDATABLE: Record<string, string> = {
   node_actions: "role", diagram_assets: "license_note", diagram_views: "label", diagram_paths: "d", diagram_labels: "label_text",
   catalog_exercises: "name", exercise_variants: "notes", mapping_versions: "method_notes", variant_mappings: "rationale",
   mapping_sources: "locator", rule_versions: "notes",
+  region_nodes: "role", region_actions: "region_id", variant_dimensions: "label", variant_dimension_values: "label", variant_attributes: "notes",
 };
 
 const userA = { user: USER_A };
@@ -58,12 +62,15 @@ const draftMappingCount = forearmRegionData.mappings.filter((mapping) => mapping
 const catalogCount = new Set(forearmRegionData.variants.map((variant) => variant.catalogExerciseId)).size;
 
 /** Tables holding what a published or retired mapping version rests on (refuse TRUNCATE while one exists). */
-const FROZEN_TABLES = ["mapping_versions", "variant_mappings", "mapping_sources", "rule_versions", "exercise_variants", "nodes", "node_actions", "claims", "claim_sources", "sources"];
+const FROZEN_TABLES = ["mapping_versions", "variant_mappings", "mapping_sources", "rule_versions", "exercise_variants", "nodes", "node_actions", "claims", "claim_sources", "sources", "region_nodes", "variant_attributes"];
 
-let db: Awaited<ReturnType<typeof createSeededDb>>;
+/** What a production or fixture region needs since schema v2: a complete side model. */
+const PAIRED_BY_ARM = { side_model: "paired", side_limb: "arm", side_word: "arm", side_word_plural: "arms" };
+
+let db: Awaited<ReturnType<typeof createReleaseDb>>;
 
 beforeAll(async () => {
-  db = await createSeededDb();
+  db = await createReleaseDb();
 }, SETUP);
 
 afterAll(async () => {
@@ -108,6 +115,28 @@ async function addMapping(
 }
 
 const publish = (key: string) => failure(db, "update specialization.mapping_versions set state = 'published' where version_key = $1", [key]);
+
+/**
+ * Schema v2's rule 11: a version is published only when its variants carry the counting
+ * attributes its region reads, sided_by for the forearm. The seed writes them for the content's
+ * variants (the dimension and its values too); this writes them for a variant a test maps.
+ */
+async function giveSidedBy(...variants: string[]) {
+  await db.exec(`
+    insert into specialization.variant_dimensions (id, label, sort_order, kind) values ('sided_by', 'Side recorded for', 0, 'counting') on conflict (id) do nothing;
+    insert into specialization.variant_dimension_values (dimension_id, value, label, sort_order) values ('sided_by', 'arm', 'Arm', 0), ('sided_by', 'leg', 'Leg', 1), ('sided_by', 'none', 'Neither', 2)
+      on conflict (dimension_id, value) do nothing;
+  `);
+  for (const variant of variants) {
+    await db.query(
+      "insert into specialization.variant_attributes (variant_key, dimension_id, value) select variant_key, 'sided_by', case laterality when 'bilateral' then 'none' else 'arm' end from specialization.exercise_variants where variant_key = $1 on conflict do nothing",
+      [variant],
+    );
+  }
+}
+
+/** Schema v2's rule 10: a version maps only muscles its region lists. The seed lists the content's; this lists a test muscle. */
+const listInForearm = (nodeId: string) => db.query("insert into specialization.region_nodes (region_id, node_id, role) values ('forearm', $1, 'target') on conflict do nothing", [nodeId]);
 
 // ---------------------------------------------------------------- structure and privileges
 
@@ -220,8 +249,12 @@ describe("function privileges", () => {
 
 describe("CHECK vocabularies match shared/specialization/types.ts", () => {
   const typesSource = readFileSync(resolve(process.cwd(), "shared/specialization/types.ts"), "utf8");
-  const literals = (text: string) => [...text.matchAll(/"([^"]+)"/g)].map((match) => match[1]).sort();
-  const union = (name: string) => {
+  // A type's string literals, with those of any union it names (`SummarySide = BodySide | "midline"`).
+  const literals = (text: string): string[] => {
+    const named = [...text.matchAll(/\b([A-Z][A-Za-z]*)\b/g)].map((match) => match[1]).filter((name) => new RegExp(`export type ${name} =`).test(typesSource));
+    return [...new Set([...[...text.matchAll(/"([^"]+)"/g)].map((match) => match[1]), ...named.flatMap((name) => union(name))])].sort();
+  };
+  const union = (name: string): string[] => {
     const match = new RegExp(`export type ${name} =([^;]+);`).exec(typesSource);
     if (!match) throw new Error(`No type ${name} in types.ts`);
     return literals(match[1]);
@@ -232,19 +265,20 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     if (!line) throw new Error(`No ${iface}.${prop} in types.ts`);
     return literals(line);
   };
-
   /**
-   * Values types.ts holds ahead of the database: the multi-region model's (docs/specialization-atlas/
-   * 10-multi-region.md §3, §4.4), which schema v2 adds to these checks.
+   * Values schema v2 adds (10-multi-region.md §2, §3, §4.4), which types.ts may not have yet
+   * (wave 0's model lane adds them). The database holds exactly the type's values and these.
    */
-  const aheadOfSchemaV2: Record<string, string[]> = {
+  const addedByV2: Record<string, string[]> = {
+    "exercise_variants.laterality": ["not_applicable"],
     "exercise_variants.forearm_orientation": ["not_applicable"],
     "exercise_variants.wrist_position": ["not_applicable"],
-    "exercise_variants.laterality": ["not_applicable"],
+    "goals.side": ["midline"],
+    "measurements.side": ["midline"],
     "measurements.metric": ["girth_cm"],
     "regions.measurement_metrics": ["girth_cm"],
   };
-  const inDatabase = (key: string, values: string[]) => values.filter((value) => !(aheadOfSchemaV2[key] ?? []).includes(value));
+  const withV2 = (key: string, values: string[]) => [...new Set([...values, ...(addedByV2[key] ?? [])])].sort();
 
   const expected: [table: string, column: string, values: () => string[]][] = [
     ["nodes", "kind", () => union("NodeKind")],
@@ -295,7 +329,7 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     const def = defs.find((text) => pattern.test(text));
     expect(def, `${table}.${column} has a CHECK vocabulary`).toBeDefined();
     const inDb = [...pattern.exec(def!)![1].matchAll(/'([^']+)'::text/g)].map((match) => match[1]).sort();
-    expect(inDb).toEqual(inDatabase(`${table}.${column}`, values()));
+    expect(inDb).toEqual(withV2(`${table}.${column}`, values()));
   });
 
   it("diagram view and layer ids are the drawing's own: any lowercase id (front, side, rear), no fixed list", async () => {
@@ -351,14 +385,14 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     // The measures a region may offer are the measurements table's own list, MeasurementMetric in types.ts.
     const offered = defs.map((def) => /\(measurement_metrics <@ ARRAY\[([^\]]+)\]\)/.exec(def)?.[1]).find(Boolean);
     expect(offered, "regions.measurement_metrics has a CHECK vocabulary").toBeDefined();
-    expect([...offered!.matchAll(/'([^']+)'::text/g)].map((match) => match[1]).sort()).toEqual(inDatabase("regions.measurement_metrics", union("MeasurementMetric")));
+    expect([...offered!.matchAll(/'([^']+)'::text/g)].map((match) => match[1]).sort()).toEqual(withV2("regions.measurement_metrics", union("MeasurementMetric")));
 
     await as(db, "service_role", async () => {
       const insert = (id: string, status: string, columns: Record<string, string | string[] | null>) => {
         const names = Object.keys(columns);
         return failure(db, `insert into specialization.regions (id, label, status, ${names.join(", ")}) values ($1, 'Test', $2, ${names.map((_, index) => `$${index + 3}`).join(", ")})`, [id, status, ...Object.values(columns)]);
       };
-      const page = { heading: "Test specialization", entry_label: "Explore test coverage", external_group: "Other muscles credited here", incidental_work: "bracing", progress_subtitle: "Circumference, by arm" };
+      const page = { heading: "Test specialization", entry_label: "Explore test coverage", external_group: "Other muscles credited here", incidental_work: "bracing", progress_subtitle: "Circumference, by arm", ...PAIRED_BY_ARM };
       expect(await insert("zz_page", "fixture", { ...page, measurement_metrics: ["circumference_cm"] })).toBeNull();
       for (const missing of ["external_group", "incidental_work", "progress_subtitle"]) {
         expect(await insert(`zz_no_${missing}`, "fixture", { ...page, [missing]: null }), missing).toMatch(/regions_page_copy/);
@@ -401,7 +435,8 @@ describe("reference content, as a signed-in user", () => {
     // Rows that must stay hidden, next to the seeded ones.
     await as(db, "service_role", async () => {
       await db.exec(`
-        insert into specialization.regions (id, label, heading, status, entry_label, external_group, incidental_work, progress_subtitle) values ('zz_fixture', 'Fixture', 'Fixture', 'fixture', 'Fixture', 'Other muscles', 'bracing', 'Circumference, by arm');
+        insert into specialization.regions (id, label, heading, status, entry_label, external_group, incidental_work, progress_subtitle, side_model, side_limb, side_word, side_word_plural)
+          values ('zz_fixture', 'Fixture', 'Fixture', 'fixture', 'Fixture', 'Other muscles', 'bracing', 'Circumference, by arm', 'paired', 'arm', 'arm', 'arms');
         insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status) values ('test:fcu.draft', 'forearm.fcu', 'selectivity', 'Draft claim.', 'unknown', 'draft');
         insert into specialization.claim_sources (claim_id, source_id, locator) select c.id, s.id, 'Test' from specialization.claims c, specialization.sources s where c.claim_key = 'test:fcu.draft' and s.source_key = 'S2';
         insert into specialization.rule_versions (id, specification, published_at, notes) values ('zz_rule_draft', '{}', null, 'Unpublished rule.');
@@ -903,6 +938,7 @@ describe("what a published mapping version rests on is frozen with it", () => {
         insert into specialization.exercise_variants (variant_key, catalog_id, organization, forearm_orientation, wrist_position, grip_type, straps, laterality, phase, measure, deliberate_hold)
           values ('zz-variant', 9001, 'single_joint', 'neutral', 'neutral', 'overhand', 'no', 'bilateral', 'concentric_eccentric', 'reps', false);
       `);
+      await giveSidedBy("zz-variant");
       await newDraftVersion("zz_variant_v1");
       await addMapping("zz_variant_v1", "zz:variant", { variant: "zz-variant", node: "forearm.fcu", action: "wrist.flexion", sources: [{ key: "S4", locator: "Table" }] });
       expect(await failure(db, "update specialization.exercise_variants set deliberate_hold = true where variant_key = 'zz-variant'")).toBeNull();
@@ -937,6 +973,10 @@ describe("truncate", () => {
 });
 
 describe("publishing a mapping version", () => {
+  beforeAll(async () => {
+    await as(db, "service_role", () => giveSidedBy("cat-139", "cat-140", "cat-408"));
+  });
+
   const problemsOf = async (key: string) =>
     (await rows<{ problems: string | null }>(db, "select specialization.mapping_version_problems(id) as problems from specialization.mapping_versions where version_key = $1", [key]))[0].problems;
 
@@ -991,6 +1031,8 @@ describe("publishing a mapping version", () => {
     await as(db, "service_role", async () => {
       await insertTestNode("forearm.zz_claims", "forearm.anterior", "reviewed");
       await insertTestNode("forearm.zz_draftnode", "forearm.anterior", "draft");
+      await listInForearm("forearm.zz_claims");
+      await listInForearm("forearm.zz_draftnode");
       await db.exec(`
         insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status, reviewed_on) values
           ('test:zz_claims.function', 'forearm.zz_claims', 'function', 'Reviewed and sourced.', 'established_anatomy', 'reviewed', '2026-10-16'),
@@ -1183,44 +1225,6 @@ describe("rollback", () => {
 });
 
 // ---------------------------------------------------------------- how it reaches production
-
-/** Everything the migrations decide, comparable across two databases: random uuids become the keys of the rows they name. */
-async function snapshot(database: PGlite) {
-  const q = <T = Record<string, unknown>>(sql: string) => rows<T>(database, sql);
-  const ns = "n.nspname = 'specialization'";
-  const catalog = {
-    schema: await q("select nspacl::text as acl, obj_description(oid, 'pg_namespace') as comment from pg_namespace where nspname = 'specialization'"),
-    relations: await q<{ relname: string; relkind: string }>(
-      `select c.relname, c.relkind::text as relkind, c.relrowsecurity, c.relforcerowsecurity, c.relacl::text as acl, obj_description(c.oid, 'pg_class') as comment
-       from pg_class c join pg_namespace n on n.oid = c.relnamespace where ${ns} order by 1`,
-    ),
-    columns: await q(
-      `select table_name, column_name, ordinal_position, data_type, is_nullable, column_default, is_generated, generation_expression,
-              col_description(format('specialization.%I', table_name)::regclass, ordinal_position) as comment
-       from information_schema.columns where table_schema = 'specialization' order by 1, 3`,
-    ),
-    constraints: await q(`select t.relname, c.conname, pg_get_constraintdef(c.oid) as def from pg_constraint c join pg_class t on t.oid = c.conrelid join pg_namespace n on n.oid = t.relnamespace where ${ns} order by 1, 2`),
-    indexes: await q("select tablename, indexname, indexdef from pg_indexes where schemaname = 'specialization' order by 1, 2"),
-    triggers: await q(`select c.relname, t.tgname, pg_get_triggerdef(t.oid) as def, t.tgenabled::text as enabled from pg_trigger t join pg_class c on c.oid = t.tgrelid join pg_namespace n on n.oid = c.relnamespace where ${ns} and not t.tgisinternal order by 1, 2`),
-    functions: await q(`select p.oid::regprocedure::text as fn, pg_get_functiondef(p.oid) as def, p.proacl::text as acl, obj_description(p.oid, 'pg_proc') as comment from pg_proc p join pg_namespace n on n.oid = p.pronamespace where ${ns} order by 1`),
-    policies: await q("select tablename, policyname, permissive, roles::text as roles, cmd, qual, with_check from pg_policies where schemaname = 'specialization' order by 1, 2"),
-    defaultAcls: await q("select defaclrole::regrole::text as role, defaclnamespace::regnamespace::text as schema, defaclobjtype::text as kind, defaclacl::text as acl from pg_default_acl order by 1, 2, 3"),
-    extensions: await q("select extname, extnamespace::regnamespace::text as schema from pg_extension order by 1"),
-  };
-  const tables = catalog.relations.filter((relation) => relation.relkind === "r").map((relation) => relation.relname);
-  const raw: Record<string, Record<string, unknown>[]> = {};
-  for (const table of tables) raw[table] = (await q<{ row: Record<string, unknown> }>(`select to_jsonb(t) as row from specialization.${table} t`)).map((entry) => entry.row);
-  const names = new Map<unknown, string>();
-  for (const row of raw.sources) names.set(row.id, `source ${row.source_key}`);
-  for (const row of raw.claims) names.set(row.id, `claim ${row.claim_key}`);
-  for (const row of raw.diagram_assets) names.set(row.id, `asset ${row.asset_key} v${row.version}`);
-  for (const row of raw.mapping_versions) names.set(row.id, `version ${row.version_key}`);
-  for (const row of raw.variant_mappings) names.set(row.id, `mapping ${names.get(row.version_id)} ${row.mapping_key}`);
-  const data = Object.fromEntries(
-    tables.map((table) => [table, raw[table].map((row) => JSON.stringify(Object.fromEntries(Object.entries(row).map(([key, value]) => [key, names.get(value) ?? value])))).sort()]),
-  );
-  return { catalog, data };
-}
 
 describe("applied as one DO block per file, the way it reaches production", () => {
   it("wraps a file as exactly one statement, with quote tags the file does not contain", () => {
