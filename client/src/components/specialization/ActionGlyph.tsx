@@ -58,9 +58,9 @@ export function ActionGlyph({ actionId }: { actionId: string }) {
     </>}
     {/* The blade, a triangle against the curve of the ribs, and a two-way arrow along them. */}
     {kind === "glide" && <>
-      <path d="M6 4q-3 10 0 20" className="spz-glyph-limb" />
-      <path d="M12 6h13l-8 15z" className="spz-glyph-limb" />
-      <path d="M12 27h13" className="spz-glyph-arrow" markerStart={`url(#${arrowId})`} markerEnd={`url(#${arrowId})`} />
+      <path d="M5 3q-3 9 0 18" className="spz-glyph-limb" />
+      <path d="M11 4h14l-7 13z" className="spz-glyph-limb" />
+      <path d="M5 26h22" className="spz-glyph-arrow" markerStart={`url(#${arrowId})`} markerEnd={`url(#${arrowId})`} />
     </>}
     {kind === "elevate" && <>
       <path d="M5 9h14l-8 15z" className="spz-glyph-limb" />
