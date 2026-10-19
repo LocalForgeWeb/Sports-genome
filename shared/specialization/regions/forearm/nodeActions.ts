@@ -1,8 +1,9 @@
 import type { NodeAction } from "../../types";
-import { externalContributorIds as ext, forearmActionIds as a, forearmAdjacentIds as adj, forearmMuscleIds as m } from "../../ids";
+import { FOREARM_REGION_ID, forearmActionIds as a, forearmAdjacentIds as adj, forearmMuscleIds as m } from "./ids";
 
 /**
- * Which joint actions each node performs, each resting on a function claim.
+ * Which joint actions each forearm node performs, each resting on a function claim. The forearm's
+ * rows for the biceps and brachialis are kept beside those nodes (regions/upper_arm/nodeActions.ts).
  *
  * `prime` is a main action of the muscle; `assist` means it helps. Every row cites the
  * node's own function claim (`<node>.function` in claims.ts), and the test in
@@ -14,17 +15,15 @@ import { externalContributorIds as ext, forearmActionIds as a, forearmAdjacentId
  *   pronator or supinator target. Said in its claim and caveats instead.
  * - abductor pollicis longus at the wrist: references disagree on the direction.
  * - flexor pollicis longus at the thumb knuckle: no action id exists for thumb-knuckle
- *   flexion, and adding one to ids.ts is outside this content lane. Said in its claim.
+ *   flexion, and adding one to the action library was outside this content lane. Said in its claim.
  * - small "weak" extras (FCU and ECRL at the elbow, FCR in pronation, EI, EPL and EDM at
  *   the wrist): minor roles that would only add noise to suggestions.
  */
 
-const row = (nodeId: string, actionId: string, role: NodeAction["role"]): NodeAction => ({
-  nodeId,
-  actionId,
-  role,
-  claimId: `${nodeId.slice(nodeId.indexOf(".") + 1)}.function`,
-});
+const row = (nodeId: string, actionId: string, role: NodeAction["role"]): NodeAction => {
+  const claimId = `${nodeId.slice(nodeId.indexOf(".") + 1)}.function`;
+  return { nodeId, actionId, role, claimId, claimKey: `${FOREARM_REGION_ID}:${claimId}` };
+};
 
 export const forearmNodeActions: NodeAction[] = [
   row(m.brachioradialis, a.elbowFlexion, "prime"),
@@ -82,9 +81,4 @@ export const forearmNodeActions: NodeAction[] = [
   row(m.supinator, a.supination, "prime"),
 
   row(adj.anconeus, a.elbowExtension, "assist"),
-
-  row(ext.biceps, a.elbowFlexion, "prime"),
-  row(ext.biceps, a.supination, "prime"),
-
-  row(ext.brachialis, a.elbowFlexion, "prime"),
 ];

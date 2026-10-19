@@ -4,23 +4,24 @@ import { forearmCatalogExercises } from "@/lib/exerciseCatalogForearm";
 import { catalogEquipment } from "@/lib/equipmentProfile";
 import { exercisePhotoSet } from "@/lib/exercisePhotos";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
-import { forearmVariants, regionOnlyExercises, unmappedForearmTaggedExercises } from "@shared/specialization/regions/forearm/variants";
+import { forearmVariants } from "@shared/specialization/regions/forearm/variants";
 import { forearmMappings, forearmMappingVersion } from "@shared/specialization/regions/forearm/mappings";
-import { forearmMappingSources } from "@shared/specialization/regions/forearm/mappingSources";
-import { FOREARM_MAPPING_VERSION, coreForearmMuscleIds, externalContributorIds, forearmActionIds, forearmMuscleIds as m, variantIdFor } from "@shared/specialization/ids";
+import { forearmMappingSources } from "@shared/specialization/sources/forearmMappings";
+import { variantIdFor } from "@shared/specialization/ids";
+import { FOREARM_MAPPING_VERSION, coreForearmMuscleIds, externalContributorIds, forearmActionIds, forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { categoryFor } from "@shared/specialization/rules";
 
 /**
  * The forearm atlas's exercise variants and mappings, held to the brief of 16 Oct 2026 (§4, §5,
  * §11) and to docs/specialization-atlas/02-design.md. These read the shipped data, so a mapping
- * or catalog edit that breaks a rule fails here rather than in a total on the page.
+ * or catalog edit that breaks a rule fails here rather than in a total on the page. The rules
+ * every region's mappings keep (references, sources, categories, node actions, catalog coverage)
+ * are checked for every region in regionContent.test.ts; these are the forearm's own.
  */
 
 const byId = new Map<number, Exercise>(exercises.map((exercise) => [exercise.id, exercise]));
 const variantById = new Map(forearmVariants.map((variant) => [variant.id, variant]));
 const nodeById = new Map(forearmRegionData.nodes.map((node) => [node.id, node]));
-const actionIds = new Set(forearmRegionData.actions.map((action) => action.id));
-const sourceIds = new Set(forearmRegionData.sources.map((source) => source.id));
 const mappingsFor = (catalogId: number) => forearmMappings.filter((mapping) => mapping.variantId === variantIdFor(catalogId));
 const mappingOf = (catalogId: number, nodeId: string) => forearmMappings.find((mapping) => mapping.variantId === variantIdFor(catalogId) && mapping.nodeId === nodeId);
 const tagged = (exercise: Exercise) => exercise.primaryMuscles.includes("forearms") || exercise.secondaryMuscles.includes("forearms") || exercise.qualities.includes("grip");
@@ -71,26 +72,15 @@ describe("forearm variants", () => {
 });
 
 describe("forearm mappings", () => {
-  it("reference an existing variant, node and joint action, under the published version", () => {
-    for (const mapping of forearmMappings) {
-      expect(variantById.has(mapping.variantId), `${mapping.id}: variant`).toBe(true);
-      expect(nodeById.has(mapping.nodeId), `${mapping.id}: node`).toBe(true);
-      expect(mapping.actionId && actionIds.has(mapping.actionId), `${mapping.id}: action`).toBe(true);
-      expect(mapping.versionKey).toBe(FOREARM_MAPPING_VERSION);
-      expect(mapping.id).toBe(`${mapping.variantId}:${mapping.nodeId}`);
-    }
-    // One mapping per variant and node (the database's unique key).
-    expect(new Set(forearmMappings.map((mapping) => mapping.id)).size).toBe(forearmMappings.length);
-    // Every variant is mapped.
+  it("sit under the published version, every variant mapped", () => {
+    for (const mapping of forearmMappings) expect(mapping.versionKey).toBe(FOREARM_MAPPING_VERSION);
     for (const variant of forearmVariants) expect(mappingsFor(variant.catalogExerciseId).length, variant.catalogName).toBeGreaterThan(0);
   });
 
-  it("map only real muscles: never a compartment group, and outside the forearm only the biceps and brachialis", () => {
+  it("map outside the forearm only the biceps and brachialis", () => {
     for (const mapping of forearmMappings) {
       const node = nodeById.get(mapping.nodeId)!;
-      expect(node.kind === "group" || node.kind === "compartment" || node.role === "group", mapping.id).toBe(false);
       if (node.role === "external") expect([externalContributorIds.biceps, externalContributorIds.brachialis]).toContain(node.id);
-      expect(node.role, mapping.id).not.toBe("adjacent");
     }
   });
 
@@ -104,25 +94,8 @@ describe("forearm mappings", () => {
     }
   });
 
-  it("cite at least one source per mapping, with a locator on every reviewed one, from the region's own sources", () => {
-    for (const mapping of forearmMappings) {
-      expect(mapping.sources.length, mapping.id).toBeGreaterThan(0);
-      for (const ref of mapping.sources) expect(sourceIds.has(ref.sourceId), `${mapping.id} cites ${ref.sourceId}`).toBe(true);
-      if (mapping.reviewStatus === "reviewed") expect(mapping.sources.some((ref) => Boolean(ref.locator)), mapping.id).toBe(true);
-      expect(mapping.rationale.length, mapping.id).toBeGreaterThan(40);
-      // EMG is claimed only with an EMG source in hand.
-      if (mapping.evidenceBasis === "emg") expect(mapping.sources.some((ref) => forearmRegionData.sources.find((source) => source.id === ref.sourceId)?.evidenceType === "emg"), mapping.id).toBe(true);
-    }
+  it("keep the mapping review's sources under M keys", () => {
     for (const source of forearmMappingSources) expect(source.id).toMatch(/^M\d+$/);
-  });
-
-  it("give every reviewed mapping a countable category, and never let a stabilizer or incidental muscle earn dynamic credit", () => {
-    for (const mapping of forearmMappings) {
-      const variant = variantById.get(mapping.variantId)!;
-      const category = categoryFor(mapping.relationship, mapping.muscleMode, variant.deliberateHold);
-      if (mapping.reviewStatus === "reviewed") expect(category, mapping.id).not.toBe("unknown");
-      if (mapping.relationship === "stabilizer" || mapping.relationship === "incidental") expect(mapping.muscleMode, mapping.id).toBe("isometric");
-    }
   });
 
   it("never fan one exercise out to all 19 forearm muscles", () => {
@@ -164,15 +137,6 @@ describe("forearm mappings", () => {
       for (const node of fingerFlexors) expect(mappingOf(id, node)?.requiresNoStraps, `${byId.get(id)!.name} ${node}`).toBe(true);
     }
     for (const id of [43, 57, 66, 41, 81]) expect(mappingOf(id, m.flexorDigitorumSuperficialis)!.relationship).toBe("incidental");
-  });
-
-  it("agree with the anatomy lane's node actions wherever a node has them", () => {
-    const actionsOf = new Map<string, Set<string>>();
-    for (const entry of forearmRegionData.nodeActions) actionsOf.set(entry.nodeId, (actionsOf.get(entry.nodeId) ?? new Set()).add(entry.actionId));
-    for (const mapping of forearmMappings) {
-      const known = actionsOf.get(mapping.nodeId);
-      if (known?.size) expect(known.has(mapping.actionId!), `${mapping.id}: ${mapping.actionId} is not among ${[...known].join(", ")}`).toBe(true);
-    }
   });
 
   it("represent a reverse curl as dynamic elbow flexion and isometric wrist stabilization in the same bout (brief §11)", () => {
@@ -229,27 +193,17 @@ describe("forearm mappings", () => {
 });
 
 describe("catalog coverage for the forearm", () => {
-  it("gives every exercise tagged forearms as a primary muscle a reviewed mapping, or lists it as region-level with a reason", () => {
-    const regionOnly = new Set(regionOnlyExercises.map((entry) => entry.catalogExerciseId));
+  it("gives every exercise tagged forearms as a primary muscle a reviewed mapping", () => {
     for (const exercise of exercises.filter((candidate) => candidate.primaryMuscles.includes("forearms"))) {
-      const reviewed = mappingsFor(exercise.id).some((mapping) => mapping.reviewStatus === "reviewed");
-      expect(reviewed || regionOnly.has(exercise.id), `${exercise.id} ${exercise.name}`).toBe(true);
-    }
-    for (const entry of regionOnlyExercises) {
-      expect(byId.get(entry.catalogExerciseId)?.name).toBe(entry.name);
-      expect(entry.reason.length).toBeGreaterThan(20);
+      expect(mappingsFor(exercise.id).some((mapping) => mapping.reviewStatus === "reviewed"), `${exercise.id} ${exercise.name}`).toBe(true);
     }
   });
 
   it("accounts for every exercise tagged forearms or grip: mapped, or left unmapped with a reason", () => {
     const mapped = new Set(forearmVariants.map((variant) => variant.catalogExerciseId));
-    const listed = new Map([...regionOnlyExercises, ...unmappedForearmTaggedExercises].map((entry) => [entry.catalogExerciseId, entry]));
+    const listed = new Set(forearmRegionData.unmappedTagged.map((entry) => entry.catalogId));
     for (const exercise of exercises.filter(tagged)) expect(mapped.has(exercise.id) || listed.has(exercise.id), `${exercise.id} ${exercise.name}`).toBe(true);
-    for (const [id, entry] of listed) {
-      expect(mapped.has(id), `${id} is both mapped and listed as unmapped`).toBe(false);
-      expect(byId.get(id)?.name, String(id)).toBe(entry.name);
-      expect(tagged(byId.get(id)!), entry.name).toBe(true);
-    }
+    for (const id of listed) expect(tagged(byId.get(id)!), String(id)).toBe(true);
   });
 
   it("keeps the corrected rows corrected (Phase A defects)", () => {

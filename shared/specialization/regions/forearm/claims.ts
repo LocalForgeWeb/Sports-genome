@@ -1,11 +1,15 @@
-import type { Claim, ClaimSourceRef } from "../../types";
-import { externalContributorIds as ext, forearmAdjacentIds as adj, forearmGroupIds as grp, forearmMuscleIds as m } from "../../ids";
+import type { Claim } from "../../types";
+import { forearmAdjacentIds as adj, forearmGroupIds as grp, forearmMuscleIds as m } from "./ids";
+import { ACUTE_EMG, LOCATION_ONLY, SEARCH_EXCERPT, fn, look, select, src, varies } from "./review";
 
 /**
- * Function, appearance, selectivity and variation claims per node, with sources.
+ * Function, appearance, selectivity and variation claims per forearm node, with sources. The
+ * forearm's claims on the biceps and brachialis are kept beside those nodes, in
+ * regions/upper_arm/claims.ts; they are the forearm's all the same (`ownerRegionId`).
  *
  * Ids are `<node id without its region>.<kind>[.<n>]` (`fcu.function`, `fds.selectivity.1`),
- * so a claim's owner can be read from its id and node actions can cite it by name.
+ * so a claim's node can be read from its id and node actions can cite it by name. Each claim's
+ * key is `forearm:<id>` (review.ts sets the owner).
  *
  * Kinds and bases are kept apart on purpose (brief §2, "mark anatomical inference,
  * experimental evidence, and product accounting choices distinctly"):
@@ -24,42 +28,6 @@ import { externalContributorIds as ext, forearmAdjacentIds as adj, forearmGroupI
  * source cannot carry. The method and its limits are in
  * docs/specialization-atlas/03-anatomy-evidence.md.
  */
-
-const REVIEWED_ON = "2026-10-16";
-const REVIEW_NOTE = "Checked against the cited sources through web search on 16 Oct 2026; automated review, not a clinician or anatomist.";
-const APPEARANCE_REVIEW_NOTE =
-  "Checked against the cited sources through web search on 16 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.";
-
-/** Common qualifications, said once so every citation of the same limit reads the same. */
-const ACUTE_EMG = "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight.";
-const SEARCH_EXCERPT = "Seen through web-search excerpts of the page, not the full text.";
-const LOCATION_ONLY = "Gives location and layer only; the contour statement is inferred from them, not reported by the source.";
-
-const src = (sourceId: string, locator: string, qualification: string | null = null): ClaimSourceRef => ({ sourceId, locator, qualification });
-
-/** The node id without its region prefix: `forearm.fcu` → `fcu`. */
-const short = (nodeId: string) => nodeId.slice(nodeId.indexOf(".") + 1);
-
-type ClaimSeed = Pick<Claim, "nodeId" | "statement" | "sources"> & { n?: number };
-
-function reviewedClaim(kind: Claim["kind"], basis: Claim["basis"], seed: ClaimSeed): Claim {
-  return {
-    id: `${short(seed.nodeId)}.${kind}${seed.n ? `.${seed.n}` : ""}`,
-    nodeId: seed.nodeId,
-    kind,
-    statement: seed.statement,
-    basis,
-    reviewStatus: "reviewed",
-    reviewedAt: REVIEWED_ON,
-    reviewNote: kind === "appearance" ? APPEARANCE_REVIEW_NOTE : REVIEW_NOTE,
-    sources: seed.sources,
-  };
-}
-
-const fn = (seed: ClaimSeed) => reviewedClaim("function", "established_anatomy", seed);
-const look = (seed: ClaimSeed) => reviewedClaim("appearance", "anatomical_inference", seed);
-const select = (seed: ClaimSeed) => reviewedClaim("selectivity", "experimental", seed);
-const varies = (seed: ClaimSeed) => reviewedClaim("variation", "established_anatomy", seed);
 
 export const forearmClaims: Claim[] = [
   // ---------------------------------------------------------------- compartments
@@ -414,7 +382,7 @@ export const forearmClaims: Claim[] = [
     sources: [src("A46", "Overview and relations: deep in the forearm", LOCATION_ONLY), src("A55", "Overview of the deep group", LOCATION_ONLY)],
   }),
 
-  // ---------------------------------------------------------------- adjacent and external
+  // ---------------------------------------------------------------- adjacent
   fn({
     nodeId: adj.anconeus,
     statement: "Anconeus helps straighten the elbow and helps steady the joint; the triceps does most of the straightening.",
@@ -424,28 +392,6 @@ export const forearmClaims: Claim[] = [
     nodeId: adj.anconeus,
     statement: "Anconeus is a small triangular muscle at the back of the elbow, between the thumb-side bony knob of the upper-arm bone and the point of the elbow. It may add to the contour at the back of the elbow; it is not a forearm growth target.",
     sources: [src("A48", "Overview: location", LOCATION_ONLY), src("A49", "Quick Facts: location", LOCATION_ONLY)],
-  }),
-
-  fn({
-    nodeId: ext.biceps,
-    statement: "Biceps brachii bends the elbow and turns the forearm palm-up; with the elbow bent it is the forearm's most powerful palm-up muscle.",
-    sources: [src("A50", "Introduction", SEARCH_EXCERPT)],
-  }),
-  look({
-    nodeId: ext.biceps,
-    statement: "Biceps shapes the front of the upper arm. It is an upper-arm muscle and does not add forearm size.",
-    sources: [src("A50", "Introduction: attachments", LOCATION_ONLY)],
-  }),
-
-  fn({
-    nodeId: ext.brachialis,
-    statement: "Brachialis bends the elbow in every forearm position and does not turn the forearm; it is described as a pure elbow flexor.",
-    sources: [src("A51", "Introduction", SEARCH_EXCERPT)],
-  }),
-  look({
-    nodeId: ext.brachialis,
-    statement: "Brachialis lies under the biceps in the lower front of the upper arm and may show at its sides. It is not a forearm muscle.",
-    sources: [src("A51", "Introduction: deeper than the biceps", LOCATION_ONLY)],
   }),
 ];
 

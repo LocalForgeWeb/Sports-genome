@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { coreForearmMuscleIds, forearmMuscleIds as m } from "@shared/specialization/ids";
+import { coreForearmMuscleIds, forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { forearmDiagram, forearmDiagramOutcrops } from "@shared/specialization/regions/forearm/diagram.generated";
 import type { DiagramLayerId, DiagramPath, DiagramViewId } from "@shared/specialization/types";

@@ -3,7 +3,7 @@ import { exercises } from "@/lib/exerciseCatalog";
 import { recommendFor, type RecommendationRequest } from "@/lib/specialization/recommendations";
 import { catalogMusclesLookup } from "@/lib/specialization/useSpecializationSummary";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
-import { forearmActionIds as a, forearmMuscleIds as m, externalContributorIds as ext } from "@shared/specialization/ids";
+import { forearmActionIds as a, forearmMuscleIds as m, externalContributorIds as ext } from "@shared/specialization/regions/forearm/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { calendarWeekInterval, localDateKey, planWeekInterval } from "@shared/specialization/time";
 import type { ArmSide, ExposureBout, SpecializationGoal, SpecializationSummary } from "@shared/specialization/types";

@@ -7,6 +7,9 @@
  * schema `specialization` (docs/specialization-atlas/02-design.md §9), so the seed SQL
  * can be generated from the TypeScript content rather than written twice.
  */
+import type { VariantDimensions } from "./variants/dimensions";
+
+export type { VariantDimensions };
 
 // ---------------------------------------------------------------- reference content
 
@@ -26,22 +29,67 @@ export type SurfaceVisibility = "clear" | "partial" | "not_distinct" | "variable
  * `adjacent` ones sit beside them (the anconeus at the elbow) and are explained but
  * never targeted; `external` ones belong to another region and appear only as
  * "also loaded" contributors (biceps and brachialis on a curl).
+ *
+ * A node has one home region and a role there, which is never `external`; every other region
+ * that lists it lists it as `external` (docs/specialization-atlas/10-multi-region.md §1.3).
+ * The role is a property of the listing: `memberRole` in compose.ts derives it.
  */
 export type NodeRole = "target" | "adjacent" | "external" | "group";
+/** A node's role in its home region. */
+export type HomeRole = Exclude<NodeRole, "external">;
 
 /** Thumb side or pinky side, in anatomical terms; never screen-left or screen-right. */
 export type ForearmBorder = "radial" | "ulnar" | "central" | "both";
+
+/**
+ * `production` regions have a page; `reference` regions are registered only as the home of
+ * another region's external members until a wave promotes them (the upper arm through wave 0,
+ * 10-multi-region.md §1.3); `fixture` regions exist only in tests and are never registered.
+ */
+export type RegionStatus = "production" | "reference" | "fixture";
+
+/** The limb whose side the logger records for a paired region. */
+export type Limb = "arm" | "leg";
+
+/**
+ * How a region counts sides (10-multi-region.md §2.1): `paired` regions count each side of the
+ * named limb (the forearm, upper arm, shoulders, chest and back by the arm; the hips, thigh and
+ * lower leg by the leg); a `midline` region (the core) counts every bout once, with no side.
+ */
+export type RegionSides = { model: "paired"; limb: Limb } | { model: "midline" };
+
+/**
+ * Which catalog tags put an unmapped exercise in the region-only bucket: `any` reads primary and
+ * secondary tags (the forearm, as shipped); `primary` reads primary tags only (every new region,
+ * 10-multi-region.md §1.1).
+ */
+export type RegionOnlyTagScope = "any" | "primary";
+
+/** Where and how a measure is first taken on this region's page (10-multi-region.md §4.4). */
+export interface MeasurementDefault {
+  /** "Thickest point", "Widest point of the calf". */
+  landmark: string;
+  posture: MeasurementPosture;
+}
 
 export interface SpecializationRegion {
   id: RegionId;
   label: string;
   /** The page heading, e.g. "Forearm specialization". */
   heading: string;
+  /** Body order; gaps are left for regions added later (the forearm is 10, 10-multi-region.md §1.1). */
   sortOrder: number;
-  /** `fixture` regions exist only in tests; production never registers one. */
-  status: "production" | "fixture";
-  /** Body-map and catalog keys this region refines; selecting one on the map offers the page. */
+  status: RegionStatus;
+  sides: RegionSides;
+  /** Body-map and Review keys that open this region's page; selecting one on the map offers the page. */
   bodyMapKeys: string[];
+  /**
+   * Catalog muscle keys whose tagged work is this region's work (the region-only bucket, rule
+   * `unmapped`), written out rather than read from the target nodes (10-multi-region.md §1.1).
+   * The forearm's is `["forearms"]`, which is what its target nodes' keys gave before.
+   */
+  catalogKeys: string[];
+  regionOnlyTagScope: RegionOnlyTagScope;
   /** The link from other screens: "Explore forearm coverage". */
   entryLabel: string;
   /**
@@ -56,12 +104,23 @@ export interface SpecializationRegion {
    * then grip on a dynamometer). A measure the region does not list is never offered.
    */
   measurementMetrics: MeasurementMetric[];
+  /** The landmark and posture a first reading of each listed measure starts from. */
+  measurementDefaults: Partial<Record<MeasurementMetric, MeasurementDefault>>;
 }
 
-/** The page's region-specific words. Plain text; the page adds no region words of its own. */
+/**
+ * The page's region-specific words. Plain text the database can store; the page adds no region
+ * words of its own.
+ */
 export interface RegionWording {
-  /** The list's heading over the muscles of another region credited here: "Upper-arm muscles credited here". */
+  /**
+   * The list's heading over the muscles of another region credited here: "Upper-arm muscles
+   * credited here". Kept as the fallback; pages group external rows by home region under each
+   * home's `externalHeading`.
+   */
   externalGroup: string;
+  /** The heading another region's page puts over this region's muscles: "Forearm muscles credited here". */
+  externalHeading: string;
   /**
    * The kind of incidental work, said on the muscle bars and in their key: "grip" gives
    * "Incidental grip" in the key and "3 grip" on a bar.
@@ -69,14 +128,38 @@ export interface RegionWording {
   incidentalWork: string;
   /** The line under "Progress": "Circumference and grip, by arm". */
   progressSubtitle: string;
+  /**
+   * A paired region's word for one side and for both, from the limb the logger asks about:
+   * "arm" and "arms" ("Left arm · Right arm"), "side" and "sides" on the chest and back, "leg"
+   * and "legs". A midline region has none.
+   */
+  sideWord?: string;
+  sideWordPlural?: string;
+  /**
+   * The region and a side in a sentence, `{side}` standing for "left" or "right": "your {side}
+   * forearm", "the {side} side of your chest". A midline region's has no slot ("your core").
+   * Rendered by `onSide` (regionIndex.ts).
+   */
+  onSideTemplate: string;
 }
 
 export interface AnatomyNode {
   id: NodeId;
+  /** The node's home region (one per node). A page's copy of another region's node keeps it. */
   regionId: RegionId;
   parentId: NodeId | null;
   kind: NodeKind;
+  /**
+   * The role in the home region. A region's page data holds copies with the role in that
+   * region (`external` for another region's node), from `composeRegionData`.
+   */
   role: NodeRole;
+  /**
+   * The value the database's `nodes.role` keeps where it differs from the home role: only the
+   * frozen `upper_arm.biceps` and `upper_arm.brachialis`, shipped as `external` in seed v1
+   * (10-multi-region.md §1.3). The seed writes `storedRole ?? role`.
+   */
+  storedRole?: "external";
   name: string;
   /** Abbreviation shown in tight places (FCU, ECRL). */
   shortName: string;
@@ -99,6 +182,22 @@ export interface AnatomyNode {
   caveats: string[];
 }
 
+/**
+ * One region's listing of a node (10-multi-region.md §1.3): the region's own nodes and other
+ * regions' (external) ones, each once. The role is not stored: it is the node's home role in
+ * its home region and `external` everywhere else (`memberRole`).
+ */
+export interface RegionMember {
+  nodeId: NodeId;
+  /** Place in the region's list, lowest first. */
+  sortOrder: number;
+  /**
+   * Words about the node that belong to this region's page, not to the node ("not a forearm
+   * target"), said after the node's own caveats.
+   */
+  caveats?: string[];
+}
+
 export interface JointAction {
   id: ActionId;
   joint: string;
@@ -106,13 +205,19 @@ export interface JointAction {
   plainDescription: string;
 }
 
+/**
+ * A node's joint action. Global: one per node and action, declared by the node's home region
+ * (the forearm's shipped rows for the biceps and brachialis are in `regions/upper_arm/`).
+ */
 export interface NodeAction {
   nodeId: NodeId;
   actionId: ActionId;
   /** `prime`: a main action of the muscle; `assist`: it helps. */
   role: "prime" | "assist";
-  /** The function claim this rests on. Must belong to the same node. */
+  /** The id of the function claim this rests on, within its owner's claims. Must belong to the same node. */
   claimId: string;
+  /** The same claim's full key, `<owner region>:<claim id>` ("forearm:biceps.function"). */
+  claimKey: string;
 }
 
 export type ClaimKind = "function" | "appearance" | "selectivity" | "variation";
@@ -127,7 +232,17 @@ export interface ClaimSourceRef {
 }
 
 export interface Claim {
+  /**
+   * Unique within its owner's claims. Shipped forearm ids are `<node id without its region>.<kind>`
+   * (`fcu.function`); new ids are the full node id and the kind (`upper_arm.biceps.appearance`).
+   */
   id: string;
+  /**
+   * The region that owns the claim, wherever its record is kept: the four claims on the biceps
+   * and brachialis are the forearm's, kept beside the nodes in `regions/upper_arm/`. The claim's
+   * key is `<ownerRegionId>:<id>` (`claimKeyOf`), never derived from the file that lists it.
+   */
+  ownerRegionId: RegionId;
   nodeId: NodeId;
   kind: ClaimKind;
   statement: string;
@@ -156,14 +271,29 @@ export interface Source {
 // ---------------------------------------------------------------- variants and mappings
 
 export type Organization = "single_joint" | "multi_joint" | "task" | "mixed";
-export type ForearmOrientation = "supinated" | "neutral" | "pronated" | "changing" | "unknown";
-export type WristPosition = "flexed" | "neutral" | "extended" | "changing" | "unknown";
+/** `not_applicable` where the hands hold nothing (a leg press), on variants added after the forearm's. */
+export type ForearmOrientation = "supinated" | "neutral" | "pronated" | "changing" | "unknown" | "not_applicable";
+export type WristPosition = "flexed" | "neutral" | "extended" | "changing" | "unknown" | "not_applicable";
 export type GripType =
   | "overhand" | "underhand" | "neutral" | "mixed" | "hook" | "pinch" | "crush" | "open_hand"
   | "fingers_only" | "thumb" | "none" | "unknown";
 export type StrapsUse = "yes" | "no" | "unknown" | "not_applicable";
-/** `bilateral`: both arms work in every set by the definition of the exercise (a barbell). */
-export type Laterality = "bilateral" | "unilateral" | "either";
+/**
+ * The arms: `bilateral` when both arms work in every set by the definition of the exercise (a
+ * barbell); `not_applicable` where the hands do no work (a leg extension), on variants added
+ * after the forearm's 119, which are frozen.
+ */
+export type Laterality = "bilateral" | "unilateral" | "either" | "not_applicable";
+/** The legs' counterpart of `laterality`, set by review from the exercise (10-multi-region.md §3). */
+export type LegLaterality = "bilateral" | "unilateral" | "either" | "not_applicable";
+/** The limb whose side the logger records for a variant, and the limb a planned set is split on; `none` records no side. */
+export type SidedBy = "arm" | "leg" | "none";
+/**
+ * Which leg a recorded leg side names (10-multi-region.md §2.1): the working leg, the front leg
+ * of a split stance, the standing leg of a single-leg hinge, the top or bottom leg of side-lying
+ * work. The arm's side is always the hand holding the load, so it has no anchor.
+ */
+export type SideAnchor = "working_leg" | "front_leg" | "stance_leg" | "top_leg" | "bottom_leg";
 export type Phase = "concentric_eccentric" | "eccentric_only" | "concentric_only" | "unspecified";
 export type SetMeasure = "reps" | "seconds";
 
@@ -174,6 +304,11 @@ export type SetMeasure = "reps" | "seconds";
  */
 export interface ExerciseVariant {
   id: VariantId;
+  /**
+   * The variant this one replaces for the same catalog exercise. The library holds a replaced
+   * variant only behind such a link, and `variantFor` returns the current one (10-multi-region.md §3).
+   */
+  replaces?: VariantId;
   catalogExerciseId: number;
   /** The catalog name at the time of mapping, checked by test against the catalog. */
   catalogName: string;
@@ -190,6 +325,17 @@ export interface ExerciseVariant {
   /** Degrees, only when the exercise defines it. Never a fabricated default. */
   elbowAngleDeg: number | null;
   notes: string | null;
+  /**
+   * Counting attributes (10-multi-region.md §3), always written out: nothing defaults them at
+   * run time. `sidedBy` is on every variant; `legLaterality` wherever a leg region maps the
+   * variant or `sidedBy` is `leg`; `sideAnchor` with a one-sided or either leg variant a leg
+   * region maps, or `sidedBy: "leg"`.
+   */
+  sidedBy: SidedBy;
+  legLaterality?: LegLaterality;
+  sideAnchor?: SideAnchor;
+  /** Descriptive dimensions (knee, hip, torso, bench, plane, grip width, stance, range); read by no rule, cited by mapping rationales. */
+  dimensions?: VariantDimensions;
 }
 
 export type Relationship = "direct" | "contributing" | "stabilizer" | "incidental" | "unknown";
@@ -203,7 +349,15 @@ export interface MappingSourceRef {
   limitation: string | null;
 }
 
+/**
+ * Where a mapping's muscle is loaded, relative to the side the variant's limb recorded
+ * (10-multi-region.md §2.1): the same side, the opposite side (a suitcase carry in the left hand
+ * loads the right quadratus lumborum), or both. Read through `sideRelationOf`: absent is `same`.
+ */
+export type SideRelation = "same" | "opposite" | "both";
+
 export interface VariantMapping {
+  /** `cat-<id>:<nodeId>`, unique within its version. Where two versions' mappings meet, key them by `versionedMappingKey`. */
   id: string;
   versionKey: string;
   variantId: VariantId;
@@ -219,12 +373,14 @@ export interface VariantMapping {
   rationale: string;
   reviewStatus: ReviewStatus;
   sources: MappingSourceRef[];
+  sideRelation?: SideRelation;
 }
 
 export interface MappingVersion {
   key: string;
   state: "draft" | "published" | "retired";
   publishedAt: string | null;
+  /** What a reviewed mapping of this version does and does not claim; every version has them (10-multi-region.md §4.1, §8). */
   methodNotes: string;
 }
 
@@ -307,6 +463,12 @@ export interface DiagramLayer {
 }
 
 /**
+ * `one_side`: drawn for the subject's RIGHT side, the left being the mirror image; `both_sides`:
+ * drawn whole and never mirrored (the core, 10-multi-region.md §7.3).
+ */
+export type DiagramSides = "one_side" | "both_sides";
+
+/**
  * Drawn for the subject's RIGHT arm. The left arm is the mirror image, and the page
  * flips the drawing — never the anatomy labels, which are re-placed by the mirror.
  */
@@ -314,6 +476,12 @@ export interface DiagramAsset {
   key: string;
   version: number;
   regionId: RegionId;
+  /**
+   * Absent means `one_side`, which is what every drawing so far is (`diagramSidesOf`). The
+   * forearm's generated drawing does not write it yet, so its file stays byte for byte as
+   * shipped; the drawing platform lane writes it.
+   */
+  sides?: DiagramSides;
   viewBox: { width: number; height: number };
   /**
    * The drawing's views in the order the page offers them, each with the words on its button
@@ -327,16 +495,73 @@ export interface DiagramAsset {
 
 // ---------------------------------------------------------------- one region's data
 
+/** A catalog exercise tagged with a region's keys that the region deliberately leaves unmapped, and why. */
+export interface UnmappedTaggedExercise {
+  catalogId: number;
+  reason: string;
+}
+
+/**
+ * Another region's current mapping version, as it credits this region's external members
+ * (10-multi-region.md §4.2): the home region speaks for its muscles.
+ */
+export interface ExternalMappingVersion {
+  /** The home region of the members these mappings credit. */
+  regionId: RegionId;
+  version: MappingVersion;
+  /** The home version's mappings of this region's external members only; each keeps its `versionKey`. */
+  mappings: VariantMapping[];
+}
+
+/**
+ * One region as its folder declares it (`regions/<region>/index.ts`), before composition: its
+ * own nodes and the records kept with them, its members and its mapping version. A region's page
+ * data is composed from its content and the content of its external members' home regions
+ * (`composeRegionData`, compose.ts). A reference region has no mapping version.
+ */
+export interface RegionContent {
+  region: SpecializationRegion;
+  /** The nodes whose home is this region, each with its home role (never `external`). */
+  nodes: AnatomyNode[];
+  /** Every node the region lists, its own and other regions', in page order. */
+  members: RegionMember[];
+  /** The region's joint actions, records from the shared library (`actions/`), in page order. */
+  actions: JointAction[];
+  /** The node actions of this region's own nodes. */
+  nodeActions: NodeAction[];
+  /** The claim records kept with this region's nodes, whichever region owns each (`ownerRegionId`). */
+  claims: Claim[];
+  /** The library sources this region's claims and mappings cite, in the page's order. */
+  sources: Source[];
+  /** The library variants this region's mapping version maps (`variantsMappedBy`). */
+  variants: ExerciseVariant[];
+  mappings: VariantMapping[];
+  mappingVersion: MappingVersion | null;
+  unmappedTagged: UnmappedTaggedExercise[];
+  diagram: DiagramAsset | null;
+}
+
 export interface SpecializationRegionData {
   region: SpecializationRegion;
+  /** Region-relative copies, in page order: role as this region lists the node, `regionId` still the node's home. */
   nodes: AnatomyNode[];
   actions: JointAction[];
   nodeActions: NodeAction[];
   claims: Claim[];
   sources: Source[];
   variants: ExerciseVariant[];
+  /** The region's own current version's mappings (`mappingVersion`), including any it holds for external members. */
   mappings: VariantMapping[];
   mappingVersion: MappingVersion;
+  /**
+   * The current versions of the external members' home regions, where a home has a published
+   * one. A node is credited by exactly one version: its home's here, or, where the home has
+   * none, this region's own rows (the forearm's biceps and brachialis rows until the upper arm
+   * publishes, 10-multi-region.md §4.2).
+   */
+  externalMappingVersions: ExternalMappingVersion[];
+  /** Catalog exercises tagged with the region's keys and deliberately left unmapped, each with its reason (§3). */
+  unmappedTagged: UnmappedTaggedExercise[];
   diagram: DiagramAsset | null;
 }
 
@@ -387,7 +612,12 @@ export interface ExposureBout {
 
 export type GoalMetric = "direct_dynamic_bouts" | "deliberate_hold_bouts" | "deliberate_hold_seconds";
 export type GoalPeriod = "calendar_week" | "rolling_7d";
-export type ArmSide = "left" | "right";
+/** A side of a paired region (10-multi-region.md §2.1). */
+export type BodySide = "left" | "right";
+/** The side a summary, a goal or a measurement is for: a side of a paired region, or `midline`. */
+export type SummarySide = BodySide | "midline";
+/** The name this type had when every region was an arm; kept while code still uses it. */
+export type ArmSide = BodySide;
 
 export interface SpecializationGoal {
   id: string;
@@ -407,13 +637,18 @@ export interface SpecializationGoal {
   updatedAt: string;
 }
 
-export type MeasurementMetric = "circumference_cm" | "grip_force_n";
+/**
+ * `circumference_cm` goes around a limb and is taken per side; `girth_cm` goes around the trunk
+ * (shoulders, chest, hips) and is always side `midline` (10-multi-region.md §4.4).
+ */
+export type MeasurementMetric = "circumference_cm" | "grip_force_n" | "girth_cm";
+export type MeasurementPosture = "arm_relaxed_hanging" | "arm_extended_supported" | "elbow_90_supported" | "arm_flexed" | "standing_relaxed" | "other";
 
 export interface MeasurementProtocol {
   /** "Thickest point of the forearm" or "Distance below the elbow crease". */
   landmark: string;
   distanceFromLandmarkCm: number | null;
-  posture: "arm_relaxed_hanging" | "arm_extended_supported" | "elbow_90_supported" | "other";
+  posture: MeasurementPosture;
   condition: "unpumped" | "pumped" | "unknown";
   /** Dynamometer or tape used. */
   device: string | null;

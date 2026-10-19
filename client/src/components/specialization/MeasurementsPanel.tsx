@@ -19,7 +19,8 @@ import { regionBoutRows } from "./model";
 import { revealClearOfBars } from "./reveal";
 import "./progress.css";
 
-const postureLabels: Record<MeasurementProtocol["posture"], string> = {
+// The postures this panel offers. The multi-region postures (arm flexed, standing relaxed) are offered with the regions that measure in them.
+const postureLabels: Partial<Record<MeasurementProtocol["posture"], string>> = {
   arm_relaxed_hanging: "Arm relaxed, hanging",
   arm_extended_supported: "Arm straight, supported",
   elbow_90_supported: "Elbow at 90°, supported",
@@ -38,6 +39,8 @@ const conditionLabels: Record<MeasurementProtocol["condition"], string> = { unpu
 const metricDefaults: Record<MeasurementMetric, { button: string; landmark: string; posture: MeasurementProtocol["posture"]; instrument: string }> = {
   circumference_cm: { button: "Circumference", landmark: "Thickest point", posture: "arm_relaxed_hanging", instrument: "Tape" },
   grip_force_n: { button: "Grip strength", landmark: "Dynamometer grip", posture: "elbow_90_supported", instrument: "Dynamometer" },
+  // No production region offers girth yet (docs/specialization-atlas/10-multi-region.md §4.4).
+  girth_cm: { button: "Girth", landmark: "Widest point", posture: "standing_relaxed", instrument: "Tape" },
 };
 
 let measurementSequence = 0;

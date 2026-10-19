@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
 import { getSpecializationSummary, indexRegion } from "@shared/specialization/exposure";
-import { externalContributorIds as ext, forearmActionIds as a, forearmGroupIds as g, forearmMuscleIds as m } from "@shared/specialization/ids";
+import { externalContributorIds as ext, forearmActionIds as a, forearmGroupIds as g, forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { categoryFor } from "@shared/specialization/rules";
 import { calendarWeekInterval, customInterval, planWeekInterval } from "@shared/specialization/time";
 import type { ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummaryRequest } from "@shared/specialization/types";

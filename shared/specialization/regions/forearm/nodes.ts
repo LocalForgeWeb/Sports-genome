@@ -1,8 +1,10 @@
 import type { AnatomyNode } from "../../types";
-import { FOREARM_REGION_ID, UPPER_ARM_REGION_ID, externalContributorIds, forearmAdjacentIds, forearmGroupIds, forearmMuscleIds as m } from "../../ids";
+import { FOREARM_REGION_ID, forearmAdjacentIds, forearmGroupIds, forearmMuscleIds as m } from "./ids";
 
 /**
- * The forearm's anatomy nodes (brief §3). Identity, layer and border are fixed here;
+ * The forearm's anatomy nodes (brief §3): the nodes whose home is the forearm. The page also
+ * lists the biceps and brachialis, whose home is the upper arm (regions/upper_arm/nodes.ts);
+ * members.ts says which nodes the forearm lists. Identity, layer and border are fixed here;
  * the descriptive fields (location, what it does, shape note, caveats) and `status`
  * are filled during the evidence review, and every claim behind them is in claims.ts.
  *
@@ -262,23 +264,4 @@ export const forearmNodes: AnatomyNode[] = [
     shapeNote: "Small; may add to the contour at the back of the elbow. It is not a forearm growth target.",
     caveats: ["Shown beside the forearm muscles because of where it sits; forearm specialization does not target it."],
   }),
-
-  {
-    id: externalContributorIds.biceps, regionId: UPPER_ARM_REGION_ID, parentId: null, kind: "muscle", role: "external",
-    name: "Biceps brachii", shortName: "Biceps", aliases: ["biceps"],
-    layer: "surface", surfaceVisibility: "clear", status: "reviewed", catalogMuscleKey: "biceps", databaseMuscle: "biceps_brachii", border: null,
-    location: "Front of the upper arm, crossing the elbow to the radius.",
-    whatItDoes: "Bends your elbow and turns your palm up; with the elbow bent it is the strongest palm-up muscle.",
-    shapeNote: "Shapes the front of the upper arm. It is an upper-arm muscle and does not add forearm size.",
-    caveats: ["Shown only as another muscle that curls and palm-up turning load; not a forearm target."],
-  },
-  {
-    id: externalContributorIds.brachialis, regionId: UPPER_ARM_REGION_ID, parentId: null, kind: "muscle", role: "external",
-    name: "Brachialis", shortName: "Brachialis", aliases: ["brachialis"],
-    layer: "deep", surfaceVisibility: "partial", status: "reviewed", catalogMuscleKey: "brachialis", databaseMuscle: "brachialis", border: null,
-    location: "Front of the lower upper arm, under the biceps, crossing the elbow to the ulna.",
-    whatItDoes: "Bends your elbow, whichever way the palm faces. It does not turn the forearm.",
-    shapeNote: "Mostly covered by the biceps; may show at the sides of the lower upper arm. It is not a forearm muscle.",
-    caveats: ["Shown only as another muscle that curls load; not a forearm target."],
-  },
 ];

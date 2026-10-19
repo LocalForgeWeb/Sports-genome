@@ -233,6 +233,19 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     return literals(line);
   };
 
+  /**
+   * Values types.ts holds ahead of the database: the multi-region model's (docs/specialization-atlas/
+   * 10-multi-region.md §3, §4.4), which schema v2 adds to these checks.
+   */
+  const aheadOfSchemaV2: Record<string, string[]> = {
+    "exercise_variants.forearm_orientation": ["not_applicable"],
+    "exercise_variants.wrist_position": ["not_applicable"],
+    "exercise_variants.laterality": ["not_applicable"],
+    "measurements.metric": ["girth_cm"],
+    "regions.measurement_metrics": ["girth_cm"],
+  };
+  const inDatabase = (key: string, values: string[]) => values.filter((value) => !(aheadOfSchemaV2[key] ?? []).includes(value));
+
   const expected: [table: string, column: string, values: () => string[]][] = [
     ["nodes", "kind", () => union("NodeKind")],
     ["nodes", "role", () => union("NodeRole")],
@@ -262,13 +275,13 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     // Diagram view and layer ids are the drawing's own: a shape, not a list (tested below).
     ["diagram_paths", "kind", () => union("DiagramPathKind")],
     ["diagram_labels", "anchor", () => property("DiagramLabel", "anchor")],
-    ["goals", "side", () => union("ArmSide")],
+    ["goals", "side", () => union("BodySide")],
     ["goals", "metric", () => union("GoalMetric")],
     ["goals", "period", () => union("GoalPeriod")],
-    ["measurements", "side", () => union("ArmSide")],
+    ["measurements", "side", () => union("BodySide")],
     ["measurements", "metric", () => union("MeasurementMetric")],
-    // `reference` is the database's own: a region that only holds external contributors.
-    ["regions", "status", () => [...property("SpecializationRegion", "status"), "reference"].sort()],
+    // `reference`: a region that only holds other regions' external members.
+    ["regions", "status", () => union("RegionStatus")],
   ];
 
   it.each(expected)("%s.%s", async (table, column, values) => {
@@ -282,7 +295,7 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     const def = defs.find((text) => pattern.test(text));
     expect(def, `${table}.${column} has a CHECK vocabulary`).toBeDefined();
     const inDb = [...pattern.exec(def!)![1].matchAll(/'([^']+)'::text/g)].map((match) => match[1]).sort();
-    expect(inDb).toEqual(values());
+    expect(inDb).toEqual(inDatabase(`${table}.${column}`, values()));
   });
 
   it("diagram view and layer ids are the drawing's own: any lowercase id (front, side, rear), no fixed list", async () => {
@@ -338,7 +351,7 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     // The measures a region may offer are the measurements table's own list, MeasurementMetric in types.ts.
     const offered = defs.map((def) => /\(measurement_metrics <@ ARRAY\[([^\]]+)\]\)/.exec(def)?.[1]).find(Boolean);
     expect(offered, "regions.measurement_metrics has a CHECK vocabulary").toBeDefined();
-    expect([...offered!.matchAll(/'([^']+)'::text/g)].map((match) => match[1]).sort()).toEqual(union("MeasurementMetric"));
+    expect([...offered!.matchAll(/'([^']+)'::text/g)].map((match) => match[1]).sort()).toEqual(inDatabase("regions.measurement_metrics", union("MeasurementMetric")));
 
     await as(db, "service_role", async () => {
       const insert = (id: string, status: string, columns: Record<string, string | string[] | null>) => {

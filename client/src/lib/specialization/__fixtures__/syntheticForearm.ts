@@ -1,5 +1,5 @@
 import type { DeviceSetLog, DeviceWorkoutExercise, DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
-import { externalContributorIds as ext, forearmActionIds as a, forearmGroupIds as g, forearmMuscleIds as m } from "@shared/specialization/ids";
+import { externalContributorIds as ext, forearmActionIds as a, forearmGroupIds as g, forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import type { AnatomyNode, ExerciseVariant, SpecializationRegionData, VariantMapping } from "@shared/specialization/types";
 
 /**
@@ -54,6 +54,8 @@ const variant = (catalogExerciseId: number, catalogName: string, extra: Partial<
   deliberateHold: false,
   elbowAngleDeg: null,
   notes: null,
+  // As the forearm's variants have it: the arm wherever the arms are not bilateral.
+  sidedBy: (extra.laterality ?? "either") === "bilateral" ? "none" : "arm",
   ...extra,
 });
 
@@ -77,7 +79,16 @@ const grip = (catalogExerciseId: number, relationship: VariantMapping["relations
 ];
 
 export const syntheticForearm: SpecializationRegionData = {
-  region: { id: REGION_ID, label: "Forearms", heading: "Forearm specialization", sortOrder: 10, status: "fixture", bodyMapKeys: ["forearms"], entryLabel: "Explore forearm coverage", wording: { externalGroup: "Upper-arm muscles credited here", incidentalWork: "grip", progressSubtitle: "Circumference and grip, by arm" }, measurementMetrics: ["circumference_cm", "grip_force_n"] },
+  region: {
+    id: REGION_ID, label: "Forearms", heading: "Forearm specialization", sortOrder: 10, status: "fixture", sides: { model: "paired", limb: "arm" },
+    bodyMapKeys: ["forearms"], catalogKeys: ["forearms"], regionOnlyTagScope: "any", entryLabel: "Explore forearm coverage",
+    wording: {
+      externalGroup: "Upper-arm muscles credited here", externalHeading: "Forearm muscles credited here", incidentalWork: "grip", progressSubtitle: "Circumference and grip, by arm",
+      sideWord: "arm", sideWordPlural: "arms", onSideTemplate: "your {side} forearm",
+    },
+    measurementMetrics: ["circumference_cm", "grip_force_n"],
+    measurementDefaults: { circumference_cm: { landmark: "Thickest point", posture: "arm_relaxed_hanging" }, grip_force_n: { landmark: "Dynamometer grip", posture: "elbow_90_supported" } },
+  },
   nodes: [
     node(g.anterior, "Anterior compartment", "Palm side", null, { kind: "compartment", role: "group", layer: "mixed" }),
     node(g.posterior, "Posterior compartment", "Back side", null, { kind: "compartment", role: "group", layer: "mixed" }),
@@ -156,6 +167,8 @@ export const syntheticForearm: SpecializationRegionData = {
     { ...map(139, { nodeId: m.flexorCarpiRadialis, actionId: a.wristFlexion, relationship: "direct", muscleMode: "dynamic" }), id: "old-139-fcr", versionKey: "synthetic_forearm_v0" },
   ],
   mappingVersion: { key: VERSION, state: "draft", publishedAt: null, methodNotes: "Synthetic test region." },
+  externalMappingVersions: [],
+  unmappedTagged: [],
   diagram: null,
 };
 

@@ -1,8 +1,9 @@
-import type { JointAction } from "../../types";
-import { forearmActionIds as a } from "../../ids";
+import type { JointAction } from "../types";
+import { forearmActionIds as a } from "./ids";
 
 /**
- * Joint actions the forearm atlas explains and maps. Plain wording is what the page shows.
+ * Joint actions the forearm atlas explains and maps, as shipped (seed v1); every region that
+ * names one of these reads this record. Plain wording is what the page shows.
  *
  * Directions are anatomical: "thumb side" and "pinky side", never screen-left or
  * screen-right, because a rotating forearm changes which surface faces the viewer.
