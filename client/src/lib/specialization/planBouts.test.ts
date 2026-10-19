@@ -4,7 +4,7 @@ import { buildDaySlots, emptyDayStore, type WeeklyDayStore } from "@/lib/trainin
 import { getGoalPrescription } from "@/lib/workoutPlanner";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
-import { forearmMuscleIds } from "@shared/specialization/ids";
+import { forearmMuscleIds } from "@shared/specialization/regions/forearm/ids";
 import { planWeekInterval } from "@shared/specialization/time";
 import { boutsFromPlan, holdDefaultPrescription, plannedTarget, prescriptionOf } from "./planBouts";
 import { catalogMusclesLookup } from "./useSpecializationSummary";

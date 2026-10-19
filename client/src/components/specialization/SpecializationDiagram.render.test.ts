@@ -4,7 +4,7 @@ import { join } from "node:path";
 import React, { createElement } from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { forearmMuscleIds as m } from "@shared/specialization/ids";
+import { forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import type { DiagramAsset, DiagramLayerId, DiagramViewId } from "@shared/specialization/types";
 import { deltoidIds, deltoidRegionData } from "@/lib/specialization/__fixtures__/deltoidRegion";

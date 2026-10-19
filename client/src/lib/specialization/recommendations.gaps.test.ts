@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
-import { forearmActionIds as a, forearmMuscleIds as m } from "@shared/specialization/ids";
+import { forearmActionIds as a, forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { categoryFor } from "@shared/specialization/rules";
 import { calendarWeekInterval, planWeekInterval } from "@shared/specialization/time";

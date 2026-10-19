@@ -1,4 +1,4 @@
-import type { Source } from "../../types";
+import type { Source } from "../types";
 
 /**
  * Sources named in the brief (§13), plus anatomy references added during review.

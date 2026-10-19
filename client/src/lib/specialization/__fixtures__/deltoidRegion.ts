@@ -1,4 +1,7 @@
-import type { AnatomyNode, ExerciseVariant, SpecializationRegionData, VariantMapping } from "@shared/specialization/types";
+import { actionsFor } from "@shared/specialization/actions";
+import { forearmActionIds, shoulderActionIds } from "@shared/specialization/actions/ids";
+import { composeRegionData } from "@shared/specialization/compose";
+import type { AnatomyNode, ExerciseVariant, RegionContent, SpecializationRegion, SpecializationRegionData, VariantMapping } from "@shared/specialization/types";
 
 /**
  * A deltoid region for tests only (brief §1 "Deltoid specialization can be added without a
@@ -15,23 +18,31 @@ import type { AnatomyNode, ExerciseVariant, SpecializationRegionData, VariantMap
  * circumference as its only measure. The page renders it with no deltoid code
  * (SpecializationPanel.deltoid.render.test.ts) and the seed loads it with no schema change
  * (server/specializationSeed.test.ts).
+ *
+ * It is composed as a production region is (compose.ts): its own content, and the triceps it
+ * lists as an external member from its home, a fixture arm region. Nothing in it shares an id
+ * with production content except the joint actions, which are the shared library's: the
+ * external is `fixture_arm.triceps`, the variants are `fx-<catalog id>`, so production regions
+ * that later map these exercises never collide with it (docs/specialization-atlas/
+ * 10-multi-region.md §5.2).
  */
 
 const REGION = "deltoid";
+const ARM = "fixture_arm";
 const MAPPINGS = "deltoid_fixture_mappings_v1";
 
 export const deltoidIds = {
   anterior: "deltoid.anterior",
   lateral: "deltoid.lateral",
   posterior: "deltoid.posterior",
-  triceps: "upper_arm.triceps",
+  triceps: "fixture_arm.triceps",
 } as const;
 
 export const deltoidActionIds = {
-  flexion: "shoulder.flexion",
-  abduction: "shoulder.abduction",
-  horizontalAbduction: "shoulder.horizontal_abduction",
-  elbowExtension: "elbow.extension",
+  flexion: shoulderActionIds.flexion,
+  abduction: shoulderActionIds.abduction,
+  horizontalAbduction: shoulderActionIds.horizontalAbduction,
+  elbowExtension: forearmActionIds.elbowExtension,
 } as const;
 
 const head = (id: string, name: string, shortName: string, catalogMuscleKey: string, location: string): AnatomyNode => ({
@@ -56,7 +67,7 @@ const head = (id: string, name: string, shortName: string, catalogMuscleKey: str
 });
 
 const variant = (catalogExerciseId: number, catalogName: string, laterality: ExerciseVariant["laterality"]): ExerciseVariant => ({
-  id: `cat-${catalogExerciseId}`,
+  id: `fx-${catalogExerciseId}`,
   catalogExerciseId,
   catalogName,
   organization: "single_joint",
@@ -70,6 +81,7 @@ const variant = (catalogExerciseId: number, catalogName: string, laterality: Exe
   deliberateHold: false,
   elbowAngleDeg: null,
   notes: "Test fixture.",
+  sidedBy: laterality === "bilateral" ? "none" : "arm",
 });
 
 const mapping = (id: string, variantId: string, nodeId: string, actionId: string, relationship: VariantMapping["relationship"], reviewStatus: VariantMapping["reviewStatus"] = "reviewed"): VariantMapping => ({
@@ -88,38 +100,76 @@ const mapping = (id: string, variantId: string, nodeId: string, actionId: string
   sources: [{ sourceId: "F1", locator: null, limitation: "Fixture only." }],
 });
 
-export const deltoidRegionData: SpecializationRegionData = {
+/** The home of the triceps the deltoid lists: a fixture region, never registered, with no page of its own. */
+export const fixtureArmRegion: SpecializationRegion = {
+  id: ARM,
+  label: "Fixture arm",
+  heading: "Fixture arm specialization",
+  sortOrder: 91,
+  status: "fixture",
+  sides: { model: "paired", limb: "arm" },
+  bodyMapKeys: [],
+  catalogKeys: ["triceps"],
+  regionOnlyTagScope: "primary",
+  entryLabel: "Explore fixture arm coverage",
+  wording: {
+    externalGroup: "Other muscles credited here", externalHeading: "Fixture arm muscles credited here", incidentalWork: "steadying", progressSubtitle: "Circumference, by arm",
+    sideWord: "arm", sideWordPlural: "arms", onSideTemplate: "your {side} fixture arm",
+  },
+  measurementMetrics: [],
+  measurementDefaults: {},
+};
+
+const fixtureArmContent: RegionContent = {
+  region: fixtureArmRegion,
+  nodes: [{ ...head(deltoidIds.triceps, "Triceps brachii", "Triceps", "triceps", "Back of the upper arm"), regionId: ARM, kind: "muscle" }],
+  members: [{ nodeId: deltoidIds.triceps, sortOrder: 0 }],
+  actions: actionsFor([deltoidActionIds.elbowExtension]),
+  nodeActions: [],
+  claims: [],
+  sources: [],
+  variants: [],
+  mappings: [],
+  mappingVersion: null,
+  unmappedTagged: [],
+  diagram: null,
+};
+
+const deltoidContent: RegionContent = {
   region: {
     id: REGION,
     label: "Deltoids",
     heading: "Deltoid specialization",
     sortOrder: 90,
     status: "fixture",
+    sides: { model: "paired", limb: "arm" },
     bodyMapKeys: ["frontDelts", "sideDelts", "rearDelts"],
+    catalogKeys: ["frontDelts", "sideDelts", "rearDelts"],
+    regionOnlyTagScope: "any",
     entryLabel: "Explore deltoid coverage",
     // Its own words, so a test can tell them from the forearm's.
-    wording: { externalGroup: "Other muscles credited here", incidentalWork: "bracing", progressSubtitle: "Circumference, by arm" },
+    wording: {
+      externalGroup: "Other muscles credited here", externalHeading: "Deltoid muscles credited here", incidentalWork: "bracing", progressSubtitle: "Circumference, by arm",
+      sideWord: "arm", sideWordPlural: "arms", onSideTemplate: "your {side} shoulder",
+    },
     measurementMetrics: ["circumference_cm"],
+    measurementDefaults: { circumference_cm: { landmark: "Around the shoulder", posture: "arm_relaxed_hanging" } },
   },
   nodes: [
     head(deltoidIds.anterior, "Anterior deltoid", "AD", "frontDelts", "Front of the shoulder"),
     head(deltoidIds.lateral, "Lateral deltoid", "LD", "sideDelts", "Outside of the shoulder"),
     head(deltoidIds.posterior, "Posterior deltoid", "PD", "rearDelts", "Back of the shoulder"),
-    { ...head(deltoidIds.triceps, "Triceps brachii", "Triceps", "triceps", "Back of the upper arm"), regionId: "upper_arm", kind: "muscle", role: "external" },
   ],
-  actions: [
-    { id: deltoidActionIds.flexion, joint: "Shoulder", label: "Shoulder flexion", plainDescription: "Raises the arm forward." },
-    { id: deltoidActionIds.abduction, joint: "Shoulder", label: "Shoulder abduction", plainDescription: "Raises the arm out to the side." },
-    { id: deltoidActionIds.horizontalAbduction, joint: "Shoulder", label: "Horizontal abduction", plainDescription: "Moves a raised arm backward." },
-    { id: deltoidActionIds.elbowExtension, joint: "Elbow", label: "Elbow extension", plainDescription: "Straightens the elbow." },
-  ],
+  members: [deltoidIds.anterior, deltoidIds.lateral, deltoidIds.posterior, deltoidIds.triceps].map((nodeId, sortOrder) => ({ nodeId, sortOrder })),
+  actions: actionsFor([deltoidActionIds.flexion, deltoidActionIds.abduction, deltoidActionIds.horizontalAbduction, deltoidActionIds.elbowExtension]),
   nodeActions: [
-    { nodeId: deltoidIds.anterior, actionId: deltoidActionIds.flexion, role: "prime", claimId: "deltoid.anterior.function" },
-    { nodeId: deltoidIds.lateral, actionId: deltoidActionIds.abduction, role: "prime", claimId: "deltoid.lateral.function" },
-    { nodeId: deltoidIds.posterior, actionId: deltoidActionIds.horizontalAbduction, role: "prime", claimId: "deltoid.posterior.function" },
+    { nodeId: deltoidIds.anterior, actionId: deltoidActionIds.flexion, role: "prime", claimId: "deltoid.anterior.function", claimKey: "deltoid:deltoid.anterior.function" },
+    { nodeId: deltoidIds.lateral, actionId: deltoidActionIds.abduction, role: "prime", claimId: "deltoid.lateral.function", claimKey: "deltoid:deltoid.lateral.function" },
+    { nodeId: deltoidIds.posterior, actionId: deltoidActionIds.horizontalAbduction, role: "prime", claimId: "deltoid.posterior.function", claimKey: "deltoid:deltoid.posterior.function" },
   ],
   claims: [deltoidIds.anterior, deltoidIds.lateral, deltoidIds.posterior].map((nodeId) => ({
     id: `${nodeId}.function`,
+    ownerRegionId: REGION,
     nodeId,
     kind: "function" as const,
     statement: "Fixture statement, not reviewed.",
@@ -137,16 +187,17 @@ export const deltoidRegionData: SpecializationRegionData = {
     variant(93, "Single-Arm Cable Rear-Delt Fly", "unilateral"),
   ],
   mappings: [
-    mapping("dm-111-lateral", "cat-111", deltoidIds.lateral, deltoidActionIds.abduction, "direct"),
-    mapping("dm-111-anterior", "cat-111", deltoidIds.anterior, deltoidActionIds.abduction, "contributing"),
-    mapping("dm-101-anterior", "cat-101", deltoidIds.anterior, deltoidActionIds.flexion, "direct"),
+    mapping("dm-111-lateral", "fx-111", deltoidIds.lateral, deltoidActionIds.abduction, "direct"),
+    mapping("dm-111-anterior", "fx-111", deltoidIds.anterior, deltoidActionIds.abduction, "contributing"),
+    mapping("dm-101-anterior", "fx-101", deltoidIds.anterior, deltoidActionIds.flexion, "direct"),
     // Pending on purpose: shown as "pending review", never counted.
-    mapping("dm-101-lateral", "cat-101", deltoidIds.lateral, deltoidActionIds.abduction, "contributing", "draft"),
-    mapping("dm-101-triceps", "cat-101", deltoidIds.triceps, deltoidActionIds.elbowExtension, "contributing"),
-    mapping("dm-090-posterior", "cat-90", deltoidIds.posterior, deltoidActionIds.horizontalAbduction, "direct"),
-    mapping("dm-093-posterior", "cat-93", deltoidIds.posterior, deltoidActionIds.horizontalAbduction, "direct"),
+    mapping("dm-101-lateral", "fx-101", deltoidIds.lateral, deltoidActionIds.abduction, "contributing", "draft"),
+    mapping("dm-101-triceps", "fx-101", deltoidIds.triceps, deltoidActionIds.elbowExtension, "contributing"),
+    mapping("dm-090-posterior", "fx-90", deltoidIds.posterior, deltoidActionIds.horizontalAbduction, "direct"),
+    mapping("dm-093-posterior", "fx-93", deltoidIds.posterior, deltoidActionIds.horizontalAbduction, "direct"),
   ],
   mappingVersion: { key: MAPPINGS, state: "draft", publishedAt: null, methodNotes: "Test fixture only." },
+  unmappedTagged: [],
   diagram: {
     key: "deltoid-fixture",
     version: 1,
@@ -192,3 +243,5 @@ export const deltoidRegionData: SpecializationRegionData = {
     licenseNote: "Drawn for this test fixture.",
   },
 };
+
+export const deltoidRegionData: SpecializationRegionData = composeRegionData(deltoidContent, [fixtureArmContent]);

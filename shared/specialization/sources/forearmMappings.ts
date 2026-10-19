@@ -1,4 +1,4 @@
-import type { Source } from "../../types";
+import type { Source } from "../types";
 
 /**
  * Sources added while reviewing exercise mappings (kept apart from the anatomy sources, S1-S8 and A<n>).

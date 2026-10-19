@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
 import { gymAccessProfiles } from "@/lib/equipmentProfile";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
-import { externalContributorIds as ext, forearmActionIds as a, forearmMuscleIds as m } from "@shared/specialization/ids";
+import { externalContributorIds as ext, forearmActionIds as a, forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { calendarWeekInterval } from "@shared/specialization/time";
 import type { ArmSide, ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary } from "@shared/specialization/types";
 import { previewPlannedChange, recommendFor, type RecommendationRequest } from "./recommendations";

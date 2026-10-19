@@ -1,0 +1,582 @@
+{
+ "region": {
+  "id": "deltoid",
+  "label": "Deltoids",
+  "heading": "Deltoid specialization",
+  "sortOrder": 90,
+  "status": "fixture",
+  "bodyMapKeys": [
+   "frontDelts",
+   "sideDelts",
+   "rearDelts"
+  ],
+  "entryLabel": "Explore deltoid coverage",
+  "wording": {
+   "externalGroup": "Other muscles credited here",
+   "incidentalWork": "bracing",
+   "progressSubtitle": "Circumference, by arm"
+  },
+  "measurementMetrics": [
+   "circumference_cm"
+  ]
+ },
+ "nodes": [
+  {
+   "id": "deltoid.anterior",
+   "regionId": "deltoid",
+   "parentId": null,
+   "kind": "head",
+   "role": "target",
+   "name": "Anterior deltoid",
+   "shortName": "AD",
+   "aliases": [],
+   "layer": "surface",
+   "surfaceVisibility": "clear",
+   "status": "draft",
+   "catalogMuscleKey": "frontDelts",
+   "databaseMuscle": null,
+   "border": null,
+   "location": "Front of the shoulder",
+   "whatItDoes": "",
+   "shapeNote": "",
+   "caveats": []
+  },
+  {
+   "id": "deltoid.lateral",
+   "regionId": "deltoid",
+   "parentId": null,
+   "kind": "head",
+   "role": "target",
+   "name": "Lateral deltoid",
+   "shortName": "LD",
+   "aliases": [],
+   "layer": "surface",
+   "surfaceVisibility": "clear",
+   "status": "draft",
+   "catalogMuscleKey": "sideDelts",
+   "databaseMuscle": null,
+   "border": null,
+   "location": "Outside of the shoulder",
+   "whatItDoes": "",
+   "shapeNote": "",
+   "caveats": []
+  },
+  {
+   "id": "deltoid.posterior",
+   "regionId": "deltoid",
+   "parentId": null,
+   "kind": "head",
+   "role": "target",
+   "name": "Posterior deltoid",
+   "shortName": "PD",
+   "aliases": [],
+   "layer": "surface",
+   "surfaceVisibility": "clear",
+   "status": "draft",
+   "catalogMuscleKey": "rearDelts",
+   "databaseMuscle": null,
+   "border": null,
+   "location": "Back of the shoulder",
+   "whatItDoes": "",
+   "shapeNote": "",
+   "caveats": []
+  },
+  {
+   "id": "upper_arm.triceps",
+   "regionId": "upper_arm",
+   "parentId": null,
+   "kind": "muscle",
+   "role": "external",
+   "name": "Triceps brachii",
+   "shortName": "Triceps",
+   "aliases": [],
+   "layer": "surface",
+   "surfaceVisibility": "clear",
+   "status": "draft",
+   "catalogMuscleKey": "triceps",
+   "databaseMuscle": null,
+   "border": null,
+   "location": "Back of the upper arm",
+   "whatItDoes": "",
+   "shapeNote": "",
+   "caveats": []
+  }
+ ],
+ "actions": [
+  {
+   "id": "shoulder.flexion",
+   "joint": "Shoulder",
+   "label": "Shoulder flexion",
+   "plainDescription": "Raises the arm forward."
+  },
+  {
+   "id": "shoulder.abduction",
+   "joint": "Shoulder",
+   "label": "Shoulder abduction",
+   "plainDescription": "Raises the arm out to the side."
+  },
+  {
+   "id": "shoulder.horizontal_abduction",
+   "joint": "Shoulder",
+   "label": "Horizontal abduction",
+   "plainDescription": "Moves a raised arm backward."
+  },
+  {
+   "id": "elbow.extension",
+   "joint": "Elbow",
+   "label": "Elbow extension",
+   "plainDescription": "Straightens the elbow."
+  }
+ ],
+ "nodeActions": [
+  {
+   "nodeId": "deltoid.anterior",
+   "actionId": "shoulder.flexion",
+   "role": "prime",
+   "claimId": "deltoid.anterior.function"
+  },
+  {
+   "nodeId": "deltoid.lateral",
+   "actionId": "shoulder.abduction",
+   "role": "prime",
+   "claimId": "deltoid.lateral.function"
+  },
+  {
+   "nodeId": "deltoid.posterior",
+   "actionId": "shoulder.horizontal_abduction",
+   "role": "prime",
+   "claimId": "deltoid.posterior.function"
+  }
+ ],
+ "claims": [
+  {
+   "id": "deltoid.anterior.function",
+   "nodeId": "deltoid.anterior",
+   "kind": "function",
+   "statement": "Fixture statement, not reviewed.",
+   "basis": "product_assumption",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "sources": [
+    {
+     "sourceId": "F1",
+     "locator": null,
+     "qualification": "Fixture only."
+    }
+   ]
+  },
+  {
+   "id": "deltoid.lateral.function",
+   "nodeId": "deltoid.lateral",
+   "kind": "function",
+   "statement": "Fixture statement, not reviewed.",
+   "basis": "product_assumption",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "sources": [
+    {
+     "sourceId": "F1",
+     "locator": null,
+     "qualification": "Fixture only."
+    }
+   ]
+  },
+  {
+   "id": "deltoid.posterior.function",
+   "nodeId": "deltoid.posterior",
+   "kind": "function",
+   "statement": "Fixture statement, not reviewed.",
+   "basis": "product_assumption",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "sources": [
+    {
+     "sourceId": "F1",
+     "locator": null,
+     "qualification": "Fixture only."
+    }
+   ]
+  }
+ ],
+ "sources": [
+  {
+   "id": "F1",
+   "url": "https://example.invalid/deltoid-fixture",
+   "title": "Deltoid test fixture (not evidence)",
+   "doi": null,
+   "evidenceType": "product_assumption",
+   "retrievedOn": "2026-10-16",
+   "notes": "Exists to prove the calculator and page need no region-specific code."
+  }
+ ],
+ "variants": [
+  {
+   "id": "cat-111",
+   "catalogExerciseId": 111,
+   "catalogName": "Dumbbell Lateral Raise",
+   "organization": "single_joint",
+   "forearmOrientation": "unknown",
+   "wristPosition": "unknown",
+   "gripType": "unknown",
+   "straps": "not_applicable",
+   "laterality": "bilateral",
+   "phase": "concentric_eccentric",
+   "measure": "reps",
+   "deliberateHold": false,
+   "elbowAngleDeg": null,
+   "notes": "Test fixture."
+  },
+  {
+   "id": "cat-101",
+   "catalogExerciseId": 101,
+   "catalogName": "Barbell Overhead Press",
+   "organization": "single_joint",
+   "forearmOrientation": "unknown",
+   "wristPosition": "unknown",
+   "gripType": "unknown",
+   "straps": "not_applicable",
+   "laterality": "bilateral",
+   "phase": "concentric_eccentric",
+   "measure": "reps",
+   "deliberateHold": false,
+   "elbowAngleDeg": null,
+   "notes": "Test fixture."
+  },
+  {
+   "id": "cat-90",
+   "catalogExerciseId": 90,
+   "catalogName": "Bent-Over Rear-Delt Fly",
+   "organization": "single_joint",
+   "forearmOrientation": "unknown",
+   "wristPosition": "unknown",
+   "gripType": "unknown",
+   "straps": "not_applicable",
+   "laterality": "bilateral",
+   "phase": "concentric_eccentric",
+   "measure": "reps",
+   "deliberateHold": false,
+   "elbowAngleDeg": null,
+   "notes": "Test fixture."
+  },
+  {
+   "id": "cat-93",
+   "catalogExerciseId": 93,
+   "catalogName": "Single-Arm Cable Rear-Delt Fly",
+   "organization": "single_joint",
+   "forearmOrientation": "unknown",
+   "wristPosition": "unknown",
+   "gripType": "unknown",
+   "straps": "not_applicable",
+   "laterality": "unilateral",
+   "phase": "concentric_eccentric",
+   "measure": "reps",
+   "deliberateHold": false,
+   "elbowAngleDeg": null,
+   "notes": "Test fixture."
+  }
+ ],
+ "mappings": [
+  {
+   "id": "dm-111-lateral",
+   "versionKey": "deltoid_fixture_mappings_v1",
+   "variantId": "cat-111",
+   "nodeId": "deltoid.lateral",
+   "actionId": "shoulder.abduction",
+   "relationship": "direct",
+   "muscleMode": "dynamic",
+   "evidenceBasis": "inference",
+   "allocation": "individual",
+   "requiresNoStraps": false,
+   "rationale": "Test fixture: a product assumption, not evidence.",
+   "reviewStatus": "reviewed",
+   "sources": [
+    {
+     "sourceId": "F1",
+     "locator": null,
+     "limitation": "Fixture only."
+    }
+   ]
+  },
+  {
+   "id": "dm-111-anterior",
+   "versionKey": "deltoid_fixture_mappings_v1",
+   "variantId": "cat-111",
+   "nodeId": "deltoid.anterior",
+   "actionId": "shoulder.abduction",
+   "relationship": "contributing",
+   "muscleMode": "dynamic",
+   "evidenceBasis": "inference",
+   "allocation": "individual",
+   "requiresNoStraps": false,
+   "rationale": "Test fixture: a product assumption, not evidence.",
+   "reviewStatus": "reviewed",
+   "sources": [
+    {
+     "sourceId": "F1",
+     "locator": null,
+     "limitation": "Fixture only."
+    }
+   ]
+  },
+  {
+   "id": "dm-101-anterior",
+   "versionKey": "deltoid_fixture_mappings_v1",
+   "variantId": "cat-101",
+   "nodeId": "deltoid.anterior",
+   "actionId": "shoulder.flexion",
+   "relationship": "direct",
+   "muscleMode": "dynamic",
+   "evidenceBasis": "inference",
+   "allocation": "individual",
+   "requiresNoStraps": false,
+   "rationale": "Test fixture: a product assumption, not evidence.",
+   "reviewStatus": "reviewed",
+   "sources": [
+    {
+     "sourceId": "F1",
+     "locator": null,
+     "limitation": "Fixture only."
+    }
+   ]
+  },
+  {
+   "id": "dm-101-lateral",
+   "versionKey": "deltoid_fixture_mappings_v1",
+   "variantId": "cat-101",
+   "nodeId": "deltoid.lateral",
+   "actionId": "shoulder.abduction",
+   "relationship": "contributing",
+   "muscleMode": "dynamic",
+   "evidenceBasis": "inference",
+   "allocation": "individual",
+   "requiresNoStraps": false,
+   "rationale": "Test fixture: a product assumption, not evidence.",
+   "reviewStatus": "draft",
+   "sources": [
+    {
+     "sourceId": "F1",
+     "locator": null,
+     "limitation": "Fixture only."
+    }
+   ]
+  },
+  {
+   "id": "dm-101-triceps",
+   "versionKey": "deltoid_fixture_mappings_v1",
+   "variantId": "cat-101",
+   "nodeId": "upper_arm.triceps",
+   "actionId": "elbow.extension",
+   "relationship": "contributing",
+   "muscleMode": "dynamic",
+   "evidenceBasis": "inference",
+   "allocation": "individual",
+   "requiresNoStraps": false,
+   "rationale": "Test fixture: a product assumption, not evidence.",
+   "reviewStatus": "reviewed",
+   "sources": [
+    {
+     "sourceId": "F1",
+     "locator": null,
+     "limitation": "Fixture only."
+    }
+   ]
+  },
+  {
+   "id": "dm-090-posterior",
+   "versionKey": "deltoid_fixture_mappings_v1",
+   "variantId": "cat-90",
+   "nodeId": "deltoid.posterior",
+   "actionId": "shoulder.horizontal_abduction",
+   "relationship": "direct",
+   "muscleMode": "dynamic",
+   "evidenceBasis": "inference",
+   "allocation": "individual",
+   "requiresNoStraps": false,
+   "rationale": "Test fixture: a product assumption, not evidence.",
+   "reviewStatus": "reviewed",
+   "sources": [
+    {
+     "sourceId": "F1",
+     "locator": null,
+     "limitation": "Fixture only."
+    }
+   ]
+  },
+  {
+   "id": "dm-093-posterior",
+   "versionKey": "deltoid_fixture_mappings_v1",
+   "variantId": "cat-93",
+   "nodeId": "deltoid.posterior",
+   "actionId": "shoulder.horizontal_abduction",
+   "relationship": "direct",
+   "muscleMode": "dynamic",
+   "evidenceBasis": "inference",
+   "allocation": "individual",
+   "requiresNoStraps": false,
+   "rationale": "Test fixture: a product assumption, not evidence.",
+   "reviewStatus": "reviewed",
+   "sources": [
+    {
+     "sourceId": "F1",
+     "locator": null,
+     "limitation": "Fixture only."
+    }
+   ]
+  }
+ ],
+ "mappingVersion": {
+  "key": "deltoid_fixture_mappings_v1",
+  "state": "draft",
+  "publishedAt": null,
+  "methodNotes": "Test fixture only."
+ },
+ "diagram": {
+  "key": "deltoid-fixture",
+  "version": 1,
+  "regionId": "deltoid",
+  "viewBox": {
+   "width": 120,
+   "height": 80
+  },
+  "viewOrder": [
+   {
+    "id": "front",
+    "label": "Front"
+   },
+   {
+    "id": "side",
+    "label": "Side"
+   },
+   {
+    "id": "rear",
+    "label": "Rear"
+   }
+  ],
+  "views": {
+   "front": {
+    "surface": {
+     "paths": [
+      {
+       "id": "front__surface__skin__1",
+       "nodeId": null,
+       "kind": "skin",
+       "d": "M10 72 Q20 10 60 10 Q100 10 110 72 Z"
+      },
+      {
+       "id": "front__surface__ld__1",
+       "nodeId": "deltoid.lateral",
+       "kind": "belly",
+       "d": "M14 64 Q20 26 34 18 L40 60 Z"
+      },
+      {
+       "id": "front__surface__ad__1",
+       "nodeId": "deltoid.anterior",
+       "kind": "belly",
+       "d": "M34 18 Q60 10 84 22 L72 62 L40 60 Z"
+      }
+     ],
+     "labels": [
+      {
+       "text": "Outside",
+       "x": 4,
+       "y": 77,
+       "anchor": "start"
+      },
+      {
+       "text": "Chest",
+       "x": 116,
+       "y": 77,
+       "anchor": "end"
+      }
+     ]
+    }
+   },
+   "side": {
+    "surface": {
+     "paths": [
+      {
+       "id": "side__surface__skin__1",
+       "nodeId": null,
+       "kind": "skin",
+       "d": "M10 70 Q60 0 110 70 Z"
+      },
+      {
+       "id": "side__surface__pd__1",
+       "nodeId": "deltoid.posterior",
+       "kind": "belly",
+       "d": "M20 60 Q30 30 45 25 L45 60 Z"
+      },
+      {
+       "id": "side__surface__ld__1",
+       "nodeId": "deltoid.lateral",
+       "kind": "belly",
+       "d": "M45 25 Q60 15 75 25 L75 60 L45 60 Z"
+      },
+      {
+       "id": "side__surface__ad__1",
+       "nodeId": "deltoid.anterior",
+       "kind": "belly",
+       "d": "M75 25 Q90 30 100 60 L75 60 Z"
+      }
+     ],
+     "labels": [
+      {
+       "text": "Back",
+       "x": 4,
+       "y": 77,
+       "anchor": "start"
+      },
+      {
+       "text": "Front",
+       "x": 116,
+       "y": 77,
+       "anchor": "end"
+      }
+     ]
+    }
+   },
+   "rear": {
+    "surface": {
+     "paths": [
+      {
+       "id": "rear__surface__skin__1",
+       "nodeId": null,
+       "kind": "skin",
+       "d": "M10 72 Q20 10 60 10 Q100 10 110 72 Z"
+      },
+      {
+       "id": "rear__surface__pd__1",
+       "nodeId": "deltoid.posterior",
+       "kind": "belly",
+       "d": "M36 22 Q60 10 86 18 L80 60 L48 62 Z"
+      },
+      {
+       "id": "rear__surface__ld__1",
+       "nodeId": "deltoid.lateral",
+       "kind": "belly",
+       "d": "M86 18 Q100 26 106 64 L80 60 Z"
+      }
+     ],
+     "labels": [
+      {
+       "text": "Spine",
+       "x": 4,
+       "y": 77,
+       "anchor": "start"
+      },
+      {
+       "text": "Outside",
+       "x": 116,
+       "y": 77,
+       "anchor": "end"
+      }
+     ]
+    }
+   }
+  },
+  "licenseNote": "Drawn for this test fixture."
+ }
+}

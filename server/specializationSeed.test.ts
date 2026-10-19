@@ -4,10 +4,10 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { specializationRegions } from "@shared/specialization/registry";
 import { exposureRuleV1 } from "@shared/specialization/rules";
-import { deltoidIds, deltoidRegionData } from "@/lib/specialization/__fixtures__/deltoidRegion";
+import { deltoidIds, deltoidRegionData, fixtureArmRegion } from "@/lib/specialization/__fixtures__/deltoidRegion";
 import { CURRENT_SEED_MIGRATION_PATH as EMITTED_SEED_PATH, emitSeedSql, productionSeedInput, quote, referenceRegionLabels, type SeedInput } from "../scripts/specialization/emit-seed";
 import { SCHEMA_MIGRATION_PATH, SEED_MIGRATION_PATH, USER_A, applyMigration, as, count, createSeededDb, readMigration, rows, scriptFailure, stubExercises } from "./fixtures/specializationPg";
-import type { DiagramAsset, SpecializationRegionData } from "@shared/specialization/types";
+import type { DiagramAsset, SpecializationRegion, SpecializationRegionData } from "@shared/specialization/types";
 
 /**
  * The seed migration is generated from the TypeScript content (scripts/specialization/
@@ -40,7 +40,16 @@ async function rowVersions(): Promise<Record<string, string>> {
   return out;
 }
 
-const withRegions = (regions: SeedInput["regions"]): SeedInput => ({ ...productionSeedInput(), regions });
+/** The labelled reference regions, and the deltoid fixture's arm region, home of the triceps the fixture lists. */
+const referenceLabels = { ...referenceRegionLabels, [fixtureArmRegion.id]: fixtureArmRegion.label };
+const withRegions = (regions: SeedInput["regions"]): SeedInput => ({ ...productionSeedInput(), referenceRegionLabels: referenceLabels, regions });
+
+/** A region record as the regions table holds it before schema v2 adds the multi-region columns (sides, catalog keys, tag scope, the new words and defaults). */
+const asRegionRow = ({ id, label, heading, sortOrder, status, bodyMapKeys, entryLabel, nodeForBodyMapKey, wording, measurementMetrics }: SpecializationRegion) => ({
+  id, label, heading, sortOrder, status, bodyMapKeys, entryLabel, nodeForBodyMapKey: nodeForBodyMapKey ?? {},
+  wording: { externalGroup: wording.externalGroup, incidentalWork: wording.incidentalWork, progressSubtitle: wording.progressSubtitle },
+  measurementMetrics,
+});
 
 /** Every region row in the content's own shape (SpecializationRegion); a reference region has no page words. */
 const readRegions = () =>
@@ -136,7 +145,7 @@ describe("drift guard", () => {
 
   it("is deterministic and does not depend on the order regions are listed in", () => {
     expect(emitSeedSql()).toBe(emitSeedSql());
-    const input = { rules: [exposureRuleV1], referenceRegionLabels };
+    const input = { rules: [exposureRuleV1], referenceRegionLabels: referenceLabels };
     expect(emitSeedSql({ ...input, regions: [forearmRegionData, deltoidRegionData] })).toBe(emitSeedSql({ ...input, regions: [deltoidRegionData, forearmRegionData] }));
   });
 
@@ -185,9 +194,9 @@ describe("the seeded database", () => {
     expect([...sources].sort(byId)).toEqual([...forearmRegionData.sources].sort(byId));
     expect(sources.map((source) => (source as { id: string }).id)).not.toContain("S9");
 
-    const nodeActions = await rows<{ nodeId: string; actionId: string; role: string; claimId: string }>(
+    const nodeActions = await rows<{ nodeId: string; actionId: string; role: string; claimId: string; claimKey: string }>(
       db,
-      `select na.node_id as "nodeId", na.action_id as "actionId", na.role, split_part(c.claim_key, ':', 2) as "claimId"
+      `select na.node_id as "nodeId", na.action_id as "actionId", na.role, split_part(c.claim_key, ':', 2) as "claimId", c.claim_key as "claimKey"
        from specialization.node_actions na join specialization.claims c on c.id = na.claim_id`,
     );
     const key = (row: { nodeId: string; actionId: string }) => `${row.nodeId} ${row.actionId}`;
@@ -197,7 +206,7 @@ describe("the seeded database", () => {
   it("holds every claim with its sources in order", async () => {
     const claims = await rows(
       db,
-      `select split_part(c.claim_key, ':', 2) as id, c.node_id as "nodeId", c.kind, c.statement, c.basis, c.review_status as "reviewStatus", c.reviewed_on::text as "reviewedAt", c.review_note as "reviewNote",
+      `select split_part(c.claim_key, ':', 2) as id, split_part(c.claim_key, ':', 1) as "ownerRegionId", c.node_id as "nodeId", c.kind, c.statement, c.basis, c.review_status as "reviewStatus", c.reviewed_on::text as "reviewedAt", c.review_note as "reviewNote",
               coalesce((select json_agg(json_build_object('sourceId', s.source_key, 'locator', cs.locator, 'qualification', cs.qualification) order by cs.sort_order)
                         from specialization.claim_sources cs join specialization.sources s on s.id = cs.source_id where cs.claim_id = c.id), '[]') as sources
        from specialization.claims c where c.claim_key like 'forearm:%'`,
@@ -214,7 +223,8 @@ describe("the seeded database", () => {
        from specialization.exercise_variants v join specialization.catalog_exercises c on c.catalog_id = v.catalog_id`,
     );
     expect(variants).toHaveLength(forearm.variants.length);
-    expect([...variants].sort(byId)).toEqual([...forearmRegionData.variants].sort(byId));
+    // The counting attributes (sidedBy) are variant attributes, a table of schema v2.
+    expect([...variants].sort(byId)).toEqual(forearmRegionData.variants.map(({ sidedBy: _sidedBy, ...variant }) => variant).sort(byId));
     expect(await count(db, "select 1 from specialization.catalog_exercises")).toBe(new Set(forearmRegionData.variants.map((variant) => variant.catalogExerciseId)).size);
   });
 
@@ -253,7 +263,7 @@ describe("the seeded database", () => {
 
   it("holds the region, with its page words and measures, and the upper-arm reference region its external contributors live in", async () => {
     expect(await readRegions()).toEqual([
-      { ...forearmRegionData.region, nodeForBodyMapKey: forearmRegionData.region.nodeForBodyMapKey ?? {} },
+      asRegionRow(forearmRegionData.region),
       { id: "upper_arm", label: "Upper arm", heading: null, sortOrder: 0, status: "reference", bodyMapKeys: [], entryLabel: null, nodeForBodyMapKey: {}, wording: null, measurementMetrics: [] },
     ]);
     expect(forearmRegionData.region.wording.incidentalWork).toBe("grip");
@@ -377,7 +387,7 @@ describe("changing content", () => {
 
     // The region with its own page words and its one measure, and its drawing from the front,
     // the side and the rear with its own button words: all rows, no new column or table.
-    expect((await readRegions()).find((region) => (region as { id: string }).id === "deltoid")).toEqual({ ...deltoidRegionData.region, nodeForBodyMapKey: {} });
+    expect((await readRegions()).find((region) => (region as { id: string }).id === "deltoid")).toEqual(asRegionRow(deltoidRegionData.region));
     const drawing = deltoidRegionData.diagram!;
     expect(drawing.viewOrder.map((view) => view.label)).toEqual(["Front", "Side", "Rear"]);
     expect(drawing.views.side!.surface!.paths.some((path) => path.nodeId === deltoidIds.lateral && path.kind === "belly")).toBe(true);

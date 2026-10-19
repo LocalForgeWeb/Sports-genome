@@ -3,7 +3,7 @@ import React, { createElement } from "react";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { goalProgressLabel, goalsForBothArms, isGoalActive } from "@shared/specialization/goals";
-import { forearmActionIds, forearmMuscleIds } from "@shared/specialization/ids";
+import { forearmActionIds, forearmMuscleIds } from "@shared/specialization/regions/forearm/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import type { ArmSide, GoalProgress, SpecializationGoal, SpecializationSummary } from "@shared/specialization/types";
 import { loadSpecializationGoals, saveSpecializationGoals, useSpecializationGoals } from "@/lib/specialization/stores";

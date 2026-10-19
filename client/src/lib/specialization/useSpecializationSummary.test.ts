@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { deviceWorkoutHistoryKey, loadDeviceWorkoutSessions, removeDeviceWorkoutSession, saveDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { exercises } from "@/lib/exerciseCatalog";
 import { buildDaySlots, emptyDayStore, type WeeklyDayStore } from "@/lib/trainingDayPlan";
-import { forearmMuscleIds as m } from "@shared/specialization/ids";
+import { forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { calendarWeekInterval, planWeekInterval } from "@shared/specialization/time";
 import type { SpecializationRegionData, SpecializationSummary } from "@shared/specialization/types";
 import { sourceRevision } from "./revision";

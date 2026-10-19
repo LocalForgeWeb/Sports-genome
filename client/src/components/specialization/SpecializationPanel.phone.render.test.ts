@@ -9,7 +9,7 @@ import { defaultSpecializationState, type SpecializationViewState } from "@/lib/
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { buildDaySlots, commitDay, emptyDayStore } from "@/lib/trainingDayPlan";
 import { saveSpecializationGoals } from "@/lib/specialization/stores";
-import { forearmActionIds } from "@shared/specialization/ids";
+import { forearmActionIds } from "@shared/specialization/regions/forearm/ids";
 
 /**
  * The page on a phone, after the final review (17 Oct): Not for me says so where the athlete
