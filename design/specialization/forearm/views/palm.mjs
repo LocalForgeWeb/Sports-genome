@@ -16,12 +16,10 @@
  * Bellies are written as cross-sections (`rowsShape`): [y, thumb-side edge, pinky-side
  * edge] per slice, so neighbours keep an even gutter.
  */
-import { closed, open, rowsShape, tendon } from "../geometry.mjs";
-import { CROP_TOP, palmEdge, palmSilhouette } from "../silhouettes.mjs";
+import { C, INSET, closed, ghostOf, labels, open, rowsShape, tendon } from "../../shared/geometry.mjs";
+import { CANVAS, CROP_TOP } from "../config.mjs";
+import { palmEdge, palmSilhouette } from "../silhouettes.mjs";
 
-const C = "corner";
-/** A border muscle sits this far inside the outline, so the outline stays visible. */
-const INSET = 3;
 const radialIn = (y) => palmEdge("radial", y) + INSET;
 const ulnarIn = (y) => palmEdge("ulnar", y) - INSET;
 
@@ -126,7 +124,6 @@ export function palmView() {
     tendon([[220, 474], [216.5, 540], [212, 600], [218, 656], [224, 712], [225, 776]], 6, 5.5),
   ];
 
-  const ghostOf = (d, short) => ({ kind: "ghost", node: short, d });
   const intermediate = [
     skin,
     ghostOf(br, "BR"), ghostOf(pt, "PT"), ghostOf(fcr, "FCR"), ghostOf(pl, "PL"), ghostOf(fcu, "FCU"),
@@ -205,12 +202,7 @@ export function palmView() {
     { kind: "tendon", node: "FPL", d: fplTendon },
   ];
 
-  const labels = [
-    { text: "Thumb side", x: 10, y: 470, anchor: "start" },
-    { text: "Pinky side", x: 350, y: 470, anchor: "end" },
-    { text: "Elbow", x: 10, y: 120, anchor: "start" },
-    { text: "Wrist", x: 10, y: 604, anchor: "start" },
-  ];
+  const words = labels(CANVAS.width, [["Thumb side", "left", 470], ["Pinky side", "right", 470], ["Elbow", "left", 120], ["Wrist", "left", 604]]);
 
-  return { surface: { paths: surface, labels }, intermediate: { paths: intermediate, labels }, deep: { paths: deep, labels } };
+  return { surface: { paths: surface, labels: words }, intermediate: { paths: intermediate, labels: words }, deep: { paths: deep, labels: words } };
 }

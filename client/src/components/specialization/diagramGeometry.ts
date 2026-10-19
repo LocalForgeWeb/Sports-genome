@@ -1,4 +1,4 @@
-import type { DiagramAsset, DiagramLayerId, DiagramPath, DiagramViewId } from "@shared/specialization/types";
+import type { AnatomyNode, DiagramAsset, DiagramLayerId, DiagramPath, DiagramViewId } from "@shared/specialization/types";
 
 /**
  * Plain geometry the diagram renderer needs from a path's `d`, worked out once per asset:
@@ -8,6 +8,21 @@ import type { DiagramAsset, DiagramLayerId, DiagramPath, DiagramViewId } from "@
  */
 
 export type Point = { x: number; y: number };
+
+/** What the drawable rule reads of a node. */
+export type DiagramNode = Pick<AnatomyNode, "id" | "kind" | "parentId">;
+
+/**
+ * The nodes a drawing may show and a tap may choose (10-multi-region.md §7.3): muscles and
+ * heads, never a group or a compartment, and never a node that is another node's parent,
+ * whatever its kind. A muscle split into heads is drawn and chosen as its heads: drawn whole it
+ * would overlap them, and chosen it would have no mapping of its own. The design generator
+ * applies the same rule (design/specialization/shared/asset.mjs, `drawableMembers`).
+ */
+export function drawableNodeIds(nodes: readonly DiagramNode[]): Set<string> {
+  const parents = new Set(nodes.flatMap((node) => (node.parentId ? [node.parentId] : [])));
+  return new Set(nodes.filter((node) => (node.kind === "muscle" || node.kind === "head") && !parents.has(node.id)).map((node) => node.id));
+}
 
 /**
  * Flattens a path into a polygon. Handles absolute and relative M, L, H, V, C, S, Q, T and Z
@@ -116,9 +131,20 @@ function slice(points: readonly Point[], y: number): [number, number][] {
   return intervals;
 }
 
-/** Candidate anchors: the middle of the inside interval of horizontal slices through the shape, with its width. */
-export function sliceCentres(points: readonly Point[], count = 48): { point: Point; width: number }[] {
+/** The same with x and y exchanged, so a vertical line is sliced as `slice` slices a horizontal one. */
+const transposed = (points: readonly Point[]): Point[] => points.map((point) => ({ x: point.y, y: point.x }));
+
+/** Horizontal slices (`rows`) suit a belly that runs up and down the drawing; vertical ones (`columns`) a belly lying across it. */
+export type SliceAxis = "rows" | "columns";
+
+/**
+ * Candidate anchors: the middle of the inside interval of each slice through the shape, with the
+ * interval's length (its `width`, across the slice). Horizontal slices by default; `columns`
+ * slices vertically.
+ */
+export function sliceCentres(points: readonly Point[], count = 48, axis: SliceAxis = "rows"): { point: Point; width: number }[] {
   if (!points.length) return [];
+  if (axis === "columns") return sliceCentres(transposed(points), count).map(({ point, width }) => ({ point: { x: point.y, y: point.x }, width }));
   const top = Math.min(...points.map((point) => point.y));
   const bottom = Math.max(...points.map((point) => point.y));
   const out: { point: Point; width: number }[] = [];
@@ -127,6 +153,20 @@ export function sliceCentres(points: readonly Point[], count = 48): { point: Poi
     for (const [left, right] of slice(points, y)) out.push({ point: { x: (left + right) / 2, y }, width: right - left });
   }
   return out;
+}
+
+/** A belly lies across the drawing when it is at least this many times longer across than up and down. */
+const ACROSS_RATIO = 2;
+
+/**
+ * Which way to slice a belly for its anchors: across its length. Horizontal slices, unless its
+ * longest horizontal slice is at least twice its longest vertical one (a band running from the
+ * spine toward the shoulder), when vertical slices give anchors all along it instead of three
+ * across its middle.
+ */
+export function acrossAxis(points: readonly Point[]): SliceAxis {
+  const longest = (axis: SliceAxis) => Math.max(0, ...sliceCentres(points, 48, axis).map((item) => item.width));
+  return longest("rows") >= ACROSS_RATIO * longest("columns") ? "columns" : "rows";
 }
 
 /** Even-odd point-in-polygon test. */
@@ -238,19 +278,31 @@ export function drawnNodes(paths: readonly DiagramPath[], options: { square?: nu
   // A label anchor on the canvas: a belly that runs off the edge of the drawing is labelled
   // where it is drawn, never at a point the leader line cannot reach.
   const onCanvas = (point: Point) => !canvas || (point.y >= ANCHOR_MARGIN && point.y <= canvas.height - ANCHOR_MARGIN && point.x >= 0 && point.x <= canvas.width);
+  // Each slice's middle and its quarter points, along the slice.
+  const spread = (centres: { point: Point; width: number }[], axis: SliceAxis) => centres.flatMap(({ point, width }) => [0, -0.25, 0.25].map((shift) => ({
+    point: axis === "rows" ? { x: point.x + shift * width, y: point.y } : { x: point.x, y: point.y + shift * width },
+    width,
+  })));
   const nodes = Array.from(byNode.entries())
     .filter(([, entry]) => entry.bellies.length > 0)
     .map(([nodeId, entry]) => {
       const polygons = entry.bellies.map((path) => pointsOf.get(path) ?? flattenPath(path.d));
       const areas = polygons.map(polygonArea);
       const largest = polygons[areas.indexOf(Math.max(...areas))];
-      const all = sliceCentres(largest);
+      // Slices across each belly: its width is measured across its length, whichever way it lies.
+      const axes = polygons.map(acrossAxis);
+      const all = sliceCentres(largest, 48, axes[polygons.indexOf(largest)]);
       const visible = all.filter((item) => onCanvas(item.point));
       const centres = visible.length ? visible : all;
       const widest = centres.reduce((best, item) => (item.width > best.width ? item : best), centres[0] ?? { point: { x: 0, y: 0 }, width: 0 });
-      // Tap-square candidates: across every belly of the node, each slice's middle and its quarter points.
-      const candidates = polygons.flatMap((points) => sliceCentres(points).flatMap(({ point, width }) => [0, -0.25, 0.25].map((shift) => ({ point: { x: point.x + shift * width, y: point.y }, width }))));
-      return { nodeId, ...entry, area: areas.reduce((sum, value) => sum + value, 0), labelAnchor: widest.point, hitAnchor: widest.point, candidates };
+      // Tap-square candidates: across every belly of the node, each slice's middle and its quarter
+      // points; and the slices the other way, tried only where none of those has room for a whole square.
+      const candidates = polygons.flatMap((points, index) => spread(sliceCentres(points, 48, axes[index]), axes[index]));
+      const fallback = polygons.flatMap((points, index) => {
+        const other: SliceAxis = axes[index] === "rows" ? "columns" : "rows";
+        return spread(sliceCentres(points, 48, other), other);
+      });
+      return { nodeId, ...entry, area: areas.reduce((sum, value) => sum + value, 0), labelAnchor: widest.point, hitAnchor: widest.point, candidates, fallback };
     });
 
   // Tap squares, smallest node first (it has the fewest places to go): each takes the point
@@ -283,20 +335,25 @@ export function drawnNodes(paths: readonly DiagramPath[], options: { square?: nu
   for (const node of [...nodes].sort((left, right) => left.area - right.area)) {
     let best = node.hitAnchor;
     let bestScore = -Infinity;
-    for (const candidate of node.candidates) {
-      const free = room(candidate.point);
-      // Room first and by far (a square that touches another is never chosen over one that does not).
-      let score = free * 1e5 + candidate.width - Math.hypot(candidate.point.x - node.labelAnchor.x, candidate.point.y - node.labelAnchor.y) / 100;
-      if (side > 0 && free * 1e5 >= bestScore - 1e4) {
-        const { other, own } = cover(node.nodeId, candidate.point);
-        score += -other * 1000 + own * 100;
+    let bestRoom = -Infinity;
+    const consider = (candidates: { point: Point; width: number }[]) => {
+      for (const candidate of candidates) {
+        const free = room(candidate.point);
+        // Room first and by far (a square that touches another is never chosen over one that does not).
+        let score = free * 1e5 + candidate.width - Math.hypot(candidate.point.x - node.labelAnchor.x, candidate.point.y - node.labelAnchor.y) / 100;
+        if (side > 0 && free * 1e5 >= bestScore - 1e4) {
+          const { other, own } = cover(node.nodeId, candidate.point);
+          score += -other * 1000 + own * 100;
+        }
+        if (score > bestScore) { bestScore = score; best = candidate.point; bestRoom = free; }
       }
-      if (score > bestScore) { bestScore = score; best = candidate.point; }
-    }
+    };
+    consider(node.candidates);
+    if (bestRoom < side) consider(node.fallback);
     node.hitAnchor = best;
     placed.push(best);
   }
-  const result = nodes.map(({ candidates: _candidates, ...node }) => node);
+  const result = nodes.map(({ candidates: _candidates, fallback: _fallback, ...node }) => node);
   const forPaths = placementCache.get(paths) ?? new Map<string, DrawnNode[]>();
   forPaths.set(cacheKey, result);
   placementCache.set(paths, forPaths);

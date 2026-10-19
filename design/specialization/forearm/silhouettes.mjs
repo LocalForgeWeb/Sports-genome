@@ -7,11 +7,8 @@
  * 360 × 760 canvas. The forearm is drawn straight (no carrying angle) so the views line up.
  * Points run clockwise from the top-left crop corner; points marked "corner" are sharp.
  */
-import { edgeX, mirrorPoints } from "./geometry.mjs";
-
-export const CANVAS = { width: 360, height: 760 };
-export const CROP_TOP = -14;
-export const CROP_BOTTOM = 776;
+import { edgeX, mirrorPoints } from "../shared/geometry.mjs";
+import { CANVAS, CROP_BOTTOM, CROP_TOP } from "./config.mjs";
 
 /** The hand seen from the palm, thumb on the left, fingers cropped at the bottom edge. */
 function palmHand() {

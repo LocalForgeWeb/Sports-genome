@@ -1,9 +1,15 @@
 /**
- * Measures the drawing instead of eyeballing it: for every pair of bellies in one layer,
- * whether they overlap and how wide the gutter between them is. Used while drawing
- * (`node design/specialization/forearm/check.mjs`) and mirrored by the manifest test.
+ * Measures a region's drawing instead of eyeballing it: for every pair of bellies in one layer,
+ * whether they overlap and how wide the gutter between them is, and any belly outline that
+ * leaves the skin. Used while drawing, and mirrored by the contract test
+ * (client/src/lib/specialization/diagramContract.test.ts).
+ *
+ *   node design/specialization/shared/check.mjs <region>
+ *
+ * Reads the views as authored (muscles by short name), so it runs before the region's data
+ * lists its members. Gutters under 8 units are reported as advice, not failures.
  */
-import { buildViews } from "./views/index.mjs";
+import { loadConfig, loadViews, regionArgument } from "./region.mjs";
 
 /** Flattens an absolute M/C/L/Z path into a polygon. */
 export function flatten(d, steps = 10) {
@@ -64,7 +70,10 @@ export function area(poly) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const views = buildViews();
+  const region = regionArgument(process.argv.slice(2), "node design/specialization/shared/check.mjs <region>");
+  // The canvas the asset's viewBox is written from: outline points above or below it are cropped, not outside.
+  const { height } = (await loadConfig(region)).CANVAS;
+  const views = await loadViews(region);
   for (const [view, layers] of Object.entries(views)) {
     for (const [layer, drawn] of Object.entries(layers)) {
       const bellies = drawn.paths.filter((path) => path.kind === "belly").map((path) => ({ name: path.node, poly: flatten(path.d) }));
@@ -73,7 +82,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       const lines = [];
       for (let i = 0; i < bellies.length; i++) {
         if (skinPoly) {
-          const outside = bellies[i].poly.filter((p) => !inside(p, skinPoly) && p[1] > 0 && p[1] < 760).length;
+          const outside = bellies[i].poly.filter((p) => !inside(p, skinPoly) && p[1] > 0 && p[1] < height).length;
           if (outside) lines.push(`  ${bellies[i].name} has ${outside} outline points outside the skin`);
         }
         for (let j = i + 1; j < bellies.length; j++) {

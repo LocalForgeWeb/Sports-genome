@@ -5,9 +5,22 @@ import { useId } from "react";
  * does" with a small wrist/finger/rotation diagram): two segments and an arrow, read from the
  * action's own id, so any region's actions get one. Decorative: the words say it all.
  */
-export type ActionGlyphKind = "bend" | "straighten" | "rotate" | "tilt" | "steady";
+export type ActionGlyphKind = "bend" | "straighten" | "rotate" | "tilt" | "steady" | "glide" | "elevate";
+
+/**
+ * The shoulder blade's moves, by action id (10-multi-region.md §1.2): it glides round the ribs,
+ * forward or back, or rides up and down them. Its upward and downward rotation read as a rotation.
+ */
+const SCAPULA_GLYPHS: Readonly<Record<string, ActionGlyphKind>> = {
+  "scapula.protraction": "glide",
+  "scapula.retraction": "glide",
+  "scapula.elevation": "elevate",
+  "scapula.depression": "elevate",
+};
 
 export function actionGlyphKind(actionId: string): ActionGlyphKind {
+  const keyed = SCAPULA_GLYPHS[actionId];
+  if (keyed) return keyed;
   if (/pronation|supination|rotation/.test(actionId)) return "rotate";
   if (/deviation|abduction|adduction/.test(actionId)) return "tilt";
   if (/extension/.test(actionId)) return "straighten";
@@ -42,6 +55,16 @@ export function ActionGlyph({ actionId }: { actionId: string }) {
     {kind === "steady" && <>
       <path d="M16 6v20" className="spz-glyph-limb" />
       <path d="M5 16h6M27 16h-6" className="spz-glyph-arrow" markerEnd={`url(#${arrowId})`} />
+    </>}
+    {/* The blade, a triangle against the curve of the ribs, and a two-way arrow along them. */}
+    {kind === "glide" && <>
+      <path d="M6 4q-3 10 0 20" className="spz-glyph-limb" />
+      <path d="M12 6h13l-8 15z" className="spz-glyph-limb" />
+      <path d="M12 27h13" className="spz-glyph-arrow" markerStart={`url(#${arrowId})`} markerEnd={`url(#${arrowId})`} />
+    </>}
+    {kind === "elevate" && <>
+      <path d="M5 9h14l-8 15z" className="spz-glyph-limb" />
+      <path d="M26 6v20" className="spz-glyph-arrow" markerStart={`url(#${arrowId})`} markerEnd={`url(#${arrowId})`} />
     </>}
   </svg>;
 }

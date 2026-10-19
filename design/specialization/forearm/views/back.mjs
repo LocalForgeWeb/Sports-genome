@@ -16,11 +16,10 @@
  *   brevis, extensor pollicis longus and extensor indicis on radius, ulna and the membrane
  *   between them; the surface muscles as dashed ghosts.
  */
-import { band, bandPoints, clipBelow, closed, open, rowsShape, tendon } from "../geometry.mjs";
-import { CROP_TOP, backEdge, backSilhouette } from "../silhouettes.mjs";
+import { C, INSET, band, bandPoints, clipBelow, closed, ghostOf, labels, open, rowsShape, tendon } from "../../shared/geometry.mjs";
+import { CANVAS, CROP_TOP } from "../config.mjs";
+import { backEdge, backSilhouette } from "../silhouettes.mjs";
 
-const C = "corner";
-const INSET = 3;
 /** Pinky-side (left) and thumb-side (right) edges of the outline, just inside. */
 const leftIn = (y) => backEdge("ulnar", y) + INSET;
 const rightIn = (y) => backEdge("radial", y) - INSET;
@@ -194,7 +193,6 @@ export function backView() {
     { node: "EI", d: tendon([[162, 532], [174, 570], [188, 600], [210, 650], [228, 712], [232, 776]], 5, 4.5) },
   ];
 
-  const ghostOf = (d, short) => ({ kind: "ghost", node: short, d });
   const deep = [
     skin,
     { kind: "bone", structure: "humerus", d: humerus },
@@ -210,12 +208,7 @@ export function backView() {
     ...deepTendons.map(({ node, d }) => ({ kind: "tendon", node, d })),
   ];
 
-  const labels = [
-    { text: "Pinky side", x: 10, y: 470, anchor: "start" },
-    { text: "Thumb side", x: 350, y: 470, anchor: "end" },
-    { text: "Elbow", x: 10, y: 120, anchor: "start" },
-    { text: "Wrist", x: 10, y: 604, anchor: "start" },
-  ];
+  const words = labels(CANVAS.width, [["Pinky side", "left", 470], ["Thumb side", "right", 470], ["Elbow", "left", 120], ["Wrist", "left", 604]]);
 
-  return { surface: { paths: surface, labels }, deep: { paths: deep, labels } };
+  return { surface: { paths: surface, labels: words }, deep: { paths: deep, labels: words } };
 }
