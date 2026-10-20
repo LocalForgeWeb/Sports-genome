@@ -18,8 +18,8 @@
   "nodeActionsAssist": 3,
   "nodeActionsOutsideRegion": 1,
   "newJointActions": 0,
-  "sources": 46,
-  "citations": 72,
+  "sources": 47,
+  "citations": 78,
   "deviations": 2,
   "searches": 67
  },
@@ -49,7 +49,7 @@
    "databaseMuscleNote": "The canonical list (shared/capabilityRank.ts) holds gastrocnemius and soleus separately, not the group.",
    "location": "Back of the lower leg, from just above the knee to the heel: the gastrocnemius at the surface and the soleus under it.",
    "whatItDoes": "Points your foot down at the ankle, as when you rise onto your toes, through one shared tendon to the heel (the Achilles tendon).",
-   "shapeNote": "Together the gastrocnemius and the soleus make up most of the muscular outline of the calf. Which muscle shapes which part of that outline cannot be read from the surface. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "shapeNote": "Together the gastrocnemius and the soleus make up most of the muscular outline of the calf. The sources give where the two muscles lie, not how much of that outline each forms. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
    "caveats": [
     "A group, not a muscle: work is counted for the gastrocnemius and the soleus inside it.",
     "Some references also count the small plantaris muscle in this group; it is not listed here."
@@ -80,11 +80,11 @@
    "databaseMuscle": "gastrocnemius",
    "databaseMuscleNote": "Exists in the canonical list (shared/capabilityRank.ts, mapped to the calves region).",
    "location": "Back of the lower leg, at the surface: two heads from the back of the thigh bone just above the knee, joining into one belly that ends in the Achilles tendon on the heel.",
-   "whatItDoes": "Points your foot down at the ankle, as when you rise onto your toes, and helps bend your knee. It crosses both joints, and its pull is greatest when the knee is straight.",
-   "shapeNote": "The surface muscle of the calf and its main bulk, so it may contribute most of the calf's upper, rounded outline; its inner head is usually the larger and reaches lower. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "whatItDoes": "Points your foot down at the ankle, as when you rise onto your toes, and helps bend your knee. It crosses both joints, and it gives less to pointing the foot when the knee is bent.",
+   "shapeNote": "The surface muscle of the calf, so it may contribute most of the calf's upper outline; its inner head is usually the longer and reaches lower. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
    "caveats": [
     "Its two heads are counted as one muscle here: they share their actions.",
-    "With the knee bent it contributes less to pointing the foot; it still works, and how the work then splits with the soleus differs between people."
+    "With the knee bent it contributes less to pointing the foot, but it still works; how the work splits with the soleus also differs between people."
    ],
    "statusReason": "Its function claim, lower_leg:lower_leg.gastrocnemius.function, is reviewed."
   },
@@ -103,18 +103,19 @@
    "layer": "intermediate (surface outcrops, both sides of the calf)",
    "layerSupported": true,
    "outcropSupported": true,
-   "layerEvidence": "It lies immediately deep to the gastrocnemius (kenhub.soleus; elsevier.soleus: 'anterior (deep) to the medial and lateral heads of the gastrocnemius'), above the deep group, which holds the tibialis posterior (statpearls.leg_posterior_compartment). Its edges form curved eminences on either side of the gastrocnemius, the lateral the longer (grays.surface_lower_extremity); it is somewhat wider than the gastrocnemius and projects beyond it at the sides (kenhub.soleus_de). The outcrop note is supported, and the evidence adds that the outer (lateral) outcrop is the longer.",
+   "layerEvidence": "It lies immediately deep to the gastrocnemius (kenhub.soleus; elsevier.soleus: 'anterior (deep) to the medial and lateral heads of the gastrocnemius'), above the deep group, which holds the tibialis posterior (statpearls.leg_posterior_compartment). Its edges form curved eminences on either side of the gastrocnemius, the lateral the longer (grays.surface_lower_extremity); it is somewhat wider than the gastrocnemius and projects beyond it at the sides (kenhub.soleus_de). The outcrop note is supported, and the evidence adds that the outer (lateral) outcrop is the longer. Second review: Gray's sentence begins 'At the same time', a condition the excerpt does not show; Kenhub's German article states the projection without one, so the outcrops stand.",
    "surfaceVisibility": "partial",
    "surfaceVisibilityReason": "Mostly covered by the gastrocnemius; visible only at its edges on either side of it (grays.surface_lower_extremity, kenhub.soleus_de).",
    "nodeKey": "soleus",
-   "catalogMuscleKey": "soleus",
+   "catalogMuscleKey": "calves",
+   "catalogMuscleKeyNote": "The §1.2 node key (body-map key) stays soleus. The catalog never tags soleus; catalogMuscleKeyFor in client/src/lib/recordMuscleKeys.ts folds it into calves, and the forearm sets this field to the catalog key (forearms for the brachioradialis), so the catalog key here is calves.",
    "databaseMuscle": "soleus",
    "databaseMuscleNote": "Exists in the canonical list (shared/capabilityRank.ts, mapped to the calves region). 'soleus' is a body-map key, not a catalog key (§1.1); the catalog tags the calf as 'calves'.",
-   "location": "Back of the lower leg, under the gastrocnemius, from just below the knee to the Achilles tendon; its edges show on the inner and outer sides of the calf.",
+   "location": "Back of the lower leg, under the gastrocnemius, from just below the knee to the Achilles tendon; its edges can show on the inner and outer sides of the calf.",
    "whatItDoes": "Points your foot down at the ankle. It does not cross the knee, so it keeps working when the knee is bent, and it helps hold you upright when you stand.",
-   "shapeNote": "Lies mostly under the gastrocnemius, so its own outline shows mainly as curved edges on the inner and outer sides of the calf, the outer one the longer. Under the gastrocnemius it may add to the calf's overall thickness. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "shapeNote": "Lies mostly under the gastrocnemius, so its own outline can show mainly as curved edges on the inner and outer sides of the calf, the outer one described as the longer. Under the gastrocnemius it may add to the calf's overall thickness. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
    "caveats": [
-    "Bent-knee calf work takes less from the gastrocnemius, but the gastrocnemius still works then and the soleus also works with the knee straight; no calf exercise is known to work the soleus alone.",
+    "Bent-knee calf work takes less from the gastrocnemius, but in the studies cited the gastrocnemius was still active then, and the soleus also works with the knee straight.",
     "Some people have an extra (accessory) soleus muscle on the inner side of the lower leg above the ankle."
    ],
    "statusReason": "Its function claim, lower_leg:lower_leg.soleus.function, is reviewed."
@@ -175,12 +176,13 @@
    "surfaceVisibility": "partial",
    "surfaceVisibilityReason": "The longus is at the surface on the outer side of the leg; the brevis lies under it (teachmeanatomy.lateral_compartment_leg, statpearls.fibularis_brevis).",
    "nodeKey": "peroneals",
-   "catalogMuscleKey": "peroneals",
+   "catalogMuscleKey": null,
+   "catalogMuscleKeyNote": "The §1.2 node key (body-map key) stays peroneals. The catalog has no key for these muscles: catalogMuscleKeyFor in client/src/lib/recordMuscleKeys.ts returns null for peroneals, so the catalog key here is none.",
    "databaseMuscle": "fibularis_longus",
    "databaseMuscleNote": "Candidate only: the canonical list holds fibularis_longus and fibularis_brevis separately (both mapped to no region); this node refines both. The database lane decides whether a node may name one of two.",
    "location": "Outer side of the lower leg, along the fibula from below the knee toward the ankle: the longus at the surface and the brevis under it, lower down. Their tendons pass behind the outer ankle bone.",
    "whatItDoes": "Tilt the sole of your foot outward, and give a little help pointing the foot down. The longus also helps support the arches of the foot. In everyday movement they mainly help steady the foot and stop the sole turning inward too far.",
-   "shapeNote": "The longus lies at the surface on the outer side of the lower leg, so the pair may contribute to the muscular outline there, between the front and the back of the shin. The brevis lies under the longus and has little separately visible contour. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "shapeNote": "The longus lies at the surface on the outer side of the lower leg, so the pair may contribute to the muscular outline there, between the front and the back of the lower leg. The brevis lies under the longus and has little separately visible contour. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
    "caveats": [
     "Two muscles, fibularis longus and fibularis brevis, are counted here as one: they lie together on the outer side of the leg and share their main action, tilting the sole outward.",
     "Also called the peroneal muscles."
@@ -210,7 +212,7 @@
    "databaseMuscle": "tibialis_posterior",
    "databaseMuscleNote": "Exists in the canonical list (shared/capabilityRank.ts, mapped to no region).",
    "location": "Back of the lower leg, deepest layer, against the back of the shin bone; its tendon passes behind the inner ankle bone and fans out under the foot.",
-   "whatItDoes": "Tilts the sole of your foot inward and helps point the foot down. It is the main muscle actively holding up the inner arch of the foot as you walk.",
+   "whatItDoes": "Tilts the sole of your foot inward and helps point the foot down. It helps hold up the inner arch of the foot, especially as you walk.",
    "shapeNote": "The deepest muscle at the back of the lower leg, under the calf muscles, so it has little or no contour of its own; the shape at the back of the leg comes from the muscles over it, body fat and individual anatomy.",
    "caveats": [
     "Shown beside the calf muscles because of where it sits; lower-leg specialization does not target it.",
@@ -226,7 +228,7 @@
    "ownerRegionId": "lower_leg",
    "nodeId": "lower_leg.triceps_surae",
    "kind": "function",
-   "statement": "The calf muscles (triceps surae) are the gastrocnemius, with its two heads, and the soleus under it. Their tendons join in the Achilles tendon on the back of the heel, and together they point the foot down at the ankle (plantar flexion). In a cadaver study they were the most important plantar flexors by leverage. One anatomy reference also credits them with a part in tilting the heel inward; in the same cadaver study the direction of their leverage below the ankle changed with the foot's position, so that action is not counted here.",
+   "statement": "The calf muscles (triceps surae) are the gastrocnemius, with its two heads, and the soleus under it. Their tendons join in the Achilles tendon, which attaches to the heel bone, and together they point the foot down at the ankle (plantar flexion). In a cadaver study they were, with the long flexor of the big toe, the most important plantar flexors by leverage. One anatomy reference also credits them with a part in tilting the heel inward; in the same cadaver study the direction of their leverage below the ankle changed with the foot's position, so that action is not counted here.",
    "basis": "established_anatomy",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -260,7 +262,7 @@
    "ownerRegionId": "lower_leg",
    "nodeId": "lower_leg.triceps_surae",
    "kind": "appearance",
-   "statement": "The fleshy mass of the calf at the back of the lower leg is formed by the gastrocnemius and the soleus, the gastrocnemius at the surface and the soleus under it, so together they may make up most of the calf's muscular outline. Which muscle shapes which part of that outline cannot be read from the surface. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "statement": "The fleshy mass of the calf at the back of the lower leg is formed by the gastrocnemius and the soleus, the gastrocnemius at the surface and the soleus under it, so together they may make up most of the calf's muscular outline. The cited sources give where the two muscles lie, not how much of that outline each forms. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
    "basis": "anatomical_inference",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -289,7 +291,7 @@
    "ownerRegionId": "lower_leg",
    "nodeId": "lower_leg.triceps_surae",
    "kind": "variation",
-   "statement": "How the calf's three heads share the work differs between people. In a study of 20 volunteers pushing the foot down against a fixed resistance, the balance of force between the two gastrocnemius heads and the soleus, estimated from muscle activity and muscle size, varied greatly from person to person. So no single split of calf work applies to everyone, and the atlas does not assume one.",
+   "statement": "How the calf's three heads shared the force differed between people in one study. In 20 volunteers pushing the foot down against a fixed resistance, the balance of force between the two gastrocnemius heads and the soleus, estimated from muscle activity and muscle size, varied greatly from person to person. So no single split of calf force fitted everyone in that task, and the atlas does not assume one.",
    "basis": "experimental",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -342,7 +344,7 @@
    "ownerRegionId": "lower_leg",
    "nodeId": "lower_leg.gastrocnemius",
    "kind": "selectivity",
-   "statement": "Bending the knee reduces how much the gastrocnemius contributes to pointing the foot. In maximal efforts by 10 men, plantar-flexion force fell as the knee bent, and at the same effort gastrocnemius activity fell with it while soleus activity did not change; the authors estimated that the gastrocnemius gives at least two fifths of the force with the knee straight. In single-leg heel raises by 48 adults, gastrocnemius activity was slightly lower with the knee bent to 45 degrees than with it straight, a change the authors judged might be too small to affect clinical or muscle-specific outcomes. In 30 men pointing the foot against a machine with the knee bent to 90 degrees, force and inner-head activity were each about a third lower than with the knee straight. These are short-term activity measurements, not growth; they support describing the knee angle of a calf exercise, not a fixed split of credit.",
+   "statement": "Three studies measured how bending the knee changes the gastrocnemius's part in pointing the foot down. In 10 men, maximal plantar-flexion force fell as the knee bent, and at matched efforts gastrocnemius activity fell with it while soleus activity did not change; the authors estimated that the gastrocnemius gives at least two fifths of the force with the knee straight. In single-leg heel raises by 48 adults, gastrocnemius activity was slightly lower with the knee bent to 45 degrees than with it straight, a change the authors judged might be too small to affect clinical or muscle-specific outcomes. In 30 men pointing the foot against a machine with the knee bent to 90 degrees, force and inner-head activity were each about a third lower than with the knee straight. These are short-term activity measurements, not growth; they support describing the knee angle of a calf exercise, not a fixed split of credit.",
    "basis": "experimental",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -351,7 +353,7 @@
     {
      "sourceId": "pmid.7498381",
      "locator": "Abstract: Methods and Results",
-     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Static maximal efforts by 10 men; abstract only."
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Static efforts by 10 men at matched and at maximal effort; abstract only."
     },
     {
      "sourceId": "pmid.22190157",
@@ -429,7 +431,7 @@
    "ownerRegionId": "lower_leg",
    "nodeId": "lower_leg.gastrocnemius",
    "kind": "appearance",
-   "statement": "The gastrocnemius is the most superficial muscle at the back of the lower leg and the main bulk of the calf, lying over the soleus, so it may contribute most of the calf's upper, rounded outline. Its inner head is usually longer and reaches further down than the outer head, which may make the inner side of the calf look fuller and lower. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "statement": "The gastrocnemius is the most superficial muscle at the back of the lower leg, lying over the soleus; one reference calls it the main bulk of the calf, another calls the soleus under it much larger. Being at the surface, it may contribute most of the calf's upper outline. Its inner head is usually longer and reaches further down than the outer head, so its muscle may reach lower on the inner side of the calf. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
    "basis": "anatomical_inference",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -463,7 +465,7 @@
    "ownerRegionId": "lower_leg",
    "nodeId": "lower_leg.soleus",
    "kind": "function",
-   "statement": "The soleus points the foot down at the ankle (plantar flexion). It starts on the backs of the shin bone and the fibula below the knee and joins the gastrocnemius in the Achilles tendon, so it crosses the ankle but not the knee. With the knee straight it works with the gastrocnemius; with the knee bent, the gastrocnemius's part is described as greatly reduced, leaving the soleus as the main plantar flexor. It also helps hold the body upright in standing. In an imaging study of 12 adults, its force-producing cross-section was about three times that of the inner gastrocnemius head and eight times that of the outer head.",
+   "statement": "The soleus points the foot down at the ankle (plantar flexion). It starts on the shin bone and the fibula just below the knee and joins the gastrocnemius in the Achilles tendon, so it crosses the ankle but not the knee. One anatomy reference describes the two working together with the knee straight and, with the knee bent, the gastrocnemius's part as greatly reduced, so that the soleus acts as a primary plantar flexor. In muscle-activity studies, gastrocnemius activity was slightly lower in heel raises with the knee bent to 45 degrees, and inner-head activity about a third lower in machine efforts with the knee bent to 90 degrees. It also helps hold the body upright in standing. In an imaging study of 12 healthy people, its force-producing cross-section was about three times that of the inner gastrocnemius head and eight times that of the outer head.",
    "basis": "established_anatomy",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -487,7 +489,17 @@
     {
      "sourceId": "pmid.1403308",
      "locator": "Abstract: Results",
-     "qualification": "Imaging (MRI) of 12 healthy adults; cross-section is a measure of force capacity, not of how hard the muscle works in an exercise. Abstract only."
+     "qualification": "Imaging (MRI) of 12 healthy people; cross-section is a measure of force capacity, not of how hard the muscle works in an exercise. Abstract only."
+    },
+    {
+     "sourceId": "pmid.22190157",
+     "locator": "Abstract: Methods and Results",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Single-leg heel raises by 48 healthy adults; abstract only."
+    },
+    {
+     "sourceId": "biologists.knee_position_plantarflexion",
+     "locator": "Abstract: Methods and Results",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Concentric efforts on a dynamometer by 30 healthy men; inner head and soleus only. Seen through search summaries of the open-access article."
     }
    ]
   },
@@ -497,16 +509,21 @@
    "ownerRegionId": "lower_leg",
    "nodeId": "lower_leg.soleus",
    "kind": "selectivity",
-   "statement": "Because the soleus does not cross the knee, studies compare it with the gastrocnemius at different knee angles. In maximal efforts by 10 men, soleus activity stayed the same at every knee angle while gastrocnemius activity fell as the knee bent. In single-leg heel raises by 48 adults, soleus activity was slightly higher with the knee bent to 45 degrees than with it straight. In 30 men with the knee bent to 90 degrees, soleus activity was higher only early in the slower movements, and the authors found no sign that it made up for the inner gastrocnemius head's lower activity. So with the knee bent less of the work comes from the gastrocnemius, while the soleus works with the knee straight as well. These are short-term activity measurements, not growth, and not a fixed split of credit.",
+   "statement": "The soleus starts just below the knee, so it does not cross the knee. Studies have compared its activity with the gastrocnemius's at different knee angles. In 10 men pushing the foot down at matched efforts, soleus activity stayed the same as the knee bent, while gastrocnemius activity fell. In single-leg heel raises by 48 adults, soleus activity was slightly higher with the knee bent to 45 degrees than with it straight. In 30 men with the knee bent to 90 degrees, soleus activity was higher in the first half of the slower movements. So in all three studies bending the knee lowered gastrocnemius activity, by amounts that differed between studies, while the soleus was active with the knee straight as well. These are short-term activity measurements, not growth, and not a fixed split of credit.",
    "basis": "experimental",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
    "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
    "sources": [
     {
+     "sourceId": "kenhub.soleus",
+     "locator": "Overview: position (the joints it crosses)",
+     "qualification": "Seen through a generated web-search summary of the page, not the page itself. Gives the muscle's extent only; that it does not cross the knee is read from where it starts."
+    },
+    {
      "sourceId": "pmid.7498381",
      "locator": "Abstract: Results",
-     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Static maximal efforts by 10 men; abstract only."
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Static efforts by 10 men at matched and at maximal effort; abstract only."
     },
     {
      "sourceId": "pmid.22190157",
@@ -515,7 +532,7 @@
     },
     {
      "sourceId": "biologists.knee_position_plantarflexion",
-     "locator": "Abstract: Results and Conclusions",
+     "locator": "Abstract: Results",
      "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Concentric efforts on a dynamometer by 30 healthy men. Seen through search summaries of the open-access article."
     }
    ]
@@ -550,7 +567,7 @@
    "ownerRegionId": "lower_leg",
    "nodeId": "lower_leg.soleus",
    "kind": "appearance",
-   "statement": "The soleus lies under the gastrocnemius but is somewhat wider, so its edges show on either side of the gastrocnemius as curved bulges on the inner and outer sides of the calf, the outer one the longer. It may contribute to those side contours and, under the gastrocnemius, to the calf's overall thickness. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "statement": "The soleus lies under the gastrocnemius but is somewhat wider and projects beyond it at the sides, so its edges can form curved bulges on the inner and outer sides of the calf; a 1918 anatomy text describes the outer one as the longer. It may contribute to those side contours and, under the gastrocnemius, to the calf's overall thickness. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
    "basis": "anatomical_inference",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -559,7 +576,7 @@
     {
      "sourceId": "grays.surface_lower_extremity",
      "locator": "Surface anatomy of the lower extremity: the calf",
-     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source. A 1918 textbook quoted on a third-party page; fidelity to the original not checked."
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source. A 1918 textbook quoted on a third-party page; fidelity to the original not checked. The quoted sentence begins 'At the same time', so it describes a condition the excerpt does not show; neither the lane's searches nor the second review's found the sentence before it. The claim says the edges 'can' show."
     },
     {
      "sourceId": "kenhub.soleus_de",
@@ -579,7 +596,7 @@
    "ownerRegionId": "lower_leg",
    "nodeId": "lower_leg.tibialis_anterior",
    "kind": "function",
-   "statement": "Tibialis anterior is the strongest muscle pulling the top of the foot up toward the shin (dorsiflexion), and it also tilts the sole inward (inversion). In walking it steadies the ankle as the foot lands and lifts the foot clear of the ground as the leg swings forward, and it helps support the inner arch of the foot. References disagree on how much it tilts the sole inward: anatomy references call it a main inverter with the tibialis posterior, while a cadaver study measured a small inward leverage for it, about a fifth of the tibialis posterior's, and an outward one in some specimens.",
+   "statement": "Tibialis anterior is the strongest muscle pulling the top of the foot up toward the shin (dorsiflexion), and it also tilts the sole inward (inversion). In walking it steadies the ankle as the foot lands and lifts the foot clear of the ground as the leg swings forward, and it helps support the inner arch of the foot. References disagree on how much it tilts the sole inward: one anatomy reference calls it a main inverter with the tibialis posterior, while two cadaver studies measured less inward leverage for it than for the tibialis posterior, about three fifths as much in one and about a fifth in the other, where some specimens showed an outward leverage.",
    "basis": "established_anatomy",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -609,6 +626,11 @@
      "sourceId": "elsevier.ankle_moment_arms",
      "locator": "Abstract",
      "qualification": "Cadaver study of 10 specimens measuring leverage (moment arms), not muscle force or activity. Abstract only, seen through library records."
+    },
+    {
+     "sourceId": "pmid.7951975",
+     "locator": "Abstract: Results",
+     "qualification": "Cadaver study of 15 specimens measuring leverage (moment arms) relative to the tibialis posterior, not muscle force or activity. Abstract only, seen through a generated search summary; authors not shown."
     }
    ]
   },
@@ -696,7 +718,7 @@
    "ownerRegionId": "lower_leg",
    "nodeId": "lower_leg.fibularis",
    "kind": "variation",
-   "statement": "Some people have an extra muscle beside the fibularis muscles, the peroneus quartus. It arises low on the outer side of the fibula and runs down behind the fibularis tendons, and where it ends varies. Two ankle MRI studies of patients, of 1160 and of 136 ankles, each found it in a minority of ankles. In the larger study it was found more often in men than in women and was linked to problems of the fibularis brevis tendon; one reference notes it can crowd the groove behind the outer ankle bone and wear that tendon.",
+   "statement": "Some people have an extra muscle beside the fibularis muscles, the peroneus quartus. It arises low on the outer side of the fibula and runs down behind the fibularis tendons, and where it ends varies. Two ankle MRI studies, of 1160 and of 136 ankles, each found it in a minority of ankles. In the larger study it was found more often in men than in women and was linked to problems of the fibularis brevis tendon; one reference notes it can crowd the groove behind the outer ankle bone and wear that tendon.",
    "basis": "established_anatomy",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -725,7 +747,7 @@
    "ownerRegionId": "lower_leg",
    "nodeId": "lower_leg.fibularis",
    "kind": "appearance",
-   "statement": "Fibularis longus lies at the surface of the outer side of the lower leg and is the larger of the two; fibularis brevis lies under it. So the pair may contribute to the muscular outline on the outer side of the shin, mainly through the longus, while the brevis has little separately visible contour. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "statement": "Fibularis longus lies at the surface of the outer side of the lower leg and is the larger of the two; fibularis brevis lies under it. So the pair may contribute to the muscular outline on the outer side of the lower leg, mainly through the longus, while the brevis has little separately visible contour. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
    "basis": "anatomical_inference",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -754,7 +776,7 @@
    "ownerRegionId": "lower_leg",
    "nodeId": "lower_leg.tibialis_posterior",
    "kind": "function",
-   "statement": "Tibialis posterior tilts the sole of the foot inward (inversion) and helps point the foot down (plantar flexion). In a cadaver study it had the largest inward-tilting leverage of the muscles measured, and a lesser share in pointing the foot than the calf muscles. Its tendon passes behind the inner ankle bone and fans out under the foot, and it is described as the main muscle actively holding up the inner arch of the foot during walking.",
+   "statement": "Tibialis posterior tilts the sole of the foot inward (inversion) and helps point the foot down (plantar flexion). In a cadaver study it had the largest inward-tilting leverage of the muscles measured, and less leverage for pointing the foot than the calf muscles. Its tendon passes behind the inner ankle bone and fans out under the foot, and it is described as the main muscle actively holding up the inner arch of the foot during walking.",
    "basis": "established_anatomy",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -838,7 +860,7 @@
    "role": "prime",
    "claimId": "lower_leg.soleus.function",
    "claimKey": "lower_leg:lower_leg.soleus.function",
-   "evidence": "Its main action (kenhub.soleus, radiopaedia.soleus); the main plantar flexor with the knee bent (kenhub.soleus_video); the largest cross-section of the plantar flexors (pmid.1403308).",
+   "evidence": "Its main action (kenhub.soleus, radiopaedia.soleus); described as a primary plantar flexor with the knee bent (kenhub.soleus_video); the largest cross-section of the plantar flexors (pmid.1403308).",
    "status": "reviewed"
   },
   {
@@ -856,7 +878,7 @@
    "role": "assist",
    "claimId": "lower_leg.tibialis_anterior.function",
    "claimKey": "lower_leg:lower_leg.tibialis_anterior.function",
-   "evidence": "All references name it (statpearls.tibialis_anterior, kenhub.tibialis_anterior, teachmeanatomy.anterior_compartment_leg), and StatPearls calls it a primary inverter with the tibialis posterior; but the one measurement found, a cadaver moment-arm study (elsevier.ankle_moment_arms), gave it about a fifth of the tibialis posterior's inward leverage and an outward one in some specimens, and Kenhub frames it as the main dorsiflexor that 'also' inverts. Recorded assist on the measured evidence; the claim states the disagreement.",
+   "evidence": "All references name it (statpearls.tibialis_anterior, kenhub.tibialis_anterior, teachmeanatomy.anterior_compartment_leg), and StatPearls calls it a primary inverter with the tibialis posterior; but two cadaver moment-arm studies gave it less inward leverage than the tibialis posterior: about three fifths of it (pmid.7951975) and about a fifth, with an outward one in some specimens (elsevier.ankle_moment_arms); and Kenhub frames it as the main dorsiflexor that 'also' inverts. Recorded assist on the measured evidence; the claim states the disagreement. Second review: with the second study, assist is a closer call than the lane's draft said; kept assist, and the anatomy lane decides.",
    "status": "reviewed",
    "productNote": "If the page should suggest inversion work for a target muscle, prime here would be a product choice, not the evidence: the only prime inverter on the evidence is the tibialis posterior, an adjacent muscle, whose rows do not drive suggestions."
   },
@@ -918,7 +940,7 @@
   {
    "nodeId": "lower_leg.soleus",
    "action": "foot.inversion",
-   "reason": "As for the gastrocnemius: references credit the triceps surae as a whole, and the measured leverage changes direction with foot position."
+   "reason": "As for the gastrocnemius: references credit the triceps surae as a whole, and the measured leverage changes direction with foot position. Second review: a second cadaver study gave the soleus a small inward leverage, about a quarter of the tibialis posterior's (pmid.7951975, cited on the tibialis anterior's function claim); still not counted."
   },
   {
    "nodeId": "lower_leg.triceps_surae",
@@ -965,7 +987,7 @@
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results (Q1, Q5, Q41): the Bookshelf id NBK532946, the PubMed record 30422541 titled 'Anatomy, Bony Pelvis and Lower Limb, Gastrocnemius Muscle', and statpearls.com mirrors (point-of-care/22091; update shown as April 2026). The excerpts gave: a superficial, biarticular muscle forming the triceps surae with the soleus; origin on the medial and lateral femoral condyles, insertion on the calcaneus through the calcaneal tendon; one of the plantar flexors that also assists knee flexion; the triceps surae produces plantar flexion and contributes to subtalar inversion; variants include the gastrocnemius tertius. Authors not shown. One summary line said the plantaris is 'present in only a small share of people'; that reads as a misquote (other references describe the plantaris as present in most people and absent in some) and is not used."
+   "notes": "Checked via web-search results (Q1, Q5, Q41): the Bookshelf id NBK532946, the PubMed record 30422541 titled 'Anatomy, Bony Pelvis and Lower Limb, Gastrocnemius Muscle', and statpearls.com mirrors (point-of-care/22091; update shown as April 2026). The excerpts gave: a superficial, biarticular muscle forming the triceps surae with the soleus; origin on the medial and lateral femoral condyles, insertion on the calcaneus through the calcaneal tendon; one of the plantar flexors that also assists knee flexion; the triceps surae produces plantar flexion and contributes to subtalar inversion; variants include the gastrocnemius tertius. Authors not shown. One summary line said the plantaris is 'present in only a small share of people'; that reads as a misquote (other references describe the plantaris as present in most people and absent in some) and is not used. Second review (SR21): an independent search did not return the NBK532946 article; the lane's results showed its address and PubMed record 30422541. Not confirmed further."
   },
   {
    "key": "statpearls.calf",
@@ -974,7 +996,7 @@
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Seen as statpearls.com point-of-care 24167 and its dev mirrors (Q3, Q4); a summary reported the NCBI Bookshelf id NBK459362, which was not opened. The excerpts gave: the gastrocnemius and soleus are the calf's two largest muscles; the soleus is a large, flat muscle deep to the gastrocnemius; both form the triceps surae and join in the Achilles tendon; the calf muscles plantar flex the ankle and are supplied by the tibial nerve. The statpearls.com page was updated 31 Jan 2026 and the mirrors show 23 May 2023; versions may differ. Authors not shown."
+   "notes": "Seen as statpearls.com point-of-care 24167 and its dev mirrors (Q3, Q4); a summary reported the NCBI Bookshelf id NBK459362, which was not opened. The excerpts gave: the gastrocnemius and soleus are the calf's two largest muscles; the soleus is a large, flat muscle deep to the gastrocnemius; both form the triceps surae and join in the Achilles tendon; the calf muscles plantar flex the ankle and are supplied by the tibial nerve. The statpearls.com page was updated 31 Jan 2026 and the mirrors show 23 May 2023; versions may differ. Authors not shown. Second review (SR21): the NBK459362 id was again seen only by report, not confirmed."
   },
   {
    "key": "statpearls.leg_posterior_compartment",
@@ -992,7 +1014,7 @@
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results (Q23, Q24): the Bookshelf id NBK513304 and statpearls.com mirrors (point-of-care/30184). The excerpts gave: also known as the tibialis anticus, the largest of the four anterior-compartment muscles, primarily responsible for dorsiflexion and inversion of the foot; 'the strongest dorsiflexor of the foot'; its attachments; its tendon begins at the distal third of the tibia, crosses the front of the ankle and is the most medial tendon of the ankle and foot. The title follows the query and the series' naming (the result showed only the Bookshelf address); authors and update date not shown."
+   "notes": "Checked via web-search results (Q23, Q24): the Bookshelf id NBK513304 and statpearls.com mirrors (point-of-care/30184). The excerpts gave: also known as the tibialis anticus, the largest of the four anterior-compartment muscles, primarily responsible for dorsiflexion and inversion of the foot; 'the strongest dorsiflexor of the foot'; its attachments; its tendon begins at the distal third of the tibia, crosses the front of the ankle and is the most medial tendon of the ankle and foot. The title follows the query and the series' naming (the result showed only the Bookshelf address); authors and update date not shown. Second review (SR21): an independent search showed the statpearls.com page (point-of-care 30184) titled 'Anatomy, Bony Pelvis and Lower Limb: Tibialis Anterior Muscles', updated 28 Aug 2023, with the content cited; the Bookshelf id NBK513304 appeared in the lane's results only as an address and was not confirmed as this article."
   },
   {
    "key": "statpearls.tibialis_posterior",
@@ -1055,7 +1077,7 @@
    "doi": "10.1242/jeb.187260",
    "evidenceType": "emg",
    "retrievedOn": "2026-10-19",
-   "notes": "Crouzier, Lacourpaille, Nordez, Tucker and Hug, J Exp Biol 2018;221(21):jeb187260 (Q54, Q61); seen through an open-archive record, a sports-science catalogue and search summaries. 20 volunteers; isometric plantar flexions; activation of the two gastrocnemius heads and the soleus by EMG and cross-section by imaging; activation and cross-section shares correlated for the two gastrocnemius heads at up to half of maximal effort; the imbalance of force between the three heads varied greatly between participants. PubMed id not shown; data on Dryad (doi:10.5061/dryad.68jc53n)."
+   "notes": "Crouzier, Lacourpaille, Nordez, Tucker and Hug, J Exp Biol 2018;221(21):jeb187260 (Q54, Q61); seen through an open-archive record, a sports-science catalogue and search summaries. 20 volunteers; isometric plantar flexions; activation of the two gastrocnemius heads and the soleus by EMG and cross-section by imaging; activation and cross-section shares correlated for the two gastrocnemius heads at up to half of maximal effort; the imbalance of force between the three heads varied greatly between participants. PubMed id not shown; the underlying data are deposited in a public data repository. Second review (SR11): an independent search showed the same abstract and authors."
   },
   {
    "key": "pmid.1403308",
@@ -1064,7 +1086,7 @@
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "PubMed record and abstract seen in search results (Q50, Q52): Fukunaga and colleagues, J Orthop Res 1992;10(6):928-934 (another record gives pages 926-934, and a repository lists Shellock first; author order not confirmed). MRI of 12 healthy subjects; mean volumes 489, 245 and 140 cm3 for the soleus and the medial and lateral gastrocnemius; soleus cross-section about 230 cm2, roughly three and eight times the two heads'; soleus fibres short for its volume. DOI not shown."
+   "notes": "PubMed record and abstract seen in search results (Q50, Q52): Fukunaga and colleagues, J Orthop Res 1992;10(6):928-934 (another record gives pages 926-934, and a repository lists Shellock first; author order not confirmed). MRI of 12 healthy subjects; mean volumes 489, 245 and 140 cm3 for the soleus and the medial and lateral gastrocnemius; soleus cross-section about 230 cm2, roughly three and eight times the two heads'; soleus fibres short for its volume. DOI not shown. Second review (SR20): PubMed shows 928-934 and a Springer reference list 926-934; a JAXA record lists Shellock first. Still unresolved; the numbers cited agree."
   },
   {
    "key": "elsevier.ankle_moment_arms",
@@ -1073,7 +1095,7 @@
    "doi": "10.1016/0021-9290(95)00025-9",
    "evidenceType": "biomechanics",
    "retrievedOn": "2026-10-19",
-   "notes": "Klein, Mattys and Rooze, J Biomech 1996;29(1):21-30 (Q46, Q49, Q57); seen through a sports-science catalogue record, a university library record and summaries of the abstract. Tendon-excursion method on 10 anatomical preparations for the triceps surae, flexor hallucis longus, tibialis posterior, tibialis anterior and the two fibularis muscles. Main plantar flexors by moment arm: triceps surae and flexor hallucis longus, and to a much lesser extent the fibularis muscles and tibialis posterior. Subtalar: tibialis posterior the largest inversion moment arm (about -19.1 mm), tibialis anterior very low (about -3.8 mm) and everting in some specimens; the fibularis muscles nearly identical (21.8 and 20.5 mm); the triceps surae inverting in eversion and everting in inversion. PubMed id (8839014 was guessed in a query) not confirmed."
+   "notes": "Klein, Mattys and Rooze, J Biomech 1996;29(1):21-30 (Q46, Q49, Q57); seen through a sports-science catalogue record, a university library record and summaries of the abstract. Tendon-excursion method on 10 anatomical preparations for the triceps surae, flexor hallucis longus, tibialis posterior, tibialis anterior and the two fibularis muscles. Main plantar flexors by moment arm: triceps surae and flexor hallucis longus, and to a much lesser extent the fibularis muscles and tibialis posterior. Subtalar: tibialis posterior the largest inversion moment arm (about -19.1 mm), tibialis anterior very low (about -3.8 mm) and everting in some specimens; the fibularis muscles nearly identical (21.8 and 20.5 mm); the triceps surae inverting in eversion and everting in inversion. PubMed id (8839014 was guessed in a query) not confirmed. Second review (SR15): an independent search confirmed the authors as Klein, Mattys and Rooze (J Biomech 1996;29(1):21-30) and every moment arm quoted here; a secondary review gives 9 specimens for the morphometric data, against the abstract's 10. The same results named a second cadaver study with a different value for the tibialis anterior (pmid.7951975)."
   },
   {
    "key": "elsevier.gastrocnemius_knee_flexor",
@@ -1082,7 +1104,16 @@
    "doi": null,
    "evidenceType": "biomechanics",
    "retrievedOn": "2026-10-19",
-   "notes": "Li, Landin, Grodesky and Myers, J Electromyogr Kinesiol 2002;12(5):385-390 (Q5, Q38); seen through a university repository record and a summary of its abstract. 17 participants on a dynamometer with the gastrocnemius selectively stimulated electrically; the knee-flexion moment was largest with the knee straight at every ankle angle, fell most between 180 and 165 degrees, and was small at 90 and 75 degrees. DOI and PubMed id not shown."
+   "notes": "Li, Landin, Grodesky and Myers, J Electromyogr Kinesiol 2002;12(5):385-390 (Q5, Q38); seen through a university repository record and a summary of its abstract. 17 participants on a dynamometer with the gastrocnemius selectively stimulated electrically; the knee-flexion moment was largest with the knee straight at every ankle angle, fell most between 180 and 165 degrees, and was small at 90 and 75 degrees. DOI and PubMed id not shown. Second review (SR13): an independent search confirmed J Electromyogr Kinesiol 2002;12(5):385-390 (October 2002), the 17 participants and the findings quoted; knee angle 180 degrees is straight."
+  },
+  {
+   "key": "pmid.7951975",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/7951975/",
+   "title": "Foot movement and tendon excursion: an in vitro study",
+   "doi": "10.1177/107110079401500708",
+   "evidenceType": "biomechanics",
+   "retrievedOn": "2026-10-19",
+   "notes": "Added by the second review. PubMed record seen through a generated search summary (SR16): Foot Ankle Int 1994;15(7):386-395. 15 fresh foot-leg specimens in a leg-holding device; inverter moment arms about the foot's eversion-inversion axis relative to the tibialis posterior (1.00): tibialis anterior 0.59, flexor digitorum longus 0.75, flexor hallucis longus 0.62, soleus 0.24; the fibularis longus and brevis negative (-0.82, -0.85), so everters. Authors not shown in the results (the review's query named Hintermann, Nigg and Sommer; not confirmed). Abstract only; full text not seen."
   },
   {
    "key": "lww.heel_raise_foot_position",
@@ -1141,11 +1172,11 @@
   {
    "key": "rsna.peroneus_quartus",
    "url": "https://pubs.rsna.org/doi/10.1148/radiology.202.3.9051029",
-   "title": "Peroneus quartus muscle: MR imaging features (Radiology, 1997)",
+   "title": "Peroneus quartus muscle: MR imaging features",
    "doi": "10.1148/radiology.202.3.9051029",
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Radiology, 1 Mar 1997 (Q42, Q59); the result showed only the date as its title, and the title here is descriptive, after an index entry 'PERONEUS QUARTUS MUSCLE - MR-IMAGING FEATURES' that may be the same paper. 136 consecutive ankle MRIs; prevalence 10 per cent (14 cases); insertion varied, the calcaneus the most common site. Authors and PubMed id not shown."
+   "notes": "Radiology, 1 Mar 1997 (Q42, Q59); the result showed only the date as its title, and the title here is descriptive, after an index entry 'PERONEUS QUARTUS MUSCLE - MR-IMAGING FEATURES' that may be the same paper. 136 consecutive ankle MRIs; prevalence 10 per cent (14 cases); insertion varied, the calcaneus the most common site. Authors and PubMed id not shown. Second review (SR12): an independent search showed the title 'Peroneus quartus muscle: MR imaging features', by Cheung and colleagues, Radiology 1997;202(3):745-750, and the 14 of 136 ankles; the title above now drops the descriptive '(Radiology, 1997)'. The full author list and PubMed id were still not shown."
   },
   {
    "key": "springer.gastrocnemius_tertius",
@@ -1208,7 +1239,7 @@
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "The 20th US edition of Gray's Anatomy (1918), public domain, quoted on a Wordnik page tagged chapter XII, section 13 (Q33, Q34). Quoted lines: 'the prominent fleshy mass of the calf of the leg produced by Gastrocnemius and Soleus (Fig. 1239)' and 'the edges of Soleus can be seen forming, on either side of Gastrocnemius, curved eminences, of which the lateral is the longer.' A third-party transcription; the Bartleby edition was not seen, and fidelity was not checked."
+   "notes": "The 20th US edition of Gray's Anatomy (1918), public domain, quoted on a Wordnik page tagged chapter XII, section 13 (Q33, Q34). Quoted lines: 'the prominent fleshy mass of the calf of the leg produced by Gastrocnemius and Soleus (Fig. 1239)' and 'the edges of Soleus can be seen forming, on either side of Gastrocnemius, curved eminences, of which the lateral is the longer.' A third-party transcription; the Bartleby edition was not seen, and fidelity was not checked. Second review (SR5, SR7): the quoted soleus sentence begins 'At the same time', so it describes a condition set by the sentence before it, which neither the lane's searches nor the review's showed; a 'stand on tiptoe' line in the same results belongs to a different book (Blaisdell, A Practical Physiology), not Gray's."
   },
   {
    "key": "kenhub.gastrocnemius",
@@ -1253,7 +1284,7 @@
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Seen only through a search summary of its transcript (Q37, Q40): with the knee extended the gastrocnemius and soleus work together as a powerful plantar flexor; with the knee flexed the gastrocnemius's role is greatly reduced and the soleus acts as a primary plantar flexor; the soleus helps keep the body upright in standing. The video was not watched."
+   "notes": "Seen only through a search summary of its transcript (Q37, Q40): with the knee extended the gastrocnemius and soleus work together as a powerful plantar flexor; with the knee flexed the gastrocnemius's role is greatly reduced and the soleus acts as a primary plantar flexor; the soleus helps keep the body upright in standing. The video was not watched. Second review (SR14): no reputable reference in an independent search restated this; only exercise and coaching sites did (not citable), so the claim attributes it to this one reference."
   },
   {
    "key": "kenhub.tibialis_anterior",
@@ -1459,7 +1490,7 @@
    "sourceKey": "kenhub.gastrocnemius",
    "queryNumber": "Q8",
    "query": "kenhub gastrocnemius muscle key facts function plantarflexion knee flexion medial head lateral head",
-   "excerpt": "Origins: The medial head starts on the femur's popliteal surface and the posterior medial condyle. The lateral head starts on the upper posterolateral surface of the lateral femoral condyle. ... Insertion and innervation: Both heads join the calcaneal tendon, which attaches to the back of the heel bone. ... Function: Kenhub's table lists two actions: foot plantar flexion at the talocrural joint and leg flexion at the knee joint.",
+   "excerpt": "Origins: The medial head starts on the femur's popliteal surface and the posterior medial condyle. The lateral head starts on the upper posterolateral surface of the lateral femoral condyle. ... Insertion and innervation: Both heads join the calcaneal tendon, which attaches to the back of the heel bone. ... two actions: foot plantar flexion at the talocrural joint and leg flexion at the knee joint.",
    "locator": "Key facts: Origin, Insertion and Function"
   },
   {
@@ -1475,7 +1506,7 @@
    "sourceKey": "elsevier.gastrocnemius_knee_flexor",
    "queryNumber": "Q38",
    "query": "Li Landin 2002 the function of gastrocnemius as a knee flexor at selected knee and ankle angles Journal of Electromyography and Kinesiology",
-   "excerpt": "Seventeen participants were tested on a Biodex dynamometer with the gastrocnemius muscle selectively stimulated at a standardized level of electrical current. ... The moment was largest with the knee straight, across all ankle angles. ... Little moment appeared at 90° and 75°",
+   "excerpt": "Seventeen participants were tested on a ... dynamometer with the gastrocnemius muscle selectively stimulated at a standardized level of electrical current. ... The moment was largest with the knee straight, across all ankle angles. ... Little moment appeared at 90° and 75°",
    "locator": "Abstract"
   },
   {
@@ -1639,6 +1670,46 @@
    "locator": "Abstract: Results"
   },
   {
+   "claimId": "lower_leg.soleus.function",
+   "sourceKey": "pmid.22190157",
+   "queryNumber": "Q12",
+   "query": "Hébert-Losier influence of knee flexion angle and age on triceps surae muscle activity during heel raises",
+   "excerpt": "Design: Forty-eight healthy men and women were recruited from a younger-aged (18-25 years) and middle-aged (35-45 years) population. All the subjects performed unilateral heel raises in 0° and 45° knee flexion.",
+   "locator": "Abstract: Methods"
+  },
+  {
+   "claimId": "lower_leg.soleus.function",
+   "sourceKey": "pmid.22190157",
+   "queryNumber": "Q21",
+   "query": "Hébert-Losier Schneiders 2012 J Strength Cond Res 26(11) heel raises 0 and 45 degrees knee flexion soleus gastrocnemius PMID 22190157 doi",
+   "excerpt": "SOL activity was 4% greater when tested in 45° compared with 0° KF and 5% lower in the GM and GL. The authors concluded that the 4-5% documented change in activity might not be enough to significantly influence clinical outcome measures or muscle-specific outcomes.",
+   "locator": "Abstract: Results"
+  },
+  {
+   "claimId": "lower_leg.soleus.function",
+   "sourceKey": "biologists.knee_position_plantarflexion",
+   "queryNumber": "Q19",
+   "query": "\"Knee position affects medial gastrocnemius and soleus activation during dynamic plantarflexion\" Biology Open 2024 abstract",
+   "excerpt": "The study tested 30 healthy men doing concentric plantarflexions with the knee fully extended and with the knee fixed at 90° flexion",
+   "locator": "Abstract: Methods"
+  },
+  {
+   "claimId": "lower_leg.soleus.function",
+   "sourceKey": "biologists.knee_position_plantarflexion",
+   "queryNumber": "Q22",
+   "query": "Kovács 2024 Biology Open bio.061810 soleus activation knee flexed extended high-density EMG results lower",
+   "excerpt": "Healthy male participants (n=30) performed concentric plantarflexions on a custom-built dynamometer. ... Torque: Plantarflexion torque was 31% lower (P=0.002) averaged across the five contraction velocities with the knee flexed. ... Medial gastrocnemius: Its overall EMG activity was 35% lower (P=0.002) during knee-flexed versus knee-extended plantarflexions.",
+   "locator": "Abstract: Results"
+  },
+  {
+   "claimId": "lower_leg.soleus.selectivity.1",
+   "sourceKey": "kenhub.soleus",
+   "queryNumber": "Q51",
+   "query": "StatPearls calf soleus deep to gastrocnemius soleus muscle introduction structure function postural slow twitch fibers NBK",
+   "excerpt": "It runs from just below the knee to the heel and lays immediately deep to the gastrocnemius.",
+   "locator": "Overview: position (the joints it crosses)"
+  },
+  {
    "claimId": "lower_leg.soleus.selectivity.1",
    "sourceKey": "pmid.7498381",
    "queryNumber": "Q20",
@@ -1660,7 +1731,7 @@
    "queryNumber": "Q22",
    "query": "Kovács 2024 Biology Open bio.061810 soleus activation knee flexed extended high-density EMG results lower",
    "excerpt": "Soleus: Activity was higher, not lower. In the first half of plantarflexions at slower contractions, soleus EMG activity was 15% and 28% higher (both P=0.002) in knee-flexed versus knee-extended plantarflexion, respectively. ... Conclusion: The authors found no evidence that changes in soleus activation would compensate for the decrease in medial gastrocnemius activation.",
-   "locator": "Abstract: Results and Conclusions"
+   "locator": "Abstract: Results"
   },
   {
    "claimId": "lower_leg.soleus.variation.1",
@@ -1749,6 +1820,14 @@
    "query": "moment arms subtalar joint inversion tibialis posterior tibialis anterior largest invertor cadaver study Klein 1996",
    "excerpt": "The authors reported a mean subtalar inversion moment arm of about -19.1 mm for tibialis posterior, against roughly -3.8 mm for tibialis anterior, and some specimens showed an eversion moment arm for tibialis anterior (1-8, 1-9).",
    "locator": "Abstract"
+  },
+  {
+   "claimId": "lower_leg.tibialis_anterior.function",
+   "sourceKey": "pmid.7951975",
+   "queryNumber": "SR16",
+   "query": "Hintermann Nigg Sommer 1994 \"Foot movement and tendon excursion: an in vitro study\" Foot Ankle International invertor moment arms tibialis anterior 0.59",
+   "excerpt": "The study used a lower leg-holding device with 6 degrees of freedom on 15 fresh foot-leg specimens. ... The tibialis anterior value is 0.59, listed alongside flexor digitorum longus (0.75), flexor hallucis longus (0.62), and soleus (0.24). The peroneal tendons were negative, at -0.82 for peroneus longus and -0.85 for peroneus brevis, so they act as evertors.",
+   "locator": "Abstract: Results"
   },
   {
    "claimId": "lower_leg.tibialis_anterior.appearance",
@@ -1972,41 +2051,48 @@
  "notes": {
   "datesAndRuns": "The searches were run on 20 Oct 2026 (the session's date), following a first attempt of this lane that logged Q1 to Q3 before it stopped; Q1 and Q3 excerpts are used as that attempt logged them. Review and retrieval dates are written as 2026-10-19, the date the task fixed for this wave's review; the review note's wording follows that date. If the lane prefers the true run date, every reviewedAt, retrievedOn and review note changes to 20 Oct together.",
   "singleSourceFunctionClaims": [
-   "None. Every function claim cites four or more references from at least three publishers: the calf (4 references, 3 publishers), gastrocnemius (4, 4: StatPearls, Kenhub, TeachMeAnatomy, one study), soleus (4, 3), tibialis anterior (5, 4), fibularis (7, 5), tibialis posterior (5, 5).",
+   "None. Every function claim cites four or more references from at least three publishers: the calf (4 references, 3 publishers), gastrocnemius (4, 4: StatPearls, Kenhub, TeachMeAnatomy, one study), soleus (6, 5), tibialis anterior (6, 5), fibularis (7, 5), tibialis posterior (5, 5).",
    "Sentences inside function claims that rest on one reference: lower_leg.triceps_surae.function, 'the most important plantar flexors by leverage' and the changing direction of its leverage below the ankle (elsevier.ankle_moment_arms), and the inversion contribution (statpearls.gastrocnemius); lower_leg.gastrocnemius.function, the stimulation study (elsevier.gastrocnemius_knee_flexor); lower_leg.soleus.function, the knee-bent sentence (kenhub.soleus_video, a video transcript; worded as what is 'described', with the measured change on lower_leg.soleus.selectivity.1 and lower_leg.gastrocnemius.selectivity.1) and the cross-section sentence (pmid.1403308); lower_leg.tibialis_anterior.function, the measured leverage (elsevier.ankle_moment_arms); lower_leg.fibularis.function, 'weak' (radiopaedia.fibularis_longus) and 'eversion alone for the brevis' (teachmeanatomy.lateral_compartment_leg), each said as one reference's; lower_leg.tibialis_posterior.function, the arch-holding sentence (biomedcentral.tibialis_posterior_review; StatPearls also says the insertions help support the medial arch).",
-   "Non-function claims resting on one source: lower_leg.triceps_surae.variation.1 (biologists.triceps_surae_force_sharing). Every selectivity claim cites three studies; every other variation claim two or three sources."
+   "Non-function claims resting on one source: lower_leg.triceps_surae.variation.1 (biologists.triceps_surae_force_sharing). Every selectivity claim cites three studies; every other variation claim two or three sources.",
+   "Second review: lower_leg.soleus.function's knee-bent description still rests on one reference (kenhub.soleus_video) and is attributed to it; the measured sentence after it cites pmid.22190157 and biologists.knee_position_plantarflexion. lower_leg.tibialis_anterior.function's leverage sentence now cites two cadaver studies (elsevier.ankle_moment_arms, pmid.7951975). lower_leg.triceps_surae.variation.1 remains single-source (re-searched, SR11)."
   ],
   "unconfirmedBibliographicDetails": [
    "StatPearls: the calf article's Bookshelf id (NBK459362) was reported, not opened; the tibialis posterior, fibularis longus and brevis and posterior-compartment articles were seen on statpearls.com without a Bookshelf id; the fibularis brevis title is a repository record's; the tibialis anterior title follows the series' naming. Authors and update dates mostly not shown.",
    "pmid.22190157 (Hébert-Losier 2012): co-authors beyond the first not shown.",
-   "pmid.1403308 (Fukunaga 1992): page range 928-934 or 926-934; author order disputed by one repository; DOI not shown.",
+   "pmid.1403308 (Fukunaga 1992): page range 928-934 or 926-934; author order disputed by one repository; DOI not shown. Second review: PubMed shows 928-934.",
    "biologists.knee_position_plantarflexion (Kovács 2024) and biologists.triceps_surae_force_sharing (Crouzier 2018): PubMed ids not shown.",
-   "elsevier.ankle_moment_arms (Klein 1996) and elsevier.gastrocnemius_knee_flexor (Li 2002): PubMed ids not shown; Li's DOI not shown.",
+   "elsevier.ankle_moment_arms (Klein 1996) and elsevier.gastrocnemius_knee_flexor (Li 2002): PubMed ids not shown; Li's DOI not shown. Second review: Klein's co-author is spelled Mattys (confirmed, SR15).",
    "lww.heel_raise_foot_position (Riemann 2011): PubMed id not shown (a guessed 21311349 was not confirmed).",
    "minerva.heel_raise_leg_rotation: authors, year, DOI and the publisher not shown (a Nova Southeastern repository record; Gazzetta Medica Italiana vol. 180).",
    "mtprehab.heel_raise_leg_press (Pereira 2017): full author list not shown; the results excerpt was cut off.",
    "biomedcentral.tibialis_posterior_review (Semple 2009): PubMed id 19691828 supplied in a query and said by the summary to match; not seen on a PubMed page.",
-   "rsna.peroneus_quartus (Radiology 1997): title and authors not shown; the title is descriptive.",
+   "rsna.peroneus_quartus (Cheung and colleagues, Radiology 1997;202(3):745-750): title confirmed by the second review (SR12); full author list and PubMed id not shown.",
    "springer.gastrocnemius_tertius (Triantafyllou 2025): journal inferred from the DOI prefix.",
    "keimyung.gastrocnemius_heads: title, authors and journal not shown; the title is descriptive.",
    "grays.surface_lower_extremity: a third-party transcription of the 1918 Gray's Anatomy on Wordnik; the Bartleby edition was not seen.",
-   "Kenhub videos (gastrocnemius, soleus): transcripts seen through summaries; not watched."
+   "Kenhub videos (gastrocnemius, soleus): transcripts seen through summaries; not watched.",
+   "pmid.7951975 (Foot Ankle Int 1994;15(7):386-395), added by the second review: authors not shown in its results."
   ],
   "disagreementsAndWording": [
-   "Straight-knee versus bent-knee calf work. The three studies agree in direction and differ in size: in maximal static efforts the gastrocnemius's activity fell with knee flexion and the soleus's did not change (pmid.7498381); in heel raises at 45 degrees the shift was small, about the same size in both directions, and the authors doubted it mattered (pmid.22190157); at 90 degrees in concentric efforts inner-head activity and force were about a third lower, and the soleus rose only early in slower movements (biologists.knee_position_plantarflexion). The claims say what each measured, on both nodes, and say that this supports describing knee angle, not a fixed split of credit. Kenhub's video states the textbook position (with the knee bent the soleus becomes the main plantar flexor); it is cited on the soleus's function claim, with the measured nuance on the selectivity claims.",
+   "Straight-knee versus bent-knee calf work. The three studies agree in direction and differ in size: in static efforts at matched levels the gastrocnemius's activity fell with knee flexion and the soleus's did not change (pmid.7498381); in heel raises at 45 degrees the shift was small, about the same size in both directions, and the authors doubted it mattered (pmid.22190157); at 90 degrees in concentric efforts inner-head activity and force were about a third lower, and the soleus rose in the first half of slower movements (biologists.knee_position_plantarflexion). The claims say what each measured, on both nodes, and say that this supports describing knee angle, not a fixed split of credit. Kenhub's video states the textbook position (with the knee bent the soleus becomes the main plantar flexor); it is cited on the soleus's function claim, with the measured nuance on the selectivity claims.",
    "Studies not cited on the knee-angle claims: Signorile et al. 2002 (J Strength Cond Res 16(3):433-439; Q10) reported, per a truncated catalogue abstract, lower soleus activity with the knee straight than bent and no difference between the outer gastrocnemius head and the soleus at any angle; the excerpt was cut off and its methods not seen, so it is not cited. A KoreaScience study of 20 people (gastrocnemius activity changed from 30 degrees of knee flexion, the soleus did not; Q14, Q16) had no title, authors or year in the results, so it is not cited. Both point the same way as the cited studies. Arampatzis et al. 2006 (Q13) attributed the fall in gastrocnemius activity at strongly bent knees to the force-length state of all three muscles; not cited, since its journal was not shown.",
    "Turning the toes in or out (gastrocnemius heads): one study found a clear difference between heads (lww.heel_raise_foot_position), two smaller ones found no effect (mtprehab.heel_raise_leg_press, minerva.heel_raise_leg_rotation); the claim says the question is unsettled and the atlas counts one gastrocnemius.",
    "Tibialis anterior and inversion: StatPearls calls it primarily responsible for dorsiflexion and inversion and a primary inverter with the tibialis posterior; Kenhub calls it the main dorsiflexor that also inverts; a cadaver moment-arm study gave it about a fifth of the tibialis posterior's inversion leverage, everting in some specimens. The claim states the disagreement; the node action is assist on the measured evidence.",
    "Fibularis and plantar flexion: named for both muscles by Kenhub and StatPearls; 'weak' for the longus by Radiopaedia (a Radiopaedia case discussion, not cited, calls it a main action); TeachMeAnatomy lists eversion alone for the brevis; 'to a much lesser extent' than the triceps surae by moment arm. The claim says 'only a little' and names the disagreement; the node action is assist.",
    "Tibialis posterior and plantar flexion: StatPearls uses both 'primarily' and 'secondary'; Kenhub 'aids'; the moment-arm study 'to a much lesser extent'. The claim says it helps; the node action is assist.",
-   "The triceps surae and inversion: StatPearls credits a contribution to subtalar inversion; the moment-arm study found the calf's subtalar leverage reverses with foot position. Said in the calf's function claim and left out of the node actions.",
+   "The triceps surae and inversion: StatPearls credits a contribution to subtalar inversion; the moment-arm study found the calf's subtalar leverage reverses with foot position. Said in the calf's function claim and kept out of the node actions.",
    "Gastrocnemius head length: the Kenhub video and a 32-leg cadaver study (medial longer in 28) agree that the inner head is usually the longer and reaches lower; the same study found the outer muscle-tendon junction higher in 25 of 32 legs, consistent with that. The appearance claim says 'usually'.",
    "Soleus size: Radiopaedia calls the soleus 'much larger' than the gastrocnemius, while Kenhub calls the gastrocnemius 'the main bulk of the calf'. Both hold (the soleus is the larger by volume and cross-section, pmid.1403308; the gastrocnemius is the visible bulk). The appearance claims say the gastrocnemius forms the main bulk at the surface and the soleus adds thickness under it.",
-   "A StatPearls summary line said the plantaris is 'present in only a small share of people'. This looks like a misquote and is not used; the calf's caveat says only that some references count the plantaris in the group."
+   "A StatPearls summary line said the plantaris is 'present in only a small share of people'. This looks like a misquote and is not used; the calf's caveat says only that some references count the plantaris in the group.",
+   "Second review, soleus compensation at 90 degrees (SR3, SR4): Kovács et al. 2024 found no evidence that soleus activation made up for the medial gastrocnemius's lower activity; a later study of 17 men by some of the same authors (Ye et al., Physiology International 2025;112(3):369-379; seen through a repository listing and a summary, not cited) suggested the soleus may compensate at low speeds. The soleus selectivity claim now says neither.",
+   "Second review, tibialis anterior and inversion (SR15, SR16): a second cadaver study (pmid.7951975, 15 specimens) gave the tibialis anterior about three fifths of the tibialis posterior's inverter leverage, against about a fifth in Klein et al.; the claim now gives both, and the node action stays assist as a closer call.",
+   "Second review, foot position and the gastrocnemius heads (SR22, SR24, SR26): a further EMG study of 33 young adults (PubMed 28515978; title not shown, not cited) found toes turned out made the inner head more active and toes turned in made no difference between the heads; another, on IOS Press, matched the cited free-weight study's pattern. With the leg-press and seated studies finding no effect, 'unsettled' stands.",
+   "Second review, the soleus's outcrops (SR5, SR7): Gray's sentence begins 'At the same time', and the condition it refers to was not found; the soleus appearance claim and node text say the edges 'can' show, and the outward projection rests first on Kenhub's German article.",
+   "Second review, the soleus with the knee bent (SR14): independent results restating that the soleus becomes the main plantar flexor with the knee bent came only from exercise and coaching sites, one of which called the mechanism plausible but not firmly established; the soleus function claim attributes the statement to one anatomy reference and adds what two studies measured."
   ],
   "productQuestions": [
    "D1 (the gastrocnemius at the knee) needs a decision before the thigh's wave: where the knee.flexion row lives, and whether an assisting external is allowed.",
-   "No target muscle of the lower leg is prime for foot.inversion on the recorded evidence: the tibialis anterior is assist, and the only prime inverter is the tibialis posterior, an adjacent muscle whose rows do not drive suggestions. The page will therefore never name inversion as a missing main action. If it should, recording the tibialis anterior's inversion row as prime is a product choice, to be said as one (see that row's productNote).",
+   "No target muscle of the lower leg is prime for foot.inversion on the recorded evidence: the tibialis anterior is assist, and the only prime inverter is the tibialis posterior, an adjacent muscle whose rows do not drive suggestions. The page will therefore never name inversion as a missing main action. If it should, recording the tibialis anterior's inversion row as prime is a product choice, to be said as one (see that row's productNote). Second review: a second cadaver study gives the tibialis anterior about three fifths of the tibialis posterior's inward leverage (pmid.7951975), so assist is a closer call than first recorded; it stays assist, and the anatomy lane decides.",
    "The calf's force-sharing variation claim sits on the parent node, which is neither drawn nor selectable (§7.3). If the page never shows a parent's claims, the lane may move it to the gastrocnemius (its id would change to lower_leg.gastrocnemius.variation.2) or show it under 'How this is counted'.",
    "databaseMuscle for the fibularis node: 'fibularis_longus' is a candidate only; the canonical list has fibularis_longus and fibularis_brevis separately.",
    "Muscles not in §1.2 that the references place in this region: the plantaris (superficial posterior; some references count it in the triceps surae), the popliteus, flexor digitorum longus and flexor hallucis longus (deep posterior), and the other three muscles of the front of the shin, which also lift the foot (teachmeanatomy.anterior_compartment_leg counts four; by standard anatomy they are the extensor digitorum longus, extensor hallucis longus and fibularis tertius, names not taken from the cited excerpts). None is proposed as a node; the caveats on the calf and the tibialis anterior mention them in general terms."
@@ -2024,7 +2110,454 @@
    "lower_leg.tibialis_posterior 'deep': supported (statpearls.tibialis_posterior; teachmeanatomy.posterior_compartment_leg; kenhub.tibialis_posterior).",
    "lower_leg.triceps_surae (parent, layer '—'): its members span the surface and the middle layer."
   ],
+  "catalogKeys": [
+   "catalogMuscleKey follows the forearm, which sets it to the catalog key (forearms for the brachioradialis, whose body-map key is brachioradialis), and client/src/lib/recordMuscleKeys.ts catalogMuscleKeyFor, which folds body-map keys the catalog never tags: soleus to calves, peroneals to none. So the soleus's catalog key is calves and the fibularis node's is none; their §1.2 node keys (body-map keys) stay soleus and peroneals. The catalog tags only calves and tibialis in this region (§1.1).",
+   "For the integration lane: the hips dossier sets hips.tfl's catalogMuscleKey to tfl, while catalogMuscleKeyFor folds tfl to abductors; the regions should agree on one reading of the field."
+  ],
+  "laneRecheck": [
+   "On 20 Oct this lane re-read every claim against the excerpts it cites (the build checks only that each excerpt is verbatim in the log) and tightened seven wordings to what the excerpts say. This is the lane's own check, not the second automated review of §8.",
+   "lower_leg.triceps_surae.function: the cadaver study ranked the calf muscles with the long flexor of the big toe as the most important plantar flexors by leverage; the claim now names both.",
+   "lower_leg.gastrocnemius.selectivity.1 and lower_leg.soleus.selectivity.1: Cresswell et al. measured activity at matched efforts and force at maximal effort; 'in maximal efforts' was narrowed to each, and the source's qualification changed to match.",
+   "lower_leg.soleus.selectivity.1: 'Because the soleus does not cross the knee, studies compare it...' was a causal inference no excerpt states; now two plain sentences, with kenhub.soleus (Q51) cited for where it starts. 'Higher only early in the slower movements' lost 'only', which the excerpt does not say.",
+   "lower_leg.soleus.function: '12 adults' is now '12 healthy people', as the excerpt says ('12 healthy subjects').",
+   "lower_leg.tibialis_anterior.function: 'anatomy references call it a main inverter' rested on two articles of one publisher; now 'one anatomy reference'.",
+   "lower_leg.fibularis.variation.1: 'MRI studies of patients' held for the 1160-ankle study only; 'of patients' removed.",
+   "lower_leg.gastrocnemius caveat: 'how the work then splits with the soleus differs between people' tied the force-sharing study to bent-knee work, which it did not test; now 'also differs between people'.",
+   "lower_leg.soleus and lower_leg.fibularis: catalogMuscleKey corrected to the catalog key (calves; none), see catalogKeys."
+  ],
   "searchBudget": "67 logged searches (Q1 to Q67), Q1 to Q3 from the first attempt. Page fetches were not attempted (the proxy refuses them, as recorded for the forearm and the other regions).",
   "wikipedia": "Wikipedia, WikiMSK, Physiopedia, DocCheck Flexikon, Brookbush, LearnMuscles, coaching blogs and flashcard sites appeared in results and were read where shown; none is cited."
+ },
+ "secondReview": {
+  "date": "2026-10-19",
+  "runOn": "2026-10-20",
+  "dateNote": "Run on 20 Oct 2026 and dated 19 Oct 2026, the date fixed for this wave's review, as the lane's own review and retrieval dates are.",
+  "statement": "This is an automated second review, run by an agent with the same tools and limits as the lane: web search only, page fetches refused, and search results that are generated summaries and can misquote. It is not peer review, and it was not done by a clinician or an anatomist.",
+  "method": "Every reviewed claim was read sentence by sentence against the excerpts recorded in citations[]. Every selectivity and variation claim and every function claim was re-searched with the review's own queries (SR1 to SR26), plus three appearance claims; each query's excerpt below is copied word for word from the review's search output. Sources were checked for plausible keys, URLs, titles and evidence types and for honest notes; node fields and node actions were checked against §1.2 and the claims.",
+  "scope": "Applied directly to dossier.json and dossier.md. build_data.py, build_dossier.py, render_md.py and searchlog.md were not changed, so re-running the lane's build would undo this review. Citations whose queryNumber starts with SR rest on this record's queries, not on searchlog.md.",
+  "claimsReSearched": [
+   "lower_leg.fibularis.function",
+   "lower_leg.fibularis.variation.1",
+   "lower_leg.gastrocnemius.appearance",
+   "lower_leg.gastrocnemius.function",
+   "lower_leg.gastrocnemius.selectivity.1",
+   "lower_leg.gastrocnemius.selectivity.2",
+   "lower_leg.gastrocnemius.variation.1",
+   "lower_leg.soleus.appearance",
+   "lower_leg.soleus.function",
+   "lower_leg.soleus.selectivity.1",
+   "lower_leg.soleus.variation.1",
+   "lower_leg.tibialis_anterior.function",
+   "lower_leg.tibialis_posterior.function",
+   "lower_leg.triceps_surae.appearance",
+   "lower_leg.triceps_surae.function",
+   "lower_leg.triceps_surae.variation.1"
+  ],
+  "counts": {
+   "queries": 26,
+   "claimsReSearched": 16,
+   "functionClaimsReSearched": 6,
+   "selectivityClaimsReSearched": 3,
+   "variationClaimsReSearched": 4,
+   "claimsReworded": 11,
+   "claimsToDraft": 0,
+   "sourcesAdded": 1,
+   "citationsAdded": 5,
+   "changes": 20
+  },
+  "queries": [
+   {
+    "id": "SR1",
+    "query": "Cresswell Löscher Thorstensson 1995 gastrocnemius muscle length triceps surae torque EMG knee flexion abstract",
+    "claims": [
+     "lower_leg.gastrocnemius.selectivity.1",
+     "lower_leg.soleus.selectivity.1"
+    ],
+    "excerpt": "At matched levels of voluntary effort, gastrocnemius EMG RMS was lower with more knee flexion, while soleus RMS stayed roughly unchanged. ... The authors estimated that the gastrocnemius contributes at least 40% of total plantar flexor torque in the straight-leg position.",
+    "verdict": "agrees",
+    "note": "Same PubMed record (7498381), 10 men, matched-effort EMG and the at-least-40-per-cent estimate."
+   },
+   {
+    "id": "SR2",
+    "query": "Hébert-Losier 2012 heel raise 0 and 45 degrees knee flexion soleus gastrocnemius activity age Journal of Strength and Conditioning Research",
+    "claims": [
+     "lower_leg.gastrocnemius.selectivity.1",
+     "lower_leg.soleus.selectivity.1"
+    ],
+    "excerpt": "Soleus activity was about 4% higher at 45°, while gastrocnemius medialis and lateralis activity was about 5% lower. Age did not affect these results (p = 0.193). The authors concluded that the difference is small enough that it may not meaningfully change clinical outcomes.",
+    "verdict": "agrees",
+    "note": "Same PubMed record (22190157); 48 healthy adults in two age groups."
+   },
+   {
+    "id": "SR3",
+    "query": "Kovács Hortobágyi 2024 Biology Open knee flexed medial gastrocnemius soleus high-density EMG concentric plantarflexion compensation",
+    "claims": [
+     "lower_leg.gastrocnemius.selectivity.1",
+     "lower_leg.soleus.selectivity.1"
+    ],
+    "excerpt": "Knee-flexed plantarflexion produced torque about 31% lower than knee-extended, averaged across velocities ... Its overall EMG was about 35% lower in the knee-flexed condition ... In the first half of slower contractions, soleus EMG was 15% and 28% higher when the knee was flexed",
+    "verdict": "agrees",
+    "note": "Same article (PMC11708772, DOI 10.1242/bio.061810); 30 men; it also named a later study that reads the soleus differently (SR4)."
+   },
+   {
+    "id": "SR4",
+    "query": "Ye Kovács Hortobágyi 2025 Physiology International soleus compensate knee flexed plantarflexion angular velocity 17 males",
+    "claims": [
+     "lower_leg.soleus.selectivity.1"
+    ],
+    "excerpt": "Soleus showed significantly higher EMG activity during knee flexed plantarflexion at 30°∙s-1 (P = 0.0094) and 60°∙s-1 (P = 0.0142). ... The authors suggest that soleus may perform a compensatory EMG activity in knee flexed plantarflexions possibly to counteract the reduced contribution of gastrocnemius to ankle moment at low angular velocities.",
+    "verdict": "disagrees in part",
+    "note": "Ye et al., Physiology International 2025;112(3):369-379, 17 healthy men: suggests the soleus may make up for the gastrocnemius at low speeds, where Kovács et al. 2024 found no evidence that it did. Resolved in wording: the soleus selectivity claim no longer says whether the soleus compensates. Not cited (seen through a repository listing and a summary only)."
+   },
+   {
+    "id": "SR5",
+    "query": "Gray's Anatomy 1918 surface anatomy calf \"curved eminences\" soleus gastrocnemius stands on tiptoe",
+    "claims": [
+     "lower_leg.soleus.appearance"
+    ],
+    "excerpt": "At the same time the edges of Soleus can be seen forming, on either side of Gastrocnemius, curved eminences, of which the lateral is the longer. ... The \"stand on tiptoe\" line is a different source. It comes from Albert F. Blaisdell's *A Practical Physiology*, not Gray's",
+    "verdict": "agrees, with a gap",
+    "note": "The quoted Gray's sentence is the same, but it begins 'At the same time': it describes a condition set by the sentence before it, which neither search showed. Resolved in wording: the soleus's edges 'can' show; the outward projection itself rests on Kenhub's German article, which states it without a condition."
+   },
+   {
+    "id": "SR6",
+    "query": "Riemann Limbaugh 2011 heel raise toes pointed out in medial lateral gastrocnemius activation foot position EMG",
+    "claims": [
+     "lower_leg.gastrocnemius.selectivity.2"
+    ],
+    "excerpt": "The ER position prompted significantly greater MG activation than LG during both phases. ... The IR position elicited significantly greater LG activation than MG.",
+    "verdict": "agrees",
+    "note": "Same paper, J Strength Cond Res 2011;25(3):634-639; 20 resistance-trained subjects."
+   },
+   {
+    "id": "SR7",
+    "query": "Gray's Anatomy 1918 \"Surface Anatomy of the Lower Extremity\" \"prominent fleshy mass of the calf\" Gastrocnemius two heads \"in action\"",
+    "claims": [
+     "lower_leg.soleus.appearance",
+     "lower_leg.triceps_surae.appearance"
+    ],
+    "excerpt": "I didn't find the exact passage \"prominent fleshy mass of the calf\" or the \"in action\" wording in these results, so I can't confirm the text you're looking for.",
+    "verdict": "not found",
+    "note": "The sentence before 'At the same time' is still unseen; the condition stays unknown (see SR5)."
+   },
+   {
+    "id": "SR8",
+    "query": "gastrocnemius tertius third head prevalence cadaver study meta-analysis Triantafyllou Olewnik 2025",
+    "claims": [
+     "lower_leg.gastrocnemius.variation.1"
+    ],
+    "excerpt": "The third head was found in 10.96% (8/73 cases). Six of the eight had a proximal attachment from the posterior femur and fused with the lateral head. The other two fused with the medial head. ... it reports a pooled prevalence of 4.34% for the GT variant.",
+    "verdict": "agrees",
+    "note": "Same study (DOI 10.1007/s00276-025-03625-9, PMC11953154)."
+   },
+   {
+    "id": "SR9",
+    "query": "accessory soleus muscle prevalence MRI women men posteromedial mass ankle unilateral",
+    "claims": [
+     "lower_leg.soleus.variation.1"
+    ],
+    "excerpt": "In 154 ankle MRIs, the accessory soleus showed up in 11.6% of cases, with a rate of 7.8% in men and 15.6% in women. ... Its prevalence ranges from 0.7% to 5.5%, according to anatomical studies. ... one review says the muscle is usually unilateral, but has been described in bilateral cases.",
+    "verdict": "agrees",
+    "note": "Same Einstein (São Paulo) 2012 series; the anatomical range and one-sidedness agree with Radiopaedia."
+   },
+   {
+    "id": "SR10",
+    "query": "peroneus quartus prevalence MRI 1160 ankles men women peroneus brevis tear Diagnostics 2025",
+    "claims": [
+     "lower_leg.fibularis.variation.1"
+    ],
+    "excerpt": "The authors identified the peroneus quartus in 123 of 1160 ankles, a prevalence of 10.6%. ... Detection was higher in men, at 12.7%, than in women, at 9.2% (p = 0.018). ... The muscle's presence was linked to peroneus brevis pathology, especially tendinitis and longitudinal tears",
+    "verdict": "agrees",
+    "note": "Same study (DOI 10.3390/diagnostics15182329); the same result also gave the older 136-ankle series' 10 per cent."
+   },
+   {
+    "id": "SR11",
+    "query": "Crouzier Hug 2018 Journal of Experimental Biology triceps surae force-sharing strategies individual variability gastrocnemius medialis lateralis soleus PCSA EMG",
+    "claims": [
+     "lower_leg.triceps_surae.variation.1"
+    ],
+    "excerpt": "Twenty volunteers did isometric plantarflexions while EMG estimated activation of the gastrocnemius medialis (GM), gastrocnemius lateralis (GL) and soleus (SOL). ... An imbalance of force between the three heads was observed, the magnitude of which varied greatly between participants.",
+    "verdict": "agrees",
+    "note": "Same paper (DOI 10.1242/jeb.187260); the claim stays single-source and is worded as one study's finding."
+   },
+   {
+    "id": "SR12",
+    "query": "Cheung Rosenberg 1997 Radiology peroneus quartus muscle MR imaging features prevalence 136 ankles",
+    "claims": [
+     "lower_leg.fibularis.variation.1"
+    ],
+    "excerpt": "The 1997 Radiology paper by Cheung et al. is titled \"Peroneus quartus muscle: MR imaging features\" (Radiology 202(3):745-750). ... The authors found the muscle in 14 of the 136 ankles, about 10%.",
+    "verdict": "agrees",
+    "note": "Confirms the title the lane could only describe, the first author and the pages."
+   },
+   {
+    "id": "SR13",
+    "query": "Li Landin Grodesky Myers 2002 function of gastrocnemius as a knee flexor at selected knee and ankle angles electrical stimulation results",
+    "claims": [
+     "lower_leg.gastrocnemius.function"
+    ],
+    "excerpt": "the flexion moment was greatest with the knee joint straight (180°) across all ankle joint angles. ... little knee flexion moment was observed at knee angles of 90° and 75°.",
+    "verdict": "agrees",
+    "note": "J Electromyogr Kinesiol 2002;12(5):385-390; knee angle 180 is straight, so 90 is a 90-degree bend, as the claim says."
+   },
+   {
+    "id": "SR14",
+    "query": "soleus primary plantar flexor when knee is flexed gastrocnemius active insufficiency anatomy StatPearls",
+    "claims": [
+     "lower_leg.soleus.function"
+    ],
+    "excerpt": "I didn't find a StatPearls article that addresses this specific point. ... on sarcomere length argues that active insufficiency in the gastrocnemius is plausible but not firmly established.",
+    "verdict": "weak support",
+    "note": "Only exercise and coaching sites restated that the soleus becomes the main plantar flexor with the knee bent; none is citable. Resolved in wording: the soleus function claim attributes the statement to one anatomy reference and adds what two studies measured."
+   },
+   {
+    "id": "SR15",
+    "query": "Klein Mattijs Rooze 1996 moment arm talocrural subtalar tibialis anterior inversion moment arm small tibialis posterior peronei in vitro",
+    "claims": [
+     "lower_leg.tibialis_anterior.function",
+     "lower_leg.tibialis_posterior.function",
+     "lower_leg.triceps_surae.function",
+     "lower_leg.fibularis.function"
+    ],
+    "excerpt": "The paper you're describing is Klein, Mattys & Rooze (1996), not \"Mattijs.\" ... Tibialis posterior exhibited the most important inversion moment arm (-19.1 mm), whereas tibialis anterior had a very low one (-3.8 mm). For some specimens this muscle was found to have an eversion moment arm. ... Triceps surae had an inversion moment arm in eversion and an eversion one in inversion. ... A secondary review gives the specimen count as 9, not 10.",
+    "verdict": "agrees, and names a disagreeing study",
+    "note": "Confirms the lane's spelling 'Mattys' and every number cited; points to a 1994 in vitro study with a different ranking for the tibialis anterior (SR16)."
+   },
+   {
+    "id": "SR16",
+    "query": "Hintermann Nigg Sommer 1994 \"Foot movement and tendon excursion: an in vitro study\" Foot Ankle International invertor moment arms tibialis anterior 0.59",
+    "claims": [
+     "lower_leg.tibialis_anterior.function"
+    ],
+    "excerpt": "The study used a lower leg-holding device with 6 degrees of freedom on 15 fresh foot-leg specimens. ... The tibialis anterior value is 0.59, listed alongside flexor digitorum longus (0.75), flexor hallucis longus (0.62), and soleus (0.24). The peroneal tendons were negative, at -0.82 for peroneus longus and -0.85 for peroneus brevis, so they act as evertors.",
+    "verdict": "disagrees in part",
+    "note": "A second cadaver study (PubMed 7951975, Foot Ankle Int 1994;15(7):386-395) gave the tibialis anterior about three fifths of the tibialis posterior's inverter leverage, not about a fifth. Resolved in wording: the claim now gives both studies; added as source pmid.7951975. Authors were not shown in the results."
+   },
+   {
+    "id": "SR17",
+    "query": "tibialis anterior inversion subtalar joint role secondary inverter dorsiflexed position EMG tibialis posterior",
+    "claims": [
+     "lower_leg.tibialis_anterior.function",
+     "lower_leg.tibialis_posterior.function"
+    ],
+    "excerpt": "Standard references list it as a dorsiflexor that also inverts the foot at the subtalar joint. ... It is generally regarded as the main inverter.",
+    "verdict": "agrees",
+    "note": "Inversion listed for the tibialis anterior; the tibialis posterior as the main inverter. Supports assist for the tibialis anterior and prime for the tibialis posterior."
+   },
+   {
+    "id": "SR18",
+    "query": "tibialis posterior dynamic stabiliser medial longitudinal arch walking Semple Murley Woodburn Turner 2009 review",
+    "claims": [
+     "lower_leg.tibialis_posterior.function"
+    ],
+    "excerpt": "via multiple insertion points into the tarsal bones it acts as the primary dynamic stabiliser of the rearfoot and medial longitudinal arch (MLA).",
+    "verdict": "agrees",
+    "note": "Same review (DOI 10.1186/1757-1146-2-24)."
+   },
+   {
+    "id": "SR19",
+    "query": "fibularis longus brevis plantar flexion contribution weak eversion main action lateral compartment anatomy",
+    "claims": [
+     "lower_leg.fibularis.function"
+    ],
+    "excerpt": "the lateral compartment muscles support eversion and that they can also assist in plantar flexion, but this is quite weak. ... Kenhub's longus article describes its main function as producing both plantar flexion and eversion.",
+    "verdict": "agrees",
+    "note": "Eversion the main action and plantar flexion weak, with Kenhub weighting the two more evenly, as the claim already says. Wikipedia appeared and was not used."
+   },
+   {
+    "id": "SR20",
+    "query": "Fukunaga Roy Shellock Hodgson Edgerton 1992 physiological cross-sectional area human leg muscles magnetic resonance imaging J Orthop Res 10 926",
+    "claims": [
+     "lower_leg.soleus.function"
+    ],
+    "excerpt": "PubMed lists it as J Orthop Res. 1992 Nov;10(6):928-34, while a Springer Medicine reference list gives 1992;10(6):926–34. ... The soleus had a mean PCSA of about 230 cm², much larger than the medial gastrocnemius (68 cm²) and lateral gastrocnemius (28 cm²).",
+    "verdict": "agrees",
+    "note": "Same numbers; the page range and author order remain unsettled between records."
+   },
+   {
+    "id": "SR21",
+    "query": "StatPearls \"Anatomy, Bony Pelvis and Lower Limb, Calf\" NBK459362 OR \"Gastrocnemius Muscle\" NBK532946 OR \"Tibialis Anterior Muscle\" NBK513304",
+    "claims": [
+     "lower_leg.triceps_surae.function",
+     "lower_leg.tibialis_anterior.function"
+    ],
+    "excerpt": "The search returned StatPearls material for the calf and tibialis anterior, but nothing for the gastrocnemius article (NBK532946) and I couldn't confirm the NBK IDs for the other two. ... A StatPearls article titled \"Anatomy, Bony Pelvis and Lower Limb: Tibialis Anterior Muscles\" (updated 8/28/2023 ...) was found. The muscle is primarily responsible for dorsiflexion and inversion of the foot.",
+    "verdict": "content agrees; ids unconfirmed",
+    "note": "The Bookshelf ids stay as the lane recorded them (seen as addresses in its results), flagged unconfirmed; the statpearls.com title is plural."
+   },
+   {
+    "id": "SR22",
+    "query": "foot position toes in toes out calf raise medial lateral gastrocnemius EMG study Cibulka 2017 OR Nunes OR Marcori results",
+    "claims": [
+     "lower_leg.gastrocnemius.selectivity.2"
+    ],
+    "excerpt": "Post hoc tests showed differences between MG and LG in toe-out position but not in the toe-in for both test positions.",
+    "verdict": "mixed; supports 'unsettled'",
+    "note": "A further EMG study (PubMed 28515978, 33 young adults) found toes out favoured the inner head and toes in made no difference. Growth studies and coaching articles in the same results were not used."
+   },
+   {
+    "id": "SR23",
+    "query": "medial head of gastrocnemius larger longer extends more distally than lateral head anatomy",
+    "claims": [
+     "lower_leg.gastrocnemius.appearance"
+    ],
+    "excerpt": "A cadaveric morphometry study found the medial head longer (about 23 cm versus 20.5 cm) and wider (about 5.5 cm versus 4.2 cm) than the lateral head. ... the fleshy muscle fibers of the medial head extend lower than those of the lateral head",
+    "verdict": "agrees",
+    "note": "Also Elsevier: a 'slightly larger' medial head; the claim's 'usually longer and reaches further down' holds."
+   },
+   {
+    "id": "SR24",
+    "query": "PubMed 28515978 effect of foot position medial lateral gastrocnemius activation toe-out toe-in standing heel raise prone knee flexion 33 young adults",
+    "claims": [
+     "lower_leg.gastrocnemius.selectivity.2"
+    ],
+    "excerpt": "The authors reported that with toe-out, the MG was more active than LG in standing and prone; no difference was noted between MG and LG in toe-in for either.",
+    "verdict": "mixed; supports 'unsettled'",
+    "note": "Title and authors not shown, so not cited; recorded in the disagreements."
+   },
+   {
+    "id": "SR25",
+    "query": "soleus antigravity postural muscle standing upright sway activity anatomy reference",
+    "claims": [
+     "lower_leg.soleus.function"
+    ],
+    "excerpt": "This is counteracted by a continuous state of plantar flexion produced mainly by the soleus when standing. ... Collapse is prevented by the activity of the soleus and gastrocnemius muscles.",
+    "verdict": "agrees",
+    "note": "Kenhub and a physiology magazine; 'helps hold the body upright in standing' stands."
+   },
+   {
+    "id": "SR26",
+    "query": "Cibulka \"Variation in medial and lateral gastrocnemius muscle activity with foot position\" International Journal of Sports Physical Therapy 2017",
+    "claims": [
+     "lower_leg.gastrocnemius.selectivity.2"
+    ],
+    "excerpt": "I couldn't find the Cibulka 2017 *International Journal of Sports Physical Therapy* paper itself in these results, so I can't confirm its title, design, or findings. ... This study reported that the outward-facing position gave higher medial head activity, while the inward-facing position gave higher lateral head activity, which matches the Riemann pattern",
+    "verdict": "mixed; supports 'unsettled'",
+    "note": "The title of PubMed 28515978 stays unconfirmed; a study on IOS Press matched Riemann's pattern."
+   }
+  ],
+  "changes": [
+   {
+    "what": "lower_leg.triceps_surae.function: 'on the back of the heel' became 'which attaches to the heel bone'.",
+    "why": "No excerpt cited on this claim says 'back'; StatPearls says the tendon inserts into the calcaneus.",
+    "evidence": "statpearls.gastrocnemius (Q5): 'inserts into the calcaneus via the calcaneal tendon'."
+   },
+   {
+    "what": "lower_leg.triceps_surae.appearance and the calf's shape note: 'Which muscle shapes which part of that outline cannot be read from the surface' replaced by a sentence about what the sources give.",
+    "why": "No excerpt says the split cannot be read from the surface, and Gray's says the soleus's edges can be seen; the sentence asserted more than the sources.",
+    "evidence": "grays.surface_lower_extremity (Q34); kenhub.gastrocnemius (Q8); statpearls.calf (Q4)."
+   },
+   {
+    "what": "lower_leg.triceps_surae.variation.1: worded as one study's finding ('in one study', 'in that task') and as force, not work.",
+    "why": "A single study of isometric efforts in 20 people; 'no single split of calf work applies to everyone' generalised beyond its task. Re-searched: agrees.",
+    "evidence": "biologists.triceps_surae_force_sharing (Q54); SR11."
+   },
+   {
+    "what": "lower_leg.gastrocnemius.selectivity.1: the opening general statement became 'Three studies measured how bending the knee changes...'.",
+    "why": "The region note asks for the straight-knee versus bent-knee difference to be said as what was measured; the opening sentence stated a conclusion before the measurements. The measured sentences after it were checked and kept. Re-searched: all three agree.",
+    "evidence": "pmid.7498381 (Q20); pmid.22190157 (Q12, Q21); biologists.knee_position_plantarflexion (Q19, Q22); SR1, SR2, SR3."
+   },
+   {
+    "what": "lower_leg.gastrocnemius.appearance and its shape note: 'the main bulk of the calf' attributed to its source beside Radiopaedia's 'much larger soleus'; 'rounded' removed; 'may make the inner side of the calf look fuller and lower' became 'its muscle may reach lower on the inner side of the calf'.",
+    "why": "The cited excerpts disagree on bulk (Kenhub against Radiopaedia) and the claim took one side; no excerpt describes a rounded outline or a fuller look. Re-searched: the inner head is the longer and reaches lower.",
+    "evidence": "kenhub.gastrocnemius (Q8); radiopaedia.gastrocnemius (Q41); keimyung.gastrocnemius_heads (Q64); SR23."
+   },
+   {
+    "what": "lower_leg.soleus.function: 'starts on the backs of the shin bone and the fibula' became 'starts on the shin bone and the fibula just below the knee'; the knee-bent sentence is attributed to 'one anatomy reference' with its own word 'a primary' (not 'the main'); a sentence of what two studies measured was added, citing pmid.22190157 and biologists.knee_position_plantarflexion.",
+    "why": "Kenhub's origin includes the medial border of the tibia, not only its back; the video transcript says 'a primary plantarflexor'; the region note asks for the knee-angle difference to be said as what was measured, and independent results found the textbook statement restated only by coaching sites, one of which called the mechanism not firmly established.",
+    "evidence": "kenhub.soleus (Q7, Q51); kenhub.soleus_video (Q40); pmid.22190157 (Q12, Q21); biologists.knee_position_plantarflexion (Q19, Q22); SR14, SR25, SR20."
+   },
+   {
+    "what": "lower_leg.soleus.selectivity.1: 'at every knee angle tested' removed; the sentence that the authors found no sign of compensation removed; 'less of the work comes from the gastrocnemius' became 'bending the knee lowered gastrocnemius activity, by amounts that differed between studies'.",
+    "why": "The excerpt says the soleus stayed unchanged with increased knee flexion, not at each angle; a later study by some of the same authors (17 men) suggested the soleus may compensate at low speeds, so the compensation question is not settled and is no longer claimed; EMG measures activity, not a share of work.",
+    "evidence": "pmid.7498381 (Q20); biologists.knee_position_plantarflexion (Q22); SR3, SR4."
+   },
+   {
+    "what": "lower_leg.soleus.appearance, the soleus's location and shape note: the edges 'show' became 'can show'; the outward projection is said first, from Kenhub's German article; 'the outer one the longer' is attributed to the 1918 text.",
+    "why": "Gray's sentence starts 'At the same time', a condition set by a sentence neither search found, so 'its edges show' unconditionally said more than the excerpt.",
+    "evidence": "grays.surface_lower_extremity (Q34); kenhub.soleus_de (Q35); SR5, SR7."
+   },
+   {
+    "what": "lower_leg.tibialis_anterior.function: the leverage sentence now gives two cadaver studies (about three fifths and about a fifth of the tibialis posterior's); new source pmid.7951975.",
+    "why": "The lane cited one moment-arm study as 'the one measurement found'; an independent search found a second (15 specimens) that gives the tibialis anterior about three fifths of the tibialis posterior's inverter leverage. The disagreement is now said in the claim.",
+    "evidence": "elsevier.ankle_moment_arms (Q46); pmid.7951975 (SR16); SR15, SR17."
+   },
+   {
+    "what": "lower_leg.tibialis_posterior.function: 'a lesser share in pointing the foot' became 'less leverage for pointing the foot'.",
+    "why": "The cadaver study measured leverage (moment arms), not a share of the work; the dossier's own limits say leverage is not force.",
+    "evidence": "elsevier.ankle_moment_arms (Q57); SR15."
+   },
+   {
+    "what": "lower_leg.fibularis.appearance and the fibularis shape note: 'the outer side of the shin' and 'between the front and the back of the shin' became 'lower leg'.",
+    "why": "The fibularis muscles lie along the fibula on the outer side of the leg, not on the shin (the tibia), which the claim's own sources place elsewhere.",
+    "evidence": "kenhub.fibularis_longus (Q47); teachmeanatomy.lateral_compartment_leg (Q30)."
+   },
+   {
+    "what": "lower_leg.gastrocnemius whatItDoes: 'its pull is greatest when the knee is straight' became 'it gives less to pointing the foot when the knee is bent'.",
+    "why": "'Its pull' read as the pull on the foot, but the cited stimulation study measured the pull on the knee; the plantar-flexion change is what the selectivity claim measured.",
+    "evidence": "elsevier.gastrocnemius_knee_flexor (Q38); pmid.7498381 (Q20); biologists.knee_position_plantarflexion (Q22)."
+   },
+   {
+    "what": "lower_leg.soleus caveat: 'no calf exercise is known to work the soleus alone' removed; 'the gastrocnemius still works then' became 'in the studies cited the gastrocnemius was still active then'.",
+    "why": "No cited excerpt says that no exercise isolates the soleus (Elsevier's note is about testing it, not training); the still-active point is what the cited studies measured.",
+    "evidence": "pmid.22190157 (Q21); biologists.knee_position_plantarflexion (Q22); elsevier.soleus (Q35)."
+   },
+   {
+    "what": "lower_leg.tibialis_posterior whatItDoes: 'It is the main muscle actively holding up the inner arch' became 'It helps hold up the inner arch of the foot, especially as you walk'.",
+    "why": "The claim says it is 'described as' the main muscle (one review); the node text stated it as fact. The new wording rests on two sources.",
+    "evidence": "statpearls.tibialis_posterior (Q25); biomedcentral.tibialis_posterior_review (Q65); SR18."
+   },
+   {
+    "what": "Node action lower_leg.tibialis_anterior foot.inversion: evidence now names both cadaver studies; role kept assist, flagged as a closer call for the anatomy lane.",
+    "why": "The row's evidence said 'the one measurement found'; a second study gives the muscle about three fifths of the tibialis posterior's inverter leverage. Both measured less than the tibialis posterior, and Kenhub frames inversion as secondary, so assist remains defensible.",
+    "evidence": "pmid.7951975 (SR16); elsevier.ankle_moment_arms (Q46); kenhub.tibialis_anterior (Q44); SR17."
+   },
+   {
+    "what": "Node action lower_leg.soleus ankle.plantar_flexion: 'the main plantar flexor with the knee bent' became 'described as a primary plantar flexor with the knee bent'.",
+    "why": "The video transcript says 'a primary plantarflexor'.",
+    "evidence": "kenhub.soleus_video (Q40)."
+   },
+   {
+    "what": "Two citation excerpts trimmed: Kenhub's gastrocnemius excerpt no longer carries a word the copy rules refuse (the name for its key-facts layout), and the knee-flexor study's excerpt no longer names the dynamometer's maker.",
+    "why": "The copy rules (10-multi-region.md §8; forearmAnatomy.test.ts) refuse that word and product names; both excerpts were cut to fragments that are still word for word in searchlog.md, joined with ' ... '.",
+    "evidence": "searchlog.md Q8 and Q38."
+   },
+   {
+    "what": "Source biologists.triceps_surae_force_sharing: the data repository's name removed from the note.",
+    "why": "The task's copy rules remove vendor and product names; the note keeps that the data are public.",
+    "evidence": "SR11."
+   },
+   {
+    "what": "Source rsna.peroneus_quartus: title set to the confirmed 'Peroneus quartus muscle: MR imaging features'; first author and pages added to the note.",
+    "why": "The lane could only describe the title; an independent search showed it.",
+    "evidence": "SR12."
+   },
+   {
+    "what": "Source notes for elsevier.ankle_moment_arms, elsevier.gastrocnemius_knee_flexor, pmid.1403308, statpearls.tibialis_anterior, statpearls.calf, grays.surface_lower_extremity and kenhub.soleus_video: what the second review's searches confirmed or could not confirm is added.",
+    "why": "The evidence standard asks each note to say what the search showed and what could not be confirmed.",
+    "evidence": "SR12, SR13, SR14, SR15, SR20, SR21, SR5, SR7."
+   }
+  ],
+  "stillToDecide": [
+   "D1: where the gastrocnemius's knee-flexion row lives, and whether the thigh may list an assisting external (the externals rule names a prime mover). Confirmed in code: compose.ts:120 adds a region's own node actions unfiltered and regionContent.test.ts:633 refuses an action outside the page's actions.",
+   "The tibialis anterior's inversion row: assist on the evidence, now a closer call with the second cadaver study; whether any target muscle should be prime for inversion is a product choice, to be said as one.",
+   "Where the parent's force-sharing variation claim is shown, since the calf is neither drawn nor selectable.",
+   "databaseMuscle for the fibularis node (fibularis_longus is a candidate only).",
+   "Whether the soleus compensates at a bent knee is not claimed; if the lane wants it said, both studies (Kovács 2024, Ye 2025) need citing with what each measured.",
+   "Human review: a clinician or anatomist should read the claims before the lower leg's version is published, since publishing freezes them."
+  ],
+  "claimsReworded": [
+   "lower_leg.fibularis.appearance",
+   "lower_leg.gastrocnemius.appearance",
+   "lower_leg.gastrocnemius.selectivity.1",
+   "lower_leg.soleus.appearance",
+   "lower_leg.soleus.function",
+   "lower_leg.soleus.selectivity.1",
+   "lower_leg.tibialis_anterior.function",
+   "lower_leg.tibialis_posterior.function",
+   "lower_leg.triceps_surae.appearance",
+   "lower_leg.triceps_surae.function",
+   "lower_leg.triceps_surae.variation.1"
+  ]
  }
 }

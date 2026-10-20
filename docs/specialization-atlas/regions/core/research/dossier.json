@@ -22,12 +22,12 @@
    "selectivity:reviewed": 8,
    "variation:reviewed": 2
   },
-  "sources": 27,
+  "sources": 30,
   "sourcesByType": {
-   "anatomy": 21,
+   "anatomy": 24,
    "emg": 6
   },
-  "citations": 41,
+  "citations": 44,
   "nodeActions": 11,
   "nodeActionsByRole": {
    "prime": 10,
@@ -38,7 +38,11 @@
   "deviations": 5,
   "contradictionsOfSection12": 0,
   "searchesRun": 50,
-  "searchesRefused": 0
+  "searchesRefused": 0,
+  "secondReviewSearches": 27,
+  "secondReviewSearchesRefused": 0,
+  "secondReviewClaimsToDraft": 0,
+  "secondReviewChanges": 24
  },
  "nodes": [
   {
@@ -60,7 +64,7 @@
    "border": null,
    "databaseMuscle": "rectus_abdominis",
    "databaseMuscleNote": "Seen in the recorded database fixture (server/fixtures/liveMuscleAggregation.ts: 'Rectus abdominis', muscle_group 'abdominals') and in shared/capabilityRank.ts; the database lane confirms.",
-   "location": "Front of the abdomen, at the surface: one strap on each side of the midline, from the pubic bone up to the lower end of the breastbone and the lower ribs.",
+   "location": "Front of the abdomen, at the surface: one strap on each side of the midline, from the pubic bone up to the lower end of the breastbone and the cartilages of the fifth to seventh ribs.",
    "whatItDoes": "Bends your trunk forward, curling the ribs toward the pelvis, mostly through the lower back. It also helps press on the contents of the abdomen.",
    "shapeNote": "May contribute to the front contour of the abdomen. Tendinous bands divide it into segments that can show beneath the skin when body fat is low; the number of bands, and so of segments, differs between people. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
    "caveats": [
@@ -92,9 +96,9 @@
    "databaseMuscleNote": "Seen in the recorded database fixture (server/fixtures/liveMuscleAggregation.ts: 'External oblique', muscle_group 'obliques') and in shared/capabilityRank.ts.",
    "location": "Side and front of the abdomen, at the surface: from the outer faces of the lower eight ribs to the crest of the hip bone, the pubic bone and the midline band.",
    "whatItDoes": "With both sides working, bends your trunk forward and presses on the abdomen. With one side working, bends the trunk to that side and turns it toward the other side.",
-   "shapeNote": "May contribute to the contour of the side of the waist and, where its slips interlock with the serratus anterior, of the lower ribs at the side of the chest. Toward the front it becomes a thin tendon sheet, which is not muscle bulk. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "shapeNote": "May contribute to the contour of the side of the waist and, where its slips interlock with the serratus anterior, of the lower ribs at the side of the chest. Toward the front it becomes a tendon sheet, which is not muscle bulk. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
    "caveats": [
-    "Twisting work loads it together with the internal oblique of the other side, which turns the trunk the same way; how the work splits between them is not known."
+    "Twisting work loads it together with the internal oblique of the other side, which turns the trunk the same way; this page does not split that work between them."
    ],
    "surfaceVisibility": "partial",
    "surfaceVisibilityReason": "The most superficial of the flat muscles (kenhub.external_abdominal_oblique, teachmeanatomy.abdominal_wall, imaios.external_abdominal_oblique), but only its side part is muscle: toward the front it becomes an aponeurosis that covers the rectus abdominis (kenhub.external_abdominal_oblique). 'partial' is an inference from that.",
@@ -123,7 +127,7 @@
    "whatItDoes": "With both sides working, bends your trunk forward and presses on the abdomen. With one side working, bends the trunk to that side and turns it toward the same side. It also helps you breathe out hard.",
    "shapeNote": "Lies under the external oblique, so it has little separately visible contour; it may add to the general thickness of the side of the waist. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
    "caveats": [
-    "Twisting work loads it together with the external oblique of the other side, which turns the trunk the same way; how the work splits between them is not known."
+    "Twisting work loads it together with the external oblique of the other side, which turns the trunk the same way; this page does not split that work between them."
    ],
    "surfaceVisibility": "not_distinct",
    "surfaceVisibilityReason": "Covered by the external oblique at the front and side (teachmeanatomy.abdominal_wall, statpearls.anterolateral_abdominal_wall, kenhub.external_abdominal_oblique). At the back of the waist it forms the floor of the small inferior lumbar triangle (radiopaedia.inferior_lumbar_triangle), covered there only by skin and fat, but no source describes a contour there; 'not_distinct' is an inference.",
@@ -148,7 +152,7 @@
    "border": null,
    "databaseMuscle": "transversus_abdominis",
    "databaseMuscleNote": "Listed in shared/capabilityRank.ts (transversus_abdominis: 'abdominals'); not seen in the recorded database fixture. The database lane checks it.",
-   "location": "Abdominal wall, deepest layer: wraps around the abdomen from the lower ribs, the fascia of the lower back and the hip bone to the midline band at the front.",
+   "location": "Abdominal wall, deepest layer: wraps around the abdomen from the cartilages of the lower ribs, the fascia of the lower back and the hip bone to the midline band at the front.",
    "whatItDoes": "Presses on the abdomen and raises the pressure inside it. It also helps you breathe out hard.",
    "shapeNote": "The deepest layer of the abdominal wall, under both obliques, so it has little or no contour of its own. Visible shape depends on the muscles over it, body fat and individual anatomy.",
    "caveats": [
@@ -194,8 +198,19 @@
      "sourceId": "elsevier.rectus_abdominis",
      "locator": "Quick Facts: Action",
      "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "statpearls.rectus_sheath",
+     "locator": "Structure and Function (lumbar flexion; section heading not shown)",
+     "qualification": "Seen through a web-search summary, not the full text; cited for the lumbar flexion only; found by the second review."
+    },
+    {
+     "sourceId": "teachmeanatomy.rectus_abdominis",
+     "locator": "Actions",
+     "qualification": "Seen through a web-search summary, not the full text; says it assists the flat muscles in compressing the abdominal contents; found by the second review."
     }
-   ]
+   ],
+   "secondReviewNote": "Every sentence checked against the excerpts: supported. Re-searched (R1, R17): StatPearls and TeachMeAnatomy agree; two sources added."
   },
   {
    "id": "core.rectus_abdominis.appearance",
@@ -220,7 +235,8 @@
      "locator": "Origin and insertion; rectus sheath; tendinous intersections",
      "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source. Seen through the imaios.cn mirror."
     }
-   ]
+   ],
+   "secondReviewNote": "Every sentence checked against the excerpts: supported. Re-searched (R25, R14): attachments, the three bands and the sheath agree."
   },
   {
    "id": "core.rectus_abdominis.selectivity.1",
@@ -228,7 +244,7 @@
    "ownerRegionId": "core",
    "nodeId": "core.rectus_abdominis",
    "kind": "selectivity",
-   "statement": "Whether exercises can work the upper and lower parts of the rectus abdominis differently is unsettled. In a surface-EMG study of 33 people, curl-ups produced more activity in the upper part among those who performed them correctly, and a backward pelvic-tilt exercise worked the lower part harder than curl-ups only in one subgroup; those who performed the exercises poorly activated both parts about equally. In a pilot study of 8 adults doing 6 abdominal exercises, the upper and lower parts showed no significant difference in any exercise. Neither study measured growth.",
+   "statement": "Studies disagree on whether exercises can work the upper and lower parts of the rectus abdominis differently. In a surface-EMG study of 33 people, curl-ups produced more activity in the upper part among those who performed them correctly, and a backward pelvic-tilt exercise worked the lower part harder than curl-ups only in one subgroup; those who performed the exercises poorly activated both parts about equally. In a pilot study of 8 adults doing 6 abdominal exercises, the upper and lower parts showed no significant difference in any exercise. Neither study measured growth.",
    "basis": "experimental",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -245,7 +261,8 @@
      "locator": "Abstract: Results",
      "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. A pilot study of eight adults; abstract only."
     }
-   ]
+   ],
+   "secondReviewNote": "First sentence reworded ('Studies disagree' for 'is unsettled'). Re-searched (R9, R7, R5, R6): both studies' results confirmed; two further studies found, one on each side (not cited)."
   },
   {
    "id": "core.rectus_abdominis.selectivity.2",
@@ -265,7 +282,8 @@
      "locator": "Abstract: Results and Conclusions",
      "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Surface electrodes; abstract only, seen through a search summary."
     }
-   ]
+   ],
+   "secondReviewNote": "Every sentence checked against the excerpts: supported. Re-searched (R8, R19): agrees, including the authors' conclusion on muscles outside the abdomen."
   },
   {
    "id": "core.rectus_abdominis.selectivity.3",
@@ -273,7 +291,7 @@
    "ownerRegionId": "core",
    "nodeId": "core.rectus_abdominis",
    "kind": "selectivity",
-   "statement": "In an EMG study of 12 adults holding five plank variations, planks performed on instability devices produced more activity in the rectus abdominis, the external oblique and the lower-back extensors than an ordinary stable plank. This is short-term muscle activity during a hold, not growth.",
+   "statement": "In an EMG study of 12 adults holding five plank variations, planks performed on instability devices produced more activity in the surface trunk muscles recorded (the rectus abdominis, the external oblique and the lower-back extensors) than an ordinary stable plank. This is short-term muscle activity during a hold, not growth.",
    "basis": "experimental",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -281,11 +299,12 @@
    "draftReason": null,
    "sources": [
     {
-     "sourceId": "bisp.plank_instability_emg",
+     "sourceId": "lww.plank_instability_emg",
      "locator": "Abstract: Purpose, Methods and Results",
-     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Twelve healthy adults; abstract only, seen through a search summary; the devices are not named in the excerpt."
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Twelve healthy adults; abstract only, seen through a search summary; the devices are not named in the excerpt. The excerpts state the result for the superficial muscles as a group; results for each muscle and each device were not seen."
     }
-   ]
+   ],
+   "secondReviewNote": "Reworded to the abstract's level of detail (the surface muscles as a group). Re-searched (R13, R10): no per-muscle result was found by either review."
   },
   {
    "id": "core.rectus_abdominis.variation.1",
@@ -301,7 +320,7 @@
    "draftReason": null,
    "sources": [
     {
-     "sourceId": "jcdr.tendinous_intersections",
+     "sourceId": "pmid.26266107",
      "locator": "Abstract: Results",
      "qualification": "A cadaver series from one population, described by its authors as small; abstract only."
     },
@@ -310,7 +329,8 @@
      "locator": "Abstract: Results",
      "qualification": "A cadaver series of 82 muscles; abstract only, seen through a repository record."
     }
-   ]
+   ],
+   "secondReviewNote": "Every sentence checked against the excerpts: supported. Re-searched (R14): agrees; other populations differ in how often four bands occur (not cited)."
   },
   {
    "id": "core.rectus_abdominis.variation.2",
@@ -330,7 +350,8 @@
      "locator": "Abstract: Methods, Results and Conclusions",
      "qualification": "Women in early pregnancy at one hospital, measured once by ultrasound; abstract only."
     }
-   ]
+   ],
+   "secondReviewNote": "Every sentence checked against the excerpts: supported. Re-searched (R15): agrees. Whether the back-pain sentence belongs on a training page is left to the anatomy lane."
   },
   {
    "id": "core.external_oblique.function",
@@ -365,7 +386,8 @@
      "locator": "Function",
      "qualification": "Seen through the imaios.cn mirror; lists rotation only, with no direction."
     }
-   ]
+   ],
+   "secondReviewNote": "Every sentence checked against the excerpts: supported. Re-searched (R2, R18): agrees, including bending to the same side (an untied line, not cited)."
   },
   {
    "id": "core.external_oblique.appearance",
@@ -373,7 +395,7 @@
    "ownerRegionId": "core",
    "nodeId": "core.external_oblique",
    "kind": "appearance",
-   "statement": "The external oblique is the largest and most superficial of the three flat muscles at the side of the abdomen, lying under the skin and over the internal oblique. It starts from the outer surfaces of the fifth to twelfth ribs, where its slips interlock with those of the serratus anterior and the latissimus dorsi in a zig-zag line on the side of the chest, and its fibres end in a tendon sheet attached to the midline band at the front, the pubic bone and the front of the crest of the hip bone. It may therefore contribute to the contour of the side of the waist and of the lower ribs. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "statement": "The external oblique is the largest and most superficial of the three flat muscles at the side of the abdomen, lying under the skin and over the internal oblique. It starts from the outer surfaces of the fifth to twelfth ribs, where its slips interlock with those of the serratus anterior and the latissimus dorsi in a zig-zag line on the side of the chest. Its lowest fibres reach the front part of the crest of the hip bone, and the rest become a tendon sheet attached to the pubic bone and along the midline band at the front. It may therefore contribute to the contour of the side of the waist and of the lower ribs. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
    "basis": "anatomical_inference",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -394,8 +416,14 @@
      "sourceId": "imaios.external_abdominal_oblique",
      "locator": "Overview",
      "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source. Seen through the imaios.cn mirror."
+    },
+    {
+     "sourceId": "radiopaedia.external_oblique",
+     "locator": "Insertion",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source. Seen through a web-search summary, not the full text; found by the second review."
     }
-   ]
+   ],
+   "secondReviewNote": "Attachment sentence corrected (R2: Radiopaedia); the rest supported."
   },
   {
    "id": "core.external_oblique.selectivity.1",
@@ -415,7 +443,8 @@
      "locator": "Abstract: Results",
      "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Surface electrodes; abstract only, seen through a search summary."
     }
-   ]
+   ],
+   "secondReviewNote": "Every sentence checked against the excerpts: supported. Re-searched (R8): agrees."
   },
   {
    "id": "core.external_oblique.selectivity.2",
@@ -423,7 +452,7 @@
    "ownerRegionId": "core",
    "nodeId": "core.external_oblique",
    "kind": "selectivity",
-   "statement": "In an EMG study of 12 adults holding five plank variations, planks performed on instability devices produced more activity in the external oblique, the rectus abdominis and the lower-back extensors than an ordinary stable plank. This is short-term muscle activity during a hold, not growth.",
+   "statement": "In an EMG study of 12 adults holding five plank variations, planks performed on instability devices produced more activity in the surface trunk muscles recorded (the external oblique, the rectus abdominis and the lower-back extensors) than an ordinary stable plank. This is short-term muscle activity during a hold, not growth.",
    "basis": "experimental",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -431,11 +460,12 @@
    "draftReason": null,
    "sources": [
     {
-     "sourceId": "bisp.plank_instability_emg",
+     "sourceId": "lww.plank_instability_emg",
      "locator": "Abstract: Purpose, Methods and Results",
-     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Twelve healthy adults; abstract only, seen through a search summary; the devices are not named in the excerpt."
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Twelve healthy adults; abstract only, seen through a search summary; the devices are not named in the excerpt. The excerpts state the result for the superficial muscles as a group; results for each muscle and each device were not seen."
     }
-   ]
+   ],
+   "secondReviewNote": "Reworded to the abstract's level of detail (the surface muscles as a group). Re-searched (R13, R10)."
   },
   {
    "id": "core.internal_oblique.function",
@@ -475,7 +505,8 @@
      "locator": "Action",
      "qualification": "Seen through web-search excerpts of the page; does not say to which side it turns the trunk."
     }
-   ]
+   ],
+   "secondReviewNote": "Every sentence checked against the excerpts: supported. Re-searched (R3): agrees."
   },
   {
    "id": "core.internal_oblique.appearance",
@@ -510,7 +541,8 @@
      "locator": "Boundaries and floor",
      "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
     }
-   ]
+   ],
+   "secondReviewNote": "Every sentence checked against the excerpts: supported. Not re-searched separately; its layer order was seen again in R21."
   },
   {
    "id": "core.internal_oblique.selectivity.1",
@@ -526,11 +558,12 @@
    "draftReason": null,
    "sources": [
     {
-     "sourceId": "thieme.bracing_hollowing_iap",
+     "sourceId": "pmid.26509386",
      "locator": "Abstract: Methods, Results and Conclusions",
      "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Seven young men; surface electrodes; abstract only."
     }
-   ]
+   ],
+   "secondReviewNote": "Every sentence checked against the excerpts: supported. Re-searched (R11): agrees with every figure."
   },
   {
    "id": "core.internal_oblique.selectivity.2",
@@ -550,7 +583,8 @@
      "locator": "Abstract: Results",
      "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Surface electrodes; abstract only, seen through a search summary."
     }
-   ]
+   ],
+   "secondReviewNote": "Every sentence checked against the excerpts: supported. Re-searched (R8): agrees."
   },
   {
    "id": "core.transversus_abdominis.function",
@@ -558,7 +592,7 @@
    "ownerRegionId": "core",
    "nodeId": "core.transversus_abdominis",
    "kind": "function",
-   "statement": "The transversus abdominis compresses the abdomen. Its fibres run across the abdomen to the midline band, and when they contract they raise the pressure inside the abdomen; it also helps with forced breathing out. Anatomy references disagree on whether it helps turn the trunk: one lists turning toward the same side, while others list compression only.",
+   "statement": "The transversus abdominis compresses the abdomen. Its fibres run across the abdomen to the midline band, and when they contract they raise the pressure inside the abdomen; through that compression it also helps with forced breathing out. Anatomy references disagree on whether it helps turn the trunk: one lists turning toward the same side, while the others list no movement of the trunk.",
    "basis": "established_anatomy",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -585,7 +619,8 @@
      "locator": "Quick Facts: Action",
      "qualification": "Seen through web-search excerpts; lists compression only."
     }
-   ]
+   ],
+   "secondReviewNote": "Two clauses reworded (breathing out through compression; the others list no trunk movement). Re-searched (R4, R22, R23)."
   },
   {
    "id": "core.transversus_abdominis.appearance",
@@ -615,7 +650,8 @@
      "locator": "Overview",
      "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
     }
-   ]
+   ],
+   "secondReviewNote": "Every sentence checked against the excerpts: supported. Re-searched (R23): agrees."
   },
   {
    "id": "core.transversus_abdominis.selectivity.1",
@@ -623,7 +659,7 @@
    "ownerRegionId": "core",
    "nodeId": "core.transversus_abdominis",
    "kind": "selectivity",
-   "statement": "In a fine-wire EMG study of six people turning the trunk while seated, the transversus abdominis was active throughout the turn, and its upper part was recruited in the opposite pattern to its middle and lower parts depending on the direction of the turn. The rectus abdominis showed no difference between directions. This shows the muscle works during twisting; it does not show how much it turns the trunk, and it is not a measure of growth.",
+   "statement": "In a fine-wire EMG study of six people who turned the pelvis against a fixed chest while seated, the transversus abdominis was consistently active during the turns, and its upper part was recruited in the opposite pattern to its middle and lower parts depending on the direction of the turn. The rectus abdominis showed no difference between directions. This shows the muscle works during twisting; it does not show how much it turns the trunk, and it is not a measure of growth.",
    "basis": "experimental",
    "reviewStatus": "reviewed",
    "reviewedAt": "2026-10-19",
@@ -631,11 +667,12 @@
    "draftReason": null,
    "sources": [
     {
-     "sourceId": "springer.transversus_rotation_emg",
+     "sourceId": "pmid.15940481",
      "locator": "Abstract: Methods, Results and Conclusions",
-     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Six people; fine-wire electrodes; abstract only."
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Six people; fine-wire electrodes; abstract only. The rectus abdominis sentence rests on the first review's excerpt; the second review's PubMed snippet stopped before it."
     }
-   ]
+   ],
+   "secondReviewNote": "Task and timing reworded to the PubMed abstract (R12). The rectus abdominis sentence rests on the first review's excerpt only."
   }
  ],
  "nodeActions": [
@@ -655,7 +692,7 @@
    "claimId": "core.rectus_abdominis.function",
    "claimKey": "core:core.rectus_abdominis.function",
    "status": "reviewed",
-   "basisInClaim": "MeSH (Gray's): 'assists in compressing the abdominal contents'. Kenhub, IMAIOS and Elsevier list compression without qualification; assist follows the one reference that grades it, and the flat muscles are the ones every reference names as compressors. The lane may weigh it; recorded as evidence, not as a product choice."
+   "basisInClaim": "MeSH (Gray's): 'assists in compressing the abdominal contents'. Kenhub, IMAIOS and Elsevier list compression without qualification; assist follows the one reference that grades it, and the flat muscles are the ones every reference names as compressors. The lane may weigh it; recorded as evidence, not as a product choice. Second review (R1): TeachMeAnatomy says it 'assists the flat muscles in compressing the abdominal viscera', a second reference that grades it as assisting; assist kept."
   },
   {
    "nodeId": "core.external_oblique",
@@ -664,7 +701,7 @@
    "claimId": "core.external_oblique.function",
    "claimKey": "core:core.external_oblique.function",
    "status": "reviewed",
-   "basisInClaim": "Bilateral action in Kenhub and Elsevier ('flexes ... trunk'), stated without qualification. TeachMeAnatomy and IMAIOS name only rotation; none calls it an assisting flexor."
+   "basisInClaim": "Bilateral action in Kenhub and Elsevier ('flexes ... trunk'), stated without qualification. TeachMeAnatomy and IMAIOS name only rotation; none calls it an assisting flexor. Second review (R18): Kenhub has it flex the trunk 'together with internal abdominal oblique and rectus abdominis', without grading; no reference found calls the obliques main or assisting flexors. Prime stands on the evidence; open for the anatomy lane."
   },
   {
    "nodeId": "core.external_oblique",
@@ -700,7 +737,7 @@
    "claimId": "core.internal_oblique.function",
    "claimKey": "core:core.internal_oblique.function",
    "status": "reviewed",
-   "basisInClaim": "Kenhub, Elsevier, IMAIOS ('flexes the trunk bilaterally') and Radiopaedia ('flexing ... the trunk')."
+   "basisInClaim": "Kenhub, Elsevier, IMAIOS ('flexes the trunk bilaterally') and Radiopaedia ('flexing ... the trunk'). Second review (R18): as for the external oblique; prime stands on the evidence, open for the anatomy lane."
   },
   {
    "nodeId": "core.internal_oblique",
@@ -736,7 +773,7 @@
    "claimId": "core.transversus_abdominis.function",
    "claimKey": "core:core.transversus_abdominis.function",
    "status": "reviewed",
-   "basisInClaim": "Its main, and in three of four references its only, listed action (Radiopaedia, IMAIOS, Elsevier; Kenhub adds rotation)."
+   "basisInClaim": "Its main, and in three of four references its only, listed action (Radiopaedia, IMAIOS, Elsevier; Kenhub adds rotation). Second review: Radiopaedia's canonical article (R23) gives compression as its action; intramuscular studies (R16, not cited) relate its activity closely to the pressure. Prime kept."
   }
  ],
  "actions": [
@@ -770,7 +807,7 @@
    "label": "Abdominal compression",
    "plainDescription": "Draws the belly wall in and tightens it, raising the pressure inside the abdomen.",
    "new": false,
-   "note": "Already in joints.ts (added at wave 0); wording unchanged, as instructed. Observation for the platform, not a change: in thieme.bracing_hollowing_iap, drawing the belly in (hollowing) raised the pressure inside the abdomen far less than bracing; 'Draws the belly wall in' describes hollowing more than bracing. A wording such as 'Tightens the belly wall, raising the pressure inside the abdomen, as when bracing' would match the evidence better. Left to the owner of the shared library."
+   "note": "Already in joints.ts (added at wave 0); wording unchanged, as instructed. Observation for the platform, not a change: in pmid.26509386, drawing the belly in (hollowing) raised the pressure inside the abdomen far less than bracing; 'Draws the belly wall in' describes hollowing more than bracing. A wording such as 'Tightens the belly wall, raising the pressure inside the abdomen, as when bracing' would match the evidence better. Left to the owner of the shared library. Second review: the observation holds (R11 confirms the 116.4 against 9.9 mmHg rise in bracing and in hollowing). On 'new': the action is new to region content with the core, but it already exists in the shared library (shared/specialization/actions/joints.ts, line 37, from wave 0), so this lane adds no action."
   }
  ],
  "sources": [
@@ -781,16 +818,25 @@
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q2, Q4, Q9): the Bookshelf id NBK525975 was matched to this title by the search summary, with 'Last Update: July 24, 2023'. Seen: the anatomical core of the wall is four paired, symmetrical muscles; the layers from superficial to deep are the external oblique, the internal oblique and the transversus abdominis, then the transversalis fascia and parietal peritoneum. The muscle-by-muscle actions were not shown, so this article is cited for layer order only. Authors not shown; full text not opened (statpearls.com copies 32104 and 32105 are behind registration). Q2 also attributed to 'the NCBI Bookshelf source' that the transversus abdominis arises from the lower six costal cartilages, the lumbar vertebrae, the iliac crests and the iliopsoas fascia with transverse fibres, but that line was not tied to this id (NBK551649 was also listed), so it is not cited."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q2, Q4, Q9): the Bookshelf id NBK525975 was matched to this title by the search summary, with 'Last Update: July 24, 2023'. Seen: the anatomical core of the wall is four paired, symmetrical muscles; the layers from superficial to deep are the external oblique, the internal oblique and the transversus abdominis, then the transversalis fascia and parietal peritoneum. The muscle-by-muscle actions were not shown, so this article is cited for layer order only. Authors not shown; full text not opened (statpearls.com copies 32104 and 32105 are behind registration). Q2 also attributed to 'the NCBI Bookshelf source' that the transversus abdominis arises from the lower six costal cartilages, the lumbar vertebrae, the iliac crests and the iliopsoas fascia with transverse fibres, but that line was not tied to this id (NBK551649 was also listed), so it is not cited. Second review (R21): the summary names the authors as Seeras, Qasawa, Ju and Prakash and repeats the update date; it adds that the wall aids forceful expiration and takes part in any activity that raises the pressure inside the abdomen (not cited by a claim). Authors as given by the summary, not seen on the page."
+  },
+  {
+   "key": "statpearls.rectus_sheath",
+   "url": "https://www.ncbi.nlm.nih.gov/books/NBK537153/",
+   "title": "StatPearls: Anatomy, Abdomen and Pelvis, Rectus Sheath",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-20",
+   "notes": "Found by the second review (R1, 20 Oct 2026; the result was shown at ncbi.nlm.nih.gov/sites/books/NBK537153/). The search summary tied one line to this article: contracting the rectus abdominis and pyramidalis flexes the lumbar spine. Nothing of the page itself was seen beyond the summary; authors, update date and section headings not shown, so the locator names the usual StatPearls section."
   },
   {
    "key": "nlm.mesh_rectus_abdominis",
-   "url": "https://profiles.rush.edu/display/28663",
-   "title": "Medical Subject Headings (MeSH) descriptor D017568, Rectus Abdominis: scope note (as shown on a university research-profiles page)",
+   "url": "https://meshb.nlm.nih.gov/record/ui?ui=D017568",
+   "title": "Medical Subject Headings (MeSH) descriptor D017568, Rectus Abdominis: scope note (National Library of Medicine)",
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q3, Q6). Several university research-profiles pages (Rush, UChicago, UMass, Houston) display the National Library of Medicine's MeSH descriptor 'Rectus Abdominis', D017568, tree number A02.633.567.050.800. Its scope note, attributed by the summary to Gray's Anatomy (30th American edition, p. 491), reads: 'It flexes the vertebral column, particularly the lumbar portion; it also tenses the anterior abdominal wall and assists in compressing the abdominal contents.' The NLM MeSH browser itself was not opened; the URL is one of the mirrors the search returned."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q3, Q6). Several university research-profiles pages (Rush, UChicago, UMass, Houston) display the National Library of Medicine's MeSH descriptor 'Rectus Abdominis', D017568, tree number A02.633.567.050.800. Its scope note, attributed by the summary to Gray's Anatomy (30th American edition, p. 491), reads: 'It flexes the vertebral column, particularly the lumbar portion; it also tenses the anterior abdominal wall and assists in compressing the abdominal contents.' The NLM MeSH browser itself was not opened; the URL is one of the mirrors the search returned. Second review (R17, 20 Oct 2026): the record itself was returned on the NLM MeSH browser (meshb.nlm.nih.gov, D017568, tree number A02.633.567.050.800, scope note credited to Gray's Anatomy, 30th American ed., p. 491); the URL and title now point there. That summary paraphrased the scope note rather than quoting it, so the verbatim wording cited is still the one seen on the university mirrors (profiles.rush.edu/display/28663 among them)."
   },
   {
    "key": "kenhub.rectus_abdominis",
@@ -802,13 +848,22 @@
    "notes": "Checked via web-search results on 19 Oct 2026 (Q5, Q42, Q49, Kenhub only). Function: trunk flexion, compression of the abdominal viscera, and expiration (Q5, tied to 'Kenhub's muscle page'). Location: a paired muscle running vertically either side of the linea alba on the front of the abdominal wall, from the pubic crest and symphysis to the xiphoid process and the cartilages of ribs 5-7; three tendinous intersections, at the xiphoid, the umbilicus and midway, sometimes four; 'In those with low body fat, it is clearly visible beneath the skin forming the six pack'. The location and visibility lines came in summaries that drew on several Kenhub pages (this page, 'Anterior abdominal muscles', 'Abdominal wall', 'Linea alba'); this page heads both result lists, and both wordings of the visibility line seen are Kenhub's, but the summary did not say which page carried which line. Pages undated in the results; innervation given as T6-T11 on one Kenhub page and T7-T11 on another (not used)."
   },
   {
+   "key": "teachmeanatomy.rectus_abdominis",
+   "url": "https://teachmeanatomy.info/encyclopaedia/r/rectus-abdominis/",
+   "title": "TeachMeAnatomy: Rectus Abdominis: Attachments, Actions",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-20",
+   "notes": "Found by the second review (R1, R25, 20 Oct 2026). The summaries: it assists the flat muscles in compressing the abdominal viscera, stabilises the pelvis during walking and depresses the ribs; its upper attachment is the xiphoid process and the cartilages of ribs 5-7. Its lines on the tendinous intersections and the sheath were not shown. Page title from the result title ('Rectus Abdominis - Attachments - Actions - TeachMeAnatomy')."
+  },
+  {
    "key": "kenhub.external_abdominal_oblique",
    "url": "https://www.kenhub.com/en/library/anatomy/external-abdominal-oblique-muscle",
    "title": "Kenhub: External abdominal oblique: Anatomy, innervation, function",
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q8, Q16, Q43). Function (key facts): bilateral contraction flexes the trunk and compresses the abdominal contents; unilateral contraction gives 'Trunk lateral flexion (ipsilateral), trunk rotation (contralateral)'. Location (Q43, result 1 = this page): arises from the outer surfaces of ribs 5-12, its origin fibres interdigitating with serratus anterior and latissimus dorsi in a zig-zag line on the side of the thorax; the largest and most superficial of the lateral abdominal muscles, beneath the skin and over the internal oblique; its fibres become an aponeurosis to the linea alba, pubic tubercle and anterior half of the iliac crest."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q8, Q16, Q43). Function (key facts): bilateral contraction flexes the trunk and compresses the abdominal contents; unilateral contraction gives 'Trunk lateral flexion (ipsilateral), trunk rotation (contralateral)'. Location (Q43, result 1 = this page): arises from the outer surfaces of ribs 5-12, its origin fibres interdigitating with serratus anterior and latissimus dorsi in a zig-zag line on the side of the thorax; the largest and most superficial of the lateral abdominal muscles, beneath the skin and over the internal oblique; its fibres become an aponeurosis to the linea alba, pubic tubercle and anterior half of the iliac crest. Second review (R18): a summary quotes the page: 'When contracting bilaterally, the muscle works together with internal abdominal oblique and rectus abdominis to flex the trunk anteriorly.' It does not grade the external oblique as a main or an assisting flexor."
   },
   {
    "key": "kenhub.internal_abdominal_oblique",
@@ -817,7 +872,7 @@
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q12, Kenhub only). The page's key facts list bilateral contraction as trunk flexion and compression of the abdominal organs, and unilateral contraction as ipsilateral lateral flexion and ipsilateral rotation; a second Kenhub overview (the lateral abdominal muscles) gives the same pattern and adds help with expiration. The summary flagged that lateral flexion appears on this page's key facts only."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q12, Kenhub only). The page's key facts list bilateral contraction as trunk flexion and compression of the abdominal organs, and unilateral contraction as ipsilateral lateral flexion and ipsilateral rotation; a second Kenhub overview (the lateral abdominal muscles) gives the same pattern and adds help with expiration. The summary flagged that lateral flexion appears on this page's key facts only. Second review (R3): the summary, drawing on Kenhub pages without tying each line, gives the insertion as the inferior borders of ribs 10-12, the linea alba and, through the conjoint tendon, the pubic crest and pectineal line, and unilateral contraction as bending and turning the trunk to the same side."
   },
   {
    "key": "kenhub.transversus_abdominis",
@@ -902,12 +957,12 @@
   },
   {
    "key": "radiopaedia.transversus_abdominis",
-   "url": "https://images.radiopaedia.org/articles/transverse-abdominis?lang=us",
-   "title": "Radiopaedia: Transverse abdominis",
+   "url": "https://radiopaedia.org/articles/transversus-abdominis-muscle",
+   "title": "Radiopaedia: Transversus abdominis muscle",
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q10, top hit, seen at an images.radiopaedia.org address): one of the flat muscles of the anterior abdominal wall, deep to the internal oblique; ends in the anterior aponeurosis, which blends with the linea alba; arises from the thoracolumbar fascia, iliac crest, lateral third of the inguinal ligament, 12th rib and cartilages of ribs 7-12; T7-L1; action, compressing the abdominal cavity, mainly maintaining abdominal tone and raising intra-abdominal pressure when it contracts."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q10, top hit, seen at an images.radiopaedia.org address): one of the flat muscles of the anterior abdominal wall, deep to the internal oblique; ends in the anterior aponeurosis, which blends with the linea alba; arises from the thoracolumbar fascia, iliac crest, lateral third of the inguinal ligament, 12th rib and cartilages of ribs 7-12; T7-L1; action, compressing the abdominal cavity, mainly maintaining abdominal tone and raising intra-abdominal pressure when it contracts. Second review (R23): the canonical article was returned at radiopaedia.org/articles/transversus-abdominis-muscle (rID 47186, last revised March 2022 per the summary): deep to the internal oblique, ending in the anterior aponeurosis that blends with the linea alba; action 'flat muscle which forms part of abdominal wall, compresses abdominal cavity'; T7-L1. The URL and title now point to it. Its line on raising intra-abdominal pressure was seen only in the first review's excerpt (Q10, at the images.radiopaedia.org address)."
   },
   {
    "key": "radiopaedia.internal_oblique",
@@ -916,7 +971,16 @@
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q13): listed actions are compression of abdominal content, forced expiration, and flexing and bending the trunk; it does not say which side's contraction produces rotation. The Radiopaedia external oblique page was not returned."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q13): listed actions are compression of abdominal content, forced expiration, and flexing and bending the trunk; it does not say which side's contraction produces rotation. The Radiopaedia external oblique page was not returned in the first review; the second review found it (radiopaedia.external_oblique)."
+  },
+  {
+   "key": "radiopaedia.external_oblique",
+   "url": "https://radiopaedia.org/articles/external-oblique-muscle-1",
+   "title": "Radiopaedia: External oblique muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-20",
+   "notes": "Found by the second review (R2, 20 Oct 2026; the result URL carried a case_id parameter, dropped here). The summary: the aponeurosis inserts along the whole length of the linea alba, extending onto the pubic crest and the pectineal line, while the lower fleshy fibres attach to the outer lip of the anterior two thirds of the iliac crest. Authors and revision not shown. The first review's note that Radiopaedia's external oblique page was not returned no longer holds."
   },
   {
    "key": "radiopaedia.inferior_lumbar_triangle",
@@ -948,56 +1012,56 @@
   {
    "key": "pmid.12930172",
    "url": "https://pubmed.ncbi.nlm.nih.gov/12930172/",
-   "title": "Electromyographic comparison of the upper and lower rectus abdominis during abdominal exercises. J Strength Cond Res 2003;17(3):475-83",
+   "title": "Clark, Holt, Sinyard. Electromyographic comparison of the upper and lower rectus abdominis during abdominal exercises. J Strength Cond Res 2003;17(3):475-83",
    "doi": "10.1519/1533-4287(2003)017<0475:ecotua>2.0.co;2",
    "evidenceType": "emg",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q30, Q33): PubMed abstract of a pilot study; eight healthy adults, six abdominal exercises in random order (including the curl-up, a curl-up on an exercise ball and leg lowering); no significant difference between upper and lower rectus abdominis EMG in any exercise. The search did not show the author list (the query named Clark, Holt and Sinyard; not confirmed). Abstract only."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q30, Q33): PubMed abstract of a pilot study; eight healthy adults, six abdominal exercises in random order (including the curl-up, a curl-up on an exercise ball and leg lowering); no significant difference between upper and lower rectus abdominis EMG in any exercise. The search did not show the author list (the query named Clark, Holt and Sinyard; not confirmed). Abstract only. Second review (R7): the journal's abstract page (journals.lww.com) and PubMed 12930172 were returned; the summary names the authors Clark, Holt and Sinyard (initials not shown), calls it a pilot study and gives the same result: no significant difference between the upper and lower rectus abdominis in any exercise. Activity did differ between exercises (the curl-up variants higher than the reverse curl-up, leg lowering and a ball roll-out). Two of the six exercises are named by brand in the abstract; copy does not name them."
   },
   {
    "key": "pmid.16649890",
-   "url": "https://doi.org/10.1093/ptj/86.5.656",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/16649890/",
    "title": "Escamilla RF, Babb E, DeWitt R, et al. Electromyographic analysis of traditional and nontraditional abdominal exercises: implications for rehabilitation and training. Phys Ther 2006;86(5):656-71",
    "doi": "10.1093/ptj/86.5.656",
    "evidenceType": "emg",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q28, Q31, Q46). The abstract was seen through a search summary beside a Sacramento State repository record (scholars.csus.edu): surface EMG of 21 healthy adults aged 23-43, normalised to maximum voluntary contractions, from the upper and lower rectus abdominis, external and internal obliques, rectus femoris, latissimus dorsi and lumbar paraspinals; upper and lower rectus abdominis, internal oblique and latissimus dorsi activity highest in roll-outs, pikes and knee-ups on a wheeled device, hanging knee-ups with straps and reverse crunches on a 30-degree incline; external oblique highest in the wheeled-device exercises and hanging knee-ups with straps; the same exercises most effective at activating extraneous muscles; lumbar paraspinal activity low and similar across exercises. The full list of exercises compared was not shown. The PMID 16649890 and the author list come from secondary citations (two blog posts and a magazine article), not from PubMed; the DOI was given by one of them and by the summary. Not to be confused with the same first author's 2006 JOSPT paper on commercial devices (PubMed 16494072). The wheeled device is named by its brand in the abstract; athlete copy does not name it."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q28, Q31, Q46). The abstract was seen through a search summary beside a Sacramento State repository record (scholars.csus.edu): surface EMG of 21 healthy adults aged 23-43, normalised to maximum voluntary contractions, from the upper and lower rectus abdominis, external and internal obliques, rectus femoris, latissimus dorsi and lumbar paraspinals; upper and lower rectus abdominis, internal oblique and latissimus dorsi activity highest in roll-outs, pikes and knee-ups on a wheeled device, hanging knee-ups with straps and reverse crunches on a 30-degree incline; external oblique highest in the wheeled-device exercises and hanging knee-ups with straps; the same exercises most effective at activating extraneous muscles; lumbar paraspinal activity low and similar across exercises. The full list of exercises compared was not shown. The PMID 16649890 and the author list come from secondary citations (two blog posts and a magazine article), not from PubMed; the DOI was given by one of them and by the summary. Not to be confused with the same first author's 2006 JOSPT paper on commercial devices (PubMed 16494072). The wheeled device is named by its brand in the abstract; athlete copy does not name it. Second review (R8, R19): PubMed 16649890 was returned under this title, so the PMID is now seen on PubMed (the first review had it from secondary citations) and the URL points there; the Oxford Academic abstract page (academic.oup.com/ptj/article-abstract/86/5/656/2857416) was also returned. The abstract lines agree: 21 healthy men and women aged 23-43; the highest activity as cited; lumbar paraspinal activity low and similar; the authors' conclusion that the same exercises were also the most effective in activating extraneous musculature; rectus femoris highest in the wheeled-device pike and knee-up, the inclined reverse crunch and the bent-knee sit-up. The author list beyond Escamilla is still from secondary citations. One summary attributed the abstract to JOSPT 36(2), which is the same first author's other 2006 paper (PubMed 16494072); the lines quoted match the Physical Therapy paper."
   },
   {
-   "key": "bisp.plank_instability_emg",
-   "url": "https://www.bisp-surf.de/Record/PU201501000974",
+   "key": "lww.plank_instability_emg",
+   "url": "https://journals.lww.com/nsca-jscr/fulltext/2014/11000/electromyographical_comparison_of_plank_variations.36.aspx",
    "title": "Snarr RL, Esco MR. Electromyographical comparison of plank variations performed with and without instability devices. J Strength Cond Res 2014;28(11):3298-3305",
    "doi": "10.1519/JSC.0000000000000521",
    "evidenceType": "emg",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q38, Q39): abstract seen through a summary beside the BISp sports-literature record and university repository listings. Twelve healthy adults (six men, six women), isometric holds of five plank variations in random order; EMG of the rectus abdominis, external oblique and erector spinae; planks on instability devices produced higher activity in these surface muscles than the stable plank; the authors advise caution for people with lower-back weakness because erector spinae activity rose. The devices themselves were not named in the abstract excerpt (a 2017 write-up the summary linked to the study mentions an exercise ball and a suspension device; not used). PMID not seen."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q38, Q39): abstract seen through a summary beside the BISp sports-literature record and university repository listings. Twelve healthy adults (six men, six women), isometric holds of five plank variations in random order; EMG of the rectus abdominis, external oblique and erector spinae; planks on instability devices produced higher activity in these surface muscles than the stable plank; the authors advise caution for people with lower-back weakness because erector spinae activity rose. The devices themselves were not named in the abstract excerpt (a 2017 write-up the summary linked to the study mentions an exercise ball and a suspension device; not used). PMID not seen. Second review (R10, R13): re-keyed from bisp.plank_instability_emg to lww.plank_instability_emg, since BISp is a sports-literature database, not the publisher, and the key form is <publisher>.<topic>; the journal's own page at journals.lww.com was returned and the URL now points there (the BISp record, www.bisp-surf.de/Record/PU201501000974, is where the first review saw the abstract). The summary confirms the authors, journal, pages and DOI, twelve healthy men and women, and the result that planks with instability devices increased EMG of the superficial musculature compared with stable planks. Results for each muscle and each device were not shown in either review; a later paper (R10) cites it for higher activation with an exercise ball and a suspension device. No PubMed entry was returned."
   },
   {
-   "key": "springer.transversus_rotation_emg",
-   "url": "https://www.springermedicine.com/differential-activity-of-regions-of-transversus-abdominis-during/21220578",
+   "key": "pmid.15940481",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/15940481/",
    "title": "Urquhart DM, Hodges PW. Differential activity of regions of transversus abdominis during trunk rotation. Eur Spine J 2005;14(4):393-400",
    "doi": "10.1007/s00586-004-0799-9",
    "evidenceType": "emg",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q35, Q45): abstract on Springer Medicine and the University of Queensland's publication listing. Six people with no history of spinal pain; fine-wire electrodes in the upper, middle and lower transversus abdominis and in the obliques, surface electrodes over the rectus abdominis; seated trunk rotation in both directions. The transversus abdominis was active throughout rotation, its upper fibres recruited in the opposite pattern to its middle and lower fibres; the rectus abdominis showed no directional difference. A later commentary in the same results reads it as activity in both directions, stronger when the chest turns toward the muscle's side, and notes the muscle's small moment arm for rotation. PMID not seen."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q35, Q45): abstract on Springer Medicine and the University of Queensland's publication listing. Six people with no history of spinal pain; fine-wire electrodes in the upper, middle and lower transversus abdominis and in the obliques, surface electrodes over the rectus abdominis; seated trunk rotation in both directions. The transversus abdominis was active throughout rotation, its upper fibres recruited in the opposite pattern to its middle and lower fibres; the rectus abdominis showed no directional difference. A later commentary in the same results reads it as activity in both directions, stronger when the chest turns toward the muscle's side, and notes the muscle's small moment arm for rotation. PMID not seen. Second review (R4, R12): PubMed 15940481 was returned for this title, so the source is now keyed by its PMID (it was springer.transversus_rotation_emg; the Springer Medicine page, www.springermedicine.com/differential-activity-of-regions-of-transversus-abdominis-during/21220578, is where the first review saw the abstract). The PubMed abstract says rotation was done 'in sitting by rotating the pelvis relative to a fixed thorax', that the transversus abdominis 'was consistently active during trunk rotation, with the recruitment patterns of the upper fascicles opposite to that of the middle and lower fascicles', and that the fine-wire electrodes were in one side of the abdominal wall. The snippet stopped before the rectus abdominis result, which rests on the first review's excerpt (Q35)."
   },
   {
-   "key": "thieme.bracing_hollowing_iap",
-   "url": "https://thieme-connect.de/products/ejournals/html/10.1055/s-0035-1559771",
+   "key": "pmid.26509386",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/26509386/",
    "title": "Tayashiki K, Takai Y, Maeo S, Kanehisa H. Intra-abdominal Pressure and Trunk Muscular Activities during Abdominal Bracing and Hollowing. Int J Sports Med 2016;37(2):134-143",
    "doi": "10.1055/s-0035-1559771",
    "evidenceType": "emg",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q26, Q44): abstract on Thieme Connect. Seven young adult men; pressure inside the abdomen measured with a rectal transducer, with surface EMG of the rectus abdominis, external oblique, internal oblique and erector spinae. The rise in pressure was far greater in bracing than in hollowing; at peak pressure activity was higher in bracing than hollowing and higher in the internal oblique than in the other three muscles; pressure and muscle activity were linearly related in both tasks, with a task-specific relationship. The transversus abdominis was not recorded. Abstract only; PMID not seen."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q26, Q44): abstract on Thieme Connect. Seven young adult men; pressure inside the abdomen measured with a rectal transducer, with surface EMG of the rectus abdominis, external oblique, internal oblique and erector spinae. The rise in pressure was far greater in bracing than in hollowing; at peak pressure activity was higher in bracing than hollowing and higher in the internal oblique than in the other three muscles; pressure and muscle activity were linearly related in both tasks, with a task-specific relationship. The transversus abdominis was not recorded. Abstract only; PMID not seen. Second review (R11): PubMed 26509386 and the Thieme abstract page were returned; now keyed by the PMID (it was thieme.bracing_hollowing_iap; the Thieme page, thieme-connect.de/products/ejournals/html/10.1055/s-0035-1559771, is where the first review saw the abstract). The summary agrees with every line cited: seven young adult men, a rectal pressure transducer, surface EMG of the four muscles, a rise of 116.4 against 9.9 mmHg, higher activity in bracing and in the internal oblique at peak pressure, and a task-specific linear relation."
   },
   {
-   "key": "jcdr.tendinous_intersections",
-   "url": "https://doaj.org/article/05b3de8c84ba42f39dba8c631e7fd750",
-   "title": "Anita et al. Tendinous intersections of the rectus abdominis in North Indian cadavers. J Clin Diagn Res, June 2015 (title as described by the search; exact title not shown)",
+   "key": "pmid.26266107",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/26266107/",
+   "title": "Variation in Tendinous Intersections of Rectus Abdominis Muscle in North Indian Population with Clinical Implications. J Clin Diagn Res 2015;9(6):AC10-AC12",
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q40): the DOAJ record of a June 2015 Journal of Clinical and Diagnostic Research article and its PDF on jcdr.net. In 54 cadavers, 52 had three tendinous intersections, one had four and one had five; the authors call the sample small. The exact title, full author list and DOI were not shown."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q40): the DOAJ record of a June 2015 Journal of Clinical and Diagnostic Research article and its PDF on jcdr.net. In 54 cadavers, 52 had three tendinous intersections, one had four and one had five; the authors call the sample small. The exact title, full author list and DOI were not shown. Second review (R14): the exact title was returned on DOAJ, on jcdr.net and on PubMed (26266107); now keyed by the PMID (it was jcdr.tendinous_intersections; the DOAJ record, doaj.org/article/05b3de8c84ba42f39dba8c631e7fd750, is where the first review saw it) and titled from those records. The 54-cadaver counts repeat. The author list is still not shown ('Anita et al.' was the first review's summary)."
   },
   {
    "key": "durham.tendinous_intersections",
@@ -1006,29 +1070,33 @@
    "doi": null,
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q1, Q40): a Durham University repository record titled 'the tendinous intersections of rectus abdominis muscle' by S. Meenakshi; the summary gave it as Meenakshi and Manjunath, J MGIMS, 2008. In 41 cadavers (82 recti) the number of intersections ranged from one to four, three being the most common, and one or two incomplete intersections were sometimes present below the umbilicus. Journal, year and second author not confirmed beyond the summary."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q1, Q40): a Durham University repository record titled 'the tendinous intersections of rectus abdominis muscle' by S. Meenakshi; the summary gave it as Meenakshi and Manjunath, J MGIMS, 2008. In 41 cadavers (82 recti) the number of intersections ranged from one to four, three being the most common, and one or two incomplete intersections were sometimes present below the umbilicus. Journal, year and second author not confirmed beyond the summary. Second review (R14): a ResearchGate listing (publication 279441146) carries the same title; the counts were not shown again."
   },
   {
    "key": "pmc.rectus_diastasis_finnish_women",
    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9012726/",
-   "title": "The prevalence and consequences of abdominal rectus muscle diastasis among Finnish women: an epidemiological cohort study",
+   "title": "Tuominen et al. The prevalence and consequences of abdominal rectus muscle diastasis among Finnish women: an epidemiological cohort study. Hernia 2022;26:599-608",
    "doi": "10.1007/s10029-021-02484-8",
    "evidenceType": "anatomy",
    "retrievedOn": "2026-10-19",
-   "notes": "Checked via web-search results on 19 Oct 2026 (Q41, Q48): abstract (PMC, Springer and Springer Medicine copies). Prospective cohort at Helsinki University Hospital; linea alba width measured by ultrasound at the early pregnancy scan in 933 women; mean width about 1.81 cm in women with no earlier pregnancy, about 2.36 cm after one and 2.55 cm after more, rising with the number of earlier pregnancies; severe diastasis (over 5 cm) rare; moderate diastasis not explaining back pain or disability at the population level. Authors not shown; the journal (Hernia) and the year 2021 are inferred from the DOI by the summary."
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q41, Q48): abstract (PMC, Springer and Springer Medicine copies). Prospective cohort at Helsinki University Hospital; linea alba width measured by ultrasound at the early pregnancy scan in 933 women; mean width about 1.81 cm in women with no earlier pregnancy, about 2.36 cm after one and 2.55 cm after more, rising with the number of earlier pregnancies; severe diastasis (over 5 cm) rare; moderate diastasis not explaining back pain or disability at the population level. Authors not shown; the journal (Hernia) and the year 2021 are inferred from the DOI by the summary. Second review (R15): the Springer and PMC pages were returned; the summary names the first author, Tuominen, and places the paper in Hernia 26:599-608 (2022; published online 2021, DOI 10.1007/s10029-021-02484-8). It repeats the methods and results cited and adds that symptoms were measured with the Oswestry Disability Index and RAND-36. The other authors were not shown."
   }
  ],
  "citations": [
   {
    "claimId": "core.rectus_abdominis.function",
    "sourceKey": "nlm.mesh_rectus_abdominis",
-   "query": "Q3: \"Anatomy, Abdomen and Pelvis, Rectus Abdominis\" StatPearls NCBI Bookshelf || Q6: Rectus abdominis MeSH descriptor \"flexes the vertebral column, particularly the lumbar portion\" tenses anterior abdominal wall",
+   "query": "Q3: \"Anatomy, Abdomen and Pelvis, Rectus Abdominis\" StatPearls NCBI Bookshelf || Q6: Rectus abdominis MeSH descriptor \"flexes the vertebral column, particularly the lumbar portion\" tenses anterior abdominal wall || R17: MeSH Rectus Abdominis D017568 scope note \"flexes the vertebral column\" NLM [allowed_domains: nlm.nih.gov, meshb.nlm.nih.gov, ncbi.nlm.nih.gov]",
    "queryRef": [
     "Q3",
-    "Q6"
+    "Q6",
+    "R17"
    ],
-   "excerpt": "The MeSH descriptor (drawn from Gray's Anatomy) notes the muscle flexes the lumbar spine, tenses the anterior abdominal wall, and helps compress abdominal contents. ... (It flexes the vertebral column, particularly the lumbar portion; it also tenses the anterior abdominal wall and assists in compressing the abdominal contents.) || The MeSH entry for Rectus Abdominis is descriptor D017568, with tree number A02.633.567.050.800 ... The scope note describes the muscle as a long, flat structure running along both sides of the abdomen. Its function is to bend the spine, mainly in the lower back, and to stiffen the front abdominal wall while helping compress the abdominal contents. The note attributes this wording to Gray's Anatomy (30th American edition, p. 491), and the same text appears on many mirror sites.",
-   "locator": "Scope note"
+   "excerpt": "The MeSH descriptor (drawn from Gray's Anatomy) notes the muscle flexes the lumbar spine, tenses the anterior abdominal wall, and helps compress abdominal contents. ... (It flexes the vertebral column, particularly the lumbar portion; it also tenses the anterior abdominal wall and assists in compressing the abdominal contents.) || The MeSH entry for Rectus Abdominis is descriptor D017568, with tree number A02.633.567.050.800 ... The scope note describes the muscle as a long, flat structure running along both sides of the abdomen. Its function is to bend the spine, mainly in the lower back, and to stiffen the front abdominal wall while helping compress the abdominal contents. The note attributes this wording to Gray's Anatomy (30th American edition, p. 491), and the same text appears on many mirror sites. || Second review R17: The record describes the muscle as a long, flat sheet running the length of both sides of the abdomen. It says the muscle bends the spine, mainly in the lower back, and also tightens the front abdominal wall and helps compress the abdominal contents (Tree Number(s): A02.633.567.050.800 Unique ID: D017568; scope note at From Gray's Anatomy, 30th American ed, p491).",
+   "locator": "Scope note",
+   "secondReviewQueries": [
+    "R17"
+   ]
   },
   {
    "claimId": "core.rectus_abdominis.function",
@@ -1084,54 +1152,76 @@
   {
    "claimId": "core.rectus_abdominis.selectivity.1",
    "sourceKey": "pmid.8976314",
-   "query": "Q32: Sarti 1996 \"Muscle activity in upper and lower rectus abdominus during abdominal exercises\" Arch Phys Med Rehabil posterior pelvic tilt curl-up abstract",
+   "query": "Q32: Sarti 1996 \"Muscle activity in upper and lower rectus abdominus during abdominal exercises\" Arch Phys Med Rehabil posterior pelvic tilt curl-up abstract || R9: \"8976314\" OR \"Muscle activity in upper and lower rectus abdominus\" results curl-up greater upper portion pelvic tilt lower portion high activity group",
    "queryRef": [
-    "Q32"
+    "Q32",
+    "R9"
    ],
-   "excerpt": "The study is Sarti MA, Monfort M, Fuster MA, Villaplana LA, Arch Phys Med Rehabil 1996, 77(12):1293-7 (DOI 10.1016/s0003-9993(96)90195-1). ... Nonrandomized control trial with a convenience sample of 33 healthy volunteers. ... Surface EMG (average iEMG) was compared between upper and lower rectus abdominis during curl-up (CU) and posterior pelvic tilt (PT) exercises. ... Among correct performers, the curl-up produced greater upper rectus abdominis activity, in both the high and low activity groups. ... Only the correct-performer subgroup of the high activity group showed posterior pelvic tilt was significantly more strenuous than curl-up for the lower rectus abdominis. ... Among incorrect performers, either exercise activated the two muscle portions about equally.",
-   "locator": "Abstract: Results"
+   "excerpt": "The study is Sarti MA, Monfort M, Fuster MA, Villaplana LA, Arch Phys Med Rehabil 1996, 77(12):1293-7 (DOI 10.1016/s0003-9993(96)90195-1). ... Nonrandomized control trial with a convenience sample of 33 healthy volunteers. ... Surface EMG (average iEMG) was compared between upper and lower rectus abdominis during curl-up (CU) and posterior pelvic tilt (PT) exercises. ... Among correct performers, the curl-up produced greater upper rectus abdominis activity, in both the high and low activity groups. ... Only the correct-performer subgroup of the high activity group showed posterior pelvic tilt was significantly more strenuous than curl-up for the lower rectus abdominis. ... Among incorrect performers, either exercise activated the two muscle portions about equally. || Second review R9: It used 33 volunteers split into high and low activity groups, and each group was further split into correct and incorrect performers. ... Among correct performers, CU produces greater activity on upper RA. ... For persons who have a high level of activity, PT is more strenuous than CU on lower RA. ... Either exercise indistinctly activates the muscle portions.",
+   "locator": "Abstract: Results",
+   "secondReviewQueries": [
+    "R9"
+   ]
   },
   {
    "claimId": "core.rectus_abdominis.selectivity.1",
    "sourceKey": "pmid.12930172",
-   "query": "Q33: Clark Holt Sinyard 2003 \"Electromyographic comparison of the upper and lower rectus abdominis during abdominal exercises\" J Strength Cond Res abstract || Q30: \"Quantification of the differences in electromyographic activity magnitude between the upper and lower portions of the rectus abdominis muscle\" pubmed",
+   "query": "Q33: Clark Holt Sinyard 2003 \"Electromyographic comparison of the upper and lower rectus abdominis during abdominal exercises\" J Strength Cond Res abstract || Q30: \"Quantification of the differences in electromyographic activity magnitude between the upper and lower portions of the rectus abdominis muscle\" pubmed || R7: pilot study eight subjects six abdominal exercises upper lower rectus abdominis no significant difference Journal of Strength and Conditioning Research 2003 [allowed_domains: pubmed.ncbi.nlm.nih.gov, journals.lww.com]",
    "queryRef": [
     "Q33",
-    "Q30"
+    "Q30",
+    "R7"
    ],
-   "excerpt": "it appeared in the Journal of Strength and Conditioning Research in August 2003 (vol. 17, no. 3, pp. 475–83). ... Eight healthy, adult volunteers completed 6 random abdominal exercises, including the curl up, Sissel ball curl up, and leg lowering. ... There were no significant differences (p > 0.05) between the EMG activity of the URA and LRA during any exercise. || A 2003 pilot study of six abdominal exercises found no significant differences (p > 0.05) between the EMG activity of the URA and LRA during any exercise.",
-   "locator": "Abstract: Results"
+   "excerpt": "it appeared in the Journal of Strength and Conditioning Research in August 2003 (vol. 17, no. 3, pp. 475–83). ... Eight healthy, adult volunteers completed 6 random abdominal exercises, including the curl up, [exercise ball; brand name removed] curl up, and leg lowering. ... There were no significant differences (p > 0.05) between the EMG activity of the URA and LRA during any exercise. || A 2003 pilot study of six abdominal exercises found no significant differences (p > 0.05) between the EMG activity of the URA and LRA during any exercise. || Second review R7: Eight healthy, adult volunteers completed 6 random abdominal exercises ... There were no significant differences (p > 0.05) between the EMG activity of the URA and LRA during any exercise.",
+   "locator": "Abstract: Results",
+   "secondReviewQueries": [
+    "R7"
+   ]
   },
   {
    "claimId": "core.rectus_abdominis.selectivity.2",
    "sourceKey": "pmid.16649890",
-   "query": "Q28: Escamilla 2006 Physical Therapy \"Electromyographic analysis of traditional and nontraditional abdominal exercises\" Power Wheel roll-out abstract results",
+   "query": "Q28: Escamilla 2006 Physical Therapy \"Electromyographic analysis of traditional and nontraditional abdominal exercises\" [wheeled device; brand name removed] roll-out abstract results || R8: Phys Ther 2006 traditional and nontraditional abdominal exercises electromyography 21 subjects roll-out hanging knee-up reverse crunch extraneous musculature abstract [allowed_domains: pubmed.ncbi.nlm.nih.gov, academic.oup.com] || R19: Escamilla 2006 abdominal exercises conclusion \"extraneous musculature\" [wheeled device; brand name removed] hanging knee-up most effective rectus femoris latissimus dorsi",
    "queryRef": [
-    "Q28"
+    "Q28",
+    "R8",
+    "R19"
    ],
-   "excerpt": "Surface EMG was recorded from 21 healthy adults aged 23 to 43, and activity was normalized to maximum voluntary contractions. ... Upper and lower rectus abdominis, internal oblique, and latissimus dorsi EMG activity were highest for the Power Wheel (pike, knee-up, and roll-out), hanging knee-up with straps, and reverse crunch inclined 30 degrees. ... The authors concluded that the Power Wheel (pike, knee-up, and roll-out), hanging knee-up with straps, and reverse crunch inclined 30 degrees not only were the most effective exercises in activating abdominal musculature but also were the most effective in activating extraneous musculature.",
-   "locator": "Abstract: Results and Conclusions"
+   "excerpt": "Surface EMG was recorded from 21 healthy adults aged 23 to 43, and activity was normalized to maximum voluntary contractions. ... Upper and lower rectus abdominis, internal oblique, and latissimus dorsi EMG activity were highest for the [wheeled device; brand name removed] (pike, knee-up, and roll-out), hanging knee-up with straps, and reverse crunch inclined 30 degrees. ... The authors concluded that the [wheeled device; brand name removed] (pike, knee-up, and roll-out), hanging knee-up with straps, and reverse crunch inclined 30 degrees not only were the most effective exercises in activating abdominal musculature but also were the most effective in activating extraneous musculature. || Second review R8: Twenty-one men and women who were healthy and between 23 and 43 years of age were recruited for this study. ... The [wheeled device] (pike, knee-up, and roll-out), the hanging knee-up with straps, and the reverse crunch inclined 30 degrees produced the highest activity in the rectus abdominis and internal oblique. || Second review R19: the [wheeled device] (pike, knee-up, and roll-out), the hanging knee-up with straps, and the reverse crunch inclined 30 degrees not only were the most effective exercises in activating abdominal musculature but also were the most effective in activating extraneous musculature.",
+   "locator": "Abstract: Results and Conclusions",
+   "secondReviewQueries": [
+    "R8",
+    "R19"
+   ]
   },
   {
    "claimId": "core.rectus_abdominis.selectivity.3",
-   "sourceKey": "bisp.plank_instability_emg",
-   "query": "Q38: Snarr Esco 2014 \"Electromyographical comparison of plank variations performed with and without instability devices\" abstract rectus abdominis external oblique || Q39: pubmed abdominal muscle EMG plank side plank roll-out anti-rotation Pallof press external oblique internal oblique rectus abdominis comparison abstract",
+   "sourceKey": "lww.plank_instability_emg",
+   "query": "Q38: Snarr Esco 2014 \"Electromyographical comparison of plank variations performed with and without instability devices\" abstract rectus abdominis external oblique || Q39: pubmed abdominal muscle EMG plank side plank roll-out anti-rotation Pallof press external oblique internal oblique rectus abdominis comparison abstract || R13: Snarr Esco electromyographical comparison plank variations instability devices J Strength Cond Res 2014 PubMed [allowed_domains: pubmed.ncbi.nlm.nih.gov, journals.lww.com]",
    "queryRef": [
     "Q38",
-    "Q39"
+    "Q39",
+    "R13"
    ],
-   "excerpt": "The 2014 study is by Ronald L. Snarr and Michael R. Esco, published in the Journal of Strength & Conditioning Research (vol. 28, no. 11, pp. 3298–3305). The DOI is 10.1519/JSC.0000000000000521. ... (The purpose of this investigation was to measure the electromyographical (EMG) activity of the rectus abdominis (RA), external oblique (EO), and erector spinae while performing planks with and without multiple instability devices.) ... Twelve apparently healthy men (n = 6) and women (n = 6) volunteered. Each person did isometric holds of five plank variations in randomized order. ... Planks on instability devices produced higher superficial-muscle EMG than stable planks. ... The authors suggested that caution should be taken for those individuals with a history or weakness in the lumbar region due to the increases in erector spinae activation during instability planks. || One study found that planks performed with the instability devices increased EMG activity in the superficial musculature when compared with traditional stable planks.",
-   "locator": "Abstract: Purpose, Methods and Results"
+   "excerpt": "The 2014 study is by Ronald L. Snarr and Michael R. Esco, published in the Journal of Strength & Conditioning Research (vol. 28, no. 11, pp. 3298–3305). The DOI is 10.1519/JSC.0000000000000521. ... (The purpose of this investigation was to measure the electromyographical (EMG) activity of the rectus abdominis (RA), external oblique (EO), and erector spinae while performing planks with and without multiple instability devices.) ... Twelve apparently healthy men (n = 6) and women (n = 6) volunteered. Each person did isometric holds of five plank variations in randomized order. ... Planks on instability devices produced higher superficial-muscle EMG than stable planks. ... The authors suggested that caution should be taken for those individuals with a history or weakness in the lumbar region due to the increases in erector spinae activation during instability planks. || One study found that planks performed with the instability devices increased EMG activity in the superficial musculature when compared with traditional stable planks. || Second review R13: Twelve apparently healthy men and women took part. Its main finding was that planks performed with the instability devices increased EMG activity in the superficial musculature when compared with traditional stable planks.",
+   "locator": "Abstract: Purpose, Methods and Results",
+   "secondReviewQueries": [
+    "R13"
+   ]
   },
   {
    "claimId": "core.rectus_abdominis.variation.1",
-   "sourceKey": "jcdr.tendinous_intersections",
-   "query": "Q40: rectus abdominis tendinous intersections number variation cadaveric study abstract three intersections asymmetry",
+   "sourceKey": "pmid.26266107",
+   "query": "Q40: rectus abdominis tendinous intersections number variation cadaveric study abstract three intersections asymmetry || R14: number of tendinous intersections rectus abdominis cadaver variation one to five intersections incomplete below umbilicus",
    "queryRef": [
-    "Q40"
+    "Q40",
+    "R14"
    ],
-   "excerpt": "Anita et al., J Clin Diagn Res, 2015 (North Indian cadavers): One cadaver had five tendinous intersections (1.85%), one cadaver had four tendinous intersections (1.85%) and 52 cadavers had three tendinous intersections (96.29%). The authors describe the sample as small and call for more extensive studies.",
-   "locator": "Abstract: Results"
+   "excerpt": "Anita et al., J Clin Diagn Res, 2015 (North Indian cadavers): One cadaver had five tendinous intersections (1.85%), one cadaver had four tendinous intersections (1.85%) and 52 cadavers had three tendinous intersections (96.29%). The authors describe the sample as small and call for more extensive studies. || Second review R14: A North Indian cadaver study of 54 specimens found one cadaver with five tendinous intersections (1.85%), one with four (1.85%), and 52 with three (96.29%).",
+   "locator": "Abstract: Results",
+   "secondReviewQueries": [
+    "R14"
+   ]
   },
   {
    "claimId": "core.rectus_abdominis.variation.1",
@@ -1146,23 +1236,31 @@
   {
    "claimId": "core.rectus_abdominis.variation.2",
    "sourceKey": "pmc.rectus_diastasis_finnish_women",
-   "query": "Q48: Hernia 2021 10.1007/s10029-021-02484-8 inter-rectus distance linea alba width early pregnancy Finnish cohort 933 women abstract",
+   "query": "Q48: Hernia 2021 10.1007/s10029-021-02484-8 inter-rectus distance linea alba width early pregnancy Finnish cohort 933 women abstract || R15: Finnish women rectus diastasis prevalence early pregnancy ultrasound linea alba width parity low back pain Hernia Tuominen [allowed_domains: pubmed.ncbi.nlm.nih.gov, link.springer.com, pmc.ncbi.nlm.nih.gov, ncbi.nlm.nih.gov]",
    "queryRef": [
-    "Q48"
+    "Q48",
+    "R15"
    ],
-   "excerpt": "(For this prospective cohort study, women participating early pregnancy ultrasound in Helsinki University Hospital Department of Obstetrics and Gynecology during 1.1.2018–8.3.2019, were recruited. The width of linea alba was measured by ultrasound during the early pregnancy ultrasound.) ... Linea alba width was measured in 933 women. ... Mean inter-rectus distance was about 1.81 cm (SD 0.72) in nulliparous women. It rose to about 2.36 cm after one previous pregnancy and about 2.55 cm after more pregnancies, with a positive link between parity and width (p = 0.00004). ... The authors found no threshold width linked to back pain or movement control problems, and severe diastasis (over 5 cm) was rare. ... Their conclusion is that the mean inter-rectus distance in parous women exceeds stated normative values, and moderate diastasis (3.0–5.0 cm) alone does not seem to explain low back pain or functional disability at the population level.",
-   "locator": "Abstract: Methods, Results and Conclusions"
+   "excerpt": "(For this prospective cohort study, women participating early pregnancy ultrasound in Helsinki University Hospital Department of Obstetrics and Gynecology during 1.1.2018–8.3.2019, were recruited. The width of linea alba was measured by ultrasound during the early pregnancy ultrasound.) ... Linea alba width was measured in 933 women. ... Mean inter-rectus distance was about 1.81 cm (SD 0.72) in nulliparous women. It rose to about 2.36 cm after one previous pregnancy and about 2.55 cm after more pregnancies, with a positive link between parity and width (p = 0.00004). ... The authors found no threshold width linked to back pain or movement control problems, and severe diastasis (over 5 cm) was rare. ... Their conclusion is that the mean inter-rectus distance in parous women exceeds stated normative values, and moderate diastasis (3.0–5.0 cm) alone does not seem to explain low back pain or functional disability at the population level. || Second review R15: The average inter-rectus distance (IRD) among nulliparous women was 1.81 ± 0.72 cm. After one previous pregnancy, the average linea alba width was 2.36 cm ± 0.83 cm and after more pregnancies 2.55 ± 1.09 cm. ... Moderate ARD (3.0-5.0 cm) alone does not seem to explain low back pain or functional disability in population level. ... Severe separation (over 5 cm) was rare.",
+   "locator": "Abstract: Methods, Results and Conclusions",
+   "secondReviewQueries": [
+    "R15"
+   ]
   },
   {
    "claimId": "core.external_oblique.function",
    "sourceKey": "kenhub.external_abdominal_oblique",
-   "query": "Q16: external oblique \"lateral flexion\" ipsilateral \"contralateral rotation\" trunk anatomy university || Q8: Elsevier Complete Anatomy external oblique muscle quick facts action rotation contralateral lateral flexion",
+   "query": "Q16: external oblique \"lateral flexion\" ipsilateral \"contralateral rotation\" trunk anatomy university || Q8: Elsevier Complete Anatomy external oblique muscle quick facts action rotation contralateral lateral flexion || R18: trunk flexion prime mover rectus abdominis obliques assist flexion when both sides contract kinesiology [allowed_domains: ncbi.nlm.nih.gov, teachmeanatomy.info, pubmed.ncbi.nlm.nih.gov, kenhub.com]",
    "queryRef": [
     "Q16",
-    "Q8"
+    "Q8",
+    "R18"
    ],
-   "excerpt": "Kenhub (anatomy reference) lists this pattern, saying the muscle's unilateral action gives side bending toward the same side and rotation toward the opposite side. Unilateral contraction - Trunk lateral flexion (ipsilateral), trunk rotation (contralateral) || Bilateral contraction: flexes the trunk and compresses the abdominal contents. Kenhub and anatomy.app both describe this, and anatomy.app adds that it aids expiration. (anatomy.app) ... Unilateral contraction: produces rotation of the trunk to the opposite side. (Kenhub; anatomy.app)",
-   "locator": "Key facts: Function"
+   "excerpt": "Kenhub (anatomy reference) lists this pattern, saying the muscle's unilateral action gives side bending toward the same side and rotation toward the opposite side. Unilateral contraction - Trunk lateral flexion (ipsilateral), trunk rotation (contralateral) || Bilateral contraction: flexes the trunk and compresses the abdominal contents. Kenhub and anatomy.app both describe this, and anatomy.app adds that it aids expiration. (anatomy.app) ... Unilateral contraction: produces rotation of the trunk to the opposite side. (Kenhub; anatomy.app) || Second review R18: When contracting bilaterally, the muscle works together with internal abdominal oblique and rectus abdominis to flex the trunk anteriorly.",
+   "locator": "Key facts: Function",
+   "secondReviewQueries": [
+    "R18"
+   ]
   },
   {
    "claimId": "core.external_oblique.function",
@@ -1227,33 +1325,45 @@
   {
    "claimId": "core.external_oblique.selectivity.1",
    "sourceKey": "pmid.16649890",
-   "query": "Q28: Escamilla 2006 Physical Therapy \"Electromyographic analysis of traditional and nontraditional abdominal exercises\" Power Wheel roll-out abstract results",
+   "query": "Q28: Escamilla 2006 Physical Therapy \"Electromyographic analysis of traditional and nontraditional abdominal exercises\" [wheeled device; brand name removed] roll-out abstract results || R8: Phys Ther 2006 traditional and nontraditional abdominal exercises electromyography 21 subjects roll-out hanging knee-up reverse crunch extraneous musculature abstract [allowed_domains: pubmed.ncbi.nlm.nih.gov, academic.oup.com]",
    "queryRef": [
-    "Q28"
+    "Q28",
+    "R8"
    ],
-   "excerpt": "Surface EMG was recorded from 21 healthy adults aged 23 to 43, and activity was normalized to maximum voluntary contractions. ... For the external obliques, activity was highest for the Power Wheel (pike, knee-up, and roll-out) and hanging knee-up with straps.",
-   "locator": "Abstract: Results"
+   "excerpt": "Surface EMG was recorded from 21 healthy adults aged 23 to 43, and activity was normalized to maximum voluntary contractions. ... For the external obliques, activity was highest for the [wheeled device; brand name removed] (pike, knee-up, and roll-out) and hanging knee-up with straps. || Second review R8: Twenty-one men and women who were healthy and between 23 and 43 years of age were recruited for this study. ... The [wheeled device] and hanging knee-up with straps also led for the external oblique.",
+   "locator": "Abstract: Results",
+   "secondReviewQueries": [
+    "R8"
+   ]
   },
   {
    "claimId": "core.external_oblique.selectivity.2",
-   "sourceKey": "bisp.plank_instability_emg",
-   "query": "Q38: Snarr Esco 2014 \"Electromyographical comparison of plank variations performed with and without instability devices\" abstract rectus abdominis external oblique || Q39: pubmed abdominal muscle EMG plank side plank roll-out anti-rotation Pallof press external oblique internal oblique rectus abdominis comparison abstract",
+   "sourceKey": "lww.plank_instability_emg",
+   "query": "Q38: Snarr Esco 2014 \"Electromyographical comparison of plank variations performed with and without instability devices\" abstract rectus abdominis external oblique || Q39: pubmed abdominal muscle EMG plank side plank roll-out anti-rotation Pallof press external oblique internal oblique rectus abdominis comparison abstract || R13: Snarr Esco electromyographical comparison plank variations instability devices J Strength Cond Res 2014 PubMed [allowed_domains: pubmed.ncbi.nlm.nih.gov, journals.lww.com]",
    "queryRef": [
     "Q38",
-    "Q39"
+    "Q39",
+    "R13"
    ],
-   "excerpt": "The 2014 study is by Ronald L. Snarr and Michael R. Esco, published in the Journal of Strength & Conditioning Research (vol. 28, no. 11, pp. 3298–3305). The DOI is 10.1519/JSC.0000000000000521. ... (The purpose of this investigation was to measure the electromyographical (EMG) activity of the rectus abdominis (RA), external oblique (EO), and erector spinae while performing planks with and without multiple instability devices.) ... Twelve apparently healthy men (n = 6) and women (n = 6) volunteered. Each person did isometric holds of five plank variations in randomized order. ... Planks on instability devices produced higher superficial-muscle EMG than stable planks. ... The authors suggested that caution should be taken for those individuals with a history or weakness in the lumbar region due to the increases in erector spinae activation during instability planks. || One study found that planks performed with the instability devices increased EMG activity in the superficial musculature when compared with traditional stable planks.",
-   "locator": "Abstract: Purpose, Methods and Results"
+   "excerpt": "The 2014 study is by Ronald L. Snarr and Michael R. Esco, published in the Journal of Strength & Conditioning Research (vol. 28, no. 11, pp. 3298–3305). The DOI is 10.1519/JSC.0000000000000521. ... (The purpose of this investigation was to measure the electromyographical (EMG) activity of the rectus abdominis (RA), external oblique (EO), and erector spinae while performing planks with and without multiple instability devices.) ... Twelve apparently healthy men (n = 6) and women (n = 6) volunteered. Each person did isometric holds of five plank variations in randomized order. ... Planks on instability devices produced higher superficial-muscle EMG than stable planks. ... The authors suggested that caution should be taken for those individuals with a history or weakness in the lumbar region due to the increases in erector spinae activation during instability planks. || One study found that planks performed with the instability devices increased EMG activity in the superficial musculature when compared with traditional stable planks. || Second review R13: Twelve apparently healthy men and women took part. Its main finding was that planks performed with the instability devices increased EMG activity in the superficial musculature when compared with traditional stable planks.",
+   "locator": "Abstract: Purpose, Methods and Results",
+   "secondReviewQueries": [
+    "R13"
+   ]
   },
   {
    "claimId": "core.internal_oblique.function",
    "sourceKey": "kenhub.internal_abdominal_oblique",
-   "query": "Q12: kenhub internal abdominal oblique muscle function ipsilateral rotation lateral flexion trunk flexion [allowed_domains: kenhub.com]",
+   "query": "Q12: kenhub internal abdominal oblique muscle function ipsilateral rotation lateral flexion trunk flexion [allowed_domains: kenhub.com] || R3: internal oblique muscle insertion inferior borders ribs 10-12 linea alba ipsilateral rotation lateral flexion action [allowed_domains: ncbi.nlm.nih.gov, radiopaedia.org, teachmeanatomy.info, kenhub.com]",
    "queryRef": [
-    "Q12"
+    "Q12",
+    "R3"
    ],
-   "excerpt": "One page's action summary lists bilateral contraction as producing trunk flexion and compression of abdominal organs, and unilateral contraction as producing ipsilateral lateral flexion and ipsilateral rotation (Kenhub's key facts table). A separate Kenhub muscle overview describes the same pattern, with trunk flexion and ipsilateral rotation, as well as compression of abdominal viscera, and adds that the muscles also assist with expiration. ... The lateral-flexion claim comes from the key-facts table on the internal oblique page",
-   "locator": "Key facts: Function"
+   "excerpt": "One page's action summary lists bilateral contraction as producing trunk flexion and compression of abdominal organs, and unilateral contraction as producing ipsilateral lateral flexion and ipsilateral rotation (Kenhub's key facts [list]). A separate Kenhub muscle overview describes the same pattern, with trunk flexion and ipsilateral rotation, as well as compression of abdominal viscera, and adds that the muscles also assist with expiration. ... The lateral-flexion claim comes from the key-facts [list] on the internal oblique page || Second review R3: (Laterally flexes and rotates trunk to the ipsilateral side; unilateral contraction ipsilaterally rotates the torso.)",
+   "locator": "Key facts: Function",
+   "secondReviewQueries": [
+    "R3"
+   ]
   },
   {
    "claimId": "core.internal_oblique.function",
@@ -1338,34 +1448,46 @@
   },
   {
    "claimId": "core.internal_oblique.selectivity.1",
-   "sourceKey": "thieme.bracing_hollowing_iap",
-   "query": "Q26: Tayashiki 2016 \"Intra-abdominal Pressure and Trunk Muscular Activities during Abdominal Bracing and Hollowing\" Int J Sports Med abstract || Q44: pubmed.ncbi.nlm.nih.gov Tayashiki Takai Maeo Kanehisa abdominal bracing hollowing intra-abdominal pressure",
+   "sourceKey": "pmid.26509386",
+   "query": "Q26: Tayashiki 2016 \"Intra-abdominal Pressure and Trunk Muscular Activities during Abdominal Bracing and Hollowing\" Int J Sports Med abstract || Q44: pubmed.ncbi.nlm.nih.gov Tayashiki Takai Maeo Kanehisa abdominal bracing hollowing intra-abdominal pressure || R11: abdominal bracing versus hollowing intra-abdominal pressure rectal transducer seven men internal oblique highest activity Kanehisa [allowed_domains: pubmed.ncbi.nlm.nih.gov, thieme-connect.com, thieme-connect.de]",
    "queryRef": [
     "Q26",
-    "Q44"
+    "Q44",
+    "R11"
    ],
-   "excerpt": "The paper is Tayashiki, Takai, Maeo, and Kanehisa, Int J Sports Med 2016;37(02):134-143 (DOI 10.1055/s-0035-1559771). ... IAP was measured with a pressure transducer placed in the rectum, alongside surface electromyograms for the rectus abdominis, external oblique, internal oblique, and erector spinae. ... in seven young adult men ... (significantly greater in abdominal bracing (116.4±15.0 mmHg) than in abdominal hollowing (9.9±4.5 mmHg)) ... At peak pressure, bracing produced higher activity than hollowing, and the internal oblique was the most active muscle (significantly higher in abdominal bracing than in abdominal hollowing, and in the internal oblique than in the other 3 muscles). ... The authors concluded that bracing is the more effective way to raise intra-abdominal pressure. They also found that pressure and muscle activity were linked in both tasks, but the link depended on the task (the association is task-specific). ... I didn't find the full text, so these details come from the abstract only. || The authors concluded that abdominal bracing is an effective maneuver to elevate IAP compared with abdominal hollowing. In both tasks, pressure changes tracked muscle activity, though the slope of that relationship differed between the two tasks (the changes in IAP during the tasks were linearly correlated with those in trunk muscular activities). ... The sample in the Tayashiki study is small (seven men)",
-   "locator": "Abstract: Methods, Results and Conclusions"
+   "excerpt": "The paper is Tayashiki, Takai, Maeo, and Kanehisa, Int J Sports Med 2016;37(02):134-143 (DOI 10.1055/s-0035-1559771). ... IAP was measured with a pressure transducer placed in the rectum, alongside surface electromyograms for the rectus abdominis, external oblique, internal oblique, and erector spinae. ... in seven young adult men ... (significantly greater in abdominal bracing (116.4±15.0 mmHg) than in abdominal hollowing (9.9±4.5 mmHg)) ... At peak pressure, bracing produced higher activity than hollowing, and the internal oblique was the most active muscle (significantly higher in abdominal bracing than in abdominal hollowing, and in the internal oblique than in the other 3 muscles). ... The authors concluded that bracing is the more effective way to raise intra-abdominal pressure. They also found that pressure and muscle activity were linked in both tasks, but the link depended on the task (the association is task-specific). ... I didn't find the full text, so these details come from the abstract only. || The authors concluded that abdominal bracing is an effective maneuver to elevate IAP compared with abdominal hollowing. In both tasks, pressure changes tracked muscle activity, though the slope of that relationship differed between the two tasks (the changes in IAP during the tasks were linearly correlated with those in trunk muscular activities). ... The sample in the Tayashiki study is small (seven men) || Second review R11: Intra-abdominal pressure was measured with a transducer in the rectum, alongside surface EMG of the rectus abdominis, external oblique, internal oblique, and erector spinae. The participants were 7 young adult men. ... The rise was 116.4±15.0 mmHg in bracing versus 9.9±4.5 mmHg in hollowing ... At peak pressure, activity was higher in bracing than in hollowing, and the internal oblique was more active than the other three muscles.",
+   "locator": "Abstract: Methods, Results and Conclusions",
+   "secondReviewQueries": [
+    "R11"
+   ]
   },
   {
    "claimId": "core.internal_oblique.selectivity.2",
    "sourceKey": "pmid.16649890",
-   "query": "Q28: Escamilla 2006 Physical Therapy \"Electromyographic analysis of traditional and nontraditional abdominal exercises\" Power Wheel roll-out abstract results",
+   "query": "Q28: Escamilla 2006 Physical Therapy \"Electromyographic analysis of traditional and nontraditional abdominal exercises\" [wheeled device; brand name removed] roll-out abstract results || R8: Phys Ther 2006 traditional and nontraditional abdominal exercises electromyography 21 subjects roll-out hanging knee-up reverse crunch extraneous musculature abstract [allowed_domains: pubmed.ncbi.nlm.nih.gov, academic.oup.com]",
    "queryRef": [
-    "Q28"
+    "Q28",
+    "R8"
    ],
-   "excerpt": "Surface EMG was recorded from 21 healthy adults aged 23 to 43, and activity was normalized to maximum voluntary contractions. ... Upper and lower rectus abdominis, internal oblique, and latissimus dorsi EMG activity were highest for the Power Wheel (pike, knee-up, and roll-out), hanging knee-up with straps, and reverse crunch inclined 30 degrees.",
-   "locator": "Abstract: Results"
+   "excerpt": "Surface EMG was recorded from 21 healthy adults aged 23 to 43, and activity was normalized to maximum voluntary contractions. ... Upper and lower rectus abdominis, internal oblique, and latissimus dorsi EMG activity were highest for the [wheeled device; brand name removed] (pike, knee-up, and roll-out), hanging knee-up with straps, and reverse crunch inclined 30 degrees. || Second review R8: Twenty-one men and women who were healthy and between 23 and 43 years of age were recruited for this study. ... The [wheeled device] (pike, knee-up, and roll-out), the hanging knee-up with straps, and the reverse crunch inclined 30 degrees produced the highest activity in the rectus abdominis and internal oblique.",
+   "locator": "Abstract: Results",
+   "secondReviewQueries": [
+    "R8"
+   ]
   },
   {
    "claimId": "core.transversus_abdominis.function",
    "sourceKey": "radiopaedia.transversus_abdominis",
-   "query": "Q10: radiopaedia transversus abdominis muscle gross anatomy action compresses abdominal contents",
+   "query": "Q10: radiopaedia transversus abdominis muscle gross anatomy action compresses abdominal contents || R23: radiopaedia transversus abdominis muscle article action deep to internal oblique [allowed_domains: radiopaedia.org]",
    "queryRef": [
-    "Q10"
+    "Q10",
+    "R23"
    ],
-   "excerpt": "The muscle is one of the flat muscles of the anterior abdominal wall and sits deep to the internal oblique. It ends in the anterior aponeurosis, which ultimately blends with the linea alba. ... Action: Radiopaedia describes it as compressing the abdominal cavity. It mainly helps maintain abdominal tone and can raise intra-abdominal pressure when it contracts.",
-   "locator": "Gross anatomy: action"
+   "excerpt": "The muscle is one of the flat muscles of the anterior abdominal wall and sits deep to the internal oblique. It ends in the anterior aponeurosis, which ultimately blends with the linea alba. ... Action: Radiopaedia describes it as compressing the abdominal cavity. It mainly helps maintain abdominal tone and can raise intra-abdominal pressure when it contracts. || Second review R23: It is deep to the internal oblique muscle and ends in the anterior aponeurosis, which ultimately blends with the linea alba. ... action: flat muscle which forms part of abdominal wall, compresses abdominal cavity",
+   "locator": "Gross anatomy: action",
+   "secondReviewQueries": [
+    "R23"
+   ]
   },
   {
    "claimId": "core.transversus_abdominis.function",
@@ -1401,12 +1523,16 @@
   {
    "claimId": "core.transversus_abdominis.appearance",
    "sourceKey": "radiopaedia.transversus_abdominis",
-   "query": "Q10: radiopaedia transversus abdominis muscle gross anatomy action compresses abdominal contents",
+   "query": "Q10: radiopaedia transversus abdominis muscle gross anatomy action compresses abdominal contents || R23: radiopaedia transversus abdominis muscle article action deep to internal oblique [allowed_domains: radiopaedia.org]",
    "queryRef": [
-    "Q10"
+    "Q10",
+    "R23"
    ],
-   "excerpt": "The muscle is one of the flat muscles of the anterior abdominal wall and sits deep to the internal oblique. It ends in the anterior aponeurosis, which ultimately blends with the linea alba.",
-   "locator": "Gross anatomy: deep to the internal oblique; aponeurosis to the linea alba"
+   "excerpt": "The muscle is one of the flat muscles of the anterior abdominal wall and sits deep to the internal oblique. It ends in the anterior aponeurosis, which ultimately blends with the linea alba. || Second review R23: It is deep to the internal oblique muscle and ends in the anterior aponeurosis, which ultimately blends with the linea alba.",
+   "locator": "Gross anatomy: deep to the internal oblique; aponeurosis to the linea alba",
+   "secondReviewQueries": [
+    "R23"
+   ]
   },
   {
    "claimId": "core.transversus_abdominis.appearance",
@@ -1430,14 +1556,51 @@
   },
   {
    "claimId": "core.transversus_abdominis.selectivity.1",
-   "sourceKey": "springer.transversus_rotation_emg",
-   "query": "Q35: Urquhart Hodges 2005 \"Differential activity of regions of transversus abdominis during trunk rotation\" European Spine Journal abstract || Q45: pubmed.ncbi.nlm.nih.gov Urquhart Hodges differential activity regions transversus abdominis trunk rotation 2005",
+   "sourceKey": "pmid.15940481",
+   "query": "Q35: Urquhart Hodges 2005 \"Differential activity of regions of transversus abdominis during trunk rotation\" European Spine Journal abstract || Q45: pubmed.ncbi.nlm.nih.gov Urquhart Hodges differential activity regions transversus abdominis trunk rotation 2005 || R12: 15940481 transversus abdominis regions trunk rotation fine-wire electrodes sitting upper fascicles opposite middle lower rectus abdominis no directional [allowed_domains: pubmed.ncbi.nlm.nih.gov, ncbi.nlm.nih.gov, link.springer.com]",
    "queryRef": [
     "Q35",
-    "Q45"
+    "Q45",
+    "R12"
    ],
-   "excerpt": "Urquhart DM, Hodges PW (2005). European Spine Journal, 14(4), 393-400. doi: 10.1007/s00586-004-0799-9 ... The authors measured EMG activity in six subjects with no history of spinal pain. Fine-wire electrodes went into several abdominal regions, including upper, middle, and lower transversus abdominis, and surface electrodes were placed over rectus abdominis. Subjects rotated their trunk left and right while seated ... The transversus abdominis was active throughout rotation, but the upper fibers recruited in the opposite pattern to the middle and lower fibers (index 1-7). ... Rectus abdominis showed no directional difference, and middle internal oblique differed by direction in all but one subject (index 1-10). ... The authors conclude that the transversus abdominis is active during trunk rotation, with activity varying by region || Later commentary by Allison and colleagues, and a response to it, cites this work as evidence that transversus abdominis is active with both directions of rotation, but more strongly when the thorax rotates toward the side of the muscle. The same commentary notes that the muscle's moment arm for rotation is small",
-   "locator": "Abstract: Methods, Results and Conclusions"
+   "excerpt": "Urquhart DM, Hodges PW (2005). European Spine Journal, 14(4), 393-400. doi: 10.1007/s00586-004-0799-9 ... The authors measured EMG activity in six subjects with no history of spinal pain. Fine-wire electrodes went into several abdominal regions, including upper, middle, and lower transversus abdominis, and surface electrodes were placed over rectus abdominis. Subjects rotated their trunk left and right while seated ... The transversus abdominis was active throughout rotation, but the upper fibers recruited in the opposite pattern to the middle and lower fibers (index 1-7). ... Rectus abdominis showed no directional difference, and middle internal oblique differed by direction in all but one subject (index 1-10). ... The authors conclude that the transversus abdominis is active during trunk rotation, with activity varying by region || Later commentary by Allison and colleagues, and a response to it, cites this work as evidence that transversus abdominis is active with both directions of rotation, but more strongly when the thorax rotates toward the side of the muscle. The same commentary notes that the muscle's moment arm for rotation is small || Second review R12: Trunk rotation to the left and right was performed in sitting by rotating the pelvis relative to a fixed thorax. ... The abstract states that TrA was consistently active during trunk rotation, with the recruitment patterns of the upper fascicles opposite to that of the middle and lower fascicles.",
+   "locator": "Abstract: Methods, Results and Conclusions",
+   "secondReviewQueries": [
+    "R12"
+   ]
+  },
+  {
+   "claimId": "core.rectus_abdominis.function",
+   "sourceKey": "statpearls.rectus_sheath",
+   "query": "R1: rectus abdominis action flexes lumbar spine assists compression abdominal viscera anatomy teaching page [allowed_domains: teachmeanatomy.info, ncbi.nlm.nih.gov, radiopaedia.org]",
+   "queryRef": [
+    "R1"
+   ],
+   "excerpt": "StatPearls says contracting the rectus abdominis and pyramidalis causes flexion of the lumbar spine. ... The StatPearls rectus sheath entry is the best match for the lumbar flexion claim.",
+   "locator": "Structure and Function (lumbar flexion; section heading not shown)",
+   "addedBy": "secondReview"
+  },
+  {
+   "claimId": "core.rectus_abdominis.function",
+   "sourceKey": "teachmeanatomy.rectus_abdominis",
+   "query": "R1: rectus abdominis action flexes lumbar spine assists compression abdominal viscera anatomy teaching page [allowed_domains: teachmeanatomy.info, ncbi.nlm.nih.gov, radiopaedia.org]",
+   "queryRef": [
+    "R1"
+   ],
+   "excerpt": "TeachMeAnatomy lists the same visceral role as a supporting action, alongside rib depression. It says the muscle assists the flat muscles in compressing the abdominal viscera ... TeachMeAnatomy adds that the muscle stabilises the pelvis during walking, and depresses the ribs.",
+   "locator": "Actions",
+   "addedBy": "secondReview"
+  },
+  {
+   "claimId": "core.external_oblique.appearance",
+   "sourceKey": "radiopaedia.external_oblique",
+   "query": "R2: external oblique muscle unilateral contraction lateral flexion same side rotation opposite side bilateral flexion insertion iliac crest aponeurosis [allowed_domains: ncbi.nlm.nih.gov, radiopaedia.org, teachmeanatomy.info]",
+   "queryRef": [
+    "R2"
+   ],
+   "excerpt": "Radiopaedia describes two parts: the aponeurosis inserts into the whole length of the linea alba with extension onto the pubic crest and the pectineal line, while the lower fleshy fibers attach to the outer lip of the anterior two thirds of the iliac crest.",
+   "locator": "Insertion",
+   "addedBy": "secondReview"
   }
  ],
  "queries": {
@@ -1468,7 +1631,7 @@
   "Q25": "\"Intra-abdominal pressure increases stiffness of the lumbar spine\" pubmed abstract phrenic nerve stimulation",
   "Q26": "Tayashiki 2016 \"Intra-abdominal Pressure and Trunk Muscular Activities during Abdominal Bracing and Hollowing\" Int J Sports Med abstract",
   "Q27": "intra-abdominal pressure generated by diaphragm, pelvic floor and transversus abdominis co-contraction spinal stability review abstract",
-  "Q28": "Escamilla 2006 Physical Therapy \"Electromyographic analysis of traditional and nontraditional abdominal exercises\" Power Wheel roll-out abstract results",
+  "Q28": "Escamilla 2006 Physical Therapy \"Electromyographic analysis of traditional and nontraditional abdominal exercises\" [wheeled device; brand name removed] roll-out abstract results",
   "Q29": "Lehman McGill 2001 Physical Therapy upper and lower portions of the rectus abdominis electromyographic activity selected trunk exercises abstract",
   "Q30": "\"Quantification of the differences in electromyographic activity magnitude between the upper and lower portions of the rectus abdominis muscle\" pubmed",
   "Q31": "pubmed Escamilla Babb DeWitt \"Electromyographic analysis of traditional and nontraditional abdominal exercises: implications for rehabilitation and training\" Phys Ther 2006;86(5):656",
@@ -1498,7 +1661,7 @@
    "kind": "none found",
    "subject": "§1.2 core rows",
    "contradictsSection12": false,
-   "finding": "Nothing recorded contradicts any core row of §1.2: rectus abdominis 'surface' (Kenhub, IMAIOS), external oblique 'surface' (Kenhub, TeachMeAnatomy, IMAIOS), internal oblique 'intermediate' (StatPearls layer order, TeachMeAnatomy, Kenhub) and transversus abdominis 'deep' (Radiopaedia, StatPearls, Kenhub). Kinds, roles and short names need no change; the region actions are all in the shared library."
+   "finding": "Nothing recorded contradicts any core row of §1.2: rectus abdominis 'surface' (Kenhub, IMAIOS), external oblique 'surface' (Kenhub, TeachMeAnatomy, IMAIOS), internal oblique 'intermediate' (StatPearls layer order, TeachMeAnatomy, Kenhub) and transversus abdominis 'deep' (Radiopaedia, StatPearls, Kenhub). Kinds, roles and short names need no change; the region actions are all in the shared library. Second review: agrees; independent results give the same layer order (R2, R3, R21, R23, R25) and §1.2's core rows need no change."
   },
   {
    "id": "O1",
@@ -1519,7 +1682,7 @@
    "kind": "observation (not a contradiction)",
    "subject": "abdomen.compression wording (shared library)",
    "contradictsSection12": false,
-   "finding": "See the note on abdomen.compression in actions[]: the shared wording 'Draws the belly wall in' fits hollowing, which raised pressure far less than bracing in thieme.bracing_hollowing_iap. Not reworded here."
+   "finding": "See the note on abdomen.compression in actions[]: the shared wording 'Draws the belly wall in' fits hollowing, which raised pressure far less than bracing in pmid.26509386. Not reworded here."
   },
   {
    "id": "O4",
@@ -1531,45 +1694,729 @@
  ],
  "notes": {
   "searchBudget": "This lane ran 50 web searches (Q1-Q50) on 19-20 Oct 2026; none was refused. Page fetches were not attempted (refused by the proxy for these hosts, as recorded in 10-multi-region.md §8). The full log, with every query and the excerpt text, is searchlog.md beside this file.",
-  "singleSourceFunctionClaims": "No function claim rests on one reference: the rectus abdominis's has four, the external oblique's four, the internal oblique's five, the transversus abdominis's four. Sentences or parts that rest on one reference: the external oblique bending the trunk 'to that side' (Kenhub; Elsevier says it 'laterally flexes' without a side; anatomy.app, not cited, agrees with Kenhub); the transversus abdominis's rotation, which only Kenhub lists and which the claim reports as a disagreement rather than a fact; 'mainly its lower (lumbar) part' for the rectus abdominis rests on MeSH and IMAIOS.",
+  "singleSourceFunctionClaims": "No function claim rests on one reference: the rectus abdominis's has four, the external oblique's four, the internal oblique's five, the transversus abdominis's four. Sentences or parts that rest on one reference: the external oblique bending the trunk 'to that side' (Kenhub; Elsevier says it 'laterally flexes' without a side; anatomy.app, not cited, agrees with Kenhub); the transversus abdominis's rotation, which only Kenhub lists and which the claim reports as a disagreement rather than a fact; 'mainly its lower (lumbar) part' for the rectus abdominis rests on MeSH and IMAIOS. Second review: the rectus abdominis's lumbar flexion now also rests on StatPearls (statpearls.rectus_sheath, R1); the external oblique's bending to the same side has an independent agreeing result (R2, a line not tied to one page, not cited), so it still rests on Kenhub alone among cited references; the transversus abdominis's rotation is still Kenhub's alone among anatomy references, and an EMG paper's summary (R4, PMC4793016, not cited) groups it with the muscles that act on their own side in rotation.",
   "unconfirmedBibliography": [
-   "statpearls.anterolateral_abdominal_wall: NBK525975 and the update date (24 Jul 2023) come from the search summary; authors not shown; only the introduction and layer list were seen.",
-   "nlm.mesh_rectus_abdominis: seen on university research-profiles mirrors, not on the NLM MeSH browser; the Gray's page reference (30th American edition, p. 491) is the summary's.",
+   "statpearls.anterolateral_abdominal_wall: NBK525975, the update date (24 Jul 2023) and the authors (Seeras, Qasawa, Ju, Prakash; R21) come from search summaries; only the introduction and layer list were seen.",
+   "nlm.mesh_rectus_abdominis: the NLM MeSH browser record was returned in the second review (R17) only as a paraphrase; the verbatim scope note was seen on university research-profiles mirrors; the Gray's page reference (30th American edition, p. 491) is the summaries'.",
    "elsevier.external_abdominal_oblique, elsevier.transversus_abdominis: the result titles showed only 'www.elsevier.com'; page titles inferred from the URLs.",
    "imaios.*: seen through the imaios.cn mirror; for the rectus abdominis and the transversus abdominis two IMAIOS entries were returned and the summary did not say which carried which line.",
-   "radiopaedia.transversus_abdominis: seen at an images.radiopaedia.org address; authors and revision not shown.",
+   "radiopaedia.transversus_abdominis: the canonical article was returned in the second review (R23, rID 47186, revised March 2022 per the summary); its line on raising intra-abdominal pressure was seen only at an images.radiopaedia.org address (Q10); authors not shown.",
    "teachmeanatomy.abdominal_wall: exact page title not shown (result title 'the abdominal wall').",
    "kenhub.rectus_abdominis: the location and visibility lines came in summaries drawing on several Kenhub pages; the page heads the result lists but the summary did not tie each line to it.",
-   "pmid.12930172: authors not shown by the search (Clark, Holt and Sinyard were in the query, not confirmed).",
-   "pmid.16649890: the PMID and author list come from secondary citations (two blog posts, a magazine article); the PubMed page was not seen. The abstract was seen through a summary beside a Sacramento State repository record.",
-   "bisp.plank_instability_emg, springer.transversus_rotation_emg, thieme.bracing_hollowing_iap: PMIDs not seen, so keyed by publisher.",
-   "jcdr.tendinous_intersections: exact title, full author list and DOI not shown ('Anita et al.' per the summary).",
+   "pmid.12930172: authors named by the summary as Clark, Holt and Sinyard (R7); initials not shown.",
+   "pmid.16649890: the PMID is now seen on PubMed (R8); the author list beyond Escamilla comes from secondary citations (two blog posts, a magazine article).",
+   "lww.plank_instability_emg: no PubMed id returned by either review (R13), so keyed by the journal's publisher. pmid.15940481 and pmid.26509386: the PMIDs were seen in the second review (R12, R11); the keys were springer.transversus_rotation_emg and thieme.bracing_hollowing_iap.",
+   "pmid.26266107: exact title and PMID seen in the second review (R14); full author list and DOI not shown.",
    "durham.tendinous_intersections: the journal (J MGIMS), year (2008) and second author (Manjunath) are the summary's; the record seen is a Durham University repository entry.",
-   "pmc.rectus_diastasis_finnish_women: authors not shown; journal (Hernia) and year (2021) inferred from the DOI."
+   "pmc.rectus_diastasis_finnish_women: only the first author's name (Tuominen) and Hernia 2022;26:599-608 were given by the summary (R15); the other authors not shown.",
+   "statpearls.rectus_sheath, teachmeanatomy.rectus_abdominis, radiopaedia.external_oblique (added by the second review): seen only through search summaries; authors, dates and exact headings not shown."
   ],
   "disagreements": [
-   "Transversus abdominis and turning the trunk: Kenhub lists ipsilateral rotation on one-sided contraction; Radiopaedia, IMAIOS and Elsevier list compression only (Q10, Q11, Q21). The function claim states the disagreement; no spine.rotation node action is recorded. The fine-wire study (springer.transversus_rotation_emg) shows it active during turning, which is activity, not torque; a commentary in the same results calls its moment arm for rotation small.",
+   "Transversus abdominis and turning the trunk: Kenhub lists ipsilateral rotation on one-sided contraction; Radiopaedia, IMAIOS and Elsevier list compression only (Q10, Q11, Q21). The function claim states the disagreement; no spine.rotation node action is recorded. The fine-wire study (pmid.15940481) shows it active during turning, which is activity, not torque; a commentary in the same results calls its moment arm for rotation small.",
    "External oblique, side of lateral flexion: Kenhub (and anatomy.app, not cited) say the same side; LearnMuscles (not cited) gives no side; Elsevier says 'laterally flexes' with no side. The claim says 'to that side', the anatomical reading of Kenhub's 'ipsilateral'.",
    "Rectus abdominis and side bending: one unidentified physiotherapy source (Q15) and an IMAIOS veterinary entry say it helps bend the trunk sideways; no human anatomy reference cited here lists it. Not claimed; no spine.lateral_flexion node action.",
    "Rectus abdominis and tilting the pelvis back: mentioned by an untied line in Q1 and by LearnMuscles for the group (Q7); not confirmed by Kenhub (Q5). Not claimed (not a region action either).",
    "Upper versus lower rectus abdominis: Sarti 1996 found differences in correct performers; the 2003 pilot found none; a later paper groups Lehman and McGill 2001 with the studies finding none (Q29, abstract not seen, not cited). The selectivity claim says the question is unsettled.",
    "Number of tendinous intersections: three in most references; three to four (IMAIOS, a Kenhub video); one to five in two cadaver series. The appearance claim says 'usually three'; the variation claim gives the range.",
    "Pressure in the abdomen as a spine stabiliser: contested (Q27: a review argues the proposed mechanism lacks experimental support; a thesis says it cannot be determined with certainty). Kenhub's line that the abdominal muscles 'stabilize the vertebral column' with the back muscles is not used. No claim says that bracing steadies the spine.",
-   "Rectus abdominis and compression, prime or assist: MeSH (Gray's) says it 'assists'; Kenhub, IMAIOS and Elsevier list compression unqualified. Recorded as assist (see nodeActions)."
+   "Rectus abdominis and compression, prime or assist: MeSH (Gray's) says it 'assists'; Kenhub, IMAIOS and Elsevier list compression unqualified. Recorded as assist (see nodeActions).",
+   "External oblique, attachment to the hip bone (second review): Kenhub's excerpt has the tendon sheet reach the front of the iliac crest; Radiopaedia has the lowest fibres attach there as muscle and the tendon sheet go to the midline band and the pubic bone (R2). The appearance claim now says only that its lowest fibres reach the crest, which both support.",
+   "Transversus abdominis and breathing out (second review): StatPearls' abdominal wall chapter (R22, not cited) says the side muscles except the transversus abdominis help breathe out by pulling the ribs down; Kenhub and IMAIOS say it aids forced expiration, Kenhub through its compression. The function claim now says it helps 'through that compression', which no source contradicts. The same search returned StatPearls' chapter on the wall's muscles saying the flat muscles, as a group, flex and rotate the trunk; it does not single out the transversus abdominis, so the claim's 'the others' (the cited Radiopaedia, IMAIOS and Elsevier pages, which list no trunk movement for it) stands.",
+   "Upper versus lower rectus abdominis (second review): two further studies, not cited, keep the question open: a 2023 ultrasound-thickness study of 15 people whose authors say 'controversy exists' (R5, PubMed 38288259), and a study of exercises on and off an exercise ball that found more upper than lower activity in curl-ups (R6). The selectivity claim now opens 'Studies disagree' rather than 'is unsettled'.",
+   "The obliques in forward bending, prime or assist (second review): Kenhub has them flex the trunk together with the rectus abdominis (R18); no reference returned grades them. Recorded as prime, as the first review did; open for the anatomy lane."
   ],
-  "abdomenCompression": "What the evidence supports about abdomen.compression (bracing, raising pressure in the abdomen): every anatomy reference cited lists compressing the abdomen as an action of the three flat muscles; for the transversus abdominis it is the main and, in three of four references, the only action, with raising intra-abdominal pressure named by Radiopaedia, Kenhub and IMAIOS; the internal oblique (five references) and the external oblique (Kenhub, Elsevier) compress the abdomen when both sides act; the rectus abdominis 'assists' (MeSH) or compresses (Kenhub, IMAIOS, Elsevier). One measured study (thieme.bracing_hollowing_iap, seven men, abstract only) found that bracing raised the pressure far more than drawing the belly in, that pressure and muscle activity rose together, and that the internal oblique was the most active of the four trunk muscles recorded; the transversus abdominis was not recorded. Not supported here, so not claimed: that raised pressure steadies the spine (contested, Q27); that the diaphragm and pelvic floor share the work (seen only in a thesis and a blog, Q27); any figure for how much each muscle contributes (the 1992 intramuscular study, Q22 and Q24, was seen only as a reference-list entry). Node actions: transversus abdominis, internal oblique and external oblique prime; rectus abdominis assist.",
+  "abdomenCompression": "What the evidence supports about abdomen.compression (bracing, raising pressure in the abdomen): every anatomy reference cited lists compressing the abdomen as an action of the three flat muscles; for the transversus abdominis it is the main and, in three of four references, the only action, with raising intra-abdominal pressure named by Radiopaedia, Kenhub and IMAIOS; the internal oblique (five references) and the external oblique (Kenhub, Elsevier) compress the abdomen when both sides act; the rectus abdominis 'assists' (MeSH) or compresses (Kenhub, IMAIOS, Elsevier). One measured study (pmid.26509386, seven men, abstract only) found that bracing raised the pressure far more than drawing the belly in, that pressure and muscle activity rose together, and that the internal oblique was the most active of the four trunk muscles recorded; the transversus abdominis was not recorded. Not supported here, so not claimed: that raised pressure steadies the spine (contested, Q27); that the diaphragm and pelvic floor share the work (seen only in a thesis and a blog, Q27); any figure for how much each muscle contributes (the 1992 intramuscular study, Q22 and Q24, was seen only as a reference-list entry). Node actions: transversus abdominis, internal oblique and external oblique prime; rectus abdominis assist. Second review: independent results agree. TeachMeAnatomy (R1) says the rectus abdominis 'assists the flat muscles in compressing the abdominal viscera', which supports assist rather than prime for it. StatPearls (R21, R22) says the wall takes part in any activity that raises the pressure inside the abdomen and that the abdominal muscles contracting together raise it in coughing, sneezing and vomiting. Tayashiki et al. (pmid.26509386) is confirmed (R11). Intramuscular studies by Cresswell and colleagues (R16: 1992, six men; 1994, lifting) were seen only as partial abstracts: in the 1994 study the transversus abdominis had the highest activity of the abdominal muscles and the best correlation with the pressure. They are consistent with its prime role but are not cited until an abstract is tied. Nothing found says how much each muscle contributes in bracing, and nothing here says that bracing steadies the spine.",
   "deliberatelyNotClaimed": [
    "Transversus abdominis rotation (references disagree).",
    "Rectus abdominis lateral flexion and pelvic tilt (no cited human anatomy reference).",
    "Expiration: named for the internal oblique and transversus abdominis in their claims, but not a region action, so no node action.",
    "The transversus abdominis's early activation before arm and leg movements, and its timing in people with low back pain: a known clinical literature, not searched as a selectivity claim (it is not about which exercise loads which muscle); results in Q45 also show it is disputed.",
-   "Plank and side-plank variations beyond the one tied abstract: the long-lever posterior-tilt plank (Q37), side-bridge variants (Q36, Q50) and suspended planks (Q39) were found only as citations or untied summaries.",
-   "Anti-rotation work (a press held against a sideways pull): the only EMG study found (Q39) is a small methodology study in a conference-abstract series; not cited.",
+   "Plank and side-plank variations beyond the one tied abstract: the long-lever posterior-tilt plank (Q37), side-bridge variants (Q36, Q50) and suspended planks (Q39) were found only as citations or untied summaries. Second review: tied abstracts were found for the long-lever, posterior-tilt plank (R24, R26: Schoenfeld and colleagues, Sports Biomechanics 2014, 19 participants) and for the side bridge (R27: Ekstrom, Donatelli and Carp, JOSPT 2007, PubMed 18560185); listed as candidate claims in secondReview.candidateClaims, not added.",
+   "Anti-rotation work (a press held against a sideways pull): the only EMG study found (Q39) is a small methodology study in a conference-abstract series; not cited. Second review (R20): no study measuring a press held against a sideways pull was returned either.",
    "The 1998 intramuscular study of psoas and the abdominal wall across many tasks (Q34): abstract not seen.",
    "Any statement that a muscle grows, or how much an exercise loads it: no claim says either."
   ],
   "productChoices": "None: every prime and assist above is recorded on the evidence. If the page should not suggest the obliques for forward-bending work (crunch-type exercises), that would be a product choice to record separately; the references give the obliques' forward bending without qualification.",
   "externals": "back.quadratus_lumborum is listed by §1.2 as an external member; not researched (instructed). No core claim needs it. Its listing rests on the back dossier's draft function claim (see O4).",
-  "copyRules": "Checked by this script: no 'left' or 'right', no percentage sign or 'per cent', no 'optimal' or 'guarantee', no 'will grow', no 'table', no brand or product name in any node field, claim statement, locator or qualification (the wheeled device in pmid.16649890 is named in the source's title notes only, never in copy)."
+  "copyRules": "Checked by this script: no 'left' or 'right', no percentage sign or 'per cent', no 'optimal' or 'guarantee', no 'will grow', no 'table', no brand or product name in any node field, claim statement, locator or qualification (the wheeled device in pmid.16649890 is named in the source's title notes only, never in copy). Second review: re-run over every node field (name, location, what it does, shape note, caveats, aliases), claim statement, locator, qualification, source title and action wording: no 'left' or 'right', percentage, 'optimal', 'guarantee', 'will grow', 'table', device brand or Wikipedia; every mention of growth in a claim is a negation; no source is a Wikipedia page. The one mention of Wikipedia left in the record is inside a search summary excerpt (Kenhub transversus abdominis, Q21), saying that a Wikipedia result agreed; it is not a citation."
+ },
+ "secondReview": {
+  "date": "2026-10-19",
+  "reviewer": "Automated second review by an AI agent, with the same tools and limits as the first: web search only, page fetches refused, generated summaries that can misquote. The searches ran on 20 Oct 2026, within the 19 Oct review round. Not peer review, and not a clinician or anatomist. It looked for what is wrong in this dossier, not for agreement.",
+  "scope": "Every sentence of the 18 reviewed claims against its recorded excerpts; independent searches, in the reviewer's own words, for all 4 function claims, all 8 selectivity and 2 variation claims, and 3 of the 4 appearance claims; source keys, URLs, titles, evidence types and notes; node fields, node actions, roles, layers and outcrops against 10-multi-region.md §1.2; the copy rules; what the evidence supports about abdomen.compression.",
+  "claimsReSearched": [
+   "core.external_oblique.appearance",
+   "core.external_oblique.function",
+   "core.external_oblique.selectivity.1",
+   "core.external_oblique.selectivity.2",
+   "core.internal_oblique.function",
+   "core.internal_oblique.selectivity.1",
+   "core.internal_oblique.selectivity.2",
+   "core.rectus_abdominis.appearance",
+   "core.rectus_abdominis.function",
+   "core.rectus_abdominis.selectivity.1",
+   "core.rectus_abdominis.selectivity.2",
+   "core.rectus_abdominis.selectivity.3",
+   "core.rectus_abdominis.variation.1",
+   "core.rectus_abdominis.variation.2",
+   "core.transversus_abdominis.appearance",
+   "core.transversus_abdominis.function",
+   "core.transversus_abdominis.selectivity.1"
+  ],
+  "functionClaimsReSearched": "4 of 4",
+  "selectivityAndVariationClaims": "10 of 10 (8 selectivity, 2 variation)",
+  "claimsToDraft": [],
+  "draftNote": "No claim went to draft. Every sentence of the 18 claims is supported by its recorded excerpts once six claims were reworded to what the excerpts say (core.rectus_abdominis.selectivity.1, core.rectus_abdominis.selectivity.3, core.external_oblique.selectivity.2, core.external_oblique.appearance, core.transversus_abdominis.function, core.transversus_abdominis.selectivity.1). Each disagreement the independent searches found (the external oblique's attachment to the hip bone; the transversus abdominis and breathing out; the transversus rotation task) was resolved in the wording with its source.",
+  "queries": [
+   {
+    "ref": "R1",
+    "query": "rectus abdominis action flexes lumbar spine assists compression abdominal viscera anatomy teaching page",
+    "allowedDomains": [
+     "teachmeanatomy.info",
+     "ncbi.nlm.nih.gov",
+     "radiopaedia.org"
+    ],
+    "checks": [
+     "core.rectus_abdominis.function",
+     "nodeAction core.rectus_abdominis abdomen.compression"
+    ],
+    "outcome": "agrees with both sentences; adds two references the first review did not use (StatPearls on the rectus sheath for lumbar flexion; TeachMeAnatomy, which grades its part in compression as assisting). Also returned, not cited: a 2011 modelling study on spinal stability, and the 2023 ultrasound study used in R5.",
+    "excerpt": "\"StatPearls says contracting the rectus abdominis and pyramidalis causes flexion of the lumbar spine.\" \"StatPearls' abdominal wall overview credits the muscle with compressing the abdominal viscera, preventing herniation, and stabilizing the pelvis during ambulation. TeachMeAnatomy lists the same visceral role as a supporting action, alongside rib depression. It says the muscle assists the flat muscles in compressing the abdominal viscera\" \"TeachMeAnatomy adds that the muscle stabilises the pelvis during walking, and depresses the ribs.\" \"The StatPearls rectus sheath entry is the best match for the lumbar flexion claim.\"",
+    "urls": [
+     "https://teachmeanatomy.info/encyclopaedia/r/rectus-abdominis/",
+     "https://www.ncbi.nlm.nih.gov/sites/books/NBK537153/",
+     "https://www.ncbi.nlm.nih.gov/sites/books/NBK470334/",
+     "https://pmc.ncbi.nlm.nih.gov/articles/PMC10824285/"
+    ]
+   },
+   {
+    "ref": "R2",
+    "query": "external oblique muscle unilateral contraction lateral flexion same side rotation opposite side bilateral flexion insertion iliac crest aponeurosis",
+    "allowedDomains": [
+     "ncbi.nlm.nih.gov",
+     "radiopaedia.org",
+     "teachmeanatomy.info"
+    ],
+    "checks": [
+     "core.external_oblique.function",
+     "core.external_oblique.appearance"
+    ],
+    "outcome": "agrees with the function claim, including bending to the same side (a line not tied to one result, so not cited). Disagrees in detail with the appearance claim: Radiopaedia has the lowest fibres attach to the iliac crest as muscle, and the tendon sheet go to the midline band and the pubic bone, where Kenhub's excerpt had the tendon sheet reach all three. Resolved in the wording; the claim stays reviewed.",
+    "excerpt": "\"One source says the external oblique bends the trunk toward its own side and rotates it toward the opposite side, giving the right muscle a rightward bend and leftward rotation. It also performs ipsilateral side-bending and contralateral rotation.\" \"Sources describe trunk flexion when both muscles work together, not a lateral bend.\" \"Radiopaedia describes two parts: the aponeurosis inserts into the whole length of the linea alba with extension onto the pubic crest and the pectineal line, while the lower fleshy fibers attach to the outer lip of the anterior two thirds of the iliac crest.\" \"Fibers arise from the fifth through twelfth ribs and run inferomedially.\"",
+    "urls": [
+     "https://teachmeanatomy.info/encyclopaedia/e/external-oblique/",
+     "https://radiopaedia.org/articles/external-oblique-muscle-1",
+     "https://www.ncbi.nlm.nih.gov/sites/books/NBK551649/",
+     "https://teachmeanatomy.info/abdomen/muscles/abdominal-wall/"
+    ]
+   },
+   {
+    "ref": "R3",
+    "query": "internal oblique muscle insertion inferior borders ribs 10-12 linea alba ipsilateral rotation lateral flexion action",
+    "allowedDomains": [
+     "ncbi.nlm.nih.gov",
+     "radiopaedia.org",
+     "teachmeanatomy.info",
+     "kenhub.com"
+    ],
+    "checks": [
+     "core.internal_oblique.function",
+     "node core.internal_oblique location"
+    ],
+    "outcome": "agrees: same-side bending and turning; attachments to ribs 10-12, the linea alba and the pubic crest, which support the node's location line. A TeachMeAnatomy line giving 'contralateral rotation' sits under a heading for the flat muscles as a group and is read by the summary as the external oblique's; not used.",
+    "excerpt": "\"(Their insertion is onto the inferior borders of ribs 10-12, linea alba, the junction with cremaster muscle and the pectineal line of pubis (via conjoint tendon).)\" \"(Laterally flexes and rotates trunk to the ipsilateral side; unilateral contraction ipsilaterally rotates the torso.)\" \"One TeachMeAnatomy page lists contralateral rotation, but that line sits under a general 'flat muscles' heading that covers the external oblique, so it is likely about a different muscle.\"",
+    "urls": [
+     "https://www.kenhub.com/en/library/anatomy/internal-abdominal-oblique-muscle",
+     "https://teachmeanatomy.info/encyclopaedia/i/internal-oblique/",
+     "https://www.kenhub.com/en/library/anatomy/the-lateral-abdominal-muscles"
+    ]
+   },
+   {
+    "ref": "R4",
+    "query": "transversus abdominis muscle does it rotate the trunk moment arm small actions compress abdomen anatomy",
+    "allowedDomains": [
+     "ncbi.nlm.nih.gov",
+     "teachmeanatomy.info",
+     "pubmed.ncbi.nlm.nih.gov"
+    ],
+    "checks": [
+     "core.transversus_abdominis.function",
+     "core.transversus_abdominis.selectivity.1"
+    ],
+    "outcome": "agrees that references disagree on turning: a 2016 muscle-activity paper's summary groups the transversus abdominis with the muscles that act on their own side in rotation (an EMG paper, not an anatomy reference; not cited), while anatomy references other than Kenhub give it no trunk movement. Found PubMed 15940481 for the rotation study. No result quantified its moment arm.",
+    "excerpt": "\"(TrA was consistently active during trunk rotation, with the recruitment patterns of the upper fascicles opposite to that of the middle and lower fascicles.)\" \"(During rotation, the external oblique (EO), rectus abdominis (RA) and lumbar multifidus (MF) muscles act contralaterally, whereas the latissimus dorsi (LD), internal oblique (IO) and transversus abdominis (TrA) muscles act ipsilaterally.)\" \"The sources I found do not quantify its moment arm\"",
+    "urls": [
+     "https://pubmed.ncbi.nlm.nih.gov/15940481/",
+     "https://pmc.ncbi.nlm.nih.gov/articles/PMC4793016/",
+     "https://pubmed.ncbi.nlm.nih.gov/21269831/"
+    ]
+   },
+   {
+    "ref": "R5",
+    "query": "Diagnostic ultrasound preferential activation rectus abdominis segments exercises targeting upper versus lower segments",
+    "allowedDomains": [
+     "pmc.ncbi.nlm.nih.gov",
+     "pubmed.ncbi.nlm.nih.gov",
+     "ncbi.nlm.nih.gov"
+    ],
+    "checks": [
+     "core.rectus_abdominis.selectivity.1"
+    ],
+    "outcome": "agrees that the question is open: a 2023 ultrasound study (15 people; muscle thickening, not EMG) found differences driven by the exercise and recruitment 'biased closer to the load', and its authors say controversy exists. Not cited (a thickness measure, found by the reviewer); listed for the anatomy lane.",
+    "excerpt": "\"Fifteen participants performed a 45° crunch, a 90° sit-up, and a 90° leg raise while the researchers used M-mode ultrasound on all four unilateral segments.\" \"The authors concluded that muscle recruitment seems to be biased closer to the load.\" \"The authors also note that controversy exists around exercises and clinical tests that attempt to differentially activate the upper or lower portions of the rectus abdominis.\"",
+    "urls": [
+     "https://pubmed.ncbi.nlm.nih.gov/38288259/",
+     "https://pmc.ncbi.nlm.nih.gov/articles/PMC10824285/",
+     "https://pubmed.ncbi.nlm.nih.gov/11319934"
+    ]
+   },
+   {
+    "ref": "R6",
+    "query": "upper and lower rectus abdominis curl-up posterior pelvic tilt correct performance surface EMG 1996 Valencia volunteers",
+    "allowedDomains": [
+     "pubmed.ncbi.nlm.nih.gov",
+     "sciencedirect.com",
+     "archives-pmr.org"
+    ],
+    "checks": [
+     "core.rectus_abdominis.selectivity.1"
+    ],
+    "outcome": "partial: the PubMed record of the 1996 study (University of Valencia) was returned but its findings were not in the snippet (R9 found them). Agrees with the 2003 pilot's null result. A later study on and off an exercise ball found more upper than lower activity in curl-ups, another disagreement (not cited).",
+    "excerpt": "\"A 2003 pilot study of eight volunteers compared six exercises. There were no significant differences (p > 0.05) between the EMG activity of the URA and LRA during any exercise.\" \"Activity of the URA was significantly greater than muscle activity of the LRA for the curl-up, Swiss ball curl-up and Swiss ball rollout.\"",
+    "urls": [
+     "https://pubmed.ncbi.nlm.nih.gov/8976314/",
+     "https://pubmed.ncbi.nlm.nih.gov/12930172/",
+     "https://www.sciencedirect.com/science/article/abs/pii/S1360859209000096"
+    ]
+   },
+   {
+    "ref": "R7",
+    "query": "pilot study eight subjects six abdominal exercises upper lower rectus abdominis no significant difference Journal of Strength and Conditioning Research 2003",
+    "allowedDomains": [
+     "pubmed.ncbi.nlm.nih.gov",
+     "journals.lww.com"
+    ],
+    "checks": [
+     "core.rectus_abdominis.selectivity.1"
+    ],
+    "outcome": "agrees; the summary names the authors (Clark, Holt and Sinyard) and adds that activity differed between exercises",
+    "excerpt": "\"The study you're describing is Clark, Holt & Sinyard (2003), 'Electromyographic Comparison of the Upper and Lower Rectus Abdominis During Abdominal Exercises,' in the Journal of Strength and Conditioning Research 17(3): 475-483.\" \"Eight healthy, adult volunteers completed 6 random abdominal exercises\" \"There were no significant differences (p > 0.05) between the EMG activity of the URA and LRA during any exercise.\" \"The curl up, [exercise-ball] curl up, and [brand-name device] curl up had significantly higher normalized EMG activity in both muscle sites than the reverse curl up, the leg lowering exercise, and the [exercise-ball] roll out.\"",
+    "urls": [
+     "https://journals.lww.com/nsca-jscr/abstract/2003/08000/electromyographic_comparison_of_the_upper_and.8.aspx",
+     "https://pubmed.ncbi.nlm.nih.gov/12930172/"
+    ]
+   },
+   {
+    "ref": "R8",
+    "query": "Phys Ther 2006 traditional and nontraditional abdominal exercises electromyography 21 subjects roll-out hanging knee-up reverse crunch extraneous musculature abstract",
+    "allowedDomains": [
+     "pubmed.ncbi.nlm.nih.gov",
+     "academic.oup.com"
+    ],
+    "checks": [
+     "core.rectus_abdominis.selectivity.2",
+     "core.external_oblique.selectivity.1",
+     "core.internal_oblique.selectivity.2"
+    ],
+    "outcome": "agrees with all three claims; PubMed 16649890 returned under this title, so the PMID is now seen on PubMed",
+    "excerpt": "\"Twenty-one men and women who were healthy and between 23 and 43 years of age were recruited for this study.\" \"Surface EMG recorded the upper and lower rectus abdominis, the obliques, rectus femoris, latissimus dorsi, and lumbar paraspinals. The EMG data were normalized to maximum voluntary muscle contractions.\" \"The [wheeled device] (pike, knee-up, and roll-out), the hanging knee-up with straps, and the reverse crunch inclined 30 degrees produced the highest activity in the rectus abdominis and internal oblique. The [wheeled device] and hanging knee-up with straps also led for the external oblique. Lumbar paraspinal activity stayed low and similar across exercises.\"",
+    "urls": [
+     "https://pubmed.ncbi.nlm.nih.gov/16649890/",
+     "https://academic.oup.com/ptj/article-abstract/86/5/656/2857416"
+    ]
+   },
+   {
+    "ref": "R9",
+    "query": "\"8976314\" OR \"Muscle activity in upper and lower rectus abdominus\" results curl-up greater upper portion pelvic tilt lower portion high activity group",
+    "allowedDomains": null,
+    "checks": [
+     "core.rectus_abdominis.selectivity.1"
+    ],
+    "outcome": "agrees with every sentence on the 1996 study (33 volunteers; the curl-up and the upper part in correct performers; the pelvic tilt and the lower part only in the high-activity correct performers; no difference in incorrect performers)",
+    "excerpt": "\"It used 33 volunteers split into high and low activity groups, and each group was further split into correct and incorrect performers.\" \"Among correct performers, CU produces greater activity on upper RA.\" \"For persons who have a high level of activity, PT is more strenuous than CU on lower RA.\" \"Either exercise indistinctly activates the muscle portions.\"",
+    "urls": [
+     "https://pubmed.ncbi.nlm.nih.gov/8976314/"
+    ]
+   },
+   {
+    "ref": "R10",
+    "query": "plank instability devices EMG rectus abdominis external oblique erector spinae suspension stability ball results which planks differed from stable plank 2014",
+    "allowedDomains": [
+     "pubmed.ncbi.nlm.nih.gov",
+     "journals.lww.com",
+     "ncbi.nlm.nih.gov"
+    ],
+    "checks": [
+     "core.rectus_abdominis.selectivity.3",
+     "core.external_oblique.selectivity.2"
+    ],
+    "outcome": "agrees only at the level of the abdominal muscles as a group: a later paper cites the 2014 study for higher activation on instability devices; no result gave the muscle-by-muscle findings. The claims now say 'the surface trunk muscles recorded' rather than naming a result for each muscle.",
+    "excerpt": "\"A 2020s study on plank surface stability reports that this work found higher muscle activation during plank exercise using instability devices such as a [exercise ball] and a [suspension device] compared to this exercise performed on a stable surface. That paper doesn't break out which muscles drove the difference, so I couldn't confirm the rectus abdominis, external oblique, or erector spinae results from the original.\"",
+    "urls": [
+     "https://pmc.ncbi.nlm.nih.gov/articles/PMC13215240/",
+     "https://pubmed.ncbi.nlm.nih.gov/28157133/"
+    ]
+   },
+   {
+    "ref": "R11",
+    "query": "abdominal bracing versus hollowing intra-abdominal pressure rectal transducer seven men internal oblique highest activity Kanehisa",
+    "allowedDomains": [
+     "pubmed.ncbi.nlm.nih.gov",
+     "thieme-connect.com",
+     "thieme-connect.de"
+    ],
+    "checks": [
+     "core.internal_oblique.selectivity.1",
+     "action abdomen.compression"
+    ],
+    "outcome": "agrees with every sentence; PubMed 26509386 returned for the title, so the source is now keyed by its PMID",
+    "excerpt": "\"Intra-abdominal pressure was measured with a transducer in the rectum, alongside surface EMG of the rectus abdominis, external oblique, internal oblique, and erector spinae. The participants were 7 young adult men.\" \"The rise was 116.4±15.0 mmHg in bracing versus 9.9±4.5 mmHg in hollowing\" \"At peak pressure, activity was higher in bracing than in hollowing, and the internal oblique was more active than the other three muscles.\" \"The authors concluded that abdominal bracing is an effective maneuver to elevate IAP compared with abdominal hollowing, and that the link between pressure and muscle activity depends on the task.\"",
+    "urls": [
+     "https://pubmed.ncbi.nlm.nih.gov/26509386",
+     "https://www.thieme-connect.com/products/ejournals/abstract/10.1055/s-0035-1559771"
+    ]
+   },
+   {
+    "ref": "R12",
+    "query": "15940481 transversus abdominis regions trunk rotation fine-wire electrodes sitting upper fascicles opposite middle lower rectus abdominis no directional",
+    "allowedDomains": [
+     "pubmed.ncbi.nlm.nih.gov",
+     "ncbi.nlm.nih.gov",
+     "link.springer.com"
+    ],
+    "checks": [
+     "core.transversus_abdominis.selectivity.1"
+    ],
+    "outcome": "agrees in part: the task was turning the pelvis against a fixed chest while seated, and the abstract says the muscle was 'consistently active during trunk rotation', not active 'throughout the turn'. Reworded; the claim stays reviewed. The snippet was cut off before the rectus abdominis result, which rests on the first review's excerpt.",
+    "excerpt": "\"Trunk rotation to the left and right was performed in sitting by rotating the pelvis relative to a fixed thorax.\" \"The abstract states that TrA was consistently active during trunk rotation, with the recruitment patterns of the upper fascicles opposite to that of the middle and lower fascicles.\" \"The study used fine-wire electrodes inserted into the right abdominal wall\" \"I could not confirm the 'no directional' part of your query from these results.\"",
+    "urls": [
+     "https://pubmed.ncbi.nlm.nih.gov/15940481/"
+    ]
+   },
+   {
+    "ref": "R13",
+    "query": "Snarr Esco electromyographical comparison plank variations instability devices J Strength Cond Res 2014 PubMed",
+    "allowedDomains": [
+     "pubmed.ncbi.nlm.nih.gov",
+     "journals.lww.com"
+    ],
+    "checks": [
+     "core.rectus_abdominis.selectivity.3",
+     "core.external_oblique.selectivity.2"
+    ],
+    "outcome": "agrees at the level of 'the superficial musculature'; the journal's own page was returned (now the source URL); no PubMed entry was returned",
+    "excerpt": "\"It's 'Electromyographical Comparison of Plank Variations Performed With and Without Instability Devices' by Ronald L. Snarr and Michael R. Esco, J Strength Cond Res 28(11): 3298-3305, 2014. The DOI is 10.1519/JSC.0000000000000521. The results didn't include a PubMed entry for this 2014 article, only the journal page.\" \"Twelve apparently healthy men and women took part. Its main finding was that planks performed with the instability devices increased EMG activity in the superficial musculature when compared with traditional stable planks.\"",
+    "urls": [
+     "https://journals.lww.com/nsca-jscr/fulltext/2014/11000/electromyographical_comparison_of_plank_variations.36.aspx"
+    ]
+   },
+   {
+    "ref": "R14",
+    "query": "number of tendinous intersections rectus abdominis cadaver variation one to five intersections incomplete below umbilicus",
+    "allowedDomains": null,
+    "checks": [
+     "core.rectus_abdominis.variation.1",
+     "core.rectus_abdominis.appearance"
+    ],
+    "outcome": "agrees: three is the most common count, four and five less common, one or two rare; the North Indian series' exact title and PubMed id (26266107) returned. Other populations differ (one series had four in about a third; a Kerala series had no complete band below the navel); not cited, but consistent with 'differs between people'.",
+    "excerpt": "\"A North Indian cadaver study of 54 specimens found one cadaver with five tendinous intersections (1.85%), one with four (1.85%), and 52 with three (96.29%).\" \"A third, on specimens from a different population, found 1.2% with one inscription, 5.9% with two, 58.0% with three, and 35.2% with four.\" \"A Kerala study found that there were no complete intersections seen below the level of umbilicus\" \"Overall, the sources agree that three intersections is the most common count, with four and five less common and one or two rare.\"",
+    "urls": [
+     "https://doaj.org/article/05b3de8c84ba42f39dba8c631e7fd750",
+     "https://jcdr.net/article_abstract.asp?year=2015&id=6028",
+     "https://pubmed.ncbi.nlm.nih.gov/26266107",
+     "https://www.researchgate.net/publication/279441146_The_tendinous_intersections_of_rectus_abdominis_muscle"
+    ]
+   },
+   {
+    "ref": "R15",
+    "query": "Finnish women rectus diastasis prevalence early pregnancy ultrasound linea alba width parity low back pain Hernia Tuominen",
+    "allowedDomains": [
+     "pubmed.ncbi.nlm.nih.gov",
+     "link.springer.com",
+     "pmc.ncbi.nlm.nih.gov",
+     "ncbi.nlm.nih.gov"
+    ],
+    "checks": [
+     "core.rectus_abdominis.variation.2"
+    ],
+    "outcome": "agrees with every sentence; gives the first author (Tuominen) and the issue (Hernia 26:599-608, 2022)",
+    "excerpt": "\"The average inter-rectus distance (IRD) among nulliparous women was 1.81 ± 0.72 cm. After one previous pregnancy, the average linea alba width was 2.36 cm ± 0.83 cm and after more pregnancies 2.55 ± 1.09 cm.\" \"Moderate ARD (3.0-5.0 cm) alone does not seem to explain low back pain or functional disability in population level.\" \"Severe separation (over 5 cm) was rare.\" \"Its own reference list places the paper in Hernia 26:599-608 (DOI 10.1007/s10029-021-02484-8).\"",
+    "urls": [
+     "https://link.springer.com/article/10.1007/s10029-021-02484-8",
+     "https://pmc.ncbi.nlm.nih.gov/articles/PMC9012726/"
+    ]
+   },
+   {
+    "ref": "R16",
+    "query": "intra-abdominal pressure transversus abdominis intramuscular EMG most closely related Cresswell 1992 Acta Physiol Scand abstract",
+    "allowedDomains": [
+     "pubmed.ncbi.nlm.nih.gov",
+     "onlinelibrary.wiley.com"
+    ],
+    "checks": [
+     "action abdomen.compression",
+     "nodeAction core.transversus_abdominis abdomen.compression"
+    ],
+    "outcome": "lead only, consistent with the transversus abdominis as a prime compressor: intramuscular studies by Cresswell and colleagues (1992, six men; 1994, lifting) relate its activity closely to the pressure, but only partial abstracts were seen. Not cited.",
+    "excerpt": "\"They recorded intramuscular activity bilaterally from transversus abdominis, obliquus internus, obliquus externus and rectus abdominis, using fine-wire electrodes placed under real-time ultrasound. Pressure was measured intragastrically. Six males were studied\" \"During maximal isometric trunk flexion and extension, transversus abdominis activity and intra-abdominal pressure stayed steady, while the other abdominal muscles varied (the abstract is cut off at this point).\" \"Among the abdominal muscles, transversus abdominis showed the highest activity level and the best correlation with variations in IAP.\"",
+    "urls": [
+     "https://onlinelibrary.wiley.com/doi/10.1111/j.1748-1716.1992.tb09314.x",
+     "https://pubmed.ncbi.nlm.nih.gov/8055889/",
+     "https://pubmed.ncbi.nlm.nih.gov/8495692/"
+    ]
+   },
+   {
+    "ref": "R17",
+    "query": "MeSH Rectus Abdominis D017568 scope note \"flexes the vertebral column\" NLM",
+    "allowedDomains": [
+     "nlm.nih.gov",
+     "meshb.nlm.nih.gov",
+     "ncbi.nlm.nih.gov"
+    ],
+    "checks": [
+     "core.rectus_abdominis.function"
+    ],
+    "outcome": "agrees; the record was found on the NLM MeSH browser itself, so the source URL now points there instead of a university mirror. The summary paraphrased the scope note rather than quoting it.",
+    "excerpt": "\"The record describes the muscle as a long, flat sheet running the length of both sides of the abdomen. It says the muscle bends the spine, mainly in the lower back, and also tightens the front abdominal wall and helps compress the abdominal contents (Tree Number(s): A02.633.567.050.800 Unique ID: D017568; scope note at From Gray's Anatomy, 30th American ed, p491).\"",
+    "urls": [
+     "https://meshb.nlm.nih.gov/record/ui?ui=D017568"
+    ]
+   },
+   {
+    "ref": "R18",
+    "query": "trunk flexion prime mover rectus abdominis obliques assist flexion when both sides contract kinesiology",
+    "allowedDomains": [
+     "ncbi.nlm.nih.gov",
+     "teachmeanatomy.info",
+     "pubmed.ncbi.nlm.nih.gov",
+     "kenhub.com"
+    ],
+    "checks": [
+     "nodeAction core.external_oblique spine.flexion",
+     "nodeAction core.internal_oblique spine.flexion"
+    ],
+    "outcome": "does not settle prime or assist: Kenhub has the obliques flex the trunk together with the rectus abdominis, without grading; no reference returned calls the obliques main or assisting flexors. The summary's own view that the rectus abdominis is the main flexor is not a source. Left for the anatomy lane.",
+    "excerpt": "\"When contracting bilaterally, the muscle works together with internal abdominal oblique and rectus abdominis to flex the trunk anteriorly.\" \"Bilateral contraction - Trunk flexion, compresses abdominal viscera, expiration\" \"The search did not directly confirm the 'prime mover' label\"",
+    "urls": [
+     "https://www.kenhub.com/en/library/anatomy/external-abdominal-oblique-muscle",
+     "https://www.kenhub.com/en/library/anatomy/internal-abdominal-oblique-muscle",
+     "https://pmc.ncbi.nlm.nih.gov/articles/PMC155519/"
+    ]
+   },
+   {
+    "ref": "R19",
+    "query": "Escamilla 2006 abdominal exercises conclusion \"extraneous musculature\" [wheeled device; brand name removed] hanging knee-up most effective rectus femoris latissimus dorsi",
+    "allowedDomains": null,
+    "checks": [
+     "core.rectus_abdominis.selectivity.2"
+    ],
+    "outcome": "agrees with 'the same exercises were also the most effective at activating muscles outside the abdomen' (the authors' conclusion). The summary attributed the abstract to JOSPT 36(2), the same first author's other 2006 paper; the lines quoted match the Physical Therapy paper (R8).",
+    "excerpt": "\"the [wheeled device] (pike, knee-up, and roll-out), the hanging knee-up with straps, and the reverse crunch inclined 30 degrees not only were the most effective exercises in activating abdominal musculature but also were the most effective in activating extraneous musculature.\" \"Rectus femoris muscle EMG activity was highest for the [wheeled device] (pike and knee-up), reverse crunch inclined 30 degrees, and bent-knee sit-up.\"",
+    "urls": [
+     "https://scholars.csus.edu/esploro/outputs/journalArticle/Electromyographic-Analysis-of-Traditional-and-Nontraditional/99257847129401671",
+     "https://pubmed.ncbi.nlm.nih.gov/16494072/"
+    ]
+   },
+   {
+    "ref": "R20",
+    "query": "anti-rotation Pallof press electromyography external oblique internal oblique rectus abdominis study",
+    "allowedDomains": [
+     "pubmed.ncbi.nlm.nih.gov",
+     "ncbi.nlm.nih.gov",
+     "journals.lww.com"
+    ],
+    "checks": [
+     "deliberatelyNotClaimed: anti-rotation work"
+    ],
+    "outcome": "no study measuring a press held against a sideways pull was returned; the first review's decision not to claim anything about anti-rotation work stands",
+    "excerpt": "\"I didn't find a study that directly measures EMG during the anti-rotation Pallof press.\" \"It found EMG rose with effort level, but it also raised concerns that surface electrodes on the external oblique may pick up signal from the underlying internal oblique\"",
+    "urls": [
+     "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9069374/",
+     "https://pmc.ncbi.nlm.nih.gov/articles/PMC3772590/"
+    ]
+   },
+   {
+    "ref": "R21",
+    "query": "NBK525975 StatPearls anterolateral abdominal wall",
+    "allowedDomains": [
+     "ncbi.nlm.nih.gov"
+    ],
+    "checks": [
+     "source statpearls.anterolateral_abdominal_wall",
+     "core.internal_oblique.appearance",
+     "core.transversus_abdominis.appearance"
+    ],
+    "outcome": "agrees: the id matches the title; the summary names the authors and repeats the layer order and the update date",
+    "excerpt": "\"The NBK525975 identifier points to the StatPearls article 'Anatomy, Abdomen and Pelvis: Anterolateral Abdominal Wall,' by Seeras, Qasawa, Ju, and Prakash. A figure page under the same ID confirms the link. The article's last update was July 24, 2023.\" \"The classic description lists the layers from superficial to deep, running from skin through the subcutaneous tissue, the external and internal obliques, and transversus abdominis, down to the parietal peritoneum\" \"The wall protects the abdominal viscera, helps maintain posture, aids forceful expiration, and takes part in any activity that raises intra-abdominal pressure\"",
+    "urls": [
+     "https://www.ncbi.nlm.nih.gov/sites/books/NBK525975/?report=classic",
+     "https://www.ncbi.nlm.nih.gov/books/NBK525975/figure/article-32104.image.f1/"
+    ]
+   },
+   {
+    "ref": "R22",
+    "query": "StatPearls anterolateral abdominal wall muscles external oblique internal oblique transversus abdominis compress abdominal contents increase intra-abdominal pressure functions",
+    "allowedDomains": [
+     "ncbi.nlm.nih.gov"
+    ],
+    "checks": [
+     "core.transversus_abdominis.function",
+     "action abdomen.compression"
+    ],
+    "outcome": "agrees that the flat muscles raise the pressure in the abdomen; one line disagrees in part on breathing out: StatPearls' abdominal wall chapter says the anterolateral muscles except the transversus abdominis help breathe out by pulling the ribs down. Kenhub has the transversus abdominis aid expiration through its compression; the claim now says so.",
+    "excerpt": "\"The same article notes that the flat muscles flex and rotate the trunk, and their criss-crossing fibers strengthen the abdominal wall and reduce the risk of herniation.\" \"A separate StatPearls entry describes how simultaneous contraction of abdominal muscles can facilitate the generation of intraabdominal and intrathoracic pressure critical in sneezing, coughing, vomiting, and defecating. It adds that the anterolateral muscles (except transversus abdominis) act as accessory muscles of respiration by depressing the ribs to cause active expiration.\"",
+    "urls": [
+     "https://www.ncbi.nlm.nih.gov/sites/books/NBK470334/",
+     "https://www.ncbi.nlm.nih.gov/sites/books/NBK551649/"
+    ]
+   },
+   {
+    "ref": "R23",
+    "query": "radiopaedia transversus abdominis muscle article action deep to internal oblique",
+    "allowedDomains": [
+     "radiopaedia.org"
+    ],
+    "checks": [
+     "core.transversus_abdominis.function",
+     "core.transversus_abdominis.appearance",
+     "source radiopaedia.transversus_abdominis"
+    ],
+    "outcome": "agrees; returned the canonical article (radiopaedia.org/articles/transversus-abdominis-muscle), so the source URL and title now point there instead of an images.radiopaedia.org address",
+    "excerpt": "\"It is deep to the internal oblique muscle and ends in the anterior aponeurosis, which ultimately blends with the linea alba.\" \"action: flat muscle which forms part of abdominal wall, compresses abdominal cavity\" \"innervation: anterior rami of spinal nerves T7-L1\" \"The article is the Radiopaedia reference page titled 'Transversus abdominis muscle' (rID 47186), last revised in March 2022.\"",
+    "urls": [
+     "https://radiopaedia.org/articles/transversus-abdominis-muscle"
+    ]
+   },
+   {
+    "ref": "R24",
+    "query": "long-lever posteriorly tilted plank versus traditional plank EMG rectus abdominis external oblique Sports Biomechanics abstract",
+    "allowedDomains": [
+     "pubmed.ncbi.nlm.nih.gov",
+     "tandfonline.com"
+    ],
+    "checks": [
+     "candidate: plank selectivity"
+    ],
+    "outcome": "a real, citable plank study with a tied abstract; not in the dossier. Listed as a candidate claim for the anatomy lane (the second review does not add or promote claims on evidence it found itself).",
+    "excerpt": "\"Per the abstract, the modified plank produced significantly higher activation in the upper rectus abdominis, lower abdominal stabilizers, and external oblique than the traditional prone plank (all p < 0.001).\" \"The long-lever plank alone gave significantly greater activity than the traditional plank in the upper rectus abdominis and lower abdominal stabilizers, while the posterior-tilt plank alone produced greater external oblique activity.\"",
+    "urls": [
+     "https://www.tandfonline.com/doi/abs/10.1080/14763141.2014.942355"
+    ]
+   },
+   {
+    "ref": "R25",
+    "query": "rectus abdominis insertion xiphoid process costal cartilages 5-7 tendinous intersections level xiphoid umbilicus midway rectus sheath TeachMeAnatomy",
+    "allowedDomains": [
+     "teachmeanatomy.info",
+     "ncbi.nlm.nih.gov",
+     "radiopaedia.org"
+    ],
+    "checks": [
+     "core.rectus_abdominis.appearance",
+     "node core.rectus_abdominis location"
+    ],
+    "outcome": "agrees with every location sentence (attachments, three bands at the xiphoid, the navel and midway, the sheath formed by the three flat muscles' tendon sheets); supports correcting the node's 'lower ribs' to the fifth to seventh rib cartilages",
+    "excerpt": "\"The TeachMeAnatomy entry places the muscle's upper attachment on the xiphoid process and the costal cartilages of ribs 5 to 7\" \"Three intersections divide each muscle belly into four segments\" \"An ultrasound review places them at the umbilicus, the xiphoid level, and a point midway between the two\" \"The muscle is enclosed in the rectus sheath, which is formed by the aponeuroses of the external oblique, internal oblique, and transversus abdominis\"",
+    "urls": [
+     "https://teachmeanatomy.info/encyclopaedia/r/rectus-abdominis/",
+     "https://pmc.ncbi.nlm.nih.gov/articles/PMC12487957/",
+     "https://www.ncbi.nlm.nih.gov/sites/books/NBK551649/"
+    ]
+   },
+   {
+    "ref": "R26",
+    "query": "Schoenfeld Contreras 2014 modified plank long lever posterior tilt traditional plank participants number men women surface EMG",
+    "allowedDomains": [
+     "pubmed.ncbi.nlm.nih.gov",
+     "tandfonline.com",
+     "ncbi.nlm.nih.gov"
+    ],
+    "checks": [
+     "candidate: plank selectivity"
+    ],
+    "outcome": "gives the candidate study's sample (19 participants) and authors; sex breakdown not shown",
+    "excerpt": "\"Nineteen participants performed all four variations of the plank for 30 seconds in a randomized order with 5-minute rest between exercise bouts.\" \"Schoenfeld, B. J., Contreras, B., Tiryaki-Sonmez, G., Willardson, J. M., & Fontana, F. (2014). Sports Biomechanics, 13(3), 296-306.\"",
+    "urls": [
+     "https://www.tandfonline.com/doi/abs/10.1080/14763141.2014.942355"
+    ]
+   },
+   {
+    "ref": "R27",
+    "query": "side bridge side plank external oblique EMG percent MVC Ekstrom 2007 core exercises JOSPT abstract gluteus medius",
+    "allowedDomains": [
+     "pubmed.ncbi.nlm.nih.gov",
+     "jospt.org"
+    ],
+    "checks": [
+     "candidate: side-plank selectivity"
+    ],
+    "outcome": "a real, citable side-bridge study with a tied abstract (PubMed 18560185); listed as a candidate claim for the anatomy lane",
+    "excerpt": "\"The paper is 'Electromyographic analysis of core trunk, hip, and thigh muscles during 9 rehabilitation exercises' by Ekstrom, Donatelli, and Carp, published in J Orthop Sports Phys Ther, 2007;37(12):754-62 (PMID 18560185). The JOSPT abstract reports that the side-bridge exercise could strengthen the gluteus medius and external oblique.\" \"A related 2007 abstract by the same group reports that the side bridge (69.25 ± 21%MVIC) and prone bridge (47 ± 21%MVIC) exercises produced the most EMG activity in the external oblique abdominis.\"",
+    "urls": [
+     "https://www.jospt.org/doi/abs/10.2519/jospt.2007.2471",
+     "https://pubmed.ncbi.nlm.nih.gov/18560185/"
+    ]
+   }
+  ],
+  "changes": [
+   {
+    "what": "core.rectus_abdominis.selectivity.1 (reviewed, stays reviewed): first sentence 'Whether exercises can work the upper and lower parts of the rectus abdominis differently is unsettled' became 'Studies disagree on whether exercises can work the upper and lower parts of the rectus abdominis differently'.",
+    "why": "'Unsettled' is a judgement about the whole literature that no recorded excerpt makes; the two cited abstracts do show a disagreement (differences in correct performers in 1996, none in 2003). The rest of the claim was checked sentence by sentence and is supported.",
+    "evidence": "First-review excerpts for pmid.8976314 and pmid.12930172; R9 and R7 agree with both; R5 and R6 found two further studies on each side (not cited)."
+   },
+   {
+    "what": "core.rectus_abdominis.selectivity.3 and core.external_oblique.selectivity.2 (reviewed, stay reviewed): 'produced more activity in the rectus abdominis, the external oblique and the lower-back extensors' became 'produced more activity in the surface trunk muscles recorded (the rectus abdominis, the external oblique and the lower-back extensors)'; the qualification now says the per-muscle, per-device results were not seen.",
+    "why": "The excerpts (first review and R13) give the result as 'increased EMG activity in the superficial musculature' and, for the erector spinae, as a caution; neither review saw a result for each muscle and each device, and R10 could not find one. The old wording read as three separate per-muscle findings.",
+    "evidence": "First-review excerpt (Q38, Q39); R13 (same wording); R10 (a later paper citing it, no breakdown)."
+   },
+   {
+    "what": "core.external_oblique.appearance (reviewed, stays reviewed): the attachment sentence 'its fibres end in a tendon sheet attached to the midline band at the front, the pubic bone and the front of the crest of the hip bone' became 'Its lowest fibres reach the front part of the crest of the hip bone, and the rest become a tendon sheet attached to the pubic bone and along the midline band at the front'; radiopaedia.external_oblique added as a source.",
+    "why": "Independent search found that Radiopaedia gives two parts: the tendon sheet goes to the linea alba and the pubic crest, while the lower fibres attach to the iliac crest as muscle. The old sentence followed Kenhub's excerpt, which has the tendon sheet reach all three. The new sentence says only what both references support, and it matters to the drawing lane (muscle, not tendon sheet, reaches the hip bone).",
+    "evidence": "R2 (Radiopaedia, via summary); first-review excerpt of kenhub.external_abdominal_oblique (Q43); TeachMeAnatomy (Q7: 'ribs 5-12 to the iliac crest and pubic tubercle')."
+   },
+   {
+    "what": "core.transversus_abdominis.function (reviewed, stays reviewed): 'it also helps with forced breathing out' became 'through that compression it also helps with forced breathing out'; 'while others list compression only' became 'while the others list no movement of the trunk'.",
+    "why": "'Compression only' misdescribed the other references: IMAIOS also lists raised pressure and forced expiration, and Radiopaedia abdominal tone and raised pressure; what they share is that they list no trunk movement. On breathing out, StatPearls' abdominal wall chapter (R22) says the side muscles except the transversus abdominis help by pulling the ribs down; Kenhub's excerpt says its compression supports expiration. The new wording says how it helps, which no source contradicts.",
+    "evidence": "First-review excerpts of kenhub.transversus_abdominis ('the compression supports expiration'), imaios.transversus_abdominis, radiopaedia.transversus_abdominis and elsevier.transversus_abdominis; R22; R23; R4 (an EMG paper groups it with same-side rotators; not cited)."
+   },
+   {
+    "what": "core.transversus_abdominis.selectivity.1 (reviewed, stays reviewed): 'six people turning the trunk while seated' became 'six people who turned the pelvis against a fixed chest while seated'; 'was active throughout the turn' became 'was consistently active during the turns'.",
+    "why": "The PubMed abstract says rotation was done 'in sitting by rotating the pelvis relative to a fixed thorax' and that the muscle 'was consistently active during trunk rotation'. 'Throughout the turn' claimed a timing the abstract does not state; turning the pelvis under a fixed chest is a different task from turning the shoulders, which matters when the claim is read against exercises.",
+    "evidence": "R12 (PubMed 15940481 abstract); first-review excerpt (Q35, Q45)."
+   },
+   {
+    "what": "core.rectus_abdominis.function (reviewed, stays reviewed): wording unchanged; statpearls.rectus_sheath and teachmeanatomy.rectus_abdominis added as sources.",
+    "why": "The evidence standard puts NCBI Bookshelf first; the first review had no StatPearls support for this claim. TeachMeAnatomy is the second reference that grades the rectus abdominis's part in compression ('assists the flat muscles'), which the assist role in nodeActions rests on.",
+    "evidence": "R1 (summary lines tied to each site); R17 (the MeSH record agrees)."
+   },
+   {
+    "what": "core.rectus_abdominis location: 'and the lower ribs' became 'and the cartilages of the fifth to seventh ribs'.",
+    "why": "It attaches to the cartilages of ribs 5-7, which are not the lower ribs; the node's own appearance claim already said so.",
+    "evidence": "Kenhub and IMAIOS (first review, Q42, Q3); TeachMeAnatomy and StatPearls (R25)."
+   },
+   {
+    "what": "core.transversus_abdominis location: 'from the lower ribs' became 'from the cartilages of the lower ribs'.",
+    "why": "Kenhub gives the inner surface of the lower costal cartilages and Radiopaedia the cartilages of ribs 7-12.",
+    "evidence": "First-review excerpts of kenhub.transversus_abdominis (Q11) and radiopaedia.transversus_abdominis (Q10)."
+   },
+   {
+    "what": "core.external_oblique shapeNote: 'a thin tendon sheet' became 'a tendon sheet'.",
+    "why": "'Thin' is in no excerpt; the point, that the front part is tendon rather than muscle bulk, stands without it.",
+    "evidence": "First-review excerpt of kenhub.external_abdominal_oblique (Q43)."
+   },
+   {
+    "what": "core.external_oblique and core.internal_oblique caveats: 'how the work splits between them is not known' became 'this page does not split that work between them'.",
+    "why": "'Not known' is a claim about the whole literature that no source here makes, and muscle-activity studies of twisting exist. What the content can say is what it does: it does not split the work.",
+    "evidence": "None needed: the new wording describes the content, not the anatomy."
+   },
+   {
+    "what": "nlm.mesh_rectus_abdominis: URL changed from a university research-profiles mirror (profiles.rush.edu) to the NLM MeSH browser record; title no longer says 'as shown on a university research-profiles page'.",
+    "why": "The key names the National Library of Medicine; the second review found the NLM record itself. The note keeps saying the verbatim wording was seen on the mirrors.",
+    "evidence": "R17."
+   },
+   {
+    "what": "statpearls.anterolateral_abdominal_wall: note gains the authors (Seeras, Qasawa, Ju, Prakash) and the function line, as given by a search summary.",
+    "why": "The first review could not show the authors.",
+    "evidence": "R21."
+   },
+   {
+    "what": "radiopaedia.transversus_abdominis: URL changed from an images.radiopaedia.org address to the canonical article; title 'Transverse abdominis' became 'Transversus abdominis muscle'.",
+    "why": "The first review saw the page only at a mirror-like address; the second review found the canonical article (rID 47186).",
+    "evidence": "R23."
+   },
+   {
+    "what": "pmid.12930172: title gains the authors' names (Clark, Holt, Sinyard), as the journal's abstract page gave them.",
+    "why": "The first review could not confirm the authors.",
+    "evidence": "R7."
+   },
+   {
+    "what": "pmid.16649890: URL changed from the DOI resolver to PubMed 16649890; note says the PMID is now seen on PubMed.",
+    "why": "The first review keyed it by a PMID seen only in secondary citations; the second review found the PubMed record under the same title.",
+    "evidence": "R8, R19."
+   },
+   {
+    "what": "bisp.plank_instability_emg re-keyed to lww.plank_instability_emg; URL changed from the BISp database record to the journal's page.",
+    "why": "Keys are <publisher>.<topic> or pmid.<number>; BISp is a database, not the publisher; the journal's own pages are on journals.lww.com, hence 'lww'. No PMID was returned.",
+    "evidence": "R13."
+   },
+   {
+    "what": "springer.transversus_rotation_emg re-keyed to pmid.15940481; URL changed to PubMed.",
+    "why": "The first review keyed it by publisher only because no PMID was seen; the second review found the PubMed record.",
+    "evidence": "R4, R12."
+   },
+   {
+    "what": "thieme.bracing_hollowing_iap re-keyed to pmid.26509386; URL changed to PubMed.",
+    "why": "As above: a PMID is now seen.",
+    "evidence": "R11."
+   },
+   {
+    "what": "jcdr.tendinous_intersections re-keyed to pmid.26266107; title replaced by the paper's exact title (the first review had a described title, 'Anita et al. Tendinous intersections ... (exact title not shown)'); URL changed to PubMed.",
+    "why": "The exact title and PMID were returned by DOAJ, jcdr.net and PubMed.",
+    "evidence": "R14."
+   },
+   {
+    "what": "pmc.rectus_diastasis_finnish_women: title gains the first author and the journal, volume and pages (Hernia 2022;26:599-608).",
+    "why": "The first review inferred the journal and year from the DOI; the second review's results give them.",
+    "evidence": "R15."
+   },
+   {
+    "what": "Added three sources found by the second review: statpearls.rectus_sheath, teachmeanatomy.rectus_abdominis, radiopaedia.external_oblique.",
+    "why": "Each supports a sentence or a role the first review rested on fewer references (lumbar flexion; the rectus abdominis assisting compression) or corrects one (the external oblique's attachment to the hip bone).",
+    "evidence": "R1, R2, R25."
+   },
+   {
+    "what": "Citations: three new records (marked addedBy: secondReview) for the three added sources; 17 existing records gained the second review's excerpt for the same claim and source, with its query (marked secondReviewQueries).",
+    "why": "So each claim's evidence record shows what the independent search found, one record per claim and source as the build checks expect.",
+    "evidence": "R1-R23."
+   },
+   {
+    "what": "Recorded excerpts and query strings: two brand names of exercise devices and the word 'table' replaced by bracketed generic words (10 places), marked as removed.",
+    "why": "The copy rules forbid product names and 'table'; none was in a node field, claim, locator, qualification or source title (checked), but excerpts and query strings are the text a lane is most likely to paste into notes. searchlog.md, the first review's verbatim log, is not edited.",
+    "evidence": "Scan of every string in the dossier."
+   },
+   {
+    "what": "nodeActions: no role changed. Notes added to four rows: the rectus abdominis's assist in compression now rests on two grading references; the obliques' prime in spinal flexion is supported by the references but not graded by any (open item); the transversus abdominis's prime in compression is confirmed.",
+    "why": "Each node action was checked against its function claim: every row rests on a sentence of that claim, and every role is defensible on the excerpts.",
+    "evidence": "R1, R16, R18, R23."
+   }
+  ],
+  "candidateClaims": [
+   {
+    "node": "core.rectus_abdominis and core.external_oblique",
+    "kind": "selectivity",
+    "study": "Schoenfeld BJ, Contreras B, Tiryaki-Sonmez G, Willardson JM, Fontana F. An electromyographic comparison of a modified version of the plank with a long lever and posterior tilt versus the traditional plank exercise. Sports Biomech 2014;13(3):296-306. doi 10.1080/14763141.2014.942355",
+    "url": "https://www.tandfonline.com/doi/abs/10.1080/14763141.2014.942355",
+    "whatTheAbstractSays": "19 participants held four plank variations for 30 seconds; the long-lever, posterior-tilt plank produced significantly higher activity than the traditional plank in the upper rectus abdominis, the 'lower abdominal stabilizers' and the external oblique; the long lever alone raised the first two, the posterior tilt alone the external oblique (R24, R26).",
+    "beforePromoting": "Tie the abstract's sample and electrode sites (what 'lower abdominal stabilizers' records) to an excerpt; find a PMID; say it is short-term activity, not growth."
+   },
+   {
+    "node": "core.external_oblique",
+    "kind": "selectivity",
+    "study": "Ekstrom, Donatelli, Carp (initials not shown). Electromyographic analysis of core trunk, hip, and thigh muscles during 9 rehabilitation exercises. J Orthop Sports Phys Ther 2007;37(12):754-62. PubMed 18560185",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/18560185/",
+    "whatTheAbstractSays": "Surface EMG across nine exercises; the abstract reports that the side bridge could strengthen the gluteus medius and the external oblique; a related abstract by the group gives the side bridge as producing the most external oblique activity of the exercises compared (R27).",
+    "beforePromoting": "Tie the abstract's sample size and the external oblique line to the PubMed abstract itself (the figures came from a related abstract); avoid 'strengthen' in copy, which reads as a training promise; the gluteus medius line is the hips lane's."
+   },
+   {
+    "node": "core.transversus_abdominis",
+    "kind": "selectivity (or a sentence in the abdomen.compression note)",
+    "study": "Cresswell and Thorstensson. Changes in intra-abdominal pressure, trunk muscle activation and force during isokinetic lifting and lowering. 1994 (PubMed 8055889; journal not shown); and Cresswell, Grundstrom and Thorstensson. Observations on intra-abdominal pressure and patterns of abdominal intra-muscular activity in man. Acta Physiol Scand 1992;144(4):409-418",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/8055889/",
+    "whatTheAbstractSays": "Seen only as partial abstracts: the transversus abdominis had the highest activity of the abdominal muscles and the best correlation with the pressure during lifting (R16).",
+    "beforePromoting": "Tie a full abstract; fine-wire EMG in a handful of men; activity and pressure, not a share of the work."
+   }
+  ],
+  "openForAnatomyLane": [
+   "Obliques and forward bending: both are prime for spine.flexion on the references (Kenhub, Elsevier, IMAIOS, Radiopaedia list trunk flexion without grading). If the page should not suggest crunch-type work for the obliques, record assist as a product choice, not as evidence; no reference found grades them (R18).",
+   "Rectus abdominis and compression: assist now rests on two grading references (MeSH quoting Gray's; TeachMeAnatomy, R1); Kenhub, IMAIOS and Elsevier list compression without grading. The second review sees no reason to change it.",
+   "Shared action wording (O3): abdomen.compression reads 'Draws the belly wall in and tightens it'; the one measured study (pmid.26509386, confirmed by R11) found drawing in raised the pressure far less than bracing. For the owner of shared/specialization/actions/joints.ts.",
+   "core.rectus_abdominis.variation.2: its last sentence (a moderately wide gap did not seem to explain back pain at the population level) is supported, but it is a clinical finding in pregnant women on a training page. Keep, shorten to the anatomy, or drop: a product choice.",
+   "Candidate selectivity claims with tied abstracts (secondReview.candidateClaims): the long-lever, posterior-tilt plank (Schoenfeld and colleagues 2014) and the side bridge (Ekstrom and colleagues 2007). Anti-rotation work still has no citable study (R20).",
+   "The quadratus lumborum (O4): unchanged; its function claim is the back's and still draft, so the core page should not show its spine.lateral_flexion node action as reviewed until the back lane promotes it.",
+   "Full texts: lww.plank_instability_emg (the journal page is a full-text URL; read it when pages can be opened, for the per-muscle and per-device results); pmid.15940481 (the rectus abdominis sentence rests on one excerpt); every study is abstract-only.",
+   "Visibility: the rectus abdominis stays 'clear', as the forearm's brachioradialis is; 'variable' is the forearm's value for a muscle some people lack (palmaris longus), not for one hidden by body fat.",
+   "Re-running the first review's build would overwrite these corrections. The second review's script is /tmp/claude-0/-home-user-Sports-genome/1ff0a7bc-72e5-5e41-a8d9-937a97929500/scratchpad/review-core/apply_second_review.py (reads review-core/dossier.first-review.json); the markdown's sections 3-9 are rendered from the JSON by review-core/render_sections.py.",
+   "Human review: a clinician or anatomist should read these claims before the core's version is published as reviewed content (§8: publishing freezes reviewed claims)."
+  ]
  }
 }

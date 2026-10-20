@@ -17,8 +17,8 @@
     "nodeActionsPrime": 12,
     "nodeActionsAssist": 12,
     "newJointActions": 0,
-    "sources": 59,
-    "citations": 90,
+    "sources": 62,
+    "citations": 115,
     "deviations": 2
   },
   "nodes": [
@@ -48,7 +48,7 @@
       "databaseMuscleNote": "The canonical list (shared/capabilityRank.ts) holds gluteus_maximus, gluteus_medius and gluteus_minimus separately, not the group.",
       "location": "The buttock and the outer side of the hip, from the back and side of the pelvis to the top of the thigh bone, in a surface, a middle and a deep layer.",
       "whatItDoes": "Straighten your hip, move your thigh out to the side and turn it, and hold your pelvis steady when you stand on one leg.",
-      "shapeNote": "Together these muscles make up most of the muscular outline of the buttock and the upper outer hip. Which muscle shapes which part of that outline cannot be read from the surface. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "shapeNote": "Together these muscles may make up most of the muscular outline of the buttock and the upper outer hip. Which muscle shapes which part of that outline cannot be read from the surface. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
       "caveats": [
         "A group, not a muscle: work is counted for the gluteus maximus, medius and minimus inside it.",
         "Some references also count the tensor fasciae latae among the gluteal muscles; here it is listed on its own."
@@ -82,7 +82,8 @@
       "whatItDoes": "Straightens your hip, moving the thigh back or raising the trunk from a forward lean, and turns the thigh outward. Its upper fibres help move the thigh out to the side and its lower fibres help bring it in. It does most of its work when force is needed: rising from a chair, straightening up from a bend, climbing and running.",
       "shapeNote": "The surface muscle of the buttock, so it may contribute most of the buttock's muscular outline. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
       "caveats": [
-        "Its upper and lower parts are counted as one muscle here. In one study the upper part was more active in exercises that move the thigh out to the side or turn it outward; that is short-term muscle activity, not growth."
+        "Its upper and lower parts are counted as one muscle here. In one study the upper part was more active in exercises that move the thigh out to the side or turn it outward; that is short-term muscle activity, not growth.",
+        "Its outward turning is weaker with the hip bent, by one paper's reading of a cadaver study; it is counted for the hip held straight."
       ],
       "statusReason": "Its function claim, hips:hips.gluteus_maximus.function, is reviewed."
     },
@@ -102,7 +103,7 @@
       "layer": "intermediate (surface outcrop above GMax)",
       "layerSupported": true,
       "outcropSupported": true,
-      "layerEvidence": "Only the back third lies under the gluteus maximus; the larger front part is covered by the deep fascia of the hip, the gluteal aponeurosis, not by muscle (kenhub.gluteus_medius; elsevier.gluteal_fascia; imaios.gluteal_aponeurosis). So the belly is in the middle layer and its front part reaches the surface beside the gluteus maximus, as §1.2 says. That the uncovered part lies 'above' the gluteus maximus is read from the coverage, not stated by the excerpts.",
+      "layerEvidence": "Only the back third lies under the gluteus maximus; the larger front part is covered by the deep fascia of the hip, the gluteal aponeurosis, not by muscle (kenhub.gluteus_medius; elsevier.gluteal_fascia; imaios.gluteal_aponeurosis). So the belly is in the middle layer and its front part reaches the surface beside the gluteus maximus, as §1.2 says. That the uncovered part lies 'above' the gluteus maximus is read from the coverage, not stated by the cited excerpts; a second-review search (SR23) described the uncovered part as the front and upper part of the muscle (Physiopedia, a wiki, read and not cited), which agrees.",
       "surfaceVisibility": "partial",
       "surfaceVisibilityReason": "Its larger front part is covered only by fascia, its back third by the gluteus maximus (kenhub.gluteus_medius, elsevier.gluteal_fascia).",
       "nodeKey": "abductors",
@@ -208,8 +209,8 @@
       "shapeNote": "Deep, under the gluteus maximus, so it has little or no contour of its own. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
       "caveats": [
         "Shown beside the hip muscles because of where it sits; hip specialization does not target it.",
-        "With the hip bent far enough its pull reverses and it helps turn the thigh inward; that is not counted as a separate action here.",
-        "The sciatic nerve passes below it in most people, but through or above it in some."
+        "Some references say that with the hip bent far its pull reverses and it turns the thigh inward; a study in living adults did not find that. No inward turning is counted for it here.",
+        "The sciatic nerve passes below it in most people; in some, part or all of the nerve passes through or above it."
       ],
       "statusReason": "Its function claim, hips:hips.piriformis.function, is reviewed."
     },
@@ -272,7 +273,7 @@
       "databaseMuscleNote": "The canonical list holds adductor_magnus, adductor_longus, adductor_brevis and gracilis separately, not the group.",
       "location": "Inner side of the thigh, from the front and lower pelvis around the pubic bone down the inner side of the thigh bone, in layers from the surface to deep.",
       "whatItDoes": "Bring your thigh in toward the other leg and help steady the pelvis. The adductor magnus also helps straighten the hip.",
-      "shapeNote": "Together these muscles make up most of the inner thigh's fullness. Which muscle shapes which part of that outline cannot be read from the surface. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "shapeNote": "Together these muscles may make up most of the inner thigh's fullness. Which muscle shapes which part of that outline cannot be read from the surface. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
       "caveats": [
         "A group, not a muscle: work is counted for the muscles inside it.",
         "References differ on whether the pectineus belongs to the group; here it and the gracilis are listed in it, beside the three adductors."
@@ -294,7 +295,7 @@
       "layer": "intermediate (surface outcrop, back view)",
       "layerSupported": true,
       "outcropSupported": "partly",
-      "layerEvidence": "From the front it lies behind the adductor brevis, which lies behind the pectineus and adductor longus (kenhub.adductor_brevis_video), so it is the deepest of the front's three layers; from behind, posterior dissection views of the most superficial muscles label it beside the semitendinosus and gracilis (anatomytool.ubc_posterior_lower_limb; stanford.bassett_182_6, with the fascia lata removed). That supports a back-view outcrop, seen only through image labels. One teaching page (learnmuscles, not cited) called it deep from both views. See deviation D1 on its layer relative to the adductor brevis.",
+      "layerEvidence": "From the front it lies behind the adductor brevis, which lies behind the pectineus and adductor longus (kenhub.adductor_brevis_video), so it is the deepest of the front's three layers; from behind, posterior dissection views of the most superficial muscles label it beside the semitendinosus and gracilis (anatomytool.ubc_posterior_lower_limb; stanford.bassett_182_6, with the fascia lata removed). That supports a back-view outcrop, seen only through image labels. One teaching page (learnmuscles, not cited) called it deep from both views. See deviation D1 on its layer relative to the adductor brevis. Second review: an independent search (SR22) found no written description of the back-view outcrop, and its summary called the muscle 'usually not visible' from behind (its own inference). Another (SR24) suggested a small front-view outcrop low on the inner thigh, from labelled images outside the standard's list. The back-view outcrop therefore rests on image labels alone; the anatomy lane should confirm it from an atlas plate before the drawing lane cuts it.",
       "surfaceVisibility": "partial",
       "surfaceVisibilityReason": "Mostly covered by the other adductors and the hamstrings; part of it is labelled among the most superficial muscles in posterior views (anatomytool.ubc_posterior_lower_limb, stanford.bassett_182_6).",
       "nodeKey": "adductors",
@@ -325,19 +326,19 @@
       "layer": "surface",
       "layerSupported": true,
       "outcropSupported": null,
-      "layerEvidence": "The most superficial adductor (lecturio.medial_thigh_muscles); in the floor of the femoral triangle, whose roof is skin and fascia, its inner edge forming the triangle's inner border (kenhub.adductor_longus, teachmeanatomy.femoral_triangle).",
+      "layerEvidence": "The most superficial adductor (lecturio.medial_thigh_muscles); in the floor of the femoral triangle, whose roof is skin and fascia, its inner edge, by most accounts, forming the triangle's inner border (kenhub.adductor_longus, teachmeanatomy.femoral_triangle).",
       "surfaceVisibility": "partial",
       "surfaceVisibilityReason": "The most superficial adductor at the front of the inner thigh, under the fascia lata; its outline runs into the pectineus and gracilis beside it, which the forearm would mark 'partial'.",
       "nodeKey": "adductors",
       "catalogMuscleKey": "adductors",
       "databaseMuscle": "adductor_longus",
       "databaseMuscleNote": "Exists in the canonical list (shared/capabilityRank.ts).",
-      "location": "Front of the inner thigh, at the surface: from the front of the pubic bone, near the groin, down and outward to the middle of the back of the thigh bone. Its inner edge is the inner border of the femoral triangle.",
+      "location": "Front of the inner thigh, at the surface: from the front of the pubic bone, near the groin, down and outward to the middle of the back of the thigh bone. By most accounts its inner edge is the inner border of the femoral triangle.",
       "whatItDoes": "Brings your thigh in toward the other leg and helps bend the hip.",
       "shapeNote": "The most superficial adductor at the front of the inner thigh, so it may contribute to the contour of the upper inner thigh just below the groin. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
       "caveats": [
-        "Whether it helps bend or straighten the hip depends on the hip's angle: in a modelling study it bent the hip up to about 90 degrees of hip flexion and straightened it beyond that.",
-        "References disagree on which way it turns the thigh, so no rotation is counted for it here."
+        "Whether it helps bend or straighten the hip depends on the hip's angle: in one computer model it bent the hip up to about 90 degrees of hip flexion and straightened it beyond that.",
+        "References disagree on which way it turns the thigh, and two studies found the direction changes with the hip's position, so no rotation is counted for it here."
       ],
       "statusReason": "Its function claim, hips:hips.adductor_longus.function, is reviewed."
     },
@@ -367,7 +368,7 @@
       "whatItDoes": "Brings your thigh in toward the other leg and helps bend the hip.",
       "shapeNote": "Lies under the adductor longus and the pectineus, so it has little or no contour of its own; it may add to the general fullness of the upper inner thigh. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
       "caveats": [
-        "References disagree on which way it turns the thigh, so no rotation is counted for it here."
+        "References disagree on which way it turns the thigh, and one study found the direction changes with the hip's position, so no rotation is counted for it here."
       ],
       "statusReason": "Its function claim, hips:hips.adductor_brevis.function, is reviewed."
     },
@@ -398,7 +399,7 @@
       "shapeNote": "Lies near the surface in the hollow below the groin, but it is flat and set between larger muscles, so it has little separately visible contour. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
       "caveats": [
         "Shown beside the hip muscles; hip specialization does not target it.",
-        "Its nerve supply is mixed, which is why some references group it with the front of the thigh rather than the inner thigh."
+        "Its nerve supply can be mixed, which is why some references group it with the front of the thigh rather than the inner thigh."
       ],
       "statusReason": "Its function claim, hips:hips.pectineus.function, is reviewed."
     },
@@ -441,7 +442,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.gluteals",
       "kind": "function",
-      "statement": "The gluteal muscles of the buttock are taught in two groups. A superficial group of large muscles, the gluteus maximus, medius and minimus with the tensor fasciae latae, extends the hip and moves the thigh out to the side; a deep group of smaller muscles, the piriformis among them, mainly turns the thigh outward. The gluteus medius and minimus also hold the pelvis steady when one foot is off the ground, as in walking.",
+      "statement": "The gluteal muscles of the buttock are taught in two groups. A superficial group of large muscles, the gluteus maximus, medius and minimus with the tensor fasciae latae, extends the hip and moves the thigh out to the side; a deep group of smaller muscles, the piriformis among them, mainly turns the thigh outward. The gluteus medius also holds the pelvis steady when one leg is off the ground, and the gluteus minimus helps steady it in walking.",
       "basis": "established_anatomy",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -509,7 +510,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.gluteus_maximus",
       "kind": "function",
-      "statement": "The gluteus maximus extends the hip and turns the thigh outward (external rotation). Its upper fibres help move the thigh out to the side and its lower fibres help bring it in. Anatomy references describe it as the main hip extensor when force is needed, as in rising from a chair, straightening up from a bend, climbing and running. Of the hip muscles measured in a cadaver study, it had the largest capacity for turning the thigh outward. Through the iliotibial band it helps support the straightened knee.",
+      "statement": "The gluteus maximus extends the hip and turns the thigh outward (external rotation). Its upper fibres help move the thigh out to the side and its lower fibres help bring it in. Anatomy references describe it as the main hip extensor when force is needed, as in rising from a chair, straightening up from a bend, climbing and running. In a cadaver study of the hip's rotators it had a large capacity for turning the thigh outward, and a later paper citing that study notes that this capacity is reduced when the hip is bent. Through the iliotibial band it helps support the straightened knee.",
       "basis": "established_anatomy",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -533,12 +534,22 @@
         {
           "sourceId": "pmid.10327003",
           "locator": "Abstract",
-          "qualification": "Cadaver and computer-model study of rotation leverage (moment arms) in four specimens; abstract only."
+          "qualification": "Cadaver and computer-model study of rotation leverage (moment arms) in four specimens; abstract only. Two second-review searches read 'a large' capacity, not 'the largest'."
         },
         {
           "sourceId": "imaios.gluteus_maximus",
           "locator": "Function",
           "qualification": "Seen through a web-search summary of the imaios.cn mirror, not the page."
+        },
+        {
+          "sourceId": "elsevier.gluteus_maximus",
+          "locator": "Actions: the extended knee",
+          "qualification": "Seen through a generated web-search summary of the page, not the page itself."
+        },
+        {
+          "sourceId": "pmc.damiano_hip_rotation",
+          "locator": "Introduction (citing the 1999 cadaver study)",
+          "qualification": "A background sentence of a clinical paper, citing a cadaver study; seen through a search summary. Title and journal not confirmed."
         }
       ]
     },
@@ -591,7 +602,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.gluteus_medius",
       "kind": "function",
-      "statement": "The gluteus medius is a main hip abductor: the whole muscle moves the thigh out to the side, assisted by the gluteus minimus and the tensor fasciae latae. When one foot is off the ground, in standing, walking or running, it holds the pelvis steady over the standing leg. Its front fibres help turn the thigh inward, having the better leverage for it; one reference adds that its back fibres help turn the thigh outward. How hip muscles turn the thigh can change as the hip bends: a cadaver study of the gluteal muscles and the other hip rotators found the pull shifting toward turning the thigh inward with hip flexion in most of the muscle parts it measured.",
+      "statement": "The gluteus medius is a main hip abductor: the whole muscle moves the thigh out to the side, assisted by the gluteus minimus and the tensor fasciae latae. When one foot is off the ground, in standing, walking or running, it holds the pelvis steady over the standing leg. Its front fibres help turn the thigh inward, having the better leverage for it; one reference adds that its back fibres help turn the thigh outward when the knee is straight. How hip muscles turn the thigh can change as the hip bends: a cadaver study of the gluteal muscles and the other hip rotators found the pull shifting toward turning the thigh inward with hip flexion in most of the muscle parts it measured.",
       "basis": "established_anatomy",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -633,8 +644,8 @@
       "sources": [
         {
           "sourceId": "pmid.23160432",
-          "locator": "Abstract: Results and Conclusions",
-          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Healthy adults; the figures come from secondary summaries of the abstract."
+          "locator": "Abstract: Methods, Results and Conclusions",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Healthy adults, fine-wire electrodes; the figures come from secondary summaries of the abstract, which two searches agreed on."
         }
       ]
     },
@@ -644,7 +655,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.gluteus_medius",
       "kind": "appearance",
-      "statement": "Only the back third of the gluteus medius lies under the gluteus maximus. Its larger front part, on the outer side of the hip, is covered by a thick sheet of fascia (the gluteal aponeurosis) rather than by muscle. It may therefore contribute to the contour of the upper outer hip beside the gluteus maximus, while its back third adds only to the fullness beneath that muscle. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "statement": "Only the back third of the gluteus medius lies under the gluteus maximus. Its larger front part, on the outer side of the hip, is covered by a thick sheet of fascia (the gluteal aponeurosis) rather than by muscle. It may therefore contribute to the contour of the upper outer hip beside the gluteus maximus, while its back third may add only to the fullness beneath that muscle. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
       "basis": "anatomical_inference",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -773,8 +784,8 @@
       "sources": [
         {
           "sourceId": "pmid.23160432",
-          "locator": "Abstract: Results and Conclusions",
-          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Healthy adults; the figures come from secondary summaries of the abstract."
+          "locator": "Abstract: Methods, Results and Conclusions",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Healthy adults, fine-wire electrodes; the figures come from secondary summaries of the abstract, which two searches agreed on."
         }
       ]
     },
@@ -803,7 +814,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.piriformis",
       "kind": "function",
-      "statement": "The piriformis is one of the short muscles that turn the thigh outward. With the hip straight it turns the thigh outward, and with the hip bent it helps move the thigh out to the side; it also helps hold the head of the thigh bone in its socket. Its pull changes as the hip bends: by one reference, beyond about 60 degrees of hip flexion it turns the thigh inward instead. That reversal rests mainly on cadaver studies, static imaging and computer models.",
+      "statement": "The piriformis is one of the short muscles that turn the thigh outward. With the hip straight it turns the thigh outward, and with the hip bent it helps move the thigh out to the side; it also helps hold the head of the thigh bone in its socket. Whether that turning reverses as the hip bends is disputed. By one reference, beyond about 60 degrees of hip flexion it turns the thigh inward instead, a view that rests mainly on cadaver studies, static imaging and computer models. A dynamic ultrasound study of 25 healthy adults found it shortening as the thigh turned outward, and lengthening as it turned inward, in every hip position tested, including with the hip bent.",
       "basis": "established_anatomy",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -831,8 +842,8 @@
         },
         {
           "sourceId": "wcpt.piriformis_action",
-          "locator": "Abstract: background",
-          "qualification": "Congress abstract; its own results were not shown."
+          "locator": "Abstract: background and results",
+          "qualification": "Congress abstract of a dynamic ultrasound study in 25 healthy adults; abstract only, seen through search summaries."
         }
       ]
     },
@@ -842,7 +853,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.piriformis",
       "kind": "variation",
-      "statement": "How the sciatic nerve passes the piriformis differs between people. In most it leaves the pelvis as one nerve below the muscle; in a minority it runs through or above the muscle instead. Pooled cadaver studies found these variants more often in East Asian samples, and no difference between the sexes or between the two sides.",
+      "statement": "How the sciatic nerve passes the piriformis differs between people. In most it leaves the pelvis as one nerve below the muscle. In a minority, about one person in ten to one in seven in two pooled analyses, it divides early and part or all of it passes through or above the muscle, most often with one part passing through it. Pooled cadaver studies found these variants more often in East Asian samples, and no difference between the sexes or between the two sides.",
       "basis": "established_anatomy",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -895,7 +906,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.iliopsoas",
       "kind": "function",
-      "statement": "The iliopsoas, the psoas major and the iliacus, is the main hip flexor: it brings the thigh forward and up. The psoas major starts on the lumbar spine and the iliacus in the inner bowl of the pelvis, and both end on the lesser trochanter, a small bony point near the top of the thigh bone. The psoas major also helps steady the lumbar spine, and the iliacus the pelvis. Anatomy references also give it a small part in turning the thigh outward, but one study reported the iliacus turning the thigh inward in every hip position tested, so the references do not agree on rotation.",
+      "statement": "The iliopsoas, the psoas major and the iliacus, is the main hip flexor: it brings the thigh forward and up. The psoas major starts on the lumbar spine and the iliacus in the inner bowl of the pelvis, and both end on the lesser trochanter, a small bony point near the top of the thigh bone. The psoas major also helps steady the lumbar spine, and the iliacus the pelvis. Anatomy references also list it as helping turn the thigh outward, but an older study that used a thread-based method reported the iliacus turning the thigh inward in every hip position tested and the psoas major turning it either way depending on the hip's position, so the references do not agree on rotation.",
       "basis": "established_anatomy",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -914,7 +925,7 @@
         {
           "sourceId": "orthobullets.iliacus_rotation",
           "locator": "Abstract",
-          "qualification": "Title, authors and method not shown; cited only for the disagreement."
+          "qualification": "An older abstract (a thread-based measuring method) seen through search summaries; authors and year not confirmed."
         }
       ]
     },
@@ -943,7 +954,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.iliopsoas",
       "kind": "variation",
-      "statement": "The psoas minor, which some references count as part of the iliopsoas, is missing in many people. How often differs widely between studies and populations: one study found it missing in most black subjects but in few white subjects, while a donor study found it missing on both sides in most donors and found no link with sex or race.",
+      "statement": "The psoas minor, which some references count as part of the iliopsoas, is missing in many people. How often differs widely between studies and populations: an autopsy study of 44 young men found it missing in most of the black men but in few of the white men, while a study of 23 body donors found it missing on both sides in most of them and found no link with sex or race.",
       "basis": "established_anatomy",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -955,14 +966,14 @@
           "qualification": "One mirror version of the article; the current version was not seen."
         },
         {
-          "sourceId": "miami.psoas_minor_donor_study",
+          "sourceId": "cureus.psoas_minor_donor_study",
           "locator": "Abstract: Results",
           "qualification": "23 donors; abstract only."
         },
         {
           "sourceId": "wiley.psoas_minor_population",
-          "locator": "Results",
-          "qualification": "One summarised line; title, authors and sample size not shown."
+          "locator": "Abstract: Results",
+          "qualification": "Autopsy study of 44 young men; abstract only."
         }
       ]
     },
@@ -996,7 +1007,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.adductors",
       "kind": "function",
-      "statement": "The hip adductors are five muscles in the inner (medial) compartment of the thigh: the adductor longus, brevis and magnus, the gracilis and the pectineus. Their main action is adduction, pulling the thigh toward or across the midline. The three adductors proper all mainly adduct the thigh; the adductor magnus also contributes to hip extension, and in standing and walking it helps steady the pelvis and the leg.",
+      "statement": "One anatomy reference counts five hip adductors in the inner (medial) compartment of the thigh: the adductor longus, brevis and magnus, the gracilis and the pectineus; because of its nerve supply, the pectineus is also classed with the front of the thigh. Their main action is adduction, pulling the thigh toward or across the midline. The three adductors proper all mainly adduct the thigh; the adductor magnus also contributes to hip extension, and when the foot is on the ground in walking it helps steady the pelvis and the leg.",
       "basis": "established_anatomy",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -1011,6 +1022,11 @@
           "sourceId": "statpearls.adductor_strain",
           "locator": "Anatomy and function of the adductor group",
           "qualification": "A clinical article on adductor strain, cited for its anatomy section; seen through search excerpts."
+        },
+        {
+          "sourceId": "radiopaedia.pectineus",
+          "locator": "Innervation: the compartment it is classed with",
+          "qualification": "Seen through a generated web-search summary of the page, not the page itself."
         }
       ]
     },
@@ -1049,7 +1065,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.adductor_magnus",
       "kind": "function",
-      "statement": "The adductor magnus has two parts. Its adductor part, from the pubic bone, adducts the thigh. Its hamstring part runs almost vertically from the sitting bone (ischial tuberosity) to a bony point on the inner side of the thigh bone just above the knee; it is supplied by the sciatic nerve and extends the hip as well as adducting it. In standing and walking the muscle helps steady the pelvis. In an imaging study of 15 young adults, the muscle's estimated capacity to extend the hip was more than twice its capacity to adduct it.",
+      "statement": "The adductor magnus has two parts. Its adductor part, from the pubic bone, adducts the thigh. Its hamstring part runs almost vertically from the sitting bone (ischial tuberosity) to a bony point on the inner side of the thigh bone just above the knee; it is supplied by the sciatic nerve and extends the hip as well as adducting it. In standing and walking the muscle helps steady the pelvis. In an imaging study of 15 young adults with the hip in a neutral position, the muscle's estimated capacity to extend the hip was more than twice its capacity to adduct it. One reference lists the adductor part as also helping bend the hip and turn the thigh outward, and the hamstring part as turning it inward; an older study likewise found its fibres to the shaft of the thigh bone turning the thigh outward and those to the bony point above the knee turning it inward.",
       "basis": "established_anatomy",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -1074,6 +1090,16 @@
           "sourceId": "physiology.adductor_magnus_hip_extension",
           "locator": "Abstract",
           "qualification": "An imaging estimate of capacity (diffusion tensor imaging) in 15 young adults with the hip in neutral, not measured muscle force; abstract only."
+        },
+        {
+          "sourceId": "jbiomech.hip_adductor_stretch",
+          "locator": "Introduction (citing Dostal and colleagues)",
+          "qualification": "A background sentence of a stretching study, citing earlier moment-arm work; seen through a search summary. Not the study's own finding."
+        },
+        {
+          "sourceId": "orthobullets.iliacus_rotation",
+          "locator": "Abstract: the adductor magnus",
+          "qualification": "An older abstract (a thread-based measuring method) seen through search summaries; authors and year not confirmed."
         }
       ]
     },
@@ -1083,7 +1109,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.adductor_magnus",
       "kind": "appearance",
-      "statement": "Seen from the front, the adductor magnus lies behind the adductor brevis and longus. Posterior dissection views of the most superficial muscles label part of it on the inner side of the back of the thigh, beside the semitendinosus and the gracilis. It may therefore contribute to the inner side of the back of the thigh and to the general fullness of the inner thigh, though most of it is covered by other muscles. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "statement": "Seen from the front, the adductor magnus lies behind the adductor brevis and longus. Posterior dissection photographs of the most superficial muscles include it among their labelled structures, with the semitendinosus and the gracilis, so part of it may show from behind; it is the most posterior of the inner-thigh muscles. It may therefore contribute to the inner side of the back of the thigh and to the general fullness of the inner thigh, though most of it is covered by other muscles. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
       "basis": "anatomical_inference",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -1097,12 +1123,17 @@
         {
           "sourceId": "anatomytool.ubc_posterior_lower_limb",
           "locator": "Labelled structures",
-          "qualification": "Image labels seen through a search summary; the image was not seen, and the layering is inferred from the labels."
+          "qualification": "Image labels seen through a search summary; the image was not seen, the layering is inferred from the labels, and no written description of where the muscle shows from behind was found (second review, SR22)."
         },
         {
           "sourceId": "stanford.bassett_182_6",
           "locator": "Labelled structures",
-          "qualification": "Image labels seen through a search summary; the image was not seen, and the layering is inferred from the labels."
+          "qualification": "Image labels seen through a search summary; the image was not seen, the layering is inferred from the labels, and no written description of where the muscle shows from behind was found (second review, SR22)."
+        },
+        {
+          "sourceId": "statpearls.adductor_magnus",
+          "locator": "Introduction: the most posterior of the medial compartment",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
         }
       ]
     },
@@ -1112,7 +1143,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.adductor_longus",
       "kind": "function",
-      "statement": "The adductor longus mainly adducts the thigh, bringing it in toward the other leg. It also works with the muscles at the front of the thigh to flex the hip, an effect that depends on the hip's angle: in one modelling study it flexed the hip up to about 90 degrees of hip flexion and extended it beyond that. References disagree on its part in turning the thigh: some list outward turning, others some inward turning.",
+      "statement": "The adductor longus mainly adducts the thigh, bringing it in toward the other leg. It also works with the muscles at the front of the thigh to flex the hip, an effect that depends on the hip's angle: in one computer model it flexed the hip up to about 90 degrees of hip flexion and extended it beyond that. References disagree on its part in turning the thigh: some list outward turning, others some inward turning, and two studies of the hip's mechanics, an older thread-based study and the same computer model, found that the direction changes with the hip's position.",
       "basis": "established_anatomy",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -1136,7 +1167,17 @@
         {
           "sourceId": "isb.adductor_longus_moment_arm",
           "locator": "Abstract",
-          "qualification": "Congress abstract using a simplified straight-line model; authors and sample not shown."
+          "qualification": "Congress abstract of a computer model (a 50th-percentile adult male); one model, not measured in living people; abstract only."
+        },
+        {
+          "sourceId": "jbiomech.hip_adductor_stretch",
+          "locator": "Introduction (citing Dostal and colleagues)",
+          "qualification": "A background sentence of a stretching study, citing earlier moment-arm work; seen through a search summary. Not the study's own finding."
+        },
+        {
+          "sourceId": "orthobullets.iliacus_rotation",
+          "locator": "Abstract: the single-joint adductors",
+          "qualification": "An older abstract (a thread-based measuring method) seen through search summaries; authors and year not confirmed."
         }
       ]
     },
@@ -1146,7 +1187,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.adductor_longus",
       "kind": "selectivity",
-      "statement": "In a surface-EMG study of 40 healthy male elite soccer players, adductor longus activity across eight hip-adduction exercises ranged from low to above the level of a maximal isometric contraction, so the exercises can be graded by intensity. The authors describe the Copenhagen adduction and hip adduction against an elastic band as dynamic high-intensity exercises that most training facilities can offer. Gluteal and abdominal activity stayed comparatively low. This is short-term muscle activity, not growth.",
+      "statement": "In a surface-EMG study of 40 healthy male elite soccer players, adductor longus activity across eight hip-adduction exercises ranged from low to above the level of a maximal isometric contraction, so the exercises can be graded by intensity. The authors describe the Copenhagen adduction and hip adduction against an elastic band as dynamic high-intensity exercises that can easily be done at any training facility. Gluteal and abdominal activity stayed comparatively low. This is short-term muscle activity, not growth.",
       "basis": "experimental",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -1165,7 +1206,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.adductor_longus",
       "kind": "appearance",
-      "statement": "The adductor longus is the most superficial of the adductors at the front of the thigh. It lies in the floor of the femoral triangle, the hollow just below the groin, and its inner edge forms the triangle's inner border, so it may contribute to the contour of the upper inner thigh just below the groin. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "statement": "The adductor longus is the most superficial of the adductors at the front of the thigh. It lies in the floor of the femoral triangle, the hollow just below the groin, and by most accounts its inner edge forms the triangle's inner border, so it may contribute to the contour of the upper inner thigh just below the groin. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
       "basis": "anatomical_inference",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -1194,7 +1235,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.adductor_brevis",
       "kind": "function",
-      "statement": "The adductor brevis adducts the thigh at the hip, as the adductor longus and magnus do. One anatomy reference calls it a weak adductor, one of the shortest muscles of the group, and also lists hip flexion among its actions. References disagree on its part in turning the thigh: some list outward turning, others inward turning, and one notes that any role beyond adduction is contested.",
+      "statement": "The adductor brevis adducts the thigh at the hip, as the adductor longus and magnus do. One anatomy reference calls it a weak adductor, one of the shortest muscles of the group, and also lists hip flexion among its actions. References disagree on its part in turning the thigh: some list outward turning, others inward turning, and one notes that any role beyond adduction is contested; an older study found that the direction in which it turns the thigh depends on the hip's position.",
       "basis": "established_anatomy",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -1219,6 +1260,11 @@
           "sourceId": "kenhub.adductor_brevis_video",
           "locator": "Function",
           "qualification": "A video transcript seen through a search summary; the video was not watched."
+        },
+        {
+          "sourceId": "orthobullets.iliacus_rotation",
+          "locator": "Abstract: the single-joint adductors",
+          "qualification": "An older abstract (a thread-based measuring method) seen through search summaries; authors and year not confirmed."
         }
       ]
     },
@@ -1257,7 +1303,7 @@
       "ownerRegionId": "hips",
       "nodeId": "hips.pectineus",
       "kind": "function",
-      "statement": "The pectineus flexes and adducts the thigh at the hip; because of the course of its fibres it does both when it contracts. One reference lists a possible small part in turning the thigh, inward or outward. It is also a postural muscle that steadies the pelvis and balances the trunk over the leg in walking. Its nerve supply is described as mixed: the femoral nerve supplies most of it, and a branch of the obturator nerve may supply its smaller back part, which is why it is classed with either the front or the inner thigh muscles.",
+      "statement": "The pectineus flexes and adducts the thigh at the hip; because of the course of its fibres it does both when it contracts. One reference says it may also help turn the thigh inward or outward, and an older study found that the direction depends on the hip's position. It is also a postural muscle that steadies the pelvis and balances the trunk over the leg in walking. The femoral nerve supplies it; one reference describes a smaller back part supplied by a branch of the obturator nerve, which another lists as a variant, and that possible double supply is why it is classed with either the front or the inner thigh muscles.",
       "basis": "established_anatomy",
       "reviewStatus": "reviewed",
       "reviewedAt": "2026-10-19",
@@ -1272,6 +1318,11 @@
           "sourceId": "radiopaedia.pectineus",
           "locator": "Action; Innervation",
           "qualification": "Seen through a generated web-search summary of the page, not the page itself."
+        },
+        {
+          "sourceId": "orthobullets.iliacus_rotation",
+          "locator": "Abstract: the single-joint adductors",
+          "qualification": "An older abstract (a thread-based measuring method) seen through search summaries; authors and year not confirmed."
         }
       ]
     },
@@ -1364,7 +1415,7 @@
       "role": "prime",
       "claimId": "hips.gluteus_maximus.function",
       "claimKey": "hips:hips.gluteus_maximus.function",
-      "evidence": "Listed as a main action (kenhub.gluteus_maximus; statpearls.gluteus_maximus); the largest external-rotation capacity of the hip muscles measured (pmid.10327003).",
+      "evidence": "Listed as a main action (kenhub.gluteus_maximus; statpearls.gluteus_maximus); a large external-rotation capacity in a cadaver study (pmid.10327003; second review: 'a large', not 'the largest', SR1 and SR32), reduced with the hip bent (pmc.damiano_hip_rotation). Prime for the hip held straight.",
       "status": "reviewed"
     },
     {
@@ -1409,7 +1460,7 @@
       "role": "assist",
       "claimId": "hips.gluteus_medius.function",
       "claimKey": "hips:hips.gluteus_medius.function",
-      "evidence": "Back fibres help turn the thigh outward, one source only (statpearls.gluteus_medius).",
+      "evidence": "Back fibres help turn the thigh outward, one source only (statpearls.gluteus_medius). Second review: the cited reference ties it to a straight knee; the back fibres' outward turning was found again only on uncited pages (SR2). Kept as assist.",
       "status": "reviewed"
     },
     {
@@ -1465,7 +1516,7 @@
       "role": "prime",
       "claimId": "hips.piriformis.function",
       "claimKey": "hips:hips.piriformis.function",
-      "evidence": "One of the short external rotators; turns the thigh outward with the hip straight (statpearls.piriformis; kenhub.piriformis; imaios.piriformis).",
+      "evidence": "One of the short external rotators; turns the thigh outward with the hip straight (statpearls.piriformis; kenhub.piriformis; imaios.piriformis). Second review: a dynamic ultrasound study in 25 adults found it turning the thigh outward in every hip position tested, the hip bent included (wcpt.piriformis_action; SR3, SR4).",
       "status": "reviewed"
     },
     {
@@ -1501,7 +1552,7 @@
       "role": "prime",
       "claimId": "hips.adductor_magnus.function",
       "claimKey": "hips:hips.adductor_magnus.function",
-      "evidence": "Extension is the listed action of its hamstring part (kenhub.adductor_magnus; statpearls.adductor_magnus); an imaging study estimated its extension capacity at more than twice its adduction capacity (physiology.adductor_magnus_hip_extension). StatPearls' adductor-strain article says it 'contributes' to extension; prime rests on the other three. This is also the row the thigh's external listing of the adductor magnus depends on (§1.2: externals are prime movers of the listing region's actions).",
+      "evidence": "Extension is the listed action of its hamstring part (kenhub.adductor_magnus; statpearls.adductor_magnus); an imaging study estimated its extension capacity at more than twice its adduction capacity (physiology.adductor_magnus_hip_extension). StatPearls' adductor-strain article says it 'contributes' to extension; prime rests on the other three. This is also the row the thigh's external listing of the adductor magnus depends on (§1.2: externals are prime movers of the listing region's actions). Second review: the back part's hip-extension moment is also given by jbiomech.hip_adductor_stretch (citing Dostal and colleagues; SR10); prime holds.",
       "status": "reviewed"
     },
     {
@@ -1519,7 +1570,7 @@
       "role": "assist",
       "claimId": "hips.adductor_longus.function",
       "claimKey": "hips:hips.adductor_longus.function",
-      "evidence": "Works with the front thigh muscles to flex the hip (kenhub.adductor_longus_video; kenhub.adductor_longus); a flexor up to about 90 degrees of hip flexion in a model (isb.adductor_longus_moment_arm).",
+      "evidence": "Works with the front thigh muscles to flex the hip (kenhub.adductor_longus_video; kenhub.adductor_longus); a flexor up to about 90 degrees of hip flexion in a model (isb.adductor_longus_moment_arm). Second review: also a hip-flexion moment in jbiomech.hip_adductor_stretch (citing Dostal and colleagues; SR10).",
       "status": "reviewed"
     },
     {
@@ -1537,7 +1588,7 @@
       "role": "assist",
       "claimId": "hips.adductor_brevis.function",
       "claimKey": "hips:hips.adductor_brevis.function",
-      "evidence": "Hip flexion listed in Kenhub's key facts only (kenhub.adductor_brevis); a one-source row.",
+      "evidence": "Hip flexion listed in Kenhub's key facts only (kenhub.adductor_brevis); a one-source row. Second review: pages outside the evidence standard's list also give flexion (SR11); still one cited source, so still assist.",
       "status": "reviewed"
     },
     {
@@ -1582,12 +1633,12 @@
     {
       "nodeId": "hips.piriformis",
       "action": "hip.internal_rotation",
-      "reason": "Only with the hip deeply bent, by references that disagree on the angle and rest on cadaver and model studies; listing it would offer the piriformis as an inward rotator. Said in the claim and caveat instead (the forearm's brachioradialis rule)."
+      "reason": "Only with the hip deeply bent, by references that disagree on the angle and rest on cadaver and model studies, and a dynamic ultrasound study in living adults did not find it (second review, SR3 and SR4); listing it would offer the piriformis as an inward rotator. Said in the claim and caveat instead (the forearm's brachioradialis rule)."
     },
     {
       "nodeId": "hips.iliopsoas",
       "action": "hip.external_rotation",
-      "reason": "StatPearls and Kenhub list a small outward-turning part; one study abstract reports the iliacus turning the thigh inward in every position. References disagree, so it is left out."
+      "reason": "StatPearls and Kenhub list it as helping turn the thigh outward; one study abstract reports the iliacus turning the thigh inward in every position. References disagree, so it is left out."
     },
     {
       "nodeId": "hips.adductor_magnus",
@@ -1597,17 +1648,17 @@
     {
       "nodeId": "hips.adductor_longus",
       "action": "hip.extension (beyond about 90 degrees of hip flexion); hip rotation",
-      "reason": "Extension only past about 90 degrees in one congress-abstract model; rotation disputed (Kenhub outward, StatPearls some inward). Said in the claim and caveats."
+      "reason": "Extension only past about 90 degrees in one congress-abstract model; rotation disputed (Kenhub outward, StatPearls some inward). Said in the claim and caveats. Second review: the same computer model and an older thread-based study found its turning direction changes with the hip's position (SR21, SR28)."
     },
     {
       "nodeId": "hips.adductor_brevis",
       "action": "hip rotation",
-      "reason": "Kenhub outward, Radiopaedia inward, and a Kenhub video calls any role beyond adduction contested."
+      "reason": "Kenhub outward, Radiopaedia inward, and a Kenhub video calls any role beyond adduction contested. An older study found the direction depends on the hip's position (SR21)."
     },
     {
       "nodeId": "hips.pectineus",
       "action": "hip rotation",
-      "reason": "Kenhub lists a possible small part in both directions."
+      "reason": "Kenhub lists a possible part in both directions, and an older study found the direction depends on the hip's position (SR21)."
     },
     {
       "nodeId": "hips.gracilis",
@@ -1783,10 +1834,10 @@
       "key": "pmid.23160432",
       "url": "https://pubmed.ncbi.nlm.nih.gov/23160432/",
       "title": "Selkowitz, Beneck and Powers, Which exercises target the gluteal muscles while minimizing activation of the tensor fascia lata? Electromyographic assessment using fine-wire electrodes (Journal of Orthopaedic and Sports Physical Therapy 43(2):54-64, 2013)",
-      "doi": null,
+      "doi": "10.2519/jospt.2013.4116",
       "evidenceType": "emg",
       "retrievedOn": "2026-10-19",
-      "notes": "Checked via web-search results on 19 Oct 2026 (Q39, Q40): controlled laboratory study, 20 healthy adults, fine-wire EMG of the gluteus medius, superior gluteus maximus and TFL in 11 exercises; both gluteal muscles were more active than the TFL in unilateral and bilateral bridging, quadruped hip extension, the clam, sidestepping and squatting; the gluteal-to-TFL activation index was highest for the clam, then the sidestep, the unilateral bridge and the quadruped exercises. Every figure came from secondary summaries of the abstract (an exercise-science blog, a chapter abstract mirror and a journal excerpt), not the PubMed page itself; the PubMed id was given by a summary and the PubMed URL did not appear as a result. DOI not shown. Acute activity, not growth."
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q39, Q40): controlled laboratory study, 20 healthy adults, fine-wire EMG of the gluteus medius, superior gluteus maximus and TFL in 11 exercises; both gluteal muscles were more active than the TFL in unilateral and bilateral bridging, quadruped hip extension, the clam, sidestepping and squatting; the gluteal-to-TFL activation index was highest for the clam, then the sidestep, the unilateral bridge and the quadruped exercises. Every figure came from secondary summaries of the abstract (an exercise-science blog, a chapter abstract mirror and a journal excerpt), not the PubMed page itself; the PubMed id was given by a summary and the PubMed URL did not appear as a result. DOI not shown. Acute activity, not growth. Second review (SR13): an independent search agreed on every figure and gave the sample (twenty healthy persons, which the first pass's excerpt did not show) and the DOI 10.2519/jospt.2013.4116."
     },
     {
       "key": "pmid.27494053",
@@ -1809,11 +1860,11 @@
     {
       "key": "physiology.adductor_magnus_hip_extension",
       "url": "https://www.citedrive.com/en/discovery/redefining-muscular-action-human-adductor-magnus-is-designed-to-act-primarily-for-hip-extension-rather-than-adduction-in-living-young-individuals",
-      "title": "Takahashi, Tozawa, Kawama and Wakahara, Redefining muscular action: human adductor magnus is designed to act primarily for hip extension rather than adduction in living young individuals (Journal of Applied Physiology 138:1088-1099, 2025)",
-      "doi": null,
+      "title": "Takahashi, Tozawa, Kawama and Wakahara, Redefining muscular action: human adductor magnus is designed to act primarily for hip extension rather than adduction in living young individuals (Journal of Applied Physiology 138(4):1088-1099, 2025)",
+      "doi": "10.1152/japplphysiol.00600.2024",
       "evidenceType": "biomechanics",
       "retrievedOn": "2026-10-19",
-      "notes": "Checked via web-search results on 19 Oct 2026 (Q21, Q22, abstract and secondary citations): diffusion tensor imaging in 15 young adults with the hip in neutral; the posterior and anterior-distal portions made up most of the muscle's volume and cross-sectional area and had longer moment arms for hip extension than for adduction, so the estimated potential torque was more than twice as large for extension as for adduction; that potential correlated with measured maximal hip-extension torque. Only a citation-index page appeared as a result, not the journal page; DOI and PubMed id not shown. An imaging estimate of capacity, not measured muscle force."
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q21, Q22, abstract and secondary citations): diffusion tensor imaging in 15 young adults with the hip in neutral; the posterior and anterior-distal portions made up most of the muscle's volume and cross-sectional area and had longer moment arms for hip extension than for adduction, so the estimated potential torque was more than twice as large for extension as for adduction; that potential correlated with measured maximal hip-extension torque. Only a citation-index page appeared as a result, not the journal page; PubMed id not shown; the second review (SR9) found the issue and the DOI, 10.1152/japplphysiol.00600.2024. An imaging estimate of capacity, not measured muscle force."
     },
     {
       "key": "bmj.hip_adduction_emg",
@@ -1822,16 +1873,16 @@
       "doi": "10.1136/bjsports-2012-091746",
       "evidenceType": "emg",
       "retrievedOn": "2026-10-19",
-      "notes": "Checked via web-search results on 19 Oct 2026 (Q42, abstract on the journal page and a University of Copenhagen record): surface EMG in 40 healthy male elite soccer players during eight hip-adduction exercises, normalised to a maximal isometric contraction; adductor longus activity ranged widely between exercises, up to above the maximal-contraction reference; gluteal and abdominal activity was comparatively low; the abstract describes the Copenhagen adduction and elastic-band hip adduction as dynamic high-intensity exercises usable in most training facilities (that sentence was cut off in the snippet). Co-authors not listed; PubMed id not shown. Acute activity, not growth."
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q42, abstract on the journal page and a University of Copenhagen record): surface EMG in 40 healthy male elite soccer players during eight hip-adduction exercises, normalised to a maximal isometric contraction; adductor longus activity ranged widely between exercises, up to above the maximal-contraction reference; gluteal and abdominal activity was comparatively low; the abstract describes the Copenhagen adduction and elastic-band hip adduction as dynamic high-intensity exercises usable in most training facilities (that sentence was cut off in the first pass's snippet; the second review, SR16, read it as 'can easily be performed at any training facility'). Co-authors not listed; PubMed id not shown. Acute activity, not growth."
     },
     {
       "key": "isb.adductor_longus_moment_arm",
       "url": "https://media.isbweb.org/images/conf/2005/abstracts/0007.pdf",
-      "title": "Conference abstract on hip muscle actions across hip flexion (International Society of Biomechanics congress, 2005)",
+      "title": "Pressel and Lengsfeld, Functions of hip joint muscles (International Society of Biomechanics congress abstract, 2005)",
       "doi": null,
       "evidenceType": "biomechanics",
       "retrievedOn": "2026-10-19",
-      "notes": "Checked via web-search results on 19 Oct 2026 (Q49, one quoted passage): 'There is agreement in the literature that M. adductor longus is an adductor of the hip. In our data, the muscle additionally is a flexor of the hip up to 90 degrees of flexion. At flexion angles greater than 90 degrees, the muscle becomes an extensor.' The search summary described it as a simplified straight-line model. Title, authors and sample were not shown; the title here is descriptive."
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q49, one quoted passage): 'There is agreement in the literature that M. adductor longus is an adductor of the hip. In our data, the muscle additionally is a flexor of the hip up to 90 degrees of flexion. At flexion angles greater than 90 degrees, the muscle becomes an extensor.' Second review (SR28): title and authors found (Hannover Medical School); a multibody computer model of the hip and knee built on a 50th-percentile adult male, giving lengths, lever arms and torques for 27 hip muscles. In it the adductor longus turned the thigh outward up to about 80 degrees of hip flexion and inward beyond, and the iliopsoas became a hip extensor past about 110 degrees. One model; the 90-degree flexion-to-extension angle was not confirmed by a second source."
     },
     {
       "key": "wiley.piriformis_sciatic_nerve_review",
@@ -1845,20 +1896,20 @@
     {
       "key": "cureus.sciatic_nerve_piriformis",
       "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7746330/",
-      "title": "Poutoglidou et al., Sciatic Nerve Variants and the Piriformis Muscle: A Systematic Review and Meta-Analysis (Cureus 12(11):e11531, 2020)",
+      "title": "Poutoglidou, Piagkou, Totlis, Tzika and Natsis, Sciatic Nerve Variants and the Piriformis Muscle: A Systematic Review and Meta-Analysis (Cureus 12(11):e11531, 2020)",
       "doi": null,
       "evidenceType": "systematic_review",
       "retrievedOn": "2026-10-19",
-      "notes": "Checked via web-search results on 19 Oct 2026 (Q47, abstract): 44 cadaveric studies pooled; the typical pattern (the nerve leaving undivided below the piriformis) was by far the most common; variants were more common in East Asian samples; no significant differences by sex or side; the nerve ran through or above the muscle in more than one person in ten. Co-authors and DOI not shown."
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q47, abstract): 44 cadaveric studies pooled; the typical pattern (the nerve leaving undivided below the piriformis) was by far the most common; variants were more common in East Asian samples; no significant differences by sex or side; the nerve ran through or above the muscle in more than one person in ten. Co-authors found by the second review (SR18); DOI not shown."
     },
     {
       "key": "wiley.sciatic_nerve_variants_meta",
       "url": "https://read.qxmd.com/doi/10.1002/jor.23186",
-      "title": "Meta-analysis of sciatic nerve variants and the piriformis muscle (Journal of Orthopaedic Research, 2016)",
+      "title": "Tomaszewski and colleagues, Surgical anatomy of the sciatic nerve: a meta-analysis (Journal of Orthopaedic Research 34:1820-1827, 2016)",
       "doi": "10.1002/jor.23186",
       "evidenceType": "systematic_review",
       "retrievedOn": "2026-10-19",
-      "notes": "Checked via web-search results on 19 Oct 2026 (Q47, one quoted passage): 45 studies and 7,068 lower limbs; the normal pattern, the nerve leaving the pelvis as one trunk below the piriformis, was the most common, followed by the pattern the paper calls Type B (what Type B is was not shown). Title and authors were not shown; the title here is descriptive."
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q47, one quoted passage): 45 studies and 7,068 lower limbs; the normal pattern, the nerve leaving the pelvis as one trunk below the piriformis, was the most common, followed by the pattern the paper calls Type B (what Type B is was not shown). Second review (SR17): title, lead author, volume and pages found; Type B is a nerve divided in the pelvis with its common peroneal part piercing the piriformis and its tibial part below it; the nerve leaves by an unusual route in almost 15% of cases. Co-authors beyond the lead author not shown."
     },
     {
       "key": "wcpt.piriformis_action",
@@ -1867,25 +1918,16 @@
       "doi": null,
       "evidenceType": "biomechanics",
       "retrievedOn": "2026-10-19",
-      "notes": "Checked via web-search results on 19 Oct 2026 (Q11, Q13, abstract): the reversal of the piriformis's action with hip flexion rests mainly on cadaveric studies and static imaging and computational models; the authors designed a dynamic ultrasound study of 25 healthy adults to test it. Its results were not shown. Title as given by the result URL; exact wording not confirmed."
-    },
-    {
-      "key": "miami.psoas_minor_donor_study",
-      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7292683/",
-      "title": "Potential Lack of Association Between Three Vestigial Muscles in Humans: A Willed Body Donor Study",
-      "doi": null,
-      "evidenceType": "anatomy",
-      "retrievedOn": "2026-10-19",
-      "notes": "Checked via web-search results on 19 Oct 2026 (Q48, abstract): in 23 donors the psoas minor was present on both sides in a minority and absent on both sides in the majority; no association with sex or race. Journal, year and authors not shown (a University of Miami scholarship record lists it)."
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q11, Q13, abstract): the reversal of the piriformis's action with hip flexion rests mainly on cadaveric studies and static imaging and computational models; the authors designed a dynamic ultrasound study of 25 healthy adults to test it. Second review (SR3, SR4): its results were then seen. Prone and seated 90/90 rotation were tested; the muscle shortened in outward and lengthened in inward rotation in every hip position, which the authors read as no reversal of action. Rotator strength was higher seated than prone. Title as given by the result URL; whether it was later published as a full paper was not found."
     },
     {
       "key": "wiley.psoas_minor_population",
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC1467925",
-      "title": "Study of psoas muscle differences between black and white subjects (Journal of Anatomy)",
+      "title": "Hanson, Magnusson, Sorensen and Simonsen, Anatomical differences in the psoas muscles in young black and white men (Journal of Anatomy 194(Pt 2):303-307, 1999)",
       "doi": null,
       "evidenceType": "anatomy",
       "retrievedOn": "2026-10-19",
-      "notes": "Checked via web-search results on 19 Oct 2026 (Q48, one quoted line): the psoas minor was absent in most black subjects but only in a small minority of white subjects. Title, authors, year and sample size were not shown; the search summary named the journal. Its race finding conflicts with the donor study above."
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q48, one quoted line): the psoas minor was absent in most black subjects but only in a small minority of white subjects. Second review (SR19): title, authors, volume and pages found; 44 male cadavers aged 14 to 25 (21 black, 23 white) examined at routine forensic autopsy; the psoas major's cross-sectional area was also much larger in the black group. Its race finding conflicts with the donor study (cureus.psoas_minor_donor_study). Full text not read."
     },
     {
       "key": "teachmeanatomy.gluteal_region",
@@ -2196,11 +2238,47 @@
     {
       "key": "orthobullets.iliacus_rotation",
       "url": "https://www.orthobullets.com/evidence/8928937",
-      "title": "Study abstract on hip rotation by the iliacus (indexed by OrthoBullets)",
+      "title": "Study abstract on the rotating function of the iliopsoas and the single-joint thigh adductors in different hip positions (indexed by OrthoBullets as 8928937)",
       "doi": null,
       "evidenceType": "biomechanics",
       "retrievedOn": "2026-10-19",
-      "notes": "Checked via web-search results on 19 Oct 2026 (Q17, one summarised line): reports that the iliacus rotates the thigh inward in every position of flexion and extension or abduction and adduction of the hip, against the usual attribution of external rotation. Title, authors, year, journal and method were not shown; the title here is descriptive. Cited only for the existence of this disagreement."
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q17, one summarised line): reports that the iliacus rotates the thigh inward in every position of flexion and extension or abduction and adduction of the hip. Second review (SR7, SR21): a thread-based device measured the rotating function of the iliopsoas and the single-joint thigh adductors in different hip positions. The psoas major, pectineus, adductor longus and adductor brevis could turn the thigh either way depending on the hip's position: flexion and abduction strengthened outward turning, extension and adduction inward turning. The adductor magnus's fibres to the linea aspera turned the thigh outward and those to the adductor tubercle inward. A summary called 8928937 the PubMed id, and one secondary article may attribute the work to Reimann and colleagues (1996); neither was confirmed, and another summary dated the work to the 1960s. Title, authors, year and journal are therefore not confirmed, and the title here is descriptive. The key keeps its first-pass slug."
+    },
+    {
+      "key": "elsevier.gluteus_maximus",
+      "url": "https://elsevier.com/resources/anatomy/muscular-system/muscles-of-lower-limb/gluteus-maximus-muscle/21354",
+      "title": "Elsevier Complete Anatomy: Gluteus maximus muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Added by the second review (SR29, a generated summary): Gray's-based material lists, as a separate action, that the muscle helps stabilise the extended knee joint, and lists abduction without assigning it to particular fibres. Quick Facts heading not confirmed; author not shown."
+    },
+    {
+      "key": "pmc.damiano_hip_rotation",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2816027",
+      "title": "Damiano and colleagues (2010), a paper on strength training and gait in cerebral palsy that cites the 1999 moment-arm study (PubMed Central PMC2816027)",
+      "doi": null,
+      "evidenceType": "biomechanics",
+      "retrievedOn": "2026-10-19",
+      "notes": "Added by the second review (SR32, a generated summary): citing the 1999 cadaver study, it notes that the gluteus maximus's capacity to turn the hip outward is compromised when the hip is flexed. The summary called it a review article; a mirror of it on a University of Washington lab page carried the file name 'Damiano_2010_PT_comp'. Its exact title, journal and design were not shown, so the title here is descriptive. Cited only for that background sentence, not for any finding of its own."
+    },
+    {
+      "key": "cureus.psoas_minor_donor_study",
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7292683/",
+      "title": "Hodgens and colleagues, Potential Lack of Association Between Three Vestigial Muscles in Humans: A Willed Body Donor Study (Cureus, 2020)",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q48, abstract): in 23 donors the psoas minor was present on both sides in a minority and absent on both sides in the majority; no association with sex or race. Second review (SR20): a 2020 Cureus paper by Hodgens and colleagues at the University of Miami; 23 donors; psoas minor present on both sides in 39 of every 100 and absent on both sides in 61; no link with sex or race. Co-authors and DOI not shown. Key renamed from miami.psoas_minor_donor_study to follow the publisher-slug rule."
+    },
+    {
+      "key": "jbiomech.hip_adductor_stretch",
+      "url": "https://repository.kulib.kyoto-u.ac.jp/dspace/handle/2433/263896",
+      "title": "Ogawa, Saeki and Ichihashi, a study of hip flexion angle and adductor elongation during stretching (Journal of Biomechanics 101:109649, 2020)",
+      "doi": null,
+      "evidenceType": "biomechanics",
+      "retrievedOn": "2026-10-19",
+      "notes": "Added by the second review (SR10, SR31; Kyoto University repository record and PDF). Its introduction, citing Dostal and colleagues' hip moment-arm work, says the adductor longus and the front part of the adductor magnus have a hip-flexion moment and the back part of the adductor magnus a hip-extension moment. The study itself measured stretch (shear modulus) in the adductor longus and adductor magnus. Exact title not shown, so the title here is descriptive; the PDF's file name suggests DOI 10.1016/j.jbiomech.2020.109649, not confirmed. Cited only for that background sentence."
     }
   ],
   "citations": [
@@ -2521,7 +2599,7 @@
       "sourceKey": "imaios.piriformis",
       "query": "StatPearls Anatomy, Bony Pelvis and Lower Limb, Piriformis Muscle function lateral rotation abduction",
       "queryNumber": "Q12",
-      "excerpt": "Carepatron and e-Anatomy both describe it as an external rotator and abductor, with e-Anatomy specifying lateral rotation of the extended thigh.",
+      "excerpt": "describe it as an external rotator and abductor, with e-Anatomy specifying lateral rotation of the extended thigh.",
       "locator": "Function"
     },
     {
@@ -2585,7 +2663,7 @@
       "sourceKey": "kenhub.iliopsoas",
       "query": "Kenhub iliopsoas muscle function hip flexion lateral rotation psoas major iliacus lesser trochanter",
       "queryNumber": "Q17",
-      "excerpt": "The iliopsoas ends in a tendon that inserts to the lesser trochanter of femur. ... The joint actions of psoas major and iliacus produce the flexion of the hip, and the Kenhub video calls the muscle the most powerful thigh flexor. ... Kenhub's summary table lists the function as flexion and external rotation of the thigh at the hip.",
+      "excerpt": "The iliopsoas ends in a tendon that inserts to the lesser trochanter of femur. ... The joint actions of psoas major and iliacus produce the flexion of the hip, and the Kenhub video calls the muscle the most powerful thigh flexor. ... lists the function as flexion and external rotation of the thigh at the hip.",
       "locator": "Function; Insertion"
     },
     {
@@ -2614,7 +2692,7 @@
     },
     {
       "claimId": "hips.iliopsoas.variation.1",
-      "sourceKey": "miami.psoas_minor_donor_study",
+      "sourceKey": "cureus.psoas_minor_donor_study",
       "query": "psoas minor muscle prevalence absent in some people meta-analysis cadaver",
       "queryNumber": "Q48",
       "excerpt": "The PM was present bilaterally in 39% of donors, and absent bilaterally in 61% of donors. ... The authors found no link between its presence and sex or race.",
@@ -2697,7 +2775,7 @@
       "sourceKey": "kenhub.adductor_magnus",
       "query": "Kenhub adductor magnus muscle function adductor part flexion hamstring part extension of the thigh",
       "queryNumber": "Q20",
-      "excerpt": "Its action table lists the adductor part as producing thigh flexion, thigh adduction, thigh external rotation at the hip. The hamstring part handles thigh extension, thigh internal rotation, and the whole muscle contributes to pelvis stabilization. Kenhub's video material describes the same two-part structure, an adductor pubofemoral portion and a hamstring ischiocondylar portion.",
+      "excerpt": "lists the adductor part as producing thigh flexion, thigh adduction, thigh external rotation at the hip. The hamstring part handles thigh extension, thigh internal rotation, and the whole muscle contributes to pelvis stabilization. Kenhub's video material describes the same two-part structure, an adductor pubofemoral portion and a hamstring ischiocondylar portion.",
       "locator": "Function"
     },
     {
@@ -2753,7 +2831,7 @@
       "sourceKey": "kenhub.adductor_longus",
       "query": "Kenhub adductor longus muscle function adduction flexion of thigh femoral triangle superficial",
       "queryNumber": "Q26",
-      "excerpt": "Kenhub's library entry names hip adduction as the muscle group's main job. Its key-facts table also lists thigh flexion, thigh external rotation, and pelvis stabilization.",
+      "excerpt": "Kenhub's library entry names hip adduction as the muscle group's main job. ... also lists thigh flexion, thigh external rotation, and pelvis stabilization.",
       "locator": "Key facts: Function"
     },
     {
@@ -2905,7 +2983,7 @@
       "sourceKey": "kenhub.gracilis",
       "query": "Kenhub gracilis muscle function adduction of the thigh flexion of the leg internal rotation pes anserinus",
       "queryNumber": "Q34",
-      "excerpt": "The gracilis is the only hip adductor that crosses both the hip and knee, and Kenhub's actions table covers hip flexion and adduction plus knee flexion and internal rotation. Its insertion is the medial surface of the proximal tibia, via the pes anserinus.",
+      "excerpt": "The gracilis is the only hip adductor that crosses both the hip and knee ... covers hip flexion and adduction plus knee flexion and internal rotation. Its insertion is the medial surface of the proximal tibia, via the pes anserinus.",
       "locator": "Key facts: Action; Insertion"
     },
     {
@@ -2923,6 +3001,206 @@
       "queryNumber": "Q33",
       "excerpt": "The gracilis is the most superficial muscle of the medial thigh, and it assists with hip adduction, knee flexion, and internal knee rotation (index 4-6, 4-7). A second StatPearls version lists hip flexion and hip internal rotation among its actions (index 1-14) ... It is a long, thin muscle that originates from the ischiopubic ramus (index 1-9) and inserts on the medial tibia as part of the pes anserinus (index 1-11).",
       "locator": "Introduction: a long, thin muscle"
+    },
+    {
+      "claimId": "hips.gluteus_maximus.function",
+      "sourceKey": "elsevier.gluteus_maximus",
+      "query": "gluteus maximus upper fibres abduct lower fibres adduct thigh; gluteus maximus iliotibial tract stabilizes extended knee anatomy",
+      "queryNumber": "SR29",
+      "excerpt": "Gray's-based Elsevier material lists the knee role as a separate action, noting that the muscle helps stabilize the extended knee joint.",
+      "locator": "Actions: the extended knee"
+    },
+    {
+      "claimId": "hips.gluteus_maximus.function",
+      "sourceKey": "pmid.10327003",
+      "query": "\"gluteus maximus\" \"largest capacity for external rotation\" hip flexion moment arms cerebral palsy",
+      "queryNumber": "SR32",
+      "excerpt": "On the gluteus maximus specifically, the study found a large capacity for external rotation.",
+      "locator": "Abstract"
+    },
+    {
+      "claimId": "hips.gluteus_maximus.function",
+      "sourceKey": "pmc.damiano_hip_rotation",
+      "query": "\"gluteus maximus\" \"largest capacity for external rotation\" hip flexion moment arms cerebral palsy",
+      "queryNumber": "SR32",
+      "excerpt": "A review article that cites this work makes a similar point. It notes that the capacity of the gluteus maximus to generate external rotation of the hip is compromised when the hip is flexed.",
+      "locator": "Introduction (citing the 1999 cadaver study)"
+    },
+    {
+      "claimId": "hips.gluteus_medius.selectivity.1",
+      "sourceKey": "pmid.23160432",
+      "query": "Selkowitz 2013 JOSPT gluteus medius superior gluteus maximus tensor fascia lata 20 subjects clam sidestep gluteal-to-TFL activation index",
+      "queryNumber": "SR13",
+      "excerpt": "Selkowitz, Beneck, and Powers, JOSPT 43(2):54-64 (doi:10.2519/jospt.2013.4116). ... with twenty healthy persons as subjects. ... Both gluteal muscles were significantly more active than the TFL during unilateral and bilateral bridging, quadruped hip extension (knee flexed and extending), the clam, sidestepping, and squatting.",
+      "locator": "Abstract: Methods and Results"
+    },
+    {
+      "claimId": "hips.tfl.selectivity.1",
+      "sourceKey": "pmid.23160432",
+      "query": "Selkowitz 2013 JOSPT gluteus medius superior gluteus maximus tensor fascia lata 20 subjects clam sidestep gluteal-to-TFL activation index",
+      "queryNumber": "SR13",
+      "excerpt": "Selkowitz, Beneck, and Powers, JOSPT 43(2):54-64 (doi:10.2519/jospt.2013.4116). ... with twenty healthy persons as subjects. ... Both gluteal muscles were significantly more active than the TFL during unilateral and bilateral bridging, quadruped hip extension (knee flexed and extending), the clam, sidestepping, and squatting.",
+      "locator": "Abstract: Methods and Results"
+    },
+    {
+      "claimId": "hips.gluteus_minimus.function",
+      "sourceKey": "boneandjoint.gluteus_minimus",
+      "query": "gluteus minimus capsular attachment hip joint Beck 2000 cadaver 16 hips insertion capsule",
+      "queryNumber": "SR5",
+      "excerpt": "Its abstract says the muscle inserts anterosuperiorly into the capsule of the hip and continues to its main insertion on the greater trochanter. ... It also concludes that the muscle helps stabilise the femoral head by tightening the capsule.",
+      "locator": "Abstract"
+    },
+    {
+      "claimId": "hips.piriformis.function",
+      "sourceKey": "wcpt.piriformis_action",
+      "query": "Maher dynamic ultrasound piriformis hip flexed 90 degrees external rotator 25 participants results conclusion",
+      "queryNumber": "SR4",
+      "excerpt": "Twenty-five healthy adults (8 males, 17 females) enrolled in this study. ... tested under four randomly assigned conditions, prone ER/IR and seated 90/90 ER/IR. ... The abstract reports that the muscle shortened during external rotation and lengthened during internal rotation in every hip position.",
+      "locator": "Abstract: results"
+    },
+    {
+      "claimId": "hips.piriformis.function",
+      "sourceKey": "wcpt.piriformis_action",
+      "query": "piriformis becomes internal rotator of hip in deep flexion angle degrees cadaver study",
+      "queryNumber": "SR3",
+      "excerpt": "That same source describes a dynamic ultrasound study in 25 adults that found the piriformis functioned as an ER in the HF position, and it suggested the change in strength may reflect moment arm and length-tension effects rather than a reversal of action.",
+      "locator": "Abstract: results"
+    },
+    {
+      "claimId": "hips.piriformis.variation.1",
+      "sourceKey": "wiley.sciatic_nerve_variants_meta",
+      "query": "\"Surgical anatomy of the sciatic nerve: a meta-analysis\" Tomaszewski Journal of Orthopaedic Research 2016 type A 85.2% type B",
+      "queryNumber": "SR17",
+      "excerpt": "The pooled prevalence of Type A is 85.2% (95%CI: 78.4-87.0). Type B is 9.8% (95%CI: 6.5-13.2), where the nerve splits in the pelvis, the common peroneal nerve pierces the piriformis, and the tibial nerve runs below it. ... the nerve deviates from its normal pelvic exit in almost 15% of cases.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "hips.piriformis.variation.1",
+      "sourceKey": "cureus.sciatic_nerve_piriformis",
+      "query": "Poutoglidou Piagkou Natsis 2020 Cureus sciatic nerve variants piriformis meta-analysis pooled prevalence typical pattern East Asian cadaveric studies",
+      "queryNumber": "SR18",
+      "excerpt": "The review pooled 44 articles and was built from cadaveric studies ... Type A, where the nerve passes undivided below the muscle, was the most common form, at 90% pooled prevalence. ... No significant differences were established with respect to gender and laterality. ... The nerve ran through or above the piriformis in more than 10% of people",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "hips.iliopsoas.function",
+      "sourceKey": "orthobullets.iliacus_rotation",
+      "query": "orthobullets evidence 8928937 iliopsoas adductors rotating function thread method hip positions",
+      "queryNumber": "SR21",
+      "excerpt": "It says a thread-based device was used to measure the iliopsoas and the uniarticular thigh adductors across hip positions. The iliac muscle rotates the thigh inward in every position of flexion/extension or abduction/adduction of the hip joint. ... For the psoas major, pectineus, adductor longus, and adductor brevis, the abstract says these can rotate the thigh either way, with the direction set by hip posture.",
+      "locator": "Abstract"
+    },
+    {
+      "claimId": "hips.iliopsoas.function",
+      "sourceKey": "orthobullets.iliacus_rotation",
+      "query": "\"iliac muscle\" rotates the thigh inward in every position of flexion extension abduction adduction study",
+      "queryNumber": "SR7",
+      "excerpt": "It reports that the iliacus produces internal rotation of the thigh across hip positions. That abstract used a device and a thread-based method to measure the rotating function of the iliopsoas and the thigh adductors in different hip positions.",
+      "locator": "Abstract"
+    },
+    {
+      "claimId": "hips.iliopsoas.variation.1",
+      "sourceKey": "cureus.psoas_minor_donor_study",
+      "query": "\"Potential Lack of Association Between Three Vestigial Muscles in Humans\" willed body donor psoas minor palmaris longus pyramidalis",
+      "queryNumber": "SR20",
+      "excerpt": "It dissected 23 willed body donors ... The psoas minor was the least consistent: it was present bilaterally in 39% of donors and absent bilaterally in 61%. ... Sex and race showed no statistically significant link to muscle presence.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "hips.iliopsoas.variation.1",
+      "sourceKey": "wiley.psoas_minor_population",
+      "query": "Hanson Magnusson 1999 Journal of Anatomy anatomical differences psoas muscles young black and white men psoas minor absent",
+      "queryNumber": "SR19",
+      "excerpt": "The team examined psoas muscles during routine forensic autopsies on 44 male cadavers, 21 Black and 23 White, aged 14 to 25. ... The psoas minor muscle (PMI) was absent in 91% of the black subjects, but only in 13% of the white subjects.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "hips.adductors.function",
+      "sourceKey": "radiopaedia.pectineus",
+      "query": "radiopaedia pectineus muscle action innervation; radiopaedia adductor brevis muscle action",
+      "queryNumber": "Q32",
+      "excerpt": "Because it receives dual innervation, it can be classified as either within the medial compartment or the anterior compartment of the thigh.",
+      "locator": "Innervation: the compartment it is classed with"
+    },
+    {
+      "claimId": "hips.adductor_magnus.function",
+      "sourceKey": "jbiomech.hip_adductor_stretch",
+      "query": "adductor longus hip flexion moment arm reverses to extension at hip flexion angle degrees Dostal Andrews actions of hip muscles",
+      "queryNumber": "SR10",
+      "excerpt": "In the sagittal plane, AL and the anterior adductor magnus (anterior AM) have hip flexion moment. On the other hand, the posterior adductor magnus (posterior AM) has a hip extension moment",
+      "locator": "Introduction (citing Dostal and colleagues)"
+    },
+    {
+      "claimId": "hips.adductor_magnus.function",
+      "sourceKey": "orthobullets.iliacus_rotation",
+      "query": "orthobullets evidence 8928937 iliopsoas adductors rotating function thread method hip positions",
+      "queryNumber": "SR21",
+      "excerpt": "The abstract also reports that the adductor magnus is always a lateral rotator via fibres inserted into the medial edge of the linea aspera, while fibres attached to the adductor tubercle rotate the thigh inward.",
+      "locator": "Abstract: the adductor magnus"
+    },
+    {
+      "claimId": "hips.adductor_magnus.function",
+      "sourceKey": "physiology.adductor_magnus_hip_extension",
+      "query": "Takahashi Wakahara adductor magnus hip extension rather than adduction diffusion tensor imaging Journal of Applied Physiology 2025",
+      "queryNumber": "SR9",
+      "excerpt": "they reconstructed fascicles over the entire muscle in fifteen young adults at the hip neutral position ... the whole muscle's potential extension torque was more than twice its adduction torque.",
+      "locator": "Abstract"
+    },
+    {
+      "claimId": "hips.adductor_magnus.appearance",
+      "sourceKey": "statpearls.adductor_magnus",
+      "query": "posterior thigh surface anatomy adductor magnus visible between gracilis and semimembranosus superficial posterior view",
+      "queryNumber": "SR22",
+      "excerpt": "A StatPearls article describes the adductor magnus as the largest of the medial compartment muscles; it is the most posterior of the group.",
+      "locator": "Introduction: the most posterior of the medial compartment"
+    },
+    {
+      "claimId": "hips.adductor_longus.function",
+      "sourceKey": "jbiomech.hip_adductor_stretch",
+      "query": "adductor longus hip flexion moment arm reverses to extension at hip flexion angle degrees Dostal Andrews actions of hip muscles",
+      "queryNumber": "SR10",
+      "excerpt": "In the sagittal plane, AL and the anterior adductor magnus (anterior AM) have hip flexion moment.",
+      "locator": "Introduction (citing Dostal and colleagues)"
+    },
+    {
+      "claimId": "hips.adductor_longus.function",
+      "sourceKey": "orthobullets.iliacus_rotation",
+      "query": "orthobullets evidence 8928937 iliopsoas adductors rotating function thread method hip positions",
+      "queryNumber": "SR21",
+      "excerpt": "For the psoas major, pectineus, adductor longus, and adductor brevis, the abstract says these can rotate the thigh either way, with the direction set by hip posture. Flexion and abduction intensify their lateral rotating function, while extension and adduction intensify their medial rotating function.",
+      "locator": "Abstract: the single-joint adductors"
+    },
+    {
+      "claimId": "hips.adductor_longus.function",
+      "sourceKey": "isb.adductor_longus_moment_arm",
+      "query": "ISB 2005 congress abstract adductor longus \"flexor of the hip up to 90\" extensor hip muscle function changes with joint position model",
+      "queryNumber": "SR28",
+      "excerpt": "It used a multibody computer model of the hip and knee, built on a 50th-percentile adult male, to calculate muscle lengths, lever arms, and torques for 27 hip muscles. ... the adductor longus acts as a hip flexor up to 90° of flexion and becomes an extensor beyond that angle. It also says the muscle functions as an external rotator at flexion angles up to 80°, and as an internal rotator beyond that.",
+      "locator": "Abstract"
+    },
+    {
+      "claimId": "hips.adductor_longus.selectivity.1",
+      "sourceKey": "bmj.hip_adduction_emg",
+      "query": "Serner 2014 British Journal of Sports Medicine eight hip adduction exercises adductor longus normalised EMG Copenhagen adduction elastic band 40 elite soccer players",
+      "queryNumber": "SR16",
+      "excerpt": "Forty healthy male elite soccer players, training more than 5 hours a week, participated. ... from 14% to 108% of normalised EMG across exercises, which lets the exercises be graded by intensity ... The paper's abstract identifies the Copenhagen adduction and the elastic-band hip adduction as dynamic high-intensity exercises that can easily be performed at any training facility.",
+      "locator": "Abstract: Results and Conclusions"
+    },
+    {
+      "claimId": "hips.adductor_brevis.function",
+      "sourceKey": "orthobullets.iliacus_rotation",
+      "query": "orthobullets evidence 8928937 iliopsoas adductors rotating function thread method hip positions",
+      "queryNumber": "SR21",
+      "excerpt": "For the psoas major, pectineus, adductor longus, and adductor brevis, the abstract says these can rotate the thigh either way, with the direction set by hip posture.",
+      "locator": "Abstract: the single-joint adductors"
+    },
+    {
+      "claimId": "hips.pectineus.function",
+      "sourceKey": "orthobullets.iliacus_rotation",
+      "query": "orthobullets evidence 8928937 iliopsoas adductors rotating function thread method hip positions",
+      "queryNumber": "SR21",
+      "excerpt": "For the psoas major, pectineus, adductor longus, and adductor brevis, the abstract says these can rotate the thigh either way, with the direction set by hip posture.",
+      "locator": "Abstract: the single-joint adductors"
     }
   ],
   "deviations": [
@@ -2931,8 +3209,8 @@
       "field": "layer: hips.adductor_magnus (intermediate) and hips.adductor_brevis (deep)",
       "fixedIn10": "adductor magnus 'intermediate (surface outcrop, back view)'; adductor brevis 'deep'",
       "evidence": "Seen from the front, the adductor brevis lies deep to the pectineus and adductor longus but superficial to the adductor magnus (kenhub.adductor_brevis_video, verbatim: 'the adductor brevis muscle can be found deep to the pectineus and adductor longus muscles but superficial to the adductor magnus muscle'; lecturio.medial_thigh_muscles). §1.2's layers put the magnus above the brevis.",
-      "assessment": "Not a contradiction for the back view, where the magnus lies under the hamstrings with part of it at the surface and the brevis is not seen, nor for a Front view drawn with only surface and deep layers (§7.2) if the magnus is not drawn there. It is a contradiction if the drawing shows the magnus on the Front at all: anatomically it lies behind the brevis from the front.",
-      "proposal": "Keep §1.2's ids and layers; the drawing lane does not draw the adductor magnus in the Front view (or draws it on Front-deep only where the brevis does not cover it, which would need a Front-middle layer for the brevis). The adversarial review decides; this lane does not change §1.2."
+      "assessment": "Not a contradiction for the back view, where the magnus lies under the hamstrings with part of it at the surface and the brevis is not seen, nor for a Front view drawn with only surface and deep layers (§7.2) if the magnus is not drawn there. It is a contradiction if the drawing shows the magnus on the Front at all: anatomically it lies behind the brevis from the front. Second review: the front-view order (longus and pectineus, then brevis, then magnus) is confirmed by a dissection walkthrough ('having cut adductor longus, see adductor magnus', SR24). The same search suggested that a small part of the magnus shows low on the inner thigh in front views, medial to the vastus medialis and below the adductor longus. That came from labelled images outside the standard's list. If an atlas plate confirms it, the magnus has a front-view outcrop too, and the drawing lane would draw only that strip in the Front view. The back-view outcrop rests on image labels alone (SR22).",
+      "proposal": "Keep §1.2's ids and layers; the drawing lane does not draw the adductor magnus in the Front view (or draws it on Front-deep only where the brevis does not cover it, which would need a Front-middle layer for the brevis). The adversarial review decides; this lane does not change §1.2. Second review: agree with keeping §1.2's ids and layers; the anatomy lane should confirm both outcrops (back view, and the possible low front strip) from an atlas plate before the drawing lane cuts them."
     },
     {
       "id": "D2",
@@ -2946,54 +3224,519 @@
   "notes": {
     "singleSourceFunctionClaims": [
       "None. Every function claim cites two or more references (two for the pectineus and the gracilis, three to five for the rest).",
-      "Sentences inside function claims that rest on one reference: hips.gluteus_maximus.function, 'the largest capacity for turning the thigh outward' (pmid.10327003); hips.gluteus_medius.function, 'its back fibres help turn the thigh outward' (statpearls.gluteus_medius) and the leverage of the front fibres (kenhub.gluteus_medius_video); hips.gluteus_minimus.function, 'with the hip bent' (kenhub.gluteus_minimus_video) and the cadaver-model sentence (boneandjoint.gluteus_minimus); hips.tfl.function, 'a relatively weak abductor and inward rotator' (kenhub.tensor_fasciae_latae); hips.piriformis.function, the 60-degree turning point (kenhub.piriformis_video) and the reliance on cadaver and model studies (wcpt.piriformis_action); hips.iliopsoas.function, the iliacus turning the thigh inward (orthobullets.iliacus_rotation); hips.adductor_magnus.function, the imaging estimate (physiology.adductor_magnus_hip_extension); hips.adductor_longus.function, the 90-degree switch (isb.adductor_longus_moment_arm); hips.adductor_brevis.function, 'a weak adductor' and hip flexion (kenhub.adductor_brevis). Each is worded as one reference's finding.",
+      "Sentences inside function claims that rest on one reference: hips.gluteus_maximus.function, 'a large capacity for turning the thigh outward' (pmid.10327003) and its reduction with the hip bent (pmc.damiano_hip_rotation, a citing paper); hips.gluteus_medius.function, 'its back fibres help turn the thigh outward' (statpearls.gluteus_medius) and the leverage of the front fibres (kenhub.gluteus_medius_video); hips.gluteus_minimus.function, 'with the hip bent' (kenhub.gluteus_minimus_video) and the cadaver-model sentence (boneandjoint.gluteus_minimus); hips.tfl.function, 'a relatively weak abductor and inward rotator' (kenhub.tensor_fasciae_latae); hips.piriformis.function, the 60-degree turning point (kenhub.piriformis_video) and, from one abstract, both the reliance on cadaver and model studies and the dynamic ultrasound result that disputes the reversal (wcpt.piriformis_action); hips.iliopsoas.function, the iliacus turning the thigh inward and the psoas major either way (orthobullets.iliacus_rotation); the same abstract carries the position-dependent rotation sentences of the adductor longus, adductor brevis and pectineus claims, and the adductor magnus's 'older study' sentence; hips.adductor_magnus.function, the imaging estimate (physiology.adductor_magnus_hip_extension); hips.adductor_longus.function, the 90-degree switch (isb.adductor_longus_moment_arm, a computer model; not confirmed by a second source); hips.adductor_brevis.function, 'a weak adductor' and hip flexion (kenhub.adductor_brevis). Each is worded as one reference's finding.",
       "Non-function claims resting on one source: every selectivity claim (one study each: pmid.27494053, pmid.23160432 twice, pmid.20625774, bmj.hip_adduction_emg) and one appearance claim, hips.tfl.appearance (kenhub.tensor_fasciae_latae)."
     ],
     "unconfirmedBibliographicDetails": [
       "StatPearls articles: titles for NBK538193, NBK557509, NBK519497, NBK531508 and NBK534842 follow the series' naming (the results showed the Bookshelf ids or statpearls.com mirrors with partial titles); authors and update dates not shown; the gluteus minimus, TFL and gracilis articles were seen on statpearls.com without a Bookshelf id.",
-      "pmid.10327003: authors not shown in the snippet (usually cited as Delp, Hess, Hungerford and Jones); DOI not shown.",
-      "pmid.23160432 (Selkowitz 2013): every figure came from secondary summaries of the abstract; the PubMed id was given by a summary; DOI not shown.",
       "pmid.20625774 (Hu et al.): co-authors not listed.",
-      "physiology.adductor_magnus_hip_extension (Takahashi et al. 2025): seen through a citation-index page and summaries; DOI and PubMed id not shown.",
       "bmj.hip_adduction_emg (Serner et al. 2014): co-authors and PubMed id not shown; one abstract sentence cut off.",
-      "isb.adductor_longus_moment_arm: a 2005 congress abstract; title, authors and sample not shown; the title is descriptive.",
       "wiley.piriformis_sciatic_nerve_review (Smoll 2010): volume, pages and DOI not shown; the QxMD record id 19998490 may be the PubMed id, not confirmed.",
-      "wiley.sciatic_nerve_variants_meta (J Orthop Res 2016): title and authors not shown; the title is descriptive.",
-      "cureus.sciatic_nerve_piriformis (Poutoglidou et al. 2020): co-authors and DOI not shown.",
-      "miami.psoas_minor_donor_study: journal, year and authors not shown.",
-      "wiley.psoas_minor_population (Journal of Anatomy): title, authors, year and sample not shown; the title is descriptive.",
-      "orthobullets.iliacus_rotation: title, authors, year, journal and method not shown; cited only for the disagreement.",
-      "wcpt.piriformis_action (Maher, Morrison and Zang 2019): its results not shown; title taken from the URL.",
       "grays.gluteal_region and grays.medial_femoral_muscles: a third-party transcription of the 1918 Gray's Anatomy; fidelity not checked; for the gracilis line the page was inferred from the summary's 'a Gray's-based source'.",
       "anatomytool.ubc_posterior_lower_limb and stanford.bassett_182_6: image labels described by a search summary; the images were not seen.",
-      "Kenhub videos (gluteal muscles, gluteus medius, gluteus minimus, piriformis, adductor longus, adductor brevis): transcripts or summaries only; the videos were not watched."
+      "Kenhub videos (gluteal muscles, gluteus medius, gluteus minimus, piriformis, adductor longus, adductor brevis): transcripts or summaries only; the videos were not watched.",
+      "pmid.10327003: authors confirmed by the second review as Delp and colleagues (SR1); DOI not shown.",
+      "pmid.23160432 (Selkowitz 2013): figures from secondary summaries of the abstract, now agreed by a second, independent search (SR13); DOI found, 10.2519/jospt.2013.4116.",
+      "physiology.adductor_magnus_hip_extension (Takahashi et al. 2025): issue and DOI found by the second review (SR9); the URL is still a citation-index page; PubMed id not shown.",
+      "isb.adductor_longus_moment_arm: identified by the second review as Pressel and Lengsfeld, 'Functions of hip joint muscles', ISB 2005 (SR28); a computer model; sample is a single model, not people.",
+      "wiley.sciatic_nerve_variants_meta: identified by the second review as Tomaszewski et al., 'Surgical anatomy of the sciatic nerve: a meta-analysis', J Orthop Res 34:1820-1827, 2016 (SR17); co-authors beyond the lead not shown.",
+      "cureus.sciatic_nerve_piriformis (Poutoglidou et al. 2020): co-authors found (SR18); DOI not shown.",
+      "cureus.psoas_minor_donor_study (formerly miami.psoas_minor_donor_study): Hodgens et al., Cureus 2020 (SR20); co-authors and DOI not shown.",
+      "wiley.psoas_minor_population: identified as Hanson, Magnusson, Sorensen and Simonsen, J Anat 194(Pt 2):303-307, 1999 (SR19).",
+      "orthobullets.iliacus_rotation: an older thread-method abstract; a summary called 8928937 the PubMed id and a secondary article may attribute it to Reimann and colleagues (1996), another summary dated it to the 1960s; title, authors, year and journal not confirmed.",
+      "wcpt.piriformis_action (Maher, Morrison and Zang 2019): results now seen (SR3, SR4); title taken from the URL; publication as a full paper not found.",
+      "elsevier.gluteus_maximus (added by the second review): seen through a generated summary; heading not confirmed.",
+      "pmc.damiano_hip_rotation (added by the second review): title, journal and design not shown; the hosting file name reads 'Damiano_2010_PT'; cited only for one background sentence.",
+      "jbiomech.hip_adductor_stretch (added by the second review): exact title not shown; DOI suggested by the PDF file name, not confirmed; cited only for one background sentence citing Dostal and colleagues."
     ],
     "disagreementsAndWording": [
-      "Hip rotation and hip flexion. A cadaver and model study (pmid.10327003) found the pull of most hip muscle parts it measured shifting toward turning the thigh inward as the hip bends, but its abstract does not say which parts. Muscle by muscle the recorded evidence is: piriformis, outward with the hip straight and inward past about 60 degrees by one reference (others, uncited, say about 90), resting mainly on cadaver and model work (wcpt.piriformis_action); gluteus minimus, inward by its front fibres with the hip bent by one reference, either way depending on position and part in a cadaver model; gluteus medius, no muscle-specific evidence found (Q57), so its claim states only the general finding. The claims say this plainly and the node actions count only what holds with the hip straight, as help where the sources say help.",
-      "Adductor longus and hip flexion: a flexor up to about 90 degrees of hip flexion and an extensor beyond in one congress-abstract model (isb.adductor_longus_moment_arm). Said in the claim and a caveat; counted as assist for flexion only.",
-      "Adductor magnus and hip extension: Kenhub and StatPearls give extension to the hamstring part; StatPearls' adductor-strain article says the magnus 'contributes' to extension; an imaging study of 15 young adults estimated its extension capacity at more than twice its adduction capacity. Recorded prime on the first, second and fourth. The claim says what each found.",
-      "Rotation by the adductors: adductor longus outward (Kenhub) versus some inward (StatPearls); adductor brevis outward (Kenhub) versus inward (Radiopaedia), with a Kenhub video calling it contested; pectineus possibly either way (Kenhub); adductor magnus parts listed in opposite directions (Kenhub). None counted; each claim says references disagree.",
-      "Iliopsoas rotation: StatPearls and Kenhub list a small outward part; one study abstract reports the iliacus turning the thigh inward in every position tested. Not counted; the claim says the references do not agree.",
+      "Hip rotation and hip flexion. A cadaver and model study (pmid.10327003) found the pull of most hip muscle parts it measured shifting toward turning the thigh inward as the hip bends, but its abstract does not say which parts. Muscle by muscle the recorded evidence is: piriformis, outward with the hip straight and inward past about 60 degrees by one reference (others, uncited, say about 90), resting mainly on cadaver and model work, while a dynamic ultrasound study of 25 adults found no reversal (wcpt.piriformis_action; second review SR3, SR4); gluteus minimus, inward by its front fibres with the hip bent by one reference, either way depending on position and part in a cadaver model; gluteus medius, no muscle-specific evidence found (Q57), so its claim states only the general finding. The claims say this plainly and the node actions count only what holds with the hip straight, as help where the sources say help. Second review: the gluteus maximus's outward-turning capacity is reduced with the hip bent by a paper citing the 1999 study (pmc.damiano_hip_rotation), and an older thread-method study found the psoas major, pectineus, adductor longus and brevis turning the thigh either way depending on the hip's position (orthobullets.iliacus_rotation; SR21). A computer model (isb.adductor_longus_moment_arm) found the adductor longus turning it outward up to about 80 degrees of hip flexion and inward beyond. Each of those claims now says so; none of these rotations is counted.",
+      "Adductor longus and hip flexion: a flexor up to about 90 degrees of hip flexion and an extensor beyond in one computer model (isb.adductor_longus_moment_arm, Pressel and Lengsfeld). The second review found no second source for the angle; an uncited summary put the adductors' change between about 40 and 70 degrees (SR8). Said in the claim and a caveat; counted as assist for flexion only.",
+      "Adductor magnus and hip extension: Kenhub and StatPearls give extension to the hamstring part; StatPearls' adductor-strain article says the magnus 'contributes' to extension; an imaging study of 15 young adults estimated its extension capacity at more than twice its adduction capacity. Recorded prime on the first, second and fourth. The claim says what each found. Second review: the imaging estimate is for the hip in neutral (said in the claim now); a moment-arm source cited by a 2020 study gives the back part an extension moment (jbiomech.hip_adductor_stretch); how the extension leverage changes with hip flexion was seen only in secondary or uncited pages (SR8) and is not claimed.",
+      "Rotation by the adductors: adductor longus outward (Kenhub) versus some inward (StatPearls); adductor brevis outward (Kenhub) versus inward (Radiopaedia), with a Kenhub video calling it contested; pectineus possibly either way (Kenhub); and for the longus, brevis and pectineus an older study found the direction set by the hip's position (second review, SR21); adductor magnus parts listed in opposite directions (Kenhub). None counted; each claim says references disagree.",
+      "Iliopsoas rotation: StatPearls and Kenhub list it as helping turn the thigh outward; an older thread-method abstract reports the iliacus turning the thigh inward in every position tested and the psoas major either way by position (SR21). Not counted; the claim says the references do not agree.",
       "Tensor fasciae latae at the knee: StatPearls an accessory knee flexor beyond 30 degrees with outward turning of the shin; Kenhub knee extension and outward turning. Not counted; the claim and a caveat say references disagree. Its hip actions are 'assists' in StatPearls and Elsevier and 'relatively weak' in Kenhub, which is why all its rows are assist.",
-      "Gluteus medius back fibres: StatPearls ties their outward turning to the knee being straight; Kenhub does not list outward turning at all. The claim says 'one reference adds'.",
+      "Gluteus medius back fibres: StatPearls ties their outward turning to the knee being straight; Kenhub does not list outward turning at all. The claim says 'one reference adds … when the knee is straight' (the condition added by the second review).",
       "Gluteus maximus and buttock shape: Wikipedia (read, not cited) says fat contributes much of the buttock's rounded shape; the shape notes carry the forearm's sentence that visible shape also depends on body fat, and no sentence says the muscle alone makes the outline.",
       "Psoas minor: absent rates differ widely between studies and populations, and the two cited studies disagree on whether race matters. The variation claim states both without a figure.",
-      "Pectineus nerve supply: Kenhub gives the femoral nerve with the obturator as a variant; Radiopaedia splits the muscle between the femoral and accessory obturator nerves. The claim says 'described as mixed' and 'may supply'."
+      "Pectineus nerve supply: Kenhub gives the femoral nerve with the obturator as a variant; Radiopaedia splits the muscle between the femoral and accessory obturator nerves. The claim says 'described as mixed' and 'may supply'.",
+      "Pectineus nerve supply (second review): an independent search (SR26) found the femoral nerve the only supply in most people and an obturator or accessory obturator branch in a minority; the claim now says the femoral nerve supplies it and that the second supply is described by one reference and listed as a variant by another.",
+      "Adductor magnus back-view outcrop (second review): an independent search (SR22) found no written description of it; the image-label evidence is unchanged and the appearance claim now says only what the labels show."
     ],
     "productQuestions": [
-      "TFL has no prime row on the evidence (all three of its hip actions are 'assists' or 'relatively weak'). regionContent.test.ts ('gives every muscle a main action, adjacent muscles aside') will fail for hips.tfl, a target muscle. Either the anatomy lane marks hip.abduction prime as a product choice and says so, or the test allows a target muscle with assist rows only. Not decided here.",
+      "TFL has no prime row on the evidence (all three of its hip actions are 'assists' or 'relatively weak'). regionContent.test.ts ('gives every muscle a main action, adjacent muscles aside') will fail for hips.tfl, a target muscle. Either the anatomy lane marks hip.abduction prime as a product choice and says so, or the test allows a target muscle with assist rows only. Not decided here. Second review (SR12): study flashcards built on a kinesiology textbook list the tensor fasciae latae among the primary hip flexors and primary hip abductors, and Kenhub calls it relatively weak. If the lane reads that textbook and it says so, a prime hip.flexion or hip.abduction row would rest on evidence rather than on a product choice; the flashcards themselves cannot be cited.",
       "No muscle of the hips is prime for hip.internal_rotation on the recorded evidence (gluteus medius, gluteus minimus and TFL are all assist), so the page never names inward rotation as a missing main action. If it should, marking the gluteus minimus's row prime is the closest product choice (see that row's productNote).",
       "The adductor magnus's hip.extension row is prime on the evidence; the thigh's external listing of the adductor magnus (§1.2) depends on it being prime.",
       "The thigh lane may want to know that the gracilis bends the knee and turns the lower leg inward (statpearls.gracilis, kenhub.gracilis); the gracilis's home is the hips and it is not listed by the thigh.",
       "The pectineus and the piriformis are adjacent; their prime rows do not drive suggestions (recommendations.ts reads prime rows of target muscles only)."
     ],
     "layerAndOutcropChecks": [
-      "Gluteus medius: intermediate with a surface outcrop above the gluteus maximus, supported (only the back third under the gluteus maximus; the front part under the gluteal aponeurosis).",
+      "Gluteus medius: intermediate with a surface outcrop above the gluteus maximus, supported (only the back third under the gluteus maximus; the front part under the gluteal aponeurosis). Second review (SR23): an independent search put the uncovered part toward the front and top of the muscle (a wiki, read and not cited), which agrees with 'above'.",
       "Iliopsoas: deep with an outcrop in the femoral triangle, supported (outer part of the triangle's floor; roof of skin and fascia).",
-      "Adductor magnus: back-view outcrop supported through image labels only (UBC and Stanford posterior dissections); see D1 for its front-view order with the brevis.",
+      "Adductor magnus: back-view outcrop supported through image labels only (UBC and Stanford posterior dissections); the second review found no written description of it (SR22) and a hint of a small front-view outcrop low on the inner thigh (SR24, not citable); see D1.",
       "Gluteus minimus deep, piriformis deep, adductor longus, pectineus and gracilis surface, TFL surface, gluteus maximus surface: supported."
     ],
     "searchBudget": "58 web searches (Q1 to Q58), recorded in searchlog.md with their result lists and the excerpts relied on. Page fetches were not attempted: the network proxy refuses them (03-anatomy-evidence.md; 10-multi-region.md §8).",
     "wikipedia": "Wikipedia and WikiMSK (a wiki) and Physiopedia (a wiki) appeared in results and were read; none is cited."
+  },
+  "secondReview": {
+    "date": "2026-10-19",
+    "reviewer": "Independent automated second review (an AI agent), with the same tools and limits as the first pass: web search only, page fetches refused, search results are generated summaries that can misquote. It is not peer review, and not a clinician or anatomist.",
+    "scope": "Every reviewed claim checked sentence by sentence against its recorded excerpts. Independent re-search, with the reviewer's own queries, of 12 of the 13 function claims (all but the gluteal group, whose sentences rest on its members' sources), all 5 selectivity claims and both variation claims. Sources checked for key, URL, title and evidence type; node fields, node actions, prime and assist, layers and outcrops checked against §1.2.",
+    "counts": {
+      "claims": 33,
+      "reviewed": 33,
+      "draft": 0,
+      "newDraftsFromSecondReview": 0,
+      "claimsReworded": 16,
+      "claimsReworded_ids": [
+        "hips.adductor_brevis.function",
+        "hips.adductor_longus.appearance",
+        "hips.adductor_longus.function",
+        "hips.adductor_longus.selectivity.1",
+        "hips.adductor_magnus.appearance",
+        "hips.adductor_magnus.function",
+        "hips.adductors.function",
+        "hips.gluteals.function",
+        "hips.gluteus_maximus.function",
+        "hips.gluteus_medius.appearance",
+        "hips.gluteus_medius.function",
+        "hips.iliopsoas.function",
+        "hips.iliopsoas.variation.1",
+        "hips.pectineus.function",
+        "hips.piriformis.function",
+        "hips.piriformis.variation.1"
+      ],
+      "claimsReSearched": 19,
+      "functionClaimsReSearched": "12 of 13",
+      "selectivityClaimsReSearched": "5 of 5",
+      "variationClaimsReSearched": "2 of 2",
+      "nodeActionsChanged": 0,
+      "nodeActionNotesUpdated": 6,
+      "nodeFieldsChanged": "shape notes of the two parents; adductor longus location and layer evidence; gluteus medius and adductor magnus layer evidence; caveats of the gluteus maximus (one added), piriformis (two), adductor longus (two), adductor brevis and pectineus",
+      "sourcesAdded": 3,
+      "sourcesRemoved": 0,
+      "sourcesRekeyed": 1,
+      "sourcesRetitled": 6,
+      "citationsAdded": 25,
+      "excerptsTrimmed": 5,
+      "searches": 32
+    },
+    "queries": [
+      {
+        "id": "SR1",
+        "query": "Delp 1999 \"rotation moment arms\" hip flexion piriformis switched external to internal rotation gluteus medius posterior compartment abstract",
+        "claimIds": [
+          "hips.gluteus_maximus.function",
+          "hips.gluteus_medius.function",
+          "hips.piriformis.function"
+        ],
+        "excerpt": "Some muscles switched from external to internal rotation as flexion increased. The internal-rotation trend appeared in 15 of the 18 muscle compartments examined ... Gluteus maximus: It had a large capacity for external rotation ... The abstract snippet doesn't break out piriformis or the gluteus medius posterior compartment individually, so I couldn't confirm their specific results from this search.",
+        "verdict": "Agrees on the general shift toward inward turning with hip flexion. Gives the gluteus maximus 'a large', not 'the largest', capacity for outward turning (see SR32). No result for the gluteus medius or piriformis on their own. Authors confirmed as Delp and colleagues."
+      },
+      {
+        "id": "SR2",
+        "query": "gluteus medius posterior fibers lateral rotation hip extended become medial rotators when hip flexed",
+        "claimIds": [
+          "hips.gluteus_medius.function"
+        ],
+        "excerpt": "None of the sources say the posterior gluteus medius fibers switch to medial rotation when the hip is flexed. ... Several sources list them as hip extensors and lateral (external) rotators. Wikipedia and Brookbush both say so ... The medius's anterior fibers are the ones consistently described as medial rotators",
+        "verdict": "Agrees that the front fibres turn the thigh inward. Only uncited pages (Wikipedia, read and not cited; a continuing-education site) give the back fibres outward turning. No source found for the back fibres switching with hip flexion, so the claim keeps only the general finding (SR25)."
+      },
+      {
+        "id": "SR3",
+        "query": "piriformis becomes internal rotator of hip in deep flexion angle degrees cadaver study",
+        "claimIds": [
+          "hips.piriformis.function"
+        ],
+        "excerpt": "The search didn't turn up a cadaver study that gives a specific flexion angle where the piriformis switches to an internal rotator. ... stretches for the piriformis are based on the belief that the piriformis becomes an IR when the hip is flexed at or above 90°, however these findings are primarily based on cadaveric studies or more recent static CT and 3D computational modeling studies. That same source describes a dynamic ultrasound study in 25 adults that found the piriformis functioned as an ER in the HF position, and it suggested the change in strength may reflect moment arm and length-tension effects rather than a reversal of action.",
+        "verdict": "Disagrees with an unqualified reversal. The turning point is put at 60 degrees by one source and 90 by others, and the abstract the first pass cited only for its background (wcpt.piriformis_action) found the piriformis still turning the thigh outward with the hip bent. Resolved in the wording (SR4)."
+      },
+      {
+        "id": "SR4",
+        "query": "Maher dynamic ultrasound piriformis hip flexed 90 degrees external rotator 25 participants results conclusion",
+        "claimIds": [
+          "hips.piriformis.function"
+        ],
+        "excerpt": "Twenty-five healthy adults (8 males, 17 females) enrolled in this study. ... tested under four randomly assigned conditions, prone ER/IR and seated 90/90 ER/IR. ... The abstract reports that the muscle shortened during external rotation and lengthened during internal rotation in every hip position. That result does not support the idea that the muscle reverses its action at higher hip flexion.",
+        "verdict": "Confirms SR3 from the abstract itself. The claim now states both: the reversal described by one reference, resting on cadaver and model work, and this study in living adults that did not find it. The caveat and the left-out row are reworded to match."
+      },
+      {
+        "id": "SR5",
+        "query": "gluteus minimus capsular attachment hip joint Beck 2000 cadaver 16 hips insertion capsule",
+        "claimIds": [
+          "hips.gluteus_minimus.function"
+        ],
+        "excerpt": "Its abstract says the muscle inserts anterosuperiorly into the capsule of the hip and continues to its main insertion on the greater trochanter. ... a plastic-bone model showed the muscle can act as a flexor, abductor, or internal or external rotator, depending on femoral position and which part is active. It also concludes that the muscle helps stabilise the femoral head by tightening the capsule.",
+        "verdict": "Agrees. It also supports the capsular fibres in the node's location, which no first-pass excerpt showed."
+      },
+      {
+        "id": "SR6",
+        "query": "iliopsoas role in hip rotation controversial medial or lateral rotator of femur electromyography moment arm",
+        "claimIds": [
+          "hips.iliopsoas.function"
+        ],
+        "excerpt": "A cited Gray's Anatomy passage describes the psoas as possibly a lateral rotator of the hip ... one 1960s-era thread-based study found the iliacus rotates the thigh inward across hip positions, while the psoas major could rotate it either inward or outward ... A 2024 systematic review notes the iliopsoas contributes to hip external rotation as well as flexion and trunk lateral flexion",
+        "verdict": "Agrees that its rotation is disputed. The study's date is not settled ('1960s-era' here, about 1996 in SR21), so the claim calls it 'an older study'."
+      },
+      {
+        "id": "SR7",
+        "query": "\"iliac muscle\" rotates the thigh inward in every position of flexion extension abduction adduction study",
+        "claimIds": [
+          "hips.iliopsoas.function"
+        ],
+        "excerpt": "The only study that directly supports your claim is an older abstract hosted on OrthoBullets. It reports that the iliacus produces internal rotation of the thigh across hip positions. That abstract used a device and a thread-based method to measure the rotating function of the iliopsoas and the thigh adductors in different hip positions. The finding is not widely corroborated in the other sources I found.",
+        "verdict": "Confirms the abstract's finding and shows its method (a thread-based device). It is a single source, and the claim words it as one study's finding."
+      },
+      {
+        "id": "SR8",
+        "query": "adductor magnus ischiocondylar portion hip extensor moment arm increases with hip flexion",
+        "claimIds": [
+          "hips.adductor_magnus.function"
+        ],
+        "excerpt": "An exrx.net summary of Németh & Ohlsén (1985) reports that the adductor magnus's hip extension moment arm is larger than that of the hamstrings or gluteus maximus at lower hip angles. It peaks at about 75° of hip flexion and then declines again. ... A review of the adductor magnus describes the ischiocondylar part as a hip extensor when the hip is in maximum flexion.",
+        "verdict": "Agrees that the muscle extends the hip, and suggests its leverage for it changes with the hip's angle. Both lines are secondary or uncited (a commercial exercise site and an unnamed review), so the claim adds no angle; open for the anatomy lane."
+      },
+      {
+        "id": "SR9",
+        "query": "Takahashi Wakahara adductor magnus hip extension rather than adduction diffusion tensor imaging Journal of Applied Physiology 2025",
+        "claimIds": [
+          "hips.adductor_magnus.function"
+        ],
+        "excerpt": "\"Redefining muscular action: Human 'adductor' magnus is designed to act primarily for hip 'extension' rather than adduction in living young individuals\" by Takahashi, Tozawa, Kawama, and Wakahara. It appeared in the Journal of Applied Physiology (vol. 138, issue 4, pp. 1088–1099), DOI 10.1152/japplphysiol.00600.2024. ... they reconstructed fascicles over the entire muscle in fifteen young adults at the hip neutral position ... the whole muscle's potential extension torque was more than twice its adduction torque.",
+        "verdict": "Agrees. DOI and issue added to the source. The claim now says the estimate is for the hip in a neutral position."
+      },
+      {
+        "id": "SR10",
+        "query": "adductor longus hip flexion moment arm reverses to extension at hip flexion angle degrees Dostal Andrews actions of hip muscles",
+        "claimIds": [
+          "hips.adductor_longus.function",
+          "hips.adductor_magnus.function"
+        ],
+        "excerpt": "In the sagittal plane, AL and the anterior adductor magnus (anterior AM) have hip flexion moment. On the other hand, the posterior adductor magnus (posterior AM) has a hip extension moment ... The search didn't find a source that gives the specific hip flexion angle where adductor longus flips from flexor to extensor moment arm, so the exact threshold is still unconfirmed.",
+        "verdict": "Agrees that the adductor longus flexes the hip and that the back part of the adductor magnus extends it. Added as jbiomech.hip_adductor_stretch, the introduction of a 2020 Journal of Biomechanics study citing Dostal and colleagues (SR31). No second source confirms the 90-degree switch; the claim keeps it as one model's finding."
+      },
+      {
+        "id": "SR11",
+        "query": "adductor brevis muscle actions adducts thigh and to some extent flexes it obturator nerve",
+        "claimIds": [
+          "hips.adductor_brevis.function"
+        ],
+        "excerpt": "Several sources list hip flexion as an action, including anatomyzone and getbodysmart. Getbodysmart also notes that some references suggest it may rotate the thigh. ... Anatomy.net adds external rotation and pelvic stabilization. ... An IMAIOS veterinary entry lists extension rather than flexion, which doesn't match the human-anatomy sources.",
+        "verdict": "Agrees that hip flexion is a secondary listed action. The pages that agree are outside the evidence standard's list, so the flexion row stays an assist resting on one cited reference (Kenhub)."
+      },
+      {
+        "id": "SR12",
+        "query": "tensor fasciae latae primary hip flexor abductor internal rotator kinesiology Neumann",
+        "claimIds": [
+          "hips.tfl.function"
+        ],
+        "excerpt": "One set lists the tensor fasciae latae among the primary hip flexors and the primary hip abductors. A different set places it under secondary hip internal rotators, so the cards treat internal rotation as a secondary role. ... Kenhub describes the hip roles as a relatively weak abductor and medial rotator ... They differ on which of those actions is primary",
+        "verdict": "Agrees on its three hip actions. A kinesiology textbook's grading of it as a primary flexor and abductor was seen only through study flashcards, which cannot be cited. No change to the claim. The product question on the tensor fasciae latae's main action is updated."
+      },
+      {
+        "id": "SR13",
+        "query": "Selkowitz 2013 JOSPT gluteus medius superior gluteus maximus tensor fascia lata 20 subjects clam sidestep gluteal-to-TFL activation index",
+        "claimIds": [
+          "hips.gluteus_medius.selectivity.1",
+          "hips.tfl.selectivity.1"
+        ],
+        "excerpt": "Selkowitz, Beneck, and Powers, JOSPT 43(2):54-64 (doi:10.2519/jospt.2013.4116). ... with twenty healthy persons as subjects. ... Both gluteal muscles were significantly more active than the TFL during unilateral and bilateral bridging, quadruped hip extension (knee flexed and extending), the clam, sidestepping, and squatting. ... The gluteal-to-TFL index ranged from 18 to 115 and was highest for the clam (115), sidestep (64), unilateral bridge (59), and both quadruped exercises (50).",
+        "verdict": "Agrees, and gives the sample of 20, which both claims stated but the first pass's excerpt did not show. DOI added. Cited on both claims."
+      },
+      {
+        "id": "SR14",
+        "query": "superior versus inferior gluteus maximus fine-wire EMG 2016 therapeutic exercises abduction external rotation preferentially recruit superior portion",
+        "claimIds": [
+          "hips.gluteus_maximus.selectivity.1"
+        ],
+        "excerpt": "Twenty healthy people took part, and fine-wire electrodes recorded EMG from the superior and inferior portions of the gluteus maximus. ... The superior portion showed higher relative activity in 5 of the 11 exercises tested, and the two portions were similar in the other 6 ... Exercises that are mainly extension recruited both portions to a similar degree",
+        "verdict": "Agrees; no change."
+      },
+      {
+        "id": "SR15",
+        "query": "psoas contralateral activity active straight leg raise iliacus fine-wire healthy women lumbar spine stabilization frontal plane 2011",
+        "claimIds": [
+          "hips.iliopsoas.selectivity.1"
+        ],
+        "excerpt": "The researchers tested 17 healthy women aged 20 to 40. ... the iliacus, rectus femoris, adductor longus and psoas were active ipsilaterally, but the psoas was also active contralaterally. ... the psoas is bilaterally recruited to stabilize the lumbar spine, probably in the frontal plane. ... with the iliacus, rectus femoris and adductor longus starting roughly together and the psoas starting later.",
+        "verdict": "Agrees; no change."
+      },
+      {
+        "id": "SR16",
+        "query": "Serner 2014 British Journal of Sports Medicine eight hip adduction exercises adductor longus normalised EMG Copenhagen adduction elastic band 40 elite soccer players",
+        "claimIds": [
+          "hips.adductor_longus.selectivity.1"
+        ],
+        "excerpt": "Forty healthy male elite soccer players, training more than 5 hours a week, participated. ... from 14% to 108% of normalised EMG across exercises, which lets the exercises be graded by intensity ... Activity in these muscles was comparatively low, at 5–48% nEMG. ... The paper's abstract identifies the Copenhagen adduction and the elastic-band hip adduction as dynamic high-intensity exercises that can easily be performed at any training facility.",
+        "verdict": "Agrees. The sentence the first pass saw cut off says 'any training facility', not 'most'; the claim is corrected."
+      },
+      {
+        "id": "SR17",
+        "query": "\"Surgical anatomy of the sciatic nerve: a meta-analysis\" Tomaszewski Journal of Orthopaedic Research 2016 type A 85.2% type B",
+        "claimIds": [
+          "hips.piriformis.variation.1"
+        ],
+        "excerpt": "It appeared in the Journal of Orthopaedic Research in October 2016 (vol. 34, pp. 1820–1827). A total of 45 studies (n = 7068 lower limbs) were included ... The pooled prevalence of Type A is 85.2% (95%CI: 78.4-87.0). Type B is 9.8% (95%CI: 6.5-13.2), where the nerve splits in the pelvis, the common peroneal nerve pierces the piriformis, and the tibial nerve runs below it. ... the nerve deviates from its normal pelvic exit in almost 15% of cases.",
+        "verdict": "Agrees on the typical pattern. Shows that the commonest variant is a nerve that divides early with one part through the muscle, so 'it runs through or above the muscle instead' is reworded. Title and authors of wiley.sciatic_nerve_variants_meta corrected (the first pass's title was descriptive)."
+      },
+      {
+        "id": "SR18",
+        "query": "Poutoglidou Piagkou Natsis 2020 Cureus sciatic nerve variants piriformis meta-analysis pooled prevalence typical pattern East Asian cadaveric studies",
+        "claimIds": [
+          "hips.piriformis.variation.1"
+        ],
+        "excerpt": "The 2020 Cureus paper by Poutoglidou, Piagkou, Totlis, Tzika and Natsis is indexed ... The review pooled 44 articles and was built from cadaveric studies ... Type A, where the nerve passes undivided below the muscle, was the most common form, at 90% pooled prevalence. ... Variants were more frequent in this group, at a 31% pooled prevalence of total variants. ... No significant differences were established with respect to gender and laterality. ... The nerve ran through or above the piriformis in more than 10% of people",
+        "verdict": "Agrees; co-authors added to the source."
+      },
+      {
+        "id": "SR19",
+        "query": "Hanson Magnusson 1999 Journal of Anatomy anatomical differences psoas muscles young black and white men psoas minor absent",
+        "claimIds": [
+          "hips.iliopsoas.variation.1"
+        ],
+        "excerpt": "The 1999 paper by Hanson, Magnusson, Sorensen and Simonsen is in the Journal of Anatomy (vol. 194, pt 2, pp. 303–307) ... The team examined psoas muscles during routine forensic autopsies on 44 male cadavers, 21 Black and 23 White, aged 14 to 25. ... The psoas minor muscle (PMI) was absent in 91% of the black subjects, but only in 13% of the white subjects.",
+        "verdict": "Agrees with the finding. The study was of 44 young men at autopsy, which the claim now says. Title, authors and details of wiley.psoas_minor_population corrected."
+      },
+      {
+        "id": "SR20",
+        "query": "\"Potential Lack of Association Between Three Vestigial Muscles in Humans\" willed body donor psoas minor palmaris longus pyramidalis",
+        "claimIds": [
+          "hips.iliopsoas.variation.1"
+        ],
+        "excerpt": "The study is a 2020 paper in Cureus by Hodgens and colleagues at the University of Miami. It dissected 23 willed body donors ... The psoas minor was the least consistent: it was present bilaterally in 39% of donors and absent bilaterally in 61%. ... Sex and race showed no statistically significant link to muscle presence.",
+        "verdict": "Agrees. The journal (Cureus) and lead author were found, so the key miami.psoas_minor_donor_study becomes cureus.psoas_minor_donor_study, following the publisher-slug rule."
+      },
+      {
+        "id": "SR21",
+        "query": "orthobullets evidence 8928937 iliopsoas adductors rotating function thread method hip positions",
+        "claimIds": [
+          "hips.iliopsoas.function",
+          "hips.adductor_longus.function",
+          "hips.adductor_brevis.function",
+          "hips.pectineus.function",
+          "hips.adductor_magnus.function"
+        ],
+        "excerpt": "The Orthobullets page for PMID 8928937 is a short abstract on the disputed rotational function of hip muscles. It says a thread-based device was used to measure the iliopsoas and the uniarticular thigh adductors across hip positions. The iliac muscle rotates the thigh inward in every position of flexion/extension or abduction/adduction of the hip joint. The abstract also reports that the adductor magnus is always a lateral rotator via fibres inserted into the medial edge of the linea aspera, while fibres attached to the adductor tubercle rotate the thigh inward. For the psoas major, pectineus, adductor longus, and adductor brevis, the abstract says these can rotate the thigh either way, with the direction set by hip posture. Flexion and abduction intensify their lateral rotating function, while extension and adduction intensify their medial rotating function. ... A cited NABT article attributes the rotating-function framing to Reimann et al. (1996), which may be this study, but that is unverified.",
+        "verdict": "New evidence the first pass did not use. The same abstract found the rotation of the psoas major, pectineus, adductor longus and brevis changing with the hip's position, and the adductor magnus's two sets of fibres turning the thigh in opposite directions. Those claims now say so plainly. The source's title and note are corrected; its authors and year are still unconfirmed."
+      },
+      {
+        "id": "SR22",
+        "query": "posterior thigh surface anatomy adductor magnus visible between gracilis and semimembranosus superficial posterior view",
+        "claimIds": [
+          "hips.adductor_magnus.appearance"
+        ],
+        "excerpt": "The adductor magnus is normally covered by the hamstrings, so it's usually not visible in a standard superficial posterior view. ... A StatPearls article describes the adductor magnus as the largest of the medial compartment muscles; it is the most posterior of the group. ... I found no source that confirms a visible strip of adductor magnus between the gracilis and semimembranosus on a superficial posterior view.",
+        "verdict": "Does not confirm the back-view outcrop; the summary's 'usually not visible' is its own inference. The appearance claim now says only what the image labels show and that no written description was found. The outcrop is flagged for the anatomy and drawing lanes. StatPearls added for 'the most posterior of the group'."
+      },
+      {
+        "id": "SR23",
+        "query": "gluteus medius visible superficial upper lateral buttock above gluteus maximus not covered by muscle surface anatomy",
+        "claimIds": [
+          "hips.gluteus_medius.appearance"
+        ],
+        "excerpt": "The part left uncovered by the gluteus maximus is the anterosuperior region. Physiopedia states that the gluteus maximus covers all of the gluteal muscles except for the anterosuperior third of the gluteus medius. ... Kenhub frames it from the other side, noting that only the posterior third of the muscle is covered by the gluteus maximus ... The two sources describe the same exposed zone, though they differ on its exact size.",
+        "verdict": "Agrees that part of the gluteus medius is uncovered, and places that part toward the front and top, which supports 'above' in §1.2. The page that says so is a wiki, read and not cited. The size of the exposed part differs between pages, so the claims keep Kenhub's wording."
+      },
+      {
+        "id": "SR24",
+        "query": "anterior view thigh muscles adductor magnus visible distally between gracilis and vastus medialis below adductor longus",
+        "claimIds": [
+          "hips.adductor_magnus.appearance"
+        ],
+        "excerpt": "Getbodysmart's anterior-view labelled images list adductor magnus as showing through alongside gracilis, vastus medialis, and adductor longus. ... A Lecturio dissection walkthrough says that having cut adductor longus, see adductor magnus ... the sources support that the adductor magnus can be seen in the distal anterior thigh, medial to the vastus medialis and below the adductor longus, but none of them states that exact location outright.",
+        "verdict": "Suggests a small front-view outcrop low on the inner thigh, from a source outside the standard's list. Not added to any claim; recorded under deviation D1 for the drawing lane."
+      },
+      {
+        "id": "SR25",
+        "query": "gluteus medius internal rotation moment arm increases with hip flexion cadaver model anterior middle posterior compartments",
+        "claimIds": [
+          "hips.gluteus_medius.function"
+        ],
+        "excerpt": "it found a trend toward internal rotation in 15 of the 18 muscle compartments it examined, including the gluteus medius. It measured the gluteus medius in four compartments ... The abstract doesn't give the per-compartment numbers for the gluteus medius's anterior, middle, and posterior parts",
+        "verdict": "Agrees that the gluteus medius was among the parts measured. No result for that muscle on its own, so the claim keeps the general finding."
+      },
+      {
+        "id": "SR26",
+        "query": "pectineus muscle action flex adduct thigh medial rotation femoral nerve accessory obturator anatomy reference",
+        "claimIds": [
+          "hips.pectineus.function"
+        ],
+        "excerpt": "Most references agree the pectineus flexes and adducts the thigh at the hip. ... The rotation direction conflicts across sources. ... The femoral nerve is always present and provides the sole innervation for the pectineus muscle in over 90% of cases. ... a Korean dissection study of 100 thighs found additional innervation either by the obturator or the accessory obturator branch to the pectineus was identified in 10% or 2% of specimens, respectively.",
+        "verdict": "Agrees on flexion and adduction, and that its rotation is disputed. Shows that a second nerve supply is a minority variant, so 'described as mixed: the femoral nerve supplies most of it' is reworded, along with the caveat."
+      },
+      {
+        "id": "SR27",
+        "query": "gracilis muscle action weak hip adductor flexes knee medially rotates leg pes anserinus only two-joint adductor",
+        "claimIds": [
+          "hips.gracilis.function"
+        ],
+        "excerpt": "It is also the weakest member but the only hip adductor that crosses and acts on two joints; the hip and knee. ... At the hip, it adducts, flexes, and medially rotates the thigh. At the knee, it flexes the leg and medially rotates it. ... Elsevier frames the knee role as medially rotates the leg at the knee joint while this joint is held in a semiflexed position; assists in flexion of the leg at the knee joint.",
+        "verdict": "Agrees; no change."
+      },
+      {
+        "id": "SR28",
+        "query": "ISB 2005 congress abstract adductor longus \"flexor of the hip up to 90\" extensor hip muscle function changes with joint position model",
+        "claimIds": [
+          "hips.adductor_longus.function"
+        ],
+        "excerpt": "The ISB 2005 abstract you're looking for appears to be \"Functions of Hip Joint Muscles\" by Thomas Pressel and Markus Lengsfeld (Hannover Medical School). It used a multibody computer model of the hip and knee, built on a 50th-percentile adult male, to calculate muscle lengths, lever arms, and torques for 27 hip muscles. ... the adductor longus acts as a hip flexor up to 90° of flexion and becomes an extensor beyond that angle. It also says the muscle functions as an external rotator at flexion angles up to 80°, and as an internal rotator beyond that.",
+        "verdict": "Identifies the abstract (title, authors, a computer model). Its rotation finding is added to the adductor longus claim; 'modelling study' becomes 'computer model'."
+      },
+      {
+        "id": "SR29",
+        "query": "gluteus maximus upper fibres abduct lower fibres adduct thigh; gluteus maximus iliotibial tract stabilizes extended knee anatomy",
+        "claimIds": [
+          "hips.gluteus_maximus.function"
+        ],
+        "excerpt": "Kenhub lists the same split, with the superior part abducting and the inferior part adducting. Elsevier's Gray's-based entry lists abduction as a general action without assigning it to specific fibres. ... Gray's-based Elsevier material lists the knee role as a separate action, noting that the muscle helps stabilize the extended knee joint.",
+        "verdict": "Agrees. Elsevier added as a second source for the knee sentence, which rested on one IMAIOS mirror summary."
+      },
+      {
+        "id": "SR30",
+        "query": "adductor muscles of the hip pectineus obturator externus included in adductor group which muscles anatomy medial compartment obturator nerve",
+        "claimIds": [
+          "hips.adductors.function"
+        ],
+        "excerpt": "Pectineus and obturator externus are both sometimes counted in the medial thigh group and sometimes left out, so the answer depends on the source. ... Most sources agree the adductor group proper is adductor longus, adductor brevis, adductor magnus, and gracilis. ... pectineus is the only adductor muscle that is innervated by the femoral nerve.",
+        "verdict": "Agrees that references differ on the group's members. The group claim now attributes 'five muscles' to one reference and says why the pectineus is also classed with the front of the thigh (radiopaedia.pectineus)."
+      },
+      {
+        "id": "SR31",
+        "query": "Journal of Biomechanics 2020 109649 hip adductor stretching shear wave elastography adductor longus adductor magnus anterior posterior Kyoto",
+        "claimIds": [
+          "hips.adductor_longus.function",
+          "hips.adductor_magnus.function"
+        ],
+        "excerpt": "The paper you're looking for is Ogawa, Saeki, and Ichihashi's study on hip flexion angle and adductor muscle elongation during stretching, published in the Journal of Biomechanics in 2020 as article 109649 (volume 101). The Kyoto University repository lists it with Ogawa, Takuro, Saeki, Junya, and Ichihashi, Noriaki as authors and Elsevier BV as publisher.",
+        "verdict": "Identifies the source of the SR10 background sentence (jbiomech.hip_adductor_stretch)."
+      },
+      {
+        "id": "SR32",
+        "query": "\"gluteus maximus\" \"largest capacity for external rotation\" hip flexion moment arms cerebral palsy",
+        "claimIds": [
+          "hips.gluteus_maximus.function"
+        ],
+        "excerpt": "On the gluteus maximus specifically, the study found a large capacity for external rotation. ... A review article that cites this work makes a similar point. It notes that the capacity of the gluteus maximus to generate external rotation of the hip is compromised when the hip is flexed.",
+        "verdict": "An exact-phrase search for the first pass's quoted 'largest capacity' found only 'a large capacity' (as did SR1). The claim and its node action now say 'a large capacity'. A later paper's statement that this capacity drops with the hip bent is added (pmc.damiano_hip_rotation), so the claim says plainly that its outward turning changes with hip flexion."
+      }
+    ],
+    "changes": [
+      {
+        "what": "Five first-pass excerpts trimmed to shorter verbatim fragments: imaios.piriformis (dropped a software vendor's name), kenhub.iliopsoas, kenhub.adductor_magnus, kenhub.adductor_longus and kenhub.gracilis (dropped the word 'table').",
+        "why": "The task's copy rule removes vendor and product names and the word 'table'. The excerpts are evidence, not athlete copy, but they would travel with the content. Each trimmed fragment is still a word-for-word part of the logged search output, so the first pass's searchlog check still holds.",
+        "evidence": "regionContent.test.ts:533-534 (forbiddenInCopy); citations for those four claim and source pairs."
+      },
+      {
+        "what": "hips.gluteals.function: 'The gluteus medius and minimus also hold the pelvis steady when one foot is off the ground, as in walking.' became 'The gluteus medius also holds the pelvis steady when one leg is off the ground, and the gluteus minimus helps steady it in walking.'",
+        "why": "The one-leg wording is StatPearls' for the gluteus medius only. For the gluteus minimus, the Kenhub excerpt says only that it 'helps stabilize the pelvis during the gait cycle'.",
+        "evidence": "Citations statpearls.gluteus_medius (Q3) and kenhub.gluteus_minimus (Q6) on hips.gluteals.function."
+      },
+      {
+        "what": "Shape notes of hips.gluteals and hips.adductors: 'Together these muscles make up most…' became 'Together these muscles may make up most…'.",
+        "why": "Shape notes must be qualified (evidence standard; task item 4), and these two were not. The appearance claims behind them already said 'may'.",
+        "evidence": "hips.gluteals.appearance and hips.adductors.appearance statements."
+      },
+      {
+        "what": "hips.gluteus_maximus.function: 'Of the hip muscles measured in a cadaver study, it had the largest capacity for turning the thigh outward.' became 'In a cadaver study of the hip's rotators it had a large capacity for turning the thigh outward, and a later paper citing that study notes that this capacity is reduced when the hip is bent.' A caveat says so, and the external-rotation node action's note says it is counted for the hip held straight.",
+        "why": "Two independent searches (SR1, and SR32, an exact-phrase search for 'largest capacity') read the abstract as 'a large capacity'. Neither showed 'the largest', which only the first pass's summary gave. The change with hip flexion is what the task asks claims to say plainly, and SR32 found it said of this muscle.",
+        "evidence": "SR1, SR32; new sources pmc.damiano_hip_rotation and elsevier.gluteus_maximus (also SR29, which now backs the knee sentence beside imaios.gluteus_maximus)."
+      },
+      {
+        "what": "hips.gluteus_medius.function: 'one reference adds that its back fibres help turn the thigh outward' now ends 'when the knee is straight'.",
+        "why": "The StatPearls excerpt gives that condition ('when the knee is in extension'), and the first pass recorded it in its notes but not in the claim. It reads as the source wrote it. SR2 and SR25 found no source for the back fibres switching with hip flexion, so the general sentence on flexion stays as it was.",
+        "evidence": "Citation statpearls.gluteus_medius (Q3); SR2, SR25."
+      },
+      {
+        "what": "hips.gluteus_medius.appearance: 'its back third adds only to the fullness' became 'may add only'. The layer evidence now records SR23 on the outcrop 'above' the gluteus maximus.",
+        "why": "An appearance sentence is inference and must stay qualified. SR23 independently put the uncovered part toward the front and top, which supports §1.2's outcrop.",
+        "evidence": "SR23."
+      },
+      {
+        "what": "hips.gluteus_medius.selectivity.1 and hips.tfl.selectivity.1: no wording change. A second citation of pmid.23160432 (SR13) now shows the '20 healthy adults' both claims state. DOI added to the source.",
+        "why": "The first pass's excerpt did not contain the sample size the claims give.",
+        "evidence": "SR13."
+      },
+      {
+        "what": "hips.gluteus_minimus: no wording change; an SR5 citation added for the capsular fibres the node's location names.",
+        "why": "No first-pass excerpt showed the capsular insertion that the location states.",
+        "evidence": "SR5."
+      },
+      {
+        "what": "hips.piriformis.function: 'Its pull changes as the hip bends: by one reference, beyond about 60 degrees … it turns the thigh inward instead. That reversal rests mainly on cadaver studies, static imaging and computer models.' became a statement that the reversal is disputed. It keeps the one reference's 60-degree reversal and its cadaver and model basis, and adds the dynamic ultrasound result in 25 adults: shortening in outward and lengthening in inward turning in every hip position. The caveat 'With the hip bent far enough its pull reverses…' became 'Some references say … a study in living adults did not find that.'",
+        "why": "wcpt.piriformis_action was cited only for its background, and its note said 'its results were not shown'. Two independent searches showed its results, which contradict an unqualified reversal. The claim stated the reversal as the muscle's behaviour, and the caveat stated it without qualification. A disagreement is resolved in the wording (task item 2).",
+        "evidence": "SR3, SR4 (abstract results); SR1 (the 1999 abstract does not single out the piriformis)."
+      },
+      {
+        "what": "hips.piriformis.variation.1: 'in a minority it runs through or above the muscle instead' became 'In a minority, about one person in ten to one in seven in two pooled analyses, it divides early and part or all of it passes through or above the muscle, most often with one part passing through it.' The caveat was reworded to match. Source titles corrected: wiley.sciatic_nerve_variants_meta is Tomaszewski et al. 2016, 'Surgical anatomy of the sciatic nerve: a meta-analysis'; the Cureus co-authors were added.",
+        "why": "The commonest variant is a nerve divided early with only its peroneal part through the muscle (Type B), so 'it runs through … instead' overstated it. The first pass's title for the 2016 meta-analysis was descriptive and did not match the paper.",
+        "evidence": "SR17, SR18."
+      },
+      {
+        "what": "hips.iliopsoas.function: 'Anatomy references also give it a small part in turning the thigh outward, but one study reported the iliacus turning the thigh inward …' became '… also list it as helping turn the thigh outward, but an older study that used a thread-based method reported the iliacus turning the thigh inward in every hip position tested and the psoas major turning it either way depending on the hip's position …'. The orthobullets source's title and note were rewritten.",
+        "why": "'Small' is in no excerpt: StatPearls says 'helps', and Kenhub lists external rotation. The study's own abstract (SR21) shows its method and its finding for the psoas major, which the task asks a claim to state plainly where the evidence says rotation depends on hip position.",
+        "evidence": "SR6, SR7, SR21."
+      },
+      {
+        "what": "hips.iliopsoas.variation.1: 'one study found it missing in most black subjects … while a donor study found it missing on both sides in most donors' became 'an autopsy study of 44 young men found it missing in most of the black men but in few of the white men, while a study of 23 body donors found it missing on both sides in most of them'. Sources identified: wiley.psoas_minor_population is Hanson et al. 1999 (Journal of Anatomy). The donor study is Hodgens et al. 2020 (Cureus), re-keyed cureus.psoas_minor_donor_study.",
+        "why": "The first pass did not know the population study's design, sample or title, or the donor study's journal. Both were found. A sample of young men at autopsy limits what the finding says, so the claim names it. A key must name the publisher, and 'miami' named the university's record.",
+        "evidence": "SR19, SR20."
+      },
+      {
+        "what": "hips.adductors.function: 'The hip adductors are five muscles …' became 'One anatomy reference counts five hip adductors … because of its nerve supply, the pectineus is also classed with the front of the thigh.' Also 'in standing and walking it helps steady the pelvis and the leg' became 'when the foot is on the ground in walking …'. Radiopaedia is now cited for the classing (its first-pass Q32 excerpt).",
+        "why": "References differ on the group's members (SR30; the node's own caveat says so), so 'five' is one reference's count. The StatPearls excerpt says 'during the stance phase of gait' and nothing about standing.",
+        "evidence": "SR30; citations statpearls.adductor_strain (Q51) and radiopaedia.pectineus (Q32)."
+      },
+      {
+        "what": "hips.adductor_magnus.function: the imaging sentence now says 'with the hip in a neutral position', and a sentence was added: 'One reference lists the adductor part as also helping bend the hip and turn the thigh outward, and the hamstring part as turning it inward; an older study likewise found its fibres to the shaft of the thigh bone turning the thigh outward and those to the bony point above the knee turning it inward.' jbiomech.hip_adductor_stretch added for the back part's extension. DOI added to the 2025 imaging study.",
+        "why": "The imaging estimate holds for the hip in neutral only (SR9; the first pass's qualification said so, the claim did not). The node's caveat 'Its two parts are listed as turning the thigh in opposite directions' and its left-out row rested on no sentence of the claim; they now do, on two sources. On the task's question about the hamstring-like part: two references give it hip extension, an imaging study estimates the whole muscle's extension capacity at more than twice its adduction capacity, and a moment-arm source gives the back part an extension moment. That supports a prime extension row. How that leverage changes with hip flexion was seen only in secondary or uncited pages (SR8), so the claim gives no angle.",
+        "evidence": "SR8, SR9, SR10, SR21, SR31."
+      },
+      {
+        "what": "hips.adductor_magnus.appearance: 'Posterior dissection views … label part of it on the inner side of the back of the thigh, beside the semitendinosus and the gracilis' became '… include it among their labelled structures, with the semitendinosus and the gracilis, so part of it may show from behind; it is the most posterior of the inner-thigh muscles.' StatPearls added for that last point; the two image sources' qualifications now say no written description of the outcrop was found. The layer evidence and D1 now record SR22 and SR24.",
+        "why": "The excerpts give label lists only. 'On the inner side … beside' was not in them, and an independent search found no text placing the outcrop. The claim stays reviewed because each sentence now says only what the excerpts show; the outcrop is an open item.",
+        "evidence": "SR22, SR24; citations anatomytool.ubc_posterior_lower_limb and stanford.bassett_182_6 (Q53)."
+      },
+      {
+        "what": "hips.adductor_longus: the function claim now says 'computer model' for the 90-degree switch and adds that 'two studies of the hip's mechanics, an older thread-based study and the same computer model, found that the direction [of turning] changes with the hip's position'. Its two caveats match. The appearance claim, location and layer evidence say 'by most accounts' its inner edge is the triangle's inner border. The selectivity claim says 'any training facility', not 'most'. jbiomech.hip_adductor_stretch added for hip flexion; the ISB abstract identified (Pressel and Lengsfeld, a computer model).",
+        "why": "The task asks that where the evidence says rotation changes with hip position, the claim says so plainly. Two sources now say so (SR21, SR28). TeachMeAnatomy's excerpt itself says some sources put the lateral edge as the border, so the border is the majority view. The cut-off Serner sentence reads 'any'. No second source confirms the 90-degree switch: an uncited summary (SR8) put the adductors' change lower, so it stays one model's finding, worded as such.",
+        "evidence": "SR10, SR16, SR21, SR28, SR31; citation teachmeanatomy.femoral_triangle (Q18)."
+      },
+      {
+        "what": "hips.adductor_brevis.function: added 'an older study found that the direction in which it turns the thigh depends on the hip's position'; the caveat matches.",
+        "why": "Same evidence as the adductor longus (SR21). Hip flexion stays a one-source assist: SR11 found it only on pages outside the standard's list.",
+        "evidence": "SR11, SR21."
+      },
+      {
+        "what": "hips.pectineus.function: 'One reference lists a possible small part in turning the thigh, inward or outward.' became 'One reference says it may also help turn the thigh inward or outward, and an older study found that the direction depends on the hip's position.' The nerve sentence became 'The femoral nerve supplies it; one reference describes a smaller back part supplied by a branch of the obturator nerve, which another lists as a variant …'. The caveat says 'can be mixed'.",
+        "why": "'Small' is not in the Kenhub excerpt. SR21 shows the rotation changing with position. SR26 found the femoral nerve the only supply in most people, and the cited Kenhub excerpt calls the obturator supply a variant. 'The femoral nerve supplies most of it' was an inference from Radiopaedia's 'smaller posterior part'.",
+        "evidence": "SR21, SR26; citations kenhub.pectineus (Q31) and radiopaedia.pectineus (Q32)."
+      },
+      {
+        "what": "Node-action notes updated for gluteus maximus × external rotation ('a large' capacity; prime for the hip held straight), gluteus medius × external rotation, piriformis × external rotation, adductor magnus × extension, adductor longus × flexion and adductor brevis × flexion. Left-out reasons updated for the piriformis, iliopsoas, adductor longus, adductor brevis and pectineus. No role changed.",
+        "why": "Each note now matches its claim's corrected wording and the second review's evidence. Prime and assist were checked against the evidence and all hold. The gluteus maximus and piriformis rows count outward turning with the hip straight, which every source supports.",
+        "evidence": "SR1–SR4, SR10, SR11, SR21, SR28, SR32."
+      },
+      {
+        "what": "Sources checked for key, URL, title and evidence type. Corrected: wiley.sciatic_nerve_variants_meta, wiley.psoas_minor_population, isb.adductor_longus_moment_arm and orthobullets.iliacus_rotation (descriptive or incomplete titles now identified, or said to be descriptive); cureus.sciatic_nerve_piriformis, physiology.adductor_magnus_hip_extension and pmid.10327003 (authors, issue, DOI); miami.psoas_minor_donor_study re-keyed cureus.psoas_minor_donor_study. Added: elsevier.gluteus_maximus, pmc.damiano_hip_rotation, jbiomech.hip_adductor_stretch. Kept: 'IMAIOS e-Anatomy' and 'Elsevier Complete Anatomy' in titles.",
+        "why": "The publisher names in the evidence standard's search order (§8) are the shipped forearm's own source titles (shared/specialization/sources/forearm.ts: A2, A7 and others). The copy rule's 'vendor name' is the backend vendor (regionContent.test.ts:534), so these titles stay. No Wikipedia, WikiMSK or Physiopedia page is cited. Every evidence type is one of types.ts:259's values. Each note now says what the second review found and what is still unconfirmed.",
+        "evidence": "SR9, SR13, SR17–SR21, SR28, SR29, SR31, SR32; shared/specialization/sources/forearm.ts; client/src/lib/specialization/regionContent.test.ts:533-534."
+      },
+      {
+        "what": "Checked and unchanged: directions (no screen left or right anywhere; inner, outer, front, back, above and below the groin used throughout); deep muscles (gluteus minimus, piriformis, iliopsoas, adductor brevis) all say 'little or no contour of its own'; every node action rests on a function claim of its own node that names that action; layers and parents match §1.2, with deviations D1 and D2 as the first pass recorded them; no growth promise; no per-cent sign in any claim, node field, locator or qualification.",
+        "why": "Task item 4 and the copy rules.",
+        "evidence": "dossier.json nodes, claims, nodeActions; regionContent.test.ts:533-610."
+      }
+    ],
+    "openForAnatomyLane": [
+      "Adductor magnus outcrops: the back-view outcrop of §1.2 rests on image labels only (SR22 found no written description), and a small front-view strip low on the inner thigh was suggested by a non-citable source (SR24). Confirm both from an atlas plate before the drawing lane cuts them; see D1.",
+      "Tensor fasciae latae main action: still no prime row on cited evidence, so regionContent.test.ts ('gives every muscle a main action') fails for hips.tfl. Study flashcards built on a kinesiology textbook call it a primary hip flexor and abductor (SR12). If the lane reads that textbook and it agrees, cite it and mark hip.flexion or hip.abduction prime; otherwise record a product choice or relax the test.",
+      "Inward rotation has no prime mover on the evidence (unchanged from the first pass).",
+      "Adductor longus: the flexion-to-extension angle (about 90 degrees) rests on one computer model; an uncited summary put the adductors' change at 40 to 70 degrees (SR8). A full-text moment-arm source (Dostal and colleagues; Németh and Ohlsén) would settle it.",
+      "Adductor magnus and hip flexion: its hip-extension leverage probably changes with hip angle (SR8, secondary only). Not claimed; worth a full-text source before the thigh lane relies on it for deep-squat mappings.",
+      "orthobullets.iliacus_rotation now carries rotation sentences in five claims (the iliopsoas, adductor longus, adductor brevis, pectineus and adductor magnus). Its authors, year and journal are unconfirmed (possibly Reimann and colleagues, 1996). Identify it, or drop those sentences, before publishing.",
+      "Piriformis: the reversal of rotation with deep hip flexion is now stated as disputed. If a mapping lane wants to credit the piriformis in deep-flexion stretches or exercises, it has no reviewed basis for inward turning.",
+      "Human review: a clinician or anatomist should still read all 33 claims before the hips' version is published (unchanged)."
+    ]
   }
 }
