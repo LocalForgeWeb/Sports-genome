@@ -1,0 +1,439 @@
+[
+  {
+    "id": "brachioradialis",
+    "code": "BR",
+    "display_name": "Brachioradialis",
+    "physical_function": "Elbow flexion; assists return toward neutral forearm rotation",
+    "visible_shape_contribution": "Proximal thumb-side forearm contour",
+    "rep_profile_id": "elbow",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "brachioradialis-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "br-attachments"
+    ],
+    "attachments_summary": "lateral supracondylar origin; distal radial attachment",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "flexor-carpi-radialis",
+    "code": "FCR",
+    "display_name": "Flexor carpi radialis",
+    "physical_function": "Wrist flexion and radial deviation",
+    "visible_shape_contribution": "Superficial anterior/radial forearm; not the sole source of thumb-side width",
+    "rep_profile_id": "wrist",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "flexor-carpi-radialis-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "medial-flexor-origin"
+    ],
+    "attachments_summary": "medial flexor origin; radial wrist tendon",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "flexor-carpi-ulnaris",
+    "code": "FCU",
+    "display_name": "Flexor carpi ulnaris",
+    "physical_function": "Wrist flexion and ulnar deviation",
+    "visible_shape_contribution": "Superficial ulnar-side forearm contour",
+    "rep_profile_id": "wrist",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "flexor-carpi-ulnaris-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "medial-flexor-origin"
+    ],
+    "attachments_summary": "medial flexor origin and ulnar head; ulnar wrist tendon",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "palmaris-longus",
+    "code": "PL",
+    "display_name": "Palmaris longus",
+    "physical_function": "Assists wrist flexion and tensions palmar aponeurosis",
+    "visible_shape_contribution": "Small superficial belly; tendon prominence; may be congenitally absent",
+    "rep_profile_id": "wrist",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "palmaris-longus-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "medial-flexor-origin"
+    ],
+    "attachments_summary": "medial flexor origin; palmar aponeurosis",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "flexor-digitorum-superficialis",
+    "code": "FDS",
+    "display_name": "Flexor digitorum superficialis",
+    "physical_function": "Finger PIP flexion; assists MCP and wrist flexion",
+    "visible_shape_contribution": "Anterior forearm bulk; finger-specific compartments are not resolved here",
+    "rep_profile_id": "finger",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "flexor-digitorum-superficialis-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "medial-flexor-origin"
+    ],
+    "attachments_summary": "medial flexor origin and radial head; digital flexor tendons",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "flexor-digitorum-profundus",
+    "code": "FDP",
+    "display_name": "Flexor digitorum profundus",
+    "physical_function": "Finger DIP flexion; assists finger and wrist flexion",
+    "visible_shape_contribution": "Deep anterior forearm bulk; not individually visible at the surface",
+    "rep_profile_id": "finger",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "flexor-digitorum-profundus-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "deep-digital-flexors"
+    ],
+    "attachments_summary": "ulnar/interosseous origins; digital flexor tendons to distal phalanges",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "flexor-pollicis-longus",
+    "code": "FPL",
+    "display_name": "Flexor pollicis longus",
+    "physical_function": "Thumb IP flexion",
+    "visible_shape_contribution": "Deep anterior/radial tissue; visual contribution is not an isolated surface stripe",
+    "rep_profile_id": "finger",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "flexor-pollicis-longus-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "thumb-flexor"
+    ],
+    "attachments_summary": "radial/interosseous origin; long thumb flexor tendon",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "pronator-teres",
+    "code": "PT",
+    "display_name": "Pronator teres",
+    "physical_function": "Forearm pronation; assists elbow flexion",
+    "visible_shape_contribution": "Proximal anterior forearm diagonal contour",
+    "rep_profile_id": "rotation",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "pronator-teres-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "medial-flexor-origin"
+    ],
+    "attachments_summary": "medial humeral/ulnar origins; radial insertion",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "pronator-quadratus",
+    "code": "PQ",
+    "display_name": "Pronator quadratus",
+    "physical_function": "Forearm pronation; contributes to distal radioulnar stabilization",
+    "visible_shape_contribution": "Deep distal forearm; usually not separately visible",
+    "rep_profile_id": "rotation",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "pronator-quadratus-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "distal-rotators"
+    ],
+    "attachments_summary": "distal ulna-to-radius attachments",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "extensor-carpi-radialis-longus",
+    "code": "ECRL",
+    "display_name": "Extensor carpi radialis longus",
+    "physical_function": "Wrist extension and radial deviation",
+    "visible_shape_contribution": "Dorsoradial forearm contour",
+    "rep_profile_id": "wrist",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "extensor-carpi-radialis-longus-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "radial-wrist-extensors"
+    ],
+    "attachments_summary": "lateral supracondylar origin; radial wrist extensor tendon",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "extensor-carpi-radialis-brevis",
+    "code": "ECRB",
+    "display_name": "Extensor carpi radialis brevis",
+    "physical_function": "Wrist extension and radial deviation",
+    "visible_shape_contribution": "Dorsoradial forearm bulk beneath/along adjacent extensors",
+    "rep_profile_id": "wrist",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "extensor-carpi-radialis-brevis-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "lateral-extensor-origin"
+    ],
+    "attachments_summary": "common extensor origin; radial wrist extensor tendon",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "extensor-carpi-ulnaris",
+    "code": "ECU",
+    "display_name": "Extensor carpi ulnaris",
+    "physical_function": "Wrist extension and ulnar deviation",
+    "visible_shape_contribution": "Dorsoulnar forearm contour",
+    "rep_profile_id": "wrist",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "extensor-carpi-ulnaris-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "lateral-extensor-origin"
+    ],
+    "attachments_summary": "common extensor/ulnar origins; ulnar wrist extensor tendon",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "extensor-digitorum",
+    "code": "ED",
+    "display_name": "Extensor digitorum",
+    "physical_function": "Finger extension; assists wrist extension",
+    "visible_shape_contribution": "Central posterior forearm bulk; tendons visible dorsally at the hand",
+    "rep_profile_id": "finger",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "extensor-digitorum-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "lateral-extensor-origin"
+    ],
+    "attachments_summary": "common extensor origin; digital extensor tendons/expansions",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "extensor-digiti-minimi",
+    "code": "EDM",
+    "display_name": "Extensor digiti minimi",
+    "physical_function": "Little-finger extension",
+    "visible_shape_contribution": "Small posterior/ulnar contribution, not an isolated size target visible reliably",
+    "rep_profile_id": "finger",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "extensor-digiti-minimi-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "lateral-extensor-origin"
+    ],
+    "attachments_summary": "common extensor origin; little-finger extensor tendon",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "extensor-indicis",
+    "code": "EI",
+    "display_name": "Extensor indicis",
+    "physical_function": "Index-finger extension",
+    "visible_shape_contribution": "Deep posterior contribution; little separately visible belly",
+    "rep_profile_id": "finger",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "extensor-indicis-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "deep-digital-extensors"
+    ],
+    "attachments_summary": "posterior ulna/interosseous origin; index extensor tendon",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "abductor-pollicis-longus",
+    "code": "APL",
+    "display_name": "Abductor pollicis longus",
+    "physical_function": "Thumb CMC abduction; assists extension at CMC",
+    "visible_shape_contribution": "Distal dorsoradial contour with adjacent thumb tendons",
+    "rep_profile_id": "thumb",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "abductor-pollicis-longus-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "thumb-abductor-extensor-region"
+    ],
+    "attachments_summary": "posterior forearm origins; long thumb abductor tendon",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "extensor-pollicis-brevis",
+    "code": "EPB",
+    "display_name": "Extensor pollicis brevis",
+    "physical_function": "Thumb MCP extension; assists CMC extension",
+    "visible_shape_contribution": "Small distal dorsoradial contribution",
+    "rep_profile_id": "thumb",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "extensor-pollicis-brevis-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "thumb-abductor-extensor-region"
+    ],
+    "attachments_summary": "posterior radius/interosseous origin; short thumb extensor tendon",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "extensor-pollicis-longus",
+    "code": "EPL",
+    "display_name": "Extensor pollicis longus",
+    "physical_function": "Thumb IP extension; assists MCP/CMC extension",
+    "visible_shape_contribution": "Deep posterior muscle; distal tendon contributes to anatomical landmarks",
+    "rep_profile_id": "thumb",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "extensor-pollicis-longus-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "thumb-long-extensor"
+    ],
+    "attachments_summary": "posterior ulna/interosseous origin; long thumb extensor tendon",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  },
+  {
+    "id": "supinator",
+    "code": "SUP",
+    "display_name": "Supinator",
+    "physical_function": "Forearm supination",
+    "visible_shape_contribution": "Deep proximal forearm bulk; not separately visible at the surface",
+    "rep_profile_id": "rotation",
+    "anatomy_sources": [
+      "A01",
+      "A02"
+    ],
+    "tissue_units": [
+      "supinator-musculotendinous-unit"
+    ],
+    "regional_groups": [
+      "proximal-supinator-attachments"
+    ],
+    "attachments_summary": "lateral humeral/ulnar and ligamentous origins; proximal radial insertion",
+    "tendon_injury_susceptibility_score": null,
+    "tendon_force_newtons": null,
+    "validated_muscle_specific_rep_optimum": null,
+    "notes": "Morphology descriptions are qualitative; no guaranteed change in width or shape."
+  }
+]

@@ -1,0 +1,1084 @@
+exercise_id,original_candidate_number,exercise_name,publication_status,muscle_id,targeting_grade_0_4,targeting_index_0_100,contraction,exposure_bucket,tissue_exposure_grade_0_4,confidence
+fa-01,1,Seated barbell wrist curl,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-01,1,Seated barbell wrist curl,draft_mapping,flexor-carpi-radialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-01,1,Seated barbell wrist curl,draft_mapping,flexor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-01,1,Seated barbell wrist curl,draft_mapping,palmaris-longus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-01,1,Seated barbell wrist curl,draft_mapping,flexor-digitorum-superficialis,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-01,1,Seated barbell wrist curl,draft_mapping,flexor-digitorum-profundus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-01,1,Seated barbell wrist curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-01,1,Seated barbell wrist curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-01,1,Seated barbell wrist curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-01,1,Seated barbell wrist curl,draft_mapping,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-01,1,Seated barbell wrist curl,draft_mapping,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-01,1,Seated barbell wrist curl,draft_mapping,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-01,1,Seated barbell wrist curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-01,1,Seated barbell wrist curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-01,1,Seated barbell wrist curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-01,1,Seated barbell wrist curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-01,1,Seated barbell wrist curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-01,1,Seated barbell wrist curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-01,1,Seated barbell wrist curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,extensor-carpi-radialis-longus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,extensor-carpi-radialis-brevis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,extensor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,extensor-digitorum,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-02,2,Seated barbell reverse wrist curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,flexor-carpi-radialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,flexor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,palmaris-longus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,flexor-digitorum-superficialis,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,flexor-digitorum-profundus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-03,3,Behind-the-back barbell wrist curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-04,4,Barbell reverse curl,draft_mapping,brachioradialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-04,4,Barbell reverse curl,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-04,4,Barbell reverse curl,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-04,4,Barbell reverse curl,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-04,4,Barbell reverse curl,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-04,4,Barbell reverse curl,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-04,4,Barbell reverse curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-04,4,Barbell reverse curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-04,4,Barbell reverse curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-04,4,Barbell reverse curl,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-04,4,Barbell reverse curl,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-04,4,Barbell reverse curl,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-04,4,Barbell reverse curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-04,4,Barbell reverse curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-04,4,Barbell reverse curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-04,4,Barbell reverse curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-04,4,Barbell reverse curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-04,4,Barbell reverse curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-04,4,Barbell reverse curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-05,5,Barbell reverse preacher curl,draft_mapping,brachioradialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-05,5,Barbell reverse preacher curl,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-05,5,Barbell reverse preacher curl,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-05,5,Barbell reverse preacher curl,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-05,5,Barbell reverse preacher curl,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-05,5,Barbell reverse preacher curl,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-05,5,Barbell reverse preacher curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-05,5,Barbell reverse preacher curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-05,5,Barbell reverse preacher curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-05,5,Barbell reverse preacher curl,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-05,5,Barbell reverse preacher curl,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-05,5,Barbell reverse preacher curl,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-05,5,Barbell reverse preacher curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-05,5,Barbell reverse preacher curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-05,5,Barbell reverse preacher curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-05,5,Barbell reverse preacher curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-05,5,Barbell reverse preacher curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-05,5,Barbell reverse preacher curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-05,5,Barbell reverse preacher curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-06,6,Barbell static hold,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-06,6,Barbell static hold,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-06,6,Barbell static hold,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-06,6,Barbell static hold,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-06,6,Barbell static hold,draft_mapping,flexor-digitorum-superficialis,4,100,isometric,deliberate_isometric,4,low
+fa-06,6,Barbell static hold,draft_mapping,flexor-digitorum-profundus,4,100,isometric,deliberate_isometric,4,low
+fa-06,6,Barbell static hold,draft_mapping,flexor-pollicis-longus,2,50,isometric,supporting_isometric,2,low
+fa-06,6,Barbell static hold,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-06,6,Barbell static hold,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-06,6,Barbell static hold,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-06,6,Barbell static hold,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-06,6,Barbell static hold,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-06,6,Barbell static hold,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-06,6,Barbell static hold,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-06,6,Barbell static hold,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-06,6,Barbell static hold,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-06,6,Barbell static hold,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-06,6,Barbell static hold,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-06,6,Barbell static hold,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,flexor-digitorum-superficialis,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,flexor-digitorum-profundus,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,flexor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-07,7,Barbell rollout / wrist roll,blocked_protocol,supinator,,,unmodeled,unmodeled,,unresolved
+fa-08,8,Thick-grip barbell curl,draft_mapping,brachioradialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-08,8,Thick-grip barbell curl,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-08,8,Thick-grip barbell curl,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-08,8,Thick-grip barbell curl,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-08,8,Thick-grip barbell curl,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-08,8,Thick-grip barbell curl,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-08,8,Thick-grip barbell curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-08,8,Thick-grip barbell curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-08,8,Thick-grip barbell curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-08,8,Thick-grip barbell curl,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-08,8,Thick-grip barbell curl,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-08,8,Thick-grip barbell curl,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-08,8,Thick-grip barbell curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-08,8,Thick-grip barbell curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-08,8,Thick-grip barbell curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-08,8,Thick-grip barbell curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-08,8,Thick-grip barbell curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-08,8,Thick-grip barbell curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-08,8,Thick-grip barbell curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-09,9,Thick-grip Romanian deadlift,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,flexor-digitorum-superficialis,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,flexor-digitorum-profundus,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,flexor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-10,10,Barbell pronated wrist roll,blocked_protocol,supinator,,,unmodeled,unmodeled,,unresolved
+fa-11,11,Dumbbell wrist curl,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-11,11,Dumbbell wrist curl,draft_mapping,flexor-carpi-radialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-11,11,Dumbbell wrist curl,draft_mapping,flexor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-11,11,Dumbbell wrist curl,draft_mapping,palmaris-longus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-11,11,Dumbbell wrist curl,draft_mapping,flexor-digitorum-superficialis,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-11,11,Dumbbell wrist curl,draft_mapping,flexor-digitorum-profundus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-11,11,Dumbbell wrist curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-11,11,Dumbbell wrist curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-11,11,Dumbbell wrist curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-11,11,Dumbbell wrist curl,draft_mapping,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-11,11,Dumbbell wrist curl,draft_mapping,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-11,11,Dumbbell wrist curl,draft_mapping,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-11,11,Dumbbell wrist curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-11,11,Dumbbell wrist curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-11,11,Dumbbell wrist curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-11,11,Dumbbell wrist curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-11,11,Dumbbell wrist curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-11,11,Dumbbell wrist curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-11,11,Dumbbell wrist curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,extensor-carpi-radialis-longus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,extensor-carpi-radialis-brevis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,extensor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,extensor-digitorum,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-12,12,Dumbbell reverse wrist curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,flexor-digitorum-superficialis,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,flexor-digitorum-profundus,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,flexor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-13,13,Dumbbell neutral-grip wrist curl,blocked_protocol,supinator,,,unmodeled,unmodeled,,unresolved
+fa-14,14,Dumbbell hammer curl,draft_mapping,brachioradialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-14,14,Dumbbell hammer curl,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-14,14,Dumbbell hammer curl,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-14,14,Dumbbell hammer curl,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-14,14,Dumbbell hammer curl,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-14,14,Dumbbell hammer curl,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-14,14,Dumbbell hammer curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-14,14,Dumbbell hammer curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-14,14,Dumbbell hammer curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-14,14,Dumbbell hammer curl,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-14,14,Dumbbell hammer curl,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-14,14,Dumbbell hammer curl,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-14,14,Dumbbell hammer curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-14,14,Dumbbell hammer curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-14,14,Dumbbell hammer curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-14,14,Dumbbell hammer curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-14,14,Dumbbell hammer curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-14,14,Dumbbell hammer curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-14,14,Dumbbell hammer curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,brachioradialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-15,15,Dumbbell preacher hammer curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-16,16,Dumbbell Zottman curl,draft_mapping,brachioradialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-16,16,Dumbbell Zottman curl,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-16,16,Dumbbell Zottman curl,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-16,16,Dumbbell Zottman curl,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-16,16,Dumbbell Zottman curl,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-16,16,Dumbbell Zottman curl,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-16,16,Dumbbell Zottman curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-16,16,Dumbbell Zottman curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-16,16,Dumbbell Zottman curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-16,16,Dumbbell Zottman curl,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-16,16,Dumbbell Zottman curl,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-16,16,Dumbbell Zottman curl,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-16,16,Dumbbell Zottman curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-16,16,Dumbbell Zottman curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-16,16,Dumbbell Zottman curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-16,16,Dumbbell Zottman curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-16,16,Dumbbell Zottman curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-16,16,Dumbbell Zottman curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-16,16,Dumbbell Zottman curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-17,17,Levered dumbbell pronation,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-17,17,Levered dumbbell pronation,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-17,17,Levered dumbbell pronation,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-17,17,Levered dumbbell pronation,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-17,17,Levered dumbbell pronation,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-17,17,Levered dumbbell pronation,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-17,17,Levered dumbbell pronation,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-17,17,Levered dumbbell pronation,draft_mapping,pronator-teres,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-17,17,Levered dumbbell pronation,draft_mapping,pronator-quadratus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-17,17,Levered dumbbell pronation,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-17,17,Levered dumbbell pronation,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-17,17,Levered dumbbell pronation,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-17,17,Levered dumbbell pronation,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-17,17,Levered dumbbell pronation,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-17,17,Levered dumbbell pronation,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-17,17,Levered dumbbell pronation,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-17,17,Levered dumbbell pronation,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-17,17,Levered dumbbell pronation,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-17,17,Levered dumbbell pronation,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-18,18,Levered dumbbell supination,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-18,18,Levered dumbbell supination,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-18,18,Levered dumbbell supination,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-18,18,Levered dumbbell supination,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-18,18,Levered dumbbell supination,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-18,18,Levered dumbbell supination,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-18,18,Levered dumbbell supination,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-18,18,Levered dumbbell supination,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-18,18,Levered dumbbell supination,draft_mapping,pronator-quadratus,2,50,isometric,supporting_isometric,2,low
+fa-18,18,Levered dumbbell supination,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-18,18,Levered dumbbell supination,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-18,18,Levered dumbbell supination,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-18,18,Levered dumbbell supination,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-18,18,Levered dumbbell supination,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-18,18,Levered dumbbell supination,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-18,18,Levered dumbbell supination,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-18,18,Levered dumbbell supination,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-18,18,Levered dumbbell supination,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-18,18,Levered dumbbell supination,draft_mapping,supinator,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-19,19,Dumbbell radial deviation,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-19,19,Dumbbell radial deviation,draft_mapping,flexor-carpi-radialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-19,19,Dumbbell radial deviation,draft_mapping,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-19,19,Dumbbell radial deviation,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-19,19,Dumbbell radial deviation,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-19,19,Dumbbell radial deviation,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-19,19,Dumbbell radial deviation,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-19,19,Dumbbell radial deviation,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-19,19,Dumbbell radial deviation,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-19,19,Dumbbell radial deviation,draft_mapping,extensor-carpi-radialis-longus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-19,19,Dumbbell radial deviation,draft_mapping,extensor-carpi-radialis-brevis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-19,19,Dumbbell radial deviation,draft_mapping,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-19,19,Dumbbell radial deviation,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-19,19,Dumbbell radial deviation,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-19,19,Dumbbell radial deviation,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-19,19,Dumbbell radial deviation,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-19,19,Dumbbell radial deviation,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-19,19,Dumbbell radial deviation,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-19,19,Dumbbell radial deviation,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,flexor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,extensor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-20,20,Dumbbell ulnar deviation,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,flexor-digitorum-superficialis,4,100,isometric,deliberate_isometric,4,low
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,flexor-digitorum-profundus,4,100,isometric,deliberate_isometric,4,low
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,flexor-pollicis-longus,2,50,isometric,supporting_isometric,2,low
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-21,21,Thick-grip dumbbell farmer carry,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,extensor-carpi-radialis-longus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,extensor-carpi-radialis-brevis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,extensor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,extensor-digitorum,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-22,22,One-arm dumbbell reverse wrist extension,alias,supinator,,,unmodeled,unmodeled,,unresolved
+fa-23,23,Cable wrist curl,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-23,23,Cable wrist curl,draft_mapping,flexor-carpi-radialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-23,23,Cable wrist curl,draft_mapping,flexor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-23,23,Cable wrist curl,draft_mapping,palmaris-longus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-23,23,Cable wrist curl,draft_mapping,flexor-digitorum-superficialis,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-23,23,Cable wrist curl,draft_mapping,flexor-digitorum-profundus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-23,23,Cable wrist curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-23,23,Cable wrist curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-23,23,Cable wrist curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-23,23,Cable wrist curl,draft_mapping,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-23,23,Cable wrist curl,draft_mapping,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-23,23,Cable wrist curl,draft_mapping,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-23,23,Cable wrist curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-23,23,Cable wrist curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-23,23,Cable wrist curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-23,23,Cable wrist curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-23,23,Cable wrist curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-23,23,Cable wrist curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-23,23,Cable wrist curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-24,24,Cable reverse wrist curl,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-24,24,Cable reverse wrist curl,draft_mapping,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-24,24,Cable reverse wrist curl,draft_mapping,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-24,24,Cable reverse wrist curl,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-24,24,Cable reverse wrist curl,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-24,24,Cable reverse wrist curl,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-24,24,Cable reverse wrist curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-24,24,Cable reverse wrist curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-24,24,Cable reverse wrist curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-24,24,Cable reverse wrist curl,draft_mapping,extensor-carpi-radialis-longus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-24,24,Cable reverse wrist curl,draft_mapping,extensor-carpi-radialis-brevis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-24,24,Cable reverse wrist curl,draft_mapping,extensor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-24,24,Cable reverse wrist curl,draft_mapping,extensor-digitorum,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-24,24,Cable reverse wrist curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-24,24,Cable reverse wrist curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-24,24,Cable reverse wrist curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-24,24,Cable reverse wrist curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-24,24,Cable reverse wrist curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-24,24,Cable reverse wrist curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-25,25,Cable reverse curl,draft_mapping,brachioradialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-25,25,Cable reverse curl,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-25,25,Cable reverse curl,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-25,25,Cable reverse curl,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-25,25,Cable reverse curl,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-25,25,Cable reverse curl,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-25,25,Cable reverse curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-25,25,Cable reverse curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-25,25,Cable reverse curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-25,25,Cable reverse curl,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-25,25,Cable reverse curl,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-25,25,Cable reverse curl,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-25,25,Cable reverse curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-25,25,Cable reverse curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-25,25,Cable reverse curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-25,25,Cable reverse curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-25,25,Cable reverse curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-25,25,Cable reverse curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-25,25,Cable reverse curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-26,26,Rope cable hammer curl,draft_mapping,brachioradialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-26,26,Rope cable hammer curl,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-26,26,Rope cable hammer curl,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-26,26,Rope cable hammer curl,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-26,26,Rope cable hammer curl,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-26,26,Rope cable hammer curl,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-26,26,Rope cable hammer curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-26,26,Rope cable hammer curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-26,26,Rope cable hammer curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-26,26,Rope cable hammer curl,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-26,26,Rope cable hammer curl,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-26,26,Rope cable hammer curl,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-26,26,Rope cable hammer curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-26,26,Rope cable hammer curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-26,26,Rope cable hammer curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-26,26,Rope cable hammer curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-26,26,Rope cable hammer curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-26,26,Rope cable hammer curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-26,26,Rope cable hammer curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,flexor-digitorum-superficialis,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,flexor-digitorum-profundus,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,flexor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-27,27,Behind-the-back cable curl,blocked_protocol,supinator,,,unmodeled,unmodeled,,unresolved
+fa-28,28,Rope seated cable row,draft_mapping,brachioradialis,3,75,dynamic_concentric_eccentric,supporting_dynamic,3,low
+fa-28,28,Rope seated cable row,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-28,28,Rope seated cable row,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-28,28,Rope seated cable row,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-28,28,Rope seated cable row,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-28,28,Rope seated cable row,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-28,28,Rope seated cable row,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-28,28,Rope seated cable row,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-28,28,Rope seated cable row,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-28,28,Rope seated cable row,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-28,28,Rope seated cable row,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-28,28,Rope seated cable row,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-28,28,Rope seated cable row,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-28,28,Rope seated cable row,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-28,28,Rope seated cable row,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-28,28,Rope seated cable row,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-28,28,Rope seated cable row,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-28,28,Rope seated cable row,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-28,28,Rope seated cable row,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-29,29,Towel cable row,draft_mapping,brachioradialis,3,75,dynamic_concentric_eccentric,supporting_dynamic,3,low
+fa-29,29,Towel cable row,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-29,29,Towel cable row,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-29,29,Towel cable row,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-29,29,Towel cable row,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-29,29,Towel cable row,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-29,29,Towel cable row,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-29,29,Towel cable row,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-29,29,Towel cable row,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-29,29,Towel cable row,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-29,29,Towel cable row,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-29,29,Towel cable row,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-29,29,Towel cable row,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-29,29,Towel cable row,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-29,29,Towel cable row,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-29,29,Towel cable row,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-29,29,Towel cable row,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-29,29,Towel cable row,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-29,29,Towel cable row,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-30,30,Lever pronation machine,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-30,30,Lever pronation machine,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-30,30,Lever pronation machine,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-30,30,Lever pronation machine,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-30,30,Lever pronation machine,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-30,30,Lever pronation machine,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-30,30,Lever pronation machine,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-30,30,Lever pronation machine,draft_mapping,pronator-teres,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-30,30,Lever pronation machine,draft_mapping,pronator-quadratus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-30,30,Lever pronation machine,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-30,30,Lever pronation machine,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-30,30,Lever pronation machine,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-30,30,Lever pronation machine,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-30,30,Lever pronation machine,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-30,30,Lever pronation machine,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-30,30,Lever pronation machine,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-30,30,Lever pronation machine,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-30,30,Lever pronation machine,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-30,30,Lever pronation machine,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-31,31,Lever supination machine,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-31,31,Lever supination machine,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-31,31,Lever supination machine,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-31,31,Lever supination machine,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-31,31,Lever supination machine,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-31,31,Lever supination machine,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-31,31,Lever supination machine,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-31,31,Lever supination machine,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-31,31,Lever supination machine,draft_mapping,pronator-quadratus,2,50,isometric,supporting_isometric,2,low
+fa-31,31,Lever supination machine,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-31,31,Lever supination machine,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-31,31,Lever supination machine,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-31,31,Lever supination machine,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-31,31,Lever supination machine,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-31,31,Lever supination machine,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-31,31,Lever supination machine,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-31,31,Lever supination machine,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-31,31,Lever supination machine,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-31,31,Lever supination machine,draft_mapping,supinator,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,flexor-carpi-radialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,flexor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,palmaris-longus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,flexor-digitorum-superficialis,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,flexor-digitorum-profundus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-32-flexion,32,Lever wrist flexion machine,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,extensor-carpi-radialis-longus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,extensor-carpi-radialis-brevis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,extensor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,extensor-digitorum,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-32-extension,32,Lever wrist extension machine,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,flexor-digitorum-superficialis,4,100,isometric,deliberate_isometric,4,low
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,flexor-digitorum-profundus,4,100,isometric,deliberate_isometric,4,low
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,flexor-pollicis-longus,2,50,isometric,supporting_isometric,2,low
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-33,33,Single-arm kettlebell farmer carry,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-34,34,Bottoms-up kettlebell press,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-35,35,Bottoms-up kettlebell clean,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-36,36,Kettlebell hammer curl,draft_mapping,brachioradialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-36,36,Kettlebell hammer curl,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-36,36,Kettlebell hammer curl,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-36,36,Kettlebell hammer curl,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-36,36,Kettlebell hammer curl,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-36,36,Kettlebell hammer curl,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-36,36,Kettlebell hammer curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-36,36,Kettlebell hammer curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-36,36,Kettlebell hammer curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-36,36,Kettlebell hammer curl,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-36,36,Kettlebell hammer curl,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-36,36,Kettlebell hammer curl,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-36,36,Kettlebell hammer curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-36,36,Kettlebell hammer curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-36,36,Kettlebell hammer curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-36,36,Kettlebell hammer curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-36,36,Kettlebell hammer curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-36,36,Kettlebell hammer curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-36,36,Kettlebell hammer curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,flexor-carpi-radialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,flexor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,palmaris-longus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,flexor-digitorum-superficialis,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,flexor-digitorum-profundus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-37-flexion,37,Kettlebell wrist curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,extensor-carpi-radialis-longus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,extensor-carpi-radialis-brevis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,extensor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,extensor-digitorum,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-37-extension,37,Kettlebell reverse wrist curl,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-38,38,Plate pinch hold,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-38,38,Plate pinch hold,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-38,38,Plate pinch hold,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-38,38,Plate pinch hold,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-38,38,Plate pinch hold,draft_mapping,flexor-digitorum-superficialis,4,100,isometric,deliberate_isometric,4,low
+fa-38,38,Plate pinch hold,draft_mapping,flexor-digitorum-profundus,4,100,isometric,deliberate_isometric,4,low
+fa-38,38,Plate pinch hold,draft_mapping,flexor-pollicis-longus,4,100,isometric,deliberate_isometric,4,low
+fa-38,38,Plate pinch hold,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-38,38,Plate pinch hold,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-38,38,Plate pinch hold,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-38,38,Plate pinch hold,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-38,38,Plate pinch hold,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-38,38,Plate pinch hold,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-38,38,Plate pinch hold,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-38,38,Plate pinch hold,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-38,38,Plate pinch hold,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-38,38,Plate pinch hold,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-38,38,Plate pinch hold,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-38,38,Plate pinch hold,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,flexor-digitorum-superficialis,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,flexor-digitorum-profundus,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,flexor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-39,39,Plate flips,blocked_protocol,supinator,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,flexor-digitorum-superficialis,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,flexor-digitorum-profundus,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,flexor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-40,40,Plate wrist flexor curl with extended fingers,blocked_protocol,supinator,,,unmodeled,unmodeled,,unresolved
+fa-41,41,Straight-bar dead hang,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-41,41,Straight-bar dead hang,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-41,41,Straight-bar dead hang,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-41,41,Straight-bar dead hang,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-41,41,Straight-bar dead hang,draft_mapping,flexor-digitorum-superficialis,4,100,isometric,deliberate_isometric,4,low
+fa-41,41,Straight-bar dead hang,draft_mapping,flexor-digitorum-profundus,4,100,isometric,deliberate_isometric,4,low
+fa-41,41,Straight-bar dead hang,draft_mapping,flexor-pollicis-longus,2,50,isometric,supporting_isometric,2,low
+fa-41,41,Straight-bar dead hang,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-41,41,Straight-bar dead hang,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-41,41,Straight-bar dead hang,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-41,41,Straight-bar dead hang,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-41,41,Straight-bar dead hang,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-41,41,Straight-bar dead hang,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-41,41,Straight-bar dead hang,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-41,41,Straight-bar dead hang,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-41,41,Straight-bar dead hang,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-41,41,Straight-bar dead hang,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-41,41,Straight-bar dead hang,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-41,41,Straight-bar dead hang,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-42,42,Towel pull-up,draft_mapping,brachioradialis,3,75,dynamic_concentric_eccentric,supporting_dynamic,3,low
+fa-42,42,Towel pull-up,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-42,42,Towel pull-up,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-42,42,Towel pull-up,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-42,42,Towel pull-up,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,incidental_grip,2,low
+fa-42,42,Towel pull-up,draft_mapping,flexor-digitorum-profundus,2,50,isometric,incidental_grip,2,low
+fa-42,42,Towel pull-up,draft_mapping,flexor-pollicis-longus,2,50,isometric,incidental_grip,2,low
+fa-42,42,Towel pull-up,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-42,42,Towel pull-up,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-42,42,Towel pull-up,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-42,42,Towel pull-up,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-42,42,Towel pull-up,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-42,42,Towel pull-up,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-42,42,Towel pull-up,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-42,42,Towel pull-up,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-42,42,Towel pull-up,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-42,42,Towel pull-up,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-42,42,Towel pull-up,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-42,42,Towel pull-up,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-43,43,Towel dead hang,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-43,43,Towel dead hang,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-43,43,Towel dead hang,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-43,43,Towel dead hang,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-43,43,Towel dead hang,draft_mapping,flexor-digitorum-superficialis,4,100,isometric,deliberate_isometric,4,low
+fa-43,43,Towel dead hang,draft_mapping,flexor-digitorum-profundus,4,100,isometric,deliberate_isometric,4,low
+fa-43,43,Towel dead hang,draft_mapping,flexor-pollicis-longus,2,50,isometric,supporting_isometric,2,low
+fa-43,43,Towel dead hang,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-43,43,Towel dead hang,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-43,43,Towel dead hang,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-43,43,Towel dead hang,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-43,43,Towel dead hang,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-43,43,Towel dead hang,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-43,43,Towel dead hang,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-43,43,Towel dead hang,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-43,43,Towel dead hang,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-43,43,Towel dead hang,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-43,43,Towel dead hang,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-43,43,Towel dead hang,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-44,44,Thick-bar dead hang,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-44,44,Thick-bar dead hang,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-44,44,Thick-bar dead hang,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-44,44,Thick-bar dead hang,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-44,44,Thick-bar dead hang,draft_mapping,flexor-digitorum-superficialis,4,100,isometric,deliberate_isometric,4,low
+fa-44,44,Thick-bar dead hang,draft_mapping,flexor-digitorum-profundus,4,100,isometric,deliberate_isometric,4,low
+fa-44,44,Thick-bar dead hang,draft_mapping,flexor-pollicis-longus,2,50,isometric,supporting_isometric,2,low
+fa-44,44,Thick-bar dead hang,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-44,44,Thick-bar dead hang,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-44,44,Thick-bar dead hang,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-44,44,Thick-bar dead hang,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-44,44,Thick-bar dead hang,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-44,44,Thick-bar dead hang,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-44,44,Thick-bar dead hang,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-44,44,Thick-bar dead hang,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-44,44,Thick-bar dead hang,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-44,44,Thick-bar dead hang,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-44,44,Thick-bar dead hang,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-44,44,Thick-bar dead hang,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-45,45,Fingertip push-up,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-45,45,Fingertip push-up,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-45,45,Fingertip push-up,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-45,45,Fingertip push-up,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-45,45,Fingertip push-up,draft_mapping,flexor-digitorum-superficialis,4,100,isometric,deliberate_isometric,4,low
+fa-45,45,Fingertip push-up,draft_mapping,flexor-digitorum-profundus,4,100,isometric,deliberate_isometric,4,low
+fa-45,45,Fingertip push-up,draft_mapping,flexor-pollicis-longus,2,50,isometric,supporting_isometric,2,low
+fa-45,45,Fingertip push-up,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-45,45,Fingertip push-up,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-45,45,Fingertip push-up,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-45,45,Fingertip push-up,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-45,45,Fingertip push-up,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-45,45,Fingertip push-up,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-45,45,Fingertip push-up,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-45,45,Fingertip push-up,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-45,45,Fingertip push-up,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-45,45,Fingertip push-up,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-45,45,Fingertip push-up,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-45,45,Fingertip push-up,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-46,46,Fingertip plank,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-46,46,Fingertip plank,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-46,46,Fingertip plank,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-46,46,Fingertip plank,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-46,46,Fingertip plank,draft_mapping,flexor-digitorum-superficialis,4,100,isometric,deliberate_isometric,4,low
+fa-46,46,Fingertip plank,draft_mapping,flexor-digitorum-profundus,4,100,isometric,deliberate_isometric,4,low
+fa-46,46,Fingertip plank,draft_mapping,flexor-pollicis-longus,2,50,isometric,supporting_isometric,2,low
+fa-46,46,Fingertip plank,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-46,46,Fingertip plank,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-46,46,Fingertip plank,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-46,46,Fingertip plank,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-46,46,Fingertip plank,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-46,46,Fingertip plank,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-46,46,Fingertip plank,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-46,46,Fingertip plank,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-46,46,Fingertip plank,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-46,46,Fingertip plank,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-46,46,Fingertip plank,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-46,46,Fingertip plank,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-47,47,Spring gripper squeeze,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-47,47,Spring gripper squeeze,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-47,47,Spring gripper squeeze,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-47,47,Spring gripper squeeze,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-47,47,Spring gripper squeeze,draft_mapping,flexor-digitorum-superficialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-47,47,Spring gripper squeeze,draft_mapping,flexor-digitorum-profundus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-47,47,Spring gripper squeeze,draft_mapping,flexor-pollicis-longus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-47,47,Spring gripper squeeze,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-47,47,Spring gripper squeeze,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-47,47,Spring gripper squeeze,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-47,47,Spring gripper squeeze,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-47,47,Spring gripper squeeze,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-47,47,Spring gripper squeeze,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-47,47,Spring gripper squeeze,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-47,47,Spring gripper squeeze,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-47,47,Spring gripper squeeze,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-47,47,Spring gripper squeeze,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-47,47,Spring gripper squeeze,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-47,47,Spring gripper squeeze,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-48,48,Ball squeeze,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-48,48,Ball squeeze,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-48,48,Ball squeeze,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-48,48,Ball squeeze,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-48,48,Ball squeeze,draft_mapping,flexor-digitorum-superficialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-48,48,Ball squeeze,draft_mapping,flexor-digitorum-profundus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-48,48,Ball squeeze,draft_mapping,flexor-pollicis-longus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-48,48,Ball squeeze,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-48,48,Ball squeeze,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-48,48,Ball squeeze,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-48,48,Ball squeeze,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-48,48,Ball squeeze,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-48,48,Ball squeeze,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-48,48,Ball squeeze,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-48,48,Ball squeeze,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-48,48,Ball squeeze,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-48,48,Ball squeeze,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-48,48,Ball squeeze,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-48,48,Ball squeeze,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-49,49,Crab walk,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-49,49,Crab walk,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-49,49,Crab walk,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-49,49,Crab walk,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-49,49,Crab walk,draft_mapping,flexor-digitorum-superficialis,2,50,isometric,supporting_isometric,2,low
+fa-49,49,Crab walk,draft_mapping,flexor-digitorum-profundus,2,50,isometric,supporting_isometric,2,low
+fa-49,49,Crab walk,draft_mapping,flexor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-49,49,Crab walk,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-49,49,Crab walk,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-49,49,Crab walk,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-49,49,Crab walk,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-49,49,Crab walk,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-49,49,Crab walk,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-49,49,Crab walk,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-49,49,Crab walk,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-49,49,Crab walk,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-49,49,Crab walk,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-49,49,Crab walk,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-49,49,Crab walk,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,flexor-digitorum-superficialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,flexor-digitorum-profundus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,flexor-pollicis-longus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-close,50,Rice bucket finger closing,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,flexor-digitorum-superficialis,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,flexor-digitorum-profundus,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,flexor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,extensor-digitorum,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,extensor-digiti-minimi,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,extensor-indicis,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-finger-open,50,Rice bucket finger opening,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,flexor-digitorum-superficialis,,,unmodeled,unmodeled,,unresolved
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,flexor-digitorum-profundus,,,unmodeled,unmodeled,,unresolved
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,flexor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,pronator-teres,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,pronator-quadratus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-pronation,50,Rice bucket pronation,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-50-supination,50,Rice bucket supination,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-50-supination,50,Rice bucket supination,draft_mapping,flexor-carpi-radialis,2,50,isometric,supporting_isometric,2,low
+fa-50-supination,50,Rice bucket supination,draft_mapping,flexor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-50-supination,50,Rice bucket supination,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-supination,50,Rice bucket supination,draft_mapping,flexor-digitorum-superficialis,,,unmodeled,unmodeled,,unresolved
+fa-50-supination,50,Rice bucket supination,draft_mapping,flexor-digitorum-profundus,,,unmodeled,unmodeled,,unresolved
+fa-50-supination,50,Rice bucket supination,draft_mapping,flexor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-supination,50,Rice bucket supination,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-50-supination,50,Rice bucket supination,draft_mapping,pronator-quadratus,2,50,isometric,supporting_isometric,2,low
+fa-50-supination,50,Rice bucket supination,draft_mapping,extensor-carpi-radialis-longus,2,50,isometric,supporting_isometric,2,low
+fa-50-supination,50,Rice bucket supination,draft_mapping,extensor-carpi-radialis-brevis,2,50,isometric,supporting_isometric,2,low
+fa-50-supination,50,Rice bucket supination,draft_mapping,extensor-carpi-ulnaris,2,50,isometric,supporting_isometric,2,low
+fa-50-supination,50,Rice bucket supination,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-50-supination,50,Rice bucket supination,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-50-supination,50,Rice bucket supination,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-50-supination,50,Rice bucket supination,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-supination,50,Rice bucket supination,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-50-supination,50,Rice bucket supination,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-supination,50,Rice bucket supination,draft_mapping,supinator,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,flexor-carpi-radialis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,flexor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,palmaris-longus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,flexor-digitorum-superficialis,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,flexor-digitorum-profundus,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,flexor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,extensor-carpi-radialis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,extensor-carpi-radialis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,extensor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,extensor-digitorum,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-flexion,50,Rice bucket wrist flexion,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,brachioradialis,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,flexor-carpi-radialis,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,flexor-carpi-ulnaris,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,palmaris-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,flexor-digitorum-superficialis,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,flexor-digitorum-profundus,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,flexor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,pronator-teres,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,pronator-quadratus,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,extensor-carpi-radialis-longus,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,extensor-carpi-radialis-brevis,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,extensor-carpi-ulnaris,4,100,dynamic_concentric_eccentric,direct_dynamic,4,low
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,extensor-digitorum,2,50,dynamic_concentric_eccentric,supporting_dynamic,2,low
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,extensor-digiti-minimi,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,extensor-indicis,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,abductor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,extensor-pollicis-brevis,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,extensor-pollicis-longus,,,unmodeled,unmodeled,,unresolved
+fa-50-wrist-extension,50,Rice bucket wrist extension,draft_mapping,supinator,,,unmodeled,unmodeled,,unresolved
