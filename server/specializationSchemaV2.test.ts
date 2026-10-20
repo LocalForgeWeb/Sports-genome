@@ -38,7 +38,7 @@ import {
  * Schema v2 (supabase/migrations/…_specialization_atlas_schema_v2.sql; 10-multi-region.md §5;
  * 04-database.md §10) in PGlite: its five tables with their grants and row-level security as
  * anon, two users and the service role; every guard and refusal, the prototype experiment's
- * included; publication rules 10 to 12; what it writes over the applied files (nothing but the
+ * included; publication rules 10 to 13; what it writes over the applied files (nothing but the
  * forearm region row's new columns); the DO-block route and its locks; the undo; and the apply
  * tool's SQL, run with the `http` extension stood in for. The schema v1 tests run on the same
  * release database in server/specializationSchema.test.ts.
@@ -561,7 +561,7 @@ describe("variants and mappings", () => {
 
 // ---------------------------------------------------------------- the publication rule
 
-describe("publishing: rules 10 to 12", () => {
+describe("publishing: rules 10 to 13", () => {
   beforeAll(async () => {
     await as(db, "service_role", async () => {
       await db.exec(`
@@ -661,17 +661,38 @@ describe("publishing: rules 10 to 12", () => {
     });
   });
 
+  it("13: refuses a version in a region with no page yet, since publishing freezes the region's status and it could never be promoted after", async () => {
+    await as(db, "service_role", async () => {
+      // The reference upper arm lists the biceps as a target from seed v2, and cat-121 has sided_by (set up above): rules 1 to 12 pass.
+      await draftVersion("upper_arm_mappings_v1", "upper_arm", [{ key: "cat-121:upper_arm.biceps", variant: "cat-121", node: "upper_arm.biceps", action: "elbow.flexion" }]);
+      const noPage = "region upper_arm has no page yet (reference): promote it before publishing a version of it";
+      expect(await problemsOf("upper_arm_mappings_v1")).toBe(noPage);
+      expect(await publish("upper_arm_mappings_v1")).toBe(`mapping version upper_arm_mappings_v1 cannot be published: ${noPage}`);
+      expect(await rows(db, "select state from specialization.mapping_versions where version_key = 'upper_arm_mappings_v1'")).toEqual([{ state: "draft" }]);
+      // Promoted first, as seed v3 writes the region before its versions, the same draft passes; and the region stays promotable meanwhile.
+      await db.exec("begin");
+      try {
+        expect(await failure(db, `update specialization.regions set status = 'production', (${PAGE_WORDS}) = (${PAGE_VALUES}) where id = 'upper_arm'`)).toBeNull();
+        expect(await problemsOf("upper_arm_mappings_v1")).toBeNull();
+      } finally {
+        await db.exec("rollback");
+      }
+      await dropDraft("upper_arm_mappings_v1");
+    });
+  });
+
   it("a publish changes the state alone: a key, region or notes changed in the same statement is refused and the version stays a draft, since the rules read the stored draft", async () => {
     await as(db, "service_role", async () => {
       const published = (key: string, set: string) => failure(db, `update specialization.mapping_versions set state = 'published', ${set} where version_key = $1`, [key]);
       const alone = (key: string) => new RegExp(`mapping version ${key} is published by changing its state alone: change its key, region or notes while it is a draft, then publish it`);
       const held = (key: string) => rows(db, "select region_id, state, method_notes from specialization.mapping_versions where version_key = $1", [key]);
-      // (A) An upper-arm draft of the biceps and brachialis passes as the upper arm's; published as the forearm's, rule 12 would not have seen it.
+      // (A) An upper-arm draft of the biceps and brachialis passes rules 1 to 12 as the upper arm's (only 13 holds it while the upper
+      // arm has no page); published as the forearm's, rule 12 would not have seen it.
       await draftVersion("zz_moved_a", "upper_arm", [
         { key: "cat-121:upper_arm.biceps", variant: "cat-121", node: "upper_arm.biceps", action: "elbow.flexion" },
         { key: "cat-121:upper_arm.brachialis", variant: "cat-121", node: "upper_arm.brachialis", action: "elbow.flexion" },
       ]);
-      expect(await problemsOf("zz_moved_a")).toBeNull();
+      expect(await problemsOf("zz_moved_a")).toBe("region upper_arm has no page yet (reference): promote it before publishing a version of it");
       expect(await published("zz_moved_a", "region_id = 'forearm'")).toMatch(alone("zz_moved_a"));
       expect(await held("zz_moved_a")).toEqual([{ region_id: "upper_arm", state: "draft", method_notes: "Test version." }]);
       // Moved while a draft, it is judged as the forearm's.
@@ -773,13 +794,23 @@ describe("variant attributes", () => {
         expect(await attempt("delete from specialization.variant_attributes where variant_key = 'cat-139'"), who).toMatch(/attribute \w+ of variant cat-139 is frozen/);
         // An update that changes nothing passes (a seed applied again).
         expect(await attempt("update specialization.variant_attributes set value = value where variant_key = 'cat-139'"), who).toBeNull();
-        // Unfrozen, the one write that sets frozen_at changes nothing else.
+        // Unfrozen, only a publish freezes an attribute, setting frozen_at and nothing else: no writer sets it by hand, and no
+        // attribute is written frozen, since one frozen with no version resting on it could never be corrected or dropped.
         expect(await attempt("update specialization.variant_attributes set frozen_at = now(), value = 'wide' where variant_key = 'cat-140' and dimension_id = 'grip_width'"), who).toMatch(
           /attribute grip_width of variant cat-140 is frozen as it stands: freezing sets frozen_at and nothing else/,
         );
-        expect(await attempt("update specialization.variant_attributes set frozen_at = now() where variant_key = 'cat-140' and dimension_id = 'grip_width'"), who).toBeNull();
+        expect(await attempt("update specialization.variant_attributes set frozen_at = now() where variant_key = 'cat-140' and dimension_id = 'grip_width'"), who).toMatch(
+          /attribute grip_width of variant cat-140 is frozen only by the publish of a mapping version that maps its variant/,
+        );
+        expect(await attempt("insert into specialization.variant_attributes (variant_key, dimension_id, value, frozen_at) values ('cat-140', 'stance', 'bilateral', '2000-01-01')"), who).toMatch(
+          /attribute stance of variant cat-140 cannot be written frozen: frozen_at is set only by the publish of a mapping version that maps its variant/,
+        );
+        expect(await attempt("insert into specialization.variant_attributes (variant_key, dimension_id, value, frozen_at) values ('cat-140', 'grip_width', 'wide', now()) on conflict (variant_key, dimension_id) do update set frozen_at = excluded.frozen_at"), who).toMatch(
+          /attribute grip_width of variant cat-140 cannot be written frozen/,
+        );
       });
     }
+    expect(await attribute("cat-140", "grip_width")).toEqual({ value: "shoulder", frozen: false });
     await as(db, "service_role", async () => {
       // Added after the publish: free, until the next version that maps the variant is published.
       await giveAttribute("cat-139", "stance", "bilateral");
@@ -1132,7 +1163,7 @@ describe("the prototype experiment's cases", () => {
 // ---------------------------------------------------------------- how it reaches production
 
 describe("applied over what production holds", () => {
-  it("writes the forearm region row's new columns and its own tables' rows, and touches no other existing row; applied again, nothing; the current seed after it, no existing row", async () => {
+  it("writes the forearm region row's new columns and its own tables' rows, and touches no other existing row; applied again, nothing; the current seed after it, one existing row, the upper arm's region row in schema v2's columns", async () => {
     const fresh = await createSupabaseLikeDb();
     try {
       await replayMigrations(fresh, "seed v1");
@@ -1344,8 +1375,12 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
          savepoint undo_ready;`,
         /schema v2 cannot be undone: a version published under it rests on what it added \(zz_undo_v1 \(published\)\)/,
       );
+      // Only a publish freezes an attribute; frozen here past its guard, as an attribute left frozen by a publish the database no longer holds.
       await refusedWith(
-        "update specialization.variant_attributes set frozen_at = now() where variant_key = 'cat-139'; savepoint undo_ready;",
+        `alter table specialization.variant_attributes disable trigger variant_attributes_guard_frozen;
+         update specialization.variant_attributes set frozen_at = now() where variant_key = 'cat-139';
+         alter table specialization.variant_attributes enable trigger variant_attributes_guard_frozen;
+         savepoint undo_ready;`,
         /schema v2 cannot be undone: a version published under it rests on what it added \(attributes of cat-139\)/,
       );
       await refusedWith(
@@ -1412,6 +1447,7 @@ describe("the apply tool (scripts/specialization/release/make-apply-sql.mjs)", (
         "if response.status <> 200 then raise exception",
         `<> '${createHash("sha256").update(Buffer.from(text, "utf8")).digest("hex")}' then`,
         "which production has not recorded",
+        "which production recorded with other text than this commit holds",
         "is already recorded in supabase_migrations.schema_migrations",
         "execute response.content;",
         `insert into supabase_migrations.schema_migrations (version, name, statements) values ('${migrationRecord(file).version}', '${migrationRecord(file).name}', array[response.content]);`,
@@ -1419,9 +1455,17 @@ describe("the apply tool (scripts/specialization/release/make-apply-sql.mjs)", (
       const at = steps.map((step) => sql.indexOf(step));
       for (const [position, step] of steps.entries()) expect(at[position], step).toBeGreaterThan(-1);
       expect([...at].sort((a, b) => a - b)).toEqual(at);
-      // Every earlier specialization migration, by version and name.
-      const earlier = [...APPLIED_MIGRATION_PATHS, ...PENDING_MIGRATION_PATHS].slice(0, 2 + index).map((path) => migrationRecord(path));
-      expect(sql).toContain(`unnest(array[${earlier.map((entry) => `'${entry.version}'`).join(", ")}]::text[], array[${earlier.map((entry) => `'${entry.name}'`).join(", ")}]::text[])`);
+      // Every earlier specialization migration, by version and name, and recorded with the text this commit holds.
+      const earlierPaths = [...APPLIED_MIGRATION_PATHS, ...PENDING_MIGRATION_PATHS].slice(0, 2 + index);
+      const earlier = earlierPaths.map((path) => migrationRecord(path));
+      const list = (values: string[]) => `array[${values.map((value) => `'${value}'`).join(", ")}]::text[]`;
+      expect(sql).toContain(`unnest(${list(earlier.map((entry) => entry.version))}, ${list(earlier.map((entry) => entry.name))}) as e (version, name)`);
+      const digests = earlierPaths.map((path) => createHash("sha256").update(readFileSync(path)).digest("hex"));
+      expect(digests.slice(0, 2)).toEqual([
+        "b67a9cd7a90383c205686e17b029a55ffd5a59ee4d928189d3a7d16296da542d",
+        "a267fdc4997699401822c2f4166a97b427fe28d8081bebcba037f963a35189f8",
+      ]);
+      expect(sql).toContain(`unnest(${list(earlier.map((entry) => entry.version))}, ${list(earlier.map((entry) => entry.name))}, ${list(digests)}) as e (version, name, digest)`);
     }
   });
 
@@ -1431,7 +1475,7 @@ describe("the apply tool (scripts/specialization/release/make-apply-sql.mjs)", (
     expect(() => run([sha, out, "20261016120000_other.sql"])).toThrow(/is not a specialization migration in supabase\/migrations/);
   });
 
-  it("run in PGlite with http stood in for: refuses a file out of order, a failed fetch, a changed file and one already recorded, changing nothing; applies and records the rest", async () => {
+  it("run in PGlite with http stood in for: refuses a file out of order, after an earlier file recorded with other text, a failed fetch, a changed file and one already recorded, changing nothing; applies and records the rest", async () => {
     const target = await createSupabaseLikeDb();
     try {
       await replayMigrations(target, "seed v1");
@@ -1459,7 +1503,25 @@ describe("the apply tool (scripts/specialization/release/make-apply-sql.mjs)", (
       expect(await snapshot(target)).toEqual(v1);
       expect(await recorded()).toEqual(["20261016120000", "20261016120100"]);
 
+      // Schema v2 recorded from another commit (the seed then failed, and the fix edited schema v2): the recorded text is
+      // history this commit no longer has, so the seed is refused rather than run over a schema the repository does not hold.
+      await target.query("insert into supabase_migrations.schema_migrations (version, name, statements) values ('20261019120000', 'specialization_atlas_schema_v2', array[$1])", [
+        text(schemaV2).replace(/create or replace trigger regions_guard_published[\s\S]*?;\n/, ""),
+      ]);
+      expect(await apply(seed)).toMatch(
+        new RegExp(`${seed} applies after 20261019120000 specialization_atlas_schema_v2, which production recorded with other text than this commit holds: a recorded file is history, so correct it in a new file`),
+      );
+      await target.query("update supabase_migrations.schema_migrations set statements = null where version = '20261019120000'");
+      expect(await apply(seed)).toMatch(/which production recorded with other text than this commit holds/);
+      await target.query("delete from supabase_migrations.schema_migrations where version = '20261019120000'");
+      // So is a file after a schema v1 recorded with other text.
+      await target.query("update supabase_migrations.schema_migrations set statements = array[$1] where version = '20261016120000'", ["-- another schema v1"]);
       await serve(schemaV2, 200, text(schemaV2));
+      expect(await apply(schemaV2)).toMatch(new RegExp(`${schemaV2} applies after 20261016120000 specialization_atlas_schema, which production recorded with other text than this commit holds`));
+      await target.query("update supabase_migrations.schema_migrations set statements = array[$1] where version = '20261016120000'", [readFileSync(APPLIED_MIGRATION_PATHS[0], "utf8")]);
+      expect(await snapshot(target)).toEqual(v1);
+      expect(await recorded()).toEqual(["20261016120000", "20261016120100"]);
+
       expect(await apply(schemaV2)).toBeNull();
       expect(await rows(target, "select name, statements = array[$1] as exact from supabase_migrations.schema_migrations where version = '20261019120000'", [text(schemaV2)])).toEqual([
         { name: "specialization_atlas_schema_v2", exact: true },

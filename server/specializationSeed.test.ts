@@ -797,15 +797,20 @@ describe("changing content", () => {
     expect(await relations()).toEqual(expected(d));
     expect(await attributesOf(variant.id)).toEqual([unfrozen("sided_by", variant.sidedBy!)]);
 
-    // A frozen attribute the content drops is refused by name, and nothing of that seed is applied. (Frozen here as a publish of a
-    // version mapping cat-139 freezes it, in a transaction rolled back after.)
+    // A frozen attribute the content drops is refused by name, and nothing of that seed is applied. (Frozen here past its guard, as
+    // a publish of a version mapping cat-139 would freeze it, in a transaction rolled back after: only a publish may set frozen_at.)
     const withGrip = registeredRegionContents.map((content) => ({ ...content, variants: content.variants.map((v) => (v.id === "cat-139" ? { ...v, dimensions: { grip_width: "shoulder" as const } } : v)) }));
     const kept = await rowVersions(db);
     await db.exec("begin");
     try {
       expect(await seeded(withRegions(...withGrip))).toBeNull();
       expect(await attributesOf("cat-139")).toEqual(expect.arrayContaining([unfrozen("grip_width", "shoulder")]));
-      await db.exec("update specialization.variant_attributes set frozen_at = now() where variant_key = 'cat-139' and dimension_id = 'grip_width'; savepoint frozen");
+      await db.exec(`
+        alter table specialization.variant_attributes disable trigger variant_attributes_guard_frozen;
+        update specialization.variant_attributes set frozen_at = now() where variant_key = 'cat-139' and dimension_id = 'grip_width';
+        alter table specialization.variant_attributes enable trigger variant_attributes_guard_frozen;
+        savepoint frozen;
+      `);
       const frozen = await rowVersions(db);
       expect(await seeded(productionSeedInput())).toMatch(/attribute grip_width of variant cat-139 is frozen: a published mapping version rests on it, so it cannot change or be deleted/);
       await db.exec("rollback to savepoint frozen");

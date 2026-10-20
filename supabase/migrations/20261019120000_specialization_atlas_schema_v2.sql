@@ -21,8 +21,8 @@
 --     variant_mappings.side_relation (same, opposite, both); side midline on goals and
 --     measurements, the girth_cm metric and two postures; which goals may be written.
 --   * mapping_version_problems and guard_mapping_version, restated in full: rule 10 always,
---     rules 11 and 12 when a draft is published; publishing locks what they read and freezes
---     the attributes it rests on.
+--     rules 11 to 13 when a draft is published; publishing locks what they read and freezes
+--     the attributes it rests on, and nothing else freezes one.
 --
 -- Additive and idempotent: it can be applied twice. No transaction control and nothing a
 -- function's EXECUTE cannot run, so it is applied as one DO block per file, like v1
@@ -460,7 +460,10 @@ create or replace trigger goals_check_target
 --      where sided_by is leg; and a mapping on a variant that does not use the region's limb
 --      (not_applicable) counts on both sides (side_relation both);
 --  12. every mapped muscle's home is the version's region: a region credits another region's
---      muscle as that region's own versions do, never through a mapping of its own.
+--      muscle as that region's own versions do, never through a mapping of its own;
+--  13. the version's region has a page (production, or fixture in tests): publishing freezes a
+--      region's status (guard_published_region), so a version published in a reference region
+--      would keep it from ever being promoted.
 -- Rules 8 and 9 mean a reviewed mapping never rests on a claim users cannot read or one
 -- with no citation; once published, that claim and its sources are frozen with the version
 -- (guard_published_claim, guard_published_claim_source: a reviewed claim of a mapped muscle).
@@ -481,7 +484,7 @@ as $fn$
     where vm.version_id = p_version_id
   ),
   publishing as (
-    select v.region_id, r.side_limb
+    select v.region_id, r.side_limb, r.status
     from specialization.mapping_versions v
     join specialization.regions r on r.id = v.region_id
     where v.id = p_version_id and v.state = 'draft'
@@ -587,12 +590,16 @@ as $fn$
     join specialization.nodes n on n.id = m.node_id
     join publishing p on p.region_id <> n.region_id
     having count(*) > 0
+    union all
+    select 13, 'region ' || p.region_id || ' has no page yet (' || p.status || '): promote it before publishing a version of it'
+    from publishing p
+    where p.status not in ('production', 'fixture')
   )
   select string_agg(problem, '; ' order by ord, problem) from listed
 $fn$;
 
 comment on function specialization.mapping_version_problems(uuid) is
-  'The mapping-version publication rule: null when the version may be published, else the problems. Rules 11 and 12 are read only while the version is a draft. Enforced by the mapping_versions trigger; callable by the service role to check a draft first.';
+  'The mapping-version publication rule: null when the version may be published, else the problems. Rules 11 to 13 are read only while the version is a draft. Enforced by the mapping_versions trigger; callable by the service role to check a draft first.';
 
 -- Versions are created as drafts, may change while draft, are published once (when the
 -- rule above passes, by a change of state alone), and may then only be retired. Published and
@@ -781,13 +788,23 @@ create or replace trigger region_nodes_guard_published
 -- An attribute frozen by a publish (frozen_at set) is not changed or deleted; an update that
 -- changes nothing passes. Until then it is free: an attribute added after a version was
 -- published stays correctable until the next publish of a version that maps its variant. The
--- one write that sets frozen_at is that publish's: from null to a time, nothing else changed.
+-- one write that sets frozen_at is that publish's: from null to a time, nothing else changed,
+-- made by guard_mapping_version's own UPDATE, so this trigger runs one trigger deep inside it
+-- (pg_trigger_depth() 2). An attribute is never written frozen, and no other writer freezes
+-- one: an attribute frozen with no version resting on it could never be corrected or dropped.
 create or replace function specialization.guard_frozen_variant_attribute()
 returns trigger
 language plpgsql
 set search_path = ''
 as $fn$
 begin
+  if tg_op = 'INSERT' then
+    if new.frozen_at is not null then
+      raise exception 'attribute % of variant % cannot be written frozen: frozen_at is set only by the publish of a mapping version that maps its variant', new.dimension_id, new.variant_key
+        using errcode = '23514';
+    end if;
+    return new;
+  end if;
   if tg_op = 'UPDATE' and new is not distinct from old then
     return new;
   end if;
@@ -795,10 +812,15 @@ begin
     raise exception 'attribute % of variant % is frozen: a published mapping version rests on it, so it cannot change or be deleted. Add the corrected variant under a new key and map it in a new version', old.dimension_id, old.variant_key
       using errcode = '23514';
   end if;
-  if tg_op = 'UPDATE' and new.frozen_at is not null
-     and (new.variant_key, new.dimension_id, new.value, new.notes) is distinct from (old.variant_key, old.dimension_id, old.value, old.notes) then
-    raise exception 'attribute % of variant % is frozen as it stands: freezing sets frozen_at and nothing else', old.dimension_id, old.variant_key
-      using errcode = '23514';
+  if tg_op = 'UPDATE' and new.frozen_at is not null then
+    if (new.variant_key, new.dimension_id, new.value, new.notes) is distinct from (old.variant_key, old.dimension_id, old.value, old.notes) then
+      raise exception 'attribute % of variant % is frozen as it stands: freezing sets frozen_at and nothing else', old.dimension_id, old.variant_key
+        using errcode = '23514';
+    end if;
+    if pg_catalog.pg_trigger_depth() < 2 then
+      raise exception 'attribute % of variant % is frozen only by the publish of a mapping version that maps its variant', old.dimension_id, old.variant_key
+        using errcode = '23514';
+    end if;
   end if;
   if tg_op = 'DELETE' then
     return old;
@@ -808,7 +830,7 @@ end
 $fn$;
 
 create or replace trigger variant_attributes_guard_frozen
-  before update or delete on specialization.variant_attributes
+  before insert or update or delete on specialization.variant_attributes
   for each row execute function specialization.guard_frozen_variant_attribute();
 
 -- TRUNCATE fires no row trigger: v1's function is generic (tg_table_name), so only triggers are added.

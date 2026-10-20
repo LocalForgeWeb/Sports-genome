@@ -4,10 +4,15 @@
  * argument, so each statement fetches its file at a commit already pushed to GitHub, refuses it
  * unless the HTTP status is 200 and the SHA-256 of its text equals the repository file's, refuses
  * it unless every earlier specialization migration is recorded in
- * `supabase_migrations.schema_migrations` and this one is not, executes it, and records it there
- * under the file's own version and name, as `supabase migration repair` would: all in one DO
- * block, so one transaction. A failed fetch, a checksum mismatch, a file out of order or an error
- * in the file leaves the database as it was, history included.
+ * `supabase_migrations.schema_migrations` with the text this commit holds (its SHA-256) and this
+ * one is not recorded, executes it, and records it there under the file's own version and name
+ * with its text, as `supabase migration repair` would: all in one DO block, so one transaction. A
+ * failed fetch, a checksum mismatch, a file out of order, an earlier file recorded with other text
+ * or an error in the file leaves the database as it was, history included.
+ *
+ * Once production records a file it is history, even when a later file of the same release
+ * then fails: a fix never edits it (the apply of a later file refuses a commit that did), it pins
+ * it in server/specializationHistory.test.ts and puts any correction in a new file.
  *
  * The `http` extension is created if missing and never dropped: on Supabase a DROP EXTENSION did
  * not return, in the same DO block or on its own (18 Oct 2026: probes with it hung past 60 s,
@@ -49,16 +54,21 @@ for (const file of files) {
   const text = readFileSync(join(migrations, file), "utf8");
   const digest = createHash("sha256").update(Buffer.from(text, "utf8")).digest("hex");
   const { version, name } = parse(file);
-  const earlier = atlas.slice(0, atlas.indexOf(file)).map(parse);
+  const earlier = atlas.slice(0, atlas.indexOf(file)).map((name) => ({
+    ...parse(name),
+    digest: createHash("sha256").update(readFileSync(join(migrations, name))).digest("hex"),
+  }));
   const url = `https://raw.githubusercontent.com/LocalForgeWeb/Sports-genome/${sha}/supabase/migrations/${file}`;
   // The lock timeout is transaction-local: behind a long-running write the statement fails within
   // seconds and can be run again, rather than holding sign-ins in a queue behind its locks. The
   // fetch has its own limit. `record` variables, because the http types do not exist until the
-  // extension is created inside the block.
+  // extension is created inside the block. An earlier file must be recorded with the text this
+  // commit holds: one recorded from another commit is history this commit no longer has.
   const sql = `do $apply$
 declare
   response record;
   missing text;
+  changed text;
 begin
   perform set_config('lock_timeout', '5000', true);
   create extension if not exists http with schema extensions;
@@ -72,6 +82,13 @@ begin
   from unnest(${textArray(earlier.map((entry) => entry.version))}, ${textArray(earlier.map((entry) => entry.name))}) as e (version, name)
   where not exists (select 1 from supabase_migrations.schema_migrations m where m.version = e.version);
   if missing is not null then raise exception '${file} applies after %, which production has not recorded', missing; end if;
+  select string_agg(e.version || ' ' || e.name, ', ' order by e.version) into changed
+  from unnest(${textArray(earlier.map((entry) => entry.version))}, ${textArray(earlier.map((entry) => entry.name))}, ${textArray(earlier.map((entry) => entry.digest))}) as e (version, name, digest)
+  join supabase_migrations.schema_migrations m on m.version = e.version
+  where m.statements is null or cardinality(m.statements) <> 1 or encode(sha256(convert_to(m.statements[1], 'UTF8')), 'hex') <> e.digest;
+  if changed is not null then
+    raise exception '${file} applies after %, which production recorded with other text than this commit holds: a recorded file is history, so correct it in a new file', changed;
+  end if;
   if exists (select 1 from supabase_migrations.schema_migrations m where m.version = '${version}') then
     raise exception '${file} is already recorded in supabase_migrations.schema_migrations';
   end if;
