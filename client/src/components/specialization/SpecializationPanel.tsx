@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import { ArrowRight, ChevronDown, ChevronLeft } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import type { AthleteEquipmentProfile } from "@/lib/equipmentProfile";
@@ -124,7 +124,8 @@ export function SpecializationPanel(props: SpecializationPanelProps) {
     let live = true;
     setFailed(null);
     loadRegionData(region.id).then(
-      () => { if (live) setLoads((count) => count + 1); },
+      // A region the index offers but this build cannot load reads as a failed load, never as a page of zeros.
+      (loadedData) => { if (live) (loadedData ? setLoads((count) => count + 1) : setFailed(region.id)); },
       () => { if (live) setFailed(region.id); },
     );
     return () => { live = false; };
@@ -137,6 +138,15 @@ export function SpecializationPanel(props: SpecializationPanelProps) {
   const [announcement, setAnnouncement] = useState("");
   /** The region just picked, announced with its count once its first summary is ready. */
   const [announceRegion, setAnnounceRegion] = useState<RegionId | null>(null);
+  // The heading's toggle: focus returns to it after a region is opened from a muscle's sheet,
+  // as after a pick from the grid, since the page it was on is replaced.
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const [focusHead, setFocusHead] = useState(false);
+  useEffect(() => {
+    if (!focusHead) return;
+    setFocusHead(false);
+    toggleRef.current?.focus();
+  }, [focusHead, state.regionId]);
 
   if (!region) return <section className="spz-page" aria-labelledby="spz-heading">
     <header className="spz-head">
@@ -151,9 +161,15 @@ export function SpecializationPanel(props: SpecializationPanelProps) {
     setAnnounceRegion(regionId);
     onStateChange(withRegion(state, regionId));
   };
+  /** Another region's page on one of its muscles (an external muscle's home), from its sheet: a region change, like a pick. */
+  const openRegion = (regionId: RegionId, nodeId: string) => {
+    setAnnounceRegion(regionId);
+    setFocusHead(true);
+    onStateChange(withRegion(state, regionId, nodeId));
+  };
   const regionWord = region.label.toLowerCase();
   return <section className="spz-page" aria-labelledby="spz-heading">
-    <RegionHead region={region} goals={goals} backLabel={backLabel} onBack={onBack} chooseRegion={props.chooseRegion ?? false} onPick={pick} />
+    <RegionHead region={region} goals={goals} backLabel={backLabel} onBack={onBack} chooseRegion={props.chooseRegion ?? false} onPick={pick} toggleRef={toggleRef} />
     {data
       ? <SpecializationPage
         key={data.region.id}
@@ -163,6 +179,7 @@ export function SpecializationPanel(props: SpecializationPanelProps) {
         announce={setAnnouncement}
         announceRegion={announceRegion === data.region.id}
         onRegionAnnounced={() => setAnnounceRegion(null)}
+        onOpenRegion={openRegion}
       />
       : failed === region.id
         ? <div className="spz-loading" role="alert">
@@ -189,19 +206,19 @@ function BackButton({ label, onBack }: { label: string; onBack: () => void }) {
  * closes the grid and leaves focus on the toggle; the current region, the toggle or Escape closes
  * it too. Each cell says how many active targets the athlete has there.
  */
-function RegionHead({ region, goals, backLabel, onBack, chooseRegion, onPick }: {
+function RegionHead({ region, goals, backLabel, onBack, chooseRegion, onPick, toggleRef }: {
   region: SpecializationRegion;
   goals: readonly SpecializationGoal[];
   backLabel: string | null;
   onBack: (() => void) | null;
   chooseRegion: boolean;
   onPick: (regionId: RegionId) => void;
+  toggleRef: RefObject<HTMLButtonElement | null>;
 }) {
   const choosing = specializationRegionIndex.length > 1;
   const [open, setOpen] = useState(() => choosing && chooseRegion);
   // Asked for after the row was drawn (the address had no region, and the account was read since): opened then, once.
   useEffect(() => { if (choosing && chooseRegion) setOpen(true); }, [choosing, chooseRegion]);
-  const toggleRef = useRef<HTMLButtonElement>(null);
   const hintId = useId();
   const todayKey = localDateKey(new Date().toISOString(), Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
   const activeTargets = (regionId: RegionId) => splitTargets(goals.filter((goal) => goal.regionId === regionId), todayKey).active.length;
@@ -241,7 +258,7 @@ function RegionHead({ region, goals, backLabel, onBack, chooseRegion, onPick }: 
 
 type GoalsStore = ReturnType<typeof useSpecializationGoals>;
 
-function SpecializationPage({ data, state, onStateChange, plan, catalog, equipmentProfile, accountId, goal, weightUnit, onApplyPlanChange, onInspectExercise, onOpenSession, goalsStore, announce, announceRegion, onRegionAnnounced }: SpecializationPanelProps & {
+function SpecializationPage({ data, state, onStateChange, plan, catalog, equipmentProfile, accountId, goal, weightUnit, onApplyPlanChange, onInspectExercise, onOpenSession, goalsStore, announce, announceRegion, onRegionAnnounced, onOpenRegion }: SpecializationPanelProps & {
   data: SpecializationRegionData;
   goalsStore: GoalsStore;
   /** Says something in the panel's live region. */
@@ -249,6 +266,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   /** This region was just picked: say its count once its first summary is ready. */
   announceRegion: boolean;
   onRegionAnnounced: () => void;
+  /** Opens another region's page on one of its muscles. */
+  onOpenRegion: (regionId: RegionId, nodeId: string) => void;
 }) {
   const timeZone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC", []);
   const [nowIso, setNowIso] = useState(() => new Date().toISOString());
@@ -448,8 +467,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     onInspectExercise(exercise);
   };
   const openSession = (id: string) => { setSheet(null); onOpenSession(id); };
-  /** Another region's page on one of its muscles (an external muscle's home): a region change, like a pick. */
-  const openRegion = (regionId: RegionId, nodeId: string) => { setSheet(null); onStateChange(withRegion(state, regionId, nodeId)); };
+  const openRegion = (regionId: RegionId, nodeId: string) => { setSheet(null); onOpenRegion(regionId, nodeId); };
   /** "Add targeted exercise" starts an add: the best reviewed candidate in the add sheet, else the muscle's exercises. */
   const addTargeted = () => {
     if (candidates.length) setSheet({ kind: "change", exerciseId: candidates[0].catalogExerciseId, from: { kind: "muscle" } });

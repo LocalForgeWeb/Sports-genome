@@ -42,7 +42,7 @@
 .spz-back > svg { flex: 0 0 auto; margin-left: -.25rem; color: var(--sg-link-on-dark); }
 /* The heading as the region toggle (with more than one region): the label and a chevron in a
    bordered button, visible at rest; the border is the on-dark subtle ink, 3:1 on the Body Lab blue. */
-.spz-region-toggle { display: inline-flex; align-items: center; gap: .35rem; max-width: 100%; min-height: 2.75rem; border: 1px solid var(--sg-text-subtle-on-dark); border-radius: var(--sg-radius-sm); padding: .2rem .6rem; color: inherit; font: inherit; line-height: inherit; letter-spacing: inherit; text-align: left; text-transform: inherit; }
+.spz-region-toggle { display: inline-flex; align-items: center; gap: .35rem; max-width: 100%; min-height: 2.75rem; border: 1px solid var(--sg-text-subtle-on-dark); border-radius: var(--sg-radius-sm); padding: .2rem .6rem; color: inherit; font: inherit; line-height: inherit; text-align: left; text-transform: inherit; }
 .spz-region-toggle > span { min-width: 0; }
 .spz-region-chevron { flex: 0 0 auto; width: 1.25rem; height: 1.25rem; transition: transform var(--sg-motion-base) var(--sg-ease); }
 .spz-region-toggle[aria-expanded="true"] .spz-region-chevron { transform: rotate(180deg); }
