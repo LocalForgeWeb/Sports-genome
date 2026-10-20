@@ -261,12 +261,36 @@ describe("over what production holds: seed v1's rows stay as they were", () => {
     await before?.close();
   });
 
-  it("pins every v1 node's and action's sort order as seed v1 wrote it", async () => {
+  it("pins every v1 node's and action's sort order as seed v1 wrote it, in the database and in the text the emitter writes", async () => {
     const written = async (table: string) => Object.fromEntries((await rows<{ id: string; sort_order: number }>(before, `select id, sort_order from specialization.${table} order by id`)).map((row) => [row.id, row.sort_order]));
     expect(await written("nodes")).toEqual(v1SortOrders.nodes);
     expect(await written("actions")).toEqual(v1SortOrders.actions);
     // And the current seed keeps them.
     expect(Object.fromEntries((await rows<{ id: string; sort_order: number }>(db, "select id, sort_order from specialization.nodes where id = any($1) order by id", [Object.keys(v1SortOrders.nodes)])).map((row) => [row.id, row.sort_order]))).toEqual(v1SortOrders.nodes);
+
+    // The column is insert-only, so a database seeded by seed v1 never shows what the emitter writes: read it from the text.
+    // Each row is one line, its sort order last; seed v1's text and the emitted one name the same value for every v1 row,
+    // with the regions as registered and with a region placed before the forearm.
+    const sortOrdersIn = (sql: string, title: string) => {
+      const start = sql.indexOf(`\n-- ${title}`);
+      expect(start, title).toBeGreaterThan(-1);
+      const body = sql.slice(start, sql.indexOf("\non conflict", start));
+      return Object.fromEntries(Array.from(body.matchAll(/^ {2}\(\$\$([^$]+)\$\$, .*, (\d+)\),?$/gm), (match) => [match[1], Number(match[2])]));
+    };
+    const seedV1 = readMigration(SEED_V1_MIGRATION_PATH);
+    expect({ nodes: sortOrdersIn(seedV1, "Anatomy nodes"), actions: sortOrdersIn(seedV1, "Joint actions") }).toEqual(v1SortOrders);
+    const pinned = (orders: Record<string, number>, table: keyof typeof v1SortOrders) => Object.fromEntries(Object.keys(v1SortOrders[table]).map((id) => [id, orders[id]]));
+    const first: RegionContent = { ...deltoidContent, region: { ...deltoidContent.region, sortOrder: 2 } };
+    for (const sql of [emitSeedSql(), emitSeedSql(withDeltoid(first))]) {
+      const nodes = sortOrdersIn(sql, "Anatomy nodes");
+      const actions = sortOrdersIn(sql, "Joint actions");
+      expect(pinned(nodes, "nodes")).toEqual(v1SortOrders.nodes);
+      expect(pinned(actions, "actions")).toEqual(v1SortOrders.actions);
+    }
+    // Every row was read.
+    const emitted = emitSeedSql();
+    expect(Object.keys(sortOrdersIn(emitted, "Anatomy nodes")).sort()).toEqual(allNodes.map((node) => node.id).sort());
+    expect(Object.keys(sortOrdersIn(emitted, "Joint actions")).sort()).toEqual(allActions.map((action) => action.id).sort());
   });
 
   it("keeps every v1 claim key and node-action claim key byte for byte", async () => {
@@ -471,12 +495,13 @@ describe("the seeded database", () => {
       db,
       `select m.mapping_key as id, v.version_key as "versionKey", m.variant_key as "variantId", m.node_id as "nodeId", m.action_id as "actionId", m.relationship,
               m.muscle_mode as "muscleMode", m.evidence_basis as "evidenceBasis", m.allocation, m.requires_no_straps as "requiresNoStraps", m.rationale, m.review_status as "reviewStatus",
+              m.side_relation as "sideRelation",
               coalesce((select json_agg(json_build_object('sourceId', s.source_key, 'locator', ms.locator, 'limitation', ms.limitation) order by ms.sort_order)
                         from specialization.mapping_sources ms join specialization.sources s on s.id = ms.source_id where ms.mapping_id = m.id), '[]') as sources
        from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where v.version_key = 'forearm_mappings_v1'`,
     );
     expect(mappings).toHaveLength(forearm.mappings.length);
-    expect([...mappings].sort(byId)).toEqual([...forearmContent.mappings].sort(byId));
+    expect([...mappings].sort(byId)).toEqual(forearmContent.mappings.map((mapping) => ({ ...mapping, sideRelation: sideRelationOf(mapping) })).sort(byId));
     const drafts = draftMappings.map((mapping) => mapping.id).sort();
     expect(drafts.length).toBeGreaterThan(0);
     expect((await rows<{ k: string }>(db, "select mapping_key as k from specialization.variant_mappings where review_status = 'draft'")).map((row) => row.k).sort()).toEqual(drafts);
@@ -739,6 +764,56 @@ describe("changing content", () => {
     expect(await readDrawing(drawing.key, drawing.version)).toEqual(sameDrawing(moved.diagram!));
     expect(await seeded(withDeltoid())).toBeNull();
     expect(await readDrawing(drawing.key, drawing.version)).toEqual(sameDrawing(drawing));
+  });
+
+  it("writes each mapping's side relation and every attribute a variant has, as the content has them; drops an unfrozen attribute the content drops, and refuses a frozen one by name", async () => {
+    const d = deltoidContent;
+    const [variant] = d.variants;
+    // Values no forearm row has: every v1 mapping is 'same', the column's default, and every v1 variant has sided_by alone.
+    const sided: RegionContent = {
+      ...d,
+      variants: d.variants.map((v) => (v.id === variant.id ? { ...v, legLaterality: "unilateral" as const, sideAnchor: "front_leg" as const, dimensions: { knee: "bent" as const, stance: "split" as const } } : v)),
+      mappings: d.mappings.map((m) => (m.id === "dm-111-lateral" ? { ...m, sideRelation: "opposite" as const } : m.id === "dm-090-posterior" ? { ...m, sideRelation: "both" as const } : m)),
+    };
+    const relations = () =>
+      rows<{ id: string; relation: string }>(db, "select m.mapping_key as id, m.side_relation as relation from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where v.version_key = $1", [d.mappingVersion!.key]).then((found) => found.sort(byId));
+    const expected = (content: RegionContent) => content.mappings.map((m) => ({ id: m.id, relation: sideRelationOf(m) })).sort(byId);
+    const attributesOf = (key: string) => rows(db, "select dimension_id, value, notes, frozen_at from specialization.variant_attributes where variant_key = $1 order by dimension_id", [key]);
+    const unfrozen = (dimension_id: string, value: string) => ({ dimension_id, value, notes: null, frozen_at: null });
+
+    expect(await seeded(withDeltoid(sided))).toBeNull();
+    expect(sided.mappings.map(sideRelationOf)).toEqual(expect.arrayContaining(["same", "opposite", "both"]));
+    expect(await relations()).toEqual(expected(sided));
+    expect(await attributesOf(variant.id)).toEqual([
+      unfrozen("knee", "bent"), unfrozen("leg_laterality", "unilateral"), unfrozen("side_anchor", "front_leg"), unfrozen("sided_by", variant.sidedBy!), unfrozen("stance", "split"),
+    ]);
+    const before = await rowVersions(db);
+    expect(await seeded(withDeltoid(sided))).toBeNull();
+    expect(await rowVersions(db)).toEqual(before);
+
+    // The content as it was: the draft's relations back to 'same', and the attributes it no longer has gone (left in place, the
+    // next publish of a version mapping the variant would freeze what the calculator and the logger no longer read).
+    expect(await seeded(withDeltoid())).toBeNull();
+    expect(await relations()).toEqual(expected(d));
+    expect(await attributesOf(variant.id)).toEqual([unfrozen("sided_by", variant.sidedBy!)]);
+
+    // A frozen attribute the content drops is refused by name, and nothing of that seed is applied. (Frozen here as a publish of a
+    // version mapping cat-139 freezes it, in a transaction rolled back after.)
+    const withGrip = registeredRegionContents.map((content) => ({ ...content, variants: content.variants.map((v) => (v.id === "cat-139" ? { ...v, dimensions: { grip_width: "shoulder" as const } } : v)) }));
+    const kept = await rowVersions(db);
+    await db.exec("begin");
+    try {
+      expect(await seeded(withRegions(...withGrip))).toBeNull();
+      expect(await attributesOf("cat-139")).toEqual(expect.arrayContaining([unfrozen("grip_width", "shoulder")]));
+      await db.exec("update specialization.variant_attributes set frozen_at = now() where variant_key = 'cat-139' and dimension_id = 'grip_width'; savepoint frozen");
+      const frozen = await rowVersions(db);
+      expect(await seeded(productionSeedInput())).toMatch(/attribute grip_width of variant cat-139 is frozen: a published mapping version rests on it, so it cannot change or be deleted/);
+      await db.exec("rollback to savepoint frozen");
+      expect(await rowVersions(db)).toEqual(frozen);
+    } finally {
+      await db.exec("rollback");
+    }
+    expect(await rowVersions(db)).toEqual(kept);
   });
 
   it("never rewrites a legacy sort order: a region placed first that lists an action and its own nodes later leaves their orders as they were", async () => {

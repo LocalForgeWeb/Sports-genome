@@ -356,39 +356,47 @@ alter table specialization.measurements add constraint measurements_protocol_sha
 
 -- What a goal may name. Its side is midline exactly in a midline region. A new goal, or one
 -- moved to another muscle or movement, names a muscle its region lists as a target, or a
--- movement its region lists. A goal already stored on anything else (a muscle the region lists
--- as adjacent or external, or no longer lists) stays, and may only be ended (ends_on, with
--- updated_at) or deleted. Runs as the caller, so a signed-in user is checked against the
--- memberships RLS shows them.
+-- movement its region lists, in a region with a page: production (or a fixture, in tests). A
+-- reference region (the upper arm before its promotion) has no page and no Targets editor, so it
+-- takes no goal; in wave 0 every membership and region action a goal can name is then one this
+-- file backfills, and the undo can be followed by this file again. A goal already stored on
+-- anything else (a muscle the region lists as adjacent or external, or no longer lists) stays,
+-- and may only be ended or deleted: an end date set, kept or brought forward, with updated_at,
+-- never moved later or back to open (onlyEnds in shared/specialization/goals.ts). Runs as the
+-- caller, so a signed-in user is checked against the memberships RLS shows them.
 create or replace function specialization.check_goal_target()
 returns trigger
 language plpgsql
 set search_path = ''
 as $fn$
 declare
+  v_listed boolean;
   v_offered boolean;
+  v_status text;
   v_side_model text;
 begin
   if num_nonnulls(new.node_id, new.action_id) <> 1 then
     return new; -- goals_one_target refuses it
   end if;
   if new.node_id is not null then
-    v_offered := exists (
+    v_listed := exists (
       select 1 from specialization.region_nodes rn
       where rn.region_id = new.region_id and rn.node_id = new.node_id and rn.role = 'target' and rn.listed
     );
   else
-    v_offered := exists (
+    v_listed := exists (
       select 1 from specialization.region_actions ra
       where ra.region_id = new.region_id and ra.action_id = new.action_id and ra.listed
     );
   end if;
+  select r.status, r.side_model into v_status, v_side_model from specialization.regions r where r.id = new.region_id;
+  v_offered := v_listed and coalesce(v_status in ('production', 'fixture'), false);
 
   if tg_op = 'UPDATE' and not v_offered
      and (new.region_id, new.node_id, new.action_id) is not distinct from (old.region_id, old.node_id, old.action_id) then
     if (new.user_id, new.id, new.side, new.metric, new.target, new.period, new.starts_on, new.timezone, new.created_at)
          is distinct from (old.user_id, old.id, old.side, old.metric, old.target, old.period, old.starts_on, old.timezone, old.created_at)
-       or (new.ends_on is null and old.ends_on is not null) then
+       or (new.ends_on is distinct from old.ends_on and (new.ends_on is null or new.ends_on > old.ends_on)) then
       raise exception 'goal % is on %, which region % no longer offers as a target; it can only be ended or deleted', new.id, coalesce(new.node_id, new.action_id), new.region_id
         using errcode = '23514';
     end if;
@@ -396,6 +404,10 @@ begin
   end if;
 
   if not v_offered then
+    if v_listed then
+      raise exception 'region % has no page yet (it is a % region), so it takes no target', new.region_id, v_status
+        using errcode = '23514';
+    end if;
     if new.node_id is not null then
       raise exception 'node % is not a listed target muscle of region %; a target names one of the region''s own target muscles', new.node_id, new.region_id
         using errcode = '23514';
@@ -405,7 +417,6 @@ begin
   end if;
 
   if tg_op = 'INSERT' or (new.region_id, new.side) is distinct from (old.region_id, old.side) then
-    select r.side_model into v_side_model from specialization.regions r where r.id = new.region_id;
     if new.side = 'midline' and v_side_model is distinct from 'midline' then
       raise exception 'region % is not midline: a goal there is for the left or the right side', new.region_id
         using errcode = '23514';
@@ -584,9 +595,9 @@ comment on function specialization.mapping_version_problems(uuid) is
   'The mapping-version publication rule: null when the version may be published, else the problems. Rules 11 and 12 are read only while the version is a draft. Enforced by the mapping_versions trigger; callable by the service role to check a draft first.';
 
 -- Versions are created as drafts, may change while draft, are published once (when the
--- rule above passes), and may then only be retired. Published and retired versions are
--- never deleted. Publishing freezes the attributes of the variants it maps that exist at that
--- moment (variant_attributes.frozen_at).
+-- rule above passes, by a change of state alone), and may then only be retired. Published and
+-- retired versions are never deleted. Publishing freezes the attributes of the variants it maps
+-- that exist at that moment (variant_attributes.frozen_at).
 create or replace function specialization.guard_mapping_version()
 returns trigger
 language plpgsql
@@ -617,6 +628,12 @@ begin
         using errcode = '23514';
     end if;
     if new.state = 'published' then
+      -- The rule below reads the stored draft (its region among it), so the publish changes the
+      -- state alone: a region or notes changed in the same statement would be judged as they were.
+      if (new.id, new.version_key, new.region_id, new.method_notes) is distinct from (old.id, old.version_key, old.region_id, old.method_notes) then
+        raise exception 'mapping version % is published by changing its state alone: change its key, region or notes while it is a draft, then publish it', old.version_key
+          using errcode = '23514';
+      end if;
       new.published_at := coalesce(new.published_at, pg_catalog.now());
       -- Lock what the version is about to rest on (the rows the guards in section 7b of
       -- schema v1 and the guards of schema v2 freeze), so a concurrent change to one of them

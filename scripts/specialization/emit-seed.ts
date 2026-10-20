@@ -25,13 +25,14 @@
  *   back with the database's message. Changing them means new keys and a new mapping version.
  * - Sets the content owns end up exactly as the content has them: a mapping version's
  *   mappings and their sources; the claims each region in the seed owns, with their sources
- *   and the node actions resting on them; a drawing's views, paths and labels. Rows the content
- *   no longer has are deleted before the upserts, so a removal under a published version is
- *   refused like any other change, and a draft is cleaned.
+ *   and the node actions resting on them; each seeded variant's attributes; a drawing's views,
+ *   paths and labels. Rows the content no longer has are deleted before the upserts, so a
+ *   removal under a published version (or of a frozen attribute) is refused like any other
+ *   change, and a draft is cleaned. An attribute's `frozen_at` is the database's own (set when a
+ *   version mapping the variant is published), never written here.
  * - A region's members and actions are never deleted: goals name them, so one the content drops
  *   is unlisted (`listed = false`), which the database refuses for a member a published version
- *   of the region maps. Variant attributes are added or corrected, never deleted, and their
- *   `frozen_at` is the database's own (set when a version mapping the variant is published).
+ *   of the region maps.
  * - It never deletes the records others point at: regions, nodes (goals may point at
  *   one), actions, sources, catalog exercises, variants, dimensions and their values.
  *
@@ -777,8 +778,20 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
       dimensionVocabulary.flatMap((dimension) => Object.entries(dimension.values).map(([value, label], index): Value[] => [dimension.id, value, label, index])),
     ),
   );
+  // A seeded variant's attributes are the content's, like a version's mappings: one the content
+  // drops goes, so a later publish never freezes what the calculator and logger no longer read.
+  // A frozen one is refused by name. Variants not in the seed keep theirs.
   section(
-    "Variant attributes (added or corrected, never deleted; frozen_at is the database's own, set when a version mapping the variant is published)",
+    "Variant attributes no longer in the content (refused for a frozen one: a published version rests on it)",
+    attributes.length
+      ? deleteWhere("specialization.variant_attributes a", [], [
+          inValues("a.variant_key", [...variants.keys()].sort(byKey).map((id): Value[] => [id])),
+          notIn("(a.variant_key, a.dimension_id)", attributes.map((row) => row.slice(0, 2))),
+        ])
+      : "-- none: the seed has no variant",
+  );
+  section(
+    "Variant attributes (frozen_at is the database's own, set when a version mapping the variant is published)",
     upsertValues("variant_attributes", ["variant_key", "dimension_id", "value", "notes"], ["variant_key", "dimension_id"], attributes),
   );
 
@@ -908,14 +921,14 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
     "-- Applies after schema v2 (…_specialization_atlas_schema_v2.sql), and can be applied again:",
     "-- every write is an upsert keyed by the content's own keys that skips unchanged rows, and",
     "-- the sets the content owns (a version's mappings and their sources, the claims of the",
-    "-- regions in this file with their sources and node actions, a drawing's views, paths and",
-    "-- labels) lose the rows the content no longer has. A region's members and actions are never",
-    "-- deleted, since goals name them: one the content drops is unlisted. Variant attributes are",
-    "-- added or corrected, never deleted. A published mapping or rule version is immutable, and so",
-    "-- is what a published version rests on (its variants and their attributes; its muscles'",
-    "-- review, region, role, catalog key and membership; node actions; reviewed claims with their",
-    "-- basis and sources; cited sources), so a change or removal under such a key is refused here",
-    "-- and nothing of this file is applied; give the change new keys and a new version. See",
+    "-- regions in this file with their sources and node actions, each variant's attributes, a",
+    "-- drawing's views, paths and labels) lose the rows the content no longer has. A region's",
+    "-- members and actions are never deleted, since goals name them: one the content drops is",
+    "-- unlisted. A published mapping or rule version is immutable, and so is what a published",
+    "-- version rests on (its variants and their attributes; its muscles' review, region, role,",
+    "-- catalog key and membership; node actions; reviewed claims with their basis and sources;",
+    "-- cited sources), so a change or removal under such a key is refused here and nothing of",
+    "-- this file is applied; give the change new keys and a new version. See",
     "-- docs/specialization-atlas/04-database.md.",
     "--",
     "-- Forward-only: a correction is a new key in the next seed (schema v2 has one undo, valid only before seed v3).",

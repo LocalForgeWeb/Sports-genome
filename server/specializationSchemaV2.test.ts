@@ -6,6 +6,7 @@ import { basename, join, resolve } from "node:path";
 import type { PGlite } from "@electric-sql/pglite";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { registeredRegionContents } from "@shared/specialization/registry";
+import { emitSeedSql, productionSeedInput } from "../scripts/specialization/emit-seed";
 import {
   APPLIED_MIGRATION_PATHS,
   MIGRATION_STEPS,
@@ -660,6 +661,36 @@ describe("publishing: rules 10 to 12", () => {
     });
   });
 
+  it("a publish changes the state alone: a key, region or notes changed in the same statement is refused and the version stays a draft, since the rules read the stored draft", async () => {
+    await as(db, "service_role", async () => {
+      const published = (key: string, set: string) => failure(db, `update specialization.mapping_versions set state = 'published', ${set} where version_key = $1`, [key]);
+      const alone = (key: string) => new RegExp(`mapping version ${key} is published by changing its state alone: change its key, region or notes while it is a draft, then publish it`);
+      const held = (key: string) => rows(db, "select region_id, state, method_notes from specialization.mapping_versions where version_key = $1", [key]);
+      // (A) An upper-arm draft of the biceps and brachialis passes as the upper arm's; published as the forearm's, rule 12 would not have seen it.
+      await draftVersion("zz_moved_a", "upper_arm", [
+        { key: "cat-121:upper_arm.biceps", variant: "cat-121", node: "upper_arm.biceps", action: "elbow.flexion" },
+        { key: "cat-121:upper_arm.brachialis", variant: "cat-121", node: "upper_arm.brachialis", action: "elbow.flexion" },
+      ]);
+      expect(await problemsOf("zz_moved_a")).toBeNull();
+      expect(await published("zz_moved_a", "region_id = 'forearm'")).toMatch(alone("zz_moved_a"));
+      expect(await held("zz_moved_a")).toEqual([{ region_id: "upper_arm", state: "draft", method_notes: "Test version." }]);
+      // Moved while a draft, it is judged as the forearm's.
+      await db.query("update specialization.mapping_versions set region_id = 'forearm' where version_key = 'zz_moved_a'");
+      expect(await publish("zz_moved_a")).toMatch(/mapping version zz_moved_a cannot be published: mapped muscles whose home is another region: upper_arm\.biceps, upper_arm\.brachialis$/);
+      await dropDraft("zz_moved_a");
+
+      // (B) A forearm draft of the forearm's own muscles, published as the upper arm's, would have rested on memberships the upper arm does not have.
+      await draftVersion("zz_moved_b", "forearm", [{ key: "cat-139:forearm.fcu", variant: "cat-139", node: "forearm.fcu", action: "wrist.flexion" }]);
+      expect(await problemsOf("zz_moved_b")).toBeNull();
+      expect(await published("zz_moved_b", "region_id = 'upper_arm'")).toMatch(alone("zz_moved_b"));
+      expect(await published("zz_moved_b", "method_notes = 'Changed on the way.'")).toMatch(alone("zz_moved_b"));
+      expect(await published("zz_moved_b", "version_key = 'zz_moved_c'")).toMatch(alone("zz_moved_b"));
+      expect(await held("zz_moved_b")).toEqual([{ region_id: "forearm", state: "draft", method_notes: "Test version." }]);
+      expect(await count(db, "select 1 from specialization.variant_attributes where variant_key = 'cat-139' and frozen_at is not null")).toBe(0);
+      await dropDraft("zz_moved_b");
+    });
+  });
+
   it("guard_mapping_version locks the region row first, then the version's memberships and attributes, then v1's rows, and freezes attributes after the check", async () => {
     // PGlite is one connection, so the race itself is reasoned (04-database.md §8); the order is read from the function.
     const [{ body }] = await rows<{ body: string }>(db, "select pg_get_functiondef('specialization.guard_mapping_version()'::regprocedure) as body");
@@ -765,7 +796,7 @@ describe("variant attributes", () => {
 // ---------------------------------------------------------------- applied again
 
 describe("schema v2 and the current seed applied again", () => {
-  it("schema v2 touches no row, so frozen_at and every membership survive; the current seed leaves frozen_at alone and, applied twice, touches nothing", async () => {
+  it("schema v2 touches no row, so frozen_at and every membership survive; a seed refuses to drop a frozen attribute, drops an unfrozen one, leaves frozen_at alone and, applied twice, touches nothing", async () => {
     const frozen = () => rows(db, "select variant_key, dimension_id, value, frozen_at::text from specialization.variant_attributes where frozen_at is not null order by 1, 2");
     const frozenBefore = await frozen();
     expect(frozenBefore.length).toBeGreaterThan(0);
@@ -773,11 +804,41 @@ describe("schema v2 and the current seed applied again", () => {
     await applyMigration(db, SCHEMA_V2_MIGRATION_PATH);
     expect(await rowVersions(db)).toEqual(before);
     expect(await frozen()).toEqual(frozenBefore);
-    // The seed writes its own dimension and attribute rows over the test's; frozen_at is not among its columns.
-    await applyMigration(db, SEED_MIGRATION_PATH);
+    // A seeded variant's attributes are the content's. The tests above froze two the content does not have (cat-139's grip width
+    // and stance), so the current seed, which would drop them, is refused by name and applies nothing.
+    expect(await attempt(readMigration(SEED_MIGRATION_PATH))).toMatch(/attribute (grip_width|stance) of variant cat-139 is frozen: a published mapping version rests on it, so it cannot change or be deleted/);
+    expect(await rowVersions(db)).toEqual(before);
+    // With those two in the content, the seed applies: it writes its own dimension and attribute rows over the test's, leaves
+    // frozen_at alone (it is not among its columns), and drops the unfrozen attributes the content does not have.
+    const kept = await rows<{ variant_key: string; dimension_id: string; value: string }>(
+      db,
+      "select variant_key, dimension_id, value from specialization.variant_attributes where frozen_at is not null and variant_key like 'cat-%' and dimension_id <> 'sided_by' order by 1, 2",
+    );
+    expect(kept).toEqual([
+      { variant_key: "cat-139", dimension_id: "grip_width", value: "narrow" },
+      { variant_key: "cat-139", dimension_id: "stance", value: "bilateral" },
+    ]);
+    const unfrozen = () => rows(db, "select variant_key, dimension_id from specialization.variant_attributes where frozen_at is null and variant_key like 'cat-%' and dimension_id <> 'sided_by' order by 1, 2");
+    expect(await unfrozen()).toEqual([
+      { variant_key: "cat-124", dimension_id: "grip_width" },
+      { variant_key: "cat-140", dimension_id: "grip_width" },
+      { variant_key: "cat-205", dimension_id: "leg_laterality" },
+    ]);
+    const withKept = emitSeedSql({
+      ...productionSeedInput(),
+      regions: registeredRegionContents.map((content) => ({
+        ...content,
+        variants: content.variants.map((variant) => {
+          const own = kept.filter((attribute) => attribute.variant_key === variant.id);
+          return own.length ? { ...variant, dimensions: Object.fromEntries(own.map((attribute) => [attribute.dimension_id, attribute.value])) as (typeof variant)["dimensions"] } : variant;
+        }),
+      })),
+    });
+    expect(await scriptFailure(db, withKept)).toBeNull();
     expect(await frozen()).toEqual(frozenBefore);
+    expect(await unfrozen()).toEqual([]);
     const seeded = await rowVersions(db);
-    await applyMigration(db, SEED_MIGRATION_PATH);
+    expect(await scriptFailure(db, withKept)).toBeNull();
     expect(await rowVersions(db)).toEqual(seeded);
   });
 });
@@ -885,6 +946,20 @@ describe("goals", () => {
     );
   });
 
+  it("a reference region takes no goal, though it lists the muscle and the movement: it has no page (the upper arm before its promotion)", async () => {
+    const noPage = /region upper_arm has no page yet \(it is a reference region\), so it takes no target/;
+    expect(await rows(db, "select status from specialization.regions where id = 'upper_arm'")).toEqual([{ status: "reference" }]);
+    expect(await count(db, "select 1 from specialization.region_nodes where region_id = 'upper_arm' and node_id = 'upper_arm.biceps' and role = 'target' and listed")).toBe(1);
+    expect(await goal(userA, "reference-muscle", "upper_arm", { node: "upper_arm.biceps" }, "left")).toMatch(noPage);
+    expect(await goal(userA, "reference-movement", "upper_arm", { action: "shoulder.flexion" }, "left")).toMatch(noPage);
+    // A later sync, as the service role, too.
+    expect(await as(db, "service_role", () => failure(db, `insert into specialization.goals (user_id, id, region_id, node_id, side, metric, target, period, starts_on, timezone) values ($1, 'synced-reference', 'upper_arm', 'upper_arm.brachialis', 'left', 'direct_dynamic_bouts', 6, 'calendar_week', '2026-10-19', 'UTC')`, [USER_B]))).toMatch(noPage);
+    // And a goal moved there is a new goal.
+    expect(await goal(userA, "to-move", "forearm", { node: "forearm.fcu" }, "left", "2027-03-01")).toBeNull();
+    expect(await as(db, userA, () => failure(db, "update specialization.goals set region_id = 'upper_arm', node_id = 'upper_arm.biceps' where id = 'to-move'"))).toMatch(noPage);
+    expect(await as(db, userA, () => failure(db, "delete from specialization.goals where id = 'to-move'"))).toBeNull();
+  });
+
   it("a dropped member is unlisted, not deleted, while another user's goal names it; the goal stays and may only be ended or deleted", async () => {
     expect(await goal(userB, "kept", "forearm", { node: "forearm.zz_dropped" }, "right")).toBeNull();
     await as(db, "service_role", async () => {
@@ -900,9 +975,14 @@ describe("goals", () => {
       expect(await rows(db, "select g.id, rn.listed from specialization.goals g join specialization.region_nodes rn using (region_id, node_id) where g.id = 'kept'")).toEqual([{ id: "kept", listed: false }]);
       expect(await failure(db, "update specialization.goals set target = 8 where id = 'kept'")).toMatch(onlyEnded);
       expect(await failure(db, "update specialization.goals set side = 'left' where id = 'kept'")).toMatch(onlyEnded);
+      // Ended: an end date set, kept or brought forward (onlyEnds in goals.ts), never moved later or back to open.
       expect(await failure(db, "update specialization.goals set ends_on = '2026-11-01' where id = 'kept'")).toBeNull();
       expect(await failure(db, "update specialization.goals set ends_on = null where id = 'kept'")).toMatch(onlyEnded);
-      expect(await failure(db, "update specialization.goals set ends_on = '2026-11-08' where id = 'kept'")).toBeNull();
+      expect(await failure(db, "update specialization.goals set ends_on = '2026-11-08' where id = 'kept'")).toMatch(onlyEnded);
+      expect(await failure(db, "update specialization.goals set ends_on = '9999-12-31' where id = 'kept'")).toMatch(onlyEnded);
+      expect(await failure(db, "update specialization.goals set ends_on = ends_on where id = 'kept'")).toBeNull();
+      expect(await failure(db, "update specialization.goals set ends_on = '2026-10-26' where id = 'kept'")).toBeNull();
+      expect(await rows(db, "select ends_on::text from specialization.goals where id = 'kept'")).toEqual([{ ends_on: "2026-10-26" }]);
     });
     expect(await goal(userA, "new-on-dropped", "forearm", { node: "forearm.zz_dropped" }, "right", "2027-01-04")).toMatch(/node forearm\.zz_dropped is not a listed target muscle of region forearm/);
     // User A's own goal on it is untouched by B's, and B deletes theirs.
@@ -1165,7 +1245,7 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
     expect(readdirSync(resolve(process.cwd(), "supabase/migrations")).filter((name) => name.includes("undo"))).toEqual([]);
   });
 
-  it("after schema v2 and the current seed gives the database schema v1 and seed v1 gave, plus the rows the seed added to v1's tables; both then apply again; it refuses after seed v3 and while a variant uses not_applicable", async () => {
+  it("after schema v2 and the current seed gives the database schema v1 and seed v1 gave, plus the rows the seed added to v1's tables and the goals kept; both then apply again; it refuses after seed v3, after a publish under schema v2, while a goal names what schema v2 would not list, and while a variant uses not_applicable", async () => {
     const target = await createSupabaseLikeDb();
     const release = await createReleaseDb();
     try {
@@ -1177,15 +1257,32 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
         await recordMigration(target, path);
       }
       expect(await recorded(target)).toEqual([...v1Recorded, migrationRecord(SCHEMA_V2_MIGRATION_PATH), migrationRecord(SEED_MIGRATION_PATH)]);
+      // A user's goals on a forearm muscle and movement: schema v2 lists both before it adds the goals' keys, so they survive the
+      // undo and the apply after it (a goal on the upper arm, which only the seed lists, is refused: it has no page yet).
+      await as(target, { user: USER_A }, async () => {
+        for (const [id, node, action] of [["undo-fcu", "forearm.fcu", null], ["undo-wrist", null, "wrist.flexion"]]) {
+          expect(
+            await failure(
+              target,
+              "insert into specialization.goals (id, region_id, node_id, action_id, side, metric, target, period, starts_on, timezone) values ($1, 'forearm', $2, $3, 'left', 'direct_dynamic_bouts', 6, 'calendar_week', '2026-10-19', 'UTC')",
+              [id, node, action],
+            ),
+          ).toBeNull();
+        }
+        expect(await failure(target, "insert into specialization.goals (id, region_id, node_id, side, metric, target, period, starts_on, timezone) values ('undo-biceps', 'upper_arm', 'upper_arm.biceps', 'left', 'direct_dynamic_bouts', 6, 'calendar_week', '2026-10-19', 'UTC')")).toMatch(
+          /region upper_arm has no page yet/,
+        );
+      });
       const beforeUndo = await rowVersions(target);
       // The undo's limit (its header, 04-database.md §10): a row the seed added to a table of v1's stays.
-      // In this release those are the upper arm's two shoulder actions; every other row it wrote is in schema v2's tables.
+      // In this release those are the upper arm's two shoulder actions; every other row it wrote is in schema v2's tables. The goals stay too.
       const seeded = await snapshot(target);
       const v1Columns = (table: string) => new Set(v1.catalog.columns.filter((column) => column.table_name === table).map((column) => column.column_name as string));
       const asV1Row = (table: string, row: string) => JSON.stringify(Object.fromEntries(Object.entries(JSON.parse(row) as Record<string, unknown>).filter(([column]) => v1Columns(table).has(column))));
       const added = Object.fromEntries(Object.keys(v1.data).map((table) => [table, seeded.data[table].map((row) => asV1Row(table, row)).filter((row) => !v1.data[table].includes(row))]));
       expect(Object.fromEntries(Object.entries(added).filter(([, extra]) => extra.length).map(([table, extra]) => [table, extra.map((row) => (JSON.parse(row) as { id: string }).id)]))).toEqual({
         actions: ["shoulder.extension", "shoulder.flexion"],
+        goals: ["undo-fcu", "undo-wrist"],
       });
 
       expect(await scriptFailure(target, undo)).toBeNull();
@@ -1209,6 +1306,8 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
         catalog: { ...catalog, columns: catalog.columns.map(({ ordinal_position: _position, ...column }) => column) },
         data,
       });
+      expect(await count(target, "select 1 from specialization.goals where id like 'undo-%'")).toBe(2);
+      await target.exec("delete from specialization.goals where id like 'undo-%'");
       const reapplied = await snapshot(target);
       expect(unnumbered(reapplied)).toEqual(unnumbered(await snapshot(release)));
       expect(await recorded(target)).toEqual(await recorded(release));
@@ -1218,6 +1317,47 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
       expect(await scriptFailure(target, undo)).toMatch(/schema v2 cannot be undone: 20261026120100 specialization_atlas_seed_v3 is recorded, and from seed v3 on the specialization schema is forward-only/);
       expect(await snapshot(target)).toEqual(reapplied);
       await target.query("delete from supabase_migrations.schema_migrations where version = '20261026120100'");
+
+      // Refused, changing nothing, in a transaction rolled back after: what a publish under schema v2 rests on, however it was
+      // published (here by hand), or a frozen attribute alone; and a goal on what only the seed lists, stored past the goals trigger.
+      const refusedWith = async (setup: string, refusal: RegExp) => {
+        await target.exec("begin");
+        try {
+          await target.exec(setup);
+          const ready = await snapshot(target);
+          expect(await scriptFailure(target, undo)).toMatch(refusal);
+          await target.exec("rollback to savepoint undo_ready");
+          expect(await snapshot(target)).toEqual(ready);
+        } finally {
+          await target.exec("rollback");
+        }
+        expect(await snapshot(target)).toEqual(reapplied);
+      };
+      await refusedWith(
+        `insert into specialization.mapping_versions (version_key, region_id, method_notes) values ('zz_undo_v1', 'forearm', 'Test version.');
+         insert into specialization.variant_mappings (version_id, mapping_key, variant_key, node_id, action_id, relationship, muscle_mode, evidence_basis, rationale, review_status)
+           select v.id, 'cat-139:forearm.fcu', 'cat-139', 'forearm.fcu', 'wrist.flexion', 'direct', 'dynamic', 'anatomy', 'Test mapping.', 'reviewed' from specialization.mapping_versions v where v.version_key = 'zz_undo_v1';
+         insert into specialization.mapping_sources (mapping_id, source_id, locator)
+           select m.id, s.id, 'Test' from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id, specialization.sources s
+           where v.version_key = 'zz_undo_v1' and s.source_key = 'A8';
+         update specialization.mapping_versions set state = 'published' where version_key = 'zz_undo_v1';
+         savepoint undo_ready;`,
+        /schema v2 cannot be undone: a version published under it rests on what it added \(zz_undo_v1 \(published\)\)/,
+      );
+      await refusedWith(
+        "update specialization.variant_attributes set frozen_at = now() where variant_key = 'cat-139'; savepoint undo_ready;",
+        /schema v2 cannot be undone: a version published under it rests on what it added \(attributes of cat-139\)/,
+      );
+      await refusedWith(
+        `alter table specialization.goals disable trigger goals_check_target;
+         insert into specialization.goals (user_id, id, region_id, node_id, action_id, side, metric, target, period, starts_on, timezone) values
+           ('${USER_A}', 'undo-biceps', 'upper_arm', 'upper_arm.biceps', null, 'left', 'direct_dynamic_bouts', 6, 'calendar_week', '2026-10-19', 'UTC'),
+           ('${USER_A}', 'undo-shoulder', 'upper_arm', null, 'shoulder.flexion', 'left', 'direct_dynamic_bouts', 6, 'calendar_week', '2026-10-19', 'UTC'),
+           ('${USER_A}', 'undo-fcu', 'forearm', 'forearm.fcu', null, 'left', 'direct_dynamic_bouts', 6, 'calendar_week', '2026-10-19', 'UTC');
+         alter table specialization.goals enable trigger goals_check_target;
+         savepoint undo_ready;`,
+        /schema v2 cannot be undone: goals undo-biceps, undo-shoulder name a muscle or movement that schema v2, applied again, would not list first, so it could not be applied again/,
+      );
 
       // A variant only schema v2 allows: refused, nothing changed.
       await target.exec(`
