@@ -21,9 +21,11 @@ const NOW = "2026-10-16T12:00:00.000Z";
 const WEEK = calendarWeekInterval(NOW, "Europe/London");
 const names = new Map(exercises.map((exercise) => [exercise.id, exercise.name] as const));
 let sequence = 0;
-const bout = (catalogExerciseId: number, side: ExposureBout["side"] = "bilateral"): ExposureBout => {
+/** The arm the set recorded: `both`, one arm, or none. */
+type Arm = "both" | "left" | "right" | "none";
+const bout = (catalogExerciseId: number, arm: Arm = "both"): ExposureBout => {
   const id = `r${++sequence}`;
-  return { id, mode: "completed", performedAt: "2026-10-14T18:00:00.000Z", sessionId: "s", sessionLabel: "Week 1 · Day 01 · Pull", planWeek: null, dayKey: null, exerciseEntryId: "e", catalogExerciseId, exerciseName: names.get(catalogExerciseId)!, matchedBy: "id", side, sideSource: "recorded", straps: "unknown", warmup: false, effort: null, kind: "standard", segments: [{ id, reps: 12, loadKg: 20, holdSeconds: null }] };
+  return { id, mode: "completed", performedAt: "2026-10-14T18:00:00.000Z", sessionId: "s", sessionLabel: "Week 1 · Day 01 · Pull", planWeek: null, dayKey: null, exerciseEntryId: "e", catalogExerciseId, exerciseName: names.get(catalogExerciseId)!, matchedBy: "id", armSide: arm === "none" ? null : { side: arm, source: "recorded" }, legSide: null, straps: "unknown", warmup: false, effort: null, kind: "standard", segments: [{ id, reps: 12, loadKg: 20, holdSeconds: null }] };
 };
 
 function summary(region: SpecializationRegionData, bouts: ExposureBout[], side: ArmSide = "left", goals: SpecializationGoal[] = []): SpecializationSummary {

@@ -55,20 +55,27 @@ describe("boutsFromSessions", () => {
     expect(boutsFromSessions([finished("s1", "2026-10-14T18:00:00.000Z", [exercise("e1", "Wrist Curl", 139, [workSet({ weight: "" })])])], deps)[0].segments[0].loadKg).toBeNull();
   });
 
-  it("takes the side the athlete recorded, else a two-handed exercise's, else leaves it unknown", () => {
+  it("carries each limb's side exactly as the set recorded it, and guesses none (the calculator reads them per region)", () => {
     const session = finished("s1", "2026-10-14T18:00:00.000Z", [
       exercise("e1", "Wrist Curl", 139, [workSet({ side: "left" }), workSet({ side: "right" }), workSet({ side: "both" }), workSet()]),
+      // A two-handed exercise gets no side here: its sides come from the exercise, in the calculator.
       exercise("e2", "Reverse Curl", 135, [workSet()]),
       exercise("e3", "Barbell Bench Press", 1, [workSet()]),
+      // The leg's side in its own field; an older import's "bilateral" read as both.
+      exercise("e4", "Wrist Curl", 139, [workSet({ legSide: "right" } as never), workSet({ side: "bilateral" } as never)]),
     ]);
-    expect(boutsFromSessions([session], deps).map((bout) => [bout.side, bout.sideSource])).toEqual([
-      ["left", "recorded"],
-      ["right", "recorded"],
-      ["bilateral", "recorded"],
-      ["unknown", "unknown"],
-      ["bilateral", "structural"],
-      ["unknown", "unknown"],
+    const recorded = (side: string) => ({ side, source: "recorded" });
+    expect(boutsFromSessions([session], deps).map((bout) => [bout.armSide, bout.legSide])).toEqual([
+      [recorded("left"), null],
+      [recorded("right"), null],
+      [recorded("both"), null],
+      [null, null],
+      [null, null],
+      [null, null],
+      [null, recorded("right")],
+      [recorded("both"), null],
     ]);
+    expect(boutsFromSessions([session], deps).every((bout) => !("side" in bout) && !("sideSource" in bout))).toBe(true);
   });
 
   it("passes straps, hold seconds, effort and warm-up through without inventing any of them", () => {
@@ -154,12 +161,14 @@ describe("boutsFromPlan", () => {
     expect(bouts.find((bout) => bout.catalogExerciseId === 145)!.segments[0]).toMatchObject({ reps: null, holdSeconds: 30, loadKg: null });
   });
 
-  it("plans a two-handed exercise for both arms, a one-arm one for each arm (labelled as assumed), and leaves the rest unknown", () => {
+  it("plans an either-way exercise as one bout on both arms (labelled as assumed), and gives a two-handed one or one with no variant no side", () => {
     const bouts = boutsFromPlan({ week: 2, slots, store, variants: syntheticForearm.variants });
-    const sideOf = (id: number) => { const bout = bouts.find((item) => item.catalogExerciseId === id)!; return [bout.side, bout.sideSource]; };
-    expect(sideOf(135)).toEqual(["bilateral", "structural"]);
-    expect(sideOf(139)).toEqual(["bilateral", "plan_assumption"]);
-    expect(sideOf(1)).toEqual(["unknown", "unknown"]);
+    const sidesOf = (id: number) => { const bout = bouts.find((item) => item.catalogExerciseId === id)!; return [bout.armSide, bout.legSide]; };
+    // Two-handed: no side from the plan; the calculator counts it on each arm from the exercise.
+    expect(sidesOf(135)).toEqual([null, null]);
+    expect(sidesOf(139)).toEqual([{ side: "both", source: "plan_assumption" }, null]);
+    expect(sidesOf(1)).toEqual([null, null]);
+    expect(bouts.filter((bout) => bout.exerciseEntryId === "139").map((bout) => bout.id)).toEqual([1, 2, 3, 4].map((n) => `plan/2/${slots[0].key}/139/${n}`));
   });
 
   it("reads written targets the way a person writes them", () => {

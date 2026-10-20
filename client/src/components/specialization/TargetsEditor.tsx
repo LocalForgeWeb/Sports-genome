@@ -3,7 +3,7 @@ import { ChevronDown, Plus } from "lucide-react";
 import type { StoreWrite } from "@/lib/specialization/stores";
 import { goalProgressLabel, goalsForBothArms } from "@shared/specialization/goals";
 import { addDaysToDateKey } from "@shared/specialization/time";
-import type { ArmSide, GoalMetric, GoalPeriod, GoalProgress, SpecializationGoal } from "@shared/specialization/types";
+import type { ArmSide, GoalMetric, GoalPeriod, GoalProgress, SpecializationGoal, SummarySide } from "@shared/specialization/types";
 import { goalMetricLabels } from "./model";
 import { revealClearOfBars } from "./reveal";
 import "./targets.css";
@@ -18,7 +18,7 @@ import "./targets.css";
 
 export const targetMetrics: readonly GoalMetric[] = ["direct_dynamic_bouts", "deliberate_hold_bouts", "deliberate_hold_seconds"];
 export const targetPeriodLabels: Record<GoalPeriod, string> = { calendar_week: "Per calendar week", rolling_7d: "Per rolling 7 days" };
-const sideLabels: Record<ArmSide, string> = { left: "Left arm", right: "Right arm" };
+const sideLabels: Record<SummarySide, string> = { left: "Left arm", right: "Right arm", midline: "Whole region" };
 
 let goalSequence = 0;
 const newGoalId = () => `goal-${Date.now().toString(36)}-${(goalSequence += 1).toString(36)}`;
@@ -57,7 +57,7 @@ export function formatDateKey(dateKey: string): string {
 
 const isSeconds = (goal: Pick<SpecializationGoal, "metric">) => goal.metric === "deliberate_hold_seconds";
 const amountOf = (goal: Pick<SpecializationGoal, "metric" | "target">) => `${goal.target}${isSeconds(goal) ? " seconds" : ""}`;
-const armWord = (side: ArmSide) => `${side}-arm`;
+const armWord = (side: SummarySide) => (side === "midline" ? "whole-region" : `${side}-arm`);
 const capitalised = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 /**
