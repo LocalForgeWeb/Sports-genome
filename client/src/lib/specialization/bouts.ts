@@ -4,7 +4,7 @@ import type { Exercise } from "@/lib/exerciseCatalog";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { isSetEffort } from "@shared/setEffort";
 import { variantIdFor } from "@shared/specialization/ids";
-import type { BoutSide, ExerciseVariant, ExposureBout, ExposureSegment, SideSource } from "@shared/specialization/types";
+import type { ExerciseVariant, ExposureBout, ExposureSegment, LimbSideRecord } from "@shared/specialization/types";
 
 /**
  * The workout log as exposure bouts (01-reconciliation.md, adapter map).
@@ -13,19 +13,24 @@ import type { BoutSide, ExerciseVariant, ExposureBout, ExposureSegment, SideSour
  * back at the session, exercise and set it came from. A bout is one completed work set of
  * a finished workout; a drop set is one bout whose stages are its segments.
  *
- * The logger is gaining three optional set fields (`side`, `holdSeconds`, `warmup`) and an
- * exercise field (`straps`) in parallel with this file. They are read through the local
- * types below, defensively, so the adapter reads history written before and after them.
+ * A bout carries each limb's side exactly as the set recorded it, and nothing more: which side
+ * a region counts the work on depends on the region, the exercise and the mapping, and the
+ * calculator decides it (`nodeSideFor`, 10-multi-region.md §2.1). The atlas's set fields (`side`,
+ * `legSide`, `holdSeconds`, `warmup`) and the exercise's `straps` are read defensively, so the
+ * adapter reads history written before and after them.
  */
 
-type SetWithAtlasFields = DeviceSetLog & { side?: "left" | "right" | "both"; holdSeconds?: string; warmup?: boolean };
+type SetWithAtlasFields = DeviceSetLog & { holdSeconds?: string; warmup?: boolean };
 type ExerciseWithAtlasFields = DeviceWorkoutExercise & { straps?: "yes" | "no" };
 
 export type SessionBoutDeps = {
   /** The exercise catalog, for sessions logged before catalog ids were recorded. */
   catalog: readonly Pick<Exercise, "id" | "name">[];
-  /** Atlas variants (any region's): a two-handed variant makes an unrecorded side bilateral. */
-  variants: readonly ExerciseVariant[];
+  /**
+   * Not read. Sides are no longer settled here from the variant (the calculator reads each
+   * region's), so a bout needs no variants; callers that still pass them need no change.
+   */
+  variants?: readonly ExerciseVariant[];
   /** The unit a set with no stamp of its own, in a session with none, was typed in. */
   fallbackUnit: DisplayWeightUnit;
 };
@@ -79,17 +84,20 @@ export function holdSecondsOf(set: SetWithAtlasFields): number | null {
   return seconds !== null && seconds > 0 ? seconds : null;
 }
 
+/** One limb's side as a set stored it (`left`, `right`, `both`; `bilateral` as older imports wrote both), else null. */
+function recordedSide(value: unknown): LimbSideRecord | null {
+  if (value === "left" || value === "right" || value === "both") return { side: value, source: "recorded" };
+  if (value === "bilateral") return { side: "both", source: "recorded" };
+  return null;
+}
+
 /**
- * Where a bout's side comes from, in order: what the athlete recorded on the set; else a
- * two-handed exercise (both arms work every set by definition); else unknown. Unknown is
- * kept as unknown — history logged before sides existed is never guessed onto an arm.
+ * The sides a set recorded, each limb in its own field: the arm's (`side`) and the leg's
+ * (`legSide`). Nothing is guessed: a side not recorded stays null, and history logged before
+ * sides existed is never put on a side here (10-multi-region.md §2.1).
  */
-export function sideOf(set: SetWithAtlasFields, variant: ExerciseVariant | null): { side: BoutSide; sideSource: SideSource } {
-  const recorded = set.side as string | undefined;
-  if (recorded === "left" || recorded === "right") return { side: recorded, sideSource: "recorded" };
-  if (recorded === "both" || recorded === "bilateral") return { side: "bilateral", sideSource: "recorded" };
-  if (variant?.laterality === "bilateral") return { side: "bilateral", sideSource: "structural" };
-  return { side: "unknown", sideSource: "unknown" };
+export function recordedSidesOf(set: Pick<SetWithAtlasFields, "side" | "legSide">): Pick<ExposureBout, "armSide" | "legSide"> {
+  return { armSide: recordedSide(set.side), legSide: recordedSide(set.legSide) };
 }
 
 function segmentsOf(set: SetWithAtlasFields, boutId: string, session: DeviceWorkoutSession, fallbackUnit: DisplayWeightUnit): ExposureSegment[] {
@@ -105,7 +113,7 @@ function segmentsOf(set: SetWithAtlasFields, boutId: string, session: DeviceWork
   }));
 }
 
-function baseBout(session: DeviceWorkoutSession, exercise: ExerciseWithAtlasFields, deps: SessionBoutDeps, variantOf: (id: number | null) => ExerciseVariant | null) {
+function baseBout(session: DeviceWorkoutSession, exercise: ExerciseWithAtlasFields, deps: SessionBoutDeps) {
   const { catalogExerciseId, matchedBy } = resolveCatalogExercise(exercise, deps.catalog);
   const straps: ExposureBout["straps"] = exercise.straps === "yes" || exercise.straps === "no" ? exercise.straps : "unknown";
   return {
@@ -121,17 +129,15 @@ function baseBout(session: DeviceWorkoutSession, exercise: ExerciseWithAtlasFiel
     exerciseName: exercise.exerciseName,
     matchedBy,
     straps,
-    variant: variantOf(catalogExerciseId),
   };
 }
 
-function boutFromSet(session: DeviceWorkoutSession, exercise: ExerciseWithAtlasFields, set: SetWithAtlasFields, index: number, deps: SessionBoutDeps, variantOf: (id: number | null) => ExerciseVariant | null): ExposureBout {
-  const { variant, ...base } = baseBout(session, exercise, deps, variantOf);
+function boutFromSet(session: DeviceWorkoutSession, exercise: ExerciseWithAtlasFields, set: SetWithAtlasFields, index: number, deps: SessionBoutDeps): ExposureBout {
   const id = set.id || `${session.id}/${exercise.id}/${index}`;
   return {
-    ...base,
+    ...baseBout(session, exercise, deps),
     id,
-    ...sideOf(set, variant),
+    ...recordedSidesOf(set),
     warmup: set.warmup === true,
     effort: isSetEffort(set.effort) ? set.effort : null,
     kind: set.type === "drop" && (set.stages?.length ?? 0) >= 2 ? "drop" : "standard",
@@ -145,13 +151,12 @@ function boutFromSet(session: DeviceWorkoutSession, exercise: ExerciseWithAtlasF
  * exercise's mapping credits it and the replacement's credits only what was done on it.
  */
 export function boutsFromSessions(sessions: readonly DeviceWorkoutSession[], deps: SessionBoutDeps): ExposureBout[] {
-  const variantOf = variantLookup(deps.variants);
   const bouts: ExposureBout[] = [];
   for (const session of sessions) {
     if (session.status !== "completed") continue;
     for (const exercise of session.exercises as ExerciseWithAtlasFields[]) {
       exercise.sets.forEach((set, index) => {
-        if (isCompletedSet(set)) bouts.push(boutFromSet(session, exercise, set as SetWithAtlasFields, index, deps, variantOf));
+        if (isCompletedSet(set)) bouts.push(boutFromSet(session, exercise, set as SetWithAtlasFields, index, deps));
       });
     }
   }
@@ -167,12 +172,10 @@ export function boutsFromSessions(sessions: readonly DeviceWorkoutSession[], dep
  * - logged sets of a workout that is not finished yet: they count once it is.
  */
 export function excludedRecordsFromSessions(sessions: readonly DeviceWorkoutSession[], deps: SessionBoutDeps): ExposureBout[] {
-  const variantOf = variantLookup(deps.variants);
   const out: ExposureBout[] = [];
-  const excluded = (session: DeviceWorkoutSession, exercise: ExerciseWithAtlasFields, set: SetWithAtlasFields, id: string): ExposureBout => {
-    const { variant, ...base } = baseBout(session, exercise, deps, variantOf);
-    return { ...base, id, ...sideOf(set, variant), warmup: false, effort: null, kind: "standard", segments: [{ id, reps: null, loadKg: null, holdSeconds: null }], excluded: "not_completed" };
-  };
+  const excluded = (session: DeviceWorkoutSession, exercise: ExerciseWithAtlasFields, set: SetWithAtlasFields, id: string): ExposureBout => (
+    { ...baseBout(session, exercise, deps), id, ...recordedSidesOf(set), warmup: false, effort: null, kind: "standard", segments: [{ id, reps: null, loadKg: null, holdSeconds: null }], excluded: "not_completed" }
+  );
   const blank: SetWithAtlasFields = { weight: "", reps: "", completed: false };
   for (const session of sessions) {
     for (const exercise of session.exercises as ExerciseWithAtlasFields[]) {

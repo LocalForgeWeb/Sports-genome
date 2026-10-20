@@ -35,8 +35,9 @@ function bout(catalogExerciseId: number, over: Partial<ExposureBout> = {}): Expo
     catalogExerciseId,
     exerciseName: names.get(catalogExerciseId) ?? "Unknown",
     matchedBy: "id",
-    side: "bilateral",
-    sideSource: "recorded",
+    // Both arms recorded, unless a test says otherwise.
+    armSide: { side: "both", source: "recorded" },
+    legSide: null,
     straps: "unknown",
     warmup: false,
     effort: null,
@@ -46,6 +47,9 @@ function bout(catalogExerciseId: number, over: Partial<ExposureBout> = {}): Expo
   };
 }
 const times = (count: number, make: () => ExposureBout) => Array.from({ length: count }, make);
+/** A bout's arm as the athlete recorded it; `noArm` when none was. */
+const arm = (side: "left" | "right" | "both"): Partial<ExposureBout> => ({ armSide: { side, source: "recorded" } });
+const noArm: Partial<ExposureBout> = { armSide: null };
 const hold = (catalogExerciseId: number, seconds: number | null, over: Partial<ExposureBout> = {}) => {
   const id = over.id ?? `h${String(++sequence).padStart(3, "0")}`;
   return bout(catalogExerciseId, { id, segments: [{ id, reps: null, loadKg: 32, holdSeconds: seconds }], ...over });
@@ -146,10 +150,19 @@ describe("counting bouts per node", () => {
       variants: [...syntheticForearm.variants, { ...syntheticForearm.variants[0], id: "cat-123", catalogExerciseId: 123, catalogName: "Dumbbell Curl" }],
       mappings: [...syntheticForearm.mappings, { ...syntheticForearm.mappings[0], id: "curl-biceps", variantId: "cat-123", nodeId: ext.biceps, actionId: a.elbowFlexion }],
     };
+    // A bout is classified by the region's own muscles (10-multi-region.md §4.2). The curl maps
+    // none of them, and the catalog tags it with the forearms: region-only work, whose credit to
+    // the external muscle still shows on that muscle's row.
     const summary = summarize([bout(123)], { region });
     expect(row(summary, ext.biceps).directDynamicBouts).toBe(1);
     expect(summary.regionDistinctBouts).toBe(0);
-    expect(summary.completeness.boutsWithReviewedMapping).toBe(1);
+    expect(summary.completeness).toMatchObject({ boutsConsidered: 1, boutsRegionOnly: 1, boutsWithReviewedMapping: 0 });
+    // Not tagged with the region either: external-only, on the external row and in no total.
+    const untagged = summarize([bout(123)], { region, catalogMusclesFor: () => null });
+    expect(row(untagged, ext.biceps).directDynamicBouts).toBe(1);
+    expect(untagged.regionDistinctBouts).toBe(0);
+    expect(untagged.regionUnclassified.bouts).toBe(0);
+    expect(untagged.completeness).toMatchObject({ boutsConsidered: 0, boutsRegionOnly: 0, boutsWithReviewedMapping: 0, boutsPendingReview: 0 });
   });
 });
 
@@ -200,20 +213,20 @@ describe("what is not node credit", () => {
 
 describe("sides", () => {
   it("counts a two-handed bout once for each arm and a one-arm bout for that arm only", () => {
-    const bouts = [...times(3, () => bout(139, { side: "bilateral" })), ...times(2, () => bout(139, { side: "left" }))];
+    const bouts = [...times(3, () => bout(139, arm("both"))), ...times(2, () => bout(139, arm("left")))];
     expect(row(summarize(bouts, { side: "left" }), m.flexorCarpiRadialis).directDynamicBouts).toBe(5);
     expect(row(summarize(bouts, { side: "right" }), m.flexorCarpiRadialis).directDynamicBouts).toBe(3);
     expect(summarize(bouts, { side: "right" }).regionDistinctBouts).toBe(3);
   });
 
   it("keeps unknown-side bouts in their own bucket, never on either arm", () => {
-    const bouts = times(3, () => bout(139, { side: "unknown", sideSource: "unknown" }));
+    const bouts = times(3, () => bout(139, noArm));
     for (const side of ["left", "right"] as const) {
       const summary = summarize(bouts, { side });
       const fcr = row(summary, m.flexorCarpiRadialis);
       expect(fcr.directDynamicBouts).toBe(0);
       expect(fcr.unknownSide).toEqual({ bouts: 3, directDynamicBouts: 3, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 0 });
-      expect(fcr.contributions.every((item) => item.side === "unknown")).toBe(true);
+      expect(fcr.contributions.every((item) => item.side === "unknown" && item.countedSide === "unknown" && item.recordedSide === null)).toBe(true);
       expect(summary.regionDistinctBouts).toBe(0);
       expect(summary.regionUnknownSideBouts).toBe(3);
       expect(summary.completeness.boutsUnknownSide).toBe(3);
@@ -221,7 +234,7 @@ describe("sides", () => {
   });
 
   it("keeps unknown-side work a draft mapping matched off both arms' under-review count, in its own bucket", () => {
-    const bouts = times(2, () => hold(142, 40, { side: "unknown", sideSource: "unknown" }));
+    const bouts = times(2, () => hold(142, 40, noArm));
     for (const side of ["left", "right"] as const) {
       const summary = summarize(bouts, { side });
       const fpl = row(summary, m.flexorPollicisLongus);
@@ -234,7 +247,7 @@ describe("sides", () => {
 
   it("real forearm data: a one-arm carry with no arm recorded is under review for neither arm, and its credited grip is kept apart", () => {
     // Suitcase Carry (409): one-handed, timed; FDS and FDP reviewed, FPL still a draft mapping.
-    const carries = times(2, () => hold(409, 40, { side: "unknown", sideSource: "unknown", straps: "no" }));
+    const carries = times(2, () => hold(409, 40, { ...noArm, straps: "no" }));
     for (const side of ["left", "right"] as const) {
       const summary = summarize(carries, { region: forearmRegionData, side });
       const fpl = row(summary, m.flexorPollicisLongus);
@@ -245,7 +258,7 @@ describe("sides", () => {
       expect(summary.nodes.reduce((total, node) => total + node.pendingReviewBouts, 0), side).toBe(0);
     }
     // Logged on the right, the same carries are the right arm's under-review work and not the left's.
-    const right = times(2, () => hold(409, 40, { side: "right", straps: "no" }));
+    const right = times(2, () => hold(409, 40, { ...arm("right"), straps: "no" }));
     expect(row(summarize(right, { region: forearmRegionData, side: "right" }), m.flexorPollicisLongus).pendingReviewBouts).toBe(2);
     expect(row(summarize(right, { region: forearmRegionData, side: "left" }), m.flexorPollicisLongus).pendingReviewBouts).toBe(0);
   });
@@ -276,7 +289,7 @@ describe("holds and straps", () => {
 
   it("notes a name match and a planned each-side assumption in the ledger", () => {
     expect(row(summarize([bout(139, { matchedBy: "name" })]), m.flexorCarpiRadialis).contributions[0].notes).toEqual(["Matched by name"]);
-    const planned = summarize([bout(139, { mode: "planned", performedAt: null, planWeek: 1, sideSource: "plan_assumption" })], { mode: "planned", interval: planWeekInterval(1) });
+    const planned = summarize([bout(139, { mode: "planned", performedAt: null, planWeek: 1, armSide: { side: "both", source: "plan_assumption" } })], { mode: "planned", interval: planWeekInterval(1) });
     expect(row(planned, m.flexorCarpiRadialis).contributions[0].notes).toEqual(["Each side assumed"]);
   });
 });
@@ -338,7 +351,7 @@ describe("goal progress", () => {
   });
 
   it("sums hold seconds for a seconds goal and leaves unknown-side work out", () => {
-    const bouts = [...times(3, () => hold(145, 30)), hold(145, 30, { side: "unknown", sideSource: "unknown" })];
+    const bouts = [...times(3, () => hold(145, 30)), hold(145, 30, noArm)];
     const summary = summarize(bouts, { goals: [goal({ nodeId: m.flexorDigitorumSuperficialis, metric: "deliberate_hold_seconds", target: 120 })] });
     expect(summary.goals[0]).toMatchObject({ value: 90, fraction: 0.75, label: "90 of your 120 seconds" });
   });

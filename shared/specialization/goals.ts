@@ -1,4 +1,5 @@
-import type { ArmSide, GoalMetric, GoalPeriod, SpecializationGoal, SummaryInterval } from "./types";
+import type { BodySide, GoalMetric, GoalPeriod, NodeId, RegionId, SpecializationGoal, SpecializationRegion, SpecializationRegionData, SummaryInterval, SummarySide } from "./types";
+import { regionIndexEntry } from "./regionIndex";
 import { calendarWeekInterval, isDateKey, isValidTimeZone, localDateKey, rolling7dInterval } from "./time";
 
 /**
@@ -17,6 +18,20 @@ export const goalPeriods: readonly GoalPeriod[] = ["calendar_week", "rolling_7d"
 export const GOAL_TARGET_SANITY_MAX = 10_000;
 
 export type GoalValidation = { ok: true } | { ok: false; reason: string };
+
+/**
+ * What a target is checked against beyond its own fields: the region's sides and words, and the
+ * muscles a new muscle target may name, its target members (10-multi-region.md §2.2).
+ */
+export type GoalScope = {
+  region: Pick<SpecializationRegion, "id" | "sides" | "wording">;
+  targetNodeIds: ReadonlySet<NodeId>;
+};
+
+/** The scope of a region's page: its record and the nodes it lists as targets (its own target muscles). */
+export function goalScopeOf(data: Pick<SpecializationRegionData, "region" | "nodes">): GoalScope {
+  return { region: data.region, targetNodeIds: new Set(data.nodes.filter((node) => node.role === "target").map((node) => node.id)) };
+}
 
 const nonEmpty = (value: unknown): value is string => typeof value === "string" && value.trim() !== "";
 
@@ -43,23 +58,52 @@ function rangesOverlap(a: Pick<SpecializationGoal, "startsOn" | "endsOn">, b: Pi
   return aEndsAfterBStarts && bEndsAfterAStarts;
 }
 
-/** Same region, same muscle or action, same arm, same measure and same period. */
+/**
+ * Same muscle (or the same region's movement), same side, same measure and same period. A muscle
+ * has one home region, so a muscle target is compared by the muscle alone: a target re-homed to the
+ * muscle's home and one saved there are the same target (10-multi-region.md §2.2).
+ */
 export function sameGoalTarget(a: SpecializationGoal, b: SpecializationGoal): boolean {
-  return a.regionId === b.regionId && a.nodeId === b.nodeId && a.actionId === b.actionId && a.side === b.side && a.metric === b.metric && a.period === b.period;
+  const subject = a.nodeId !== null ? a.nodeId === b.nodeId : b.nodeId === null && a.regionId === b.regionId && a.actionId === b.actionId;
+  return subject && a.side === b.side && a.metric === b.metric && a.period === b.period;
+}
+
+type SideWording = Pick<SpecializationRegion, "sides" | "wording">;
+
+/** The region's word for one side and for both ("leg", "legs"); "side" where a region does not say. */
+function sideWordsOf(region: SideWording | null): { one: string; both: string } {
+  return { one: region?.wording.sideWord ?? "side", both: region?.wording.sideWordPlural ?? "sides" };
+}
+
+/** "right-leg", "left-side": the side and the region's side word; nothing for a midline target, which has no side. */
+function sideTargetWords(side: SummarySide, region: SideWording | null): string {
+  return side === "midline" ? "" : `${side}-${sideWordsOf(region).one}`;
 }
 
 /**
- * Whether a goal may be saved beside the ones that exist. Editing a goal passes its own
- * id, so it is never compared with its earlier self. The database refuses the same
- * overlap with an exclusion constraint; this says why before anything is written.
+ * Whether a goal may be saved beside the ones that exist. Editing a goal passes its own id, so it
+ * is never compared with its earlier self. The database refuses the same overlap with an exclusion
+ * constraint; this says why before anything is written.
+ *
+ * The side must fit the region: left or right in a paired region, `midline` in a midline one.
+ * With the page's scope it also checks the muscle: a new muscle target names one of the region's
+ * target muscles, and a target already saved on any other muscle (an external or adjacent one,
+ * from before targets were limited) may only be ended, or removed (10-multi-region.md §2.2).
+ * Without a scope the region's sides and words come from the registered index.
  */
-export function validateGoal(goal: SpecializationGoal, existing: readonly SpecializationGoal[]): GoalValidation {
+export function validateGoal(goal: SpecializationGoal, existing: readonly SpecializationGoal[], scope?: GoalScope): GoalValidation {
   if (!nonEmpty(goal.id)) return { ok: false, reason: "The target has no id." };
   if (!nonEmpty(goal.regionId)) return { ok: false, reason: "Choose the body region this target belongs to." };
+  const region: SideWording | null = scope?.region ?? regionIndexEntry(goal.regionId);
   const hasNode = nonEmpty(goal.nodeId);
   const hasAction = nonEmpty(goal.actionId);
   if (hasNode === hasAction) return { ok: false, reason: "A target is for one muscle or one movement, not both and not neither." };
-  if (goal.side !== "left" && goal.side !== "right") return { ok: false, reason: "Choose the left or the right arm. A target for both arms is saved as two." };
+  if (region?.sides.model === "midline") {
+    if (goal.side !== "midline") return { ok: false, reason: "This region is counted as a whole, with no left or right. Save the target without a side." };
+  } else if (goal.side !== "left" && goal.side !== "right") {
+    const words = sideWordsOf(region);
+    return { ok: false, reason: `Choose the left or the right ${words.one}. A target for both ${words.both} is saved as two.` };
+  }
   if (!goalMetrics.includes(goal.metric)) return { ok: false, reason: "Choose what the target counts: direct dynamic bouts, deliberate hold bouts or hold seconds." };
   if (!goalPeriods.includes(goal.period)) return { ok: false, reason: "Choose whether the target is per calendar week or per rolling 7 days." };
   if (typeof goal.target !== "number" || !Number.isFinite(goal.target) || goal.target <= 0) return { ok: false, reason: "Enter a target above zero." };
@@ -69,26 +113,63 @@ export function validateGoal(goal: SpecializationGoal, existing: readonly Specia
   if (goal.endsOn !== null && !isDateKey(goal.endsOn)) return { ok: false, reason: "Enter a valid end date, or leave it open." };
   if (goal.endsOn !== null && goal.endsOn < goal.startsOn) return { ok: false, reason: "The end date is before the start date." };
 
+  if (scope && goal.nodeId !== null && !scope.targetNodeIds.has(goal.nodeId)) {
+    const earlier = existing.find((other) => other.id === goal.id);
+    if (!earlier || !onlyEnds(earlier, goal)) return { ok: false, reason: "Targets are for this region's target muscles. You can end or remove this one." };
+  }
+
   const clash = existing.find((other) => other.id !== goal.id && sameGoalTarget(goal, other) && rangesOverlap(goal, other));
   if (clash) {
     const from = shortDate(clash.startsOn);
     const until = clash.endsOn === null ? "with no end date" : `until ${shortDate(clash.endsOn)}`;
+    const which = sideTargetWords(clash.side, region);
     return {
       ok: false,
-      reason: `You already have a ${clash.side}-arm target of ${clash.target} ${metricWords[clash.metric]} ${periodWords[clash.period]} for this, from ${from} ${until}. Change that one, or end it before this one starts.`,
+      reason: `You already have a ${which ? `${which} ` : ""}target of ${clash.target} ${metricWords[clash.metric]} ${periodWords[clash.period]} for this, from ${from} ${until}. Change that one, or end it before this one starts.`,
     };
   }
   return { ok: true };
 }
 
+/** The change ends the goal (an end date set, kept or brought forward) and touches nothing else but `updatedAt`. */
+function onlyEnds(before: SpecializationGoal, after: SpecializationGoal): boolean {
+  const { endsOn: _beforeEnd, updatedAt: _beforeUpdated, ...restBefore } = before;
+  const { endsOn: _afterEnd, updatedAt: _afterUpdated, ...restAfter } = after;
+  const unchanged = (Object.keys(restBefore) as (keyof typeof restBefore)[]).every((key) => restBefore[key] === restAfter[key]) && Object.keys(restAfter).length === Object.keys(restBefore).length;
+  return unchanged && after.endsOn !== null && (before.endsOn === null || after.endsOn <= before.endsOn);
+}
+
 /**
- * "Both arms" is not a side: the entry becomes two explicit goals, one per arm, so left
- * and right can be compared and changed separately (brief §7).
+ * "Both sides" is not a side: the entry becomes two explicit goals, one per side, so left and
+ * right can be compared and changed separately (brief §7). A midline region's target has one side,
+ * `midline`, and never comes through here.
  */
-export function goalsForBothArms(draft: Omit<SpecializationGoal, "side">): [SpecializationGoal, SpecializationGoal] {
-  const arms: ArmSide[] = ["left", "right"];
-  const [left, right] = arms.map((side) => ({ ...draft, id: `${draft.id}:${side}`, side }));
+export function goalsForBothSides(draft: Omit<SpecializationGoal, "side">): [SpecializationGoal, SpecializationGoal] {
+  const sides: BodySide[] = ["left", "right"];
+  const [left, right] = sides.map((side) => ({ ...draft, id: `${draft.id}:${side}`, side }));
   return [left, right];
+}
+
+/** The name `goalsForBothSides` had when every region was paired by the arm. */
+export const goalsForBothArms = goalsForBothSides;
+
+/** A node's home region, from its id: `<region>.<slug>` (10-multi-region.md §1.2); null for an id without one. */
+export function nodeHomeRegionId(nodeId: NodeId): RegionId | null {
+  const dot = nodeId.indexOf(".");
+  return dot > 0 ? nodeId.slice(0, dot) : null;
+}
+
+/**
+ * A stored target as it is read now (10-multi-region.md §2.2). A muscle target saved on another
+ * region's page, on a muscle that page lists as external, keeps counting there until the muscle's
+ * home region is in production; from then it is read as a target of the home region, with the same
+ * id, and the next save writes it so. Every other target is returned as it is.
+ */
+export function rehomedGoal(goal: SpecializationGoal, isProduction: (regionId: RegionId) => boolean): SpecializationGoal {
+  if (goal.nodeId === null) return goal;
+  const home = nodeHomeRegionId(goal.nodeId);
+  if (home === null || home === goal.regionId || !isProduction(home)) return goal;
+  return { ...goal, regionId: home };
 }
 
 /** Active on a local date: started, and not yet ended (the end date is included). */

@@ -21,13 +21,14 @@ export type SetDoseMeasure = LoggingPolicy["measure"];
  * gets a unit invented for it.
  *
  * A hold (a dead hang, a farmer hold, a plate pinch) is measured in seconds, not
- * reps. Only the atlas's variant data says which exercises those are
- * (shared/specialization/loggingPolicy.ts), and the caller passes that measure
- * in, so the Seconds box appears exactly there and nowhere else; it is stored
- * as the set's `holdSeconds`, and the set has no reps box at all. This module
- * does not read the atlas itself: it is imported by screens that load with the
- * app (through sessionRecap and workoutSwap), and the atlas's region data
- * should load only with the screens that use it.
+ * reps. Only the atlas says which exercises those are (its logging policy,
+ * shared/specialization/loggingPolicy.ts, or the light hold list,
+ * holdCatalogIds.ts), and the caller passes that measure in, so the Seconds box
+ * appears exactly there and nowhere else; it is stored as the set's
+ * `holdSeconds`, and the set has no reps box at all. This module does not read
+ * the atlas itself: it is imported by screens that load with the app (through
+ * sessionRecap and workoutSwap), and the atlas's logging table should load only
+ * with the screens that use it.
  */
 export type SetEntryMeasure = "weight" | "height" | "seconds";
 
