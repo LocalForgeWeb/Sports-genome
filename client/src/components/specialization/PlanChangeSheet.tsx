@@ -9,7 +9,7 @@ import { commitDay, emptyDayStore, loadDay, type DaySlot, type WeeklyDayStore } 
 import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { catalogIdOf } from "@/lib/workoutSwap";
 import { variantForCatalogId } from "@shared/specialization/exposure";
-import type { ArmSide, SpecializationRegionData } from "@shared/specialization/types";
+import type { ArmSide, SpecializationRegionData, SummarySide } from "@shared/specialization/types";
 import { holdTime } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
 
@@ -31,7 +31,7 @@ type Placement = "first" | "end" | number;
  */
 export function PlanChangeSheet({ data, side, nodeId, candidates, initialExerciseId, catalog, plan, goal, onApply, onClose }: {
   data: SpecializationRegionData;
-  side: ArmSide;
+  side: SummarySide;
   /** The muscle the change is for; its row leads the preview. */
   nodeId: string;
   candidates: readonly RecommendationCandidate[];
@@ -163,7 +163,7 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
 
   return <SpecializationSheet
     id="spz-change"
-    eyebrow={`For ${nodeName} · ${side === "left" ? "left" : "right"} arm`}
+    eyebrow={side === "both" ? `For ${nodeName}` : `For ${nodeName} · ${side} arm`}
     title={swapping ? "Swap into your plan" : "Add to your plan"}
     // The muscle is the subject; rewording the title for a swap keeps focus where it was.
     focusKey={nodeId}
@@ -247,7 +247,7 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
     </fieldset>}
 
     <section className="spz-preview" aria-live="polite" aria-labelledby="spz-preview-title">
-      <h3 id="spz-preview-title">Planned totals, Week {week}, {side} arm</h3>
+      <h3 id="spz-preview-title">Planned totals, Week {week}{side === "both" ? "" : `, ${side} arm`}</h3>
       {!slot && <p className="spz-note">Choose a day to see what changes.</p>}
       {outcome && !outcome.ok && <p className="spz-error">{outcome.reason}</p>}
       {slot && swapping && replaceEntryId === null && <p className="spz-note">Choose the exercise to swap out to see the change.</p>}

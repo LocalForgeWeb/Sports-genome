@@ -23,12 +23,11 @@ function TargetLine({ target }: { target: ViewerTarget }) {
   return <p className="sg-anatomy3d-target">{target.label} {target.metric === "direct_dynamic_bouts" ? "direct dynamic bouts" : target.metric === "deliberate_hold_bouts" ? "hold bouts" : "seconds of holds"} {periodWords[target.period]}</p>;
 }
 
-export function ModelMusclePanel({ data, mode, windowLabel, armWord, regionLine, onViewContributions, onAddExercise, onViewExercise, onOpenMethod, onSeeRegionSets, credits }: {
+export function ModelMusclePanel({ data, mode, windowLabel, regionLine, onViewContributions, onAddExercise, onViewExercise, onOpenMethod, onSeeRegionSets, credits }: {
   /** The selected muscle; null for the whole forearm (Overview). */
   data: ViewerMuscleData | null;
   mode: "planned" | "completed";
   windowLabel: string;
-  armWord: string;
   /** With nothing selected: the region's distinct bouts on this arm, the page's own line. */
   regionLine: string;
   onViewContributions: () => void;
@@ -68,7 +67,7 @@ export function ModelMusclePanel({ data, mode, windowLabel, armWord, regionLine,
 
     <div className="sg-anatomy3d-lead">
       <p className="sg-anatomy3d-lead-number"><b>{direct ? direct.bouts : unknown}</b><span>direct dynamic bout{direct?.bouts === 1 ? "" : "s"}{direct && direct.reps > 0 ? ` · ${direct.reps} reps` : ""}</span></p>
-      <p className="sg-anatomy3d-small">{planned ? "Planned" : "Completed"} · {windowLabel} · {armWord}</p>
+      <p className="sg-anatomy3d-small">{planned ? "Planned" : "Completed"} · {windowLabel} · both arms</p>
       {data.targetSets && <>
         <TargetLine target={data.targetSets} />
         <span className="sg-anatomy3d-meter" role="img" aria-label={`${Math.round(Math.min(data.targetSets.fraction, 9.99) * 100)}% of your target`}><i style={{ width: `${Math.min(100, data.targetSets.fraction * 100)}%` }} /></span>
@@ -113,7 +112,7 @@ export function ModelMusclePanel({ data, mode, windowLabel, armWord, regionLine,
     <details className="spz-disclosure">
       <summary><span><b>What these numbers mean</b><small>One bout per set, per muscle, per arm</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
       <div className="sg-anatomy3d-credits">
-        <p>A direct dynamic bout is a set in which this muscle is a main mover; a drop set counts once. Supporting work, deliberate holds and incidental grip are counted apart and never added to it. Work on a two-handed exercise counts for each arm; a set with no arm recorded counts for neither.</p>
+        <p>A direct dynamic bout is a set in which this muscle is a main mover; a drop set counts once. Supporting work, deliberate holds and incidental grip are counted apart and never added to it. Both arms count together: a set counts once, whichever arm or arms did it.</p>
         <p>The numbers are the same ones the list and the muscle's sheet show, from your {planned ? "plan as written" : "logged workouts"}.</p>
         <button type="button" className="spz-link" onClick={onOpenMethod}>How this is counted <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
       </div>

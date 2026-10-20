@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import type { RegionBoutRow } from "@shared/specialization/types";
-import { formatSegment, sideLabels } from "./model";
+import { formatSegment } from "./model";
 
 /** "Tue 13 Oct": the day a logged bout was done. Planned bouts have no date. */
 export function boutDay(performedAt: string | null): string | null {
@@ -26,7 +26,7 @@ export function BoutItem({ row, title, meta, weightUnit, onOpenSession, children
   return <li className="spz-bout">
     <div className="spz-bout-head">
       <b>{title}</b>
-      <small>{meta ?? [row.sessionLabel, boutDay(row.performedAt), sideLabels[row.side]].filter(Boolean).join(" · ")}</small>
+      <small>{meta ?? [row.sessionLabel, boutDay(row.performedAt)].filter(Boolean).join(" · ")}</small>
     </div>
     <ul className="spz-segments">{row.segments.map((segment, index) => <li key={segment.id}>{row.kind === "drop" ? `Drop ${index + 1}: ` : ""}{formatSegment(segment, weightUnit)}</li>)}</ul>
     {children}

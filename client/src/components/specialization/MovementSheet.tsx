@@ -1,6 +1,6 @@
 import { ArrowRight, ChevronDown } from "lucide-react";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
-import type { ArmSide, SpecializationRegionData, SpecializationSummary, SummaryMode } from "@shared/specialization/types";
+import type { ArmSide, SpecializationRegionData, SpecializationSummary, SummaryMode, SummarySide } from "@shared/specialization/types";
 import { ActionGlyph } from "./ActionGlyph";
 import { BoutItem } from "./BoutItem";
 import { categoryLabel, goalMetricLabels, holdTime, ledgerByExercise, movementLedger } from "./model";
@@ -23,7 +23,7 @@ export function MovementSheet({ data, actionId, summary, loading, side, mode, in
   summary: SpecializationSummary | null;
   /** Planned mode while the plan is still loading: no numbers yet, and none shown as zero. */
   loading: boolean;
-  side: ArmSide;
+  side: SummarySide;
   mode: SummaryMode;
   intervalLabel: string;
   weightUnit: DisplayWeightUnit;
@@ -34,7 +34,7 @@ export function MovementSheet({ data, actionId, summary, loading, side, mode, in
 } & SuggestionsProps) {
   const action = data.actions.find((item) => item.id === actionId);
   const name = action?.label ?? actionId;
-  const armWord = side === "left" ? "left arm" : "right arm";
+  const armWord = side === "left" ? "left arm" : side === "right" ? "right arm" : null;
   const regionNodeIds = new Set(data.nodes.filter((node) => node.regionId === data.region.id).map((node) => node.id));
   const doers = data.nodeActions
     .filter((item) => item.actionId === actionId && regionNodeIds.has(item.nodeId))
@@ -44,13 +44,13 @@ export function MovementSheet({ data, actionId, summary, loading, side, mode, in
   const shortName = (id: string) => data.nodes.find((node) => node.id === id)?.shortName ?? id;
   const ledger = summary ? movementLedger(summary, data, actionId) : null;
   const groups = ledger ? ledgerByExercise(ledger.bouts) : [];
-  const progress = summary ? summary.goals.filter((item) => item.goal.actionId === actionId && item.goal.side === side) : [];
+  const progress = summary ? summary.goals.filter((item) => item.goal.actionId === actionId && (side === "both" || item.goal.side === side)) : [];
   const waiting = loading ? "Loading your plan…" : "Working out the totals…";
 
   return <SpecializationSheet
     id="spz-movement"
     focusKey={actionId}
-    eyebrow={`Movement · ${armWord}`}
+    eyebrow={armWord ? `Movement · ${armWord}` : "Movement"}
     title={name}
     subtitle={action ? <p>{action.plainDescription}</p> : undefined}
     onClose={onClose}
@@ -67,7 +67,7 @@ export function MovementSheet({ data, actionId, summary, loading, side, mode, in
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-move-numbers">
-      <h3 id="spz-move-numbers">{mode === "planned" ? "Planned" : "Completed"} · {intervalLabel} · {armWord}</h3>
+      <h3 id="spz-move-numbers">{[mode === "planned" ? "Planned" : "Completed", intervalLabel, armWord].filter(Boolean).join(" · ")}</h3>
       {!ledger ? <p className="spz-note">{waiting}</p> : <>
         <dl className="spz-numbers">
           <div><dt>Direct dynamic bouts</dt><dd>{ledger.totals.directDynamicBouts}</dd></div>

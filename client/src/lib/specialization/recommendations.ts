@@ -20,8 +20,7 @@ import type {
   SpecializationSummary,
   SummaryRequest,
   VariantId,
-  VariantMapping,
-} from "@shared/specialization/types";
+  VariantMapping, SummarySide } from "@shared/specialization/types";
 import type { PlannedExercise } from "./planBouts";
 
 /**
@@ -61,7 +60,7 @@ export type RecommendationTarget = { nodeId: NodeId; actionId?: never } | { acti
 export type RecommendationRequest = {
   region: SpecializationRegionData;
   target: RecommendationTarget;
-  side: ArmSide;
+  side: SummarySide;
   /** The summary on screen, for the selected arm. In completed mode its ledger says what was already logged. */
   summary: SpecializationSummary;
   /** The other arm, same window, when the page has it: a trailing arm prefers one-arm work. */
@@ -180,9 +179,9 @@ function targetMatches(region: SpecializationRegionData, target: RecommendationT
   return mapping.actionId === target.actionId && indexRegion(region).regionNodeIds.has(mapping.nodeId);
 }
 
-function goalsFor(summary: SpecializationSummary | null | undefined, target: RecommendationTarget, side: ArmSide): GoalProgress[] {
+function goalsFor(summary: SpecializationSummary | null | undefined, target: RecommendationTarget, side: SummarySide): GoalProgress[] {
   if (!summary) return [];
-  return summary.goals.filter((progress) => progress.goal.side === side && (target.nodeId !== undefined ? progress.goal.nodeId === target.nodeId : progress.goal.actionId === target.actionId));
+  return summary.goals.filter((progress) => (side === "both" || progress.goal.side === side) && (target.nodeId !== undefined ? progress.goal.nodeId === target.nodeId : progress.goal.actionId === target.actionId));
 }
 
 function nodeRow(summary: SpecializationSummary | null | undefined, nodeId: NodeId): NodeExposure | null {
@@ -194,6 +193,8 @@ function armTrails(request: RecommendationRequest): boolean {
   const other = request.otherSideSummary;
   if (!other) return false;
   const mine = goalsFor(request.summary, request.target, request.side)[0];
+  // Both arms as one have no other arm to trail.
+  if (request.side === "both") return false;
   const theirs = goalsFor(other, request.target, request.side === "left" ? "right" : "left").find((progress) => !mine || progress.goal.metric === mine.goal.metric);
   if (mine && theirs) return mine.value < theirs.value;
   if (request.target.nodeId === undefined) return false;
@@ -263,7 +264,8 @@ function loggedFor(request: RecommendationRequest, names: ReadonlyMap<number, st
       const id = contribution.catalogExerciseId;
       const entry = out.get(id) ?? { catalogExerciseId: id, name: names.get(id) ?? contribution.exerciseName, bouts: new Set<string>(), unknownSide: new Set<string>(), categories: new Set<ExposureCategory>() };
       entry.bouts.add(contribution.boutId);
-      if (contribution.side === "unknown") entry.unknownSide.add(contribution.boutId);
+      // Named as "no arm recorded" only by a one-arm summary; for both arms it is just a set.
+      if (contribution.side === "unknown" && summary.side !== "both") entry.unknownSide.add(contribution.boutId);
       if (target.nodeId !== undefined) entry.categories.add(contribution.category);
       else for (const part of parts) entry.categories.add(part.category);
       out.set(id, entry);
@@ -549,7 +551,7 @@ function gapClause(input: { request: RecommendationRequest; nodeName: string | n
   return `${row.directDynamicBouts} direct dynamic and ${row.deliberateHoldBouts} hold bouts ${where}, no target set`;
 }
 
-function whySentence(input: { relevance: Relevance; actions: string[]; nodeName: string | null; gap: string; missing: string[]; where: string; shared: string[]; trailing: boolean; side: ArmSide; alreadyPlanned: boolean; loggedBouts: number; loggedNoSide: number; equipmentAvailable: boolean; equipment: string | null }): string {
+function whySentence(input: { relevance: Relevance; actions: string[]; nodeName: string | null; gap: string; missing: string[]; where: string; shared: string[]; trailing: boolean; side: SummarySide; alreadyPlanned: boolean; loggedBouts: number; loggedNoSide: number; equipmentAvailable: boolean; equipment: string | null }): string {
   const what = input.actions.length ? listWords(input.actions) : "work";
   const lead = input.relevance === "direct_dynamic" ? `Direct ${what}` : input.relevance === "direct_isometric" ? `Direct ${what} hold` : `Helps with ${what}`;
   const sentences: string[] = [];
@@ -557,7 +559,7 @@ function whySentence(input: { relevance: Relevance; actions: string[]; nodeName:
   if (input.missing.length) sentences.push(`${listWords(input.missing.map((label, position) => (position ? lowerFirst(label) : label)))}: no direct work ${input.where}.`);
   sentences.push(`${lead}${input.nodeName ? ` for ${lowerFirst(input.nodeName)}` : ""}; ${input.gap}.`);
   if (input.shared.length) sentences.push(`The work is shared with ${listWords(input.shared.map(lowerFirst))}; the evidence does not split it between them.`);
-  if (input.trailing) sentences.push(`Done one arm at a time, so the ${input.side} arm can be trained on its own.`);
+  if (input.trailing && input.side !== "both") sentences.push(`Done one arm at a time, so the ${input.side} arm can be trained on its own.`);
   if (input.alreadyPlanned) sentences.push("Already in this plan week.");
   if (input.loggedBouts) sentences.push(`Already logged in this window: ${plural(input.loggedBouts, "set")}${noSideWords(input.loggedBouts, input.loggedNoSide)}.`);
   if (!input.equipmentAvailable) sentences.push(input.equipment ? `Needs ${input.equipment.toLowerCase()}, which is not in your equipment.` : "Its equipment is not listed.");
@@ -569,7 +571,7 @@ function whySentence(input: { relevance: Relevance; actions: string[]; nodeName:
 export type PlannedValues = Pick<NodeExposure, "directDynamicBouts" | "contributingDynamicBouts" | "deliberateHoldBouts" | "deliberateHoldSeconds" | "incidentalBouts" | "mixedBouts" | "unknownBouts">;
 export type PlannedNodeChange = { nodeId: NodeId; name: string; role: NodeRole; before: PlannedValues; after: PlannedValues };
 export type PlannedChangePreview = {
-  side: ArmSide;
+  side: SummarySide;
   planWeek: number;
   /** Only the nodes whose planned values change, in the region's order. */
   nodes: PlannedNodeChange[];
@@ -588,7 +590,7 @@ export function previewPlannedChange(input: {
   region: SpecializationRegionData;
   before: readonly ExposureBout[];
   after: readonly ExposureBout[];
-  side: ArmSide;
+  side: SummarySide;
   planWeek: number;
   catalogMusclesFor?: SummaryRequest["catalogMusclesFor"];
 }): PlannedChangePreview {

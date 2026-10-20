@@ -57,7 +57,7 @@ describe("validateGoal", () => {
     const existing = [goal({ id: "existing", target: 12 })];
     const result = validateGoal(goal({ id: "new", startsOn: "2026-11-02" }), existing);
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.reason).toBe("You already have a left-arm target of 12 direct dynamic bouts per calendar week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts.");
+    if (!result.ok) expect(result.reason).toBe("You already have a target of 12 direct dynamic bouts per calendar week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts.");
   });
 
   it("allows what does not overlap: another arm, measure, period, muscle, or dates that do not meet", () => {

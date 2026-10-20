@@ -67,3 +67,7 @@
 ## Open item
 
 - **Licence review (owner):** the model is CC-BY-SA (BodyParts3D 2.1 JP, Z-Anatomy 4.0), with share-alike. The supplied attribution note advises a legal review before commercial redistribution. Credits are shown in the app and documented here. Accepting the terms is the owner's decision.
+
+## Follow-up, 20 Oct 2026: both arms as one
+
+The owner's instruction was "there's no reason for a left and right arm". This supersedes the brief's §4 left/right items (data selected independently per side, and a mirrored model for the left arm). The page now counts each set once per muscle, whichever arm did it. It has no arm switch and no mirrored model; targets and readings name no arm; the logger asks no arm. Details, and what was kept for compatibility, are in [README.md](README.md#both-arms-as-one-20-oct-2026).

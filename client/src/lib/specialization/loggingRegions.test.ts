@@ -24,7 +24,7 @@ describe("the logger's region list", () => {
 
   it("gives the policy the production data: a one-arm wrist curl, a hang in seconds", () => {
     // One-Arm Dumbbell Wrist Curl (catalog 410) and Dead Hang (143), from the forearm region.
-    expect(loggingPolicyFor(410)).toMatchObject({ measure: "reps", askSide: true, oneArm: true, sideDefault: null });
+    expect(loggingPolicyFor(410)).toMatchObject({ measure: "reps", askSide: false, oneArm: false, sideDefault: null });
     expect(loggingPolicyFor(143)).toMatchObject({ measure: "seconds", askSide: false, oneArm: false });
   });
 

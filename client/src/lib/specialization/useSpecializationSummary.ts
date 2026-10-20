@@ -7,7 +7,7 @@ import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { exposureRuleV1 } from "@shared/specialization/rules";
 import { calendarWeekInterval, customInterval, isDateKey, planWeekInterval, rolling7dInterval } from "@shared/specialization/time";
-import type { ArmSide, ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummaryInterval, SummaryMode, SummaryRequest } from "@shared/specialization/types";
+import type { ArmSide, ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummaryInterval, SummaryMode, SummaryRequest, SummarySide } from "@shared/specialization/types";
 import { boutsFromSessions, excludedRecordsFromSessions } from "./bouts";
 import { boutsFromPlan } from "./planBouts";
 import { planRevision, sourceRevision, stableStringify } from "./revision";
@@ -36,7 +36,7 @@ export type SummaryCacheKeyParts = {
   regionId: string;
   interval: Pick<SummaryInterval, "kind" | "startAt" | "endAtExclusive" | "planWeek">;
   timezone: string;
-  side: ArmSide;
+  side: SummarySide;
   mode: SummaryMode;
   planRevision: string | null;
   sourceRevision: string;
@@ -102,7 +102,7 @@ export type SummaryInputs = {
   region: SpecializationRegionData;
   accountScope?: AccountScope;
   interval: SummaryInterval;
-  side: ArmSide;
+  side: SummarySide;
   mode: SummaryMode;
   goals: readonly SpecializationGoal[];
   completedBouts: readonly ExposureBout[];
@@ -171,7 +171,7 @@ export type UseSpecializationSummaryInput = {
   region: SpecializationRegionData;
   accountScope?: AccountScope;
   interval: SummaryInterval;
-  side: ArmSide;
+  side: SummarySide;
   mode: SummaryMode;
   /** The plan week planned mode reads; Home passes it. Null when there is no plan. */
   plan: SpecializationPlanInput | null;

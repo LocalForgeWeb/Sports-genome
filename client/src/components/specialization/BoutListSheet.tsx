@@ -2,7 +2,7 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import type { RegionBoutRow } from "@shared/specialization/types";
 import { BoutItem, boutDay } from "./BoutItem";
-import { ledgerByExercise, sideLabels } from "./model";
+import { ledgerByExercise } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
 
 /** One list in the sheet: the bouts behind one total, with what that total is, and what to say when it is 0. */
@@ -39,7 +39,7 @@ export function BoutListSheet({ eyebrow, title, intro, lists, weightUnit, onOpen
             <ol className="spz-bouts">
               {group.rows.map((row) => {
                 const day = boutDay(row.performedAt);
-                return <BoutItem key={row.boutId} row={row} title={day ?? row.sessionLabel} meta={[day ? row.sessionLabel : null, sideLabels[row.side]].filter(Boolean).join(" · ")} weightUnit={weightUnit} onOpenSession={onOpenSession} />;
+                return <BoutItem key={row.boutId} row={row} title={day ?? row.sessionLabel} meta={[day ? row.sessionLabel : null].filter(Boolean).join(" · ")} weightUnit={weightUnit} onOpenSession={onOpenSession} />;
               })}
             </ol>
             <button type="button" className="spz-link" onClick={() => onInspectExercise(group.catalogExerciseId, group.name)}>About {group.name} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>

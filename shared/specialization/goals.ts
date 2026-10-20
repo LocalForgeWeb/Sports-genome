@@ -75,7 +75,8 @@ export function validateGoal(goal: SpecializationGoal, existing: readonly Specia
     const until = clash.endsOn === null ? "with no end date" : `until ${shortDate(clash.endsOn)}`;
     return {
       ok: false,
-      reason: `You already have a ${clash.side}-arm target of ${clash.target} ${metricWords[clash.metric]} ${periodWords[clash.period]} for this, from ${from} ${until}. Change that one, or end it before this one starts.`,
+      // No arm is named: both arms are counted as one (20 Oct 2026).
+      reason: `You already have a target of ${clash.target} ${metricWords[clash.metric]} ${periodWords[clash.period]} for this, from ${from} ${until}. Change that one, or end it before this one starts.`,
     };
   }
   return { ok: true };

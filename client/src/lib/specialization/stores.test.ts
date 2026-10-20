@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { goalsForBothArms } from "@shared/specialization/goals";
 import type { SpecializationGoal, SpecializationMeasurement } from "@shared/specialization/types";
 import {
+  collapseArmPairs,
   hasActiveGoalForRegion,
   loadSpecializationGoals,
   loadSpecializationMeasurements,
@@ -127,7 +128,7 @@ describe("goal writes and the region check", () => {
     expect(edited.ok && edited.goals.map((item) => item.target)).toEqual([25]);
     const clash = upsertGoal(goals, goal({ id: "g2", startsOn: "2026-10-20" }));
     expect(clash.ok).toBe(false);
-    if (!clash.ok) expect(clash.reason).toMatch(/^You already have a left-arm target of 20/);
+    if (!clash.ok) expect(clash.reason).toMatch(/^You already have a target of 20/);
   });
 
   it("knows whether a region has an active target right now", () => {
@@ -143,15 +144,25 @@ describe("goal writes and the region check", () => {
 });
 
 describe("useSpecializationGoals", () => {
-  it("saves both arms as two goals, refuses an overlap, removes, and keeps every reader current", () => {
+  it("reads a target saved once per arm as one, refuses an overlap, removes, and keeps every reader current", () => {
     const writer = renderHook(() => useSpecializationGoals("a"));
     const reader = renderHook(() => useSpecializationGoals("a"));
+    // The old "Both arms" choice stored two copies; both arms now count as one (20 Oct 2026).
     const { side: _side, ...draft } = goal({ id: "pair" });
     act(() => { expect(writer.result.current.save(goalsForBothArms(draft))).toEqual({ ok: true }); });
-    expect(reader.result.current.goals.map((item) => item.id)).toEqual(["pair:left", "pair:right"]);
-    act(() => { expect(writer.result.current.save(goal({ id: "again", startsOn: "2026-10-30" })).ok).toBe(false); });
-    act(() => { expect(writer.result.current.remove("pair:left")).toEqual({ ok: true }); });
     expect(reader.result.current.goals.map((item) => item.id)).toEqual(["pair:right"]);
+    act(() => { expect(writer.result.current.save(goal({ id: "again", side: "right", startsOn: "2026-10-30" })).ok).toBe(false); });
+    act(() => { expect(writer.result.current.remove("pair:right")).toEqual({ ok: true }); });
+    expect(reader.result.current.goals).toEqual([]);
+    // The left copy went with that write: nothing comes back on a fresh read.
+    expect(loadSpecializationGoals("a")).toEqual([]);
+  });
+
+  it("collapses only a left and right copy of the same target; a one-arm target stays", () => {
+    const left = goal({ id: "l", side: "left" });
+    const right = goal({ id: "r", side: "right" });
+    const leftOnly = goal({ id: "lo", side: "left", target: 9 });
+    expect(collapseArmPairs([left, right, leftOnly]).map((item) => item.id)).toEqual(["r", "lo"]);
   });
 
   it("picks up a change written in another tab", () => {

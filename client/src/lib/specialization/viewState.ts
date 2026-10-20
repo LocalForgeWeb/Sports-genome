@@ -1,5 +1,5 @@
 import { isDateKey } from "@shared/specialization/time";
-import type { ArmSide, DiagramLayerId, DiagramViewId, RegionId, SummaryMode } from "@shared/specialization/types";
+import type { DiagramLayerId, DiagramViewId, RegionId, SummaryMode } from "@shared/specialization/types";
 
 /**
  * What the specialization page is showing, kept in the URL so Back, a reload and a
@@ -22,7 +22,6 @@ export type SpecializationFigure = "model" | "drawing";
 export type SpecializationViewState = {
   regionId: RegionId;
   nodeId: string | null;
-  limb: ArmSide;
   window: SpecializationWindow;
   /** Custom window, local dates YYYY-MM-DD (inclusive). */
   from: string | null;
@@ -46,11 +45,15 @@ export const specializationParamNames = ["region", "node", "limb", "window", "fr
 /** A view id's shape (the database checks the same): which views exist is the drawing's business. */
 const VIEW_ID = /^[a-z][a-z0-9_]*$/;
 const LAYERS: readonly DiagramLayerId[] = ["surface", "intermediate", "deep"];
+/**
+ * `limb` (left / right arm) is no longer part of the page (20 Oct 2026: the forearms are one).
+ * It stays in the names above so an old address loses it on the page's first rewrite.
+ */
 /** The last date a custom window may end on: a day after it has no next day to end at. */
 const LAST_DATE = "9999-12-30";
 
 export function defaultSpecializationState(regionId: RegionId): SpecializationViewState {
-  return { regionId, nodeId: null, limb: "right", window: "week", from: null, to: null, mode: "completed", view: null, layer: "surface", map: "volume", figure: null, planWeek: null };
+  return { regionId, nodeId: null, window: "week", from: null, to: null, mode: "completed", view: null, layer: "surface", map: "volume", figure: null, planWeek: null };
 }
 
 /** Reads the page state from a URL, falling back field by field to the defaults. */
@@ -58,7 +61,6 @@ export function specializationStateFromParams(params: URLSearchParams, defaultRe
   const regionParam = params.get("region");
   const regionId = regionParam && knownRegions.has(regionParam) ? regionParam : defaultRegionId;
   const base = defaultSpecializationState(regionId);
-  const limb = params.get("limb");
   const windowParam = params.get("window");
   const mode = params.get("mode");
   const view = params.get("view");
@@ -73,7 +75,6 @@ export function specializationStateFromParams(params: URLSearchParams, defaultRe
   return {
     regionId,
     nodeId: params.get("node") || null,
-    limb: limb === "left" || limb === "right" ? limb : base.limb,
     window: windowParam === "7d" ? "7d" : custom ? "custom" : "week",
     from: custom ? from : null,
     to: custom ? to : null,
@@ -92,7 +93,6 @@ export function writeSpecializationParams(params: URLSearchParams, state: Specia
   const base = defaultSpecializationState(state.regionId);
   params.set("region", state.regionId);
   if (state.nodeId) params.set("node", state.nodeId);
-  if (state.limb !== base.limb) params.set("limb", state.limb);
   if (state.window !== "week") params.set("window", state.window);
   if (state.window === "custom" && state.from && state.to) { params.set("from", state.from); params.set("to", state.to); }
   if (state.mode !== base.mode) params.set("mode", state.mode);

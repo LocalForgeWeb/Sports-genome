@@ -37,7 +37,6 @@
 .sg-anatomy3d-button { border-color: var(--sg-action); background: var(--sg-action-fill); color: var(--sg-action-on); }
 .sg-anatomy3d-button-quiet { border-color: var(--sg-control-border-on-dark); background: #0d2640; color: var(--sg-text-on-dark); }
 .sg-anatomy3d-overview { position: absolute; top: .6rem; left: .6rem; z-index: 2; box-shadow: 0 6px 18px rgb(0 0 0 / .28); }
-.sg-anatomy3d-caption { position: absolute; top: .9rem; right: .75rem; z-index: 1; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; pointer-events: none; }
 :is(.sg-anatomy3d-button, .sg-anatomy3d-float):focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 
 /* The panel under the stage: the selected muscle's numbers, in the brief's order. */

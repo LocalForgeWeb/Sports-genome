@@ -46,12 +46,12 @@ describe("the logging policy for one exercise", () => {
     expect(loggingPolicyFor(1, [variant(1, "reps", "bilateral")], []).measure).toBe("reps");
   });
 
-  it("asks the arm only of one-arm or either-arm variants, never of a two-handed one", () => {
-    expect(loggingPolicyFor(1, [variant(1, "reps", "bilateral")], [])).toMatchObject({ askSide: false, oneArm: false, sideDefault: null });
-    // One arm at a time: which arm goes first is the athlete's, so nothing is preselected.
-    expect(loggingPolicyFor(1, [variant(1, "reps", "unilateral")], [])).toMatchObject({ askSide: true, oneArm: true, sideDefault: null });
-    // Usually two arms at once, sometimes one: it starts on Both, and a planned set of it is not split by arm.
-    expect(loggingPolicyFor(1, [variant(1, "reps", "either")], [])).toMatchObject({ askSide: true, oneArm: false, sideDefault: "both" });
+  it("asks no arm and splits no planned set by arm, one-arm exercises included: both arms count as one (20 Oct 2026)", () => {
+    for (const laterality of ["bilateral", "unilateral", "either"] as const) {
+      expect(loggingPolicyFor(1, [variant(1, "reps", laterality)], [])).toMatchObject({ askSide: false, oneArm: false });
+    }
+    // The default arm a set would start on is still read from the variant, for a region that asks again.
+    expect(loggingPolicyFor(1, [variant(1, "reps", "either")], []).sideDefault).toBe("both");
   });
 
   it("is straps-sensitive only when a mapping of that same variant needs a bare hand", () => {

@@ -75,9 +75,20 @@ describe("a muscle's fill", () => {
         contribution({ boutId: "e", category: "contributing_dynamic" }),
         contribution({ boutId: "f", side: "unknown" }),
       ],
+      // A one-arm summary keeps the set with no arm apart, and says so here.
+      unknownSide: { bouts: 1, directDynamicBouts: 1, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 0 },
     });
     expect(directWorkBouts(exposure)).toBe(3);
     expect(fillForNode(exposure, "volume", [])).toEqual({ kind: "bin", step: 2 });
+  });
+
+  it("counts a set with no arm recorded when the summary is for both arms (20 Oct 2026)", () => {
+    const exposure = node({
+      directDynamicBouts: 2,
+      contributions: [contribution({ boutId: "a" }), contribution({ boutId: "f", side: "unknown" })],
+      unknownSide: { bouts: 0, directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 0 },
+    });
+    expect(directWorkBouts(exposure)).toBe(2);
   });
 });
 

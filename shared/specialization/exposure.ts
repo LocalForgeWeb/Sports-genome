@@ -1,6 +1,7 @@
 import type {
   AnatomyNode,
   ArmSide,
+  SummarySide,
   Contribution,
   ContributionSegment,
   ExerciseVariant,
@@ -338,7 +339,8 @@ function inWindow(bout: ExposureBout, request: Pick<SummaryRequest, "mode" | "in
   return bout.mode === "planned" && (request.interval.planWeek === null || bout.planWeek === request.interval.planWeek);
 }
 
-const onArm = (bout: ExposureBout, side: ArmSide) => bout.side === "bilateral" || bout.side === side;
+/** Whether a bout counts for the side a summary reads. With "both", every bout does, a bout with no arm recorded included. */
+const onArm = (bout: ExposureBout, side: SummarySide) => side === "both" || bout.side === "bilateral" || bout.side === side;
 
 export function getSpecializationSummary(request: SummaryRequest): SpecializationSummary {
   const { region, side } = request;
@@ -373,6 +375,8 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
   for (const bout of all) {
     if (!inWindow(bout, request)) continue;
     const armOrUnknown = onArm(bout, side) || bout.side === "unknown";
+    // Kept apart as "no arm recorded" only when the summary is for one arm; for both, an arm is not asked.
+    const noArm = side !== "both" && bout.side === "unknown";
     // The other arm's one-arm work says nothing about this arm.
     if (!armOrUnknown) continue;
     const found = classOf(bout);
@@ -382,7 +386,7 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
 
     completeness.boutsConsidered += 1;
     if (bout.matchedBy === "name") completeness.boutsNameMatched += 1;
-    if (bout.side === "unknown") completeness.boutsUnknownSide += 1;
+    if (noArm) completeness.boutsUnknownSide += 1;
 
     if (found.kind === "region_only") {
       completeness.boutsRegionOnly += 1;
@@ -407,7 +411,7 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
           node.notCounted!.push(contributionOf(bout, nodeId, categoryOfParts(effect.strapped.map((mapping) => partOf(mapping, found.variant))), effect.strapped.map((mapping) => partOf(mapping, found.variant)), notes, []));
         } else if (effect.pending.length) {
           // Like credited work, a bout with no arm recorded is kept apart: it is never either arm's.
-          if (bout.side === "unknown") node.unknownSide.pendingReviewBouts = (node.unknownSide.pendingReviewBouts ?? 0) + 1;
+          if (noArm) node.unknownSide.pendingReviewBouts = (node.unknownSide.pendingReviewBouts ?? 0) + 1;
           else node.pendingReviewBouts += 1;
           const parts = effect.pending.map((mapping) => partOf(mapping, found.variant));
           node.notCounted!.push(contributionOf(bout, nodeId, categoryOfParts(parts), parts, [...notes, "Mapping pending review"], []));
@@ -416,7 +420,7 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
       }
       const contribution = contributionOf(bout, nodeId, categoryOfParts(effect.parts), effect.parts, notes, sharedWithOf(index, found.variant, nodeId, effect.credited));
       node.contributions.push(contribution);
-      if (bout.side === "unknown") {
+      if (noArm) {
         addToUnknownSide(node, contribution);
         if (index.regionNodeIds.has(nodeId) && !regionUnknownSide.has(bout.id)) regionUnknownSide.set(bout.id, regionRowOf(bout));
       } else {
@@ -481,15 +485,23 @@ function goalProgressFor(
   classOf: (bout: ExposureBout) => BoutClass,
 ): GoalProgress[] {
   const out: GoalProgress[] = [];
+  const both = request.side === "both";
+  // For both arms, a target saved once per arm (the old "Both arms" choice) is one target.
+  const seen = new Set<string>();
   for (const goal of request.goals) {
-    if (goal.regionId !== request.region.region.id || goal.side !== request.side) continue;
+    if (goal.regionId !== request.region.region.id || (!both && goal.side !== request.side)) continue;
+    if (both) {
+      const key = [goal.nodeId, goal.actionId, goal.metric, goal.period, goal.target, goal.startsOn, goal.endsOn].join("|");
+      if (seen.has(key)) continue;
+      seen.add(key);
+    }
     if (!isGoalActiveAt(goal, request.now)) continue;
     const period = request.mode === "completed" ? goalPeriodInterval(goal, request.now) : request.interval;
     const wanted = metricCategory[goal.metric];
     let value = 0;
     for (const bout of all) {
       if (!inWindow(bout, { mode: request.mode, interval: period })) continue;
-      if (!onArm(bout, goal.side) || bout.warmup || bout.excluded) continue;
+      if (!onArm(bout, both ? "both" : goal.side) || bout.warmup || bout.excluded) continue;
       const found = classOf(bout);
       if (found.kind !== "mapped") continue;
       let counts = false;

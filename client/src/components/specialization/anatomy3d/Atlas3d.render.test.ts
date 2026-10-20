@@ -237,8 +237,8 @@ describe("selection: every structure, by model, list or link, to the same muscle
   });
 });
 
-describe("numbers: the arm, mode and window on screen, and the model never reloads for them", () => {
-  it("changes the numbers for a new window, mode or arm without remounting the model", async () => {
+describe("numbers: the mode and window on screen, both arms as one, and the model never reloads for them", () => {
+  it("changes the numbers for a new window or mode without remounting the model; there is no arm to choose and no mirrored model", async () => {
     render(createElement(Harness, { initial: { nodeId: m.brachioradialis } }));
     await ready();
     expect(detail().textContent).toContain("Hammer Curl");
@@ -247,11 +247,12 @@ describe("numbers: the arm, mode and window on screen, and the model never reloa
     expect(detail().textContent).toMatch(/^Brachioradialis/);
     expect(detail().textContent).toContain("Planned");
     await click(screen.getByRole("button", { name: "Completed" }));
-    // The left arm: the right arm's hammer curls are not on it (no side leakage), and the same model mirrors.
-    await click(screen.getByRole("button", { name: "Left arm" }));
-    expect(detail().textContent).not.toContain("Hammer Curl");
-    expect(canvas.last?.side).toBe("left");
-    expect(canvas.last?.label).toMatch(/left arm \(the right-arm model, mirrored\)/);
+    expect(detail().textContent).toContain("Hammer Curl");
+    // Both arms are counted as one (20 Oct 2026): no arm switch, and the one model is never mirrored.
+    expect(screen.queryByRole("button", { name: "Left arm" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Right arm" })).toBeNull();
+    expect(canvas.last?.side).toBe("right");
+    expect(canvas.last?.label).not.toMatch(/\b(left|right) arm\b|mirrored/);
     expect(canvas.mounts).toBe(1);
     expect(canvas.unmounts).toBe(0);
   });
@@ -263,16 +264,15 @@ describe("numbers: the arm, mode and window on screen, and the model never reloa
     expect(detail().querySelector(".sg-anatomy3d-lead-number b")?.textContent).toBe("—");
     await tap("extensor-indicis");
     expect(detail().querySelector(".sg-anatomy3d-lead-number b")?.textContent).toBe("0");
-    expect(detail().textContent).toMatch(/Nothing logged for it on the right arm/);
+    expect(detail().textContent).toMatch(/Nothing logged for it in this window/);
   });
 
-  it("counts a drop set once and two-handed work on each arm", async () => {
+  it("counts a drop set once, a two-handed set once, and one-arm work from either arm", async () => {
     render(createElement(Harness, { initial: { nodeId: m.flexorCarpiUlnaris } }));
     await ready();
-    // Three sets, the third a drop set of two stages: three bouts.
+    // Three two-handed sets, the third a drop set of two stages: three bouts, not six.
     expect(detail().querySelector(".sg-anatomy3d-lead-number b")?.textContent).toBe("3");
-    await click(screen.getByRole("button", { name: "Left arm" }));
-    expect(detail().querySelector(".sg-anatomy3d-lead-number b")?.textContent).toBe("3");
+    expect(detail().textContent).toContain("both arms");
   });
 
   it("passes the reduced-motion setting to the model", async () => {
@@ -384,7 +384,7 @@ describe("for a screen reader", () => {
   it("names the model, its arm and its selection, and every control by what it does", async () => {
     render(createElement(Harness, { initial: { nodeId: m.flexorPollicisLongus } }));
     await ready();
-    expect(screen.getByRole("img", { name: /3D model of the forearms, right arm\. Flexor pollicis longus selected\. Every muscle is also in Choose muscle\./ })).toBeTruthy();
+    expect(screen.getByRole("img", { name: /^3D model of the forearms\. Flexor pollicis longus selected\. Every muscle is also in Choose muscle\.$/ })).toBeTruthy();
     expect(screen.getByRole("button", { name: /^Choose muscle/ }).getAttribute("aria-haspopup")).toBe("dialog");
     expect(screen.getByRole("heading", { name: "Flexor pollicis longus" })).toBeTruthy();
     expect(screen.getByRole("group", { name: "Show the muscles as" })).toBeTruthy();

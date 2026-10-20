@@ -3,7 +3,7 @@ import { ChevronDown, Plus } from "lucide-react";
 import type { StoreWrite } from "@/lib/specialization/stores";
 import { goalProgressLabel, goalsForBothArms } from "@shared/specialization/goals";
 import { addDaysToDateKey } from "@shared/specialization/time";
-import type { ArmSide, GoalMetric, GoalPeriod, GoalProgress, SpecializationGoal } from "@shared/specialization/types";
+import type { ArmSide, GoalMetric, GoalPeriod, GoalProgress, SpecializationGoal, SummarySide } from "@shared/specialization/types";
 import { goalMetricLabels } from "./model";
 import { revealClearOfBars } from "./reveal";
 import "./targets.css";
@@ -57,7 +57,6 @@ export function formatDateKey(dateKey: string): string {
 
 const isSeconds = (goal: Pick<SpecializationGoal, "metric">) => goal.metric === "deliberate_hold_seconds";
 const amountOf = (goal: Pick<SpecializationGoal, "metric" | "target">) => `${goal.target}${isSeconds(goal) ? " seconds" : ""}`;
-const armWord = (side: ArmSide) => `${side}-arm`;
 const capitalised = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 /**
@@ -68,7 +67,8 @@ const capitalised = (text: string) => text.charAt(0).toUpperCase() + text.slice(
 function describeTarget(goal: SpecializationGoal, subjectName: string, todayKey: string): string {
   const what = isSeconds(goal) ? `${goal.target} seconds of deliberate holds` : `${goal.target} ${goalMetricLabels[goal.metric].toLowerCase()}`;
   const starts = goal.startsOn > todayKey ? ` starting ${formatDateKey(goal.startsOn)}` : "";
-  return `the ${armWord(goal.side)} target of ${what} ${targetPeriodLabels[goal.period].toLowerCase()}${starts} for ${subjectName}`;
+  // The forearms are counted as one (20 Oct 2026): a target names no arm; its stored side is not read.
+  return `the target of ${what} ${targetPeriodLabels[goal.period].toLowerCase()}${starts} for ${subjectName}`;
 }
 
 // ---------------------------------------------------------------- changes and Undo
@@ -78,7 +78,7 @@ type Undoable = { kind: "removed" | "ended" | "ended_unstarted"; goal: Specializ
 function undoMessage(entries: readonly Undoable[], subjectName: (goal: SpecializationGoal) => string, todayKey: string): string {
   if (entries.length === 1) {
     const [{ kind, goal }] = entries;
-    const which = `${capitalised(armWord(goal.side))} target for ${subjectName(goal)}`;
+    const which = `Target for ${subjectName(goal)}`;
     if (kind === "removed") return `${which} removed.`;
     if (kind === "ended") return `${which} ended. It stops counting from today and is listed under Ended targets.`;
     const why = goal.startsOn > todayKey ? "It had not started yet" : "It started today";
@@ -171,7 +171,7 @@ export function useTargetEdits({ onSave, onRemove, todayKey, subjectName }: {
   };
   const change = (goal: SpecializationGoal, target: number): StoreWrite => {
     const result = onSave([{ ...goal, target, updatedAt: new Date().toISOString() }]);
-    if (result.ok) settle(`${capitalised(armWord(goal.side))} target for ${subjectName(goal)} changed to ${amountOf({ ...goal, target })} ${targetPeriodLabels[goal.period].toLowerCase()}.`);
+    if (result.ok) settle(`Target for ${subjectName(goal)} changed to ${amountOf({ ...goal, target })} ${targetPeriodLabels[goal.period].toLowerCase()}.`);
     return result;
   };
   const undo = () => {
@@ -230,7 +230,7 @@ function ChangeTarget({ goal, description, onSave, onCancel }: {
 
 function TargetRow({ goal, side, progress, subjectName, showSubject, editing, onEdit, onStopEditing, edits, todayKey }: {
   goal: SpecializationGoal;
-  side: ArmSide;
+  side: SummarySide;
   progress: GoalProgress | null;
   subjectName: string;
   showSubject: boolean;
@@ -248,12 +248,12 @@ function TargetRow({ goal, side, progress, subjectName, showSubject, editing, on
   }, [editing]);
   const description = describeTarget(goal, subjectName, todayKey);
   const startsLater = goal.startsOn > todayKey;
-  const current = goal.side === side;
+  const current = side === "both" || goal.side === side;
   // On this arm, the summary's "8 of your 20"; with no summary yet, nothing rather than a guess.
   const label = !current || startsLater ? null : progress ? progress.label : null;
   return <li className="spz-target spz-tg-row" data-side={goal.side} data-current={current || undefined}>
     <span>
-      <b>{showSubject ? `${subjectName} · ` : ""}{sideLabels[goal.side]} · {goalMetricLabels[goal.metric]}</b>
+      <b>{showSubject ? `${subjectName} · ` : ""}{side === "both" ? "" : `${sideLabels[goal.side]} · `}{goalMetricLabels[goal.metric]}</b>
       <small>
         {amountOf(goal)} {targetPeriodLabels[goal.period].toLowerCase()}
         {startsLater ? ` · starts ${formatDateKey(goal.startsOn)}` : ""}
@@ -283,7 +283,7 @@ function TargetRow({ goal, side, progress, subjectName, showSubject, editing, on
  */
 export function TargetRows({ goals, side, progress, edits, subjectName, showSubject = false, todayKey, progressReady = true }: {
   goals: readonly SpecializationGoal[];
-  side: ArmSide;
+  side: SummarySide;
   progress: readonly GoalProgress[];
   edits: TargetEdits;
   subjectName: (goal: SpecializationGoal) => string;
@@ -297,7 +297,7 @@ export function TargetRows({ goals, side, progress, edits, subjectName, showSubj
     {sortTargets(goals).map((goal) => {
       const found = progress.find((item) => item.goal.id === goal.id) ?? null;
       // A ready summary always reads an active target on its arm; without one, say what it reads as so far.
-      const shown = found ?? (progressReady && goal.side === side && goal.startsOn <= todayKey ? { goal, value: 0, fraction: 0, label: goalProgressLabel(0, goal) } : null);
+      const shown = found ?? (progressReady && (side === "both" || goal.side === side) && goal.startsOn <= todayKey ? { goal, value: 0, fraction: 0, label: goalProgressLabel(0, goal) } : null);
       return <TargetRow key={goal.id} goal={goal} side={side} progress={shown} subjectName={subjectName(goal)} showSubject={showSubject}
         editing={editingId === goal.id} onEdit={() => setEditingId(goal.id)} onStopEditing={() => setEditingId(null)} edits={edits} todayKey={todayKey} />;
     })}
@@ -317,7 +317,7 @@ export function EndedTargets({ goals, subjectName, showSubject = false }: {
     <ul className="spz-target-list">
       {sorted.map((goal) => <li key={goal.id} className="spz-target" data-side={goal.side}>
         <span>
-          <b>{showSubject ? `${subjectName(goal)} · ` : ""}{sideLabels[goal.side]} · {goalMetricLabels[goal.metric]}</b>
+          <b>{showSubject ? `${subjectName(goal)} · ` : ""}{goalMetricLabels[goal.metric]}</b>
           <small>{amountOf(goal)} {targetPeriodLabels[goal.period].toLowerCase()} · {formatDateKey(goal.startsOn)} to {formatDateKey(goal.endsOn ?? goal.startsOn)}</small>
         </span>
       </li>)}
@@ -334,7 +334,7 @@ export function EndedTargets({ goals, subjectName, showSubject = false }: {
  */
 export function TargetForm({ regionId, side, timeZone, todayKey, subject, subjectGroups, onSave, onSaved, onCancel }: {
   regionId: string;
-  side: ArmSide;
+  side: SummarySide;
   timeZone: string;
   todayKey: string;
   /** The subject, when it is fixed (the muscle sheet). */
@@ -367,7 +367,8 @@ export function TargetForm({ regionId, side, timeZone, todayKey, subject, subjec
       actionId: chosen.kind === "movement" ? chosen.id : null,
       metric, target: value, period, startsOn: todayKey, endsOn: null, timezone: timeZone, createdAt: now, updatedAt: now,
     };
-    const goals = arms === "both" ? goalsForBothArms(draft) : [{ ...draft, side }];
+    // Both arms are one: a single target (its stored side is a placeholder nothing reads).
+    const goals: SpecializationGoal[] = side === "both" ? [{ ...draft, side: "right" }] : arms === "both" ? goalsForBothArms(draft) : [{ ...draft, side }];
     const result = onSave(goals);
     if (!result.ok) { setError(result.reason); return; }
     setError(null);
@@ -402,14 +403,14 @@ export function TargetForm({ regionId, side, timeZone, todayKey, subject, subjec
           {(Object.keys(targetPeriodLabels) as GoalPeriod[]).map((item) => <option key={item} value={item}>{targetPeriodLabels[item]}</option>)}
         </select>
       </label>
-      <div className="spz-tg-group-field">
+      {side !== "both" && <div className="spz-tg-group-field">
         <span id={`${uid}-arms`} className="spz-tg-label">Which arm</span>
         <div className="spz-segment" role="group" aria-labelledby={`${uid}-arms`}>
           <button type="button" aria-pressed={arms === "both"} onClick={() => setArms("both")}>Both arms</button>
           <button type="button" aria-pressed={arms === "this"} onClick={() => setArms("this")}>{side === "left" ? "Left arm only" : "Right arm only"}</button>
         </div>
-      </div>
-      <p className="spz-note">A target is what you intend to do, not a proven growth threshold. Numbers above 15 are fine. Both arms saves one target per arm, so each can be compared and changed on its own.</p>
+      </div>}
+      <p className="spz-note">A target is what you intend to do, not a proven growth threshold. Numbers above 15 are fine.{side === "both" ? " Work with either arm counts toward it." : " Both arms saves one target per arm, so each can be compared and changed on its own."}</p>
       {chosen?.kind === "movement" && <p className="spz-note">A movement target counts each bout once when that movement is direct work for any muscle on this page.</p>}
       {error && <p className="spz-error" role="alert">{error}</p>}
       <div className="spz-actions">
@@ -446,7 +447,7 @@ export function TargetsEditor({ regionId, nodeId, nodeName, side, goals, progres
   regionId: string;
   nodeId: string;
   nodeName: string;
-  side: ArmSide;
+  side: SummarySide;
   /** Every saved target for this muscle, both arms, ended ones included. */
   goals: readonly SpecializationGoal[];
   /** Progress for the arm on screen, from the summary. */
@@ -462,7 +463,7 @@ export function TargetsEditor({ regionId, nodeId, nodeName, side, goals, progres
   const subjectName = () => nodeName;
   const edits = useTargetEdits({ onSave, onRemove, todayKey, subjectName });
   const { active, ended } = splitTargets(goals, todayKey);
-  const onThisArm = active.some((goal) => goal.side === side);
+  const onThisArm = side === "both" || active.some((goal) => goal.side === side);
 
   return <div className="spz-targets">
     {active.length ? <>
@@ -472,7 +473,7 @@ export function TargetsEditor({ regionId, nodeId, nodeName, side, goals, progres
     <TargetEditStatus edits={edits} />
     {open
       ? <TargetForm regionId={regionId} side={side} timeZone={timeZone} todayKey={todayKey} subject={{ kind: "muscle", id: nodeId, name: nodeName }} onSave={onSave}
-        onSaved={(saved) => { edits.settle(saved.length === 2 ? `Saved: one target per arm for ${nodeName}.` : `Saved: a ${armWord(saved[0].side)} target for ${nodeName}.`); setOpen(false); }}
+        onSaved={(saved) => { edits.settle(saved.length === 2 ? `Saved: one target per arm for ${nodeName}.` : `Saved: a target for ${nodeName}.`); setOpen(false); }}
         onCancel={() => setOpen(false)} />
       : <button ref={addRef} type="button" className="spz-link" onClick={() => setOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" />Set a target</button>}
     <EndedTargets goals={ended} subjectName={subjectName} />

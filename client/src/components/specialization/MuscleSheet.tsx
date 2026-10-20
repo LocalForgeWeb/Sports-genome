@@ -4,10 +4,10 @@ import type { SpecializationExclusions } from "@/lib/specialization/exclusions";
 import type { Recommendations } from "@/lib/specialization/recommendations";
 import type { StoreWrite } from "@/lib/specialization/stores";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
-import type { AnatomyNode, ArmSide, GoalProgress, NodeExposure, SpecializationGoal, SpecializationRegionData, SummaryMode } from "@shared/specialization/types";
+import type { AnatomyNode, ArmSide, GoalProgress, NodeExposure, SpecializationGoal, SpecializationRegionData, SummaryMode, SummarySide } from "@shared/specialization/types";
 import { ActionGlyph } from "./ActionGlyph";
 import { BoutItem, boutDay } from "./BoutItem";
-import { categoryLabel, formatSegment, holdTime, layerLabels, ledgerByExercise, sideLabels } from "./model";
+import { categoryLabel, formatSegment, holdTime, layerLabels, ledgerByExercise } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
 import { Suggestions } from "./Suggestions";
 import { TargetsEditor } from "./TargetsEditor";
@@ -33,7 +33,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
   exposure: NodeExposure | null;
   /** Planned mode while the plan is still loading: no numbers yet, and none shown as zero or as "not mapped". */
   loading?: boolean;
-  side: ArmSide;
+  side: SummarySide;
   mode: SummaryMode;
   intervalLabel: string;
   weightUnit: DisplayWeightUnit;
@@ -66,7 +66,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
   const claims = data.claims.filter((claim) => claim.nodeId === node.id && claim.reviewStatus !== "rejected");
   const sourceById = new Map(data.sources.map((source) => [source.id, source] as const));
   const nodeName = (id: string) => data.nodes.find((item) => item.id === id)?.shortName ?? id;
-  const armWord = side === "left" ? "left arm" : "right arm";
+  const armWord = side === "left" ? "left arm" : side === "right" ? "right arm" : null;
   const ledger = exposure ? ledgerByExercise(exposure.contributions) : [];
   const notCounted = exposure?.notCounted ?? [];
   useEffect(() => {
@@ -104,7 +104,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-exposure">
-      <h3 id="spz-exposure">{mode === "planned" ? "Planned" : "Completed"} · {intervalLabel} · {armWord}</h3>
+      <h3 id="spz-exposure">{[mode === "planned" ? "Planned" : "Completed", intervalLabel, armWord].filter(Boolean).join(" · ")}</h3>
       {loading ? <p className="spz-note">Loading your plan…</p>
         : !exposure || exposure.mappingCoverage === "none"
         ? <p className="spz-note">No exercise is mapped to this muscle yet, so there is nothing to count. That is missing mapping, not missing training.</p>
@@ -120,7 +120,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
           {(exposure.unknownSide.pendingReviewBouts ?? 0) > 0 && <div><dt>Under review, no arm recorded</dt><dd>{exposure.unknownSide.pendingReviewBouts}<small> · shown, not counted</small></dd></div>}
         </dl>}
       {exposure?.mappingCoverage === "pending_review" && <p className="spz-note">Its exercise mapping is still under review, so nothing is counted for it yet.</p>}
-      {!loading && paired && exposure?.mappingCoverage === "reviewed" && <p className="spz-note"><b>{paired.label}:</b> {paired.exposure ? `${paired.exposure.directDynamicBouts} direct dynamic · ${paired.exposure.contributingDynamicBouts} other dynamic · ${paired.exposure.deliberateHoldBouts} holds` : "nothing"}, {side === "left" ? "left" : "right"} arm.</p>}
+      {!loading && paired && exposure?.mappingCoverage === "reviewed" && <p className="spz-note"><b>{paired.label}:</b> {paired.exposure ? `${paired.exposure.directDynamicBouts} direct dynamic · ${paired.exposure.contributingDynamicBouts} other dynamic · ${paired.exposure.deliberateHoldBouts} holds` : "nothing"}{armWord ? `, ${armWord}` : ""}.</p>}
       {!loading && !paired && pairNote && exposure?.mappingCoverage === "reviewed" && <p className="spz-note">{pairNote}</p>}
     </section>
 
@@ -133,7 +133,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
             {group.rows.map((row) => <li key={row.boutId} className="spz-bout">
               <div className="spz-bout-head">
                 <b>{categoryLabel(row.category)}</b>
-                <small>{[row.sessionLabel, row.performedAt ? new Date(row.performedAt).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) : null, sideLabels[row.side]].filter(Boolean).join(" · ")}</small>
+                <small>{[row.sessionLabel, row.performedAt ? new Date(row.performedAt).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) : null].filter(Boolean).join(" · ")}</small>
               </div>
               <ul className="spz-segments">{row.segments.map((segment, index) => <li key={segment.id}>{row.kind === "drop" ? `Drop ${index + 1}: ` : ""}{formatSegment(segment, weightUnit)}</li>)}</ul>
               {row.category === "mixed" && <p className="spz-note">Parts: {row.parts.map((part) => categoryLabel(part.category)).join(" and ")}. Counted once.</p>}
@@ -148,7 +148,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
         {notCounted.length > 0 && <details className="spz-disclosure">
           <summary><span><b>Not counted</b><small>{notCounted.length} bout{notCounted.length === 1 ? "" : "s"} matched but earned nothing</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
           {/* The same set records as the ledger above (brief §1): its segments as logged and the workout it was in, with why it earned nothing. */}
-          <ol className="spz-bouts">{notCounted.map((row) => <BoutItem key={`${row.boutId}-nc`} row={row} title={row.exerciseName} meta={[row.sessionLabel, boutDay(row.performedAt), sideLabels[row.side], row.matchedBy === "name" ? "matched by name" : null].filter(Boolean).join(" · ")} weightUnit={weightUnit} onOpenSession={onOpenSession}>
+          <ol className="spz-bouts">{notCounted.map((row) => <BoutItem key={`${row.boutId}-nc`} row={row} title={row.exerciseName} meta={[row.sessionLabel, boutDay(row.performedAt), row.matchedBy === "name" ? "matched by name" : null].filter(Boolean).join(" · ")} weightUnit={weightUnit} onOpenSession={onOpenSession}>
             <p className="spz-note">{row.notes.join(" · ") || "Not counted."}</p>
           </BoutItem>)}</ol>
         </details>}

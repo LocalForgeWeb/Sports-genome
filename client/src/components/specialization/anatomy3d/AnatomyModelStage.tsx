@@ -59,14 +59,11 @@ class ModelBoundary extends Component<{ onError: () => void; children: ReactNode
 
 type StageStatus = { status: CanvasStatus; failure?: CanvasFailure };
 
-export function AnatomyModelStage({ config, selectedNodeId, side, label, sideCaption, onSelect, onOverview, onShowDrawing, overviewShown }: {
+export function AnatomyModelStage({ config, selectedNodeId, label, onSelect, onOverview, onShowDrawing, overviewShown }: {
   config: AnatomyModelConfig;
   selectedNodeId: string | null;
-  side: "left" | "right";
-  /** What the canvas shows, for a screen reader: region, arm and selection. */
+  /** What the canvas shows, for a screen reader: the region and the selection. */
   label: string;
-  /** "Right arm" / "Left arm, mirrored", said on the stage. */
-  sideCaption: string;
   onSelect: (nodeId: string) => void;
   onOverview: () => void;
   onShowDrawing: () => void;
@@ -90,7 +87,7 @@ export function AnatomyModelStage({ config, selectedNodeId, side, label, sideCap
         <View
           config={config}
           selectedNodeId={selectedNodeId}
-          side={side}
+          side="right"
           reducedMotion={reducedMotion}
           label={label}
           onSelect={onSelect}
@@ -115,6 +112,5 @@ export function AnatomyModelStage({ config, selectedNodeId, side, label, sideCap
       </div>
     </div>}
     {stage.status === "ready" && overviewShown && <button type="button" className="sg-anatomy3d-float sg-anatomy3d-overview" onClick={onOverview}>Overview</button>}
-    {stage.status === "ready" && <p className="sg-anatomy3d-caption" aria-hidden="true">{sideCaption}</p>}
   </div>;
 }

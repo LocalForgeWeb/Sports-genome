@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import type { StoreWrite } from "@/lib/specialization/stores";
-import type { ArmSide, SpecializationGoal, SpecializationRegionData, SpecializationSummary } from "@shared/specialization/types";
+import type { ArmSide, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummarySide } from "@shared/specialization/types";
 import { EndedTargets, TargetEditStatus, TargetForm, TargetRows, splitTargets, subjectKeyOf, useReturnFocus, useTargetEdits, type TargetSubject } from "./TargetsEditor";
 
 /**
@@ -28,7 +28,7 @@ export type TargetsOverviewProps = {
   summary: SpecializationSummary | null;
   /** The region's targets, both arms, ended ones included. */
   goals: readonly SpecializationGoal[];
-  side: ArmSide;
+  side: SummarySide;
   timeZone: string;
   /** Today's local date (YYYY-MM-DD). */
   todayKey: string;
@@ -79,6 +79,7 @@ export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey
     .sort((a, b) => (order.get(a.key) ?? Number.MAX_SAFE_INTEGER) - (order.get(b.key) ?? Number.MAX_SAFE_INTEGER) || a.subject.name.localeCompare(b.subject.name));
   // Only a summary of this arm speaks for this arm.
   const summaryHere = summary && summary.side === side ? summary : null;
+  const oneArm = side !== "both";
   const progress = summaryHere ? summaryHere.goals : [];
 
   return <div className="spz-tg-overview">
@@ -89,14 +90,14 @@ export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey
           {group.subject.kind === "muscle" && <button type="button" className="spz-button" onClick={() => onOpenMuscle(group.subject.id)} aria-label={`Open ${group.subject.name}`}>Open</button>}
           {group.subject.kind === "movement" && onOpenMovement && <button type="button" className="spz-button" onClick={() => onOpenMovement(group.subject.id)} aria-label={`Open ${group.subject.name}`}>Open</button>}
         </div>
-        {!group.goals.some((goal) => goal.side === side) && <p className="spz-note"><b>Not targeted on the {side} arm.</b></p>}
+        {oneArm && !group.goals.some((goal) => goal.side === side) && <p className="spz-note"><b>Not targeted on the {side} arm.</b></p>}
         <TargetRows goals={group.goals} side={side} progress={progress} edits={edits} subjectName={subjectName} todayKey={todayKey} progressReady={summaryHere !== null} />
       </li>)}
     </ul> : <p className="spz-note"><b>No targets.</b> A muscle or movement without a target is not behind on anything.</p>}
     <TargetEditStatus edits={edits} />
     {open
       ? <TargetForm regionId={data.region.id} side={side} timeZone={timeZone} todayKey={todayKey} subjectGroups={subjectGroups} onSave={onSave}
-        onSaved={(saved, subject) => { edits.settle(saved.length === 2 ? `Saved: one target per arm for ${subject.name}.` : `Saved: a ${saved[0].side}-arm target for ${subject.name}.`); setOpen(false); }}
+        onSaved={(saved, subject) => { edits.settle(!oneArm ? `Saved: a target for ${subject.name}.` : saved.length === 2 ? `Saved: one target per arm for ${subject.name}.` : `Saved: a ${saved[0].side}-arm target for ${subject.name}.`); setOpen(false); }}
         onCancel={() => setOpen(false)} />
       : <button ref={addRef} type="button" className="spz-link" onClick={() => setOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" />Add a target</button>}
     <EndedTargets goals={ended} subjectName={subjectName} showSubject />

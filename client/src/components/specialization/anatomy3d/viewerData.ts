@@ -1,4 +1,4 @@
-import type { AnatomyNode, ArmSide, GoalMetric, GoalPeriod, GoalProgress, NodeExposure, SpecializationRegionData, SpecializationSummary, SummaryMode } from "@shared/specialization/types";
+import type { AnatomyNode, ArmSide, GoalMetric, GoalPeriod, GoalProgress, NodeExposure, SpecializationRegionData, SpecializationSummary, SummaryMode, SummarySide } from "@shared/specialization/types";
 import type { SpecializationWindow } from "@/lib/specialization/viewState";
 import { categoryLabel, layerLabels, ledgerByExercise } from "../model";
 import { modelSourceForCanonical } from "./modelIdentity";
@@ -78,7 +78,7 @@ export type ViewerSummaryState =
   | { kind: "error"; note: string }
   | { kind: "ready"; summary: SpecializationSummary };
 
-export type ViewerWindow = { mode: SummaryMode; window: SpecializationWindow; side: ArmSide; timeZone: string };
+export type ViewerWindow = { mode: SummaryMode; window: SpecializationWindow; side: SummarySide; timeZone: string };
 
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
@@ -190,7 +190,7 @@ export function viewerMuscleData(input: { data: SpecializationRegionData; nodeId
   const note = partialNote(exposure);
   const counted = exposure.directDynamicBouts + exposure.contributingDynamicBouts + exposure.deliberateHoldBouts + exposure.incidentalBouts + exposure.mixedBouts + exposure.unknownBouts;
   const status: ViewerDataStatus = note ? "partial" : counted === 0 ? "zero" : "complete";
-  const nothing = `Nothing ${view.mode === "planned" ? "planned" : "logged"} for it on the ${view.side} arm in this window.`;
+  const nothing = `Nothing ${view.mode === "planned" ? "planned" : "logged"} for it${view.side === "both" ? "" : ` on the ${view.side} arm`} in this window.`;
   return {
     ...base,
     directDynamicSets: { bouts: exposure.directDynamicBouts, reps: exposure.directDynamicReps },

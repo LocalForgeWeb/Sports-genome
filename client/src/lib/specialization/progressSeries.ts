@@ -4,7 +4,7 @@ import type { Exercise } from "@/lib/exerciseCatalog";
 import { kilogramsToDisplayWeight, type DisplayWeightUnit } from "@/lib/weightUnits";
 import { loadConventionFor } from "@shared/loadConventions";
 import { addDaysToDateKey, dateRangeLabel, isDateKey, localDateKey, mondayIndexOfDateKey } from "@shared/specialization/time";
-import type { ArmSide, MeasurementMetric, MeasurementProtocol, SetMeasure, SpecializationMeasurement, SpecializationRegionData } from "@shared/specialization/types";
+import type { ArmSide, MeasurementMetric, MeasurementProtocol, SetMeasure, SpecializationMeasurement, SpecializationRegionData, SummarySide } from "@shared/specialization/types";
 import { holdSecondsOf, sideOf, variantLookup } from "./bouts";
 
 /**
@@ -247,7 +247,7 @@ function better(measure: SetMeasure, a: Candidate, b: Candidate): boolean {
  * other arm is left out; one done with both arms counts for either; one with no arm recorded
  * is kept and marked, never guessed onto an arm. Exercises are matched by catalog id only.
  */
-export function performanceSeries(sessions: readonly DeviceWorkoutSession[], input: { data: SpecializationRegionData; side: ArmSide; weightUnit: DisplayWeightUnit; timeZone: string; catalog?: readonly Pick<Exercise, "id" | "name">[] }): PerformanceSeries[] {
+export function performanceSeries(sessions: readonly DeviceWorkoutSession[], input: { data: SpecializationRegionData; side: SummarySide; weightUnit: DisplayWeightUnit; timeZone: string; catalog?: readonly Pick<Exercise, "id" | "name">[] }): PerformanceSeries[] {
   const { data, side, weightUnit, timeZone } = input;
   const mapped = directlyMappedCatalogIds(data);
   const variantOf = variantLookup(data.variants);
@@ -267,8 +267,9 @@ export function performanceSeries(sessions: readonly DeviceWorkoutSession[], inp
         // Completed work only: a skipped, unlogged or warm-up set is not a top set.
         if (!isCompletedSet(set) || set.warmup === true) continue;
         const arm = sideOf(set, variant).side;
-        if (arm !== side && arm !== "bilateral" && arm !== "unknown") continue;
-        const candidate: Candidate = { loadKg: setWeightKg(set, session, weightUnit) ?? null, reps: null, seconds: null, sideUnrecorded: arm === "unknown" };
+        if (side !== "both" && arm !== side && arm !== "bilateral" && arm !== "unknown") continue;
+        // For both arms, a set with no arm recorded is just a set.
+        const candidate: Candidate = { loadKg: setWeightKg(set, session, weightUnit) ?? null, reps: null, seconds: null, sideUnrecorded: side !== "both" && arm === "unknown" };
         if (measure === "seconds") {
           candidate.seconds = holdSecondsOf(set);
           if (candidate.seconds === null) continue;
@@ -367,8 +368,8 @@ export function readingsInOrder(readings: readonly SpecializationMeasurement[]):
 }
 
 /** The latest reading of one measure on one arm of a region: where the next one starts from. Null when there is none. */
-export function latestReading(readings: readonly SpecializationMeasurement[], match: { regionId: string; side: ArmSide; metric: MeasurementMetric }): SpecializationMeasurement | null {
-  const same = readings.filter((entry) => entry.regionId === match.regionId && entry.side === match.side && entry.metric === match.metric);
+export function latestReading(readings: readonly SpecializationMeasurement[], match: { regionId: string; side: SummarySide; metric: MeasurementMetric }): SpecializationMeasurement | null {
+  const same = readings.filter((entry) => entry.regionId === match.regionId && (match.side === "both" || entry.side === match.side) && entry.metric === match.metric);
   const ordered = readingsInOrder(same);
   return ordered[ordered.length - 1] ?? null;
 }

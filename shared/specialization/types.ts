@@ -388,6 +388,12 @@ export interface ExposureBout {
 export type GoalMetric = "direct_dynamic_bouts" | "deliberate_hold_bouts" | "deliberate_hold_seconds";
 export type GoalPeriod = "calendar_week" | "rolling_7d";
 export type ArmSide = "left" | "right";
+/**
+ * Which arm a summary counts. "both" (what the page shows, 20 Oct 2026) counts each set once
+ * per muscle whichever arm did it, a set with no arm recorded included: the forearms are one.
+ * "left" / "right" are the per-arm counts the atlas was built with, kept for stored records.
+ */
+export type SummarySide = ArmSide | "both";
 
 export interface SpecializationGoal {
   id: string;
@@ -559,7 +565,7 @@ export interface RegionBoutRow {
 export interface SpecializationSummary {
   regionId: RegionId;
   interval: SummaryInterval;
-  side: ArmSide;
+  side: SummarySide;
   mode: SummaryMode;
   mappingVersion: string;
   ruleVersion: string;
@@ -593,7 +599,7 @@ export interface SummaryRequest {
   region: SpecializationRegionData;
   bouts: readonly ExposureBout[];
   interval: SummaryInterval;
-  side: ArmSide;
+  side: SummarySide;
   mode: SummaryMode;
   goals: readonly SpecializationGoal[];
   /**

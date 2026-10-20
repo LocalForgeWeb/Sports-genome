@@ -162,7 +162,7 @@ describe("planned work is planned, not done (F-phone-7)", () => {
   it("says the region's planned bouts are planned for it, in that plan week, and never that they touched it", () => {
     render(createElement(Harness, { initial: { mode: "planned" } }));
     const strip = screen.getByRole("group", { name: "Selected muscle" });
-    expect(strip.textContent).toMatch(/^\d+ distinct bouts? (is|are) planned for the forearms on the right arm in Plan Week 1\./);
+    expect(strip.textContent).toMatch(/^\d+ distinct bouts? (is|are) planned for the forearms in Plan Week 1\./);
     expect(strip.textContent).not.toMatch(/touched/);
   });
 
@@ -180,7 +180,7 @@ describe("planned work is planned, not done (F-phone-7)", () => {
 
   it("still says logged work touched the region in completed mode", () => {
     render(createElement(Harness));
-    expect(screen.getByRole("group", { name: "Selected muscle" }).textContent).toMatch(/^3 distinct bouts touched the forearms on the right arm\./);
+    expect(screen.getByRole("group", { name: "Selected muscle" }).textContent).toMatch(/^3 distinct bouts touched the forearms\./);
   });
 });
 
@@ -206,37 +206,29 @@ describe("the completeness counts open what they can (F-completeness-4)", () => 
   };
   const method = () => document.getElementById("spz-method")!;
 
-  it("opens the region-only and no-arm sets from How this is counted, and says plainly what is not kept as a list", async () => {
-    const onOpenSession = vi.fn();
+  it("opens the region-only sets from How this is counted, and says plainly what is not kept as a list", async () => {
     logged([tuesday, thursday]);
-    render(createElement(Harness, { onOpenSession }));
+    render(createElement(Harness));
     expect(method().textContent).toMatch(/Left out: 1 not completed, 1 warm-ups\./);
     expect(method().textContent).toMatch(/Sets not completed and warm-ups are left out of every total and not kept as a list, so they cannot be opened\./);
-
-    // The three forearms-only sets have no arm recorded too: said to be in their own list, never "left out".
-    expect(method().textContent).toMatch(/3 sets with no arm recorded are among the sets for the forearms only, and open there\./);
     expect(method().textContent).not.toMatch(/count for no muscle|leaves them out/);
     await click(within(method()).getByRole("button", { name: /See the 3 sets for the forearms only/ }));
-    let sheet = screen.getByRole("dialog", { name: "3 sets for the forearms as a whole" });
+    const sheet = screen.getByRole("dialog", { name: "3 sets for the forearms as a whole" });
     expect(within(sheet).getByText("Dumbbell Pullover")).not.toBeNull();
-    await act(async () => { fireEvent.keyDown(window, { key: "Escape" }); });
-
-    await click(within(method()).getByRole("button", { name: /See the 1 set with no arm recorded/ }));
-    sheet = screen.getByRole("dialog", { name: "1 set with no arm recorded" });
-    expect(within(sheet).getByText("One-Arm Dumbbell Wrist Curl")).not.toBeNull();
-    await click(within(sheet).getByRole("button", { name: /Open this workout/ }));
-    expect(onOpenSession).toHaveBeenCalledWith("s-thu");
   });
 
-  it("says which sets with no arm recorded are in which list, and which count for no muscle of the forearms", () => {
-    // A strapped one-leg Romanian deadlift: its only forearm credit is grip, which straps take away, and it names no arm.
+  it("says nothing about arms: both arms are counted as one, so a set with no arm recorded is just a set (20 Oct 2026)", async () => {
+    // A strapped one-leg Romanian deadlift: its only forearm credit is grip, which straps take away.
     const strapped = { id: "rdl", exerciseName: "Single-Leg Romanian Deadlift", catalogId: 188, plannedPrescription: "1 × 8", straps: "yes", sets: [set(60, 8)] };
     logged([tuesday, { ...thursday, exercises: [...thursday.exercises, strapped] }]);
     render(createElement(Harness));
     const text = method().textContent ?? "";
-    expect(text).toMatch(/5 with no arm recorded/);
-    expect(text).toMatch(/3 sets with no arm recorded are among the sets for the forearms only, and open there\./);
-    expect(text).toMatch(/The other set with no arm recorded counts for no muscle of the forearms, so no list of it opens here\./);
+    expect(text).not.toMatch(/neither arm|kept apart|with no arm recorded (is|are)|on that arm|for each arm/);
+    expect(text).toContain("Both arms count together");
+    expect(within(method()).queryByRole("button", { name: /no arm recorded/ })).toBeNull();
+    // The one-arm wrist curl, logged with no arm, counts with the region's other sets.
+    await click(screen.getAllByRole("button", { name: "See these sets" })[0]);
+    expect(within(screen.getByRole("dialog")).getAllByText("One-Arm Dumbbell Wrist Curl").length).toBeGreaterThan(0);
   });
 
   it("has nothing to open, and says nothing extra, when every set counted", () => {

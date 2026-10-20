@@ -25,7 +25,7 @@ export type LoggedSide = "left" | "right" | "both";
 export interface LoggingPolicy {
   /** What the set's dose is entered in: reps, or the seconds of a hold. */
   measure: "reps" | "seconds";
-  /** Ask which arm: the variant can be (or must be) done one arm at a time. */
+  /** Ask which arm. Always false since the forearms are counted as one (20 Oct 2026); kept so a later region can ask. */
   askSide: boolean;
   /**
    * The variant is one arm at a time by definition (laterality `unilateral`, not `either`): a
@@ -75,11 +75,14 @@ export function loggingPolicyFor(
   if (catalogExerciseId === null || catalogExerciseId === undefined || !Number.isFinite(catalogExerciseId)) return defaultLoggingPolicy;
   const variant = variants.find((item) => item.catalogExerciseId === catalogExerciseId);
   if (!variant) return defaultLoggingPolicy;
-  const askSide = variant.laterality === "unilateral" || variant.laterality === "either";
   return {
     measure: variant.measure === "seconds" ? "seconds" : "reps",
-    askSide,
-    oneArm: variant.laterality === "unilateral",
+    // Which arm is no longer asked (20 Oct 2026): the forearms are counted as one, so the arm
+    // a set was done with changes no number. A set logged with an arm earlier keeps it.
+    askSide: false,
+    // Nor is a planned one-arm set laid out as a row per arm: with the arms counted as one,
+    // a set is a set.
+    oneArm: false,
     // A two-handed implement never asks. "Either" is usually two arms at once (a pair of
     // dumbbells), so it starts on Both; a one-arm exercise starts unset.
     sideDefault: variant.laterality === "either" ? "both" : null,

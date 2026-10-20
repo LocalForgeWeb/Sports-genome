@@ -172,53 +172,25 @@ describe("Swapping a hold", () => {
   });
 });
 
-describe("Which arm, only where the exercise can be done one arm at a time", () => {
-  it("does not ask on a two-handed hold or an unmapped lift", () => {
-    start([deadHang, bench]);
+describe("No arm is asked: both arms are counted as one (owner, 20 Oct 2026)", () => {
+  it.each([["a one-arm exercise", () => cableRow], ["an either-arm exercise", () => hammerCurl], ["a two-handed hold", () => deadHang], ["an unmapped lift", () => bench]])("asks no arm on %s", (_name, exercise) => {
+    start([exercise()]);
     expect(arm()).toBeNull();
   });
 
-  it("starts an either-arm exercise on Both and records it", () => {
-    start([hammerCurl]);
-    const group = arm()!;
-    expect(group.getAttribute("aria-label")).toBe("Arm for set 1 of Hammer Curl");
-    expect(within(group).getAllByRole("button").map((button) => button.textContent)).toEqual(["Left", "Right", "Both"]);
-    expect(pressed(group)).toEqual(["Both"]);
-    log();
-    expect(stored()[0].exercises[0].sets[0].side).toBe("both");
-    // Both stays Both: a two-arm set has no other arm to move to.
-    expect(pressed(arm()!)).toEqual(["Both"]);
-  });
-
-  it("starts a one-arm exercise unset, records the arm picked, and moves to the other arm after each set", () => {
-    start([cableRow]);
-    expect(pressed(arm()!)).toEqual([]);
-    fireEvent.click(within(arm()!).getByRole("button", { name: "Left" }));
-    expect(pressed(arm()!)).toEqual(["Left"]);
-    log();
-    expect(stored()[0].exercises[0].sets[0].side).toBe("left");
-    expect(pressed(arm()!)).toEqual(["Right"]);
-    log();
-    expect(stored()[0].exercises[0].sets[1].side).toBe("right");
-    expect(pressed(arm()!)).toEqual(["Left"]);
-  });
-
-  it("logs no side when a one-arm exercise's arm was never picked, rather than guessing one", () => {
+  it("logs a set with no arm, rather than guessing one", () => {
     start([cableRow]);
     log();
     expect(stored()[0].exercises[0].sets[0]).not.toHaveProperty("side");
   });
 
-  it("gives each arm and each straps choice a 44 px target, visible at rest", () => {
-    start([cableRow], { askStraps: true });
-    expect(arm()!.className).toBe("live-set-side");
+  it("gives each straps choice a 44 px target, visible at rest", () => {
     // jsdom does not lay out, so the rule is read from the stylesheet the controls use.
     const css = readFileSync(resolve(process.cwd(), "client/src/set-side.css"), "utf8");
-    for (const selector of [".live-set-side button", ".live-set-straps button"]) {
-      const rule = css.slice(css.indexOf(`${selector} {`), css.indexOf("}", css.indexOf(`${selector} {`)));
-      expect(rule, selector).toContain("min-height: 2.75rem");
-      expect(rule, `${selector} has a border at rest`).toMatch(/border: 1px solid/);
-    }
+    const selector = ".live-set-straps button";
+    const rule = css.slice(css.indexOf(`${selector} {`), css.indexOf("}", css.indexOf(`${selector} {`)));
+    expect(rule, selector).toContain("min-height: 2.75rem");
+    expect(rule, `${selector} has a border at rest`).toMatch(/border: 1px solid/);
     expect(css).not.toMatch(/:hover/);
   });
 });
@@ -260,21 +232,23 @@ describe("Set ids", () => {
 });
 
 describe("The saved workout shows what was recorded", () => {
-  it("shows the hold in seconds, the arm and the straps", () => {
+  it("shows the hold in seconds and the straps", () => {
     start([farmerHold], { prescription: "1 × 40", askStraps: true });
-    fireEvent.click(within(arm()!).getByRole("button", { name: "Left" }));
+    expect(arm()).toBeNull();
     fireEvent.click(within(card()).getByRole("button", { name: "Used" }));
     type(/^Weight/, "70");
     type(/^Seconds/, "40");
     log();
-    expect(document.querySelector(".live-done-summary")!.textContent).toContain("70 lb × 40 s · Left");
+    expect(document.querySelector(".live-done-summary")!.textContent).toContain("70 lb × 40 s");
+    expect(document.querySelector(".live-done-summary")!.textContent).not.toMatch(/Left|Right/);
     fireEvent.click(screen.getByRole("button", { name: /^Finish workout/ }));
     const saved = document.querySelector("[data-session-detail]") as HTMLElement;
     expect(within(saved).getByRole("heading", { name: "Workout saved" })).toBeTruthy();
-    expect(saved.textContent).toContain("70 lb × 40 s · Left");
+    expect(saved.textContent).toContain("70 lb × 40 s");
     expect(saved.textContent).toContain("Straps used");
     expect(saved.textContent).not.toMatch(/NaN|reps/);
-    expect(stored()[0]).toMatchObject({ status: "completed", exercises: [{ straps: "yes", sets: [{ holdSeconds: "40", side: "left", reps: "" }] }] });
+    expect(stored()[0]).toMatchObject({ status: "completed", exercises: [{ straps: "yes", sets: [{ holdSeconds: "40", reps: "" }] }] });
+    expect(stored()[0].exercises[0].sets[0]).not.toHaveProperty("side");
   });
 });
 

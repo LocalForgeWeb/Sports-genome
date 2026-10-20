@@ -48,7 +48,10 @@ export function isDirectWork(contribution: Contribution): boolean {
  * helps with or steadies stays in the list and the ledger, off the map.
  */
 export function directWorkBouts(node: NodeExposure): number {
-  return new Set(node.contributions.filter((item) => item.side !== "unknown" && isDirectWork(item)).map((item) => item.boutId)).size;
+  // A set with no arm recorded is kept apart (in `unknownSide`) only by a one-arm summary; in
+  // a summary of both arms (what the page shows) it is counted like any other set.
+  const keptApart = node.unknownSide.bouts + (node.unknownSide.pendingReviewBouts ?? 0) > 0;
+  return new Set(node.contributions.filter((item) => (!keptApart || item.side !== "unknown") && isDirectWork(item)).map((item) => item.boutId)).size;
 }
 
 export function goalsForNode(summary: SpecializationSummary | null, nodeId: string): GoalProgress[] {
@@ -222,7 +225,7 @@ export function findingsFor(input: {
   const nodeById = new Map(data.nodes.map((node) => [node.id, node] as const));
   const nameOf = (id: string) => nodeById.get(id)?.name ?? id;
   const window = summary.mode === "planned" ? "in this plan week" : "in this window";
-  const arm = summary.side === "left" ? "left arm" : "right arm";
+  const arm = summary.side === "left" ? "left arm" : summary.side === "right" ? "right arm" : null;
   const region = data.region.label.toLowerCase();
 
   for (const progress of summary.goals) {
@@ -232,7 +235,7 @@ export function findingsFor(input: {
       id: `goal:${progress.goal.id}`,
       title: `${subject}: ${progress.label}`,
       // Planned mode reads the plan week on screen; completed mode reads the target's own period.
-      detail: `${goalMetricLabels[progress.goal.metric]}, ${arm}, ${summary.mode === "planned" ? `${summary.interval.label}` : progress.goal.period === "calendar_week" ? "this calendar week" : "the last 7 days"}. The target is yours, not a prescription.`,
+      detail: `${goalMetricLabels[progress.goal.metric]}, ${arm ? `${arm}, ` : ""}${summary.mode === "planned" ? `${summary.interval.label}` : progress.goal.period === "calendar_week" ? "this calendar week" : "the last 7 days"}. The target is yours, not a prescription.`,
       // A muscle target opens the muscle's exercises; a movement target opens the movement: its sets and its exercises.
       action: progress.goal.nodeId ? { kind: "add", nodeId: progress.goal.nodeId } : progress.goal.actionId ? { kind: "movement", actionId: progress.goal.actionId } : null,
       actionLabel: progress.goal.nodeId ? "See exercises for it" : progress.goal.actionId ? "See its sets and exercises" : null,
@@ -330,7 +333,8 @@ export function exercisesInWindow(summary: SpecializationSummary, data: Speciali
   for (const node of summary.nodes) {
     if (!regionNodes.has(node.nodeId)) continue;
     for (const row of node.contributions) {
-      if (row.side === "unknown") continue;
+      // Kept apart with no arm recorded only in a one-arm summary; both arms count every set.
+      if (summary.side !== "both" && row.side === "unknown") continue;
       const key = row.catalogExerciseId !== null ? `id:${row.catalogExerciseId}` : `name:${row.exerciseName}`;
       const entry = byExercise.get(key) ?? { name: row.exerciseName, catalogExerciseId: row.catalogExerciseId, bouts: new Set<string>(), directFor: new Set<string>() };
       entry.bouts.add(row.boutId);
@@ -350,7 +354,7 @@ export function boutsByDay(summary: SpecializationSummary, data: SpecializationR
   for (const node of summary.nodes) {
     if (!regionNodes.has(node.nodeId)) continue;
     for (const row of node.contributions) {
-      if (row.side === "unknown" || !row.performedAt) continue;
+      if ((summary.side !== "both" && row.side === "unknown") || !row.performedAt) continue;
       const key = dayKeyOf(row.performedAt);
       const set = byDay.get(key) ?? new Set<string>();
       set.add(row.boutId);
@@ -374,7 +378,7 @@ export function overlapsInWindow(summary: SpecializationSummary, data: Specializ
     const meta = regionNodes.get(node.nodeId);
     if (!meta) continue;
     for (const row of node.contributions) {
-      if (row.side === "unknown" || !isDirectWork(row)) continue;
+      if ((summary.side !== "both" && row.side === "unknown") || !isDirectWork(row)) continue;
       const session = row.sessionId ?? row.sessionLabel;
       const key = `${session}|${node.nodeId}`;
       const entry = bySessionNode.get(key) ?? { key, sessionLabel: row.sessionLabel, performedAt: row.performedAt, nodeId: node.nodeId, nodeShortName: meta.shortName, exercises: [], names: new Set<string>() };
@@ -548,6 +552,7 @@ const CATEGORY_ORDER: readonly ExposureCategory[] = ["direct_dynamic", "delibera
  * many muscles it moved, so "3 of your 10" for wrist extension opens the three sets.
  */
 export function movementLedger(summary: SpecializationSummary, data: SpecializationRegionData, actionId: string): { bouts: MovementBout[]; totals: MovementTotals } {
+  const bothArms = summary.side === "both";
   const regionNodes = new Set(data.nodes.filter((node) => node.regionId === data.region.id).map((node) => node.id));
   const byBout = new Map<string, MovementBout>();
   for (const node of summary.nodes) {
@@ -572,7 +577,7 @@ export function movementLedger(summary: SpecializationSummary, data: Specializat
   const bouts = Array.from(byBout.values()).map((bout) => ({ ...bout, categories: [...bout.categories].sort((left, right) => CATEGORY_ORDER.indexOf(left) - CATEGORY_ORDER.indexOf(right)) }));
   const totals: MovementTotals = { directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, otherBouts: 0, unknownSideBouts: 0 };
   for (const bout of bouts) {
-    if (bout.side === "unknown") { totals.unknownSideBouts += 1; continue; }
+    if (bout.side === "unknown" && !bothArms) { totals.unknownSideBouts += 1; continue; }
     const direct = bout.categories.includes("direct_dynamic");
     const held = bout.categories.includes("deliberate_isometric");
     if (direct) totals.directDynamicBouts += 1;

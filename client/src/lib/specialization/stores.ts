@@ -86,7 +86,18 @@ export function parseStoredGoal(value: unknown): SpecializationGoal | null {
 }
 
 export function loadSpecializationGoals(accountId?: AccountScope): SpecializationGoal[] {
-  return readList(specializationGoalsKeyBase, accountId).map(parseStoredGoal).filter((goal): goal is SpecializationGoal => goal !== null);
+  return collapseArmPairs(readList(specializationGoalsKeyBase, accountId).map(parseStoredGoal).filter((goal): goal is SpecializationGoal => goal !== null));
+}
+
+/**
+ * Both arms are counted as one (20 Oct 2026). A target saved for "Both arms" was stored as
+ * two, one per arm, identical but for the side: they read as one target (the right arm's copy
+ * kept). The next write saves the list as read, so the extra copy leaves the device then.
+ */
+export function collapseArmPairs(goals: readonly SpecializationGoal[]): SpecializationGoal[] {
+  const keyOf = (goal: SpecializationGoal) => [goal.regionId, goal.nodeId, goal.actionId, goal.metric, goal.period, goal.target, goal.startsOn, goal.endsOn, goal.timezone].join("|");
+  const rights = new Set(goals.filter((goal) => goal.side === "right").map(keyOf));
+  return goals.filter((goal) => !(goal.side === "left" && rights.has(keyOf(goal))));
 }
 
 /** Returns whether the write reached the device. */

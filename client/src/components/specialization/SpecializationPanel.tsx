@@ -63,6 +63,12 @@ export type SpecializationPanelProps = {
 
 const layerControlLabels: Record<DiagramLayerId, string> = { surface: "Surface", intermediate: "Middle", deep: "Deep" };
 const SHOWN_FINDINGS = 3;
+/**
+ * The page counts both arms as one (owner, 20 Oct 2026), so its method says so in place of the
+ * rule's per-arm sentences (`specification.sides` and `regionTotal`), which describe a one-arm summary.
+ */
+const bothArmsRule = "Both arms count together: a set counts once, whichever arm or arms did it, and a set with no arm recorded counts like any other.";
+const bothArmsRegionTotal = "The region total counts distinct bouts that touched any of its muscles. It is not the sum of the muscle rows.";
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
 type SheetState =
@@ -126,14 +132,18 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const { measurements, save: saveMeasurement, remove: removeMeasurement } = useSpecializationMeasurements(accountId);
   const regionGoals = useMemo(() => goals.filter((item) => item.regionId === data.region.id), [goals, data.region.id]);
   const activeTargets = splitTargets(regionGoals, localDateKey(nowIso, timeZone)).active.length;
-  const otherSide = state.limb === "left" ? "right" : "left";
+  /**
+   * The forearms are counted as one (owner, 20 Oct 2026: "there's no reason for a left and
+   * right arm"): each set once per muscle, whichever arm did it.
+   */
+  const side = "both" as const;
   // Planned mode before the plan has loaded: an empty plan would read as zeros, fake progress
   // and "behind" findings, so the page shows that it is loading instead (no numbers at all).
   const planLoading = state.mode === "planned" && !plan.ready;
-  const here = useSpecializationSummary({ region: data, accountScope: accountId, interval, side: state.limb, mode: state.mode, plan: planInput, goals: regionGoals, catalog, fallbackUnit: weightUnit, now: nowIso });
-  const there = useSpecializationSummary({ region: data, accountScope: accountId, interval, side: otherSide, mode: state.mode, plan: planInput, goals: regionGoals, catalog, fallbackUnit: weightUnit, now: nowIso });
+  const here = useSpecializationSummary({ region: data, accountScope: accountId, interval, side, mode: state.mode, plan: planInput, goals: regionGoals, catalog, fallbackUnit: weightUnit, now: nowIso });
   const summary = here.status === "ready" && !planLoading ? here.summary : null;
-  const otherSummary = there.status === "ready" && !planLoading ? there.summary : null;
+  // No other arm to compare with.
+  const otherSummary = null;
   /**
    * The ledger's comparison (design §4): this calendar week's logged work beside the plan week
    * being trained, and only that week. In completed mode over this week it is that plan week
@@ -143,7 +153,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const pairMode: SummaryMode | null = !plan.ready ? null : state.mode === "planned" ? (planWeek === trainingWeek ? "completed" : null) : state.window === "week" ? "planned" : null;
   const noPairNote = state.mode === "planned" && plan.ready && planInput && planWeek !== trainingWeek ? `Plan Week ${planWeek} is not the week you train from (Week ${trainingWeek}), so there is no logged week to compare.` : null;
   const pairInterval = useMemo(() => (pairMode === "planned" ? planWeekInterval(trainingWeek, timeZone) : calendarWeekInterval(nowIso, timeZone)), [pairMode, trainingWeek, timeZone, nowIso]);
-  const pair = useSpecializationSummary({ region: data, accountScope: accountId, interval: pairInterval, side: state.limb, mode: pairMode ?? "planned", plan: trainingPlanInput, goals: regionGoals, catalog, fallbackUnit: weightUnit, now: nowIso });
+  const pair = useSpecializationSummary({ region: data, accountScope: accountId, interval: pairInterval, side, mode: pairMode ?? "planned", plan: trainingPlanInput, goals: regionGoals, catalog, fallbackUnit: weightUnit, now: nowIso });
   const pairSummary = pairMode && pair.status === "ready" ? pair.summary : null;
   const { exclusions, setExercise: setExerciseExcluded, setEquipment: setEquipmentExcluded } = useSpecializationExclusions(accountId);
 
@@ -164,8 +174,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const plannedExercises = useMemo(() => plannedExercisesInWeek(plan.slots, weekStore ?? emptyDayStore()), [plan.slots, weekStore]);
   const recommendations = useMemo(() => {
     if (!selected || !summary) return null;
-    return recommendFor({ region: data, target: { nodeId: selected.id }, side: state.limb, summary, otherSideSummary: otherSummary, plannedExercises, catalog, equipmentProfile, exclusions });
-  }, [selected, summary, otherSummary, plannedExercises, catalog, equipmentProfile, data, state.limb, exclusions]);
+    return recommendFor({ region: data, target: { nodeId: selected.id }, side, summary, otherSideSummary: otherSummary, plannedExercises, catalog, equipmentProfile, exclusions });
+  }, [selected, summary, otherSummary, plannedExercises, catalog, equipmentProfile, data, exclusions]);
   const candidates = recommendations?.kind === "candidates" ? recommendations.candidates : [];
   /** An exercise's equipment from the catalog the recommender read, so the muscle sheet can say why a main action has no suggestion. */
   const equipmentById = useMemo(() => new Map(catalog.map((exercise) => [exercise.id, exercise.equipment ?? null] as const)), [catalog]);
@@ -173,8 +183,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const movementId = sheet?.kind === "movement" ? sheet.actionId : sheet?.kind === "change" && sheet.from.kind === "movement" ? sheet.from.actionId : null;
   const movementRecommendations = useMemo(() => {
     if (!movementId || !summary) return null;
-    return recommendFor({ region: data, target: { actionId: movementId }, side: state.limb, summary, otherSideSummary: otherSummary, plannedExercises, catalog, equipmentProfile, exclusions });
-  }, [movementId, summary, otherSummary, plannedExercises, catalog, equipmentProfile, data, state.limb, exclusions]);
+    return recommendFor({ region: data, target: { actionId: movementId }, side, summary, otherSideSummary: otherSummary, plannedExercises, catalog, equipmentProfile, exclusions });
+  }, [movementId, summary, otherSummary, plannedExercises, catalog, equipmentProfile, data, exclusions]);
   const changeCandidates: RecommendationCandidate[] = sheet?.kind === "change" && sheet.from.kind === "movement"
     ? (movementRecommendations?.kind === "candidates" ? movementRecommendations.candidates : [])
     : candidates;
@@ -228,7 +238,6 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const sentenceFor = (id: string) => (summary ? exposureSentence(exposureOf(id), data.region.wording.incidentalWork) : waiting);
   const describeFor = (id: string) => `${nameOf(id)}. ${sentenceFor(id)}`;
 
-  const armWord = state.limb === "left" ? "left arm" : "right arm";
   const regionWord = data.region.label.toLowerCase();
   const [announcement, setAnnouncement] = useState("");
   const select = (nodeId: string | null) => {
@@ -259,9 +268,9 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     if (Math.abs(shift) >= 1) window.scrollBy({ top: shift, behavior: "instant" });
   }, [state.nodeId]);
   useEffect(() => {
-    if (summary) setAnnouncement(`${interval.label}, ${armWord}: ${plural(summary.regionDistinctBouts, "distinct bout")} for the ${regionWord}.`);
+    if (summary) setAnnouncement(`${interval.label}: ${plural(summary.regionDistinctBouts, "distinct bout")} for the ${regionWord}.`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [interval.label, state.limb, state.mode]);
+  }, [interval.label, state.mode]);
 
   /**
    * "How this is counted" from a sheet: the sheet closes, the method opens, and the athlete is
@@ -353,7 +362,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   /** The sets behind a region total (brief §1: every total opens its set records). */
   const boutSheet = useMemo<null | { eyebrow: string; title: string; intro: string; lists: BoutList[] }>(() => {
     if (sheet?.kind !== "bouts" || !summary) return null;
-    const eyebrow = `${data.region.label} · ${armWord}`;
+    const eyebrow = data.region.label;
     // A plan has done nothing yet: its sets are planned for a muscle, not sets that loaded one.
     const planned = summary.mode === "planned";
     if (sheet.list === "pair") {
@@ -368,9 +377,9 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
         title: `${logged.regionDistinctBouts} logged · ${asWritten.regionDistinctBouts} planned`,
         intro: `${logged.interval.label}, logged, beside ${asWritten.interval.label}. Each set is one bout, however many muscles of the ${regionWord} it loads.`,
         lists: [
-          { key: "logged", heading: `Logged on the ${armWord}: ${plural(logged.regionDistinctBouts, "bout")}`, note: null, rows: regionBoutRows(logged, "region"), empty: `Nothing logged for a muscle of the ${regionWord} on the ${armWord} this week.` },
+          { key: "logged", heading: `Logged: ${plural(logged.regionDistinctBouts, "bout")}`, note: null, rows: regionBoutRows(logged, "region"), empty: `Nothing logged for a muscle of the ${regionWord} this week.` },
           ...(unknown.length ? [{ key: "unknown", heading: `Logged with no arm recorded: ${plural(unknown.length, "bout")}`, note: "Kept apart and counted for neither arm.", rows: unknown }] : []),
-          { key: "planned", heading: `Planned in Plan Week ${trainingWeek}: ${plural(asWritten.regionDistinctBouts, "bout")}`, note: null, rows: regionBoutRows(asWritten, "region"), empty: `Nothing planned for a muscle of the ${regionWord} on the ${armWord} in Plan Week ${trainingWeek}.` },
+          { key: "planned", heading: `Planned in Plan Week ${trainingWeek}: ${plural(asWritten.regionDistinctBouts, "bout")}`, note: null, rows: regionBoutRows(asWritten, "region"), empty: `Nothing planned for a muscle of the ${regionWord} in Plan Week ${trainingWeek}.` },
         ],
       };
     }
@@ -378,23 +387,23 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       // One bar of bouts per day: the same distinct bouts the bar counts, on that local day.
       const rows = regionBoutRowsOnDay(summary, sheet.dayKey, (iso) => localDateKey(iso, timeZone));
       const day = new Date(`${sheet.dayKey}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
-      return { eyebrow, title: day, intro: `${plural(rows.length, "distinct bout")} that day: every set that loaded a muscle of the ${regionWord} on the ${armWord}, each counted once however many muscles it loaded.`, lists: [{ key: "arm", heading: null, note: null, rows }] };
+      return { eyebrow, title: day, intro: `${plural(rows.length, "distinct bout")} that day: every set that loaded a muscle of the ${regionWord}, each counted once however many muscles it loaded.`, lists: [{ key: "arm", heading: null, note: null, rows }] };
     }
     if (sheet.list === "region") {
       const onArm = regionBoutRows(summary, "region");
       if (sheet.exerciseKey) {
         const rows = onArm.filter((row) => exerciseKeyOf(row) === sheet.exerciseKey);
-        return { eyebrow, title: rows[0]?.exerciseName ?? "Sets", intro: planned ? `${interval.label}: ${plural(rows.length, "set")} of it planned for a muscle of the ${regionWord} on the ${armWord}.` : `${interval.label}: ${plural(rows.length, "set")} of it loaded a muscle of the ${regionWord} on the ${armWord}.`, lists: [{ key: "arm", heading: null, note: null, rows }] };
+        return { eyebrow, title: rows[0]?.exerciseName ?? "Sets", intro: planned ? `${interval.label}: ${plural(rows.length, "set")} of it planned for a muscle of the ${regionWord}.` : `${interval.label}: ${plural(rows.length, "set")} of it loaded a muscle of the ${regionWord}.`, lists: [{ key: "arm", heading: null, note: null, rows }] };
       }
       const unknown = regionBoutRows(summary, "unknown-side");
       return {
         eyebrow,
         title: `${plural(summary.regionDistinctBouts, "distinct bout")}`,
         intro: planned
-          ? `${interval.label}: every set planned for a muscle of the ${regionWord} on the ${armWord}, each counted once however many muscles it is planned for.`
-          : `${interval.label}: every set that loaded a muscle of the ${regionWord} on the ${armWord}, each counted once however many muscles it loaded.`,
+          ? `${interval.label}: every set planned for a muscle of the ${regionWord}, each counted once however many muscles it is planned for.`
+          : `${interval.label}: every set that loaded a muscle of the ${regionWord}, each counted once however many muscles it loaded.`,
         lists: [
-          { key: "arm", heading: unknown.length ? `On the ${armWord}` : null, note: null, rows: onArm },
+          { key: "arm", heading: unknown.length ? "Counted" : null, note: null, rows: onArm },
           ...(unknown.length ? [{ key: "unknown", heading: "No arm recorded", note: "Kept apart and counted for neither arm.", rows: unknown }] : []),
         ],
       };
@@ -405,7 +414,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     }
     const rows = regionBoutRows(summary, "region-only");
     return { eyebrow, title: `${plural(rows.length, "set")} for the ${regionWord} as a whole`, intro: `Tagged with the ${regionWord} in the exercise catalog, but no reviewed mapping says which muscles they train, so they add to no single muscle.`, lists: [{ key: "region-only", heading: null, note: null, rows }] };
-  }, [sheet, summary, pairSummary, trainingWeek, timeZone, data.region.label, armWord, interval.label, regionWord]);
+  }, [sheet, summary, pairSummary, trainingWeek, timeZone, data.region.label, interval.label, regionWord]);
 
   const completeness = summary?.completeness;
   const hasWork = selectedExposure ? barParts(selectedExposure).direct + barParts(selectedExposure).other + barParts(selectedExposure).holds + barParts(selectedExposure).incidental + barParts(selectedExposure).rest > 0 : false;
@@ -416,15 +425,15 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
    */
   const regionLine = !summary ? waiting
     : summary.mode === "planned"
-      ? `${plural(summary.regionDistinctBouts, "distinct bout")} ${summary.regionDistinctBouts === 1 ? "is" : "are"} planned for the ${regionWord} on the ${armWord} in Plan Week ${planWeek}${summary.regionUnknownSideBouts ? `, and ${summary.regionUnknownSideBouts} more name no arm` : ""}.`
-      : `${plural(summary.regionDistinctBouts, "distinct bout")} touched the ${regionWord} on the ${armWord}${summary.regionUnknownSideBouts ? `, and ${summary.regionUnknownSideBouts} more had no arm recorded` : ""}.`;
+      ? `${plural(summary.regionDistinctBouts, "distinct bout")} ${summary.regionDistinctBouts === 1 ? "is" : "are"} planned for the ${regionWord} in Plan Week ${planWeek}${summary.regionUnknownSideBouts ? `, and ${summary.regionUnknownSideBouts} more name no arm` : ""}.`
+      : `${plural(summary.regionDistinctBouts, "distinct bout")} touched the ${regionWord}${summary.regionUnknownSideBouts ? `, and ${summary.regionUnknownSideBouts} more had no arm recorded` : ""}.`;
   // Behind the completeness counts in "How this is counted": the lists that exist open; what is not kept as a list is said.
   const regionOnlyRows = summary ? regionBoutRows(summary, "region-only") : [];
   const unknownSideRows = summary ? regionBoutRows(summary, "unknown-side") : [];
 
   /** The 3D panel's numbers: the same summary as the list and the sheet, through the viewer's adapter. */
   const viewerState: ViewerSummaryState = summary ? { kind: "ready", summary } : here.status === "error" ? { kind: "error", note: `The totals could not be worked out: ${here.message}` } : { kind: "loading", note: waiting };
-  const viewerData = showModel && selected ? viewerMuscleData({ data, nodeId: selected.id, state: viewerState, view: { mode: state.mode, window: state.window, side: state.limb, timeZone } }) : null;
+  const viewerData = showModel && selected ? viewerMuscleData({ data, nodeId: selected.id, state: viewerState, view: { mode: state.mode, window: state.window, side, timeZone } }) : null;
   /**
    * After a choice in Choose muscle, the model is brought into view if any of it is off screen,
    * with the selected name above it, so the athlete sees the muscle they chose.
@@ -464,10 +473,6 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           <button type="button" aria-pressed={state.mode === "completed"} onClick={() => update({ mode: "completed" })}>Completed</button>
           <button type="button" aria-pressed={state.mode === "planned"} onClick={() => update({ mode: "planned" })}>Planned</button>
         </div>
-        <div className="spz-segment" role="group" aria-label="Arm">
-          <button type="button" aria-pressed={state.limb === "left"} onClick={() => update({ limb: "left" })}>Left arm</button>
-          <button type="button" aria-pressed={state.limb === "right"} onClick={() => update({ limb: "right" })}>Right arm</button>
-        </div>
         {state.mode === "completed"
           ? <div className="spz-segment" role="group" aria-label="Time window">
             <button type="button" aria-pressed={state.window === "week"} onClick={() => chooseWindow("week")}>This week</button>
@@ -487,10 +492,10 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           button (44 px tall, the pair underlined and an arrow at its end), which keeps it to
           two lines on a phone. "Plan Week" and its number are joined by a no-break space. */}
       {pairShown
-        ? <p className="spz-window"><button type="button" className="spz-window-open" onClick={() => setSheet({ kind: "bouts", list: "pair" })}><span><b>{interval.label}</b> · {armWord}: <span className="spz-pair">{state.mode === "planned"
+        ? <p className="spz-window"><button type="button" className="spz-window-open" onClick={() => setSheet({ kind: "bouts", list: "pair" })}><span><b>{interval.label}</b>: <span className="spz-pair">{state.mode === "planned"
           ? <><b>{plannedBouts}</b> bout{plannedBouts === 1 ? "" : "s"} planned · <b>{completedBouts}</b> logged this week</>
           : <><b>{completedBouts}</b> bout{completedBouts === 1 ? "" : "s"} logged · <b>{plannedBouts}</b> planned in Plan Week{"\u00a0"}{trainingWeek}</>}</span></span><ArrowRight className="h-4 w-4" aria-hidden="true" /></button></p>
-        : <p className="spz-window"><b>{interval.label}</b> · {armWord}{state.mode === "planned" && !planInput ? (plan.ready ? ` · Week ${planWeek} has nothing planned yet` : " · your plan is loading") : ""}{noPairNote && <span className="spz-pair-note">: not the week you train from (Week {trainingWeek}), so there is no logged week to compare</span>}</p>}
+        : <p className="spz-window"><b>{interval.label}</b>{state.mode === "planned" && !planInput ? (plan.ready ? ` · Week ${planWeek} has nothing planned yet` : " · your plan is loading") : ""}{noPairNote && <span className="spz-pair-note">: not the week you train from (Week {trainingWeek}), so there is no logged week to compare</span>}</p>}
     </div>
 
     {here.status === "error" && <p className="spz-error" role="alert">The totals could not be worked out: {here.message}</p>}
@@ -512,15 +517,13 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
         {/* The selected muscle and Choose muscle sit above the model (§6, item 3); two lines are kept
             for the name, so a choice never moves the model under the finger. */}
         <div className="sg-anatomy3d-bar">
-          <p className="sg-anatomy3d-bar-name"><small>{selected ? `${layerLabels[selected.layer]} · ${armWord}` : `Overview · ${armWord}`}</small><b>{selected ? selected.name : `Whole ${regionWord}`}</b></p>
+          <p className="sg-anatomy3d-bar-name"><small>{selected ? layerLabels[selected.layer] : "Overview"}</small><b>{selected ? selected.name : `Whole ${regionWord}`}</b></p>
           <button type="button" className="spz-button sg-anatomy3d-choose" aria-haspopup="dialog" onClick={() => setSheet({ kind: "picker" })}>Choose muscle <ChevronDown className="h-4 w-4" aria-hidden="true" /></button>
         </div>
         <AnatomyModelStage
           config={modelConfig}
           selectedNodeId={selected?.id ?? null}
-          side={state.limb}
-          label={`3D model of the ${regionWord}, ${armWord}${state.limb === "left" ? " (the right-arm model, mirrored)" : ""}. ${selected ? `${selected.name} selected.` : "No muscle selected."} Every muscle is also in Choose muscle.`}
-          sideCaption={state.limb === "left" ? "Left arm · mirrored" : "Right arm"}
+          label={`3D model of the ${regionWord}. ${selected ? `${selected.name} selected.` : "No muscle selected."} Every muscle is also in Choose muscle.`}
           onSelect={chooseOnModel}
           onOverview={() => select(null)}
           onShowDrawing={() => update({ figure: "drawing" })}
@@ -531,7 +534,6 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           data={viewerData}
           mode={state.mode}
           windowLabel={interval.label}
-          armWord={armWord}
           regionLine={regionLine}
           onViewContributions={() => setSheet({ kind: "muscle", section: "ledger" })}
           onAddExercise={addTargeted}
@@ -573,7 +575,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
         </>}
       </div>
       {asset ? <>
-        <SpecializationDiagram asset={asset} view={view} layer={layer} mirrored={state.limb === "left"} fillFor={fillFor} selectedNodeId={selected?.id ?? null} onSelect={tapDrawing} labelFor={(id) => data.nodes.find((node) => node.id === id)?.shortName ?? id} describeFor={describeFor} caption={`${data.region.label}, ${armWord}, ${(shownView?.label ?? view).toLowerCase()} view, ${layerControlLabels[layer].toLowerCase()} layer`} />
+        <SpecializationDiagram asset={asset} view={view} layer={layer} mirrored={false} fillFor={fillFor} selectedNodeId={selected?.id ?? null} onSelect={tapDrawing} labelFor={(id) => data.nodes.find((node) => node.id === id)?.shortName ?? id} describeFor={describeFor} caption={`${data.region.label}, ${(shownView?.label ?? view).toLowerCase()} view, ${layerControlLabels[layer].toLowerCase()} layer`} />
         <MapLegend map={state.map} />
       </> : <p className="spz-note">The drawing is not ready yet. Every muscle is in the list below, with the same numbers.</p>}
       </>}
@@ -648,32 +650,32 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
 
       <details className="spz-disclosure spz-card">
         <summary><span><b>Targets</b><small>{activeTargets ? `${activeTargets} active` : "None set"}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
-        <TargetsOverview data={data} summary={summary} goals={regionGoals} side={state.limb} timeZone={timeZone} todayKey={todayKey} onSave={saveGoals} onRemove={removeGoal} onOpenMuscle={(nodeId) => { select(nodeId); setSheet({ kind: "muscle" }); }} onOpenMovement={(actionId) => setSheet({ kind: "movement", actionId })} />
+        <TargetsOverview data={data} summary={summary} goals={regionGoals} side={side} timeZone={timeZone} todayKey={todayKey} onSave={saveGoals} onRemove={removeGoal} onOpenMuscle={(nodeId) => { select(nodeId); setSheet({ kind: "muscle" }); }} onOpenMovement={(actionId) => setSheet({ kind: "movement", actionId })} />
       </details>
 
       <details className="spz-disclosure spz-card" onToggle={(event) => { if (event.currentTarget.open) setProgressOpened(true); }}>
         <summary><span><b>Progress</b><small>{data.region.wording.progressSubtitle}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
         {/* Mounted when first opened, then kept: its weekly chart reads eight weeks of history. */}
-        {progressOpened && <MeasurementsPanel key={data.region.id} data={data} side={state.limb} catalog={catalog} weightUnit={weightUnit} timeZone={timeZone} todayKey={todayKey} measurements={measurements} onSave={saveMeasurement} onRemove={removeMeasurement} onOpenSession={openSession} onInspectExercise={inspect} onOpenMethod={openMethod} />}
+        {progressOpened && <MeasurementsPanel key={data.region.id} data={data} side={side} catalog={catalog} weightUnit={weightUnit} timeZone={timeZone} todayKey={todayKey} measurements={measurements} onSave={saveMeasurement} onRemove={removeMeasurement} onOpenSession={openSession} onInspectExercise={inspect} onOpenMethod={openMethod} />}
       </details>
 
       <details ref={methodRef} className="spz-disclosure spz-card" id="spz-method">
         <summary><span><b>How this is counted</b><small>{exposureRuleV1.id} · {data.mappingVersion.key}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
         <div className="spz-method">
           <p>{exposureRuleV1.specification.bout} {exposureRuleV1.specification.dropSet}</p>
-          <p>{exposureRuleV1.specification.perNodeBout} {exposureRuleV1.specification.sides}</p>
+          <p>{exposureRuleV1.specification.perNodeBout} {bothArmsRule}</p>
           <dl className="spz-categories">{(Object.keys(exposureCategoryLabels) as (keyof typeof exposureCategoryLabels)[]).map((category) => <div key={category}><dt>{exposureCategoryLabels[category]}</dt><dd>{exposureRuleV1.specification.categories[category]}</dd></div>)}</dl>
           <p>{exposureRuleV1.specification.straps} {exposureRuleV1.specification.holds}</p>
-          <p>{exposureRuleV1.specification.unmapped} {exposureRuleV1.specification.regionTotal}</p>
+          <p>{exposureRuleV1.specification.unmapped} {bothArmsRegionTotal}</p>
           <p><b>Not counted:</b> {exposureRuleV1.specification.excludedFromCompleted.join(" ")}</p>
           <ul className="spz-caveats">{exposureRuleV1.specification.notConverted.map((line) => <li key={line}>{line}</li>)}</ul>
-          {completeness && <p><b>This window, {armWord}:</b> {completeness.boutsConsidered} sets considered: {completeness.boutsWithReviewedMapping} with a reviewed mapping, {completeness.boutsPendingReview} under review, {completeness.boutsRegionOnly} {regionWord} only. {completeness.boutsNameMatched} matched by name, {completeness.boutsUnknownSide} with no arm recorded. Left out: {completeness.boutsExcluded.notCompleted} not completed, {completeness.boutsExcluded.warmup} warm-ups.</p>}
+          {completeness && <p><b>This window:</b> {completeness.boutsConsidered} sets considered: {completeness.boutsWithReviewedMapping} with a reviewed mapping, {completeness.boutsPendingReview} under review, {completeness.boutsRegionOnly} {regionWord} only. {completeness.boutsNameMatched} matched by name. Left out: {completeness.boutsExcluded.notCompleted} not completed, {completeness.boutsExcluded.warmup} warm-ups.</p>}
           {/* Each count that has its set records opens them (brief §1); the rest say where they are, or that they are not kept as a list. */}
           {completeness && (regionOnlyRows.length > 0 || unknownSideRows.length > 0) && <div className="spz-actions">
             {regionOnlyRows.length > 0 && <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "region-only" })}>See the {plural(regionOnlyRows.length, "set")} for the {regionWord} only <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
             {unknownSideRows.length > 0 && <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "unknown-side" })}>See the {plural(unknownSideRows.length, "set")} with no arm recorded <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
           </div>}
-          {completeness && <CompletenessNote completeness={completeness} unknownSideListed={unknownSideRows.length} regionOnlyWithNoArm={regionOnlyRows.filter((row) => row.side === "unknown").length} regionWord={regionWord} />}
+          {completeness && <CompletenessNote completeness={completeness} unknownSideListed={unknownSideRows.length} regionOnlyWithNoArm={summary?.side === "both" ? 0 : regionOnlyRows.filter((row) => row.side === "unknown").length} regionWord={regionWord} />}
           <p className="spz-note">{data.mappingVersion.methodNotes}</p>
         </div>
       </details>
@@ -693,7 +695,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       node={selected}
       exposure={selectedExposure}
       loading={planLoading}
-      side={state.limb}
+      side={side}
       mode={state.mode}
       intervalLabel={interval.label}
       weightUnit={weightUnit}
@@ -722,7 +724,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       actionId={sheet.actionId}
       summary={summary}
       loading={planLoading}
-      side={state.limb}
+      side={side}
       mode={state.mode}
       intervalLabel={interval.label}
       weightUnit={weightUnit}
@@ -750,7 +752,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     />}
     {sheet?.kind === "change" && changeNodeId && <PlanChangeSheet
       data={data}
-      side={state.limb}
+      side={side}
       nodeId={changeNodeId}
       candidates={changeCandidates}
       initialExerciseId={sheet.exerciseId}

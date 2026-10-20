@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { goalProgressLabel, goalsForBothArms, isGoalActive } from "@shared/specialization/goals";
 import { forearmActionIds, forearmMuscleIds } from "@shared/specialization/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
-import type { ArmSide, GoalProgress, SpecializationGoal, SpecializationSummary } from "@shared/specialization/types";
+import type { ArmSide, SummarySide, GoalProgress, SpecializationGoal, SpecializationSummary } from "@shared/specialization/types";
 import { loadSpecializationGoals, saveSpecializationGoals, useSpecializationGoals } from "@/lib/specialization/stores";
 import { TargetsEditor } from "./TargetsEditor";
 import { TargetsOverview, targetSubjectsFor } from "./TargetsOverview";
@@ -36,8 +36,8 @@ const stored = () => loadSpecializationGoals(null);
 const values: Record<string, number> = { [ELBOW_FLEXION]: 8, [BR]: 3 };
 
 /** A summary for one arm with each active target's progress, as the calculator shapes it. */
-function summaryFor(goals: readonly SpecializationGoal[], side: ArmSide): SpecializationSummary {
-  const progress: GoalProgress[] = goals.filter((item) => item.side === side && isGoalActive(item, TODAY)).map((item) => {
+function summaryFor(goals: readonly SpecializationGoal[], side: SummarySide): SpecializationSummary {
+  const progress: GoalProgress[] = goals.filter((item) => (side === "both" || item.side === side) && isGoalActive(item, TODAY)).map((item) => {
     const value = values[item.actionId ?? item.nodeId ?? ""] ?? 0;
     return { goal: item, value, fraction: value / item.target, label: goalProgressLabel(value, item) };
   });
@@ -51,14 +51,15 @@ function summaryFor(goals: readonly SpecializationGoal[], side: ArmSide): Specia
 }
 
 /** The muscle sheet's editor over the real device store, as the page wires it. */
-function EditorHarness({ side = "right" as ArmSide }) {
+/** The page counts both arms as one (20 Oct 2026), so the editor runs as the page runs it. */
+function EditorHarness({ side = "both" as SummarySide }) {
   const { goals, save, remove } = useSpecializationGoals(null);
   const mine = goals.filter((item) => item.nodeId === BR);
   const progress = summaryFor(goals, side).goals.filter((item) => item.goal.nodeId === BR);
   return createElement(TargetsEditor, { regionId: "forearm", nodeId: BR, nodeName: "Brachioradialis", side, goals: mine, progress, timeZone: ZONE, todayKey: TODAY, onSave: save, onRemove: remove });
 }
 
-function OverviewHarness({ side = "right" as ArmSide, onOpenMuscle = (() => {}) as (nodeId: string) => void, onOpenMovement = undefined as ((actionId: string) => void) | undefined, summaryOf = ((goals, arm) => summaryFor(goals, arm)) as (goals: readonly SpecializationGoal[], arm: ArmSide) => SpecializationSummary | null }) {
+function OverviewHarness({ side = "both" as SummarySide, onOpenMuscle = (() => {}) as (nodeId: string) => void, onOpenMovement = undefined as ((actionId: string) => void) | undefined, summaryOf = ((goals, arm) => summaryFor(goals, arm)) as (goals: readonly SpecializationGoal[], arm: SummarySide) => SpecializationSummary | null }) {
   const { goals, save, remove } = useSpecializationGoals(null);
   return createElement(TargetsOverview, { data: forearmRegionData, summary: summaryOf(goals, side), goals, side, timeZone: ZONE, todayKey: TODAY, onSave: save, onRemove: remove, onOpenMuscle, onOpenMovement });
 }
@@ -81,7 +82,7 @@ describe("the muscle sheet's targets", () => {
     expect(screen.queryByRole("button", { name: /^Change/ })).toBeNull();
   });
 
-  it("saves a target for both arms as two targets, one per arm, with nothing filled in but the muscle", async () => {
+  it("saves one target for the muscle, with no arm to choose and nothing filled in but the muscle", async () => {
     render(createElement(EditorHarness));
     await click(screen.getByRole("button", { name: "Set a target" }));
     const form = screen.getByRole("group", { name: "New target for Brachioradialis" });
@@ -89,50 +90,50 @@ describe("the muscle sheet's targets", () => {
     for (const control of [...within(form).getAllByRole("radio"), within(form).getByRole("spinbutton"), within(form).getByRole("combobox")]) {
       expect(control.closest("label")?.textContent?.trim(), "every input has a visible label").toBeTruthy();
     }
+    expect(within(form).queryByText("Which arm")).toBeNull();
     await type(within(form).getByRole("spinbutton"), "20");
     await click(within(form).getByRole("button", { name: "Save target" }));
-    expect(stored().map((item) => [item.side, item.target, item.nodeId, item.actionId, item.startsOn])).toEqual([["left", 20, BR, null, TODAY], ["right", 20, BR, null, TODAY]]);
+    // One target; its stored side is a placeholder nothing reads.
+    expect(stored().map((item) => [item.target, item.nodeId, item.actionId, item.startsOn])).toEqual([[20, BR, null, TODAY]]);
     expect(screen.getByText(/3 of your 20/)).not.toBeNull();
-    expect(status()).toContain("Saved: one target per arm for Brachioradialis.");
+    expect(status()).toContain("Saved: a target for Brachioradialis.");
   });
 
-  it("restores both arms with one Undo after removing the left and then the right", async () => {
+  it("reads an old target saved once per arm as one, and removes and restores it as one", async () => {
     const [left, right] = goalsForBothArms(goal({ id: "pair" }));
     seed(left, right);
     render(createElement(EditorHarness));
-    await click(screen.getByRole("button", { name: /^Remove the left-arm target/ }));
-    await click(screen.getByRole("button", { name: /^Remove the right-arm target/ }));
+    expect(screen.getAllByRole("button", { name: /^Remove the target/ })).toHaveLength(1);
+    await click(screen.getByRole("button", { name: /^Remove the target/ }));
     expect(stored()).toEqual([]);
-    expect(status()).toContain("2 targets removed.");
+    expect(status()).toContain("Target for Brachioradialis removed.");
     expect(screen.getByText("Not targeted.")).not.toBeNull();
     // The removed row held focus; Undo takes it, so it is one tap or keypress away.
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "Undo" }));
     await click(screen.getByRole("button", { name: "Undo" }));
-    expect(stored().map((item) => item.id).sort()).toEqual(["pair:left", "pair:right"]);
+    expect(stored()).toEqual([right]);
     expect(document.activeElement?.getAttribute("role")).toBe("status");
-    expect(stored().find((item) => item.side === "left")).toEqual(left);
     expect(screen.queryByRole("button", { name: "Undo" })).toBeNull();
-    expect(status()).toContain("2 targets restored.");
   });
 
   it("changes a target in place, keeping its id, arm, measure and period", async () => {
     seed(goal());
     render(createElement(EditorHarness));
-    await click(screen.getByRole("button", { name: /^Change the right-arm target of 20 direct dynamic bouts/ }));
+    await click(screen.getByRole("button", { name: /^Change the target of 20 direct dynamic bouts/ }));
     const field = screen.getByRole("spinbutton", { name: /New target/ });
     expect((field as HTMLInputElement).value).toBe("20");
     await type(field, "24");
     await click(screen.getByRole("button", { name: "Save" }));
     const [saved] = stored();
     expect(saved).toEqual({ ...goal(), target: 24, updatedAt: "2026-10-16T12:00:00.000Z" });
-    expect(status()).toContain("Right-arm target for Brachioradialis changed to 24 per calendar week.");
+    expect(status()).toContain("Target for Brachioradialis changed to 24 per calendar week.");
     expect(screen.queryByRole("spinbutton")).toBeNull();
   });
 
   it("refuses a change to zero inline, and keeps the target", async () => {
     seed(goal());
     render(createElement(EditorHarness));
-    await click(screen.getByRole("button", { name: /^Change the right-arm/ }));
+    await click(screen.getByRole("button", { name: /^Change the target/ }));
     await type(screen.getByRole("spinbutton", { name: /New target/ }), "0");
     await click(screen.getByRole("button", { name: "Save" }));
     expect(screen.getByRole("alert").textContent).toBe("Enter a target above zero.");
@@ -142,7 +143,7 @@ describe("the muscle sheet's targets", () => {
   it("ends a target so it stops counting from today, moves it under Ended, and Undo brings it back", async () => {
     seed(goal());
     render(createElement(EditorHarness));
-    await click(screen.getByRole("button", { name: /^End the right-arm target/ }));
+    await click(screen.getByRole("button", { name: /^End the target/ }));
     expect(stored()[0]).toMatchObject({ id: "g1", endsOn: "2026-10-15", target: 20 });
     expect(screen.queryByRole("button", { name: /^Change/ })).toBeNull();
     expect(screen.getByText("Not targeted.")).not.toBeNull();
@@ -158,7 +159,7 @@ describe("the muscle sheet's targets", () => {
   it("removes a target that started today when it is ended, with Undo", async () => {
     seed(goal({ startsOn: TODAY }));
     render(createElement(EditorHarness));
-    await click(screen.getByRole("button", { name: /^End the right-arm target/ }));
+    await click(screen.getByRole("button", { name: /^End the target/ }));
     expect(stored()).toEqual([]);
     expect(screen.queryByText(/Ended targets/)).toBeNull();
     expect(status()).toContain("It started today, so it is removed rather than kept as ended.");
@@ -170,7 +171,7 @@ describe("the muscle sheet's targets", () => {
     seed(goal({ startsOn: "2026-10-19" }));
     render(createElement(EditorHarness));
     expect(screen.getByText(/starts 19 Oct 2026/)).not.toBeNull();
-    await click(screen.getByRole("button", { name: /^End the right-arm target/ }));
+    await click(screen.getByRole("button", { name: /^End the target/ }));
     expect(stored()).toEqual([]);
     expect(status()).toContain("It had not started yet, so it is removed rather than kept as ended.");
   });
@@ -182,7 +183,7 @@ describe("the muscle sheet's targets", () => {
     try {
       seed(goal());
       render(createElement(EditorHarness));
-      await click(screen.getByRole("button", { name: /^Remove the right-arm target/ }));
+      await click(screen.getByRole("button", { name: /^Remove the target/ }));
       const undo = screen.getByRole("button", { name: "Undo" });
       expect(document.activeElement).toBe(undo);
       expect(scrolled).toContain(undo);
@@ -208,7 +209,7 @@ describe("the muscle sheet's targets", () => {
     try {
       seed(goal());
       render(createElement(OverviewHarness));
-      await click(screen.getByRole("button", { name: /^Remove the right-arm target/ }));
+      await click(screen.getByRole("button", { name: /^Remove the target/ }));
       expect(document.activeElement).toBe(screen.getByRole("button", { name: "Undo" }));
       expect(scrollBy).toHaveBeenCalledWith({ top: 839 - (774 - 12), behavior: "instant" });
     } finally {
@@ -219,13 +220,13 @@ describe("the muscle sheet's targets", () => {
   });
 
   it("keeps a pending Undo when Change is saved with the same number, and writes nothing", async () => {
-    seed(goal({ id: "a", side: "left" }), goal({ id: "b", side: "right" }));
+    seed(goal({ id: "a", period: "rolling_7d" }), goal({ id: "b" }));
     render(createElement(EditorHarness));
-    await click(screen.getByRole("button", { name: /^Remove the left-arm/ }));
-    await click(screen.getByRole("button", { name: /^Change the right-arm/ }));
+    await click(screen.getByRole("button", { name: /^Remove the target of 20 direct dynamic bouts per rolling 7 days/ }));
+    await click(screen.getByRole("button", { name: /^Change the target/ }));
     await click(screen.getByRole("button", { name: "Save" }));
     expect(screen.queryByRole("spinbutton")).toBeNull();
-    expect(stored()).toEqual([goal({ id: "b", side: "right" })]);
+    expect(stored()).toEqual([goal({ id: "b" })]);
     await click(screen.getByRole("button", { name: "Undo" }));
     expect(stored().map((item) => item.id).sort()).toEqual(["a", "b"]);
   });
@@ -236,9 +237,9 @@ describe("the muscle sheet's targets", () => {
     render(createElement(EditorHarness));
     const names = screen.getAllByRole("button", { name: /^Remove/ }).map((button) => button.getAttribute("aria-label"));
     expect(names).toEqual([
-      "Remove the right-arm target of 20 direct dynamic bouts per calendar week for Brachioradialis",
-      "Remove the right-arm target of 20 direct dynamic bouts per rolling 7 days for Brachioradialis",
-      "Remove the right-arm target of 20 direct dynamic bouts per rolling 7 days starting 21 Oct 2026 for Brachioradialis",
+      "Remove the target of 20 direct dynamic bouts per calendar week for Brachioradialis",
+      "Remove the target of 20 direct dynamic bouts per rolling 7 days for Brachioradialis",
+      "Remove the target of 20 direct dynamic bouts per rolling 7 days starting 21 Oct 2026 for Brachioradialis",
     ]);
   });
 
@@ -246,11 +247,10 @@ describe("the muscle sheet's targets", () => {
     seed(goal({ startsOn: "2026-10-12" }));
     render(createElement(EditorHarness));
     await click(screen.getByRole("button", { name: "Set a target" }));
-    await click(screen.getByRole("button", { name: "Right arm only" }));
     await type(screen.getByRole("spinbutton", { name: /Target/ }), "15");
     await click(screen.getByRole("button", { name: "Save target" }));
     const alert = screen.getByRole("alert");
-    expect(alert.textContent).toContain("You already have a right-arm target of 20 direct dynamic bouts per calendar week for this");
+    expect(alert.textContent).toContain("You already have a target of 20 direct dynamic bouts per calendar week for this");
     expect(alert.textContent).toContain("Change that one, or end it before this one starts.");
     expect(alert.closest("form")).not.toBeNull();
     expect(stored()).toEqual([goal({ startsOn: "2026-10-12" })]);
@@ -269,7 +269,7 @@ describe("the Targets overview", () => {
     expect(movements.map((item) => item.id)).toContain(ELBOW_FLEXION);
   });
 
-  it("adds a movement target with the subject chosen, and shows its progress on this arm", async () => {
+  it("adds a movement target with the subject chosen, and shows its progress", async () => {
     render(createElement(OverviewHarness));
     expect(screen.getByText("No targets.")).not.toBeNull();
     await click(screen.getByRole("button", { name: "Add a target" }));
@@ -280,9 +280,8 @@ describe("the Targets overview", () => {
     expect(screen.getByRole("alert").textContent).toBe("Choose a muscle or a movement.");
     expect(stored()).toEqual([]);
     await type(subject, `movement:${ELBOW_FLEXION}`);
-    await click(screen.getByRole("button", { name: "Right arm only" }));
     await click(screen.getByRole("button", { name: "Save target" }));
-    expect(stored().map((item) => [item.actionId, item.nodeId, item.side, item.target])).toEqual([[ELBOW_FLEXION, null, "right", 20]]);
+    expect(stored().map((item) => [item.actionId, item.nodeId, item.target])).toEqual([[ELBOW_FLEXION, null, 20]]);
     const group = screen.getByText("Elbow flexion").closest("li")!;
     expect(within(group).getByText("Movement")).not.toBeNull();
     expect(within(group).getByText(/8 of your 20/)).not.toBeNull();
@@ -322,27 +321,28 @@ describe("the Targets overview", () => {
   });
 
   it("restores every removal since the last other change with one Undo, across subjects", async () => {
-    const [left, right] = goalsForBothArms(goal({ id: "pair" }));
+    const weekly = goal({ id: "weekly" });
+    const rolling = goal({ id: "rolling", period: "rolling_7d" });
     const movement = goal({ id: "move", nodeId: null, actionId: ELBOW_FLEXION });
-    seed(left, right, movement);
+    seed(weekly, rolling, movement);
     render(createElement(OverviewHarness));
-    await click(screen.getByRole("button", { name: /^Remove the left-arm target of 20 direct dynamic bouts per calendar week for Brachioradialis/ }));
-    await click(screen.getByRole("button", { name: /^Remove the right-arm target of 20 direct dynamic bouts per calendar week for Brachioradialis/ }));
-    await click(screen.getByRole("button", { name: /^End the right-arm target of 20 direct dynamic bouts per calendar week for Elbow flexion/ }));
+    await click(screen.getByRole("button", { name: /^Remove the target of 20 direct dynamic bouts per calendar week for Brachioradialis/ }));
+    await click(screen.getByRole("button", { name: /^Remove the target of 20 direct dynamic bouts per rolling 7 days for Brachioradialis/ }));
+    await click(screen.getByRole("button", { name: /^End the target of 20 direct dynamic bouts per calendar week for Elbow flexion/ }));
     expect(status()).toContain("2 targets removed and 1 ended.");
     expect(screen.getByText("Ended targets (1)")).not.toBeNull();
     await click(screen.getByRole("button", { name: "Undo" }));
-    expect(stored().sort((a, b) => a.id.localeCompare(b.id))).toEqual([movement, left, right]);
+    expect(stored().sort((a, b) => a.id.localeCompare(b.id))).toEqual([movement, rolling, weekly]);
   });
 
   it("makes earlier removals final once another change is saved", async () => {
-    seed(goal({ id: "a", side: "left" }), goal({ id: "b", side: "right" }));
+    seed(goal({ id: "a", period: "rolling_7d" }), goal({ id: "b" }));
     render(createElement(OverviewHarness));
-    await click(screen.getByRole("button", { name: /^Remove the left-arm/ }));
-    await click(screen.getByRole("button", { name: /^Change the right-arm/ }));
+    await click(screen.getByRole("button", { name: /^Remove the target of 20 direct dynamic bouts per rolling 7 days/ }));
+    await click(screen.getByRole("button", { name: /^Change the target/ }));
     await type(screen.getByRole("spinbutton", { name: /New target/ }), "30");
     await click(screen.getByRole("button", { name: "Save" }));
     expect(screen.queryByRole("button", { name: "Undo" })).toBeNull();
-    expect(stored()).toEqual([{ ...goal({ id: "b", side: "right" }), target: 30, updatedAt: "2026-10-16T12:00:00.000Z" }]);
+    expect(stored()).toEqual([{ ...goal({ id: "b" }), target: 30, updatedAt: "2026-10-16T12:00:00.000Z" }]);
   });
 });
