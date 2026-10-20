@@ -8,6 +8,7 @@ import type {
   NodeAction,
   NodeRole,
   RegionContent,
+  RegionHomeContent,
   RegionId,
   RegionMember,
   SideRelation,
@@ -80,7 +81,7 @@ export interface ResolvedMember {
   member: RegionMember;
   /** The node as its home region holds it (home role, stored role). */
   node: AnatomyNode;
-  home: RegionContent;
+  home: RegionHomeContent;
   role: NodeRole;
 }
 
@@ -89,7 +90,7 @@ export interface ResolvedMember {
  * (`homes`: the content of the regions its external members belong to). What the database's
  * region_nodes rows hold, and what a page groups its external rows by (`node.regionId`).
  */
-export function resolveMembers(content: RegionContent, homes: readonly RegionContent[]): ResolvedMember[] {
+export function resolveMembers(content: RegionHomeContent, homes: readonly RegionHomeContent[]): ResolvedMember[] {
   const regionId = content.region.id;
   // The region's own records last, so they are the ones found.
   const byId = new Map([...homes, content].flatMap((home) => home.nodes.map((node) => [node.id, { node, home }] as const)));
@@ -103,10 +104,11 @@ export function resolveMembers(content: RegionContent, homes: readonly RegionCon
 }
 
 /**
- * `homes` are the content of the regions the external members belong to. A region with no
- * mapping version (a reference region) has no page and cannot be composed.
+ * `homes` are the content of the regions the external members belong to, without their drawings
+ * (`regions/<region>/content.ts`), so a page's chunk never carries another region's drawing. A
+ * region with no mapping version (a reference region) has no page and cannot be composed.
  */
-export function composeRegionData(content: RegionContent, homes: readonly RegionContent[]): SpecializationRegionData {
+export function composeRegionData(content: RegionContent, homes: readonly RegionHomeContent[]): SpecializationRegionData {
   const regionId = content.region.id;
   if (!content.mappingVersion) throw new Error(`Region ${regionId} has no mapping version, so it has no page data`);
   const members = resolveMembers(content, homes);

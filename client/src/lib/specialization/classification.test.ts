@@ -5,6 +5,7 @@ import { getSpecializationSummary, indexRegion } from "@shared/specialization/ex
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { calendarWeekInterval } from "@shared/specialization/time";
 import type { ExposureBout, RegionContent, SpecializationRegionData, SpecializationSummary, SummarySide } from "@shared/specialization/types";
+import { listedUnmappedReasons } from "@/components/specialization/model";
 import { boutsFromSessions } from "./bouts";
 import { catalogMusclesLookup } from "./useSpecializationSummary";
 import { fx, fxBackContent, fxCore, fxCoreContent, fxVariants } from "./__fixtures__/multiRegion";
@@ -98,8 +99,16 @@ describe("what is not counted is shown (§8)", () => {
     expect([summary.regionDistinctBouts, summary.regionUnclassified.bouts, summary.completeness.boutsConsidered]).toEqual([0, 0, 0]);
     expect(summary.completeness.boutsListedUnmapped).toBe(2);
     expect(summary.listedUnmappedRows!.map((item) => [item.exerciseName, item.tag, item.creditedTo])).toEqual([["Back Squat", "secondary", [fx.ql]], ["Back Squat", "secondary", [fx.ql]]]);
+    // The page says where they are credited, once for the exercise, beside its reason (06-calculation.md §9.3).
+    const page = composeRegionData(fxCoreContent, [back]);
+    const qlName = page.nodes.find((node) => node.id === fx.ql)!.name;
+    expect(Array.from(listedUnmappedReasons(summary, page).values())).toEqual([
+      `It tags the fixture core as a secondary muscle; this page counts only exercises that tag it as a primary muscle. ${qlName} is credited on its row here, as its home region counts these sets.`,
+    ]);
     // Without the back's mapping the same sets are listed, and no row credits them.
-    expect(summarize(fxCore, sets, "midline").listedUnmappedRows!.map((item) => item.creditedTo)).toEqual([[], []]);
+    const alone = summarize(fxCore, sets, "midline");
+    expect(alone.listedUnmappedRows!.map((item) => item.creditedTo)).toEqual([[], []]);
+    expect(Array.from(listedUnmappedReasons(alone, fxCore).values())).toEqual(["It tags the fixture core as a secondary muscle; this page counts only exercises that tag it as a primary muscle."]);
   });
 
   it("gives a listed unmapped exercise its listed reason", () => {

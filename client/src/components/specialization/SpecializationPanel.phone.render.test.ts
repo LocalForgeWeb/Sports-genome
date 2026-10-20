@@ -218,6 +218,18 @@ describe("Custom's dates, their labels inline", () => {
   });
 });
 
+describe("a reading's date and time, in Progress", () => {
+  it("sit in two equal columns that may shrink, so the date input never runs under the time field; stacked under 375 px; 16 px inputs", () => {
+    const css = readFileSync(join(__dirname, "progress.css"), "utf8");
+    expect(css).toMatch(/\.spz-progress-when \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);[^}]*\}/);
+    expect(css).toMatch(/\.spz-progress-when input \{ min-width: 0; padding: 0 \.375rem; \}/);
+    const narrow = css.slice(css.indexOf("@media (max-width: 374px) {"));
+    expect(narrow).toMatch(/^@media \(max-width: 374px\) \{\s*\.spz-progress-when \{ grid-template-columns: minmax\(0, 1fr\); \}/);
+    // The flex row it replaced, whose date input would not shrink, is gone; nothing sets a smaller type.
+    expect(css).not.toMatch(/\.spz-progress-when[^{]*\{[^}]*(flex-wrap|font-size)/);
+  });
+});
+
 describe("short text actions keep a 44 px square (F-phone-5)", () => {
   it("gives the notes' Open and an exercise's Sets the box", () => {
     logged([{ ...tuesday, note: "Grip gave out on the last set." }]);

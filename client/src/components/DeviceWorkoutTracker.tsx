@@ -20,7 +20,7 @@ import { loadConventionFor } from "@shared/loadConventions";
 import { SetEffortChoice } from "@/components/SetEffortChoice";
 import { ExerciseSwapSheet, type ExerciseSwapChoice, type SwapPlanOption } from "@/components/ExerciseSwapSheet";
 import { ExerciseHistoryList } from "@/components/ExerciseHistoryList";
-import { exerciseHistoryCount, sideLabel } from "@/lib/sessionRecap";
+import { exerciseHistoryCount, legSideLabel, sideLabel } from "@/lib/sessionRecap";
 import { WorkoutSessionDetail } from "@/components/WorkoutSessionDetail";
 import { startOfTrainingWeek } from "@/lib/trainingWeekSummary";
 import { currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
@@ -106,8 +106,7 @@ const perArmRows = (plannedSets: number, limb: Limb): DeviceSetLog[] =>
 
 /** "Left", "Right", "Both arms" or "Both legs": a set's side on the limb its exercise is sided by. */
 function sideWordsOf(set: DeviceSetLog, limb: Limb): string | null {
-  if (limb === "arm") return sideLabel(set.side);
-  return set.legSide === "both" ? "Both legs" : sideLabel(set.legSide);
+  return limb === "arm" ? sideLabel(set.side) : legSideLabel(set.legSide);
 }
 
 function makeSession(workout: Exercise[], plannedFor: (exercise: Exercise, index: number) => PlannedEntry, dayLabel: string, restSeconds: number, weightUnit: DisplayWeightUnit): DeviceWorkoutSession {

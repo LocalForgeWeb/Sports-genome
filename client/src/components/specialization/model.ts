@@ -1,6 +1,6 @@
 import { formatDisplayWeight, type DisplayWeightUnit } from "@/lib/weightUnits";
 import { diagramSidesOf } from "@shared/specialization/compose";
-import { mappingsByKey } from "@shared/specialization/exposure";
+import { creditedMappingsFor, mappingsByKey } from "@shared/specialization/exposure";
 import { categoryFor, currentExposureRule, exposureCategoryLabelsFor } from "@shared/specialization/rules";
 import type { AnatomyNode, BodySide, Contribution, ContributionSegment, DiagramAsset, ExposureCategory, GoalMetric, GoalProgress, JointAction, MappingEvidenceBasis, MuscleMode, NodeExposure, NodeId, RegionBoutRow, RegionWording, Relationship, SideRelation, SpecializationRegion, SpecializationRegionData, SpecializationSummary, VariantMapping } from "@shared/specialization/types";
 import { drawableNodeIds } from "./diagramGeometry";
@@ -507,16 +507,25 @@ export function listedUnmappedSentences(summary: SpecializationSummary, data: Sp
   ].filter(Boolean);
 }
 
-/** Each exercise's reason, by the ledger's exercise key, for the sets `listedUnmappedSentences` counts. */
+/**
+ * Each exercise's reason, by the ledger's exercise key, for the sets `listedUnmappedSentences`
+ * counts; and where another region's muscle listed here is credited with them (`creditedTo`: its
+ * home region counts them, this one does not), the row that shows them (06-calculation.md §9.3).
+ */
 export function listedUnmappedReasons(summary: SpecializationSummary, data: SpecializationRegionData): Map<string, string> {
   const region = data.region.label.toLowerCase();
-  const reasons = new Map<string, string>();
+  const nameOf = new Map(data.nodes.map((node) => [node.id, node.name] as const));
+  const byExercise = new Map<string, { reason: string; credited: string[] }>();
   for (const row of summary.listedUnmappedRows ?? []) {
     const key = exerciseKeyOf(row);
-    if (reasons.has(key)) continue;
-    reasons.set(key, row.reason ?? (row.tag === "secondary" ? `It tags the ${region} as a secondary muscle; this page counts only exercises that tag it as a primary muscle.` : "Left unmapped here."));
+    const entry = byExercise.get(key) ?? { reason: row.reason ?? (row.tag === "secondary" ? `It tags the ${region} as a secondary muscle; this page counts only exercises that tag it as a primary muscle.` : "Left unmapped here."), credited: [] };
+    for (const nodeId of row.creditedTo ?? []) if (!entry.credited.includes(nodeId)) entry.credited.push(nodeId);
+    byExercise.set(key, entry);
   }
-  return reasons;
+  return new Map(Array.from(byExercise, ([key, { reason, credited }]) => {
+    const names = credited.map((nodeId) => nameOf.get(nodeId) ?? nodeId);
+    return [key, names.length ? `${reason} ${listWords(names)} ${names.length === 1 ? "is credited on its row" : "are credited on their rows"} here, as ${names.length === 1 ? "its home region counts" : "their home regions count"} these sets.` : reason];
+  }));
 }
 
 /**
@@ -587,8 +596,8 @@ export function missingActionNote(input: {
   if (!uncovered.length) return null;
   const variantById = new Map(data.variants.map((variant) => [variant.id, variant] as const));
   /** The exercises the recommender counts as direct work on this action for this muscle: a reviewed direct mapping it credits (moved, or held on purpose). */
-  const directExercises = (actionId: string) => Array.from(new Set(data.mappings
-    .filter((mapping) => mapping.versionKey === data.mappingVersion.key && mapping.reviewStatus === "reviewed" && mapping.nodeId === nodeId && mapping.actionId === actionId && mapping.relationship === "direct")
+  const directExercises = (actionId: string) => Array.from(new Set(creditedMappingsFor(data, nodeId)
+    .filter((mapping) => mapping.reviewStatus === "reviewed" && mapping.actionId === actionId && mapping.relationship === "direct")
     .filter((mapping) => {
       const variant = variantById.get(mapping.variantId);
       if (!variant) return false;
@@ -669,27 +678,46 @@ const CATEGORY_ORDER: readonly ExposureCategory[] = ["direct_dynamic", "delibera
 export function movementLedger(summary: SpecializationSummary, data: SpecializationRegionData, actionId: string): { bouts: MovementBout[]; totals: MovementTotals } {
   const regionNodes = new Set(data.nodes.filter((node) => node.regionId === data.region.id).map((node) => node.id));
   const byBout = new Map<string, MovementBout>();
+  /**
+   * The kinds of work a bout did for the movement, from the rows counted on this side; from the
+   * rows kept apart only where no own muscle's row counts it. A bout one muscle counts on this side
+   * and another keeps apart (two mappings of one action with different side relations) is this
+   * side's, as the movement's target counts it (exposure.ts `goalProgressFor`).
+   */
+  const kinds = new Map<string, { counted: ExposureCategory[]; apart: ExposureCategory[] }>();
   for (const node of summary.nodes) {
     if (!regionNodes.has(node.nodeId)) continue;
     for (const row of node.contributions) {
       const parts = row.parts.filter((part) => part.actionId === actionId);
       if (!parts.length) continue;
-      const entry = byBout.get(row.boutId) ?? {
-        boutId: row.boutId, side: row.side, sideSource: row.sideSource, countedSide: row.countedSide, recordedSide: row.recordedSide, sideRelation: row.sideRelation,
+      const counted = row.side !== "unknown";
+      const sideOf = { side: row.side, sideSource: row.sideSource, countedSide: row.countedSide, recordedSide: row.recordedSide, sideRelation: row.sideRelation };
+      const found = byBout.get(row.boutId);
+      const entry = found ?? {
+        boutId: row.boutId, ...sideOf,
         catalogExerciseId: row.catalogExerciseId, exerciseName: row.exerciseName, matchedBy: row.matchedBy,
         sessionId: row.sessionId, sessionLabel: row.sessionLabel, performedAt: row.performedAt, kind: row.kind, segments: row.segments,
         categories: [], nodeIds: [], mappingIds: [], holdSeconds: row.holdSeconds, notes: [],
       };
+      // Counted by this muscle where an earlier one kept it apart: the bout takes this row's side.
+      if (found && counted && found.side === "unknown") Object.assign(entry, sideOf);
+      const bucket = kinds.get(row.boutId) ?? { counted: [], apart: [] };
       for (const part of parts) {
-        if (!entry.categories.includes(part.category)) entry.categories.push(part.category);
+        const list = counted ? bucket.counted : bucket.apart;
+        if (!list.includes(part.category)) list.push(part.category);
         if (!entry.mappingIds.includes(part.mappingId)) entry.mappingIds.push(part.mappingId);
       }
+      kinds.set(row.boutId, bucket);
       if (!entry.nodeIds.includes(node.nodeId)) entry.nodeIds.push(node.nodeId);
       for (const note of row.notes) if (!entry.notes.includes(note)) entry.notes.push(note);
       byBout.set(row.boutId, entry);
     }
   }
-  const bouts = Array.from(byBout.values()).map((bout) => ({ ...bout, categories: [...bout.categories].sort((left, right) => CATEGORY_ORDER.indexOf(left) - CATEGORY_ORDER.indexOf(right)) }));
+  const categoriesOf = (boutId: string) => {
+    const bucket = kinds.get(boutId)!;
+    return [...(bucket.counted.length ? bucket.counted : bucket.apart)].sort((left, right) => CATEGORY_ORDER.indexOf(left) - CATEGORY_ORDER.indexOf(right));
+  };
+  const bouts = Array.from(byBout.values()).map((bout) => ({ ...bout, categories: categoriesOf(bout.boutId) }));
   const totals: MovementTotals = { directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, otherBouts: 0, unknownSideBouts: 0 };
   for (const bout of bouts) {
     if (bout.side === "unknown") { totals.unknownSideBouts += 1; continue; }

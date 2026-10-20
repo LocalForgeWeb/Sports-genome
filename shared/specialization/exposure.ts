@@ -264,6 +264,17 @@ export function mappingKeyIn(region: SpecializationRegionData, mapping: Pick<Var
 }
 
 /** The credited mappings behind ledger keys (`mappingKeyIn`), each once, in the order given; unknown keys are skipped. */
+/**
+ * The mappings that credit one node on this region's page, as `indexRegion` chooses them: the
+ * region's own version for its own muscles; an external member's home version once that region
+ * has published one, else the region's own rows for it. A page reader that asks what credits a
+ * muscle reads this, never `region.mappings` filtered by the page's own version, which would read
+ * the listing region's fallback rows for an external member whose home has published (§4.2).
+ */
+export function creditedMappingsFor(region: SpecializationRegionData, nodeId: NodeId): VariantMapping[] {
+  return Array.from(indexRegion(region).mappingsByVariant.values()).flat().filter((mapping) => mapping.nodeId === nodeId);
+}
+
 export function mappingsByKey(region: SpecializationRegionData, keys: readonly string[]): VariantMapping[] {
   const all = new Map(Array.from(indexRegion(region).mappingsByVariant.values()).flat().map((mapping) => [mappingKeyIn(region, mapping), mapping] as const));
   return Array.from(new Set(keys)).flatMap((key) => (all.has(key) ? [all.get(key)!] : []));

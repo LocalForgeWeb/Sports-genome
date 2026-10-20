@@ -9,7 +9,7 @@ import type { SpecializationPlanChange, SpecializationPlanChangeResult } from "@
 import { commitDay, emptyDayStore, loadDay, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { catalogIdOf } from "@/lib/workoutSwap";
-import { variantForCatalogId } from "@shared/specialization/exposure";
+import { creditedMappingsFor, variantForCatalogId } from "@shared/specialization/exposure";
 import type { SpecializationRegionData, SummarySide } from "@shared/specialization/types";
 import { holdTime } from "./model";
 import { sideWordsFor } from "./sideWords";
@@ -92,7 +92,8 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
   // What already in that day loads the same muscle: overlap said plainly, not scored.
   const loadsFocus = (catalogExerciseId: number) => {
     const variant = variantForCatalogId(data, catalogExerciseId);
-    return Boolean(variant && data.mappings.some((mapping) => mapping.variantId === variant.id && mapping.nodeId === nodeId && mapping.reviewStatus === "reviewed" && mapping.versionKey === data.mappingVersion.key));
+    // As the muscle is credited here: an external member by its home's version once that region has one.
+    return Boolean(variant && creditedMappingsFor(data, nodeId).some((mapping) => mapping.variantId === variant.id && mapping.reviewStatus === "reviewed"));
   };
   const overlapping = dayExercises.filter((entry) => loadsFocus(catalogIdOf(entry)));
 

@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
 import { recommendFor, type RecommendationRequest } from "@/lib/specialization/recommendations";
 import { catalogMusclesLookup } from "@/lib/specialization/useSpecializationSummary";
-import { getSpecializationSummary } from "@shared/specialization/exposure";
+import { creditedMappingsFor, getSpecializationSummary } from "@shared/specialization/exposure";
+import { fx, fxBack, fxBackBeforeShoulder } from "@/lib/specialization/__fixtures__/multiRegion";
 import { forearmActionIds as a, forearmMuscleIds as m, externalContributorIds as ext } from "@shared/specialization/regions/forearm/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { calendarWeekInterval, localDateKey, planWeekInterval } from "@shared/specialization/time";
@@ -159,5 +160,26 @@ describe("a bar of bouts per day opens the bouts it counts", () => {
     // The left-arm set and the set with no arm recorded are in neither bar.
     expect(regionBoutRowsOnDay(result, "2026-10-13", dayKeyOf).map((row) => row.exerciseName).sort()).toEqual(["Hammer Curl", "Wrist Curl"]);
     expect(regionBoutRowsOnDay(result, "2026-10-14", dayKeyOf)).toEqual([]);
+  });
+});
+
+describe("an external muscle is judged by what credits it on the page (10-multi-region.md §4.2)", () => {
+  // The fixture back lists the shoulder's rear deltoid; its own row for it is contributing work, the shoulder's direct.
+  const extension = fxBack.actions.find((action) => action.id.endsWith(".extension") && action.id.startsWith("shoulder"))!.id;
+  const nothingSuggested = { candidates: [], missingActions: [extension], excludedCount: 0, skippedAtTarget: 0 };
+
+  it("reads the home's mappings once the home has a version, and the page's own rows for it until then", () => {
+    expect(new Set(creditedMappingsFor(fxBack, fx.rearDelt).map((mapping) => mapping.versionKey))).toEqual(new Set(["fx_shoulder_mappings_v1"]));
+    expect(creditedMappingsFor(fxBack, fx.rearDelt).map((mapping) => mapping.relationship)).toEqual(["direct"]);
+    expect(new Set(creditedMappingsFor(fxBackBeforeShoulder, fx.rearDelt).map((mapping) => mapping.versionKey))).toEqual(new Set(["fx_back_mappings_v1"]));
+    // The page's own muscles are credited by its own version either way.
+    expect(new Set(creditedMappingsFor(fxBack, fx.lat).map((mapping) => mapping.versionKey))).toEqual(new Set(["fx_back_mappings_v1"]));
+  });
+
+  it("says why a movement of it has no suggestion from the home's direct exercises, not the page's fallback rows", () => {
+    // Credited by the shoulder: the one-arm row trains the movement directly, so nothing suggested means it answers a met target.
+    expect(missingActionNote({ data: fxBack, nodeId: fx.rearDelt, result: nothingSuggested, mode: "completed" })).toMatch(/the exercises that train it directly answer a target you have already met, so none is suggested\.$/);
+    // Before the shoulder publishes, the back's own row only helps: no reviewed exercise trains it directly.
+    expect(missingActionNote({ data: fxBackBeforeShoulder, nodeId: fx.rearDelt, result: nothingSuggested, mode: "completed" })).toMatch(/no reviewed exercise trains it directly yet\.$/);
   });
 });

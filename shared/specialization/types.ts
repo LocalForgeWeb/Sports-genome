@@ -548,6 +548,13 @@ export interface RegionContent {
   diagram: DiagramAsset | null;
 }
 
+/**
+ * A region's content without its drawing (`regions/<region>/content.ts`): what another region's
+ * page reads of it as the home of its external members (10-multi-region.md §6.1: a region's chunk
+ * carries its homes' content, never their drawings).
+ */
+export type RegionHomeContent = Omit<RegionContent, "diagram">;
+
 export interface SpecializationRegionData {
   region: SpecializationRegion;
   /** Region-relative copies, in page order: role as this region lists the node, `regionId` still the node's home. */

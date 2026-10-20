@@ -8,6 +8,7 @@ import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { forearmMuscleIds } from "@shared/specialization/regions/forearm/ids";
 import { calendarWeekInterval, planWeekInterval } from "@shared/specialization/time";
 import type { ExerciseVariant, ExposureBout, GoalMetric, NodeExposure, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummarySide } from "@shared/specialization/types";
+import { movementLedger } from "@/components/specialization/model";
 import { boutsFromSessions } from "./bouts";
 import { boutsFromPlan } from "./planBouts";
 import { catalogMusclesLookup } from "./useSpecializationSummary";
@@ -99,7 +100,8 @@ const wantedCategory: Record<GoalMetric, string> = { direct_dynamic_bouts: "dire
  * §2.2: a target's value equals its row. For every node and movement of the region, every metric
  * and every side, a target over the summary's own window reads exactly the node's bucket, and a
  * movement target the distinct bouts of the region's own muscles counted on that side whose part
- * is that movement and kind of work (seconds once per bout).
+ * is that movement and kind of work (seconds once per bout); and that is the movement sheet's own
+ * total (model.ts `movementLedger`), so the sheet and the target never read one movement two ways.
  */
 function goalsEqualRows(region: SpecializationRegionData, bouts: readonly ExposureBout[], mode: "completed" | "planned"): void {
   const own = indexRegion(region).regionNodeIds;
@@ -127,6 +129,10 @@ function goalsEqualRows(region: SpecializationRegionData, bouts: readonly Exposu
       }
       const expected = goal.metric === "deliberate_hold_seconds" ? Array.from(counted.values()).reduce((total, seconds) => total + seconds, 0) : counted.size;
       expect(progress.value, `${side} ${goal.id}`).toBe(expected);
+      const { totals } = movementLedger(summary, region, goal.actionId!);
+      expect(progress.value, `${side} ${goal.id}: the movement sheet's total`).toBe(
+        goal.metric === "direct_dynamic_bouts" ? totals.directDynamicBouts : goal.metric === "deliberate_hold_bouts" ? totals.deliberateHoldBouts : totals.deliberateHoldSeconds,
+      );
     }
   }
 }
@@ -395,5 +401,26 @@ describe("nodeSideFor, rule by rule", () => {
   it("6. anything else, a side recorded only for the other limb included, is unknown", () => {
     expect(nodeSideFor(thighRegion, fxVariants.singleLegRdl, null, arm("left"))).toMatchObject({ sides: [], branch: "side.leg.unknown", recorded: { limb: "arm", side: "left" } });
     expect(nodeSideFor(backRegion, fxVariants.oneArmRow, null, none)).toMatchObject({ sides: [], branch: "side.arm.unknown", recorded: null });
+  });
+});
+
+describe("a movement's sheet and its target read one movement one way", () => {
+  it("count a one-arm set logged with no arm on each side when one own muscle loads both sides, though another of its muscles keeps it apart", () => {
+    // Wave B's kind of data on forearm muscles: one of two direct wrist-flexion mappings of a one-arm wrist curl loads both sides.
+    const region: SpecializationRegionData = {
+      ...forearmRegionData,
+      mappings: forearmRegionData.mappings.map((mapping) => (mapping.variantId === "cat-410" && mapping.nodeId === forearmMuscleIds.flexorCarpiUlnaris ? { ...mapping, sideRelation: "both" as const } : mapping)),
+    };
+    const sets = logged(410, [{}]);
+    for (const side of PAIRED) {
+      const summary = summarize(region, sets, side);
+      // The flexor carpi ulnaris counts it on this side; the flexor carpi radialis keeps it apart.
+      expect(row(summary, forearmMuscleIds.flexorCarpiUlnaris).contributions.map((item) => item.countedSide), side).toEqual([side]);
+      expect(row(summary, forearmMuscleIds.flexorCarpiRadialis).contributions.map((item) => item.countedSide), side).toEqual(["unknown"]);
+      const ledger = movementLedger(summary, region, "wrist.flexion");
+      expect(ledger.totals, side).toMatchObject({ directDynamicBouts: 1, unknownSideBouts: 0 });
+      expect(ledger.bouts.map((bout) => [bout.countedSide, bout.categories]), side).toEqual([[side, ["direct_dynamic"]]]);
+    }
+    goalsEqualRows(region, sets, "completed");
   });
 });
