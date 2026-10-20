@@ -176,7 +176,7 @@ const stated: { why: string; was: RegExp; now: string }[] = [
   { why: "09 item 4; §4.3: the strapped finding's words come from the published rule and the calculator's note", was: /^(\d+ strapped sets?) earned no grip credit$/, now: "$1: grip not counted" },
   { why: "09 item 4; §4.3: the strapped finding's detail is the published rule's straps clause", was: /^Straps hold the bar for the hand, so the finger flexors are not credited for those sets\. The rest of each set still counts\.$/, now: `${currentExposureRule.specification.straps} The rest of each set still counts.` },
   // The anconeus's target of 3 is the fixture's only one of 3; the biceps' target of 5 is counted, and its row keeps "0 of your 5".
-  { why: "09 item 5; §2.2: a target on a muscle nothing can be counted for (the anconeus: no mapping) says so, never a zero", was: /^3 per calendar week · 0 of your 3$/, now: "3 per calendar week · nothing can be counted for it yet" },
+  { why: "09 item 5; §2.2: a target on a muscle nothing can be counted for (the anconeus: no mapping) says so, never a zero", was: /^3 per calendar week · 0 of your 3$/, now: "3 per calendar week · cannot be counted yet" },
 ];
 /** Runs of the reference's lines, one after another, gone from the sheets `in` names. */
 const gone: { why: string; in: Where; lines: RegExp[] }[] = [

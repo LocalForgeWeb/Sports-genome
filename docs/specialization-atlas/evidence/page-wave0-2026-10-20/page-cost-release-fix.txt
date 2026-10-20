@@ -1,0 +1,105 @@
+Opening the forearm page: scripts/specialization/release-gates/page-cost.mjs, openMs (a tap on Body Lab -> Specialize to the drawing painted),
+on three production builds on the same machine, interleaved: 3986178, eb478e5, the fix, then all three again (3 runs each time, so 6 per build and history).
+Headless Chromium emulating an iPhone (390 x 844, isMobile, hasTouch, device scale 3), served locally: not a phone, not Safari, no network latency.
+Run on 2026-10-20.
+
+3986178 (shipped)
+  one week                             339, 345, 347, 347, 351, 360 ms (median 347)
+  a year, 4 a week                     452, 461, 463, 471, 489, 491 ms (median 467)
+  a heavy year, 6 a week, sets x2.5    652, 927, 937, 996, 1012, 1017 ms (median 966.5)
+
+eb478e5 (wave 0 as reviewed)
+  one week                             401, 414, 415, 419, 419, 432 ms (median 417)
+  a year, 4 a week                     685, 702, 715, 734, 759, 851 ms (median 724.5)
+  a heavy year, 6 a week, sets x2.5    1330, 1338, 1338, 1354, 1448, 1518 ms (median 1346)
+
+the release fix (the region's data loads with the page chunk)
+  one week                             349, 353, 357, 357, 365, 366 ms (median 357)
+  a year, 4 a week                     435, 484, 485, 489, 489, 511 ms (median 487)
+  a heavy year, 6 a week, sets x2.5    998, 1082, 1098, 1101, 1147, 1157 ms (median 1099.5)
+
+Each run's full table:
+--- 3986178 (shipped), round 1
+┌─────────┬─────────────────────────────────────┬──────────┬─────┬────────────┬────────┬──────────┬────────────────┬────────────────┬────────────────┐
+│ (index) │ history                             │ sessions │ run │ chunkOnTap │ openMs │ customMs │ leftArmFirstMs │ rightArmBackMs │ leftArmAgainMs │
+├─────────┼─────────────────────────────────────┼──────────┼─────┼────────────┼────────┼──────────┼────────────────┼────────────────┼────────────────┤
+│ 0       │ 'one week'                          │ 4        │ 0   │ true       │ 345    │ 41       │ 46             │ 19             │ 26             │
+│ 1       │ 'one week'                          │ 4        │ 1   │ true       │ 351    │ 52       │ 28             │ 16             │ 30             │
+│ 2       │ 'one week'                          │ 4        │ 2   │ true       │ 347    │ 47       │ 26             │ 25             │ 31             │
+│ 3       │ 'a year, 4 a week'                  │ 208      │ 0   │ true       │ 461    │ 75       │ 24             │ 31             │ 31             │
+│ 4       │ 'a year, 4 a week'                  │ 208      │ 1   │ true       │ 463    │ 45       │ 24             │ 31             │ 31             │
+│ 5       │ 'a year, 4 a week'                  │ 208      │ 2   │ true       │ 491    │ 71       │ 26             │ 33             │ 28             │
+│ 6       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 0   │ true       │ 937    │ 102      │ 22             │ 27             │ 31             │
+│ 7       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 1   │ true       │ 652    │ 104      │ 33             │ 18             │ 27             │
+│ 8       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 2   │ true       │ 927    │ 125      │ 30             │ 20             │ 30             │
+└─────────┴─────────────────────────────────────┴──────────┴─────┴────────────┴────────┴──────────┴────────────────┴────────────────┴────────────────┘
+--- 3986178 (shipped), round 2
+┌─────────┬─────────────────────────────────────┬──────────┬─────┬────────────┬────────┬──────────┬────────────────┬────────────────┬────────────────┐
+│ (index) │ history                             │ sessions │ run │ chunkOnTap │ openMs │ customMs │ leftArmFirstMs │ rightArmBackMs │ leftArmAgainMs │
+├─────────┼─────────────────────────────────────┼──────────┼─────┼────────────┼────────┼──────────┼────────────────┼────────────────┼────────────────┤
+│ 0       │ 'one week'                          │ 4        │ 0   │ true       │ 360    │ 40       │ 19             │ 27             │ 29             │
+│ 1       │ 'one week'                          │ 4        │ 1   │ true       │ 339    │ 43       │ 33             │ 22             │ 30             │
+│ 2       │ 'one week'                          │ 4        │ 2   │ true       │ 347    │ 43       │ 35             │ 30             │ 23             │
+│ 3       │ 'a year, 4 a week'                  │ 208      │ 0   │ true       │ 489    │ 71       │ 19             │ 26             │ 29             │
+│ 4       │ 'a year, 4 a week'                  │ 208      │ 1   │ true       │ 471    │ 57       │ 24             │ 29             │ 30             │
+│ 5       │ 'a year, 4 a week'                  │ 208      │ 2   │ true       │ 452    │ 57       │ 27             │ 29             │ 27             │
+│ 6       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 0   │ true       │ 1012   │ 109      │ 28             │ 28             │ 30             │
+│ 7       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 1   │ true       │ 1017   │ 115      │ 28             │ 28             │ 31             │
+│ 8       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 2   │ true       │ 996    │ 100      │ 77             │ 17             │ 26             │
+└─────────┴─────────────────────────────────────┴──────────┴─────┴────────────┴────────┴──────────┴────────────────┴────────────────┴────────────────┘
+--- eb478e5 (wave 0 as reviewed), round 1
+┌─────────┬─────────────────────────────────────┬──────────┬─────┬────────────┬────────┬──────────┬────────────────┬────────────────┬────────────────┐
+│ (index) │ history                             │ sessions │ run │ chunkOnTap │ openMs │ customMs │ leftArmFirstMs │ rightArmBackMs │ leftArmAgainMs │
+├─────────┼─────────────────────────────────────┼──────────┼─────┼────────────┼────────┼──────────┼────────────────┼────────────────┼────────────────┤
+│ 0       │ 'one week'                          │ 4        │ 0   │ true       │ 419    │ 49       │ 20             │ 25             │ 27             │
+│ 1       │ 'one week'                          │ 4        │ 1   │ true       │ 401    │ 53       │ 23             │ 28             │ 32             │
+│ 2       │ 'one week'                          │ 4        │ 2   │ true       │ 415    │ 41       │ 38             │ 30             │ 30             │
+│ 3       │ 'a year, 4 a week'                  │ 208      │ 0   │ true       │ 685    │ 53       │ 40             │ 24             │ 30             │
+│ 4       │ 'a year, 4 a week'                  │ 208      │ 1   │ true       │ 759    │ 59       │ 36             │ 28             │ 30             │
+│ 5       │ 'a year, 4 a week'                  │ 208      │ 2   │ true       │ 734    │ 81       │ 25             │ 25             │ 32             │
+│ 6       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 0   │ true       │ 1354   │ 113      │ 34             │ 29             │ 27             │
+│ 7       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 1   │ true       │ 1518   │ 108      │ 45             │ 31             │ 31             │
+│ 8       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 2   │ true       │ 1330   │ 97       │ 32             │ 30             │ 28             │
+└─────────┴─────────────────────────────────────┴──────────┴─────┴────────────┴────────┴──────────┴────────────────┴────────────────┴────────────────┘
+--- eb478e5 (wave 0 as reviewed), round 2
+┌─────────┬─────────────────────────────────────┬──────────┬─────┬────────────┬────────┬──────────┬────────────────┬────────────────┬────────────────┐
+│ (index) │ history                             │ sessions │ run │ chunkOnTap │ openMs │ customMs │ leftArmFirstMs │ rightArmBackMs │ leftArmAgainMs │
+├─────────┼─────────────────────────────────────┼──────────┼─────┼────────────┼────────┼──────────┼────────────────┼────────────────┼────────────────┤
+│ 0       │ 'one week'                          │ 4        │ 0   │ true       │ 414    │ 54       │ 29             │ 26             │ 30             │
+│ 1       │ 'one week'                          │ 4        │ 1   │ true       │ 419    │ 55       │ 46             │ 26             │ 23             │
+│ 2       │ 'one week'                          │ 4        │ 2   │ true       │ 432    │ 58       │ 24             │ 30             │ 30             │
+│ 3       │ 'a year, 4 a week'                  │ 208      │ 0   │ true       │ 851    │ 70       │ 25             │ 30             │ 31             │
+│ 4       │ 'a year, 4 a week'                  │ 208      │ 1   │ true       │ 715    │ 63       │ 18             │ 26             │ 31             │
+│ 5       │ 'a year, 4 a week'                  │ 208      │ 2   │ true       │ 702    │ 65       │ 24             │ 30             │ 30             │
+│ 6       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 0   │ true       │ 1338   │ 103      │ 28             │ 26             │ 22             │
+│ 7       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 1   │ true       │ 1448   │ 94       │ 34             │ 30             │ 27             │
+│ 8       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 2   │ true       │ 1338   │ 107      │ 32             │ 27             │ 26             │
+└─────────┴─────────────────────────────────────┴──────────┴─────┴────────────┴────────┴──────────┴────────────────┴────────────────┴────────────────┘
+--- the release fix (the region's data loads with the page chunk), round 1
+┌─────────┬─────────────────────────────────────┬──────────┬─────┬────────────┬────────┬──────────┬────────────────┬────────────────┬────────────────┐
+│ (index) │ history                             │ sessions │ run │ chunkOnTap │ openMs │ customMs │ leftArmFirstMs │ rightArmBackMs │ leftArmAgainMs │
+├─────────┼─────────────────────────────────────┼──────────┼─────┼────────────┼────────┼──────────┼────────────────┼────────────────┼────────────────┤
+│ 0       │ 'one week'                          │ 4        │ 0   │ true       │ 357    │ 42       │ 29             │ 29             │ 30             │
+│ 1       │ 'one week'                          │ 4        │ 1   │ true       │ 366    │ 49       │ 26             │ 30             │ 27             │
+│ 2       │ 'one week'                          │ 4        │ 2   │ true       │ 349    │ 57       │ 22             │ 29             │ 27             │
+│ 3       │ 'a year, 4 a week'                  │ 208      │ 0   │ true       │ 489    │ 71       │ 26             │ 29             │ 32             │
+│ 4       │ 'a year, 4 a week'                  │ 208      │ 1   │ true       │ 511    │ 60       │ 28             │ 29             │ 31             │
+│ 5       │ 'a year, 4 a week'                  │ 208      │ 2   │ true       │ 489    │ 47       │ 24             │ 28             │ 31             │
+│ 6       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 0   │ true       │ 998    │ 125      │ 31             │ 29             │ 30             │
+│ 7       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 1   │ true       │ 1098   │ 117      │ 23             │ 28             │ 28             │
+│ 8       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 2   │ true       │ 1101   │ 98       │ 39             │ 30             │ 28             │
+└─────────┴─────────────────────────────────────┴──────────┴─────┴────────────┴────────┴──────────┴────────────────┴────────────────┴────────────────┘
+--- the release fix (the region's data loads with the page chunk), round 2
+┌─────────┬─────────────────────────────────────┬──────────┬─────┬────────────┬────────┬──────────┬────────────────┬────────────────┬────────────────┐
+│ (index) │ history                             │ sessions │ run │ chunkOnTap │ openMs │ customMs │ leftArmFirstMs │ rightArmBackMs │ leftArmAgainMs │
+├─────────┼─────────────────────────────────────┼──────────┼─────┼────────────┼────────┼──────────┼────────────────┼────────────────┼────────────────┤
+│ 0       │ 'one week'                          │ 4        │ 0   │ true       │ 353    │ 46       │ 19             │ 31             │ 31             │
+│ 1       │ 'one week'                          │ 4        │ 1   │ true       │ 365    │ 51       │ 25             │ 30             │ 38             │
+│ 2       │ 'one week'                          │ 4        │ 2   │ true       │ 357    │ 66       │ 24             │ 29             │ 45             │
+│ 3       │ 'a year, 4 a week'                  │ 208      │ 0   │ true       │ 485    │ 55       │ 26             │ 31             │ 32             │
+│ 4       │ 'a year, 4 a week'                  │ 208      │ 1   │ true       │ 484    │ 49       │ 25             │ 27             │ 30             │
+│ 5       │ 'a year, 4 a week'                  │ 208      │ 2   │ true       │ 435    │ 58       │ 24             │ 31             │ 30             │
+│ 6       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 0   │ true       │ 1082   │ 121      │ 27             │ 21             │ 28             │
+│ 7       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 1   │ true       │ 1147   │ 90       │ 23             │ 31             │ 31             │
+│ 8       │ 'a heavy year, 6 a week, sets x2.5' │ 312      │ 2   │ true       │ 1157   │ 96       │ 42             │ 31             │ 20             │
+└─────────┴─────────────────────────────────────┴──────────┴─────┴────────────┴────────┴──────────┴────────────────┴────────────────┴────────────────┘

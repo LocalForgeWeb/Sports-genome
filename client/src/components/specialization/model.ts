@@ -251,12 +251,12 @@ export type Finding = { id: string; title: string; detail: string; action: Findi
 
 /** Said beside a target on a muscle that is not a target of the page's region (10-multi-region.md §2.2). */
 export const READ_ONLY_TARGET_NOTE = "Targets are for this region's target muscles. You can end or remove this one.";
-/** A muscle target's progress where nothing is counted for the muscle (no reviewed mapping): unknown is never shown as zero. */
-export const UNCOUNTED_TARGET_PROGRESS = "nothing can be counted for it yet";
+/** A muscle target's progress where nothing is counted for the muscle (no reviewed mapping): unknown is never shown as zero. Short, so the selected muscle's target stays one line on a small phone. */
+export const UNCOUNTED_TARGET_PROGRESS = "cannot be counted yet";
 
 /**
  * A target's progress in words: "3 of your 6", or, for a muscle target whose muscle has no
- * reviewed exercise mapping here, that nothing can be counted for it yet, never "0 of your 3".
+ * reviewed exercise mapping here, that it cannot be counted yet, never "0 of your 3".
  */
 export function targetProgressText(progress: Pick<GoalProgress, "goal" | "label">, exposure: Pick<NodeExposure, "mappingCoverage"> | null | undefined): string {
   return progress.goal.nodeId && exposure && exposure.mappingCoverage !== "reviewed" ? UNCOUNTED_TARGET_PROGRESS : progress.label;

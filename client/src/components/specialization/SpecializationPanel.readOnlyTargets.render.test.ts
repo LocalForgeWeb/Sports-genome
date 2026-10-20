@@ -196,16 +196,16 @@ describe("a target on a muscle that is not a target here, in Coverage to review"
     await act(async () => {});
     const sheet = await sheetOf(/^Anconeus,/);
     expect(within(sheet).getByText("No exercise is mapped to this muscle yet, so there is nothing to count. That is missing mapping, not missing training.")).toBeTruthy();
-    expect(within(sheet).getByText(/4 per calendar week · nothing can be counted for it yet/)).toBeTruthy();
+    expect(within(sheet).getByText(/4 per calendar week · cannot be counted yet/)).toBeTruthy();
     expect(sheet.textContent).not.toMatch(/0 of your 4/);
     await click(within(sheet).getByRole("button", { name: /^Close/ }));
-    expect(document.querySelector(".spz-strip-goal")?.textContent).toBe("Direct bouts: nothing can be counted for it yet");
+    expect(document.querySelector(".spz-strip-goal")?.textContent).toBe("Direct bouts: cannot be counted yet");
     // The biceps is counted here (the forearm's own rows credit it until the upper arm has a version): its target reads as a count.
     await sheetOf(/^Biceps brachii,/);
     await click(within(screen.getByRole("dialog")).getByRole("button", { name: /^Close/ }));
     expect(document.querySelector(".spz-strip-goal")?.textContent).toMatch(/^Direct bouts: \d+ of your 4$/);
     const targets = await overview();
-    expect(within(targets).getByText(/4 per calendar week · nothing can be counted for it yet/)).toBeTruthy();
+    expect(within(targets).getByText(/4 per calendar week · cannot be counted yet/)).toBeTruthy();
     expect(within(targets).getAllByText(/of your 4/)).toHaveLength(1);
   });
 });
