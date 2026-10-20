@@ -554,8 +554,11 @@ describe("anatomy content, in every region", () => {
         }
       });
 
-      it("gives every muscle a main action, and an adjacent muscle at least one action", () => {
-        for (const node of content.nodes.filter((item) => item.kind === "muscle")) {
+      // A parent (the deltoid over its three heads, the triceps over its heads) acts through its parts and
+      // is neither drawn nor selected (10-multi-region.md §7.3), so it needs no action of its own.
+      it("gives every muscle a main action, and an adjacent muscle at least one action, parents aside", () => {
+        const parents = new Set(content.nodes.map((item) => item.parentId).filter(Boolean));
+        for (const node of content.nodes.filter((item) => item.kind === "muscle" && !parents.has(item.id))) {
           expect(content.nodeActions.some((row) => row.nodeId === node.id && (row.role === "prime" || node.role === "adjacent")), node.id).toBe(true);
         }
       });
