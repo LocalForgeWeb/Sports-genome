@@ -167,7 +167,7 @@ describe("the specialization page on the deltoid fixture", () => {
     await act(async () => { fireEvent.click(within(strip).getByRole("button", { name: /Inspect coverage/ })); });
     const sheet = screen.getByRole("dialog", { name: "Lateral deltoid" });
     // The sheet, too, speaks in this region's words: its incidental work is "bracing", never grip.
-    expect(within(sheet).getByText("Incidental bracing / stabilization")).not.toBeNull();
+    expect(within(sheet).getByText("Incidental bracing or steadying")).not.toBeNull();
     expect(sheet.textContent).not.toMatch(/forearm|grip|palm|thumb side|pinky|upper-arm|wrist|dynamometer/i);
   });
 

@@ -38,6 +38,8 @@ export type TargetsOverviewProps = {
   /** Today's local date (YYYY-MM-DD). */
   todayKey: string;
   onSave: (goals: SpecializationGoal[]) => StoreWrite;
+  /** Undo's write: the targets as they were before End or Remove (`useTargetEdits`). */
+  onRestore?: (goals: SpecializationGoal[]) => StoreWrite;
   onRemove: (goalId: string) => StoreWrite;
   /** Opens the muscle's sheet. */
   onOpenMuscle: (nodeId: string) => void;
@@ -54,7 +56,7 @@ type Group = { key: string; subject: TargetSubject; goals: SpecializationGoal[] 
  * subject chosen here. Nothing is suggested or filled in: every target is one the athlete set. A
  * target saved earlier on a muscle that is not a target here can be ended or removed only.
  */
-export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey, onSave, onRemove, onOpenMuscle, onOpenMovement }: TargetsOverviewProps) {
+export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey, onSave, onRestore, onRemove, onOpenMuscle, onOpenMovement }: TargetsOverviewProps) {
   const words = sideWordsFor(data.region);
   const subjects = useMemo(() => targetSubjectsFor(data), [data]);
   const targetMuscles = useMemo(() => new Set(subjects.muscles.map((subject) => subject.id)), [subjects]);
@@ -73,7 +75,7 @@ export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey
 
   const [open, setOpen] = useState(false);
   const addRef = useReturnFocus(open);
-  const edits = useTargetEdits({ region: data.region, onSave, onRemove, todayKey, subjectName });
+  const edits = useTargetEdits({ region: data.region, onSave, onRestore, onRemove, todayKey, subjectName });
 
   const regionGoals = goals.filter((goal) => goal.regionId === data.region.id);
   const { active, ended } = splitTargets(regionGoals, todayKey);

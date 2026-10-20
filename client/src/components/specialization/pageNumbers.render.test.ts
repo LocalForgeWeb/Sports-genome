@@ -10,7 +10,7 @@ import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
 import { loadRegionData } from "@/lib/specialization/loadRegion";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
-import { buildDaySlots, emptyDayStore } from "@/lib/trainingDayPlan";
+import { NOW, goals, sessions, slots, store } from "./__fixtures__/forearmWeek";
 
 /**
  * The forearm page's numbers are the base's (docs/specialization-atlas/10-multi-region.md §9.1,
@@ -24,47 +24,13 @@ import { buildDaySlots, emptyDayStore } from "@/lib/trainingDayPlan";
  *
  * The reference was read the same way off the page as it was at 8e746b4 (before lane 0d), by a
  * copy of this file run in that tree: __fixtures__/pageNumbers.8e746b4.json. To read it again,
- * run this file there with READ_PAGE_NUMBERS=<path> and without the region loader.
+ * run this file there with READ_PAGE_NUMBERS=<path> and without the region loader. The week and
+ * the plan are __fixtures__/forearmWeek.ts.
  */
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
 if (!window.matchMedia) (window as unknown as Record<string, unknown>).matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
 Element.prototype.scrollIntoView = () => {};
-
-const NOW = "2026-10-16T12:00:00.000Z";
-const byId = (id: number) => exercises.find((exercise) => exercise.id === id)!;
-const nameOf = (id: number) => byId(id).name;
-const slots = buildDaySlots(["Upper", "Lower", "Upper", "Lower"]);
-const store = { ...emptyDayStore(), plan: { [slots[0].key]: [byId(1), byId(45), byId(132)], [slots[1].key]: [byId(167)], [slots[2].key]: [byId(3), byId(139), byId(140)], [slots[3].key]: [byId(168)] } };
-const set = (over: Record<string, unknown> = {}) => ({ weight: "30", reps: "12", unit: "lb", completed: true, ...over });
-const hold = (seconds: number, over: Record<string, unknown> = {}) => ({ weight: "", reps: "", holdSeconds: String(seconds), unit: "lb", completed: true, ...over });
-const ex = (id: string, catalogId: number | null, sets: Record<string, unknown>[], over: Record<string, unknown> = {}) => ({ id, exerciseName: catalogId === null ? "Reverse Wrist Curl" : nameOf(catalogId), ...(catalogId === null ? {} : { catalogId }), plannedPrescription: `${sets.length} × 12`, sets, ...over });
-const workout = (id: string, completedAt: string, exercisesDone: unknown[], over: Record<string, unknown> = {}) => ({ id, title: "Pull", dayLabel: "Week 1 · Day 02 · Pull", startedAt: new Date(Date.parse(completedAt) - 3_600_000).toISOString(), completedAt, status: "completed", exercises: exercisesDone, ...over });
-const sessions = [
-  workout("w-8", "2026-10-08T18:00:00.000Z", [ex("a1", 139, [set(), set(), set()]), ex("a2", 143, [hold(40), hold(35)])]),
-  workout("w-13", "2026-10-13T18:00:00.000Z", [ex("b1", 132, [set(), set(), set({ reps: "10" })]), ex("b2", 139, [set({ weight: "60" }), set({ weight: "60" }), set({ weight: "60", warmup: true })])]),
-  workout("w-14", "2026-10-14T18:00:00.000Z", [
-    ex("c1", 350, [set({ side: "both" }), set({ side: "left" }), set()]),
-    ex("c2", 410, [set({ side: "right" }), set({ side: "left" }), set()]),
-    ex("c3", 145, [hold(45), hold(30)], { straps: "yes" }),
-    ex("c4", 43, [set({ weight: "135" }), set({ weight: "135" })], { straps: "no" }),
-    ex("c5", 46, [set({ side: "right" }), set()], { straps: "yes" }),
-    ex("c6", 24, [set(), set({ side: "right" })]),
-    ex("c7", 190, [set()]),
-    ex("c8", null, [set(), set()]),
-    ex("c9", 409, [hold(40, { side: "left" }), hold(40)]),
-  ]),
-  workout("w-15", "2026-10-15T18:00:00.000Z", [ex("d1", 140, [set(), set(), set()]), ex("d2", 135, [set()])]),
-  { ...workout("w-16", "2026-10-16T10:00:00.000Z", [ex("e1", 411, [set(), set({ side: "right" })])]), status: "active", completedAt: undefined },
-];
-const goal = (id: string, over: Record<string, unknown>) => ({ id, regionId: "forearm", nodeId: null, actionId: null, side: "left", metric: "direct_dynamic_bouts", target: 6, period: "calendar_week", startsOn: "2026-01-01", endsOn: null, timezone: "UTC", createdAt: "2026-01-01T08:00:00.000Z", updatedAt: "2026-01-01T08:00:00.000Z", ...over });
-const goals = (["left", "right"] as const).flatMap((side) => [
-  goal(`br-${side}`, { side, nodeId: "forearm.br" }),
-  goal(`fds-${side}`, { side, nodeId: "forearm.fds", metric: "deliberate_hold_seconds", target: 300 }),
-  goal(`wrist-${side}`, { side, actionId: "wrist.flexion", target: 8 }),
-  goal(`biceps-${side}`, { side, nodeId: "upper_arm.biceps", target: 5 }),
-  goal(`anconeus-${side}`, { side, nodeId: "forearm.anconeus", target: 3 }),
-]);
 
 function Harness({ initial }: { initial: SpecializationViewState }) {
   const [state, setState] = useState(initial);

@@ -287,7 +287,7 @@ describe("totals for the whole region open their sets (brief §1)", () => {
     await act(async () => { fireEvent.click(within(finding).getByRole("button", { name: /See these sets/ })); });
     const sheet = screen.getByRole("dialog", { name: "1 set with no arm recorded" });
     expect(within(sheet).getByText("One-Arm Dumbbell Wrist Curl")).not.toBeNull();
-    expect(within(sheet).getByText(/No arm recorded/)).not.toBeNull();
+    expect(within(sheet).getByText(/Arm not recorded/)).not.toBeNull();
   });
 
   it("in planned mode, calls the sets planned rather than done", async () => {

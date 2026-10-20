@@ -1278,6 +1278,9 @@ export default function Home() {
     // Review opened for a day (Plan's pointer) or for the week (Home) says which; the tab and
     // the dock say nothing and Review keeps the scope it was left on.
     if (next === "review" && requestedScope) { reviewScopeRef.current = requestedScope; setReviewScopeState(requestedScope); }
+    // The region grid opens once, on the visit that asked for it: leaving the page ends that, so a
+    // return by any way (a tab, the browser's Back or Forward) finds it closed.
+    if (next !== "specialization") setSpecializationChooseRegion(false);
     // An entry point names its region; the tab, the dock and search's generic entry open the page
     // on the region it was left on, or on first opening the one remembered on this device.
     const specialization = next !== "specialization" ? specializationState : requestedSpecialization ? decidedSpecialization(requestedSpecialization) : specializationEntry(specializationState);
@@ -1442,6 +1445,8 @@ export default function Home() {
         setSpecializationOrigin(specializationOriginFromHistory());
         if (addressNamesSpecializationRegion(params)) specializationRegionDecided.current = true;
       }
+      // Back and Forward return to a page as it was; the region grid's one opening has been had.
+      setSpecializationChooseRegion(false);
       setWorkspaceState(next);
     };
     window.addEventListener("popstate", restoreWorkspace);

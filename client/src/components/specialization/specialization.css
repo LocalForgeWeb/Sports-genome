@@ -68,18 +68,22 @@
 .spz-segment button[aria-pressed="true"] { background: rgb(255 255 255 / .14); color: var(--sg-text-on-dark); }
 .spz-segment button:disabled { color: var(--sg-text-subtle-on-dark); cursor: not-allowed; }
 .spz-segment button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
-/* The custom window's dates, their labels inline: one 44 px row, two equal columns from 360 px,
+/* The custom window's dates, their labels inline: one 44 px row, two equal columns from 375 px,
    stacked below it. The label column is only as wide as its word and the input's side padding is
-   small, so the whole date shows at 16 px (no smaller type: iOS zooms on focus under 16 px). */
+   small, so the whole date shows at 16 px (no smaller type: iOS zooms on focus under 16 px).
+   Measured in headless Chromium (en-US, "10/08/2026"): the From field, the narrower of the two,
+   showed the whole date from about 372 px and cut the year below it. */
 .spz-dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .375rem .5rem; width: 100%; }
 .spz-field.spz-field-inline { grid-template-columns: max-content minmax(0, 1fr); align-items: center; gap: .375rem; }
 .spz-field.spz-field-inline input { padding: 0 .375rem; }
-/* Under 360 px: the regions two to a row (above), and the dates stacked, their two labels sharing
-   one column width so the two dates line up. */
-@media (max-width: 359px) {
-  .spz-regions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* Under 375 px the dates stack, their two labels sharing one column width so the two dates line up. */
+@media (max-width: 374px) {
   .spz-dates { grid-template-columns: minmax(0, 1fr); }
   .spz-field.spz-field-inline { grid-template-columns: 2.25rem minmax(0, 1fr); }
+}
+/* Under 360 px the regions sit two to a row (above): a third of 320 px is narrower than one 16 px word. */
+@media (max-width: 359px) {
+  .spz-regions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 .spz-window { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-window b { color: var(--sg-text-on-dark); }

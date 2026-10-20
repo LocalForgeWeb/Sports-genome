@@ -234,15 +234,37 @@ describe("no region is named in the calculator, the windows, the goals or the ad
  * word the registry holds (`registryWordPattern`: ids and labels, muscle names, short names and
  * aliases, view and label texts, wording) and "arm" and "leg", so no component can hard-code a
  * limb or a side noun again; side phrases come from `sideWordsFor` (sideWords.ts), which builds
- * them from the region's side model and words. A string that is exactly a limb value ("arm",
- * "leg") is the model's vocabulary and is left out, as in the calculator's scan.
+ * them from the region's side model and words. A limb value the code compares with a limb field
+ * or names in a type (`limb === "arm"`, `"arm" | "leg"`) is the model's vocabulary and is left
+ * out; any other limb string is copy, and is read.
+ *
+ * The registry holds only the regions a wave has registered (in wave 0 the forearm and the
+ * reference upper arm), so the scan also reads the nine regions' fixed words from 10-multi-region.md
+ * §1.1 (`atlasWords`): without them a component could write "chest" or "your right thigh" in wave 0
+ * and pass until that region shipped.
  */
 describe("no region is named in the page's components", () => {
   const dir = "client/src/components/specialization";
   const files = readdirSync(join(process.cwd(), dir)).filter((name) => /\.tsx?$/.test(name) && !/\.test\.tsx?$/.test(name)).sort();
   const registry = registryWordPattern();
-  const pageWords = new RegExp(`${regionWords.source}|thumb.side|pinky|\\bpalm|upper.arm|${registry.source}`, "i");
-  const withoutLimbValues = (line: string) => line.replace(/(["'`])(arm|leg)\1/g, "$1$1");
+  /**
+   * The nine regions' words fixed by 10-multi-region.md §1.1: their ids, labels and headings' first
+   * words, every body-map key they own, and the side words a region's switch and sentences use.
+   */
+  const atlasWords = [
+    "shoulders?", "chest", "back", "upper[ _-]arms?", "forearms?", "core", "hips?", "thighs?", "lower[ _-]legs?",
+    "frontDelts", "sideDelts", "rearDelts", "rotatorCuff", "serratusAnterior", "lats", "upperBack", "rhomboids", "traps", "lowerBack",
+    "biceps", "brachialis", "triceps", "brachioradialis", "abs", "obliques", "glutes", "abductors", "tfl", "hipFlexors", "adductors",
+    "quads", "hamstrings", "calves", "soleus", "tibialis", "peroneals",
+    "(left|right) side",
+  ];
+  const atlas = `\\b(${atlasWords.join("|")})\\b`;
+  const pageWords = new RegExp(`${regionWords.source}|thumb.side|pinky|\\bpalm|upper.arm|${registry.source}|${atlas}`, "i");
+  /** A limb value compared with a limb field or named in a type is the model's vocabulary; `Math.abs` is arithmetic. */
+  const withoutLimbValues = (line: string) => line
+    .replace(/(===|!==|\|)\s*(["'`])(arm|leg)\2/g, "$1 $2$2")
+    .replace(/(["'`])(arm|leg)\1(\s*(?:===|!==|\|))/g, "$1$1$3")
+    .replace(/\bMath\.abs\b/g, "Math.");
   /** Lines that must stay, by file and exact code, each with its reason. */
   const allowed: { file: string; code: string; why: string }[] = [
     {
@@ -254,6 +276,11 @@ describe("no region is named in the page's components", () => {
       file: "SpecializationPanel.tsx",
       code: 'return <button type="button" className="spz-back" onClick={onBack} aria-label={`Back to ${label}`}><ChevronLeft className="h-5 w-5" aria-hidden="true" />{label}</button>;',
       why: "The in-page Back to the page that opened this one: navigation, not the back region, whose label the registry holds only as a drawing's view name (\"Back\").",
+    },
+    {
+      file: "model.ts",
+      code: 'const holdingWord = "steadying";',
+      why: "The plain word for incidental work, holding a position while other muscles move the load (§8's method note), joined to each region's own word (\"grip or steadying\"); it is also one region's word, so `incidentalWords` never says it twice.",
     },
     {
       file: "MeasurementsPanel.tsx",
@@ -279,8 +306,12 @@ describe("no region is named in the page's components", () => {
     for (const line of ['const label = "Left arm";', "<p>counted for neither leg</p>", "`${side} arm`", '"Incidental grip / stabilization"', "<h3>Muscles of the forearms</h3>", '"or steadying"']) {
       expect(pageWords.test(withoutLimbValues(line)), line).toBe(true);
     }
+    // Words of regions not registered yet (10-multi-region.md §1.1), and a limb string that is copy.
+    for (const line of ['"Muscles of the chest"', "<p>Left thigh · Right thigh</p>", '"your right shoulder"', 'const word = "arm";', '"Both legs"', '"Left side · Right side"', 'const key = "quads";', "<p>Lower legs</p>", 'id === "upper_arm"']) {
+      expect(pageWords.test(withoutLimbValues(line)), line).toBe(true);
+    }
     // The model's limb values and identifiers that only contain the words are not copy.
-    for (const line of ['region.sides.limb === "arm"', "const armSide = bout.armSide;", "sideWords.noneRecorded", 'grip_force_n: "x"']) {
+    for (const line of ['region.sides.limb === "arm"', 'limb: "arm" | "leg" | null;', 'words.limb === "arm" && recorded.limb === "leg"', "const armSide = bout.armSide;", "sideWords.noneRecorded", 'grip_force_n: "x"', "Math.abs(left - right)", "const backLabel = onBack;", "the other side"]) {
       expect(pageWords.test(withoutLimbValues(line)), line).toBe(false);
     }
   });
@@ -296,7 +327,7 @@ describe("no region is named in the page's components", () => {
   }
 
   it("keeps the allow-list short and true: every entry is still a line of its file", () => {
-    expect(allowed.length).toBeLessThanOrEqual(4);
+    expect(allowed.length).toBeLessThanOrEqual(5);
     for (const entry of allowed) {
       expect(entry.why.length, entry.code).toBeGreaterThan(40);
       const lines = codeLines(entry.file, readFileSync(join(process.cwd(), dir, entry.file), "utf8")).map((line) => line.trim());

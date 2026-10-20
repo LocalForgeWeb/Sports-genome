@@ -97,8 +97,11 @@ describe("what the page says about a muscle", () => {
     expect(sentence).toBe("No work for it in this window. 1 set matched a mapping still under review and is not counted. 2 sets with no arm recorded matched a mapping still under review and are not counted.");
   });
   it("names incidental work in the region's own word", () => {
-    expect(exposureSentence(node({ incidentalBouts: 4 }), "grip", forearmWords)).toBe("4 incidental grip / stabilization.");
-    expect(exposureSentence(node({ incidentalBouts: 4 }), "bracing", forearmWords)).toBe("4 incidental bracing / stabilization.");
+    // The forearm's words as shipped (17 Oct), unchanged in wave 0 (10-multi-region.md §9.1).
+    expect(exposureSentence(node({ incidentalBouts: 4 }), "grip", forearmWords)).toBe("4 incidental grip or steadying.");
+    expect(exposureSentence(node({ incidentalBouts: 4 }), "bracing", forearmWords)).toBe("4 incidental bracing or steadying.");
+    // A region whose word is steadying says it once.
+    expect(exposureSentence(node({ incidentalBouts: 4 }), "steadying", forearmWords)).toBe("4 incidental steadying.");
   });
   it("says a hold's time was not recorded rather than 0 s", () => {
     expect(holdTime(0)).toBe("time not recorded");

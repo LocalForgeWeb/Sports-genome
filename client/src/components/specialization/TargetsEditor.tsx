@@ -126,10 +126,16 @@ export type TargetEdits = {
  * anything else makes the removals before it final, so Undo can never restore a target that
  * would now overlap a newer one. A target that has not started yet (it started today, or later)
  * has no days to keep, so ending it removes it — with the same Undo.
+ *
+ * Undo writes back exactly the targets it took away, through `onRestore`: a target saved before
+ * targets were limited to the region's target muscles (10-multi-region.md §2.2) can be ended or
+ * removed, so it must come back too, although a new one on that muscle would be refused.
  */
-export function useTargetEdits({ region, onSave, onRemove, todayKey, subjectName }: {
+export function useTargetEdits({ region, onSave, onRestore = onSave, onRemove, todayKey, subjectName }: {
   region: TargetWords;
   onSave: (goals: SpecializationGoal[]) => StoreWrite;
+  /** Writes back targets as they were before an End or a Remove (Undo); by default `onSave`. */
+  onRestore?: (goals: SpecializationGoal[]) => StoreWrite;
   onRemove: (goalId: string) => StoreWrite;
   todayKey: string;
   subjectName: (goal: SpecializationGoal) => string;
@@ -190,7 +196,7 @@ export function useTargetEdits({ region, onSave, onRemove, todayKey, subjectName
   };
   const undo = () => {
     if (!undoable.length) return;
-    const result = onSave(undoable.map((entry) => entry.goal));
+    const result = onRestore(undoable.map((entry) => entry.goal));
     if (!result.ok) { setError(result.reason); return; }
     settle(undoable.length === 1 ? "Target restored." : `${undoable.length} targets restored.`);
     setFocus((current) => ({ on: "status", count: current.count + 1 }));
@@ -481,7 +487,7 @@ export const READ_ONLY_TARGET_NOTE = "Targets are for this region's target muscl
  * Only a target muscle of the region gets a new target (`canSet`); a target saved earlier on
  * another muscle is shown with End and Remove only (10-multi-region.md §2.2).
  */
-export function TargetsEditor({ region, nodeId, nodeName, canSet, side, goals, progress, timeZone, todayKey, onSave, onRemove }: {
+export function TargetsEditor({ region, nodeId, nodeName, canSet, side, goals, progress, timeZone, todayKey, onSave, onRestore, onRemove }: {
   region: TargetWords;
   nodeId: string;
   nodeName: string;
@@ -496,13 +502,15 @@ export function TargetsEditor({ region, nodeId, nodeName, canSet, side, goals, p
   /** Today's local date (YYYY-MM-DD): what counts as ended, and the day a new target starts. */
   todayKey: string;
   onSave: (goals: SpecializationGoal[]) => StoreWrite;
+  /** Undo's write: the targets as they were (`useTargetEdits`). */
+  onRestore?: (goals: SpecializationGoal[]) => StoreWrite;
   onRemove: (goalId: string) => StoreWrite;
 }) {
   const words = sideWordsFor(region);
   const [open, setOpen] = useState(false);
   const addRef = useReturnFocus(open);
   const subjectName = () => nodeName;
-  const edits = useTargetEdits({ region, onSave, onRemove, todayKey, subjectName });
+  const edits = useTargetEdits({ region, onSave, onRestore, onRemove, todayKey, subjectName });
   const { active, ended } = splitTargets(goals, todayKey);
   const onThisSide = active.some((goal) => goal.side === side);
 

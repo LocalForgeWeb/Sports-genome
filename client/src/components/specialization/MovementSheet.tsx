@@ -3,7 +3,7 @@ import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import type { SpecializationRegionData, SpecializationSummary, SummaryMode, SummarySide } from "@shared/specialization/types";
 import { ActionGlyph } from "./ActionGlyph";
 import { BoutItem } from "./BoutItem";
-import { categoryLabel, goalMetricLabels, holdTime, ledgerByExercise, movementLedger } from "./model";
+import { categoryLabel, goalMetricLabels, holdTime, ledgerByExercise, movementLedger, otherWorkWords } from "./model";
 import { rowSideTextFor, sideWordsFor } from "./sideWords";
 import { SpecializationSheet } from "./SpecializationSheet";
 import { Suggestions, type SuggestionsProps } from "./Suggestions";
@@ -75,7 +75,7 @@ export function MovementSheet({ data, actionId, summary, loading, side, mode, in
         <dl className="spz-numbers">
           <div><dt>Direct dynamic bouts</dt><dd>{ledger.totals.directDynamicBouts}</dd></div>
           <div><dt>Deliberate holds</dt><dd>{ledger.totals.deliberateHoldBouts}{ledger.totals.deliberateHoldBouts ? <small> · {holdTime(ledger.totals.deliberateHoldSeconds)}</small> : null}</dd></div>
-          <div><dt>Other work for it</dt><dd>{ledger.totals.otherBouts}<small> · helping or stabilizing</small></dd></div>
+          <div><dt>Other work for it</dt><dd>{ledger.totals.otherBouts}<small> · {otherWorkWords}</small></dd></div>
           {words.paired && ledger.totals.unknownSideBouts > 0 && <div><dt>{words.noneRecordedTitle}</dt><dd>{ledger.totals.unknownSideBouts}<small> · {words.neither}</small></dd></div>}
         </dl>
         {/* A plan has done nothing yet: its sets are planned for the movement, not sets muscles did. */}

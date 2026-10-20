@@ -28,7 +28,8 @@ import { SpecializationPanel } from "./SpecializationPanel";
  *   ("the forearms on your right forearm");
  * - never "{label} on the" ("the thighs on the right thigh": a side is said as the region says it);
  * - no limb word that is not the region's ("leg" on the back's page, "arm" on the thigh's), and no
- *   side at all on the midline region.
+ *   side at all on the midline region;
+ * - no named week said twice in one text ("Plan Week 1, as written: … planned … in Plan Week 1").
  *
  * Left out, because they are not the page's sentences: the published rule's text (`.spz-rule-text`,
  * the same on every region and never edited), the region's own content (a muscle's anatomy, its
@@ -118,6 +119,8 @@ function problems(data: SpecializationRegionData, texts: readonly string[]): str
   const names = [...data.nodes.map((node) => node.name), ...exerciseNames].sort((a, b) => b.length - a.length);
   const out: string[] = [];
   for (const text of texts) {
+    const twice = text.match(/\b(Plan\sWeek\s\d+)\b[\s\S]*\b(Plan\sWeek\s\d+)\b/);
+    if (twice && twice[1].replace(/\s/g, " ") === twice[2].replace(/\s/g, " ")) out.push(`"${twice[1]}" twice: ${text}`);
     for (const sentence of sentences(text)) {
       const repeated = sentence.match(/\b([a-z]{3,})\s+\1\b/i);
       if (repeated) out.push(`repeated "${repeated[1]}": ${sentence}`);
@@ -210,7 +213,30 @@ describe("every page sentence that names a region or a side, for every region sh
     expect(problems(pageFixtures.fx_core, ["This week · right side"])).toHaveLength(1);
     expect(problems(forearmRegionData, ["Logged on the right arm arm: 3 bouts"])).toHaveLength(1);
     expect(problems(forearmRegionData, ["12 distinct bouts touched your right forearm."])).toEqual([]);
+    expect(problems(forearmRegionData, ["Plan Week 1, as written: 18 distinct bouts are planned for your left forearm in Plan\u00a0Week 1."])).toHaveLength(1);
+    expect(problems(forearmRegionData, ["Plan Week 2, as written: 18 distinct bouts are planned for your left forearm in Plan Week 1."])).toEqual([]);
   });
+
+  /** What the page's live region says once Planned is chosen. */
+  const announcedOnPlanned = async (data: SpecializationRegionData, side: SummarySide): Promise<string> => {
+    const limb: BodySide = side === "midline" ? "right" : side;
+    render(createElement(Harness, { initial: { ...defaultSpecializationState(data.region.id), limb } }));
+    await act(async () => {});
+    await click(within(screen.getByRole("group", { name: "Planned or completed" })).getByRole("button", { name: "Planned" }));
+    await act(async () => {});
+    return document.querySelector(".spz-page > [aria-live='polite']")!.textContent ?? "";
+  };
+  for (const data of regions) {
+    it(`${data.region.id}: says the plan week once when Planned is chosen`, async () => {
+      const side = sidesOf(data)[0];
+      const said = await announcedOnPlanned(data, side);
+      const words = sideWordsFor(data.region);
+      expect(said.startsWith("Plan Week 1, as written: ")).toBe(true);
+      expect(said).toContain(`planned for ${words.onSide(side)}`);
+      expect(said).not.toMatch(/in Plan\sWeek/);
+      expect(problems(data, [said])).toEqual([]);
+    }, 60000);
+  }
 });
 
 describe("what the page model says, for every region shape and side", () => {

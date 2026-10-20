@@ -31,6 +31,8 @@ describe("the specialization page in search", () => {
     expect(destination("forearms", "specialization#forearm")).not.toBeNull();
     expect(destination("grip", "specialization#forearm")).not.toBeNull();
     expect(destination("brachioradialis", "specialization#forearm")).not.toBeNull();
+    // As before each region had a destination of its own (8e746b4: "wrist" found the forearm page).
+    expect(destination("wrist", "specialization#forearm")).not.toBeNull();
     expect(destination("deltoids", "specialization#deltoid")).not.toBeNull();
     expect(destination("fixture thighs", "specialization#fx_thigh")).toMatchObject({ label: "Fixture thighs specialization" });
   });

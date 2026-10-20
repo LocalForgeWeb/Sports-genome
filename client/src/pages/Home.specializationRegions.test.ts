@@ -108,6 +108,44 @@ describe("the specialization page with more than one region", () => {
     expect(screen.queryByRole("button", { name: /^Back to / })).toBeNull();
   }, 30000);
 
+  it("opens the grid once: after a pick, or after closing it, the browser's Back and Forward return with it closed", async () => {
+    window.history.replaceState({}, "", "/?workspace=body");
+    render(createElement(Home));
+    await openTab("Specialize");
+    const toggle = await regionToggle();
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    await act(async () => { fireEvent.click(within(document.getElementById("spz-regions")!).getByRole("button", { name: /Fixture thighs/ })); });
+    await tick();
+    expect(window.location.search).toBe("?workspace=specialization&region=fx_thigh");
+    expect((await regionToggle()).getAttribute("aria-expanded")).toBe("false");
+    await openTab("Muscles");
+    await act(async () => { window.history.back(); });
+    await tick();
+    expect(window.location.search).toBe("?workspace=specialization&region=fx_thigh");
+    expect((await regionToggle()).getAttribute("aria-expanded")).toBe("false");
+    // Forward to Muscles and Back again: still closed.
+    await act(async () => { window.history.forward(); });
+    await tick();
+    await act(async () => { window.history.back(); });
+    await tick();
+    expect((await regionToggle()).getAttribute("aria-expanded")).toBe("false");
+  }, 30000);
+
+  it("keeps the grid closed after Escape, when the page is left and the browser's Back returns to it", async () => {
+    window.history.replaceState({}, "", "/?workspace=body");
+    render(createElement(Home));
+    await openTab("Specialize");
+    const toggle = await regionToggle();
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    await act(async () => { fireEvent.keyDown(toggle, { key: "Escape" }); });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    await openTab("Muscles");
+    await act(async () => { window.history.back(); });
+    await tick();
+    expect(window.location.search).toBe("?workspace=specialization&region=forearm");
+    expect((await regionToggle()).getAttribute("aria-expanded")).toBe("false");
+  }, 30000);
+
   it("opens from the tab on the region this account last opened on this device, and remembers the next one", async () => {
     window.localStorage.setItem(REGION_KEY, "fx_thigh");
     window.history.replaceState({}, "", "/?workspace=body");

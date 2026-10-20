@@ -47,13 +47,20 @@ describe("the side words", () => {
 });
 
 describe("a ledger row's side", () => {
-  it("is the side it is counted on, or that none was recorded; nothing on a midline region", () => {
-    expect(rowSideLabel(forearm, { side: "bilateral", countedSide: "right" })).toBe("Right arm");
-    expect(rowSideLabel(forearm, { side: "unknown", countedSide: "unknown" })).toBe("No arm recorded");
+  it("is the sides it is counted on, in the forearm ledger's words, or that none was recorded; nothing on a midline region", () => {
+    // A two-handed set (or one logged Both) on the right-arm page counts for each arm, and says so, as it always has.
+    expect(rowSideLabel(forearm, { side: "bilateral", countedSide: "right" })).toBe("Both arms");
+    expect(rowSideLabel(forearm, { side: "right", countedSide: "right" })).toBe("Right arm");
+    expect(rowSideLabel(forearm, { side: "unknown", countedSide: "unknown" })).toBe("Arm not recorded");
     expect(rowSideLabel(thigh, { side: "left", countedSide: "left" })).toBe("Left leg");
+    expect(rowSideLabel(thigh, { side: "unknown", countedSide: "unknown" })).toBe("Leg not recorded");
+    expect(rowSideLabel(back, { side: "bilateral", countedSide: "left" })).toBe("Both sides");
+    // The counted side, not the hand: a suitcase carry in the left hand that loads the right side.
+    expect(rowSideLabel(back, { side: "right", countedSide: "right", recordedSide: recorded("arm", "left"), sideRelation: "opposite" })).toBe("Right side");
     expect(rowSideLabel(core, { side: "bilateral", countedSide: "midline" })).toBeNull();
-    // A summary made before rows carried a counted side is read by its single side.
+    // A summary made before rows carried a counted side is read the same way.
     expect(rowSideLabel(forearm, { side: "bilateral" })).toBe("Both arms");
+    expect(rowSideLabel(forearm, { side: "unknown" })).toBe("Arm not recorded");
   });
 
   it("notes what the set recorded where the counted side does not say it", () => {
@@ -62,17 +69,19 @@ describe("a ledger row's side", () => {
     // A single-leg RDL logged "Standing leg: Left" credits the left hamstrings.
     expect(recordedSideNote(thigh, { side: "left", countedSide: "left", recordedSide: recorded("leg", "left"), sideRelation: "same" }, "stance_leg")).toBe("Standing leg: left");
     expect(recordedSideNote(back, { side: "bilateral", countedSide: "left", recordedSide: recorded("arm", "right"), sideRelation: "both" }, null)).toBe("Right hand: both sides");
-    expect(recordedSideNote(forearm, { side: "bilateral", countedSide: "left", recordedSide: recorded("arm", "both"), sideRelation: "same" }, null)).toBe("Both hands");
     // A hand recorded for work counted on a leg says which hand.
     expect(recordedSideNote(thigh, { side: "unknown", countedSide: "unknown", recordedSide: recorded("arm", "left"), sideRelation: "same" }, null)).toBe("Left hand");
   });
 
   it("adds nothing where the counted side says it all, for a plan's assumed side, on a midline region, or for a leg on an arm's region", () => {
     expect(recordedSideNote(forearm, { side: "right", countedSide: "right", recordedSide: recorded("arm", "right"), sideRelation: "same" }, null)).toBeNull();
+    // Logged Both and counted for both: the row's "Both arms" says it.
+    expect(recordedSideNote(forearm, { side: "bilateral", countedSide: "left", recordedSide: recorded("arm", "both"), sideRelation: "same" }, null)).toBeNull();
+    expect(recordedSideNote(thigh, { side: "bilateral", countedSide: "left", recordedSide: recorded("leg", "both"), sideRelation: "same" }, "working_leg")).toBeNull();
     expect(recordedSideNote(forearm, { side: "bilateral", countedSide: "right", recordedSide: null }, null)).toBeNull();
     expect(recordedSideNote(forearm, { side: "bilateral", countedSide: "right", recordedSide: recorded("arm", "right", "plan_assumption") }, null)).toBeNull();
     expect(recordedSideNote(core, { side: "bilateral", countedSide: "midline", recordedSide: recorded("arm", "left"), sideRelation: "opposite" }, null)).toBeNull();
-    // A leg's side on a region paired by the arm: its page names no leg, and the row says "No arm recorded".
+    // A leg's side on a region paired by the arm: its page names no leg, and the row says "Arm not recorded".
     expect(recordedSideNote(forearm, { side: "unknown", countedSide: "unknown", recordedSide: recorded("leg", "right"), sideRelation: "same" }, "front_leg")).toBeNull();
     expect(recordedSideNote(back, { side: "unknown", countedSide: "unknown", recordedSide: recorded("leg", "left"), sideRelation: "same" }, "stance_leg")).toBeNull();
   });

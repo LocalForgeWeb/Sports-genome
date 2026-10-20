@@ -1,4 +1,6 @@
 // @vitest-environment jsdom
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import React, { createElement, useState } from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -184,6 +186,31 @@ describe("planned work is planned, not done (F-phone-7)", () => {
   it("still says logged work touched the region in completed mode", () => {
     render(createElement(Harness));
     expect(screen.getByRole("group", { name: "Selected muscle" }).textContent).toMatch(/^3 distinct bouts touched your right forearm\./);
+  });
+});
+
+describe("Custom's dates, their labels inline", () => {
+  /** The rules of one `@media (max-width: …)` block of the page's stylesheet. */
+  const mediaBlock = (css: string, width: number) => {
+    const start = css.indexOf(`@media (max-width: ${width}px) {`);
+    return start < 0 ? "" : css.slice(start, css.indexOf("\n}", start));
+  };
+
+  it("sit in two columns only from 375 px: below it, where the narrower From field cut the year in Chromium, they stack", () => {
+    const css = readFileSync(join(__dirname, "specialization.css"), "utf8");
+    expect(css).toMatch(/\.spz-dates \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+    expect(mediaBlock(css, 374)).toMatch(/\.spz-dates \{ grid-template-columns: minmax\(0, 1fr\); \}/);
+    // The regions' grid keeps its own breakpoint; the dates are not in it.
+    expect(mediaBlock(css, 359)).toMatch(/\.spz-regions/);
+    expect(mediaBlock(css, 359)).not.toMatch(/spz-dates|spz-field/);
+    // 16 px inputs, so iOS does not zoom on focus.
+    expect(css).not.toMatch(/\.spz-field-inline input \{[^}]*font-size/);
+  });
+
+  it("render as From and To beside their fields", () => {
+    render(createElement(Harness, { initial: { window: "custom", from: "2026-10-08", to: "2026-10-16" } }));
+    const dates = document.querySelector(".spz-dates")!;
+    expect(Array.from(dates.querySelectorAll("label.spz-field-inline")).map((label) => [label.querySelector("span")!.textContent, (label.querySelector("input") as HTMLInputElement).value])).toEqual([["From", "2026-10-08"], ["To", "2026-10-16"]]);
   });
 });
 

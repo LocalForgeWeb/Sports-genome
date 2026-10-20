@@ -86,16 +86,34 @@ export function holdTime(seconds: number): string {
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
 /**
+ * The plain word for holding a position while other muscles move the load, the kind of work every
+ * region's incidental credit is (10-multi-region.md §8, the method note). One region's own word for
+ * it is the same word, which is why the page scan lists this line.
+ */
+const holdingWord = "steadying";
+
+/**
+ * Incidental work in a sentence, as the forearm page has said it since 17 Oct: the region's word for
+ * it and steadying ("grip or steadying"), or the region's word alone where it is that word.
+ */
+export function incidentalWords(incidentalWork: string): string {
+  return incidentalWork === holdingWord ? incidentalWork : `${incidentalWork} or ${holdingWord}`;
+}
+
+/** What "other work" for a movement is, beside its number in the movement sheet: "helping or steadying". */
+export const otherWorkWords = `helping or ${holdingWord}`;
+
+/**
  * The parts of a muscle's exposure that are not zero, in the brief's order (§5 "Default muscle
- * totals"). Incidental work is said as the ledger's category names it, in the region's word for it
- * (`wording.incidentalWork`: "incidental grip / stabilization").
+ * totals"). Incidental work is said in the region's word for it (`wording.incidentalWork`):
+ * "4 incidental grip or steadying".
  */
 export function exposureParts(node: NodeExposure, incidentalWork: string): string[] {
   const parts: string[] = [];
   if (node.directDynamicBouts) parts.push(`${plural(node.directDynamicBouts, "direct dynamic bout")}`);
   if (node.contributingDynamicBouts) parts.push(`${node.contributingDynamicBouts} other dynamic`);
   if (node.deliberateHoldBouts) parts.push(`${plural(node.deliberateHoldBouts, "deliberate hold")}, ${holdTime(node.deliberateHoldSeconds)}`);
-  if (node.incidentalBouts) parts.push(`${node.incidentalBouts} ${categoryLabel("incidental_isometric", { incidentalWork }).toLowerCase()}`);
+  if (node.incidentalBouts) parts.push(`${node.incidentalBouts} incidental ${incidentalWords(incidentalWork)}`);
   if (node.mixedBouts) parts.push(`${node.mixedBouts} mixed`);
   if (node.unknownBouts) parts.push(`${node.unknownBouts} unclassified`);
   return parts;

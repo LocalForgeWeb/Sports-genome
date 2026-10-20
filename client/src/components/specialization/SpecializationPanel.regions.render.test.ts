@@ -211,15 +211,33 @@ describe("a region's data, loaded on its own", () => {
     expect(screen.getByRole("button", { name: /^Fixture rectus abdominis/ })).toBeTruthy();
   });
 
-  it("says when it could not be loaded, and tries again on request", async () => {
+  it("says when it could not be loaded, and offers a reload: a failed import is never tried again in place", async () => {
     loader.held.set("fx_core", "failing");
     await show({ regionId: "fx_core" });
     await act(async () => { loader.settle.get("fx_core")!.reject(new Error("offline")); });
-    expect(screen.getByRole("alert").textContent).toContain("The page for the fixture core could not be loaded.");
-    loader.held.delete("fx_core");
-    await click(screen.getByRole("button", { name: "Try again" }));
-    await act(async () => {});
-    expect(screen.getByRole("button", { name: /^Fixture rectus abdominis/ })).toBeTruthy();
+    expect(within(screen.getByRole("alert")).getByText("The page for the fixture core could not be loaded. Reloading usually fixes this.")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
+    // The browser keeps a failed import for the visit (in headless Chromium no second request is
+    // made), so only a reload loads it; the address keeps the region.
+    const reload = vi.fn();
+    vi.stubGlobal("location", { ...window.location, reload });
+    try {
+      await click(screen.getByRole("button", { name: "Reload" }));
+      expect(reload).toHaveBeenCalledTimes(1);
+      // Nothing was imported again in place.
+      expect(loader.settle.size).toBe(1);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("says a region this build has no data for is not available, with nothing to retry", async () => {
+    loader.held.set("fx_core", "held");
+    await show({ regionId: "fx_core" });
+    await act(async () => { loader.settle.get("fx_core")!.resolve(null); });
+    expect(screen.getByText("That body region is not available.")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /Reload|Try again/ })).toBeNull();
+    expect(toggle().textContent).toBe("Fixture core");
   });
 });
 

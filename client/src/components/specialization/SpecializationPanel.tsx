@@ -93,14 +93,16 @@ type SheetState =
 /**
  * The region sentence: the region's distinct bouts on the side shown, in the region's words
  * ("12 distinct bouts touched your right forearm, and 2 more had no arm recorded."). Logged work
- * touched the region; a plan has done nothing yet, so its sets are planned for it.
+ * touched the region; a plan has done nothing yet, so its sets are planned for it, in its plan week
+ * ("…planned for your right forearm in Plan Week 1"). `planWeek` is null where the words before the
+ * sentence already name the plan week ("Plan Week 1, as written: …"), so it is said once.
  */
-function regionSentence(words: SideWords, side: SummarySide, summary: { mode: SummaryMode; regionDistinctBouts: number; regionUnknownSideBouts: number }, planWeek: number): string {
+function regionSentence(words: SideWords, side: SummarySide, summary: { mode: SummaryMode; regionDistinctBouts: number; regionUnknownSideBouts: number }, planWeek: number | null): string {
   const where = words.onSide(side);
   const unsided = words.paired ? summary.regionUnknownSideBouts : 0;
   return summary.mode === "planned"
     // "Plan Week" and its number never part across lines (a no-break space).
-    ? `${plural(summary.regionDistinctBouts, "distinct bout")} ${summary.regionDistinctBouts === 1 ? "is" : "are"} planned for ${where} in Plan Week ${planWeek}${unsided ? `, and ${unsided} more name ${words.noLimb}` : ""}.`
+    ? `${plural(summary.regionDistinctBouts, "distinct bout")} ${summary.regionDistinctBouts === 1 ? "is" : "are"} planned for ${where}${planWeek === null ? "" : ` in Plan Week ${planWeek}`}${unsided ? `, and ${unsided} more name ${words.noLimb}` : ""}.`
     : `${plural(summary.regionDistinctBouts, "distinct bout")} touched ${where}${unsided ? `, and ${unsided} more had ${words.noneRecorded}` : ""}.`;
 }
 
@@ -116,20 +118,20 @@ export function SpecializationPanel(props: SpecializationPanelProps) {
   const { state, onStateChange, accountId, backLabel, onBack } = props;
   const region = specializationRegionIndex.find((item) => item.id === state.regionId) ?? null;
   const [, setLoads] = useState(0);
-  const [failed, setFailed] = useState<RegionId | null>(null);
-  const [retry, setRetry] = useState(0);
+  /** A region whose data did not load: its import failed, or this build has no data for it. */
+  const [failed, setFailed] = useState<{ regionId: RegionId; why: "import" | "missing" } | null>(null);
   const data = region ? loadedRegionData(region.id) : null;
   useEffect(() => {
     if (!region || loadedRegionData(region.id)) return;
     let live = true;
     setFailed(null);
     loadRegionData(region.id).then(
-      // A region the index offers but this build cannot load reads as a failed load, never as a page of zeros.
-      (loadedData) => { if (live) (loadedData ? setLoads((count) => count + 1) : setFailed(region.id)); },
-      () => { if (live) setFailed(region.id); },
+      // A region the index offers but this build cannot load is not available, never a page of zeros.
+      (loadedData) => { if (live) (loadedData ? setLoads((count) => count + 1) : setFailed({ regionId: region.id, why: "missing" })); },
+      () => { if (live) setFailed({ regionId: region.id, why: "import" }); },
     );
     return () => { live = false; };
-  }, [region, retry]);
+  }, [region]);
   // The region this account last opened on this device, so the page opens on it next time.
   useEffect(() => { if (region) rememberRegion(accountId, region.id); }, [accountId, region]);
 
@@ -181,11 +183,16 @@ export function SpecializationPanel(props: SpecializationPanelProps) {
         onRegionAnnounced={() => setAnnounceRegion(null)}
         onOpenRegion={openRegion}
       />
-      : failed === region.id
-        ? <div className="spz-loading" role="alert">
-          <p className="spz-error">The page for the {regionWord} could not be loaded.</p>
-          <button type="button" className="spz-button" onClick={() => setRetry((count) => count + 1)}>Try again</button>
-        </div>
+      : failed?.regionId === region.id
+        ? failed.why === "missing"
+          ? <p className="spz-note">That body region is not available.</p>
+          // The browser keeps a failed import for the rest of the visit, so trying it again in place
+          // never loads it (in Chromium no second request is made). A reload does, as the app's own
+          // error screen offers; the address and the history entry keep the region and the Back.
+          : <div className="spz-loading" role="alert">
+            <p className="spz-error">The page for the {regionWord} could not be loaded. Reloading usually fixes this.</p>
+            <button type="button" className="spz-button" onClick={() => window.location.reload()}>Reload</button>
+          </div>
         // Never zeros while the region loads: one line, where the page will be.
         : <p className="spz-note spz-loading" role="status">Loading the {regionWord}…</p>}
     <p className="sr-only" aria-live="polite">{announcement}</p>
@@ -310,6 +317,10 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   // A new target is held to the region's target muscles and its sides (`goalScopeOf`, goals.ts).
   const goalScope = useMemo(() => goalScopeOf(data), [data]);
   const saveGoals = (next: SpecializationGoal[]) => saveGoalsTo(next, goalScope);
+  // Undo writes back exactly what End or Remove took away, so it is not held to the new-target
+  // rule: a target saved earlier on a muscle that is not a target here comes back too (§2.2).
+  // The side, dates and overlap are still checked.
+  const restoreGoals = (next: SpecializationGoal[]) => saveGoalsTo(next);
   const { measurements, save: saveMeasurement, remove: removeMeasurement } = useSpecializationMeasurements(accountId);
   const regionGoals = useMemo(() => goals.filter((item) => item.regionId === data.region.id), [goals, data.region.id]);
   const activeTargets = splitTargets(regionGoals, localDateKey(nowIso, timeZone)).active.length;
@@ -432,7 +443,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     if (Math.abs(shift) >= 1) window.scrollBy({ top: shift, behavior: "instant" });
   }, [state.nodeId]);
   useEffect(() => {
-    if (summary && !announceRegion) announce(`${interval.label}: ${regionSentence(words, side, summary, planWeek)}`);
+    // In planned mode the window's label names the plan week ("Plan Week 1, as written"), so the sentence does not again.
+    if (summary && !announceRegion) announce(`${interval.label}: ${regionSentence(words, side, summary, null)}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interval.label, state.limb, state.mode]);
   // A region just picked from the heading: its label and its count, once there is a count to say.
@@ -639,7 +651,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           : <div className="spz-segment" role="group" aria-label="Plan week">
             {(builtWeeks.length ? builtWeeks : [planWeek]).map((week) => <button key={week} type="button" aria-pressed={week === planWeek} onClick={() => update({ planWeek: week === trainingWeek ? null : week })}>Week {week}</button>)}
           </div>}
-        {/* The labels sit beside their fields, one 44 px row for both from 360 px (stacked below it). */}
+        {/* The labels sit beside their fields, one 44 px row for both from 375 px (stacked below it). */}
         {state.mode === "completed" && state.window === "custom" && <div className="spz-dates">
           <label className="spz-field spz-field-inline"><span>From</span><input type="date" value={state.from ?? ""} max={todayKey} onChange={(event) => setCustom("from", event.target.value)} /></label>
           <label className="spz-field spz-field-inline"><span>To</span><input type="date" value={state.to ?? ""} max={todayKey} onChange={(event) => setCustom("to", event.target.value)} /></label>
@@ -772,7 +784,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
 
       <details className="spz-disclosure spz-card">
         <summary><span><b>Targets</b><small>{activeTargets ? `${activeTargets} active` : "None set"}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
-        <TargetsOverview data={data} summary={summary} goals={regionGoals} side={side} timeZone={timeZone} todayKey={todayKey} onSave={saveGoals} onRemove={removeGoal} onOpenMuscle={(nodeId) => { select(nodeId); setSheet({ kind: "muscle" }); }} onOpenMovement={(actionId) => setSheet({ kind: "movement", actionId })} />
+        <TargetsOverview data={data} summary={summary} goals={regionGoals} side={side} timeZone={timeZone} todayKey={todayKey} onSave={saveGoals} onRestore={restoreGoals} onRemove={removeGoal} onOpenMuscle={(nodeId) => { select(nodeId); setSheet({ kind: "muscle" }); }} onOpenMovement={(actionId) => setSheet({ kind: "movement", actionId })} />
       </details>
 
       <details className="spz-disclosure spz-card" onToggle={(event) => { if (event.currentTarget.open) setProgressOpened(true); }}>
@@ -834,6 +846,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       onSetExerciseExcluded={setExerciseExcluded}
       onSetEquipmentExcluded={setEquipmentExcluded}
       onSaveGoals={(next) => saveGoals(next)}
+      onRestoreGoals={restoreGoals}
       onRemoveGoal={removeGoal}
       onChooseExercise={(exerciseId) => setSheet({ kind: "change", exerciseId, from: { kind: "muscle" } })}
       onInspectExercise={inspect}

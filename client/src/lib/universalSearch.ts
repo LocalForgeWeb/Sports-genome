@@ -228,10 +228,20 @@ const DESTINATIONS: Candidate[] = [
 ];
 
 /**
+ * Words people type for a body-map key's specialization work that are neither the muscle's name nor
+ * one of its aliases above. The forearm page was found by "wrist" before each region had a
+ * destination of its own, and still is.
+ */
+const SPECIALIZATION_TERMS: Record<string, string[]> = {
+  forearms: ["wrist"],
+};
+
+/**
  * One destination per body region with a specialization page, from the light region index
  * (docs/specialization-atlas/10-multi-region.md §6.2): `specialization#<region>`, named as the page
  * names itself (its heading), found by its label, its body-map keys and those muscles' names and
- * aliases ("forearm", "grip", "brachioradialis"). Home opens that region, with no Back.
+ * aliases ("forearm", "grip", "brachioradialis"), and the words people type for that work ("wrist").
+ * Home opens that region, with no Back.
  */
 function specializationCandidates(): Candidate[] {
   return specializationRegionIndex.map((region) => ({
@@ -242,7 +252,7 @@ function specializationCandidates(): Candidate[] {
     terms: Array.from(new Set([
       region.heading,
       region.label,
-      ...region.bodyMapKeys.flatMap((key) => [key, muscleLabels[key] ?? "", ...(ALIASES[key] ?? [])]),
+      ...region.bodyMapKeys.flatMap((key) => [key, muscleLabels[key] ?? "", ...(ALIASES[key] ?? []), ...(SPECIALIZATION_TERMS[key] ?? [])]),
     ].filter(Boolean).map(normalize))),
   }));
 }

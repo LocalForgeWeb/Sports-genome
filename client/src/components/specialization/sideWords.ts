@@ -40,6 +40,8 @@ export type SideWords = {
   noLimb: string;
   noneRecorded: string;
   noneRecordedTitle: string;
+  /** "Arm not recorded": a ledger row kept apart for want of a side, as the forearm's ledger has always said it. */
+  notRecorded: string;
   /** "an arm", "a leg": "every set has an arm". */
   aLimb: string;
   /** "counted for neither arm", "counted for neither side". */
@@ -59,7 +61,7 @@ export function sideWordsFor(region: Pick<SpecializationRegion, "id" | "sides" |
   const onSide = (side: SummarySide) => regionOnSide(region, side);
   if (region.sides.model === "midline") {
     const none = () => "";
-    return { paired: false, limb: null, one: "", many: "", group: "", label: none, of: none, adjective: none, only: none, onSide: () => regionOnSide(region, "midline"), both: "", perSide: "", noLimb: "", noneRecorded: "", noneRecordedTitle: "", aLimb: "", neither: "", asksWhich: "", differ: "", bothCount: "" };
+    return { paired: false, limb: null, one: "", many: "", group: "", label: none, of: none, adjective: none, only: none, onSide: () => regionOnSide(region, "midline"), both: "", perSide: "", noLimb: "", noneRecorded: "", noneRecordedTitle: "", notRecorded: "", aLimb: "", neither: "", asksWhich: "", differ: "", bothCount: "" };
   }
   const limb = region.sides.limb;
   const limbs = `${limb}s`;
@@ -82,6 +84,7 @@ export function sideWordsFor(region: Pick<SpecializationRegion, "id" | "sides" |
     noLimb: `no ${limb}`,
     noneRecorded: `no ${limb} recorded`,
     noneRecordedTitle: `No ${limb} recorded`,
+    notRecorded: `${capitalised(limb)} not recorded`,
     aLimb: withArticle(limb),
     neither: `counted for neither ${one}`,
     asksWhich: `One-${limb} work logged from now on asks which ${limb}.`,
@@ -99,25 +102,27 @@ export type SidedRow = {
 };
 
 /**
- * A ledger row's side, by the side it is counted on (10-multi-region.md §2.1): "Right arm", or "No
- * arm recorded" for a row kept apart; nothing on a midline region. A summary made before rows
- * carried a counted side is read by its single side.
+ * A ledger row's side, by the sides it is counted on (10-multi-region.md §2.1), in the words the
+ * forearm's ledger has always used: "Right arm" for a row counted on one side, "Both arms" for one
+ * counted for each side (a two-handed set, a set logged Both, a mapping that loads both sides, a
+ * plan's set assumed on each side), "Arm not recorded" for a row kept apart; nothing on a midline
+ * region. `side` is the calculator's reading of the counted sides (exposure.ts `singleReading`), so
+ * a suitcase carry in the left hand that loads the right side reads "Right side", not the hand.
  */
 export function rowSideLabel(words: SideWords, row: SidedRow): string | null {
   if (!words.paired) return null;
-  const counted = row.countedSide ?? (row.side === "bilateral" ? null : row.side);
-  if (counted === "left" || counted === "right") return words.label(counted);
-  if (counted === "unknown") return words.noneRecordedTitle;
-  return words.both;
+  if (row.side === "unknown" || row.countedSide === "unknown") return words.notRecorded;
+  return row.side === "bilateral" ? words.both : words.label(row.side);
 }
 
 /**
  * What the set recorded, where the row's counted side does not say it (10-multi-region.md §2.1):
  * the loaded hand for the arm ("Left hand: opposite side" for a suitcase carry credited on the
  * right), the variant's anchor leg for the leg ("Standing leg: left"). Nothing where the counted
- * side says it all, for a plan's assumed sides (the row says "Each side assumed"), on a midline
- * region, which names no side, or for a leg's side on a region paired by the arm, whose page names
- * no leg (the row says "No arm recorded").
+ * side says it all (a hand loading its own side, a set logged Both and counted for both), for a
+ * plan's assumed sides (the row says "Each side assumed"), on a midline region, which names no
+ * side, or for a leg's side on a region paired by the arm, whose page names no leg (the row says
+ * "Arm not recorded").
  */
 export function recordedSideNote(words: SideWords, row: SidedRow, anchor: SideAnchor | null | undefined): string | null {
   const recorded = row.recordedSide;
@@ -132,7 +137,8 @@ export function recordedSideNote(words: SideWords, row: SidedRow, anchor: SideAn
   if (row.countedSide === "unknown") return what;
   if (relation === "opposite") return joined("opposite side");
   if (relation === "both") return joined("both sides");
-  return hand && recorded.side !== "both" ? null : what;
+  // Loaded on the side recorded: the label says it for a hand and for Both; a leg's anchor says which leg "left" meant.
+  return hand || recorded.side === "both" ? null : what;
 }
 
 /** A ledger row's side in words: its label, then what the set recorded where that differs ("Right arm", "Left hand: opposite side"). */

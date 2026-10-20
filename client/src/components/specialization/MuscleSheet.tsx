@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import type { SpecializationExclusions } from "@/lib/specialization/exclusions";
 import type { Recommendations } from "@/lib/specialization/recommendations";
@@ -8,7 +8,7 @@ import { regionIndexEntry, specializationRegionIndex } from "@shared/specializat
 import type { AnatomyNode, GoalProgress, NodeExposure, RegionId, SpecializationGoal, SpecializationRegionData, SummaryMode, SummarySide } from "@shared/specialization/types";
 import { ActionGlyph } from "./ActionGlyph";
 import { BoutItem, boutDay } from "./BoutItem";
-import { categoryLabel, formatSegment, holdTime, layerLabels, ledgerByExercise } from "./model";
+import { categoryLabel, formatSegment, holdTime, incidentalWords, layerLabels, ledgerByExercise } from "./model";
 import { rowSideTextFor, sideWordsFor } from "./sideWords";
 import { SpecializationSheet } from "./SpecializationSheet";
 import { Suggestions } from "./Suggestions";
@@ -33,7 +33,7 @@ const basisLabels: Record<string, string> = {
  * region's muscle says where its targets are set, with a way there once that page exists; a target
  * already saved on a muscle that is not a target here is shown with End and Remove only.
  */
-export function MuscleSheet({ data, node, exposure, loading = false, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, initialSection, paired, pairNote = null, exclusions, equipmentOf, onSetExerciseExcluded, onSetEquipmentExcluded, onSaveGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onOpenRegion, onClose }: {
+export function MuscleSheet({ data, node, exposure, loading = false, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, initialSection, paired, pairNote = null, exclusions, equipmentOf, onSetExerciseExcluded, onSetEquipmentExcluded, onSaveGoals, onRestoreGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onOpenRegion, onClose }: {
   data: SpecializationRegionData;
   node: AnatomyNode;
   exposure: NodeExposure | null;
@@ -61,6 +61,8 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
   onSetExerciseExcluded: (catalogExerciseId: number, excluded: boolean) => StoreWrite;
   onSetEquipmentExcluded: (equipment: string, excluded: boolean) => StoreWrite;
   onSaveGoals: (goals: SpecializationGoal[]) => StoreWrite;
+  /** Undo's write: targets as they were before End or Remove, read-only ones included. */
+  onRestoreGoals?: (goals: SpecializationGoal[]) => StoreWrite;
   onRemoveGoal: (goalId: string) => StoreWrite;
   onChooseExercise: (catalogExerciseId: number) => void;
   onInspectExercise: (catalogExerciseId: number | null, name: string) => void;
@@ -83,6 +85,12 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
   const home = node.role === "external" ? regionIndexEntry(node.regionId) : null;
   const homeHasPage = home !== null && specializationRegionIndex.some((region) => region.id === home.id);
   const homePage = home ? `the ${home.label.toLowerCase()} page` : null;
+  // A muscle that is not a target here shows its editor only for targets saved on it earlier; once
+  // shown, it stays for as long as the sheet shows this muscle, so removing the last of them leaves
+  // the message and its Undo in place, with focus on Undo, rather than taking them away with it.
+  const [editorShownFor, setEditorShownFor] = useState<string | null>(() => (goals.length ? node.id : null));
+  if (goals.length && editorShownFor !== node.id) setEditorShownFor(node.id);
+  const showEditor = node.role === "target" || goals.length > 0 || editorShownFor === node.id;
   const ledger = exposure ? ledgerByExercise(exposure.contributions) : [];
   const notCounted = exposure?.notCounted ?? [];
   useEffect(() => {
@@ -127,7 +135,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
           <div><dt>Direct dynamic bouts</dt><dd>{exposure.directDynamicBouts}{exposure.directDynamicReps ? <small> · {exposure.directDynamicReps} reps</small> : null}</dd></div>
           <div><dt>Other dynamic bouts</dt><dd>{exposure.contributingDynamicBouts}{exposure.contributingDynamicReps ? <small> · {exposure.contributingDynamicReps} reps</small> : null}</dd></div>
           <div><dt>Deliberate holds</dt><dd>{exposure.deliberateHoldBouts}{exposure.deliberateHoldBouts ? <small> · {holdTime(exposure.deliberateHoldSeconds)}</small> : null}</dd></div>
-          <div><dt>{categoryLabel("incidental_isometric", wording)}</dt><dd>{exposure.incidentalBouts}</dd></div>
+          <div><dt>Incidental {incidentalWords(wording.incidentalWork)}</dt><dd>{exposure.incidentalBouts}</dd></div>
           {exposure.mixedBouts > 0 && <div><dt>Mixed bouts</dt><dd>{exposure.mixedBouts}</dd></div>}
           {exposure.unknownBouts > 0 && <div><dt>Unclassified</dt><dd>{exposure.unknownBouts}</dd></div>}
           {words.paired && exposure.unknownSide.bouts > 0 && <div><dt>{words.noneRecordedTitle}</dt><dd>{exposure.unknownSide.bouts}<small> · {words.neither}</small></dd></div>}
@@ -178,8 +186,8 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
         {homeHasPage && onOpenRegion && <button type="button" className="spz-link" onClick={() => onOpenRegion(home.id, node.id)}>Open {homePage} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
       </>}
       {loading ? <p className="spz-note">Your targets and their progress appear once your plan has loaded.</p>
-        : node.role === "target" || goals.length
-          ? <TargetsEditor region={data.region} nodeId={node.id} nodeName={node.name} canSet={node.role === "target"} side={side} goals={goals} progress={progress} timeZone={timeZone} todayKey={todayKey} onSave={onSaveGoals} onRemove={onRemoveGoal} />
+        : showEditor
+          ? <TargetsEditor key={node.id} region={data.region} nodeId={node.id} nodeName={node.name} canSet={node.role === "target"} side={side} goals={goals} progress={progress} timeZone={timeZone} todayKey={todayKey} onSave={onSaveGoals} onRestore={onRestoreGoals} onRemove={onRemoveGoal} />
           : !home && <p className="spz-note">Targets are for this region's target muscles, and this one is not one of them.</p>}
     </section>
 
