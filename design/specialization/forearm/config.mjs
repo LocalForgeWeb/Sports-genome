@@ -30,7 +30,9 @@ export const VIEW_ORDER = [
 
 /**
  * No side policy is written: the drawing predates it, and leaving it out keeps the generated
- * file byte for byte as published. It is the subject's right arm, mirrored for the left.
+ * file byte for byte as published. It is the subject's right arm, mirrored for the left, which is
+ * what a drawing that does not say means (`diagramSidesOf`). Only a config that pins its published
+ * text (MODULE_TEXT) may leave SIDES out; every other region's sets it.
  */
 export const SIDES = undefined;
 
@@ -41,9 +43,6 @@ export const LICENSE_NOTE =
 
 /** The words a path that is not a muscle may be named by: skin, bone and the lines drawn on them. */
 export const STRUCTURE_WORDS = ["skin", "crease", "epicondyle", "humerus", "radius", "ulna", "olecranon", "membrane", "thumb"];
-
-/** Where the region's members are read from (the short-name table is derived from them). */
-export const REGION_DATA = { module: "shared/specialization/regions/forearm/index.ts", export: "forearmRegionData" };
 
 /** The generated module's comments as published on 16 Oct, kept word for word. */
 export const MODULE_TEXT = {

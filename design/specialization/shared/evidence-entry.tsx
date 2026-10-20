@@ -2,25 +2,25 @@
  * Browser entry for render-evidence.mjs: draws the real SpecializationDiagram for each figure the
  * script asks for, on a card like the page's, at phone width. Not part of the app.
  *
- * The region comes from the page (`window.EVIDENCE`): its id and the export of the region's data
- * module, which the script bundles in as `@evidence/region` (the module its config names).
+ * Everything it draws comes from the page (`window.EVIDENCE`): the asset the script built from the
+ * region's views, checked equal to the committed diagram.generated.ts, and the region's members.
+ * It imports no region, so the gate measures exactly the drawing it was run on.
  */
 import { createRoot } from "react-dom/client";
 import "@/components/anatomy/anatomy-figure.css";
 import { SpecializationDiagram } from "@/components/specialization/SpecializationDiagram";
+import type { DiagramNode } from "@/components/specialization/diagramGeometry";
 import type { DiagramFill } from "@/components/specialization/model";
-import type { DiagramLayerId, DiagramViewId, SpecializationRegionData } from "@shared/specialization/types";
-// @ts-expect-error The alias is set by render-evidence.mjs when it bundles this file.
-import * as regionModule from "@evidence/region";
+import type { DiagramAsset, DiagramLayerId, DiagramViewId } from "@shared/specialization/types";
 
 type Figure = { id: string; title: string; view: DiagramViewId; layer: DiagramLayerId; mirrored: boolean; selected: string | null; fills: Record<string, DiagramFill>; caption: string };
-type Evidence = { region: string; export: string; figures: Figure[] };
+type Member = DiagramNode & { name: string; shortName: string };
+type Evidence = { region: string; asset: DiagramAsset; members: Member[]; figures: Figure[] };
 
 const evidence = (window as unknown as { EVIDENCE: Evidence }).EVIDENCE;
-const data = (regionModule as Record<string, SpecializationRegionData | undefined>)[evidence.export];
-if (!data?.diagram || data.region.id !== evidence.region) throw new Error(`${evidence.export} is not ${evidence.region}'s data with a drawing`);
-const asset = data.diagram;
-const nodeById = new Map(data.nodes.map((node) => [node.id, node] as const));
+const { asset, members } = evidence;
+if (asset.regionId !== evidence.region) throw new Error(`The asset is ${asset.regionId}'s, not ${evidence.region}'s`);
+const nodeById = new Map(members.map((node) => [node.id, node] as const));
 
 function Page() {
   return (
@@ -33,7 +33,7 @@ function Page() {
             view={figure.view}
             layer={figure.layer}
             mirrored={figure.mirrored}
-            nodes={data!.nodes}
+            nodes={members}
             fillFor={(id) => figure.fills[id] ?? { kind: "none" }}
             selectedNodeId={figure.selected}
             onSelect={() => {}}

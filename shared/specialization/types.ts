@@ -479,9 +479,9 @@ export interface DiagramAsset {
   version: number;
   regionId: RegionId;
   /**
-   * Absent means `one_side`, which is what every drawing so far is (`diagramSidesOf`). The
-   * forearm's generated drawing does not write it yet, so its file stays byte for byte as
-   * shipped; the drawing platform lane writes it.
+   * Absent means `one_side` (`diagramSidesOf`). The forearm's drawing leaves it out on purpose,
+   * to keep its published file byte for byte; every other region's config sets it, and the
+   * drawing contract test ties it to the region's side model (midline: `both_sides`).
    */
   sides?: DiagramSides;
   viewBox: { width: number; height: number };
