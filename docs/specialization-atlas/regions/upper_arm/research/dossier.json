@@ -1,0 +1,1723 @@
+{
+  "region": "upper_arm",
+  "date": "2026-10-19",
+  "nodes": [
+    {
+      "id": "upper_arm.biceps",
+      "regionId": "upper_arm",
+      "parentId": null,
+      "kind": "muscle",
+      "role": "target",
+      "storedRole": "external",
+      "name": "Biceps brachii",
+      "shortName": "Biceps",
+      "shipped": true,
+      "aliases": [
+        "biceps"
+      ],
+      "layer": "surface",
+      "layerSupported": true,
+      "outcropSupported": null,
+      "surfaceVisibility": "clear",
+      "surfaceVisibilityReason": "The most superficial muscle of the front compartment of the upper arm (teachmeanatomy.arm_muscles); its belly forms the front of the arm. Unchanged from the shipped record.",
+      "catalogMuscleKey": "biceps",
+      "databaseMuscle": "biceps_brachii",
+      "databaseMuscleNote": "Shipped value; exists in the canonical list (shared/capabilityRank.ts).",
+      "status": "reviewed",
+      "statusReason": "Both function claims on the node are reviewed: forearm:biceps.function (shipped) and upper_arm:upper_arm.biceps.function.",
+      "location": "Front of the upper arm, at the surface: its two heads start on the shoulder blade, join, and cross the elbow to the radius.",
+      "whatItDoes": "Bends your elbow and turns your palm up; with the elbow bent it is the strongest palm-up muscle. It also crosses the front of the shoulder, where it gives only weak help raising the arm forward.",
+      "shapeNote": "May contribute most of the front contour of the upper arm, between the shoulder and the elbow crease, since it is the surface muscle there. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "caveats": [
+        "Its two heads are one muscle here: they end in one tendon and share their actions at the elbow and forearm.",
+        "Its help raising the arm forward is weak, and studies disagree on whether it is active at all in shoulder movement, so that is not counted as a shoulder action here.",
+        "Some people have an extra head; it usually causes no symptoms."
+      ],
+      "membershipCaveatsForForearm": [
+        "It is an upper-arm muscle and does not add forearm size.",
+        "Shown only as another muscle that curls and palm-up turning load; not a forearm target."
+      ],
+      "neutralTextNote": "Replaces the shipped shapeNote 'Shapes the front of the upper arm. It is an upper-arm muscle and does not add forearm size.' and the shipped caveat 'Shown only as another muscle that curls and palm-up turning load; not a forearm target.', whose region-relative words move to the forearm's membership of this node (§1.3)."
+    },
+    {
+      "id": "upper_arm.brachialis",
+      "regionId": "upper_arm",
+      "parentId": null,
+      "kind": "muscle",
+      "role": "target",
+      "storedRole": "external",
+      "name": "Brachialis",
+      "shortName": "Brachialis",
+      "shipped": true,
+      "aliases": [
+        "brachialis"
+      ],
+      "layer": "deep",
+      "layerSupported": true,
+      "outcropSupported": "Yes: Kenhub's video page says it has superficial portions at its lateral border and distally (kenhub.brachialis_video), which is the §7.2 'brachialis outcrop beside the distal biceps on Front-surface'.",
+      "surfaceVisibility": "partial",
+      "surfaceVisibilityReason": "Mostly hidden under the biceps, with its outer edge and lower end near the surface (kenhub.brachialis_video; A51; teachmeanatomy.brachialis). Unchanged from the shipped record.",
+      "catalogMuscleKey": "brachialis",
+      "databaseMuscle": "brachialis",
+      "databaseMuscleNote": "Shipped value; exists in the canonical list.",
+      "status": "reviewed",
+      "statusReason": "Its only function claim, forearm:brachialis.function, is reviewed.",
+      "location": "Front of the lower half of the upper arm, under the biceps, crossing the elbow to the ulna.",
+      "whatItDoes": "Bends your elbow, whichever way the palm faces. It does not turn the forearm.",
+      "shapeNote": "Mostly covered by the biceps, so most of it has little or no contour of its own. Its outer edge near the elbow lies close to the surface and may add to the outer side of the lower upper arm, beside the biceps. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "caveats": [
+        "It bends the elbow whatever the grip, so curls with the palm down or the thumb up load it too."
+      ],
+      "membershipCaveatsForForearm": [
+        "It is not a forearm muscle.",
+        "Shown only as another muscle that curls load; not a forearm target."
+      ],
+      "neutralTextNote": "Replaces the shipped shapeNote 'Mostly covered by the biceps; may show at the sides of the lower upper arm. It is not a forearm muscle.' and caveat 'Shown only as another muscle that curls load; not a forearm target.'; 'at the sides' becomes 'outer edge', the only edge the sources confirmed."
+    },
+    {
+      "id": "upper_arm.triceps",
+      "regionId": "upper_arm",
+      "parentId": null,
+      "kind": "muscle",
+      "role": "group",
+      "name": "Triceps brachii",
+      "shortName": "Triceps",
+      "aliases": [
+        "triceps"
+      ],
+      "layer": "— (§1.2; parent, neither drawn nor selectable; the TypeScript value follows the platform lane, the forearm's groups use 'mixed')",
+      "layerSupported": true,
+      "outcropSupported": null,
+      "surfaceVisibility": "partial",
+      "surfaceVisibilityReason": "Two heads at the surface and one mostly under them (radiopaedia.triceps_brachii; kenhub.triceps_brachii_video); the forearm marks its mixed-layer groups 'partial'.",
+      "catalogMuscleKey": "triceps",
+      "databaseMuscle": null,
+      "databaseMuscleNote": "The canonical list holds the three heads, not the whole muscle.",
+      "status": "reviewed",
+      "statusReason": "Its function claim, upper_arm:upper_arm.triceps.function, is reviewed.",
+      "location": "Back of the upper arm, from the shoulder blade and the upper-arm bone to the point of the elbow.",
+      "whatItDoes": "Straightens your elbow. Its long head also helps move the arm down and back at the shoulder.",
+      "shapeNote": "Together its three heads make up most of the back of the upper arm. Which head shapes which part of that outline cannot be read exactly from the surface. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "caveats": [
+        "A muscle with three heads, not a target itself: work is counted for the heads inside it."
+      ]
+    },
+    {
+      "id": "upper_arm.triceps_long",
+      "regionId": "upper_arm",
+      "parentId": "upper_arm.triceps",
+      "kind": "head",
+      "role": "target",
+      "name": "Triceps, long head",
+      "shortName": "TriLong",
+      "aliases": [
+        "long head of triceps",
+        "triceps long head"
+      ],
+      "layer": "surface",
+      "layerSupported": true,
+      "outcropSupported": null,
+      "surfaceVisibility": "partial",
+      "surfaceVisibilityReason": "At the surface and easy to feel (kenhub.triceps_brachii_video; anatomyzone.triceps_lateral_head), but no source names its own outline as a visible landmark apart from the lateral head; the forearm marks such surface muscles 'partial'.",
+      "catalogMuscleKey": "triceps",
+      "databaseMuscle": "triceps_brachii_long_head",
+      "databaseMuscleNote": "Exists in the canonical list (shared/capabilityRank.ts); the database lane confirms.",
+      "status": "reviewed",
+      "statusReason": "Its function claim is reviewed.",
+      "location": "Back of the upper arm, at the surface, from the shoulder blade just below the shoulder joint down to the common tendon at the point of the elbow.",
+      "whatItDoes": "Straightens your elbow with the other two heads. It is the only head that crosses the shoulder, where it helps move the arm down and back and toward the body, and helps hold the top of the upper-arm bone in its socket.",
+      "shapeNote": "May contribute to the back-of-arm contour from below the shoulder toward the elbow, as one of the two surface heads. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "caveats": [
+        "Its actions at the shoulder are small next to its work at the elbow.",
+        "Short-term studies find its share of the work changes with arm position; that is activity, not growth, and it is not used to weight credit."
+      ]
+    },
+    {
+      "id": "upper_arm.triceps_lateral",
+      "regionId": "upper_arm",
+      "parentId": "upper_arm.triceps",
+      "kind": "head",
+      "role": "target",
+      "name": "Triceps, lateral head",
+      "shortName": "TriLat",
+      "aliases": [
+        "lateral head of triceps",
+        "triceps lateral head"
+      ],
+      "layer": "surface",
+      "layerSupported": true,
+      "outcropSupported": null,
+      "surfaceVisibility": "partial",
+      "surfaceVisibilityReason": "At the surface on the back and outer side (radiopaedia.triceps_brachii; kenhub.triceps_brachii_video), outline merging with the long head; 'partial' as for the long head.",
+      "catalogMuscleKey": "triceps",
+      "databaseMuscle": "triceps_brachii_lateral_head",
+      "databaseMuscleNote": "Exists in the canonical list; the database lane confirms.",
+      "status": "reviewed",
+      "statusReason": "Its function claim is reviewed.",
+      "location": "Back of the upper arm on the outer side, at the surface, from the upper half of the upper-arm bone to the common tendon at the point of the elbow.",
+      "whatItDoes": "Straightens your elbow. It does not cross the shoulder.",
+      "shapeNote": "May contribute to the outer part of the back-of-arm contour, as one of the two surface heads. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "caveats": [
+        "It shares every action with the medial head, so their work is counted together and not split between them."
+      ]
+    },
+    {
+      "id": "upper_arm.triceps_medial",
+      "regionId": "upper_arm",
+      "parentId": "upper_arm.triceps",
+      "kind": "head",
+      "role": "target",
+      "name": "Triceps, medial head",
+      "shortName": "TriMed",
+      "aliases": [
+        "medial head of triceps",
+        "triceps medial head"
+      ],
+      "layer": "deep",
+      "layerSupported": true,
+      "outcropSupported": "Supported on balance, with a disagreement: Radiopaedia says it lies largely deep to the lateral head, Madsen 2006 found its muscle reaching further toward the elbow than the other two heads, and DocCheck Flexikon says only its lower part shows from outside; Kenhub's video says it cannot be felt. Not a deviation; the claim and caveat say references differ.",
+      "surfaceVisibility": "partial",
+      "surfaceVisibilityReason": "Mostly covered; at most a small lower part near the elbow reaches the surface, and references differ on that (see outcropSupported).",
+      "catalogMuscleKey": "triceps",
+      "databaseMuscle": "triceps_brachii_medial_head",
+      "databaseMuscleNote": "Exists in the canonical list; the database lane confirms.",
+      "status": "reviewed",
+      "statusReason": "Its function claim is reviewed.",
+      "location": "Back of the upper arm, deep layer, on the lower half of the upper-arm bone under the long and lateral heads; its lower part reaches closer to the elbow than theirs.",
+      "whatItDoes": "Straightens your elbow, and draws the back of the elbow joint's capsule out of the way as it straightens. It does not cross the shoulder.",
+      "shapeNote": "Mostly covered by the long and lateral heads, so it has little or no contour of its own; its lowest part, just above the elbow, may show a little. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "caveats": [
+        "It shares every action with the lateral head, so their work is counted together and not split between them.",
+        "References differ on whether any of it can be felt through the skin."
+      ]
+    },
+    {
+      "id": "upper_arm.coracobrachialis",
+      "regionId": "upper_arm",
+      "parentId": null,
+      "kind": "muscle",
+      "role": "adjacent",
+      "name": "Coracobrachialis",
+      "shortName": "CB",
+      "aliases": [
+        "coracobrachialis"
+      ],
+      "layer": "deep",
+      "layerSupported": "Supported in part: it lies behind the pectoralis major near the shoulder and on the inner side of the biceps and brachialis (elsevier.coracobrachialis; kenhub.coracobrachialis), so a front view with the arm by the side shows little of it; Kenhub says it is easiest to feel in the armpit, where it forms the outer edge with the humerus. Not a contradiction of 'deep' for a drawing of the arm at rest; no deviation proposed.",
+      "outcropSupported": null,
+      "surfaceVisibility": "not_distinct",
+      "surfaceVisibilityReason": "Slender and covered near the shoulder; felt in the armpit, not seen as a contour of its own.",
+      "catalogMuscleKey": null,
+      "databaseMuscle": null,
+      "databaseMuscleNote": "No coracobrachialis row among the canonical names in shared/capabilityRank.ts.",
+      "status": "reviewed",
+      "statusReason": "Its function claim is reviewed.",
+      "location": "Inner side of the upper part of the upper arm, from the front of the shoulder blade to about halfway down the upper-arm bone; behind the chest muscle near the shoulder and on the inner side of the biceps below it.",
+      "whatItDoes": "Raises your arm forward at the shoulder and helps draw it in toward your body.",
+      "shapeNote": "Slender and mostly hidden near the shoulder, so it has little or no contour of its own. It can be felt in the armpit. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "caveats": [
+        "Shown beside the upper-arm muscles because of where it sits; upper-arm specialization does not target it."
+      ]
+    },
+    {
+      "id": "forearm.br",
+      "regionId": "forearm",
+      "external": true,
+      "home": "forearm",
+      "name": "Brachioradialis",
+      "shortName": "BR",
+      "note": "External member, home forearm, unchanged. No new fields. It is listed because it is a prime mover of elbow.flexion (forearm:br.function, reviewed 16 Oct) and curls of every grip load it. The upper-arm page shows its elbow.flexion node action only. Suggested membership caveat for the upper arm's listing: 'A forearm muscle shown here because curls load it; it is credited as the forearm counts it.'"
+    }
+  ],
+  "claims": [
+    {
+      "id": "upper_arm.biceps.function",
+      "key": "upper_arm:upper_arm.biceps.function",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.biceps",
+      "kind": "function",
+      "statement": "The biceps also crosses the front of the shoulder: both heads start on the shoulder blade, the long head just above the shoulder socket and the short head on the coracoid process. Anatomy references describe it as giving weak help raising the arm forward (shoulder flexion); one quick reference lists no shoulder action for it at all.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "kenhub.biceps_brachii",
+          "locator": "Function",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "loyola.biceps_brachii",
+          "locator": "Action",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "teachmeanatomy.arm_muscles",
+          "locator": "Biceps brachii: attachments and function",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "elsevier.biceps_brachii",
+          "locator": "Quick Facts: Origin and Action",
+          "qualification": "Lists no shoulder action; cited for the origins and for that difference between references."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.biceps.appearance",
+      "key": "upper_arm:upper_arm.biceps.appearance",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.biceps",
+      "kind": "appearance",
+      "statement": "The biceps is the most superficial muscle on the front of the upper arm and lies over the brachialis, so it may contribute most of the front contour of the upper arm between the shoulder and the elbow crease. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "teachmeanatomy.arm_muscles",
+          "locator": "Biceps brachii: the most superficial muscle of the front compartment",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "A51",
+          "locator": "Introduction: deeper than the biceps",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "teachmeanatomy.brachialis",
+          "locator": "Brachialis: deep to the biceps",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.biceps.selectivity.1",
+      "key": "upper_arm:upper_arm.biceps.selectivity.1",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.biceps",
+      "kind": "selectivity",
+      "statement": "Whether the way the palm faces changes how hard the biceps works in a curl is not settled. In a surface-EMG study of ten bodybuilders, the biceps was more active with the palm up than with the palm down or the thumb up while lifting, with no difference reported while lowering; in a surface-EMG study of 16 people making slow single elbow bends, its activity did not change between the three positions. Neither study measured growth.",
+      "basis": "experimental",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "mdpi.biceps_curl_grips",
+          "locator": "Abstract: Results",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Ten competitive bodybuilders; sets of six at an eight-repetition maximum. Abstract only."
+        },
+        {
+          "sourceId": "A4",
+          "locator": "Abstract: Results",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Surface electrodes; slow single repetitions."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.biceps.selectivity.2",
+      "key": "upper_arm:upper_arm.biceps.selectivity.2",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.biceps",
+      "kind": "selectivity",
+      "statement": "Studies disagree on whether the biceps works in shoulder movement at all. With the elbow braced straight, a wire-electrode study of ten shoulders recorded no activity in its long head during shoulder movement; a surface-EMG study of 13 healthy people found low long-head activity that rose when the arm was raised forward or out to the side. A scoping review of the long head concluded that its part in raising the arm is minimal in healthy shoulders. None of these studies measured growth.",
+      "basis": "experimental",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "pmid.11408907",
+          "locator": "Abstract: Results and Conclusions",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Ten shoulders; elbow braced straight. Abstract only."
+        },
+        {
+          "sourceId": "pmid.26535304",
+          "locator": "Abstract: Results",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Thirteen healthy volunteers; surface electrodes. Abstract only."
+        },
+        {
+          "sourceId": "bmc.long_head_biceps_scoping_review",
+          "locator": "Abstract: Results",
+          "qualification": "A scoping review of 214 articles; only the opening of the abstract was seen."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.biceps.variation.1",
+      "key": "upper_arm:upper_arm.biceps.variation.1",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.biceps",
+      "kind": "variation",
+      "statement": "Some people have one or more extra heads of the biceps. A review pooling 78 studies found them in a minority of arms, more often on one side only than on both and more often in men, and found that they usually cause no symptoms.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "wiley.biceps_accessory_heads",
+          "locator": "Abstract",
+          "qualification": "Pooled cadaver and imaging studies; rates depend on the samples and methods. Abstract only; authors not confirmed."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.brachialis.appearance",
+      "key": "upper_arm:upper_arm.brachialis.appearance",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.brachialis",
+      "kind": "appearance",
+      "statement": "The brachialis lies under the biceps on the front of the lower half of the upper arm and forms the floor of the hollow in front of the elbow. Most of it is hidden by the biceps; its outer edge near the elbow lies close to the surface, so it may contribute to the outer side of the lower upper arm beside the biceps. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "A51",
+          "locator": "Introduction: deeper than the biceps; part of the hollow in front of the elbow",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "kenhub.brachialis_video",
+          "locator": "Video description: mostly under the biceps, surface parts at its outer edge and lower end",
+          "qualification": "Seen as a video page preview, not the full video; location only."
+        },
+        {
+          "sourceId": "teachmeanatomy.brachialis",
+          "locator": "Brachialis: deep to the biceps, floor of the hollow in front of the elbow",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.triceps.function",
+      "key": "upper_arm:upper_arm.triceps.function",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.triceps",
+      "kind": "function",
+      "statement": "The triceps straightens the elbow; that is its main action. Its three heads, long, lateral and medial, join in one tendon on the point of the elbow (the olecranon of the ulna). Only the long head starts on the shoulder blade and crosses the shoulder; the other two start on the back of the upper-arm bone.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "statpearls.triceps",
+          "locator": "Introduction; Structure and Function",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "kenhub.triceps_brachii",
+          "locator": "Origins, insertion and function",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "loyola.triceps_brachii",
+          "locator": "Origin and action",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.triceps.appearance",
+      "key": "upper_arm:upper_arm.triceps.appearance",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.triceps",
+      "kind": "appearance",
+      "statement": "The triceps lies on the back of the upper arm. Its long and lateral heads are at the surface and its medial head lies mostly under them, so together they may make up most of the back-of-arm contour; which head shapes which part of it cannot be read exactly from the surface.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "radiopaedia.triceps_brachii",
+          "locator": "Summary and relations: medial head largely deep to the lateral head",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "kenhub.triceps_brachii_video",
+          "locator": "Video description: palpation of the heads",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.triceps_long.function",
+      "key": "upper_arm:upper_arm.triceps_long.function",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.triceps_long",
+      "kind": "function",
+      "statement": "The long head straightens the elbow with the other two heads. It is the only head that crosses the shoulder: it starts on the shoulder blade just below the shoulder socket, and references describe a small action there, helping move the arm down and back (shoulder extension) and toward the body (adduction). It also helps hold the top of the upper-arm bone in its socket.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "statpearls.triceps",
+          "locator": "Structure and Function: long head",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "kenhub.triceps_brachii",
+          "locator": "Function",
+          "qualification": null
+        },
+        {
+          "sourceId": "imaios.triceps_long_head",
+          "locator": "Function",
+          "qualification": "Seen through the imaios.cn mirror."
+        },
+        {
+          "sourceId": "radiopaedia.triceps_brachii",
+          "locator": "Action",
+          "qualification": null
+        },
+        {
+          "sourceId": "loyola.triceps_brachii",
+          "locator": "Action: the long head steadies the shoulder joint",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.triceps_long.appearance",
+      "key": "upper_arm:upper_arm.triceps_long.appearance",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.triceps_long",
+      "kind": "appearance",
+      "statement": "The long head lies at the surface on the back of the upper arm, running from the shoulder blade just below the shoulder joint to the common tendon at the elbow, so it may contribute to the back-of-arm contour between them. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "kenhub.triceps_brachii_video",
+          "locator": "Video description: palpation of the heads",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "anatomyzone.triceps_lateral_head",
+          "locator": "Overview: surface and deep heads",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "statpearls.triceps",
+          "locator": "Structure and Function: origin of the long head",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.triceps_long.selectivity.1",
+      "key": "upper_arm:upper_arm.triceps_long.selectivity.1",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.triceps_long",
+      "kind": "selectivity",
+      "statement": "In a study of ten adults straightening the elbow with the upper arm at five heights, from down by the side to straight overhead, surface EMG and a computer model estimated that the long head was the most active head and made the most force with the arm by the side, while the medial head made the most force with the arm at shoulder height or higher. That is short-term activity and modelled force in one small study, not growth.",
+      "basis": "experimental",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "aott.triceps_heads",
+          "locator": "Abstract: Results",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Ten adults; force estimated by a musculoskeletal computer model from surface EMG and movement. Abstract only."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.triceps_long.selectivity.2",
+      "key": "upper_arm:upper_arm.triceps_long.selectivity.2",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.triceps_long",
+      "kind": "selectivity",
+      "statement": "Two small training studies compared elbow extensions done with one arm overhead and the other down by the side. In 21 adults over 12 weeks, measured muscle volume rose more in the overhead arm, in the long head and also in the lateral and medial heads together; in nine novice women over six weeks, triceps thickness and strength rose similarly in both arms. These are group results from short studies, not a forecast for any one person, and they are not used to weight credit.",
+      "basis": "experimental",
+      "reviewStatus": "draft",
+      "reviewedAt": null,
+      "reviewNote": "Draft, not for want of support: the cited excerpts support each sentence. It reports measured muscle size after training, and the evidence standard (10-multi-region.md §8) says selectivity claims are never growth findings, while §1.2 sends the long head's regional-growth findings to selectivity claims. Held for the adversarial review to decide whether, and in what words, the page shows it. Automated review on 19 Oct 2026, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "pmid.35819335",
+          "locator": "Abstract: Results",
+          "qualification": "Training study of 21 adults over 12 weeks, one arm in each position; measured muscle volume, a group result, not a forecast and not a set-credit weight. Abstract only."
+        },
+        {
+          "sourceId": "mdpi.triceps_fascicle_length",
+          "locator": "Abstract: Results and Conclusions",
+          "qualification": "Training study of nine novice women over six weeks, one arm in each position; ultrasound thickness, a group result, not a forecast and not a set-credit weight. Abstract only."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.triceps_lateral.function",
+      "key": "upper_arm:upper_arm.triceps_lateral.function",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.triceps_lateral",
+      "kind": "function",
+      "statement": "The lateral head straightens the elbow. It starts on the back and outer side of the upper-arm bone, above the groove for the radial nerve, and on the sheet of connective tissue on the outer side of the arm, and joins the common triceps tendon on the point of the elbow. It does not cross the shoulder.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "elsevier.triceps_lateral_head",
+          "locator": "Quick Facts: Origin, Insertion and Action",
+          "qualification": null
+        },
+        {
+          "sourceId": "radiopaedia.triceps_brachii",
+          "locator": "Origin: lateral head",
+          "qualification": null
+        },
+        {
+          "sourceId": "anatomyzone.triceps_lateral_head",
+          "locator": "Origin and action",
+          "qualification": null
+        },
+        {
+          "sourceId": "statpearls.triceps",
+          "locator": "Structure and Function: only the long head crosses the shoulder",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.triceps_lateral.appearance",
+      "key": "upper_arm:upper_arm.triceps_lateral.appearance",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.triceps_lateral",
+      "kind": "appearance",
+      "statement": "The lateral head lies at the surface on the back of the upper arm toward the outer side, from the upper half of the upper-arm bone toward the elbow, so it may contribute to the outer part of the back-of-arm contour. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "radiopaedia.triceps_brachii",
+          "locator": "Origin: back and outer side of the upper-arm bone",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "loyola.triceps_brachii",
+          "locator": "Origin: lateral head on the upper half of the back of the humerus",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "kenhub.triceps_brachii_video",
+          "locator": "Video description: palpation of the heads",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.triceps_lateral.selectivity.1",
+      "key": "upper_arm:upper_arm.triceps_lateral.selectivity.1",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.triceps_lateral",
+      "kind": "selectivity",
+      "statement": "This review found no study showing an ordinary exercise that loads the lateral head apart from the medial head. Both start on the back of the upper-arm bone, end in the common tendon at the point of the elbow and cross only the elbow, so they share every action. In one study of ten adults, a computer model driven by surface EMG estimated more force from the medial head than from the lateral head with the arm at shoulder height or higher; that is short-term modelled force, not growth. The atlas counts the two heads' work together and does not split it.",
+      "basis": "experimental",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "aott.triceps_heads",
+          "locator": "Abstract: Results",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Ten adults; force estimated by a musculoskeletal computer model from surface EMG and movement. Abstract only."
+        },
+        {
+          "sourceId": "elsevier.triceps_lateral_head",
+          "locator": "Quick Facts: Origin and Insertion",
+          "qualification": null
+        },
+        {
+          "sourceId": "elsevier.triceps_medial_head",
+          "locator": "Quick Facts: Origin and Insertion",
+          "qualification": "The search summary reported its own citation markers as partly garbled; the facts matched IMAIOS."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.triceps_medial.selectivity.1",
+      "key": "upper_arm:upper_arm.triceps_medial.selectivity.1",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.triceps_medial",
+      "kind": "selectivity",
+      "statement": "This review found no study showing an ordinary exercise that loads the medial head apart from the lateral head. Both start on the back of the upper-arm bone, end in the common tendon at the point of the elbow and cross only the elbow, so they share every action. In one study of ten adults, a computer model driven by surface EMG estimated more force from the medial head than from the lateral head with the arm at shoulder height or higher; that is short-term modelled force, not growth. The atlas counts the two heads' work together and does not split it.",
+      "basis": "experimental",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "aott.triceps_heads",
+          "locator": "Abstract: Results",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Ten adults; force estimated by a musculoskeletal computer model from surface EMG and movement. Abstract only."
+        },
+        {
+          "sourceId": "elsevier.triceps_lateral_head",
+          "locator": "Quick Facts: Origin and Insertion",
+          "qualification": null
+        },
+        {
+          "sourceId": "elsevier.triceps_medial_head",
+          "locator": "Quick Facts: Origin and Insertion",
+          "qualification": "The search summary reported its own citation markers as partly garbled; the facts matched IMAIOS."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.triceps_medial.function",
+      "key": "upper_arm:upper_arm.triceps_medial.function",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.triceps_medial",
+      "kind": "function",
+      "statement": "The medial head straightens the elbow. It starts on the back of the upper-arm bone below the groove for the radial nerve, joins the common tendon on the point of the elbow and does not cross the shoulder. Some of its fibres attach to the capsule at the back of the elbow joint and pull it back as the elbow straightens.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "elsevier.triceps_medial_head",
+          "locator": "Quick Facts: Origin, Insertion and Action; fibres to the elbow joint capsule",
+          "qualification": "The search summary reported its own citation markers as partly garbled; the facts matched IMAIOS."
+        },
+        {
+          "sourceId": "loyola.triceps_brachii",
+          "locator": "Action: the medial head draws back the elbow joint capsule",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "statpearls.triceps",
+          "locator": "Structure and Function: the medial head has no shoulder action",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.triceps_medial.appearance",
+      "key": "upper_arm:upper_arm.triceps_medial.appearance",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.triceps_medial",
+      "kind": "appearance",
+      "statement": "The medial head lies mostly under the long and lateral heads on the lower half of the back of the upper-arm bone, and its muscle reaches closer to the elbow than theirs. It has little or no contour of its own; references differ on whether its lowest part shows or can be felt just above the elbow.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "radiopaedia.triceps_brachii",
+          "locator": "Relations: medial head largely deep to the lateral head",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "kenhub.triceps_brachii_video",
+          "locator": "Video description: the medial head cannot be felt",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "pmid.16735585",
+          "locator": "Abstract: Results",
+          "qualification": "Dissection of eight cadaver elbows; location only. Abstract only."
+        },
+        {
+          "sourceId": "doccheck.triceps_brachii",
+          "locator": "Medial head",
+          "qualification": "Open medical encyclopedia edited by contributors; location only."
+        },
+        {
+          "sourceId": "loyola.triceps_brachii",
+          "locator": "Origin: medial head deep on the lower half of the back of the humerus",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.coracobrachialis.function",
+      "key": "upper_arm:upper_arm.coracobrachialis.function",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.coracobrachialis",
+      "kind": "function",
+      "statement": "Coracobrachialis raises the arm forward at the shoulder (flexion) and helps draw it toward the body (adduction). It runs from the coracoid process of the shoulder blade to the inner side of the upper-arm bone about halfway down, so it does not cross the elbow.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "kenhub.coracobrachialis",
+          "locator": "Overview; Function",
+          "qualification": null
+        },
+        {
+          "sourceId": "elsevier.coracobrachialis",
+          "locator": "Quick Facts: Origin, Insertion and Action",
+          "qualification": null
+        },
+        {
+          "sourceId": "loyola.coracobrachialis",
+          "locator": "Action",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "teachmeanatomy.arm_muscles",
+          "locator": "Coracobrachialis: function",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        }
+      ]
+    },
+    {
+      "id": "upper_arm.coracobrachialis.appearance",
+      "key": "upper_arm:upper_arm.coracobrachialis.appearance",
+      "ownerRegionId": "upper_arm",
+      "nodeId": "upper_arm.coracobrachialis",
+      "kind": "appearance",
+      "statement": "Coracobrachialis is a slender muscle on the inner side of the upper arm near the armpit, behind the pectoralis major and on the inner side of the biceps and brachialis, so it has little or no contour of its own. It can be felt in the armpit, where with the upper-arm bone it forms the outer edge.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "kenhub.coracobrachialis",
+          "locator": "Overview and palpation: border of the armpit",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "elsevier.coracobrachialis",
+          "locator": "Relations",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        }
+      ]
+    }
+  ],
+  "shippedClaimsRead": [
+    {
+      "id": "biceps.function",
+      "key": "forearm:biceps.function",
+      "ownerRegionId": "forearm",
+      "nodeId": "upper_arm.biceps",
+      "kind": "function",
+      "frozen": true,
+      "statement": "Biceps brachii bends the elbow and turns the forearm palm-up; with the elbow bent it is the forearm's most powerful palm-up muscle.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-16",
+      "sources": [
+        {
+          "sourceId": "A50",
+          "locator": "Introduction",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        }
+      ],
+      "upperArmUse": "Shown on the upper-arm page; the biceps' elbow.flexion and forearm.supination node actions rest on it. Single-source (A50); corroborated this time by elsevier.biceps_brachii, kenhub.biceps_brachii, loyola.biceps_brachii and teachmeanatomy.arm_muscles, which the database lane may add as sources only if adding sources to a frozen claim is allowed."
+    },
+    {
+      "id": "biceps.appearance",
+      "key": "forearm:biceps.appearance",
+      "ownerRegionId": "forearm",
+      "nodeId": "upper_arm.biceps",
+      "kind": "appearance",
+      "frozen": true,
+      "statement": "Biceps shapes the front of the upper arm. It is an upper-arm muscle and does not add forearm size.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-16",
+      "sources": [
+        {
+          "sourceId": "A50",
+          "locator": "Introduction: attachments",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        }
+      ],
+      "upperArmUse": "Not shown on the upper-arm page (it speaks about the forearm); replaced there by upper_arm:upper_arm.biceps.appearance."
+    },
+    {
+      "id": "brachialis.function",
+      "key": "forearm:brachialis.function",
+      "ownerRegionId": "forearm",
+      "nodeId": "upper_arm.brachialis",
+      "kind": "function",
+      "frozen": true,
+      "statement": "Brachialis bends the elbow in every forearm position and does not turn the forearm; it is described as a pure elbow flexor.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-16",
+      "sources": [
+        {
+          "sourceId": "A51",
+          "locator": "Introduction",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        }
+      ],
+      "upperArmUse": "Shown on the upper-arm page; the brachialis' elbow.flexion node action rests on it. Single-source (A51); corroborated this time by Radiopaedia (brachialis-muscle-1 revisions), the Loyola dissector (brachialis), TeachMeAnatomy (brachialis) and the German Kenhub article, none added as a citation."
+    },
+    {
+      "id": "brachialis.appearance",
+      "key": "forearm:brachialis.appearance",
+      "ownerRegionId": "forearm",
+      "nodeId": "upper_arm.brachialis",
+      "kind": "appearance",
+      "frozen": true,
+      "statement": "Brachialis lies under the biceps in the lower front of the upper arm and may show at its sides. It is not a forearm muscle.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-16",
+      "sources": [
+        {
+          "sourceId": "A51",
+          "locator": "Introduction: deeper than the biceps",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        }
+      ],
+      "upperArmUse": "Not shown on the upper-arm page; replaced there by upper_arm:upper_arm.brachialis.appearance. Note: this time's evidence supports the outer edge only ('at its sides' is not contradicted, but the inner edge was not confirmed)."
+    }
+  ],
+  "nodeActions": [
+    {
+      "nodeId": "upper_arm.biceps",
+      "actionId": "elbow.flexion",
+      "role": "prime",
+      "claimKey": "forearm:biceps.function",
+      "frozen": true,
+      "status": "existing forearm row, unchanged"
+    },
+    {
+      "nodeId": "upper_arm.biceps",
+      "actionId": "forearm.supination",
+      "role": "prime",
+      "claimKey": "forearm:biceps.function",
+      "frozen": true,
+      "status": "existing forearm row, unchanged"
+    },
+    {
+      "nodeId": "upper_arm.brachialis",
+      "actionId": "elbow.flexion",
+      "role": "prime",
+      "claimKey": "forearm:brachialis.function",
+      "frozen": true,
+      "status": "existing forearm row, unchanged"
+    },
+    {
+      "nodeId": "upper_arm.triceps_long",
+      "actionId": "elbow.extension",
+      "role": "prime",
+      "claimKey": "upper_arm:upper_arm.triceps_long.function",
+      "frozen": false,
+      "status": "new"
+    },
+    {
+      "nodeId": "upper_arm.triceps_long",
+      "actionId": "shoulder.extension",
+      "role": "assist",
+      "claimKey": "upper_arm:upper_arm.triceps_long.function",
+      "frozen": false,
+      "status": "new",
+      "reason": "Four references list it (StatPearls 'small action', Kenhub, IMAIOS, Radiopaedia 'assisting'); assist, as the forearm did for pronator teres at the elbow."
+    },
+    {
+      "nodeId": "upper_arm.triceps_lateral",
+      "actionId": "elbow.extension",
+      "role": "prime",
+      "claimKey": "upper_arm:upper_arm.triceps_lateral.function",
+      "frozen": false,
+      "status": "new",
+      "allocationNote": "Mappings use allocation 'shared' with the medial head (§1.2)."
+    },
+    {
+      "nodeId": "upper_arm.triceps_medial",
+      "actionId": "elbow.extension",
+      "role": "prime",
+      "claimKey": "upper_arm:upper_arm.triceps_medial.function",
+      "frozen": false,
+      "status": "new",
+      "allocationNote": "Mappings use allocation 'shared' with the lateral head (§1.2)."
+    },
+    {
+      "nodeId": "upper_arm.coracobrachialis",
+      "actionId": "shoulder.flexion",
+      "role": "prime",
+      "claimKey": "upper_arm:upper_arm.coracobrachialis.function",
+      "frozen": false,
+      "status": "new",
+      "reason": "Kenhub names flexion and adduction its main actions and Loyola and TeachMeAnatomy name flexion first with weak adduction; 'prime' means a main action of this muscle, not a main shoulder flexor (that is the deltoid's and the chest's, outside this region)."
+    }
+  ],
+  "nodeActionsLeftOut": [
+    {
+      "nodeId": "upper_arm.biceps",
+      "actionId": "shoulder.flexion",
+      "proposedRow": {
+        "role": "assist",
+        "claimKey": "upper_arm:upper_arm.biceps.function"
+      },
+      "reason": "Left out, following the forearm's rule for weak extras (03-anatomy-evidence.md §6: FCU and ECRL at the elbow): the references that list it call it weak (Kenhub, Loyola), Elsevier lists no shoulder action, and the EMG evidence is contradictory or finds it minimal (upper_arm.biceps.selectivity.2). Said in its function claim and a caveat instead. The row is ready if the review prefers to list it."
+    },
+    {
+      "nodeId": "upper_arm.triceps_long",
+      "actionId": "shoulder.adduction",
+      "reason": "Not an upper-arm region action (§1.2); said in its claim."
+    },
+    {
+      "nodeId": "upper_arm.coracobrachialis",
+      "actionId": "shoulder.adduction",
+      "reason": "Not an upper-arm region action (§1.2); said in its claim."
+    },
+    {
+      "nodeId": "upper_arm.triceps_medial",
+      "actionId": "elbow capsule retraction",
+      "reason": "No action id exists and it moves no load; said in its claim."
+    }
+  ],
+  "actions": [
+    {
+      "id": "shoulder.flexion",
+      "joint": "Shoulder (glenohumeral joint)",
+      "label": "Shoulder flexion",
+      "plainDescription": "Raises the arm forward and up in front of the body.",
+      "note": "Shared with the shoulders and chest (§1.2); wave 0 adds it to the shared actions library, so this is proposed wording, not a second definition."
+    },
+    {
+      "id": "shoulder.extension",
+      "joint": "Shoulder (glenohumeral joint)",
+      "label": "Shoulder extension",
+      "plainDescription": "Brings the arm down and back from in front of the body, and on behind it.",
+      "note": "Shared with the shoulders, chest and back (§1.2); proposed wording for the shared library."
+    }
+  ],
+  "sources": [
+    {
+      "key": "statpearls.triceps",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK536996/",
+      "title": "StatPearls: Anatomy, Shoulder and Upper Limb, Triceps Muscle (Bordoni)",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (introduction and parts of Structure and Function): the primary function of the triceps is elbow extension; the three heads join in one tendon on the olecranon; the long head arises from the infraglenoid tubercle of the scapula and, because it attaches there, has a small action on the glenohumeral joint, and with the arm adducted helps hold the head of the humerus in the glenoid cavity; the medial head does not attach to the scapula and has no action on the glenohumeral joint. PubMed 30725681. One result gave the editor as Bruno Bordoni and the update date as 28 Aug 2023; the full author list was not shown."
+    },
+    {
+      "key": "kenhub.biceps_brachii",
+      "url": "https://www.kenhub.com/en/library/anatomy/biceps-brachii-muscle",
+      "title": "Kenhub: biceps brachii muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: function line lists flexion and supination of the forearm at the elbow joint and a weak flexor of the arm at the glenohumeral joint; the scapular origin lets it act on both the shoulder and the elbow. The French and German pages returned no function text."
+    },
+    {
+      "key": "kenhub.triceps_brachii",
+      "url": "https://www.kenhub.com/en/library/anatomy/triceps-brachii-muscle",
+      "title": "Kenhub: triceps brachii muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: long, medial and lateral heads from the scapula and humerus inserting via a common tendon on the ulna; long head from the infraglenoid tubercle, lateral head from the posterior humerus above the radial groove, medial head below it; the main function is extension of the forearm at the elbow; the long head contributes to extension and adduction of the arm at the shoulder joint."
+    },
+    {
+      "key": "kenhub.triceps_brachii_video",
+      "url": "https://www.kenhub.com/en/videos/triceps-brachii-muscle",
+      "title": "Kenhub video: triceps brachii muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (video description only): the long and lateral heads are easily palpated because they lie more superficially; the medial head cannot be felt because it is tucked beneath them. The video itself was not seen."
+    },
+    {
+      "key": "kenhub.brachialis_video",
+      "url": "https://www.kenhub.com/en/videos/brachialis-muscle",
+      "title": "Kenhub video: brachialis muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (video page preview only): the brachialis is mostly hidden under the biceps brachii and hard to palpate from the surface, with superficial portions at its lateral border and distally. Nothing was found about its medial edge reaching the surface."
+    },
+    {
+      "key": "kenhub.coracobrachialis",
+      "url": "https://www.kenhub.com/en/library/anatomy/coracobrachialis-muscle",
+      "title": "Kenhub: coracobrachialis muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: a long, slender muscle of the anterior compartment of the arm from the coracoid process to the shaft of the humerus; medial to the biceps brachii and brachialis; with the humerus forms the lateral border of the axilla, where it is easiest to palpate; main actions are flexion and adduction of the arm at the shoulder; musculocutaneous nerve. A stabilising role for the humeral head appeared only in a Kenhub video transcript."
+    },
+    {
+      "key": "elsevier.biceps_brachii",
+      "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb-left/biceps-brachii-muscle-left/22937",
+      "title": "Elsevier Complete Anatomy, Quick Facts: biceps brachii",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: origin on the supraglenoid tubercle and the apex of the coracoid process; inserts on the radial tuberosity and antebrachial fascia; supinates the forearm and flexes it at the elbow, most effectively when supinated. No shoulder action is listed."
+    },
+    {
+      "key": "elsevier.triceps_lateral_head",
+      "url": "https://elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb/lateral-head-of-triceps-brachii/20637",
+      "title": "Elsevier Complete Anatomy, Quick Facts: lateral head of triceps brachii",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: origin on the posterior humerus above the radial groove and the lateral intermuscular septum; inserts on the olecranon, where the three heads converge on one tendon; extends the forearm at the elbow; radial nerve (root level given as C6, which another source disputes)."
+    },
+    {
+      "key": "elsevier.triceps_medial_head",
+      "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb/medial-head-of-triceps-brachii/20283",
+      "title": "Elsevier Complete Anatomy, Quick Facts: medial head of triceps brachii",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: origin on the posterior humerus below the radial groove; inserts on the olecranon and adjacent antebrachial fascia; extends the forearm at the elbow; some fibres attach to the elbow joint capsule and are regarded by some authors as a separate muscle (articularis cubiti). The search summary said its own citation markers were partly garbled; the facts matched the IMAIOS entry."
+    },
+    {
+      "key": "elsevier.coracobrachialis",
+      "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb/coracobrachialis-muscle/19771",
+      "title": "Elsevier Complete Anatomy, Quick Facts: coracobrachialis",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: origin at the apex of the coracoid process; inserts on the middle third of the medial humerus; adducts and flexes the arm at the glenohumeral joint; musculocutaneous nerve, which pierces it; posterior to pectoralis major and medial to brachialis and biceps brachii."
+    },
+    {
+      "key": "imaios.triceps_long_head",
+      "url": "https://www.imaios.cn/en/e-anatomy/anatomical-structures/long-head-of-triceps-brachii-1541083972",
+      "title": "IMAIOS e-Anatomy: long head of triceps brachii",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (imaios.cn mirror): action line lists elbow extension and shoulder extension and adduction; with the arm adducted the long head helps hold the humeral head in the glenoid cavity; the only head that crosses the shoulder. IMAIOS's veterinary entries describe the shoulder differently; only the human entry is cited."
+    },
+    {
+      "key": "radiopaedia.triceps_brachii",
+      "url": "https://radiopaedia.org/articles/triceps-brachii",
+      "title": "Radiopaedia: triceps brachii muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: a three-headed muscle in the posterior compartment of the arm; elbow extension is the main action, the long head assisting shoulder extension and helping steady the shoulder (described in abduction); lateral head from the posterior and lateral humerus above the radial groove, extending to the lateral intermuscular septum; medial head from the lower posterior humerus below the groove and largely deep to the lateral head."
+    },
+    {
+      "key": "loyola.biceps_brachii",
+      "url": "https://www.meddean.luc.edu/lumen/meded/grossanatomy/dissector/muscles/bb.htm",
+      "title": "Loyola University Chicago, LUMEN gross anatomy dissector: biceps brachii",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: action listed as supinates forearm, flexes elbow, weakly flexes shoulder; musculocutaneous nerve. The page's own title and date were not shown."
+    },
+    {
+      "key": "loyola.triceps_brachii",
+      "url": "https://www.meddean.luc.edu/lumen/meded/grossanatomy/dissector/muscles/tric.htm",
+      "title": "Loyola University Chicago, LUMEN gross anatomy dissector: triceps brachii",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: long head from the infraglenoid tubercle; lateral head from the upper half of the posterior humerus; medial head deep on the lower half of the posterior humerus below the spiral groove; action: extends elbow, long head stabilises the shoulder joint, medial head retracts the capsule of the elbow joint on extension; inserts on the olecranon and posterior capsule; radial nerve."
+    },
+    {
+      "key": "loyola.coracobrachialis",
+      "url": "https://www.lumen.luc.edu/lumen/meded/grossanatomy/dissector/mml/cora.htm",
+      "title": "Loyola University Chicago, LUMEN gross anatomy dissector: coracobrachialis",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: origin on the coracoid process with the short head of biceps; inserts on the upper half of the medial border of the humerus (other references give the middle third); action: flexes the arm and weakly adducts it; musculocutaneous nerve."
+    },
+    {
+      "key": "teachmeanatomy.arm_muscles",
+      "url": "https://teachmeanatomy.info/upper-limb/muscles/muscles-of-the-arm/",
+      "title": "TeachMeAnatomy: muscles of the arm",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: the biceps brachii is the most superficial muscle of the anterior compartment, with a long head from the supraglenoid tubercle and a short head from the coracoid process; its function is supination of the forearm, and it also flexes the arm at the elbow and at the shoulder; coracobrachialis flexes the arm at the shoulder and weakly adducts it. An anatomy teaching site, not a university page. Its triceps section was not shown."
+    },
+    {
+      "key": "teachmeanatomy.brachialis",
+      "url": "https://teachmeanatomy.info/encyclopaedia/b/brachialis",
+      "title": "TeachMeAnatomy encyclopaedia: brachialis",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: in the anterior compartment, deep to the biceps brachii, forming the floor of the cubital fossa; flexes the elbow; musculocutaneous nerve with a contribution from the radial nerve."
+    },
+    {
+      "key": "anatomyzone.triceps_lateral_head",
+      "url": "https://anatomyzone.com/articles/lateral-head-triceps-brachii/",
+      "title": "AnatomyZone: lateral head of triceps brachii",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: the lateral and long heads lie superficially and the medial head deep to them; lateral head from the posterior humerus above the radial groove; the three heads converge on the olecranon; extends the forearm at the elbow; radial nerve."
+    },
+    {
+      "key": "doccheck.triceps_brachii",
+      "url": "https://flexikon.doccheck.com/de/Corpus:Triceps_brachii_muscle",
+      "title": "DocCheck Flexikon: triceps brachii muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026: the medial head is largely covered by the lateral and long heads, and only its distal part is visible from outside. An open medical encyclopedia edited by contributors; weaker than the preferred references and cited only beside them."
+    },
+    {
+      "key": "pmid.16735585",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/16735585/",
+      "title": "Madsen, Marx, Millett, Rodeo, Sperling and Warren, Surgical anatomy of the triceps brachii tendon: anatomical study and clinical correlation (American Journal of Sports Medicine, 2006)",
+      "doi": "10.1177/0363546506288752",
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (abstract): dissection of eight cadaver elbows; the muscle of the medial head extended further distally than the long and lateral heads, and the medial head had a separate insertion deep to the common insertion of the other two, confluent at the olecranon. Volume 34, pages 1839 to 1843, as given in reference lists; the PubMed id is inferred from a Weill Cornell record (pubid16735585), not opened."
+    },
+    {
+      "key": "aott.triceps_heads",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6136322/",
+      "title": "Kholinne et al., The different role of each head of the triceps brachii muscle in elbow extension (Acta Orthopaedica et Traumatologica Turcica 52(3):201-205, 2018)",
+      "doi": null,
+      "evidenceType": "emg",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (abstract): ten healthy adults (8 men, 2 women) extended the elbow at 0, 45, 90, 135 and 180 degrees of shoulder elevation; surface EMG and movement data drove an OpenSim musculoskeletal model to estimate force. At 0 degrees the long head had significantly higher force and activation than the lateral and medial heads; at 90 degrees and above the medial head had significantly higher force than the other two. One summary mentioned a biomechanical simulator; a second found no cadaver component. DOI and PubMed id were not confirmed; co-author list not shown."
+    },
+    {
+      "key": "pmid.35819335",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35819335/",
+      "title": "Maeo, Wu, Huang, Sakurai, Kusagawa, Sugiyama, Kanehisa and Isaka, Triceps brachii hypertrophy is substantially greater after elbow extension training performed in the overhead versus neutral arm position (European Journal of Sport Science 23(7):1240-1250, 2023)",
+      "doi": "10.1080/17461391.2022.2100279",
+      "evidenceType": "longitudinal",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (abstract): 21 adults did cable elbow extensions with one arm overhead and the other in a neutral position, five sets of ten at seven tenths of the one-repetition maximum, twice a week for 12 weeks; MRI muscle volume. The overhead arm's volume gain was about 1.5-fold the neutral arm's for the long head and about 1.4-fold for the lateral and medial heads together and for the whole muscle. Training status of the participants was not confirmed by the excerpts."
+    },
+    {
+      "key": "mdpi.triceps_fascicle_length",
+      "url": "https://www.mdpi.com/2411-5142/3/2/28",
+      "title": "Stasinaki et al., Triceps Brachii Muscle Strength and Architectural Adaptations with Resistance Training Exercises at Short or Long Fascicle Length (Journal of Functional Morphology and Kinesiology 3(2):28, 2018)",
+      "doi": "10.3390/jfmk3020028",
+      "evidenceType": "longitudinal",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (abstract): nine novice women trained six weeks, one arm with cable push-downs and the other with overhead extensions, 6 sets of a 6-repetition maximum; strength and muscle thickness rose similarly in both arms and fascicle angle and length did not change. A commentary questioned the overhead loading; that is not a finding of the paper. Full author list not shown."
+    },
+    {
+      "key": "mdpi.biceps_curl_grips",
+      "url": "https://www.mdpi.com/2075-4663/11/3/64",
+      "title": "Coratella et al., Biceps Brachii and Brachioradialis Excitation in Biceps Curl Exercise: Different Handgrips, Different Synergy (Sports 11(3):64, 2023)",
+      "doi": "10.3390/sports11030064",
+      "evidenceType": "emg",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (abstract): ten competitive bodybuilders did bilateral curls in six-repetition sets at an eight-repetition maximum with supinated, pronated and neutral grips; surface EMG. While lifting, the biceps and brachioradialis were more excited with the supinated grip than the other two, and the anterior deltoid less; while lowering, only the anterior deltoid differed. Full author list not shown."
+    },
+    {
+      "key": "pmid.11408907",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/11408907/",
+      "title": "Levy et al., Function of the long head of the biceps at the shoulder: electromyographic analysis (2001)",
+      "doi": null,
+      "evidenceType": "emg",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (abstract): ten shoulders, dynamic EMG with wire electrodes, the elbow locked straight in a long arm brace with the forearm neutral; no electrical activity was found in the long head of the biceps during isolated shoulder motion. Journal and full author list were not confirmed (believed to be the Journal of Shoulder and Elbow Surgery)."
+    },
+    {
+      "key": "pmid.26535304",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4555617/",
+      "title": "Chalmers, Cip, Trombley, Cole, Wimmer, Romeo and Verma, Glenohumeral Function of the Long Head of the Biceps Muscle: An Electromyographic Analysis (Orthopaedic Journal of Sports Medicine 2(2), 2014)",
+      "doi": "10.1177/2325967114523902",
+      "evidenceType": "emg",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (abstract): 13 healthy volunteers, surface EMG of both biceps heads, deltoid, infraspinatus and brachioradialis during shoulder motion with and without elbow splinting and a 1-kg load; mean activity in both biceps heads was low; long-head activity rose significantly with flexion and abduction, short-head activity did not."
+    },
+    {
+      "key": "bmc.long_head_biceps_scoping_review",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10044783/",
+      "title": "Diplock, Hing and Marks, The long head of biceps at the shoulder: a scoping review (BMC Musculoskeletal Disorders, 2023)",
+      "doi": "10.1186/s12891-023-06346-5",
+      "evidenceType": "systematic_review",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (opening of the abstract): 214 articles in six themes; the biceps' role in glenohumeral elevation and stability in healthy shoulders is minimal, larger with rotator cuff failure or an absent tendon. Its exact wording on EMG was not seen; volume and article number not shown."
+    },
+    {
+      "key": "wiley.biceps_accessory_heads",
+      "url": "https://doi.org/10.1111/joa.13666",
+      "title": "Accessory heads of the biceps brachii muscle: a systematic review and meta-analysis (Journal of Anatomy, 2022)",
+      "doi": "10.1111/joa.13666",
+      "evidenceType": "systematic_review",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (abstract, via a Czech research-output record): 78 articles, 10,603 upper limbs, random-effects meta-analysis; accessory heads in a minority of limbs, a single accessory head the commonest form; more often unilateral and in males, no significant side difference; falling prevalence over time; innervation and blood supply nearly identical to the main muscle and usually asymptomatic. Authors were not shown; the journal is inferred from the DOI prefix; the year from the record id. Population subgroup results were not seen."
+    }
+  ],
+  "existingSourcesCited": [
+    "A4",
+    "A50",
+    "A51"
+  ],
+  "citations": [
+    {
+      "claimId": "upper_arm.biceps.function",
+      "sourceKey": "kenhub.biceps_brachii",
+      "query": "Kenhub biceps brachii muscle function flexion of the arm at the shoulder supination",
+      "excerpt": "Its main job is at the elbow and forearm: the page's function line lists flexion and supination of the forearm at the elbow joint, weak flexor of the arm at the glenohumeral joint.",
+      "locator": "Function"
+    },
+    {
+      "claimId": "upper_arm.biceps.function",
+      "sourceKey": "loyola.biceps_brachii",
+      "query": "anatomy.ttuhscep.edu muscles upper limb biceps brachii action flexes arm supinates forearm coracobrachialis",
+      "excerpt": "One Loyola dissector lists its action as supination of the forearm, elbow flexion, and a weak contribution to shoulder flexion Supinates forearm, flexes elbow, weakly flexes shoulder.",
+      "locator": "Action"
+    },
+    {
+      "claimId": "upper_arm.biceps.function",
+      "sourceKey": "teachmeanatomy.arm_muscles",
+      "query": "teachmeanatomy muscles of the arm biceps brachii actions flexion at shoulder coracobrachialis triceps",
+      "excerpt": "Its attachments are the supraglenoid tubercle of the scapula for the long head and the coracoid process for the short head ... Its listed function is supination of the forearm, and it also flexes the arm at the elbow and at the shoulder.",
+      "locator": "Biceps brachii: attachments and function"
+    },
+    {
+      "claimId": "upper_arm.biceps.function",
+      "sourceKey": "elsevier.biceps_brachii",
+      "query": "Elsevier Complete Anatomy biceps brachii quick facts action flexes arm at shoulder supinates forearm",
+      "excerpt": "The page lists the action as supinating the forearm and flexing the forearm at the elbow, not flexing the arm at the shoulder. ... Origin: the scapula's supraglenoid tubercle and the apex of the coracoid process (Supraglenoid tubercle of scapula and apex of coracoid process of scapula.)",
+      "locator": "Quick Facts: Origin and Action"
+    },
+    {
+      "claimId": "upper_arm.biceps.appearance",
+      "sourceKey": "teachmeanatomy.arm_muscles",
+      "query": "teachmeanatomy \"biceps brachii\" anterior compartment arm \"superficial\" brachialis \"deep to the biceps\"",
+      "excerpt": "Biceps brachii: It is the most superficial muscle of the anterior compartment, and it has two heads. This muscle is the most superficial of the anterior compartment.",
+      "locator": "Biceps brachii: the most superficial muscle of the front compartment"
+    },
+    {
+      "claimId": "upper_arm.biceps.appearance",
+      "sourceKey": "A51",
+      "query": "StatPearls brachialis muscle \"deeper than the biceps\" anteroinferior arm pure flexor introduction",
+      "excerpt": "The StatPearls introduction confirms the brachialis is a flexor at the anteroinferior arm, lying deeper than the biceps.",
+      "locator": "Introduction: deeper than the biceps"
+    },
+    {
+      "claimId": "upper_arm.biceps.appearance",
+      "sourceKey": "teachmeanatomy.brachialis",
+      "query": "teachmeanatomy \"biceps brachii\" anterior compartment arm \"superficial\" brachialis \"deep to the biceps\"",
+      "excerpt": "TeachMeAnatomy's brachialis page places it in the anterior compartment, with the brachialis lying deep to the biceps brachii and forming the floor of the cubital fossa.",
+      "locator": "Brachialis: deep to the biceps"
+    },
+    {
+      "claimId": "upper_arm.biceps.selectivity.1",
+      "sourceKey": "mdpi.biceps_curl_grips",
+      "query": "\"Biceps Brachii and Brachioradialis Excitation in Biceps Curl Exercise: Different Handgrips, Different Synergy\" results",
+      "excerpt": "During the ascending phase, biceps brachii excitation was greater with the supinated compared to the pronated and neutral handgrip ... During the descending phase, the anterior deltoid showed greater excitation in the pronated compared to the supinated handgrip",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "upper_arm.biceps.selectivity.1",
+      "sourceKey": "A4",
+      "query": "Kleiber Kunz Disselhorst-Klug 2015 biceps brachii brachioradialis hand position biceps activity did not change abstract",
+      "excerpt": "Sixteen healthy subjects performed 20 repetitions of single elbow flexion movements in pronated, neutral, and supinated hand positions. ... Biceps activity, by contrast, showed no significant change across hand positions.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "upper_arm.biceps.selectivity.2",
+      "sourceKey": "pmid.11408907",
+      "query": "Levy 2001 \"Function of the long head of the biceps at the shoulder: electromyographic analysis\" results elbow braced no activity",
+      "excerpt": "It tested ten shoulders with dynamic EMG and locked the elbow with a long arm brace, so the elbow and forearm were controlled. The paper reports that no electrical activity was identified in the long head of the biceps muscle in response to isolated shoulder motion with the elbow and forearm position controlled. ... A long arm brace was used to lock the elbow in extension with the forearm in neutral pronation/supination.",
+      "locator": "Abstract: Results and Conclusions"
+    },
+    {
+      "claimId": "upper_arm.biceps.selectivity.2",
+      "sourceKey": "pmid.26535304",
+      "query": "PMC4555617 long head biceps electromyography shoulder Chalmers 2014",
+      "excerpt": "Thirteen normal volunteers underwent surface electromyography of the long head of the biceps, short head, deltoid, infraspinatus, and brachioradialis during shoulder motion ... Mean EMG activity within the LHBM and the SHBM was low ... LHBM activity was significantly increased by flexion and abduction, while SHBM activity was not.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "upper_arm.biceps.selectivity.2",
+      "sourceKey": "bmc.long_head_biceps_scoping_review",
+      "query": "\"The long head of biceps at the shoulder: a scoping review\" abstract electromyography shoulder flexion",
+      "excerpt": "Bicep's role in glenohumeral elevation and stability in healthy shoulders is minimal. In contrast, LHB has a more significant role in shoulder stability and humeral head depression in subjects with rotator cuff failure or an absent LHBT.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "upper_arm.biceps.variation.1",
+      "sourceKey": "wiley.biceps_accessory_heads",
+      "query": "\"joa.13666\" accessory heads of the biceps brachii",
+      "excerpt": "Its literature search yielded 78 eligible articles, including 10,603 upper limbs, analysed with random-effects meta-analysis. ... Accessory heads were more common on one side than bilaterally and in males. ... The accessory heads' innervation and blood supply are nearly identical to that of the normal biceps brachii muscle, and they are usually asymptomatic.",
+      "locator": "Abstract"
+    },
+    {
+      "claimId": "upper_arm.brachialis.appearance",
+      "sourceKey": "A51",
+      "query": "StatPearls brachialis muscle \"deeper than the biceps\" anteroinferior arm pure flexor introduction",
+      "excerpt": "StatPearls places the muscle in the anteroinferior arm, beneath the biceps, and classes it as a pure elbow flexor. It adds that the muscle also forms part of the antecubital fossa.",
+      "locator": "Introduction: deeper than the biceps; part of the hollow in front of the elbow"
+    },
+    {
+      "claimId": "upper_arm.brachialis.appearance",
+      "sourceKey": "kenhub.brachialis_video",
+      "query": "kenhub.com/en/videos/brachialis-muscle mostly hidden under the biceps superficial lateral border distally",
+      "excerpt": "Its preview states that most of the muscle sits beneath the biceps brachii, which makes it hard to feel through the skin. It also notes that a few superficial portions are visible at the muscle's outer edge and toward its lower end.",
+      "locator": "Video description: mostly under the biceps, surface parts at its outer edge and lower end"
+    },
+    {
+      "claimId": "upper_arm.brachialis.appearance",
+      "sourceKey": "teachmeanatomy.brachialis",
+      "query": "teachmeanatomy \"biceps brachii\" anterior compartment arm \"superficial\" brachialis \"deep to the biceps\"",
+      "excerpt": "TeachMeAnatomy's brachialis page places it in the anterior compartment, with the brachialis lying deep to the biceps brachii and forming the floor of the cubital fossa.",
+      "locator": "Brachialis: deep to the biceps, floor of the hollow in front of the elbow"
+    },
+    {
+      "claimId": "upper_arm.triceps.function",
+      "sourceKey": "statpearls.triceps",
+      "query": "StatPearls Anatomy Shoulder and Upper Limb Arm Triceps Muscle long head lateral head medial head function",
+      "excerpt": "Overall: The primary function of the triceps is the extension of the elbow joint. The heads join into a single tendon that reaches the ulna's olecranon ... Long head: Its origin is the infraglenoid tubercle of the scapula ... Medial head: It arises from the humerus below the radial groove and does not cross the shoulder",
+      "locator": "Introduction; Structure and Function"
+    },
+    {
+      "claimId": "upper_arm.triceps.function",
+      "sourceKey": "kenhub.triceps_brachii",
+      "query": "Kenhub triceps brachii muscle long head extension adduction of the arm at the shoulder medial head lateral head",
+      "excerpt": "Kenhub describes the triceps as having a long, medial and lateral head, that originate from their respective attachments on the humerus and scapula, and insert via a common tendon on the ulna. ... Elbow action: The main function is extension of the forearm at the elbow joint.",
+      "locator": "Origins, insertion and function"
+    },
+    {
+      "claimId": "upper_arm.triceps.function",
+      "sourceKey": "loyola.triceps_brachii",
+      "query": "\"TRICEPS BRACHII\" meddean.luc.edu lumen dissector origin infraglenoid tubercle action extends",
+      "excerpt": "Long head: infraglenoid tubercle of scapula. Lat head: upper half post humerus (linear origin). Med head: lies deep on lower half post humerus inferomedial to spiral groove and both intermuscular septa ... Extends elbow. Long head stabilises shoulder jnt. Med head retracts capsule of elbow jnt on extension",
+      "locator": "Origin and action"
+    },
+    {
+      "claimId": "upper_arm.triceps.appearance",
+      "sourceKey": "radiopaedia.triceps_brachii",
+      "query": "radiopaedia triceps brachii long head lateral head medial head origin \"quadrangular space\" \"triangular space\" relations lateral head posterolateral",
+      "excerpt": "The triceps brachii muscle is a three-headed muscle in the posterior compartment of the arm. ... It also says the medial head lies largely deep to the lateral head.",
+      "locator": "Summary and relations: medial head largely deep to the lateral head"
+    },
+    {
+      "claimId": "upper_arm.triceps.appearance",
+      "sourceKey": "kenhub.triceps_brachii_video",
+      "query": "Kenhub triceps brachii video long and lateral heads easily palpated superficially medial head tucked beneath",
+      "excerpt": "The long and lateral heads are easily palpated as they are more superficially located, but you can't feel the medial head as it is tucked beneath them.",
+      "locator": "Video description: palpation of the heads"
+    },
+    {
+      "claimId": "upper_arm.triceps_long.function",
+      "sourceKey": "statpearls.triceps",
+      "query": "StatPearls triceps \"long head\" \"small action\" glenohumeral joint Bordoni",
+      "excerpt": "Its long-head entry says the scapular origin gives the long head a minor role at the shoulder in addition to elbow extension (the origin is the infra-glenoid tubercle of the scapula, and because it attaches there, it has a small action on the glenohumeral joint). With the arm held close to the body, the triceps muscle acts to hold the head of the humerus in the glenoid cavity.",
+      "locator": "Structure and Function: long head"
+    },
+    {
+      "claimId": "upper_arm.triceps_long.function",
+      "sourceKey": "kenhub.triceps_brachii",
+      "query": "Kenhub triceps brachii muscle long head extension adduction of the arm at the shoulder medial head lateral head",
+      "excerpt": "Shoulder action: Kenhub states that its long head contributes to the extension and adduction of the arm at the shoulder joint.",
+      "locator": "Function"
+    },
+    {
+      "claimId": "upper_arm.triceps_long.function",
+      "sourceKey": "imaios.triceps_long_head",
+      "query": "imaios long head of triceps brachii function extension adduction arm shoulder stabilize humeral head",
+      "excerpt": "Its action line lists elbow extension plus shoulder extension and adduction, and it notes that when the arm is adducted the long head helps hold the humeral head in the glenoid cavity. The long head is the only one of the three heads that crosses the glenohumeral (shoulder) joint.",
+      "locator": "Function"
+    },
+    {
+      "claimId": "upper_arm.triceps_long.function",
+      "sourceKey": "radiopaedia.triceps_brachii",
+      "query": "Radiopaedia triceps brachii muscle long head action extension adduction shoulder medial head deep",
+      "excerpt": "It lists elbow extension as the main action, with the long head assisting shoulder extension. It also notes that the long head helps stabilise the shoulder in abduction.",
+      "locator": "Action"
+    },
+    {
+      "claimId": "upper_arm.triceps_long.function",
+      "sourceKey": "loyola.triceps_brachii",
+      "query": "\"TRICEPS BRACHII\" meddean.luc.edu lumen dissector origin infraglenoid tubercle action extends",
+      "excerpt": "Extends elbow. Long head stabilises shoulder jnt. Med head retracts capsule of elbow jnt on extension",
+      "locator": "Action: the long head steadies the shoulder joint"
+    },
+    {
+      "claimId": "upper_arm.triceps_long.appearance",
+      "sourceKey": "kenhub.triceps_brachii_video",
+      "query": "Kenhub triceps brachii video long and lateral heads easily palpated superficially medial head tucked beneath",
+      "excerpt": "The long and lateral heads are easily palpated as they are more superficially located, but you can't feel the medial head as it is tucked beneath them.",
+      "locator": "Video description: palpation of the heads"
+    },
+    {
+      "claimId": "upper_arm.triceps_long.appearance",
+      "sourceKey": "anatomyzone.triceps_lateral_head",
+      "query": "AnatomyZone lateral head of triceps brachii lateral aspect posterior arm superficial long head medial",
+      "excerpt": "The lateral head and long head of the triceps brachii lie superficially, the medial head lies deep to these two heads.",
+      "locator": "Overview: surface and deep heads"
+    },
+    {
+      "claimId": "upper_arm.triceps_long.appearance",
+      "sourceKey": "statpearls.triceps",
+      "query": "StatPearls Anatomy Shoulder and Upper Limb Arm Triceps Muscle long head lateral head medial head function",
+      "excerpt": "Long head: Its origin is the infraglenoid tubercle of the scapula (cite 4-13). Because it crosses the shoulder, it adds a small action at the glenohumeral joint",
+      "locator": "Structure and Function: origin of the long head"
+    },
+    {
+      "claimId": "upper_arm.triceps_long.selectivity.1",
+      "sourceKey": "aott.triceps_heads",
+      "query": "Kholinne 2018 \"different role of each head of the triceps brachii\" elbow extension shoulder elevation abstract results electromyography cadaver",
+      "excerpt": "Each person did elbow extensions at five different degrees (0, 45, 90, 135, and 180°) of shoulder elevation. Surface EMG and kinematics were recorded, and the kinematic data were run through an inverse kinematics musculoskeletal modeling software (OpenSim) to estimate force. ... At 0° shoulder elevation, the long head generated significantly higher muscle force and muscle activation than the lateral and medial heads. At 90°, 135° and 180° of shoulder elevation, the medial head showed significantly higher muscle force than the long and lateral heads.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "upper_arm.triceps_long.selectivity.2",
+      "sourceKey": "pmid.35819335",
+      "query": "pubmed 35819335 triceps brachii hypertrophy overhead neutral \"monoarticular\" heads 1.5-fold long head volume",
+      "excerpt": "Twenty-one adults did cable elbow extensions with one arm overhead and the other in neutral, at 70% 1RM, 10 reps per set, 5 sets per session, twice weekly for 12 weeks. MRI measured muscle volume before and after training. ... The abstract reports that the overhead-arm change in volume was 1.5-fold greater for the long head (+28.5% vs. +19.6%). The monoarticular lateral and medial heads combined showed a smaller gain, 1.4-fold greater (+14.6% vs. +10.5%).",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "upper_arm.triceps_long.selectivity.2",
+      "sourceKey": "mdpi.triceps_fascicle_length",
+      "query": "Stasinaki 2018 triceps brachii long fascicle length short fascicle length overhead training architectural adaptations Journal of Functional Morphology and Kinesiology",
+      "excerpt": "Nine young, novice women trained for six weeks, two sessions a week. One arm did cable push-downs (short fascicle length) and the other did overhead extensions (long fascicle length). ... Strength: Both conditions produced large 1-RM gains of roughly 40–45%, with no meaningful difference between them. Architecture: Muscle thickness rose in both conditions, and longitudinal muscle area increased similarly.",
+      "locator": "Abstract: Results and Conclusions"
+    },
+    {
+      "claimId": "upper_arm.triceps_lateral.function",
+      "sourceKey": "elsevier.triceps_lateral_head",
+      "query": "Elsevier Complete Anatomy lateral head of triceps brachii quick facts origin insertion action",
+      "excerpt": "Origin: The posterior humerus, above the radial groove. The lateral head also draws fibers from the lateral intermuscular septum of the arm. Insertion: The olecranon of the ulna, plus nearby antebrachial fascia. Here the three heads' fibers converge to a single triceps brachii tendon. Action: Extension of the forearm at the elbow joint.",
+      "locator": "Quick Facts: Origin, Insertion and Action"
+    },
+    {
+      "claimId": "upper_arm.triceps_lateral.function",
+      "sourceKey": "radiopaedia.triceps_brachii",
+      "query": "radiopaedia triceps brachii long head lateral head medial head origin \"quadrangular space\" \"triangular space\" relations lateral head posterolateral",
+      "excerpt": "It places the lateral head's origin on the posterior and lateral humerus, above the radial groove, and extending to the lateral intermuscular septum.",
+      "locator": "Origin: lateral head"
+    },
+    {
+      "claimId": "upper_arm.triceps_lateral.function",
+      "sourceKey": "anatomyzone.triceps_lateral_head",
+      "query": "AnatomyZone lateral head of triceps brachii lateral aspect posterior arm superficial long head medial",
+      "excerpt": "Its origin is the posterior humerus above the radial groove, and it inserts on the olecranon of the ulna, where it works to extend the forearm at the elbow",
+      "locator": "Origin and action"
+    },
+    {
+      "claimId": "upper_arm.triceps_lateral.function",
+      "sourceKey": "statpearls.triceps",
+      "query": "StatPearls triceps \"long head\" \"small action\" glenohumeral joint Bordoni",
+      "excerpt": "The medial head does not attach to the scapula and therefore has no action on the glenohumeral joint ... the origin is the infra-glenoid tubercle of the scapula, and because it attaches there, it has a small action on the glenohumeral joint",
+      "locator": "Structure and Function: only the long head crosses the shoulder"
+    },
+    {
+      "claimId": "upper_arm.triceps_lateral.appearance",
+      "sourceKey": "radiopaedia.triceps_brachii",
+      "query": "radiopaedia triceps brachii long head lateral head medial head origin \"quadrangular space\" \"triangular space\" relations lateral head posterolateral",
+      "excerpt": "It places the lateral head's origin on the posterior and lateral humerus, above the radial groove, and extending to the lateral intermuscular septum.",
+      "locator": "Origin: back and outer side of the upper-arm bone"
+    },
+    {
+      "claimId": "upper_arm.triceps_lateral.appearance",
+      "sourceKey": "loyola.triceps_brachii",
+      "query": "\"TRICEPS BRACHII\" meddean.luc.edu lumen dissector origin infraglenoid tubercle action extends",
+      "excerpt": "Lat head: upper half post humerus (linear origin).",
+      "locator": "Origin: lateral head on the upper half of the back of the humerus"
+    },
+    {
+      "claimId": "upper_arm.triceps_lateral.appearance",
+      "sourceKey": "kenhub.triceps_brachii_video",
+      "query": "Kenhub triceps brachii video long and lateral heads easily palpated superficially medial head tucked beneath",
+      "excerpt": "The long and lateral heads are easily palpated as they are more superficially located, but you can't feel the medial head as it is tucked beneath them.",
+      "locator": "Video description: palpation of the heads"
+    },
+    {
+      "claimId": "upper_arm.triceps_lateral.selectivity.1",
+      "sourceKey": "aott.triceps_heads",
+      "query": "Kholinne 2018 \"different role of each head of the triceps brachii\" elbow extension shoulder elevation abstract results electromyography cadaver",
+      "excerpt": "At 90°, 135° and 180° of shoulder elevation, the medial head showed significantly higher muscle force than the long and lateral heads. ... Surface EMG and kinematics were recorded, and the kinematic data were run through an inverse kinematics musculoskeletal modeling software (OpenSim) to estimate force.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "upper_arm.triceps_lateral.selectivity.1",
+      "sourceKey": "elsevier.triceps_lateral_head",
+      "query": "Elsevier Complete Anatomy lateral head of triceps brachii quick facts origin insertion action",
+      "excerpt": "Origin: The posterior humerus, above the radial groove. ... Insertion: The olecranon of the ulna, plus nearby antebrachial fascia. Here the three heads' fibers converge to a single triceps brachii tendon.",
+      "locator": "Quick Facts: Origin and Insertion"
+    },
+    {
+      "claimId": "upper_arm.triceps_lateral.selectivity.1",
+      "sourceKey": "elsevier.triceps_medial_head",
+      "query": "Elsevier Complete Anatomy quick facts medial head of triceps brachii",
+      "excerpt": "Origin: The posterior humerus, below the radial groove. ... Insertion: The olecranon of the ulna and nearby antebrachial fascia",
+      "locator": "Quick Facts: Origin and Insertion"
+    },
+    {
+      "claimId": "upper_arm.triceps_medial.selectivity.1",
+      "sourceKey": "aott.triceps_heads",
+      "query": "Kholinne 2018 \"different role of each head of the triceps brachii\" elbow extension shoulder elevation abstract results electromyography cadaver",
+      "excerpt": "At 90°, 135° and 180° of shoulder elevation, the medial head showed significantly higher muscle force than the long and lateral heads. ... Surface EMG and kinematics were recorded, and the kinematic data were run through an inverse kinematics musculoskeletal modeling software (OpenSim) to estimate force.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "upper_arm.triceps_medial.selectivity.1",
+      "sourceKey": "elsevier.triceps_lateral_head",
+      "query": "Elsevier Complete Anatomy lateral head of triceps brachii quick facts origin insertion action",
+      "excerpt": "Origin: The posterior humerus, above the radial groove. ... Insertion: The olecranon of the ulna, plus nearby antebrachial fascia. Here the three heads' fibers converge to a single triceps brachii tendon.",
+      "locator": "Quick Facts: Origin and Insertion"
+    },
+    {
+      "claimId": "upper_arm.triceps_medial.selectivity.1",
+      "sourceKey": "elsevier.triceps_medial_head",
+      "query": "Elsevier Complete Anatomy quick facts medial head of triceps brachii",
+      "excerpt": "Origin: The posterior humerus, below the radial groove. ... Insertion: The olecranon of the ulna and nearby antebrachial fascia",
+      "locator": "Quick Facts: Origin and Insertion"
+    },
+    {
+      "claimId": "upper_arm.triceps_medial.function",
+      "sourceKey": "elsevier.triceps_medial_head",
+      "query": "Elsevier Complete Anatomy quick facts medial head of triceps brachii",
+      "excerpt": "Origin: The posterior humerus, below the radial groove. ... Insertion: The olecranon of the ulna and nearby antebrachial fascia ... Action: Elbow extension. The page describes it as extending the forearm at the elbow joint ... some of its fibers attach to the elbow's articular capsule, and some authors regard those fibers as a separate muscle called the articularis cubiti",
+      "locator": "Quick Facts: Origin, Insertion and Action; fibres to the elbow joint capsule"
+    },
+    {
+      "claimId": "upper_arm.triceps_medial.function",
+      "sourceKey": "loyola.triceps_brachii",
+      "query": "\"TRICEPS BRACHII\" meddean.luc.edu lumen dissector origin infraglenoid tubercle action extends",
+      "excerpt": "Extends elbow. Long head stabilises shoulder jnt. Med head retracts capsule of elbow jnt on extension",
+      "locator": "Action: the medial head draws back the elbow joint capsule"
+    },
+    {
+      "claimId": "upper_arm.triceps_medial.function",
+      "sourceKey": "statpearls.triceps",
+      "query": "StatPearls triceps \"long head\" \"small action\" glenohumeral joint Bordoni",
+      "excerpt": "The medial head does not attach to the scapula and therefore has no action on the glenohumeral joint, whether with stabilization or movement.",
+      "locator": "Structure and Function: the medial head has no shoulder action"
+    },
+    {
+      "claimId": "upper_arm.triceps_medial.appearance",
+      "sourceKey": "radiopaedia.triceps_brachii",
+      "query": "radiopaedia triceps brachii long head lateral head medial head origin \"quadrangular space\" \"triangular space\" relations lateral head posterolateral",
+      "excerpt": "It also says the medial head lies largely deep to the lateral head.",
+      "locator": "Relations: medial head largely deep to the lateral head"
+    },
+    {
+      "claimId": "upper_arm.triceps_medial.appearance",
+      "sourceKey": "kenhub.triceps_brachii_video",
+      "query": "Kenhub triceps brachii video long and lateral heads easily palpated superficially medial head tucked beneath",
+      "excerpt": "The long and lateral heads are easily palpated as they are more superficially located, but you can't feel the medial head as it is tucked beneath them.",
+      "locator": "Video description: the medial head cannot be felt"
+    },
+    {
+      "claimId": "upper_arm.triceps_medial.appearance",
+      "sourceKey": "pmid.16735585",
+      "query": "Madsen 2006 \"Surgical anatomy of the triceps brachii tendon: anatomical study and clinical correlation\" American Journal of Sports Medicine medial head extended further distally",
+      "excerpt": "In the eight cadaveric elbows, the medial head's muscle reached lower down the arm than the long and lateral heads did. The muscle of the medial head extended further distally than did the long and lateral heads.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "upper_arm.triceps_medial.appearance",
+      "sourceKey": "doccheck.triceps_brachii",
+      "query": "DocCheck Flexikon triceps brachii medial head largely covered lateral long head only distal part visible",
+      "excerpt": "both say the medial head is mostly overlapped by the other two heads. Viewed from outside, the lower part of the medial head is the only portion that shows.",
+      "locator": "Medial head"
+    },
+    {
+      "claimId": "upper_arm.triceps_medial.appearance",
+      "sourceKey": "loyola.triceps_brachii",
+      "query": "\"TRICEPS BRACHII\" meddean.luc.edu lumen dissector origin infraglenoid tubercle action extends",
+      "excerpt": "Med head: lies deep on lower half post humerus inferomedial to spiral groove and both intermuscular septa",
+      "locator": "Origin: medial head deep on the lower half of the back of the humerus"
+    },
+    {
+      "claimId": "upper_arm.coracobrachialis.function",
+      "sourceKey": "kenhub.coracobrachialis",
+      "query": "Kenhub coracobrachialis muscle function flexion adduction arm glenohumeral joint stabilizes",
+      "excerpt": "The main actions of the coracobrachialis muscle are bending the arm (flexion) and pulling the arm towards the trunk (adduction) at the shoulder joint.",
+      "locator": "Overview; Function"
+    },
+    {
+      "claimId": "upper_arm.coracobrachialis.function",
+      "sourceKey": "elsevier.coracobrachialis",
+      "query": "Elsevier coracobrachialis quick facts origin coracoid process insertion medial humerus action flexes adducts relations",
+      "excerpt": "Its origin is the coracoid process of the scapula, and its insertion is the middle third of the medial aspect of the humerus. Its action is adducting and flexing the arm at the glenohumeral joint",
+      "locator": "Quick Facts: Origin, Insertion and Action"
+    },
+    {
+      "claimId": "upper_arm.coracobrachialis.function",
+      "sourceKey": "loyola.coracobrachialis",
+      "query": "lumen.luc.edu grossanatomy dissector coracobrachialis action flexes adducts arm",
+      "excerpt": "The Loyola dissector page you searched for lists the coracobrachialis's action as flexion of the arm with weak adduction.",
+      "locator": "Action"
+    },
+    {
+      "claimId": "upper_arm.coracobrachialis.function",
+      "sourceKey": "teachmeanatomy.arm_muscles",
+      "query": "teachmeanatomy muscles of the arm biceps brachii actions flexion at shoulder coracobrachialis triceps",
+      "excerpt": "Coracobrachialis: This muscle's function is shoulder flexion with a weaker adduction role. Its function is flexion of the arm at the shoulder, and weak adduction.",
+      "locator": "Coracobrachialis: function"
+    },
+    {
+      "claimId": "upper_arm.coracobrachialis.appearance",
+      "sourceKey": "kenhub.coracobrachialis",
+      "query": "Kenhub coracobrachialis lies deep to short head of biceps brachii upper medial arm overview",
+      "excerpt": "The coracobrachialis is a long and slender muscle of the anterior compartment of the arm. ... The muscle is located medial to the biceps brachii and brachialis muscles. ... Along with the humerus, coracobrachialis forms the lateral border of the axilla, where it is also the easiest to palpate the muscle.",
+      "locator": "Overview and palpation: border of the armpit"
+    },
+    {
+      "claimId": "upper_arm.coracobrachialis.appearance",
+      "sourceKey": "elsevier.coracobrachialis",
+      "query": "Elsevier coracobrachialis quick facts origin coracoid process insertion medial humerus action flexes adducts relations",
+      "excerpt": "Elsevier lists the muscle as anterior to the subscapularis, teres major, latissimus dorsi, and medial head of triceps, and as posterior to pectoralis major. It is medial to brachialis and biceps brachii.",
+      "locator": "Relations"
+    }
+  ],
+  "deviations": [],
+  "notes": {
+    "singleSourceFunctionClaims": [
+      "None among the six new function claims (each rests on three to five references).",
+      "The two shipped function claims the page reuses are single-source: forearm:biceps.function (A50) and forearm:brachialis.function (A51), as 03-anatomy-evidence.md §2 says. Corroborating references were found this time (see each shipped claim's upperArmUse); they are frozen claims, so adding sources is the database lane's call.",
+      "Non-function claims resting on one source: upper_arm.biceps.variation.1 (one meta-analysis) and upper_arm.triceps_long.selectivity.1 (one ten-person study)."
+    ],
+    "unconfirmedBibliographicDetails": [
+      "aott.triceps_heads (Kholinne et al. 2018): DOI and PubMed id not confirmed; co-authors not shown; one summary mentioned a simulator, another found no cadaver component.",
+      "pmid.11408907 (Levy et al. 2001): journal and full author list not confirmed.",
+      "wiley.biceps_accessory_heads: authors not shown; journal inferred from the DOI prefix (Journal of Anatomy), year from the record id; title given as the record's.",
+      "bmc.long_head_biceps_scoping_review: volume and article number not shown; only the opening of the abstract seen.",
+      "pmid.16735585 (Madsen et al. 2006): PubMed id inferred from a Weill Cornell record; volume and pages from reference lists.",
+      "statpearls.triceps: author list beyond the editor (Bordoni) not shown; update date 28 Aug 2023 from one result.",
+      "mdpi.triceps_fascicle_length and mdpi.biceps_curl_grips: full author lists not shown.",
+      "pmid.35819335: whether the 21 adults were untrained was not confirmed; the claim does not say.",
+      "kenhub.triceps_brachii_video and kenhub.brachialis_video: video descriptions or previews only; the videos were not seen.",
+      "elsevier.triceps_medial_head: the search summary said its own citation markers were partly garbled; the facts matched IMAIOS.",
+      "Loyola LUMEN pages: page titles and dates not shown; the dissector text was quoted in the results."
+    ],
+    "disagreementsAndWording": [
+      "Biceps at the shoulder: Kenhub and Loyola call it a weak flexor, TeachMeAnatomy lists shoulder flexion, Elsevier lists no shoulder action; EMG studies disagree (Levy: no long-head activity with the elbow braced; Chalmers: low activity rising with flexion and abduction) and a scoping review calls its part in raising the arm minimal in healthy shoulders. The function claim says 'weak help' and that one reference lists none; the selectivity claim states the EMG disagreement; no node action.",
+      "Biceps and forearm position: Coratella 2023 found more biceps activity palm up while lifting; Kleiber 2015 (A4) found no change. The selectivity claim states both.",
+      "Long head steadying the shoulder: StatPearls and IMAIOS say with the arm by the side (adducted); Radiopaedia says in abduction. The claim says it helps hold the head of the bone in its socket and names no arm position.",
+      "Long head shoulder adduction: Kenhub and IMAIOS list it; Radiopaedia lists extension only. The claim attributes both to 'references' and only extension becomes a node action (adduction is not an upper-arm region action).",
+      "Medial head at the surface: DocCheck says its lower part shows; Radiopaedia says largely deep; Madsen says its muscle reaches further toward the elbow; Kenhub says it cannot be felt. The appearance claim and a caveat say references differ.",
+      "Coracobrachialis adduction: Elsevier lists adduction first; Loyola and TeachMeAnatomy call it weak. The claim says 'helps draw it toward the body'.",
+      "Coracobrachialis insertion: Elsevier gives the middle third of the humerus, Loyola the upper half of its inner border. The claim says 'about halfway down'.",
+      "Brachialis edges: the shipped forearm claim says it 'may show at its sides'; this review confirmed only the outer edge (Kenhub video). The new upper-arm claim and the neutral shape note say outer edge; the shipped claim is frozen and stays on the forearm page.",
+      "Training studies on arm position (Maeo 2023: more volume gain overhead in every head; Stasinaki 2018: no difference) are stated together in a draft selectivity claim; the draft reason is the §1.2 / §8 policy conflict, not the evidence.",
+      "Akima et al. 2021 (PLOS One, PMC8174684): isometric surface EMG of the three heads; the abstract seen said activity mostly did not differ, but it was cut off mid-result, so it is not cited.",
+      "Triceps heads by force level (one older review: medial and lateral active from onset, long head at higher forces) was seen only second-hand and is not cited."
+    ],
+    "section12Checks": [
+      "Layers: biceps surface, brachialis deep with a front outcrop, long and lateral heads surface, medial head deep with a back outcrop: supported (medial outcrop with a disagreement, above). Coracobrachialis deep: supported in part (felt in the armpit). No deviation.",
+      "Lateral and medial heads share every action: supported (both cross only the elbow and extend it). The medial head's pull on the elbow capsule is not a region action. Kholinne's modelled force difference by arm height is acute and does not change the actions; mappings stay 'shared'.",
+      "The biceps stays one node: supported. Its heads differ only at the shoulder (Chalmers: long-head activity rose with flexion and abduction, short head did not), where its role is weak.",
+      "Region actions: shoulder.flexion has a performer (coracobrachialis, prime); the biceps' part is left out. shoulder.extension: long head, assist. The long head and coracobrachialis also adduct the arm, which is not an upper-arm region action; adding shoulder.adduction is not proposed (the chest and back own it).",
+      "Brachioradialis as an external: supported by the rule (prime mover of elbow.flexion; curls load it).",
+      "Observation outside §1.2: the forearm's anconeus carries catalogMuscleKey 'triceps' (forearm nodes.ts), the upper arm's catalog key; region catalog keys are explicit (§1.1), so this may be harmless, but the registry lane should look."
+    ],
+    "policyQuestions": [
+      "upper_arm.triceps_long.selectivity.2 is draft because §1.2 sends long-head regional-growth findings to selectivity claims while §8 says selectivity claims are never growth. The owner or the adversarial review decides."
+    ],
+    "limits": "Web search only, as for the forearm: page fetches are refused by the network proxy, and every excerpt is a search-tool summary that can misquote. Claims cite what the excerpts said. 'Reviewed' means an automated agent checked each sentence against web-search excerpts and generated summaries on 19 Oct 2026; not the full texts, not a clinician or anatomist."
+  }
+}

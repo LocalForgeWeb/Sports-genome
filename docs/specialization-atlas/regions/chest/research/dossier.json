@@ -1,0 +1,2068 @@
+{
+  "region": "chest",
+  "date": "2026-10-19",
+  "externalMembers": [
+    {
+      "nodeId": "shoulders.anterior_deltoid",
+      "home": "shoulders",
+      "content": "none here; see notes.section12Checks"
+    }
+  ],
+  "nodes": [
+    {
+      "regionId": "chest",
+      "status": "reviewed",
+      "id": "chest.pec_major",
+      "parentId": null,
+      "kind": "muscle",
+      "role": "group",
+      "name": "Pectoralis major",
+      "shortName": "PecMajor",
+      "aliases": [
+        "pectoralis major",
+        "pec major",
+        "pecs"
+      ],
+      "layer": "— (§1.2; parent, neither drawn nor selectable; the TypeScript value follows the platform lane, the forearm's groups use 'mixed')",
+      "layerSupported": true,
+      "outcropSupported": null,
+      "surfaceVisibility": "variable",
+      "surfaceVisibilityReason": "Both heads are at the surface (teachmeanatomy.pectoral_region: the most superficial muscle of the pectoral region), but in many women breast tissue lies over much of the muscle between the second and sixth ribs (statpearls.mammary_gland; statpearls.pectoralis_major), so how much of it shows differs between people. 'partial', the forearm's value for its mixed-layer groups, would also fit; the review may prefer it.",
+      "nodeKey": "chest",
+      "catalogMuscleKey": "chest",
+      "databaseMuscle": null,
+      "databaseMuscleNote": "The canonical list holds the two heads (pectoralis_major_clavicular, pectoralis_major_sternocostal in shared/capabilityRank.ts), not the whole muscle, as for the triceps.",
+      "statusReason": "Its function claim, chest:chest.pec_major.function, is reviewed.",
+      "location": "Front of the chest, at the surface: a fan from the collarbone, the breastbone and the upper rib cartilages to the upper-arm bone near the shoulder.",
+      "whatItDoes": "Draws your arm in toward your body, turns it inward and brings it across your chest. Its upper (clavicular) head also raises the arm forward; its larger lower (sternocostal) head brings a raised arm back down.",
+      "shapeNote": "Together its two heads make up most of the front contour of the chest, from the collarbone to the front fold of the armpit. Which head shapes which part of that outline cannot be read exactly from the surface. In many women breast tissue lies over much of it. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "caveats": [
+        "A muscle with two heads, not a target itself: work is counted for the heads inside it.",
+        "The heads are shown apart because their actions differ: the upper head raises the arm forward, the lower head brings a raised arm back down."
+      ]
+    },
+    {
+      "regionId": "chest",
+      "status": "reviewed",
+      "id": "chest.pec_major_clavicular",
+      "parentId": "chest.pec_major",
+      "kind": "head",
+      "role": "target",
+      "name": "Pectoralis major, clavicular head",
+      "shortName": "PecClav",
+      "aliases": [
+        "clavicular head",
+        "upper pec",
+        "pars clavicularis"
+      ],
+      "layer": "surface",
+      "layerSupported": true,
+      "outcropSupported": null,
+      "surfaceVisibility": "clear",
+      "surfaceVisibilityReason": "At the surface on the upper chest, below the inner half of the collarbone (imaios.pectoralis_major; teachmeanatomy.pectoral_region), above where breast tissue usually begins at the second rib (statpearls.mammary_gland). That the head's outline therefore shows is an inference from location, not a reported finding.",
+      "nodeKey": "chest",
+      "catalogMuscleKey": "chest",
+      "databaseMuscle": "pectoralis_major_clavicular",
+      "databaseMuscleNote": "Exists in the canonical list (shared/capabilityRank.ts); the database lane confirms.",
+      "statusReason": "Its function claim, chest:chest.pec_major_clavicular.function, is reviewed.",
+      "location": "Upper front of the chest, at the surface: from the inner half of the collarbone down and outward to the upper-arm bone near the shoulder.",
+      "whatItDoes": "Raises your arm forward and up in front of you, and with the lower head brings it across your chest. It also helps draw the arm in toward your body and turn it inward.",
+      "shapeNote": "May contribute to the contour of the upper chest just below the collarbone, toward the front of the shoulder. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "caveats": [
+        "Raising the arm forward is shared with the front of the deltoid, so forward-raising work loads them together.",
+        "Muscle-activity studies disagree on how much the bench angle changes its share of a press."
+      ]
+    },
+    {
+      "regionId": "chest",
+      "status": "reviewed",
+      "id": "chest.pec_major_sternocostal",
+      "parentId": "chest.pec_major",
+      "kind": "head",
+      "role": "target",
+      "name": "Pectoralis major, sternocostal head",
+      "shortName": "PecStern",
+      "aliases": [
+        "sternocostal head",
+        "sternal head",
+        "pars sternocostalis"
+      ],
+      "layer": "surface",
+      "layerSupported": true,
+      "outcropSupported": null,
+      "surfaceVisibility": "variable",
+      "surfaceVisibilityReason": "At the surface over the breastbone and upper ribs and the larger part of the muscle (radiopaedia.pectoralis_major), but in many women breast tissue lies over much of it (statpearls.mammary_gland; statpearls.pectoralis_major), and a few people lack it (Poland syndrome; chest.pec_major_sternocostal.variation.1).",
+      "nodeKey": "chest",
+      "catalogMuscleKey": "chest",
+      "databaseMuscle": "pectoralis_major_sternocostal",
+      "databaseMuscleNote": "Exists in the canonical list (shared/capabilityRank.ts); the database lane confirms.",
+      "statusReason": "Its function claim, chest:chest.pec_major_sternocostal.function, is reviewed.",
+      "location": "Middle and lower front of the chest, at the surface: from the breastbone, the upper six rib cartilages and the tendon sheet of the outer abdominal muscle to the upper-arm bone near the shoulder.",
+      "whatItDoes": "Draws your arm in toward your body, turns it inward and brings it across your chest. From a raised position in front, it pulls the arm back down.",
+      "shapeNote": "The larger part of the muscle; may contribute most of the contour of the middle and lower chest and of the front fold of the armpit. In many women breast tissue lies over much of it. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "caveats": [
+        "Drawing the arm in toward the body is shared with the latissimus dorsi and teres major of the back, so that work is not chest-only.",
+        "One reference describes a small third, abdominal part of the muscle; here it is counted with this head.",
+        "Some people are born without it on one side."
+      ]
+    },
+    {
+      "regionId": "chest",
+      "status": "reviewed",
+      "id": "chest.pec_minor",
+      "parentId": null,
+      "kind": "muscle",
+      "role": "target",
+      "name": "Pectoralis minor",
+      "shortName": "PecMinor",
+      "aliases": [
+        "pec minor"
+      ],
+      "layer": "deep",
+      "layerSupported": true,
+      "outcropSupported": null,
+      "surfaceVisibility": "not_distinct",
+      "surfaceVisibilityReason": "Under the pectoralis major, which almost completely covers it (kenhub.pectoralis_minor; imaios.pectoralis_minor). No source said it can be felt; the search could not confirm palpability either way.",
+      "nodeKey": "chest",
+      "catalogMuscleKey": "chest",
+      "databaseMuscle": "pectoralis_minor",
+      "databaseMuscleNote": "Exists in the canonical list (shared/capabilityRank.ts); the database lane confirms.",
+      "statusReason": "Its function claim, chest:chest.pec_minor.function, is reviewed.",
+      "location": "Front of the chest, deep layer under the pectoralis major: from the third to fifth ribs up and outward to the coracoid process, a bony hook at the front of the shoulder blade.",
+      "whatItDoes": "Draws your shoulder blade forward around the rib cage and down, and holds it against the chest wall. When the shoulder blade is held still, it can help lift the upper ribs in deep breathing.",
+      "shapeNote": "Lies under the pectoralis major, which almost completely covers it, so it has little or no contour of its own.",
+      "caveats": [
+        "Pushing the shoulder blade forward loads it together with the serratus anterior.",
+        "It also rotates the shoulder blade downward; that is not a chest action and is not counted here.",
+        "Where it attaches varies between people."
+      ]
+    },
+    {
+      "regionId": "chest",
+      "status": "reviewed",
+      "id": "chest.serratus_anterior",
+      "parentId": null,
+      "kind": "muscle",
+      "role": "target",
+      "name": "Serratus anterior",
+      "shortName": "SA",
+      "aliases": [
+        "serratus"
+      ],
+      "layer": "surface (§1.2, kept; see DEVIATION D1: the evidence places most of the belly deep, with a surface part on the side of the chest)",
+      "layerSupported": false,
+      "outcropSupported": "§1.2 gives no outcrop note. The sources put the main part deep under the shoulder blade and behind the pectoral muscles (kenhub.serratus_anterior; elsevier.serratus_anterior) and only the lower slips at the surface on the side of the chest, between the pectoralis major and the latissimus dorsi (kenhub.serratus_anterior; gpnotebook.serratus_anterior; doccheck.serratus_anterior). Reported as deviation D1.",
+      "surfaceVisibility": "partial",
+      "surfaceVisibilityReason": "Lower slips on the side of the chest below the armpit can be seen and felt, often in athletic people (kenhub.serratus_anterior; gpnotebook.serratus_anterior); the rest lies under the shoulder blade and the pectoral muscles.",
+      "nodeKey": "serratusAnterior",
+      "catalogMuscleKey": "serratusAnterior",
+      "databaseMuscle": "serratus_anterior",
+      "databaseMuscleNote": "Exists in the canonical list (shared/capabilityRank.ts); the database lane confirms.",
+      "statusReason": "Its function claim, chest:chest.serratus_anterior.function, is reviewed.",
+      "location": "Side of the chest: from the upper eight or nine ribs back around the rib cage, mostly under the shoulder blade, to the shoulder blade's inner edge; its lower slips lie at the surface below the armpit.",
+      "whatItDoes": "Moves your shoulder blade forward around the rib cage, as when you push your arms forward, and turns it so you can raise your arm overhead. It holds the shoulder blade against the rib cage.",
+      "shapeNote": "Its lower slips may contribute to a ridged contour along the ribs on the side of the chest below the armpit, between the chest muscle and the latissimus dorsi; they show mainly in athletic people. Most of the muscle lies under the shoulder blade and the chest muscles, where it has little or no contour of its own. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "caveats": [
+        "Pushing the shoulder blade forward also loads the pectoralis minor, so that work is not serratus-only.",
+        "References give its lowest slip on the eighth or the ninth rib.",
+        "One reference says its lowest fibres may help pull the shoulder blade down; that is not counted here.",
+        "When it is weak or its nerve is injured, the inner edge of the shoulder blade lifts off the rib cage."
+      ]
+    }
+  ],
+  "membershipSuggestions": {
+    "forShoulders": [
+      {
+        "nodeId": "chest.pec_major_clavicular",
+        "caveat": "Listed here because it raises the arm forward with the front of the deltoid; targets for it are set on the chest page."
+      },
+      {
+        "nodeId": "chest.pec_major_sternocostal",
+        "caveat": "Listed here because it draws the arm in and turns it inward at the shoulder; targets for it are set on the chest page."
+      },
+      {
+        "nodeId": "chest.serratus_anterior",
+        "caveat": "Listed here because it turns the shoulder blade so the arm can go overhead; targets for it are set on the chest page."
+      }
+    ],
+    "note": "Suggested membership caveats for the shoulders lane (§1.3: region-relative words live on the membership). The node text above is neutral. The shoulders lane owns the wording."
+  },
+  "claims": [
+    {
+      "id": "chest.pec_major.function",
+      "key": "chest:chest.pec_major.function",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_major",
+      "kind": "function",
+      "statement": "The pectoralis major has two heads: a clavicular head from the inner half of the collarbone and a sternocostal head from the breastbone, the upper six rib cartilages and the tendon sheet of the outer abdominal muscle. Both attach to the upper-arm bone near the shoulder. Acting together they draw the arm in toward the body (adduction), turn it inward (internal rotation) and bring it across the chest. Acting apart, the clavicular head raises the arm forward (flexion) and the sternocostal head brings a raised arm back down (extension).",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "kenhub.pectoralis_major",
+          "locator": "Function",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "statpearls.pectoralis_major",
+          "locator": "Structure and Function",
+          "qualification": "Seen through web-search excerpts; the article's function list says 'sternoclavicular head' where the sternocostal head is meant."
+        },
+        {
+          "sourceId": "teachmeanatomy.pectoral_region",
+          "locator": "Pectoralis major: attachments and actions",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "uw.pectoralis_major",
+          "locator": "Origin; Action",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "radiopaedia.pectoralis_major",
+          "locator": "Gross anatomy: action",
+          "qualification": "Seen through a mirror of the page, as a web-search excerpt."
+        },
+        {
+          "sourceId": "elsevier.pectoralis_major",
+          "locator": "Quick Facts: Action",
+          "qualification": "Lists transverse adduction for the whole muscle; lists no extension."
+        },
+        {
+          "sourceId": "kenhub.upper_limb_muscles_and_movements",
+          "locator": "Shoulder: pectoralis major",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_major.appearance",
+      "key": "chest:chest.pec_major.appearance",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_major",
+      "kind": "appearance",
+      "statement": "The pectoralis major is the most superficial muscle of the front of the chest: a large fan from the collarbone, breastbone and rib cartilages to the upper-arm bone, whose outer edge forms the front fold of the armpit. It may therefore make up most of the front contour of the chest. In many women breast tissue lies over much of it. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "teachmeanatomy.pectoral_region",
+          "locator": "Pectoralis major: the most superficial muscle of the pectoral region",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "pmc.chest_wall_flaps",
+          "locator": "Pectoralis major flap: anatomy (the outer edge forms the front fold of the armpit)",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "imaios.anterior_axillary_fold",
+          "locator": "Definition",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "statpearls.pectoralis_major",
+          "locator": "Structure and Function: beneath the breast tissue",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "statpearls.mammary_gland",
+          "locator": "Structure: extent and base on the pectoral fascia",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_major_clavicular.function",
+      "key": "chest:chest.pec_major_clavicular.function",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_major_clavicular",
+      "kind": "function",
+      "statement": "The clavicular head starts on the front of the inner half of the collarbone. Acting on its own it raises the arm forward (shoulder flexion), especially from a position with the arm down or back; one reference says up to about 90 degrees. Anatomy references name it, with the front of the deltoid, as a main forward-raising muscle of the shoulder. With the sternocostal head it brings the arm across the chest, and it helps draw the arm in toward the body and turn it inward. One quick reference describes its part in raising the arm as assisting rather than main.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "imaios.pectoralis_major",
+          "locator": "Clavicular head: origin and primary action",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "statpearls.pectoralis_major",
+          "locator": "Structure and Function: clavicular head",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "kenhub.pectoralis_major",
+          "locator": "Function: the clavicular part acting independently",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "kenhub.shoulder_joint",
+          "locator": "Movements: the prime flexors",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "uw.pectoralis_major",
+          "locator": "Action: the upper fibres acting alone",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "loyola.pectoralis_major",
+          "locator": "Action: clavicular head",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "loyola.upper_limb_joint_actions",
+          "locator": "Shoulder: flexion",
+          "qualification": "Names the pectoralis major, not a head, among the shoulder flexors."
+        },
+        {
+          "sourceId": "radiopaedia.pectoralis_major",
+          "locator": "Gross anatomy: action of the whole muscle",
+          "qualification": "Seen through a mirror of the page; describes the whole muscle, not the head."
+        },
+        {
+          "sourceId": "elsevier.pectoralis_major",
+          "locator": "Quick Facts: Action",
+          "qualification": "Credits the clavicular head with assisting flexion; cited for that difference between references."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_major_clavicular.appearance",
+      "key": "chest:chest.pec_major_clavicular.appearance",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_major_clavicular",
+      "kind": "appearance",
+      "statement": "The clavicular head is the upper part of the pectoralis major, at the surface, running down and outward from the inner half of the collarbone toward the upper-arm bone near the shoulder; a groove separates the pectoralis major from the deltoid at the front of the shoulder. It may contribute to the contour of the upper chest just below the collarbone. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "imaios.pectoralis_major",
+          "locator": "Clavicular head: origin and fibre direction",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "teachmeanatomy.pectoral_region",
+          "locator": "Pectoralis major: attachments",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "radiopaedia.deltopectoral_groove",
+          "locator": "Definition",
+          "qualification": "Names the groove between the deltoid and the pectoralis major; that the clavicular head borders it is inferred from where the head lies."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_major_clavicular.selectivity.1",
+      "key": "chest:chest.pec_major_clavicular.selectivity.1",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_major_clavicular",
+      "kind": "selectivity",
+      "statement": "Bench-press studies measured upper-chest activity at different bench angles and do not fully agree. In 15 men pressing at four angles, the clavicular head was more active at inclines of 44 and 56 degrees than on a flat bench. In 30 trained adults, the upper portion of the muscle was most active at a 30-degree incline, and above 45 degrees front-deltoid activity rose while the pectoralis major's performance fell. In an older study of 6 men, the clavicular head was no more active on an incline than on a flat bench, and less active on a decline. These are short-term activity measurements; they do not show which angle grows the muscle more.",
+      "basis": "experimental",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "lww.chest_press_angles",
+          "locator": "Abstract: Results",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Surface EMG, 15 healthy men, seven tenths of one-repetition maximum. Abstract only."
+        },
+        {
+          "sourceId": "pmid.33049982",
+          "locator": "Abstract: Results and Conclusions",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. 30 trained adults, six tenths of one-repetition maximum; reports an upper portion, not the clavicular head by name. Abstract only."
+        },
+        {
+          "sourceId": "bisp.bench_press_five_shoulder_muscles",
+          "locator": "Abstract",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Six men; library-record abstract seen in one search summary."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_major_clavicular.selectivity.2",
+      "key": "chest:chest.pec_major_clavicular.selectivity.2",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_major_clavicular",
+      "kind": "selectivity",
+      "statement": "In a high-density surface-EMG study of 29 healthy young women holding steady efforts in several directions, the clavicular, upper sternocostal and middle sternocostal regions were about equally active when pushing the arm forward or across the body; the one exception was pushing forward at a quarter of maximal force, where the clavicular region was more active than the upper sternocostal region. The atlas therefore rests the clavicular head's forward-raising action on anatomy references, not on a measured difference in activity. Neither finding is a measurement of growth.",
+      "basis": "experimental",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "pmid.35093733",
+          "locator": "Abstract: Results",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Isometric ramp-and-hold tasks in 29 healthy young women; abstract only."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_major_sternocostal.function",
+      "key": "chest:chest.pec_major_sternocostal.function",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_major_sternocostal",
+      "kind": "function",
+      "statement": "The sternocostal head is the larger part of the pectoralis major. It starts on the front of the breastbone, the cartilages of the upper six ribs and the tendon sheet of the outer abdominal muscle (the external oblique aponeurosis), and attaches to the upper-arm bone near the shoulder. Its main actions are drawing the arm in toward the body (adduction) and turning it inward (internal rotation), and with the clavicular head it brings the arm across the chest. From a raised position in front, it pulls the arm back down (extension). Two of the references consulted, a dissection guide and a quick reference, do not list that downward pull.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "statpearls.pectoralis_major",
+          "locator": "Structure and Function: sternocostal head",
+          "qualification": "Seen through web-search excerpts; the article's function list says 'sternoclavicular head' for this head."
+        },
+        {
+          "sourceId": "imaios.pectoralis_major",
+          "locator": "Sternocostal head: origin, primary actions and contribution to extension",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "kenhub.pectoralis_major",
+          "locator": "Function: the sternocostal part acting independently",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "uw.pectoralis_major",
+          "locator": "Origin; Action: the lower fibres acting alone",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "pmc.hypogenic_pectoralis_major",
+          "locator": "Background anatomy",
+          "qualification": "A case report; cited only for the textbook anatomy in its background."
+        },
+        {
+          "sourceId": "radiopaedia.pectoralis_major",
+          "locator": "Gross anatomy: the sternocostal portion; action of the whole muscle",
+          "qualification": "Seen through a mirror of the page, as a web-search excerpt."
+        },
+        {
+          "sourceId": "loyola.pectoralis_major",
+          "locator": "Action: sternal head",
+          "qualification": "Lists adduction and medial rotation only; cited for that difference between references."
+        },
+        {
+          "sourceId": "elsevier.pectoralis_major",
+          "locator": "Quick Facts: Action",
+          "qualification": "Lists no extension; cited for that difference between references."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_major_sternocostal.appearance",
+      "key": "chest:chest.pec_major_sternocostal.appearance",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_major_sternocostal",
+      "kind": "appearance",
+      "statement": "The sternocostal head is the larger, lower part of the pectoralis major, at the surface over the upper ribs from the breastbone outward; the muscle's outer edge, which forms the front fold of the armpit, lies along this part. It may contribute most of the contour of the middle and lower chest and of that fold. In many women breast tissue, which lies on the muscle between the second and sixth ribs, covers much of it. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "radiopaedia.pectoralis_major",
+          "locator": "Gross anatomy: the sternocostal portion is most of the muscle",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "teachmeanatomy.pectoral_region",
+          "locator": "Pectoralis major: attachments",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "pmc.chest_wall_flaps",
+          "locator": "Pectoralis major flap: anatomy (the outer edge forms the front fold of the armpit)",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source. That this edge lies along the sternocostal head is inferred from where the head lies."
+        },
+        {
+          "sourceId": "statpearls.mammary_gland",
+          "locator": "Structure: extent and base on the pectoral fascia",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "statpearls.pectoralis_major",
+          "locator": "Structure and Function: beneath the breast tissue",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_major_sternocostal.selectivity.1",
+      "key": "chest:chest.pec_major_sternocostal.selectivity.1",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_major_sternocostal",
+      "kind": "selectivity",
+      "statement": "Bench-press studies found the sternocostal part most active on a flat bench. In 15 men it was more active flat than at inclines of 28, 44 and 56 degrees; in 30 trained adults the middle and lower portions of the muscle were most active with no incline; and in an older study of 6 men it was more active on a flat bench than on a decline. These are short-term activity measurements; they do not show which bench angle grows the muscle more.",
+      "basis": "experimental",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "lww.chest_press_angles",
+          "locator": "Abstract: Results",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Surface EMG, 15 healthy men, seven tenths of one-repetition maximum. Abstract only."
+        },
+        {
+          "sourceId": "pmid.33049982",
+          "locator": "Abstract: Results",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. 30 trained adults; reports middle and lower portions, not the sternocostal head by name. Abstract only."
+        },
+        {
+          "sourceId": "bisp.bench_press_five_shoulder_muscles",
+          "locator": "Abstract",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Six men; library-record abstract seen in one search summary."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_major_sternocostal.selectivity.2",
+      "key": "chest:chest.pec_major_sternocostal.selectivity.2",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_major_sternocostal",
+      "kind": "selectivity",
+      "statement": "In a high-density surface-EMG study of 29 healthy young women holding steady efforts, the middle sternocostal region was more active than the clavicular and upper sternocostal regions, from about an eighth more to about twice as active, when pulling the arm down and back (extension), when drawing it in with the arm turned out, and when turning it inward with the arm raised high. This fits the anatomy references' split between the two heads. It is short-term activity measured in women only, not a measurement of growth.",
+      "basis": "experimental",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "pmid.35093733",
+          "locator": "Abstract: Results",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Isometric ramp-and-hold tasks in 29 healthy young women; abstract only."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_major_sternocostal.variation.1",
+      "key": "chest:chest.pec_major_sternocostal.variation.1",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_major_sternocostal",
+      "kind": "variation",
+      "statement": "Some people are born without the sternocostal head of the pectoralis major, usually on one side only. This is the most common feature of Poland syndrome, a rare condition in which the pectoralis minor, ribs, breast and hand on the same side may also be underdeveloped; it is reported more often in males.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "statpearls.poland_syndrome",
+          "locator": "Introduction",
+          "qualification": "Seen through web-search excerpts of the page, not the full text. The epidemiology section was not seen; incidence figures differ widely between sources, so none is given."
+        },
+        {
+          "sourceId": "radiopaedia.poland_syndrome",
+          "locator": "Clinical presentation; case discussion",
+          "qualification": "Seen through a mirror of the page and two case pages, as web-search excerpts."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_minor.function",
+      "key": "chest:chest.pec_minor.function",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_minor",
+      "kind": "function",
+      "statement": "The pectoralis minor runs from the third to fifth ribs, near their cartilages, up and outward to the coracoid process at the front of the shoulder blade. It draws the shoulder blade forward around the rib cage (protraction) and down (depression), holding it against the chest wall, and it also rotates the shoulder blade downward. When the shoulder blade is held still it can help lift the third to fifth ribs in forced breathing.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "statpearls.pectoral_muscles",
+          "locator": "Structure and Function: pectoralis minor",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "statpearls.thorax_muscles",
+          "locator": "Pectoralis minor",
+          "qualification": "One summary line from the search; the article was not otherwise seen."
+        },
+        {
+          "sourceId": "kenhub.pectoralis_minor",
+          "locator": "Function",
+          "qualification": "Seen through web-search excerpts; the summaries did not always name which Kenhub page each action came from."
+        },
+        {
+          "sourceId": "elsevier.pectoralis_minor",
+          "locator": "Quick Facts: Origin, Insertion and Action",
+          "qualification": null
+        },
+        {
+          "sourceId": "uw.pectoralis_minor",
+          "locator": "Origin; Insertion; Action",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "teachmeanatomy.pectoral_region",
+          "locator": "Pectoralis minor: attachments and function",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_minor.appearance",
+      "key": "chest:chest.pec_minor.appearance",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_minor",
+      "kind": "appearance",
+      "statement": "The pectoralis minor is a thin, triangular muscle under the pectoralis major, which almost completely covers it, so it has little or no contour of its own.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "kenhub.pectoralis_minor",
+          "locator": "Relations: covered by the pectoralis major",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "imaios.pectoralis_minor",
+          "locator": "Description",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_minor.selectivity.1",
+      "key": "chest:chest.pec_minor.selectivity.1",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_minor",
+      "kind": "selectivity",
+      "statement": "In a study of 26 healthy people that recorded the serratus anterior with surface electrodes and the pectoralis minor with fine wires, a forward punching movement (the serratus punch) activated the serratus anterior more than the pectoralis minor, while two push-up-plus variations, against a wall and on the floor, activated the two about equally. Every exercise activated the pectoralis minor to some degree. This is short-term activity in healthy people, not a measurement of growth.",
+      "basis": "experimental",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "pmid.26749459",
+          "locator": "Abstract: Results and Conclusions",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. 26 healthy subjects; fine-wire EMG of the pectoralis minor. Abstract only."
+        }
+      ]
+    },
+    {
+      "id": "chest.pec_minor.variation.1",
+      "key": "chest:chest.pec_minor.variation.1",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.pec_minor",
+      "kind": "variation",
+      "statement": "Where the pectoralis minor attaches varies between people. Its rib origin differs (from the second to fourth ribs in some people and the third and fourth in others, against the usual third to fifth), and in a minority of shoulders its tendon passes beyond the coracoid process to attach on structures over the top of the shoulder joint, such as the supraspinatus tendon or the coracohumeral ligament.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "cureus.pectoralis_minor_variations",
+          "locator": "Abstract",
+          "qualification": "Systematic review of cadaveric and imaging reports; abstract portion only."
+        },
+        {
+          "sourceId": "ijhs.pectoralis_minor_anomalous_insertion",
+          "locator": "Abstract: pooled prevalence",
+          "qualification": "Pooled cadaveric studies; abstract as summarised, authors and year not confirmed."
+        }
+      ]
+    },
+    {
+      "id": "chest.serratus_anterior.function",
+      "key": "chest:chest.serratus_anterior.function",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.serratus_anterior",
+      "kind": "function",
+      "statement": "The serratus anterior starts by separate slips on the outer surfaces of the upper eight or nine ribs and runs back around the rib cage, under the shoulder blade, to the inner edge of the shoulder blade; its lowest and strongest part reaches the blade's lower corner. It draws the shoulder blade forward around the rib cage (protraction) and, working with the trapezius, turns it so the arm can be raised above shoulder height (upward rotation). It holds the shoulder blade against the rib cage: when the muscle is weak or its nerve is injured, the blade's inner edge lifts away (winging). One reference says its lowest fibres may help pull the shoulder blade down.",
+      "basis": "established_anatomy",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "statpearls.serratus_anterior",
+          "locator": "Structure and Function",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "kenhub.serratus_anterior",
+          "locator": "Origin, insertion and function",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "elsevier.serratus_anterior",
+          "locator": "Quick Facts: Origin, Insertion and Action",
+          "qualification": null
+        },
+        {
+          "sourceId": "teachmeanatomy.serratus_anterior",
+          "locator": "Function; clinical relevance",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "radiopaedia.serratus_anterior",
+          "locator": "Gross anatomy; related pathology",
+          "qualification": "Seen through a mirror of the page; partial text only."
+        },
+        {
+          "sourceId": "statpearls.scapular_winging",
+          "locator": "Etiology",
+          "qualification": "Seen through web-search excerpts; the summary did not always name which StatPearls article a sentence came from."
+        },
+        {
+          "sourceId": "kenhub.trapezius",
+          "locator": "Function: upward rotation shared with the serratus anterior",
+          "qualification": "Seen through web-search excerpts of the page, not the full text."
+        },
+        {
+          "sourceId": "pmid.27757809",
+          "locator": "Abstract: three divisions",
+          "qualification": "Cadaveric study of eight muscles; abstract only."
+        },
+        {
+          "sourceId": "wustl.serratus_anterior",
+          "locator": "Action",
+          "qualification": "Gives the downward pull as a possible action of the lowest fibres only."
+        }
+      ]
+    },
+    {
+      "id": "chest.serratus_anterior.appearance",
+      "key": "chest:chest.serratus_anterior.appearance",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.serratus_anterior",
+      "kind": "appearance",
+      "statement": "Most of the serratus anterior lies under the shoulder blade and behind the pectoral muscles, where it has little or no contour of its own. Its lower slips lie on the side of the chest between the pectoralis major and the latissimus dorsi, interlocking with the slips of the external oblique; there they can often be seen and felt in athletic people, so they may contribute to a ridged contour along the ribs below the armpit. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+      "basis": "anatomical_inference",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "kenhub.serratus_anterior",
+          "locator": "Overview; palpation",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "elsevier.serratus_anterior",
+          "locator": "Relations",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "gpnotebook.serratus_anterior",
+          "locator": "Testing",
+          "qualification": "Says the slips are often seen and felt in young, athletic people; the contour statement is inferred from that and from their location."
+        },
+        {
+          "sourceId": "imaios.serratus_anterior",
+          "locator": "Description: slips interlocking with the external oblique",
+          "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+        },
+        {
+          "sourceId": "doccheck.serratus_anterior",
+          "locator": "Pars inferior",
+          "qualification": "German-language encyclopaedia entry seen through a web-search summary."
+        }
+      ]
+    },
+    {
+      "id": "chest.serratus_anterior.selectivity.1",
+      "key": "chest:chest.serratus_anterior.selectivity.1",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.serratus_anterior",
+      "kind": "selectivity",
+      "statement": "In a study of 26 healthy people, a forward punching movement (the serratus punch) activated the serratus anterior more than the pectoralis minor, while two push-up-plus variations activated the two about equally, and the pectoralis minor was active in every exercise. Pushing the shoulder blade forward therefore loads the two together, and the atlas does not treat that work as serratus-only. This is short-term activity, not a measurement of growth.",
+      "basis": "experimental",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "pmid.26749459",
+          "locator": "Abstract: Results and Conclusions",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. 26 healthy subjects; surface EMG of the serratus anterior. Abstract only."
+        }
+      ]
+    },
+    {
+      "id": "chest.serratus_anterior.selectivity.2",
+      "key": "chest:chest.serratus_anterior.selectivity.2",
+      "ownerRegionId": "chest",
+      "nodeId": "chest.serratus_anterior",
+      "kind": "selectivity",
+      "statement": "In a study of 30 people, healthy or with mild shoulder problems, the standard push-up plus (a push-up finished by pushing the shoulder blades forward) produced, in that final push, the highest serratus anterior activity of the push-up variations tested, with the least upper-trapezius activity relative to it. This is short-term activity, not a measurement of growth.",
+      "basis": "experimental",
+      "reviewStatus": "reviewed",
+      "reviewedAt": "2026-10-19",
+      "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+      "sources": [
+        {
+          "sourceId": "pmid.14977678",
+          "locator": "Abstract: Results",
+          "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. 30 subjects, some with mild shoulder dysfunction. Abstract only."
+        }
+      ]
+    }
+  ],
+  "nodeActions": [
+    {
+      "nodeId": "chest.pec_major_clavicular",
+      "actionId": "shoulder.flexion",
+      "role": "prime",
+      "claimId": "chest.pec_major_clavicular.function",
+      "claimKey": "chest:chest.pec_major_clavicular.function",
+      "note": "IMAIOS calls flexion its primary action and Kenhub names it a prime flexor with the anterior deltoid; Elsevier says it assists. The function claim states the difference."
+    },
+    {
+      "nodeId": "chest.pec_major_clavicular",
+      "actionId": "shoulder.horizontal_adduction",
+      "role": "prime",
+      "claimId": "chest.pec_major_clavicular.function",
+      "claimKey": "chest:chest.pec_major_clavicular.function",
+      "note": "Whole-muscle action (Radiopaedia: brings the humerus across the chest; Elsevier: transverse adduction); regional EMG found the clavicular region as active as the sternocostal regions in horizontal flexion (pmid.35093733)."
+    },
+    {
+      "nodeId": "chest.pec_major_clavicular",
+      "actionId": "shoulder.adduction",
+      "role": "assist",
+      "claimId": "chest.pec_major_clavicular.function",
+      "claimKey": "chest:chest.pec_major_clavicular.function",
+      "note": "Loyola lists adduction for the clavicular head; Kenhub, IMAIOS and the PMC case report give adduction to the muscle acting as a whole. Head-specific accounts give it flexion as its own action, so assist."
+    },
+    {
+      "nodeId": "chest.pec_major_clavicular",
+      "actionId": "shoulder.internal_rotation",
+      "role": "assist",
+      "claimId": "chest.pec_major_clavicular.function",
+      "claimKey": "chest:chest.pec_major_clavicular.function",
+      "note": "Whole-muscle action (Kenhub, IMAIOS, UW, TeachMeAnatomy); head-specific accounts give inward turning to the sternocostal head, so assist here."
+    },
+    {
+      "nodeId": "chest.pec_major_sternocostal",
+      "actionId": "shoulder.adduction",
+      "role": "prime",
+      "claimId": "chest.pec_major_sternocostal.function",
+      "claimKey": "chest:chest.pec_major_sternocostal.function"
+    },
+    {
+      "nodeId": "chest.pec_major_sternocostal",
+      "actionId": "shoulder.internal_rotation",
+      "role": "prime",
+      "claimId": "chest.pec_major_sternocostal.function",
+      "claimKey": "chest:chest.pec_major_sternocostal.function"
+    },
+    {
+      "nodeId": "chest.pec_major_sternocostal",
+      "actionId": "shoulder.horizontal_adduction",
+      "role": "prime",
+      "claimId": "chest.pec_major_sternocostal.function",
+      "claimKey": "chest:chest.pec_major_sternocostal.function",
+      "note": "Whole-muscle action (Radiopaedia, Elsevier); regional EMG found the sternocostal regions as active as the clavicular region in horizontal flexion (pmid.35093733). StatPearls is NOT cited for it (see notes: misattributed wording)."
+    },
+    {
+      "nodeId": "chest.pec_major_sternocostal",
+      "actionId": "shoulder.extension",
+      "role": "prime",
+      "claimId": "chest.pec_major_sternocostal.function",
+      "claimKey": "chest:chest.pec_major_sternocostal.function",
+      "note": "Only from a raised position in front back toward the side (StatPearls: extension of a flexed arm; Kenhub: pulling it downwards; UW; IMAIOS 'contributes'). The shared action's description also covers moving the arm behind the body, which no source gives this head. IMAIOS's word 'contributes' would support 'assist'; prime is chosen because it is the head-specific action the split rests on and regional EMG found the middle sternocostal region most active in extension. Flagged for review."
+    },
+    {
+      "nodeId": "chest.pec_minor",
+      "actionId": "scapula.protraction",
+      "role": "prime",
+      "claimId": "chest.pec_minor.function",
+      "claimKey": "chest:chest.pec_minor.function"
+    },
+    {
+      "nodeId": "chest.pec_minor",
+      "actionId": "scapula.depression",
+      "role": "prime",
+      "claimId": "chest.pec_minor.function",
+      "claimKey": "chest:chest.pec_minor.function",
+      "note": "Elsevier says it 'assists in depressing'; StatPearls (thorax muscles) says it primarily depresses the shoulder; Kenhub says it can forcefully depress the scapula."
+    },
+    {
+      "nodeId": "chest.serratus_anterior",
+      "actionId": "scapula.protraction",
+      "role": "prime",
+      "claimId": "chest.serratus_anterior.function",
+      "claimKey": "chest:chest.serratus_anterior.function"
+    },
+    {
+      "nodeId": "chest.serratus_anterior",
+      "actionId": "scapula.upward_rotation",
+      "role": "prime",
+      "claimId": "chest.serratus_anterior.function",
+      "claimKey": "chest:chest.serratus_anterior.function"
+    }
+  ],
+  "nodeActionsLeftOut": [
+    {
+      "nodeId": "chest.serratus_anterior",
+      "actionId": "scapula.depression",
+      "reason": "Only one cited reference gives it, and as a possible action of the lowest fibres (wustl.serratus_anterior: 'may depress'; Brookbush and LearnMuscles, not cited, say the same); Kenhub summaries were inconsistent about which part pulls down. Left out under the forearm's rule for weak or disputed extras (03-anatomy-evidence.md §6); said in the function claim and a caveat."
+    },
+    {
+      "nodeId": "chest.pec_minor",
+      "actionId": "scapula.downward_rotation",
+      "reason": "Supported (Elsevier, Kenhub) but not a chest region action (§1.2; the back owns it). Said in the claim and a caveat. If the review wants it, the back's action id exists in §1.2 and the row would be 'assist'."
+    },
+    {
+      "nodeId": "chest.pec_major",
+      "actionId": "(any)",
+      "reason": "Parent node, neither drawn nor selectable (§1.2, §7.3): its actions are declared on the two heads, as the upper arm does for the triceps group. A generic test like the forearm's 'every muscle has a prime action' must skip parents (the pectoralis major is kind 'muscle')."
+    },
+    {
+      "nodeId": "chest.pec_major_* (both heads)",
+      "actionId": "scapula.depression / scapula.protraction",
+      "reason": "UW and TeachMeAnatomy say the pectoralis major draws the scapula forward and down; it attaches to the upper-arm bone, not the shoulder blade, so the effect is through the arm. Listing it would offer the pectoralis major as a shoulder-blade target."
+    },
+    {
+      "nodeId": "chest.serratus_anterior",
+      "actionId": "shoulder.flexion",
+      "reason": "StatPearls says protraction 'allows for anteversion of the arm'; that is a shoulder-blade action that helps the arm forward, not a shoulder-joint action of the serratus."
+    },
+    {
+      "nodeId": "chest.pec_minor, chest.serratus_anterior",
+      "actionId": "(breathing)",
+      "reason": "Both can help lift ribs in forced breathing; there is no action id and it moves no load. Said in the pectoralis minor's claim."
+    }
+  ],
+  "actions": [
+    {
+      "id": "shoulder.horizontal_adduction",
+      "joint": "Shoulder (glenohumeral joint)",
+      "label": "Horizontal adduction",
+      "plainDescription": "With the arm raised to shoulder height, brings it forward and across the front of the chest.",
+      "note": "Shared with the shoulders (§1.2); proposed wording for the shared library."
+    },
+    {
+      "id": "shoulder.flexion",
+      "joint": "Shoulder (glenohumeral joint)",
+      "label": "Shoulder flexion",
+      "plainDescription": "Raises the arm forward and up in front of the body.",
+      "note": "Word for word as the upper-arm dossier proposed; one definition in the shared library."
+    },
+    {
+      "id": "shoulder.extension",
+      "joint": "Shoulder (glenohumeral joint)",
+      "label": "Shoulder extension",
+      "plainDescription": "Brings the arm down and back from in front of the body, and on behind it.",
+      "note": "Word for word as the upper-arm dossier proposed. The sternocostal head does only the first half (down from in front); its node action says so."
+    },
+    {
+      "id": "shoulder.adduction",
+      "joint": "Shoulder (glenohumeral joint)",
+      "label": "Shoulder adduction",
+      "plainDescription": "Brings the arm down and in toward the side of the body.",
+      "note": "Shared with the back (§1.2); proposed wording."
+    },
+    {
+      "id": "shoulder.internal_rotation",
+      "joint": "Shoulder (glenohumeral joint)",
+      "label": "Internal rotation",
+      "plainDescription": "Turns the upper arm inward, so the forearm swings in toward the body (with the elbow bent).",
+      "note": "Shared with the shoulders (§1.2); proposed wording, following the forearm's 'with the elbow bent' convention for rotations."
+    },
+    {
+      "id": "scapula.protraction",
+      "joint": "Shoulder blade (scapulothoracic)",
+      "label": "Shoulder-blade protraction",
+      "plainDescription": "Moves the shoulder blade forward around the rib cage, away from the spine, as when pushing the arms forward.",
+      "note": "Chest only in §1.2; proposed wording."
+    },
+    {
+      "id": "scapula.depression",
+      "joint": "Shoulder blade (scapulothoracic)",
+      "label": "Shoulder-blade depression",
+      "plainDescription": "Draws the shoulder blade down, away from the ear and toward the hip.",
+      "note": "Shared with the back (§1.2); proposed wording."
+    },
+    {
+      "id": "scapula.upward_rotation",
+      "joint": "Shoulder blade (scapulothoracic)",
+      "label": "Upward rotation",
+      "plainDescription": "Turns the shoulder blade so the shoulder socket faces upward, which lets the arm be raised above shoulder height.",
+      "note": "Shared with the shoulders and back (§1.2); proposed wording. The socket-faces-up wording is the usual definition; no claim cites it."
+    }
+  ],
+  "sources": [
+    {
+      "key": "statpearls.pectoralis_major",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK525991/",
+      "title": "StatPearls: Anatomy, Thorax, Pectoralis Major",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q1, Q29, Q38): two heads, clavicular and sternocostal, named for their origins; the clavicular head flexes the extended arm; the sternocostal head's main work is adduction and medial rotation of the arm, plus extension of a flexed arm; the muscle sits beneath the breast tissue and forms the front wall of the armpit. The article's function list says 'Sternoclavicular head' where the sternocostal head is meant. Also served as statpearls.com point-of-care 26785. The search listing showed the title as 'Anatomy, Thorax, Pectoralis Major Major'; authors and update date were not shown."
+    },
+    {
+      "key": "statpearls.pectoral_muscles",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK545241/",
+      "title": "StatPearls: Anatomy, Shoulder and Upper Limb, Pectoral Muscles",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q28, Q29): the pectoral group (pectoralis major, pectoralis minor, serratus anterior, subclavius) flexes, adducts and internally rotates the humerus and stabilises the scapula; the pectoralis minor is thinner and triangular, beneath the pectoralis major, from the margins of the third to fifth ribs near the costochondral junction to the medial border and upper surface of the coracoid process, and is crucial in stabilising the scapula by pulling it down and forward against the chest wall. Also served as statpearls.com point-of-care 32427. A summary (Q11) attributed head-specific horizontal-adduction wording to StatPearls; a later search (Q62) found that wording is Wikipedia's, so this article is not cited for it. Authors not shown."
+    },
+    {
+      "key": "statpearls.thorax_muscles",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK538321/",
+      "title": "StatPearls: Anatomy, Thorax, Muscles",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q28, one summary line only): the pectoralis minor primarily depresses the shoulder and protracts the scapula, and may assist inspiration by elevating the third, fourth and fifth ribs. Authors and date not shown."
+    },
+    {
+      "key": "statpearls.serratus_anterior",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK531457/",
+      "title": "StatPearls: Anatomy, Thorax, Serratus Anterior Muscles",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q30, Q32, Q35): fan-shaped, from the outer surfaces of the upper ribs (first to eighth in this article) to the superior angle, medial border and inferior angle of the scapula, in superior, intermediate and inferior parts; pulls the scapula forward around the thorax (protraction) and, with the upper and lower trapezius, sustains upward rotation of the scapula for overhead lifting; the inferior part rotates the scapula upward and gives the anterolateral motion that allows arm elevation; long thoracic nerve (C5 to C7); weakness causes a winged scapula. Also served as statpearls.com point-of-care 28922. Authors not shown."
+    },
+    {
+      "key": "statpearls.scapular_winging",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK541005/",
+      "title": "StatPearls: Winging of the Scapula",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q30): medial scapular winging typically results from weakness of the serratus anterior, often caused by injury to the long thoracic nerve; lateral winging comes from trapezius or rhomboid dysfunction. Which StatPearls article each quoted sentence came from was not always named in the summary. Authors not shown."
+    },
+    {
+      "key": "statpearls.poland_syndrome",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK532259/",
+      "title": "StatPearls: Poland Syndrome",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q42): a set of anomalies that includes absence of the sternocostal head of the pectoralis major, often with pectoralis minor problems and syndactyly; defects are overwhelmingly one-sided. The excerpt stopped before the epidemiology section, so its incidence figure was not seen (other sources in the same results gave widely different figures). Authors not shown."
+    },
+    {
+      "key": "statpearls.mammary_gland",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK547666/",
+      "title": "StatPearls: Anatomy, Thorax, Mammary Gland",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q58): the gland extends vertically from the second to the sixth rib and from the side of the breastbone to the mid-axillary line; its base lies on the pectoral fascia over the pectoralis major. Used only for location. Authors not shown."
+    },
+    {
+      "key": "kenhub.pectoralis_major",
+      "url": "https://www.kenhub.com/en/library/anatomy/major-pectoralis-muscle",
+      "title": "Kenhub: pectoralis major muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q2, Q11, Q38): as a whole the muscle adducts and internally rotates the arm at the shoulder; acting independently the clavicular part helps flex the extended arm up to 90 degrees, while the sternocostal part extends the flexed arm by pulling it downwards; in males it is covered by deep fascia, subcutaneous tissue and skin; the tendons of the two heads twist into an anterior (clavicular) and a posterior (sternocostal) lamina. A Kenhub video transcript says the muscle rotates the arm outwards, which conflicts with the written pages; the video is not cited."
+    },
+    {
+      "key": "kenhub.upper_limb_muscles_and_movements",
+      "url": "https://www.kenhub.com/en/library/anatomy/upper-limb-muscles-and-movements",
+      "title": "Kenhub: upper limb muscles and movements",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q2): the clavicular head makes the pectoralis major a flexor of the arm at the shoulder and the sternocostal head an extensor; acting as a unit the muscle is a medial rotator and adductor of the arm."
+    },
+    {
+      "key": "kenhub.shoulder_joint",
+      "url": "https://www.kenhub.com/en/library/anatomy/the-shoulder-joint",
+      "title": "Kenhub: glenohumeral (shoulder) joint",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q56): the prime flexors of the glenohumeral joint are the deltoid (anterior fibres) and the pectoralis major (clavicular fibres); adduction is produced by the pectoralis major, latissimus dorsi and teres major, called the 'climbing muscles' as powerful adductors."
+    },
+    {
+      "key": "kenhub.pectoralis_minor",
+      "url": "https://www.kenhub.com/en/library/anatomy/pectoralis-minor-muscle",
+      "title": "Kenhub: pectoralis minor muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q24, Q31, Q41): lies deep only to the pectoralis major, which is its main front relation and almost completely covers it; from the third to fifth ribs to the coracoid process; protracts the scapula with the serratus anterior, can forcefully depress it, rotates it downward (medially), and with the scapula fixed helps raise ribs three to five in forced breathing. The summaries did not always say which Kenhub page (this one, the scapula page or the shoulder-girdle page) each action came from; innervation was given inconsistently and is not used."
+    },
+    {
+      "key": "kenhub.serratus_anterior",
+      "url": "https://www.kenhub.com/en/library/anatomy/serratus-anterior-muscle",
+      "title": "Kenhub: serratus anterior muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q31, Q35, Q37, Q40): a fan-shaped muscle on the side wall of the thorax whose main part lies deep under the scapula and the pectoral muscles; three parts, superior (ribs 1 to 2 to the superior angle), intermediate and inferior (ribs 4 to 8 or 9 to the medial border and inferior angle), the inferior part the most prominent and powerful; the whole muscle moves the scapula forward and sideways along the ribs and stabilises it; the inferior part's pull lets the arm be raised above 90 degrees; easy to palpate between the pectoralis major and latissimus dorsi, and in athletic bodies may be visible along the ribs underneath the axilla. One summary (Q31) said the superior part pulls the scapula downward; the German Kenhub page (Q35) says the superior part elevates the scapula and lowers the glenoid. Neither is used for an action."
+    },
+    {
+      "key": "kenhub.trapezius",
+      "url": "https://www.kenhub.com/en/library/anatomy/trapezius-muscle",
+      "title": "Kenhub: trapezius muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q31): upward rotation of the scapula is shared between the trapezius and the serratus anterior. Cited only for that statement."
+    },
+    {
+      "key": "elsevier.pectoralis_major",
+      "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb/pectoralis-major-muscle/18194",
+      "title": "Elsevier Complete Anatomy, Quick Facts: pectoralis major",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q3, Q11): adducts, medially rotates and transversely adducts the arm at the shoulder joint; the clavicular head assists flexion of the arm. No extension listed."
+    },
+    {
+      "key": "elsevier.pectoralis_minor",
+      "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb/pectoralis-minor-muscle/21327",
+      "title": "Elsevier Complete Anatomy, Quick Facts: pectoralis minor",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q25): from the anterior ends of the third to fifth ribs to the coracoid process; protracts the shoulder girdle, downwardly rotates it and assists in depressing it; may act as an accessory muscle of inspiration."
+    },
+    {
+      "key": "elsevier.serratus_anterior",
+      "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb/serratus-anterior-muscle/23628",
+      "title": "Elsevier Complete Anatomy, Quick Facts: serratus anterior",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q33, Q37): from the outer surfaces of the first to ninth ribs to the medial border of the scapula; long thoracic nerve (C5 to C7); protracts the shoulder girdle and rotates it upward, and helps stabilise the scapula against the thoracic wall (attributed to Standring 2016); lies superficial to the first eight ribs and external intercostals, deep to the scapula, latissimus dorsi, trapezius and subscapularis, and behind the pectoralis major and minor."
+    },
+    {
+      "key": "imaios.pectoralis_major",
+      "url": "https://www.imaios.cn/en/e-anatomy/anatomical-structures/pectoralis-major-14216284",
+      "title": "IMAIOS e-Anatomy: pectoralis major muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q5, Q55; imaios.cn mirror and imaios.com pages for the muscle and its clavicular head): clavicular head from the front of the medial half of the clavicle, fibres running down and outward, primary action flexion of the humerus, especially from an extended position; sternocostal head from the front of the sternum and the costal cartilages of ribs 1 to 6, primary actions adduction and medial rotation, contributing to extension of a flexed humerus; the whole muscle a powerful adductor and medial rotator; an abdominal part from the external oblique aponeurosis is described separately."
+    },
+    {
+      "key": "imaios.pectoralis_minor",
+      "url": "https://www.imaios.com/en/e-anatomy/anatomical-structures/pectoralis-minor-muscle-1541083656",
+      "title": "IMAIOS e-Anatomy: pectoralis minor muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q41): a thin, triangular muscle in the front wall of the thorax, lying deep to the pectoralis major."
+    },
+    {
+      "key": "imaios.anterior_axillary_fold",
+      "url": "https://www.imaios.com/en/e-anatomy/anatomical-structures/anterior-axillary-fold-1536887752",
+      "title": "IMAIOS e-Anatomy: anterior axillary fold",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q38): the fold is made by the skin of the armpit covering the fibres of the pectoralis major."
+    },
+    {
+      "key": "imaios.serratus_anterior",
+      "url": "https://www.imaios.cn/en/e-anatomy/anatomical-structures/serratus-anterior-14216872",
+      "title": "IMAIOS e-Anatomy: serratus anterior muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q36, imaios.cn mirror): the lower four slips interdigitate with the upper slips of the external oblique."
+    },
+    {
+      "key": "uw.pectoralis_major",
+      "url": "https://rad.uw.edu/muscle-atlas/pectoralis-major",
+      "title": "University of Washington Radiology, Musculoskeletal Atlas: pectoralis major",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q6, Q7; also listed at rad.washington.edu): adducts and medially rotates the humerus and draws the scapula forward and down; acting alone, the upper (clavicular) fibres flex the humerus (bring the arm forward) and the lower (sternocostal) fibres extend it (bring it back); clavicular head from the medial half of the clavicle, sternocostal head from the sternum, the upper six costal cartilages and the external oblique aponeurosis. The page's exact wording is copyright and was seen only as summarised."
+    },
+    {
+      "key": "uw.pectoralis_minor",
+      "url": "https://rad.uw.edu/muscle-atlas/pectoralis-minor",
+      "title": "University of Washington Radiology, Musculoskeletal Atlas: pectoralis minor",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q7, Q26): from the third to fifth ribs near their costal cartilages to the medial border and upper surface of the coracoid process; stabilises the scapula by drawing it down and forward against the thoracic wall."
+    },
+    {
+      "key": "loyola.pectoralis_major",
+      "url": "https://www.meddean.luc.edu/lumen/meded/grossanatomy/dissector/mml/pcmj.htm",
+      "title": "Loyola University Chicago, LUMEN gross anatomy dissector: pectoralis major",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q6, Q60): the clavicular head flexes and adducts the arm; the sternal head adducts and medially rotates it. No extension is listed for either head. Page date not shown."
+    },
+    {
+      "key": "loyola.upper_limb_joint_actions",
+      "url": "https://www.meddean.luc.edu/lumen/meded/grossanatomy/ue/ueaction.html",
+      "title": "Loyola University Chicago, LUMEN: joint actions of the upper limb",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q60): shoulder flexion by the pectoralis major, anterior fibres of the deltoid, coracobrachialis and the long head of the biceps; adduction by the pectoralis major and latissimus dorsi, aided by teres major and subscapularis. Horizontal adduction is not listed as a separate movement."
+    },
+    {
+      "key": "teachmeanatomy.pectoral_region",
+      "url": "https://teachmeanatomy.info/upper-limb/muscles/pectoral-region/",
+      "title": "TeachMeAnatomy: muscles of the pectoral region",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q8, Q27, Q38; with the site's encyclopaedia pages on the pectoralis major and minor, which gave the same facts): the pectoralis major is the most superficial muscle of the pectoral region, fan-shaped, with a clavicular head from the front of the medial clavicle and a sternocostal head from the sternum, the upper six costal cartilages and the external oblique aponeurosis, both attaching at the intertubercular sulcus of the humerus; it adducts and medially rotates the arm and draws the scapula forward and down, and the clavicular head acting alone flexes the arm. The pectoralis minor runs from the third to fifth ribs to the coracoid process and stabilises the scapula by drawing it forward and down against the thoracic wall. The page is inconsistent on whether three or four muscles of the region act on the upper limb."
+    },
+    {
+      "key": "teachmeanatomy.serratus_anterior",
+      "url": "https://teachmeanatomy.info/encyclopaedia/s/serratus-anterior/",
+      "title": "TeachMeAnatomy: serratus anterior",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q8, Q27): from the outer surfaces of ribs 1 to 8 to the costal surface of the medial border of the scapula; rotates the scapula, which lets the arm be raised above 90 degrees, and protracts it, holding it against the ribcage; long thoracic nerve, whose injury weakens the muscle and gives a winged scapula."
+    },
+    {
+      "key": "radiopaedia.pectoralis_major",
+      "url": "https://radiopaedia.org/articles/pectoralis-major",
+      "title": "Radiopaedia: pectoralis major muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q9; seen through the images.radiopaedia.org mirror): a large fan-shaped muscle whose function is to bring the humerus across the chest, adducting and medially rotating it (primary) and flexing it forward (secondary); the clavicular head (pars clavicularis) from the front of the medial half of the clavicle; the sternocostal portion makes up most of the muscle's volume. A direct Radiopaedia search (Q4) returned only case pages."
+    },
+    {
+      "key": "radiopaedia.serratus_anterior",
+      "url": "https://radiopaedia.org/articles/serratus-anterior",
+      "title": "Radiopaedia: serratus anterior muscle",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q37; seen through the images.radiopaedia.org mirror, partial text only): from the lateral surfaces of the first to eighth or ninth ribs to the medial border of the scapula; long thoracic nerve; injury to that nerve in armpit surgery causes winging because the muscle no longer holds the scapula against the chest wall."
+    },
+    {
+      "key": "radiopaedia.poland_syndrome",
+      "url": "https://radiopaedia.org/articles/poland-syndrome",
+      "title": "Radiopaedia: Poland syndrome",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q45; seen through a radiopaedia static-assets mirror, with two case pages): congenital one-sided absence of the pectoralis major and minor; aplasia or hypoplasia of the pectoralis major is the most common finding, with possible involvement of the pectoralis minor, ribs 2 to 5 and the breast or nipple on the same side, and a small hand with brachysyndactyly; a case discussion calls one-sided aplasia of the sternocostal head with a small hand on the same side characteristic, more often in males."
+    },
+    {
+      "key": "radiopaedia.deltopectoral_groove",
+      "url": "https://radiopaedia.org/articles/deltopectoral-groove",
+      "title": "Radiopaedia: deltopectoral groove",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q57): the groove (Mohrenheim's groove) lies between the deltoid and the pectoralis major and carries the cephalic vein. The results did not name the clavicular head as the groove's border; that is inferred from where the head lies."
+    },
+    {
+      "key": "pmc.chest_wall_flaps",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3140231/",
+      "title": "Workhorse Flaps in Chest Wall Reconstruction: The Pectoralis Major, Latissimus Dorsi, and Rectus Abdominis Flaps (PMC3140231)",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q38): the lateral edge of the pectoralis major forms the anterior axillary fold and the front wall of the armpit. Authors, journal and year were not shown."
+    },
+    {
+      "key": "pmc.hypogenic_pectoralis_major",
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11888996/",
+      "title": "Hypogenic Pectoralis Major Muscle Associated With Complete Agenesis of the Pectoralis Minor Muscle: A Cadaveric Case Report (PMC11888996)",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q3, Q29, Q55): its background says the clavicular head helps flex the humerus while the sternocostal head extends it, and that both heads together adduct and medially rotate it. A case report; cited only for that background anatomy. One summary dated it 2024; authors and journal were not shown."
+    },
+    {
+      "key": "pmid.35093733",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35093733/",
+      "title": "Lulic-Kuryllo, Negro, Jiang and Dickerson, Differential regional pectoralis major activation indicates functional diversity in healthy females (Journal of Biomechanics 133:110966, 2022)",
+      "doi": "10.1016/j.jbiomech.2022.110966",
+      "evidenceType": "emg",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q13, Q15, Q21; abstract, the UWSpace accepted manuscript record and the PubMed record): high-density surface EMG of the clavicular, superior sternocostal and middle sternocostal regions in 29 healthy young women, two experiments, ramp-and-hold isometric tasks at several force levels. The middle sternocostal region was 12 to 108 per cent more active than the other two regions in extension, adduction with external rotation and high-elevation internal rotation; in forward and horizontal flexion the three regions were similar at every force level except forward flexion at 25 per cent of maximal force, where the clavicular region was 21 per cent more active than the superior sternocostal region; in low-elevation internal rotation the clavicular and middle sternocostal regions were more active than the superior sternocostal region. Acute isometric activity in women only, not growth."
+    },
+    {
+      "key": "lww.chest_press_angles",
+      "url": "https://journals.lww.com/nsca-jscr/Fulltext/2010/07000/An_Electromyography_Analysis_of_3_Muscles.31.aspx",
+      "title": "Trebs, Brandenburg and Pitney, An electromyography analysis of 3 muscles surrounding the shoulder joint during the performance of a chest press exercise at several angles (Journal of Strength and Conditioning Research 24(7):1925–1930, 2010)",
+      "doi": null,
+      "evidenceType": "emg",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q18, Q20, Q22; abstract as summarised): 15 healthy men pressed at 0, 28, 44 and 56 degrees above horizontal with seven tenths of their one-repetition maximum. Clavicular-head activity was greater at 44 and 56 degrees than flat and at 44 than 28 degrees; sternocostal activity was greater flat than at each incline and greater at 28 and 44 than at 56 degrees; anterior deltoid activity was greater at every incline than flat. The PubMed id was not confirmed (20508462, suggested in a query, is a different study)."
+    },
+    {
+      "key": "pmid.33049982",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33049982/",
+      "title": "Rodríguez-Ridao et al., Effect of Five Bench Inclinations on the Electromyographic Activity of the Pectoralis Major, Anterior Deltoid, and Triceps Brachii during the Bench Press Exercise (International Journal of Environmental Research and Public Health 17(19):7339, 2020)",
+      "doi": null,
+      "evidenceType": "emg",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q17, Q20; abstract; full text at PMC7579505): 30 trained adults pressed at 0, 15, 30, 45 and 60 degrees at six tenths of one-repetition maximum, with EMG of three portions of the pectoralis major, the anterior deltoid and the triceps. The upper portion was most active at 30 degrees; the middle and lower portions at 0 degrees; the anterior deltoid at 60 degrees; above 45 degrees anterior deltoid activation rose and pectoralis major performance fell. The abstract names an upper portion, not the clavicular head. DOI not shown in the results. Full author list not shown."
+    },
+    {
+      "key": "bisp.bench_press_five_shoulder_muscles",
+      "url": "https://www.bisp-surf.de/Record/PU199603106332",
+      "title": "Barnett, Kippers and Turner, Effects of variations of the bench press exercise on the EMG activity of five shoulder muscles (Journal of Strength and Conditioning Research 9(4):222–227, 1995)",
+      "doi": null,
+      "evidenceType": "emg",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q19; library-record abstract, one summary): six male weight trainers pressed at four trunk inclinations and two hand spacings at eight tenths of their maximum. The sternocostal head was more active on a flat bench than on a decline; the clavicular head was no more active on an incline than flat, less active on a decline, and more active with a narrow hand spacing; anterior deltoid activity tended to rise with inclination. The record lists the authors as Kippers, Turner and Barnett; citing papers put Barnett first. PubMed id and DOI not seen."
+    },
+    {
+      "key": "pmid.26749459",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26749459/",
+      "title": "Castelein, Cagnie, Parlevliet and Cools, Serratus anterior or pectoralis minor: Which muscle has the upper hand during protraction exercises? (Manual Therapy 22:158–164, 2016)",
+      "doi": null,
+      "evidenceType": "emg",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q50, Q52, Q54; abstract as summarised twice): 26 healthy subjects performed a wall and a floor (knee) modified push-up plus and a serratus punch, with surface EMG of the serratus anterior and fine-wire EMG of the pectoralis minor. In the serratus punch serratus activity was significantly higher than pectoralis minor activity; in both push-up plus versions the two were comparable; all exercises activated the pectoralis minor at 15 to 29 and the serratus at 15 to 43 per cent of maximal voluntary isometric contraction. A letter to the editor (PubMed 27133020) was not read. DOI not shown."
+    },
+    {
+      "key": "pmid.14977678",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/14977678/",
+      "title": "Ludewig et al., Relative balance of serratus anterior and upper trapezius muscle activity during push-up exercises (American Journal of Sports Medicine, 2004)",
+      "doi": null,
+      "evidenceType": "emg",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q52, Q53; abstract as summarised twice): 30 subjects, healthy or with mild shoulder dysfunction; the standard push-up plus produced the highest serratus activation (up to 123 per cent of a reference contraction) and the lowest upper trapezius to serratus ratios during the plus phase; the wall push-up plus and some phases of other exercises gave higher ratios. Volume, pages and full author list not shown."
+    },
+    {
+      "key": "cureus.pectoralis_minor_variations",
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10617980/",
+      "title": "AlHarbi, Anatomical Variations in the Pectoralis Minor Muscle Origin and Insertion: A Systematic Review (Cureus, 2023)",
+      "doi": null,
+      "evidenceType": "systematic_review",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q4, Q23, Q43; abstract portion only): in some people the pectoralis minor arises from the second, third and fourth ribs and in others from the third and fourth; in some it inserts at the supraspinatus tendon, and other insertion anomalies exist. The journal was read from the PDF's host (assets.cureus.com); volume and article number, and the author's full name, were not shown."
+    },
+    {
+      "key": "ijhs.pectoralis_minor_anomalous_insertion",
+      "url": "https://sciencescholar.us/journal/index.php/ijhs/article/view/12783",
+      "title": "The pooled prevalence estimation of anomalous insertion of pectoralis minor in cadaveric studies (International Journal of Health Sciences)",
+      "doi": null,
+      "evidenceType": "systematic_review",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q43, Q44; abstract as summarised): reported prevalence of anomalous pectoralis minor insertion ranged from 1.5 to 34 per hundred shoulders in cadaveric studies, with a pooled prevalence of 22 (16 to 31) per hundred; the coracohumeral ligament and the supraspinatus are the commonest sites for an aberrant tendon. Authors and year were not shown; a summary linked a 2021 meta-analysis by Asghar and colleagues (Surgical and Radiologic Anatomy 43(5):631–643) to these figures but could not confirm it is the same work."
+    },
+    {
+      "key": "pmid.27757809",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27757809/",
+      "title": "Webb, O'Sullivan, Stokes and Mottram, A novel cadaveric study of the morphometry of the serratus anterior muscle: one part, two parts, three parts, four? (Anatomical Science International)",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q32, Q46; abstract): eight embalmed muscles; textbooks describe one homogeneous muscle of 9 to 10 fascicles from ribs 1 to 8 or 9, earlier studies divided it into one, two or three parts; this study found three divisions: upper (rib 1 and the upper fascicle of rib 2 to the superior angle), middle (lower fascicle of rib 2 and rib 3 along the medial border) and lower (ribs 4 to 8 or 9 to the inferior angle). Year shown as 2018 by one listing; DOI 10.1007/s12565-016-0379-1 read from the Springer URL, not confirmed."
+    },
+    {
+      "key": "gpnotebook.serratus_anterior",
+      "url": "https://gpnotebook.com/pages/musculoskeletal-medicine/serratus-anterior-anatomy/testing",
+      "title": "GPnotebook: serratus anterior, anatomy and testing",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q32, Q36, Q39): the digitations are often seen and felt on the side wall of the chest, particularly in young, athletic subjects, and a wall push or press-up brings them out; the first digitation arises from the first and second ribs; the lowest four digitations interlock with the costal attachments of the external oblique. A clinical reference outside the standard's list; cited only beside Kenhub. Authors not shown."
+    },
+    {
+      "key": "doccheck.serratus_anterior",
+      "url": "https://flexikon.doccheck.com/de/Corpus:Serratus_anterior_muscle",
+      "title": "DocCheck Flexikon: serratus anterior muscle (German)",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q35): the superior part elevates the scapula; the inferior part rotates the scapula outward, enabling elevation of the arm, and is often visible in athletes. An open medical encyclopaedia outside the standard's list; cited only beside Kenhub. Authors not shown."
+    },
+    {
+      "key": "wustl.serratus_anterior",
+      "url": "https://nervesurgery.wustl.edu/?p=8999",
+      "title": "Washington University in St. Louis, Nerve Surgery: serratus anterior",
+      "doi": null,
+      "evidenceType": "anatomy",
+      "retrievedOn": "2026-10-19",
+      "notes": "Checked via web-search results on 19 Oct 2026 (Q34): with the origin fixed, the upper fibres may slightly elevate the scapula and the lower fibres may depress it. Page title only; author and date not shown."
+    }
+  ],
+  "citations": [
+    {
+      "claimId": "chest.pec_major.function",
+      "sourceKey": "kenhub.upper_limb_muscles_and_movements",
+      "query": "Kenhub pectoralis major muscle clavicular head flexes arm sternocostal head extends flexed arm adduction medial rotation (allowed: kenhub.com)",
+      "excerpt": "The clavicular head enables the muscle to act as a flexor (decrease angle between joints) of arm at the shoulder and the sternocostal head enables the muscle to act as an extensor (increase angle between joints). When the whole muscle acts as a unit it acts as a medial rotator and adductor the arm at the shoulder.",
+      "locator": "Shoulder: pectoralis major"
+    },
+    {
+      "claimId": "chest.pec_major.function",
+      "sourceKey": "kenhub.pectoralis_major",
+      "query": "Kenhub pectoralis major muscle clavicular head flexes arm sternocostal head extends flexed arm adduction medial rotation (allowed: kenhub.com)",
+      "excerpt": "Acting independently, the clavicular part helps to flex the extended arm up to 90°, while the sternocostal part facilitates the extension of the flexed arm by pulling it downwards. ... The main function of this chest muscle as a whole is the adduction and internal rotation of the arm in the shoulder joint.",
+      "locator": "Function"
+    },
+    {
+      "claimId": "chest.pec_major.function",
+      "sourceKey": "statpearls.pectoralis_major",
+      "query": "StatPearls Anatomy, Shoulder and Upper Limb, Pectoral Muscles pectoralis major clavicular head sternocostal head function",
+      "excerpt": "Heads and origin: There are 2 heads of the pectoralis major, the clavicular and the sternocostal, which reference their area of origin. Clavicular head: It handles flexion of the arm from an extended position. ... Sternocostal head: Its main work is adduction and medial rotation of the arm, plus extension of a flexed arm.",
+      "locator": "Structure and Function"
+    },
+    {
+      "claimId": "chest.pec_major.function",
+      "sourceKey": "teachmeanatomy.pectoral_region",
+      "query": "TeachMeAnatomy pectoralis major attachments actions clavicular head sternocostal head pectoral region muscles (allowed: teachmeanatomy.info)",
+      "excerpt": "clavicular head from the anterior surface of the medial clavicle; sternocostal head from the sternum, superior six costal cartilages and the external oblique aponeurosis ... the distal attachment of both heads is onto the intertubercular sulcus of the humerus ... adduction and medial rotation of the upper limb ... the clavicular head also acts individually to flex the upper limb",
+      "locator": "Pectoralis major: attachments and actions"
+    },
+    {
+      "claimId": "chest.pec_major.function",
+      "sourceKey": "uw.pectoralis_major",
+      "query": "University of Washington musculoskeletal atlas pectoralis major action acting alone clavicular head flexes humerus sternocostal head extends (allowed: rad.washington.edu, rad.uw.edu)",
+      "excerpt": "The UW Radiology Muscle Atlas entry for pectoralis major says the muscle adducts and medially rotates humerus; draws scapula anteriorly and inferiorly. Its isolated-action note reports that the upper (clavicular) fibers bring the arm forward and the lower (sternocostal) fibers bring it back",
+      "locator": "Origin; Action"
+    },
+    {
+      "claimId": "chest.pec_major.function",
+      "sourceKey": "radiopaedia.pectoralis_major",
+      "query": "radiopaedia pectoralis major article gross anatomy action adducts medially rotates humerus clavicular head flexion",
+      "excerpt": "The function of this muscle is to bring the humerus across the chest, allowing it to adduct and rotate the shoulder medially (primary) as well as forward flexion (secondary).",
+      "locator": "Gross anatomy: action"
+    },
+    {
+      "claimId": "chest.pec_major.function",
+      "sourceKey": "elsevier.pectoralis_major",
+      "query": "pectoralis major horizontal adduction transverse flexion prime mover anatomy clavicular sternocostal fibers (allowed: kenhub.com, ncbi.nlm.nih.gov, physio-pedia.com, elsevier.com, statpearls.com)",
+      "excerpt": "Elsevier lists transverse adduction, meaning adduction of the flexed arm across the body, alongside adduction and medial rotation of the arm (transversely adducts the arm at the glenohumeral (shoulder) joint).",
+      "locator": "Quick Facts: Action"
+    },
+    {
+      "claimId": "chest.pec_major.appearance",
+      "sourceKey": "teachmeanatomy.pectoral_region",
+      "query": "pectoralis major most superficial muscle of the anterior chest wall forms anterior axillary fold deltopectoral groove clavicular head relations breast lies on pectoral fascia (allowed: kenhub.com, radiopaedia.org, ncbi.nlm.nih.gov, elsevier.com, teachmeanatomy.info, imaios.com, imaios.cn)",
+      "excerpt": "The pectoralis major is the most superficial muscle of the pectoral region. It is large and fan-shaped and is made of a clavicular head and a sternal (sternocostal) head (TeachMeAnatomy).",
+      "locator": "Pectoralis major: the most superficial muscle of the pectoral region"
+    },
+    {
+      "claimId": "chest.pec_major.appearance",
+      "sourceKey": "pmc.chest_wall_flaps",
+      "query": "pectoralis major most superficial muscle of the anterior chest wall forms anterior axillary fold deltopectoral groove clavicular head relations breast lies on pectoral fascia (allowed: kenhub.com, radiopaedia.org, ncbi.nlm.nih.gov, elsevier.com, teachmeanatomy.info, imaios.com, imaios.cn)",
+      "excerpt": "Anterior axillary fold: The lateral edge of the muscle forms this fold and the anterior axillary wall (PMC review).",
+      "locator": "Pectoralis major flap: anatomy"
+    },
+    {
+      "claimId": "chest.pec_major.appearance",
+      "sourceKey": "imaios.anterior_axillary_fold",
+      "query": "pectoralis major most superficial muscle of the anterior chest wall forms anterior axillary fold deltopectoral groove clavicular head relations breast lies on pectoral fascia (allowed: kenhub.com, radiopaedia.org, ncbi.nlm.nih.gov, elsevier.com, teachmeanatomy.info, imaios.com, imaios.cn)",
+      "excerpt": "The fold is made by overlying axillary skin covering the muscle fibres (IMAIOS).",
+      "locator": "Definition"
+    },
+    {
+      "claimId": "chest.pec_major.appearance",
+      "sourceKey": "statpearls.pectoralis_major",
+      "query": "pectoralis major most superficial muscle of the anterior chest wall forms anterior axillary fold deltopectoral groove clavicular head relations breast lies on pectoral fascia (allowed: kenhub.com, radiopaedia.org, ncbi.nlm.nih.gov, elsevier.com, teachmeanatomy.info, imaios.com, imaios.cn)",
+      "excerpt": "One source says the muscle sits beneath the breast tissue and forms the anterior wall of the axilla (StatPearls).",
+      "locator": "Structure and Function: beneath the breast tissue"
+    },
+    {
+      "claimId": "chest.pec_major.appearance",
+      "sourceKey": "statpearls.mammary_gland",
+      "query": "StatPearls breast anatomy lies on pectoralis major fascia second to sixth rib extends from sternum to midaxillary line retromammary space (allowed: ncbi.nlm.nih.gov, statpearls.com, kenhub.com, teachmeanatomy.info, radiopaedia.org)",
+      "excerpt": "The StatPearls mammary gland entry says the gland extends vertically from the 2nd to the 6th rib. Horizontally, it spreads from the lateral sternal border to the mid-axillary line. ... One source says the base of the breast lies on the pectoral fascia – a flat sheet of connective tissue associated with the pectoralis major muscle.",
+      "locator": "Structure: extent and base on the pectoral fascia"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.function",
+      "sourceKey": "imaios.pectoralis_major",
+      "query": "IMAIOS clavicular head of pectoralis major function flexion of humerus adduction medial rotation horizontal adduction (allowed: imaios.com, imaios.cn)",
+      "excerpt": "Clavicular head Origin: Anterior surface of the medial half of the clavicle Fibre direction: Inferolateral Primary action: Flexion of the humerus (especially from an extended position)",
+      "locator": "Clavicular head: origin and primary action"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.function",
+      "sourceKey": "statpearls.pectoralis_major",
+      "query": "NBK545241 Pectoral Muscles StatPearls pectoralis major clavicular head flexion sternocostal head extension adduction internal rotation structure and function (allowed: ncbi.nlm.nih.gov, statpearls.com)",
+      "excerpt": "The StatPearls pectoralis major entry describes three functions that depend on which heads are working. Clavicular head causes flexion of the extended arm.",
+      "locator": "Structure and Function: clavicular head"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.function",
+      "sourceKey": "kenhub.pectoralis_major",
+      "query": "Kenhub pectoralis major muscle clavicular head flexes arm sternocostal head extends flexed arm adduction medial rotation (allowed: kenhub.com)",
+      "excerpt": "Acting independently, the clavicular part helps to flex the extended arm up to 90°, while the sternocostal part facilitates the extension of the flexed arm by pulling it downwards.",
+      "locator": "Function: the clavicular part acting independently"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.function",
+      "sourceKey": "kenhub.shoulder_joint",
+      "query": "Kenhub shoulder joint movements prime flexors of the glenohumeral joint deltoid anterior fibers pectoralis major clavicular fibers adductors pectoralis major latissimus (allowed: kenhub.com)",
+      "excerpt": "The prime flexors of the glenohumeral joint are the deltoid (anterior fibers) and pectoralis major (clavicular fibers) muscles.",
+      "locator": "Movements: the prime flexors"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.function",
+      "sourceKey": "uw.pectoralis_major",
+      "query": "Loyola LUMEN pectoralis major action clavicular head flexes humerus sternocostal head extends from flexed position",
+      "excerpt": "The University of Washington Muscle Atlas says that, acting alone, the clavicular head flexes the humerus and the sternocostal head extends it.",
+      "locator": "Action: the upper fibres acting alone"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.function",
+      "sourceKey": "loyola.pectoralis_major",
+      "query": "Loyola LUMEN joint actions of upper limb shoulder horizontal flexion horizontal adduction muscles pectoralis major anterior deltoid (allowed: luc.edu)",
+      "excerpt": "LUMEN's dissector page says the clavicular head flexes and adducts arm, while the sternal head adducts and medially rotates arm.",
+      "locator": "Action: clavicular head"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.function",
+      "sourceKey": "loyola.upper_limb_joint_actions",
+      "query": "Loyola LUMEN joint actions of upper limb shoulder horizontal flexion horizontal adduction muscles pectoralis major anterior deltoid (allowed: luc.edu)",
+      "excerpt": "Flexion (280K) Pectoralis major, Anterior fibers of deltoid, Coracobrachialis, Biceps brachii (long head)",
+      "locator": "Shoulder: flexion"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.function",
+      "sourceKey": "radiopaedia.pectoralis_major",
+      "query": "radiopaedia pectoralis major article gross anatomy action adducts medially rotates humerus clavicular head flexion",
+      "excerpt": "The function of this muscle is to bring the humerus across the chest, allowing it to adduct and rotate the shoulder medially (primary) as well as forward flexion (secondary).",
+      "locator": "Gross anatomy: action of the whole muscle"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.function",
+      "sourceKey": "elsevier.pectoralis_major",
+      "query": "Elsevier Complete Anatomy quick facts clavicular head of pectoralis major action flexes arm (allowed: elsevier.com)",
+      "excerpt": "The Elsevier Complete Anatomy-based quick facts page for pectoralis major says the clavicular head assists in flexing the arm at the shoulder, rather than flexing it on its own. Its listed actions include adduction, medial rotation, and transverse adduction, with flexion assistance credited to the clavicular head specifically (via its clavicular head).",
+      "locator": "Quick Facts: Action"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.appearance",
+      "sourceKey": "imaios.pectoralis_major",
+      "query": "IMAIOS clavicular head of pectoralis major function flexion of humerus adduction medial rotation horizontal adduction (allowed: imaios.com, imaios.cn)",
+      "excerpt": "Clavicular head Origin: Anterior surface of the medial half of the clavicle Fibre direction: Inferolateral",
+      "locator": "Clavicular head: origin and fibre direction"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.appearance",
+      "sourceKey": "teachmeanatomy.pectoral_region",
+      "query": "TeachMeAnatomy pectoralis major attachments actions clavicular head sternocostal head pectoral region muscles (allowed: teachmeanatomy.info)",
+      "excerpt": "Origins: The clavicular head arises from the medial clavicle ... Insertion: Both heads insert onto the humerus at the intertubercular sulcus",
+      "locator": "Pectoralis major: attachments"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.appearance",
+      "sourceKey": "radiopaedia.deltopectoral_groove",
+      "query": "deltopectoral groove between deltoid and clavicular head of pectoralis major cephalic vein infraclavicular fossa anatomy (allowed: radiopaedia.org, kenhub.com, ncbi.nlm.nih.gov, teachmeanatomy.info)",
+      "excerpt": "The groove lies between the deltoid and the pectoralis major, and Radiopaedia also gives it the eponym Mohrenheim's groove",
+      "locator": "Definition"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.selectivity.1",
+      "sourceKey": "lww.chest_press_angles",
+      "query": "\"An Electromyography Analysis of 3 Muscles Surrounding the Shoulder Joint During the Performance of a Chest Press Exercise at Several Angles\" abstract results sternocostal clavicular",
+      "excerpt": "Clavicular head: Activation was higher at steeper angles. It was greater at 44° than at 0°, at 56° than at 0°, and at 44° than at 28° (p values 0.010, 0.013, and 0.003 respectively).",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.selectivity.1",
+      "sourceKey": "pmid.33049982",
+      "query": "Rodríguez-Ridao 2020 five bench inclinations pectoralis major clavicular upper portion EMG 30 degrees results abstract",
+      "excerpt": "The maximal EMG activity for PMUP occurred at a bench inclination of 30°. The authors concluded that an inclination of 30° produces greater activation of the upper portion of the pectoralis major. ... Inclinations greater than 45° produce significantly higher activation of the anterior deltoid and decrease the muscular performance of the pectoralis major.",
+      "locator": "Abstract: Results and Conclusions"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.selectivity.1",
+      "sourceKey": "bisp.bench_press_five_shoulder_muscles",
+      "query": "Barnett Kippers Turner 1995 effects of variations of the bench press exercise on the EMG activity of five shoulder muscles sternocostal clavicular decline incline",
+      "excerpt": "The clavicular head of the pectoralis major was no more active during the incline bench press than during the horizontal one, but it was less active during the decline bench press. ... Six male weight trainers performed presses under four conditions of trunk inclination and two of hand spacing at 80% of their predetermined max.",
+      "locator": "Abstract"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.selectivity.2",
+      "sourceKey": "pmid.35093733",
+      "query": "regional activation pectoralis major clavicular sternocostal costal regions isometric shoulder tasks flexion extension adduction surface EMG study",
+      "excerpt": "(Lastly, in forward and horizontal flexion, all three regions activated similarly irrespective of the force level, except at 25% MVF in forward flexion, where the clavicular region activated 21% more than the superior sternocostal region.)",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "chest.pec_major_clavicular.selectivity.2",
+      "sourceKey": "pmid.35093733",
+      "query": "\"regional pectoralis major activation\" females Journal of Biomechanics 2022 110966 PMID (allowed: pubmed.ncbi.nlm.nih.gov, sciencedirect.com)",
+      "excerpt": "Lulic-Kuryllo, Negro, Jiang, and Dickerson, \"Differential regional pectoralis major activation indicates functional diversity in healthy females,\" Journal of Biomechanics 2022, vol. 133, article 110966. Its PMID is 35093733 ... In forward and horizontal flexion, the three regions were largely similar, with one exception in forward flexion at 25% MVF (where the clavicular region activated 21% more than the superior sternocostal region).",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.function",
+      "sourceKey": "statpearls.pectoralis_major",
+      "query": "StatPearls Anatomy, Shoulder and Upper Limb, Pectoral Muscles pectoralis major clavicular head sternocostal head function",
+      "excerpt": "Sternocostal head: Its main work is adduction and medial rotation of the arm, plus extension of a flexed arm. Its innervation is listed as C6 to C8 and T1. Caveat: StatPearls' function list says \"Sternoclavicular head\" where it means the sternocostal head.",
+      "locator": "Structure and Function: sternocostal head"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.function",
+      "sourceKey": "imaios.pectoralis_major",
+      "query": "IMAIOS e-Anatomy sternocostal head of pectoralis major function extension of flexed arm",
+      "excerpt": "IMAIOS (main pectoralis major page): The sternocostal head's listed primary actions are adduction and medial rotation, and it contributes to extension of a flexed humerus. Origin: Anterior sternum and costal cartilages of ribs 1-6.",
+      "locator": "Sternocostal head: origin, primary actions and contribution to extension"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.function",
+      "sourceKey": "kenhub.pectoralis_major",
+      "query": "Kenhub pectoralis major muscle clavicular head flexes arm sternocostal head extends flexed arm adduction medial rotation (allowed: kenhub.com)",
+      "excerpt": "Acting independently, the clavicular part helps to flex the extended arm up to 90°, while the sternocostal part facilitates the extension of the flexed arm by pulling it downwards.",
+      "locator": "Function: the sternocostal part acting independently"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.function",
+      "sourceKey": "uw.pectoralis_major",
+      "query": "University of Washington musculoskeletal atlas pectoralis major action acting alone clavicular head flexes humerus sternocostal head extends (allowed: rad.washington.edu, rad.uw.edu)",
+      "excerpt": "Its isolated-action note reports that the upper (clavicular) fibers bring the arm forward and the lower (sternocostal) fibers bring it back ... the sternocostal head starts on the sternum, the upper six costal cartilages, and the external oblique aponeurosis.",
+      "locator": "Origin; Action: the lower fibres acting alone"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.function",
+      "sourceKey": "pmc.hypogenic_pectoralis_major",
+      "query": "IMAIOS clavicular head of pectoralis major function flexion of humerus adduction medial rotation horizontal adduction (allowed: imaios.com, imaios.cn)",
+      "excerpt": "The clavicular head helps flex the humerus, while the sternocostal head extends the humerus. When both heads of the PM muscle work together, they cause adduction and medial rotation of the humerus",
+      "locator": "Background anatomy"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.function",
+      "sourceKey": "radiopaedia.pectoralis_major",
+      "query": "radiopaedia pectoralis major article gross anatomy action adducts medially rotates humerus clavicular head flexion",
+      "excerpt": "The function of this muscle is to bring the humerus across the chest, allowing it to adduct and rotate the shoulder medially (primary) as well as forward flexion (secondary). ... The sternocostal portion makes up most of the muscle's volume.",
+      "locator": "Gross anatomy: the sternocostal portion; action of the whole muscle"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.function",
+      "sourceKey": "loyola.pectoralis_major",
+      "query": "Loyola LUMEN pectoralis major action clavicular head flexes humerus sternocostal head extends from flexed position",
+      "excerpt": "The Loyola LUMEN entry lists the clavicular head as flexing and adducting the arm, and the sternal head as adducting and medially rotating it. It does not mention extension for either head.",
+      "locator": "Action: sternal head"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.function",
+      "sourceKey": "elsevier.pectoralis_major",
+      "query": "Elsevier Complete Anatomy quick facts clavicular head of pectoralis major action flexes arm (allowed: elsevier.com)",
+      "excerpt": "Its listed actions include adduction, medial rotation, and transverse adduction, with flexion assistance credited to the clavicular head specifically (via its clavicular head).",
+      "locator": "Quick Facts: Action"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.appearance",
+      "sourceKey": "radiopaedia.pectoralis_major",
+      "query": "radiopaedia pectoralis major article gross anatomy action adducts medially rotates humerus clavicular head flexion",
+      "excerpt": "The sternocostal portion makes up most of the muscle's volume.",
+      "locator": "Gross anatomy: the sternocostal portion is most of the muscle"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.appearance",
+      "sourceKey": "teachmeanatomy.pectoral_region",
+      "query": "TeachMeAnatomy pectoralis major attachments actions clavicular head sternocostal head pectoral region muscles (allowed: teachmeanatomy.info)",
+      "excerpt": "the sternocostal head arises from the sternum, the upper six costal cartilages, and the external oblique aponeurosis",
+      "locator": "Pectoralis major: attachments"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.appearance",
+      "sourceKey": "pmc.chest_wall_flaps",
+      "query": "pectoralis major most superficial muscle of the anterior chest wall forms anterior axillary fold deltopectoral groove clavicular head relations breast lies on pectoral fascia (allowed: kenhub.com, radiopaedia.org, ncbi.nlm.nih.gov, elsevier.com, teachmeanatomy.info, imaios.com, imaios.cn)",
+      "excerpt": "Anterior axillary fold: The lateral edge of the muscle forms this fold and the anterior axillary wall (PMC review).",
+      "locator": "Pectoralis major flap: anatomy"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.appearance",
+      "sourceKey": "statpearls.mammary_gland",
+      "query": "StatPearls breast anatomy lies on pectoralis major fascia second to sixth rib extends from sternum to midaxillary line retromammary space (allowed: ncbi.nlm.nih.gov, statpearls.com, kenhub.com, teachmeanatomy.info, radiopaedia.org)",
+      "excerpt": "The StatPearls mammary gland entry says the gland extends vertically from the 2nd to the 6th rib. ... One source says the base of the breast lies on the pectoral fascia – a flat sheet of connective tissue associated with the pectoralis major muscle.",
+      "locator": "Structure: extent and base on the pectoral fascia"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.appearance",
+      "sourceKey": "statpearls.pectoralis_major",
+      "query": "pectoralis major most superficial muscle of the anterior chest wall forms anterior axillary fold deltopectoral groove clavicular head relations breast lies on pectoral fascia (allowed: kenhub.com, radiopaedia.org, ncbi.nlm.nih.gov, elsevier.com, teachmeanatomy.info, imaios.com, imaios.cn)",
+      "excerpt": "One source says the muscle sits beneath the breast tissue and forms the anterior wall of the axilla (StatPearls).",
+      "locator": "Structure and Function: beneath the breast tissue"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.selectivity.1",
+      "sourceKey": "lww.chest_press_angles",
+      "query": "\"An Electromyography Analysis of 3 Muscles Surrounding the Shoulder Joint During the Performance of a Chest Press Exercise at Several Angles\" abstract results sternocostal clavicular",
+      "excerpt": "Sternocostal head: Activation was higher at the flatter positions. It was greater at 0° than at each of the inclined angles, and also greater at 28° and 44° than at 56° (the reported p values range from 0.001 to 0.018).",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.selectivity.1",
+      "sourceKey": "lww.chest_press_angles",
+      "query": "pubmed 20508462 Trebs chest press angles clavicular head pectoralis major anterior deltoid abstract (allowed: pubmed.ncbi.nlm.nih.gov, ncbi.nlm.nih.gov, journals.lww.com)",
+      "excerpt": "Its reported findings were that sternocostal pectoralis major activation was significantly greater at 0° than at 28°, 44°, and 56°, while anterior deltoid activation was significantly greater at 28°, 44°, and 56° than at 0°.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.selectivity.1",
+      "sourceKey": "pmid.33049982",
+      "query": "Rodríguez-Ridao 2020 five bench inclinations pectoralis major clavicular upper portion EMG 30 degrees results abstract",
+      "excerpt": "PMMP and PMLP showed higher EMG activity at a 0° bench inclination.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.selectivity.1",
+      "sourceKey": "bisp.bench_press_five_shoulder_muscles",
+      "query": "Barnett Kippers Turner 1995 effects of variations of the bench press exercise on the EMG activity of five shoulder muscles sternocostal clavicular decline incline",
+      "excerpt": "The sternocostal head of the pectoralis major was more active during the press from a horizontal bench than from a decline bench.",
+      "locator": "Abstract"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.selectivity.2",
+      "sourceKey": "pmid.35093733",
+      "query": "regional activation pectoralis major clavicular sternocostal costal regions isometric shoulder tasks flexion extension adduction surface EMG study",
+      "excerpt": "(The middle sternocostal region activated 12-108% more than the clavicular and the superior sternocostal region in extension, adduction with external rotation, and high elevation internal rotation.) ... (The present findings indicate that the performance of isometric tasks in different directions activates different pectoralis major regions in healthy females, suggesting regional specificity to functional actions.)",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.selectivity.2",
+      "sourceKey": "pmid.35093733",
+      "query": "Lulic-Kuryllo Negro Jiang Dickerson 2022 \"Differential regional pectoralis major activation indicates functional diversity in healthy females\" journal PubMed",
+      "excerpt": "They examined regional pectoralis major activation in twenty-nine healthy young females across two independent experiments. ... The middle sternocostal region was most active in extension, adduction with external rotation, and high-elevation internal rotation. It activated 12-108% more than the clavicular and superior sternocostal regions in those tasks.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.variation.1",
+      "sourceKey": "statpearls.poland_syndrome",
+      "query": "StatPearls Poland syndrome absence of sternocostal head of pectoralis major unilateral congenital incidence (allowed: ncbi.nlm.nih.gov, statpearls.com, radiopaedia.org)",
+      "excerpt": "StatPearls definition: The entry describes Poland syndrome as a set of anomalies that includes absence of the sternocostal head of the pectoralis major, often with pectoralis minor problems and syndactyly. Defects are overwhelmingly unilateral and more commonly affect the right side.",
+      "locator": "Introduction"
+    },
+    {
+      "claimId": "chest.pec_major_sternocostal.variation.1",
+      "sourceKey": "radiopaedia.poland_syndrome",
+      "query": "radiopaedia Poland syndrome absence sternocostal head pectoralis major hypoplasia unilateral (allowed: radiopaedia.org)",
+      "excerpt": "Its clinical list includes aplasia or hypoplasia of the pectoralis major (most common), pectoralis minor, ipsilateral 2nd to 5th ribs, and the ipsilateral breast or nipple. Upper limb findings include a small hand and brachysyndactyly. ... the combination of unilateral aplasia of the sternocostal head of musculus pectoralis major and ipsilateral hypoplastic hand is characteristic of this condition, which occurs more often in males",
+      "locator": "Clinical presentation; case discussion"
+    },
+    {
+      "claimId": "chest.pec_minor.function",
+      "sourceKey": "statpearls.pectoral_muscles",
+      "query": "\"Pectoralis Minor\" StatPearls NCBI Bookshelf anatomy thorax function scapular stabilization (allowed: ncbi.nlm.nih.gov, statpearls.com)",
+      "excerpt": "It describes the pectoralis minor as thinner and triangular, sitting beneath the pectoralis major, and says it originates from the margins of the third to fifth ribs adjacent to the costochondral junction, with fibers heading upward and laterally to insert on the medial border and superior surface of the coracoid process. Its role in scapular stabilization is described as crucial, pulling the scapula downward and anteriorly against the thoracic wall.",
+      "locator": "Structure and Function: pectoralis minor"
+    },
+    {
+      "claimId": "chest.pec_minor.function",
+      "sourceKey": "statpearls.thorax_muscles",
+      "query": "\"Pectoralis Minor\" StatPearls NCBI Bookshelf anatomy thorax function scapular stabilization (allowed: ncbi.nlm.nih.gov, statpearls.com)",
+      "excerpt": "Thorax muscles article: The muscle primarily depresses the shoulder and protracts the scapula. It may also assist inspiration by elevating the third, fourth, and fifth ribs.",
+      "locator": "Pectoralis minor"
+    },
+    {
+      "claimId": "chest.pec_minor.function",
+      "sourceKey": "kenhub.pectoralis_minor",
+      "query": "Kenhub pectoralis minor muscle function protraction depression downward rotation scapula accessory muscle of respiration lies deep to pectoralis major (allowed: kenhub.com)",
+      "excerpt": "Kenhub's scapula pages credit the muscle with protracting the scapula, alongside the serratus anterior. ... Kenhub says the muscle can forcefully depress the scapula when needed, and lists it among the active internal rotators. Another page calls its downward rotation a medial or downward rotation of the scapula, with the inferior angle moving medially. ... When the scapula is fixed, Kenhub says it can help raise ribs 3-5 during inspiration, which is most relevant during deep, forced breathing.",
+      "locator": "Function"
+    },
+    {
+      "claimId": "chest.pec_minor.function",
+      "sourceKey": "elsevier.pectoralis_minor",
+      "query": "Elsevier Complete Anatomy pectoralis minor muscle quick facts action draws scapula anteriorly inferiorly (allowed: elsevier.com)",
+      "excerpt": "The entry says the muscle protracts the shoulder girdle at the acromioclavicular and sternoclavicular joints, and that it also downwardly rotates the girdle and assists in depressing it ... the muscle originates from the anterior ends of the third to fifth ribs and inserts on the coracoid process of scapula. The entry also notes that it may act as an accessory muscle of inspiration.",
+      "locator": "Quick Facts: Origin, Insertion and Action"
+    },
+    {
+      "claimId": "chest.pec_minor.function",
+      "sourceKey": "uw.pectoralis_minor",
+      "query": "UW Radiology muscle atlas pectoralis minor origin insertion action depresses point of shoulder protracts scapula (allowed: rad.uw.edu, rad.washington.edu)",
+      "excerpt": "lists the origin as 3rd to 5th ribs near their costal cartilages, and the insertion as medial border and superior surface of coracoid process of scapula. ... Stabilizes scapula by drawing it inferiorly and anteriorly against thoracic wall is the atlas's own phrasing.",
+      "locator": "Origin; Insertion; Action"
+    },
+    {
+      "claimId": "chest.pec_minor.function",
+      "sourceKey": "teachmeanatomy.pectoral_region",
+      "query": "TeachMeAnatomy pectoralis minor actions stabilises scapula drawing it anteroinferiorly against thoracic wall serratus anterior actions rotates scapula (allowed: teachmeanatomy.info)",
+      "excerpt": "Function: Stabilises the scapula by drawing it anteroinferiorly against the thoracic wall. It originates from the 3rd to 5th ribs and inserts on the coracoid process",
+      "locator": "Pectoralis minor: attachments and function"
+    },
+    {
+      "claimId": "chest.pec_minor.appearance",
+      "sourceKey": "kenhub.pectoralis_minor",
+      "query": "Kenhub pectoralis minor lies deep to pectoralis major thin triangular muscle not palpable relations clavipectoral fascia axillary artery (allowed: kenhub.com, radiopaedia.org, teachmeanatomy.info, imaios.com)",
+      "excerpt": "The main anterior relation is the pectoralis major muscle, found superficial to the pectoralis minor and almost completely covering it.",
+      "locator": "Relations: covered by the pectoralis major"
+    },
+    {
+      "claimId": "chest.pec_minor.appearance",
+      "sourceKey": "imaios.pectoralis_minor",
+      "query": "Kenhub pectoralis minor lies deep to pectoralis major thin triangular muscle not palpable relations clavipectoral fascia axillary artery (allowed: kenhub.com, radiopaedia.org, teachmeanatomy.info, imaios.com)",
+      "excerpt": "The pectoralis minor is a thin, triangular muscle located in the anterior thoracic wall, lying deep to the pectoralis major muscle.",
+      "locator": "Description"
+    },
+    {
+      "claimId": "chest.pec_minor.selectivity.1",
+      "sourceKey": "pmid.26749459",
+      "query": "\"pectoralis minor\" \"serratus punch\" optimal exercise maximum activation serratus anterior minimal activation pectoralis minor Manual Therapy 2016 (allowed: sciencedirect.com, pubmed.ncbi.nlm.nih.gov, biblio.ugent.be, europepmc.org)",
+      "excerpt": "26 subjects performed 3 exercises: Modified Push-Up Plus (Wall Version), Modified Knee Push-Up Plus (Floor version) and Serratus Punch. Electromyographic (EMG) data was collected from the SA (surface) and PM (fine-wire EMG). ... During the Serratus Punch the SA activity was significantly higher than the PM activity. During the Modified Push-Up Plus exercises (both Wall and Floor version), the SA and PM activity were comparable. ... All exercises activated the PM between 15 and 29% Maximum Voluntary Isometric Contraction and the SA between 15 and 43%.",
+      "locator": "Abstract: Results and Conclusions"
+    },
+    {
+      "claimId": "chest.pec_minor.selectivity.1",
+      "sourceKey": "pmid.26749459",
+      "query": "\"Serratus anterior or pectoralis minor\" protraction exercises pubmed (allowed: pubmed.ncbi.nlm.nih.gov, sciencedirect.com, biblio.ugent.be)",
+      "excerpt": "Its lab study had 26 subjects perform three exercises while recording serratus anterior (surface EMG) and pectoralis minor (fine-wire EMG). ... The two Modified Push-Up Plus variants, against a wall and on the floor, activated the SA and PM to a similar degree.",
+      "locator": "Abstract: Results and Conclusions"
+    },
+    {
+      "claimId": "chest.pec_minor.variation.1",
+      "sourceKey": "cureus.pectoralis_minor_variations",
+      "query": "Anatomical Variations in the Pectoralis Minor Muscle Origin and Insertion: A Systematic Review results ribs 2 to 5 origin coracoid insertion variants prevalence",
+      "excerpt": "(in some individuals, the pectoralis minor muscles have their origins in the second, third, and fourth ribs, even as others have their origin in the third and fourth ribs) ... The abstract notes that in some people the muscle inserts at the supraspinatus tendon, and that other insertion anomalies also exist (the insertion of the pectoralis minor muscle occurs at the supraspinatus tendon).",
+      "locator": "Abstract"
+    },
+    {
+      "claimId": "chest.pec_minor.variation.1",
+      "sourceKey": "ijhs.pectoralis_minor_anomalous_insertion",
+      "query": "Surgical and Radiologic Anatomy 2020 s00276-020-02610-8 pectoralis minor meta-analysis cadaveric studies costal attachment ectopic insertion coracohumeral ligament",
+      "excerpt": "The prevalence of anomalous insertion of pectoralis minor was reported to be 1.5-34% (per hundred shoulders in cadaveric dissection in exiting literatures, but its pooled prevalence was 22% (16-31%) (Per hundred shoulders). ... In the literature, the Coracohumeral ligament and the Supraspinatus are two more common locations for the implantation of aberrant tendons.",
+      "locator": "Abstract: pooled prevalence"
+    },
+    {
+      "claimId": "chest.serratus_anterior.function",
+      "sourceKey": "statpearls.serratus_anterior",
+      "query": "NBK531457 serratus anterior structure and function digitations ribs 1 to 8 medial border scapula inferior angle upward rotation protraction",
+      "excerpt": "StatPearls describes the muscle as fan-shaped, arising from the outer surfaces of the upper ribs and inserting along the superior angle, medial border, and inferior angle of the scapula. ... The StatPearls record says the muscle pulls the scapula forward around the thorax, which allows for anteversion and protraction of the arm. It also notes that the serratus anterior acts with the upper and lower fibers of the trapezius to sustain upward rotation of the scapula, which allows for overhead lifting.",
+      "locator": "Structure and Function"
+    },
+    {
+      "claimId": "chest.serratus_anterior.function",
+      "sourceKey": "statpearls.serratus_anterior",
+      "query": "StatPearls Anatomy, Thorax, Serratus Anterior Muscles function protraction upward rotation scapula long thoracic nerve winged scapula (allowed: ncbi.nlm.nih.gov, statpearls.com)",
+      "excerpt": "(The serratus anterior works in conjunction with the trapezius muscle to allow for sustained upward rotation of the scapula, which is essential for overhead lifting.)",
+      "locator": "Structure and Function"
+    },
+    {
+      "claimId": "chest.serratus_anterior.function",
+      "sourceKey": "kenhub.serratus_anterior",
+      "query": "Kenhub serratus anterior \"superior part\" lowers raised arm \"inferior part\" raise arm above 90 degrees function key facts",
+      "excerpt": "Kenhub (English): The three parts are the superior (ribs 1–2 to the superior angle), intermediate, and inferior (ribs 4–8/9 to the medial border and inferior angle). The inferior part is the most prominent and powerful one. The pull of the inferior part on the lower scapula shifts the shoulder joint superiorly.",
+      "locator": "Origin, insertion and function"
+    },
+    {
+      "claimId": "chest.serratus_anterior.function",
+      "sourceKey": "kenhub.serratus_anterior",
+      "query": "Kenhub serratus anterior muscle superior intermediate inferior parts function protraction upward rotation depression scapula holds scapula against thoracic wall (allowed: kenhub.com)",
+      "excerpt": "Kenhub's serratus page says the whole muscle moves the scapula forward and sideways along the ribs. ... Kenhub's serratus page says the inferior part's pull at the lower scapula lets the arm be raised above 90°.",
+      "locator": "Origin, insertion and function"
+    },
+    {
+      "claimId": "chest.serratus_anterior.function",
+      "sourceKey": "kenhub.serratus_anterior",
+      "query": "serratus anterior muscle relations deep to pectoral muscles scapula subscapularis superficial part lateral thoracic wall radiopaedia OR imaios OR kenhub",
+      "excerpt": "(The serratus anterior muscle is a fan-shaped muscle at the lateral wall of the thorax. Its main part lies deep under the scapula and the pectoral muscles.)",
+      "locator": "Overview"
+    },
+    {
+      "claimId": "chest.serratus_anterior.function",
+      "sourceKey": "elsevier.serratus_anterior",
+      "query": "Elsevier Complete Anatomy serratus anterior quick facts action protracts rotates scapula holds against thoracic wall (allowed: elsevier.com)",
+      "excerpt": "Its origin is the outer surfaces of the first through ninth ribs, and it inserts on the medial border of the scapula. Innervation is by the long thoracic nerve (C5-C7). Its main actions are moving the shoulder girdle forward and rotating it upward at the acromioclavicular and sternoclavicular joints. The same page adds a third role, helping stabilize the scapula against the thoracic wall, which it attributes to Standring (2016).",
+      "locator": "Quick Facts: Origin, Insertion and Action"
+    },
+    {
+      "claimId": "chest.serratus_anterior.function",
+      "sourceKey": "teachmeanatomy.serratus_anterior",
+      "query": "TeachMeAnatomy pectoralis minor actions stabilises scapula drawing it anteroinferiorly against thoracic wall serratus anterior actions rotates scapula (allowed: teachmeanatomy.info)",
+      "excerpt": "The serratus anterior rotates the scapula, enabling the arm to be raised above 90 degrees. ... Additionally, it protracts the scapula, securing it against the ribcage during movement. ... Damage to the long thoracic nerve can result in weakness of the serratus anterior, producing a characteristic \"winged scapula\" appearance.",
+      "locator": "Function; clinical relevance"
+    },
+    {
+      "claimId": "chest.serratus_anterior.function",
+      "sourceKey": "radiopaedia.serratus_anterior",
+      "query": "serratus anterior muscle relations deep to pectoral muscles scapula subscapularis superficial part lateral thoracic wall radiopaedia OR imaios OR kenhub",
+      "excerpt": "Its origin is the lateral surface of the 1st to 8th or 9th ribs, with insertion on the medial border of the scapula, and innervation by the long thoracic nerve. ... Radiopaedia notes that injury to the long thoracic nerve during axillary surgery causes winging of the scapula as serratus anterior no longer holds the scapula against the chest wall.",
+      "locator": "Gross anatomy; related pathology"
+    },
+    {
+      "claimId": "chest.serratus_anterior.function",
+      "sourceKey": "statpearls.scapular_winging",
+      "query": "StatPearls Anatomy, Thorax, Serratus Anterior Muscles function protraction upward rotation scapula long thoracic nerve winged scapula (allowed: ncbi.nlm.nih.gov, statpearls.com)",
+      "excerpt": "Paralysis from long thoracic nerve damage produces the winging. Medial scapular winging typically results from weakness of the serratus anterior muscle, often caused by injury to the long thoracic nerve.",
+      "locator": "Etiology"
+    },
+    {
+      "claimId": "chest.serratus_anterior.function",
+      "sourceKey": "kenhub.trapezius",
+      "query": "Kenhub serratus anterior muscle superior intermediate inferior parts function protraction upward rotation depression scapula holds scapula against thoracic wall (allowed: kenhub.com)",
+      "excerpt": "The Kenhub trapezius page says upward rotation is shared between the trapezius and the serratus anterior.",
+      "locator": "Function: upward rotation shared with the serratus anterior"
+    },
+    {
+      "claimId": "chest.serratus_anterior.function",
+      "sourceKey": "pmid.27757809",
+      "query": "\"A novel cadaveric study of the morphometry of the serratus anterior muscle\" one part two parts three parts four results number of digitations",
+      "excerpt": "They identified three subdivisions of the serratus anterior: an upper division (rib 1 and rib 2 superior fascicles to the superior scapular angle), a middle division (rib 2 inferior and rib 3 fascicles along the medial scapular border), and a lower division (ribs 4–8/9 to the inferior angle).",
+      "locator": "Abstract: three divisions"
+    },
+    {
+      "claimId": "chest.serratus_anterior.function",
+      "sourceKey": "wustl.serratus_anterior",
+      "query": "serratus anterior lower fibres depress scapula upper fibres elevate kinesiology which part depression of scapula",
+      "excerpt": "The WUSTL nerve surgery reference treats depression as a \"may\" action: with the origin fixed, the upper fibres may slightly elevate the scapula and the lower fibres may depress it (Upper fibers may slightly elevate the scapula. Lower fibers may depress the scapula.).",
+      "locator": "Action"
+    },
+    {
+      "claimId": "chest.serratus_anterior.appearance",
+      "sourceKey": "kenhub.serratus_anterior",
+      "query": "serratus anterior easy to palpate between pectoralis major and latissimus dorsi visible to the naked eye along the ribs underneath the axilla (allowed: kenhub.com)",
+      "excerpt": "(It is easy to palpate between the pectoralis major and latissimus dorsi muscles.) ... (In athletic bodies the muscle may be even visible to the naked eye along the ribs underneath the axilla.) ... (The serratus anterior muscle is a fan-shaped muscle at the lateral wall of the thorax. Its main part lies deep under the scapula and the pectoral muscles.)",
+      "locator": "Overview; palpation"
+    },
+    {
+      "claimId": "chest.serratus_anterior.appearance",
+      "sourceKey": "elsevier.serratus_anterior",
+      "query": "serratus anterior muscle relations deep to pectoral muscles scapula subscapularis superficial part lateral thoracic wall radiopaedia OR imaios OR kenhub",
+      "excerpt": "It is located: superficial to the first eight ribs and the external intercostal muscles; deep to the scapula, the latissimus dorsi, trapezius, and subscapularis muscles, and the long thoracic nerve; posterior to the pectoralis major and minor muscles.",
+      "locator": "Relations"
+    },
+    {
+      "claimId": "chest.serratus_anterior.appearance",
+      "sourceKey": "gpnotebook.serratus_anterior",
+      "query": "serratus anterior visible in athletes \"boxer's muscle\" lower digitations surface anatomy lateral chest wall below axilla",
+      "excerpt": "The digitations of the muscle are often seen and felt against the lateral thoracic wall, particularly in young, athletic subjects.",
+      "locator": "Testing"
+    },
+    {
+      "claimId": "chest.serratus_anterior.appearance",
+      "sourceKey": "imaios.serratus_anterior",
+      "query": "serratus anterior surface anatomy visible lateral chest wall digitations interdigitate external oblique lean individuals covered by pectoralis major latissimus dorsi scapula",
+      "excerpt": "The lowest four digitations are interrupted by the costal attachments of the external oblique muscle of the abdomen. IMAIOS describes this as the lower four slips interdigitating with the upper slips of the external oblique",
+      "locator": "Description: slips interlocking with the external oblique"
+    },
+    {
+      "claimId": "chest.serratus_anterior.appearance",
+      "sourceKey": "doccheck.serratus_anterior",
+      "query": "Kenhub serratus anterior \"superior part\" lowers raised arm \"inferior part\" raise arm above 90 degrees function key facts",
+      "excerpt": "The DocCheck Flexikon agrees that the superior part elevates the scapula and that the inferior part rotates the scapula laterally and enables arm elevation. This part is often visible in athletes and is responsible for rotating the scapula laterally and enabling the elevation of the arm.",
+      "locator": "Pars inferior"
+    },
+    {
+      "claimId": "chest.serratus_anterior.selectivity.1",
+      "sourceKey": "pmid.26749459",
+      "query": "\"pectoralis minor\" \"serratus punch\" optimal exercise maximum activation serratus anterior minimal activation pectoralis minor Manual Therapy 2016 (allowed: sciencedirect.com, pubmed.ncbi.nlm.nih.gov, biblio.ugent.be, europepmc.org)",
+      "excerpt": "During the Serratus Punch the SA activity was significantly higher than the PM activity. During the Modified Push-Up Plus exercises (both Wall and Floor version), the SA and PM activity were comparable. ... All exercises activated the PM between 15 and 29% Maximum Voluntary Isometric Contraction and the SA between 15 and 43%.",
+      "locator": "Abstract: Results and Conclusions"
+    },
+    {
+      "claimId": "chest.serratus_anterior.selectivity.1",
+      "sourceKey": "pmid.26749459",
+      "query": "\"Serratus anterior or pectoralis minor\" protraction exercises pubmed (allowed: pubmed.ncbi.nlm.nih.gov, sciencedirect.com, biblio.ugent.be)",
+      "excerpt": "When maximum activation of the SA with minimal activation of the PM is desired in healthy subjects, the \"Serratus punch\" seems to be the optimal exercise. The two Modified Push-Up Plus variants, against a wall and on the floor, activated the SA and PM to a similar degree. The authors also note that the pectoralis minor is a synergist of the serratus anterior",
+      "locator": "Abstract: Results and Conclusions"
+    },
+    {
+      "claimId": "chest.serratus_anterior.selectivity.2",
+      "sourceKey": "pmid.14977678",
+      "query": "Ludewig 2004 relative balance of serratus anterior and upper trapezius muscle activity during push-up exercises abstract results push-up plus",
+      "excerpt": "Its abstract reports that the standard push-up plus produced the strongest serratus anterior activation and the lowest upper trapezius-to-serratus ratio during the plus phase. In the study's 30 subjects, both healthy participants and those with mild shoulder dysfunction responded similarly across exercises.",
+      "locator": "Abstract: Results"
+    },
+    {
+      "claimId": "chest.serratus_anterior.selectivity.2",
+      "sourceKey": "pmid.14977678",
+      "query": "pubmed 26749459 Castelein serratus punch modified push-up plus wall floor pectoralis minor fine-wire 26 healthy subjects results",
+      "excerpt": "A 2004 study in the American Journal of Sports Medicine on healthy and mildly symptomatic subjects found that the standard push-up plus demonstrated the highest activation of the serratus (to 123%) and lowest trapezius/serratus ratios (<0.2) during plus phases.",
+      "locator": "Abstract: Results"
+    }
+  ],
+  "deviations": [
+    {
+      "id": "D1",
+      "row": "chest.serratus_anterior",
+      "field": "layer",
+      "section12": "surface (no outcrop note)",
+      "evidence": [
+        "kenhub.serratus_anterior (Q37, Q40): 'Its main part lies deep under the scapula and the pectoral muscles.'",
+        "elsevier.serratus_anterior (Q37): 'deep to the scapula, the latissimus dorsi, trapezius, and subscapularis muscles ... posterior to the pectoralis major and minor muscles.'",
+        "kenhub.serratus_anterior, gpnotebook.serratus_anterior, doccheck.serratus_anterior (Q39, Q40, Q35): the lower slips lie between the pectoralis major and the latissimus dorsi on the side of the chest and can be seen and felt, often in athletic people; the inferior part is the most prominent."
+      ],
+      "proposal": "Record the serratus anterior as 'deep (surface outcrop, side view)' with surfaceVisibility 'partial', as §1.2 does for the infraspinatus and as the forearm does for APL (deep, partly at the surface). Consequence for §7.2 and §7.3: a view holding an outcrop needs the outcrop node's own layer, so the chest's Side view would need a deep layer (Side: surface, deep), or the belly is drawn whole on Front-deep and the outcrop on Side-surface with Side-deep added. Alternative, if the review keeps 'surface': the chest diagram note must say that only the lower slips are drawn and the part under the shoulder blade is not, and the shape note above already says most of the muscle has little or no contour of its own.",
+      "status": "Not applied. §1.2 is unchanged in this dossier; the node record keeps 'surface' and flags the deviation."
+    }
+  ],
+  "notes": {
+    "singleSourceFunctionClaims": [
+      "None. Each of the five function claims rests on six or more references: chest.pec_major (7), chest.pec_major_clavicular (9), chest.pec_major_sternocostal (8), chest.pec_minor (6), chest.serratus_anterior (9).",
+      "Non-function claims resting on one source: chest.pec_major_clavicular.selectivity.2 and chest.pec_major_sternocostal.selectivity.2 (both pmid.35093733), chest.pec_minor.selectivity.1 and chest.serratus_anterior.selectivity.1 (both pmid.26749459), chest.serratus_anterior.selectivity.2 (pmid.14977678). Each study's abstract was seen in two or three independent search summaries that agreed."
+    ],
+    "theHeadSplit": [
+      "Supported by the function claims. Head-specific actions are named by StatPearls (NBK525991), Kenhub (two pages), IMAIOS, the UW atlas, TeachMeAnatomy and the PMC case report: the clavicular head flexes the arm, the sternocostal head extends a flexed arm; together they adduct and turn the arm inward. Loyola and Elsevier name no extension, and Elsevier calls the clavicular head's flexion 'assisting': the claims say so.",
+      "Muscle-activity evidence supports half of the split clearly. In isometric tasks (pmid.35093733) the middle sternocostal region was much more active than the clavicular region in extension and in adduction with the arm turned out, but in forward and horizontal flexion the three regions were about equally active, except forward pushing at a quarter of maximal force, where the clavicular region was more active than the upper sternocostal region. Bench-press studies disagree on whether an incline raises clavicular activity (lww.chest_press_angles yes at 44 and 56 degrees; pmid.33049982 most at 30 degrees; bisp.bench_press_five_shoulder_muscles no). The split therefore stands on anatomy, and the claims say that the forward-raising difference is not a measured difference in activity."
+    ],
+    "unconfirmedBibliographicDetails": [
+      "statpearls.pectoralis_major: authors and update date not shown; the listing's title reads 'Anatomy, Thorax, Pectoralis Major Major'; its function list says 'Sternoclavicular head' for the sternocostal head.",
+      "statpearls.pectoral_muscles, statpearls.thorax_muscles, statpearls.serratus_anterior, statpearls.scapular_winging, statpearls.poland_syndrome, statpearls.mammary_gland: authors not shown; for the serratus and winging, summaries did not always say which StatPearls article a sentence came from.",
+      "lww.chest_press_angles (Trebs et al. 2010): PubMed id not confirmed; 20508462 is a different study.",
+      "pmid.33049982 (Rodríguez-Ridao et al. 2020): DOI and full author list not shown.",
+      "bisp.bench_press_five_shoulder_muscles (Barnett et al. 1995): the record lists Kippers, Turner and Barnett; PubMed id and DOI not seen; abstract seen in one summary only.",
+      "pmid.26749459 (Castelein et al. 2016): DOI not shown; the letter to the editor (PubMed 27133020) was not read.",
+      "pmid.14977678 (Ludewig et al. 2004): volume, pages and full author list not shown.",
+      "cureus.pectoralis_minor_variations (AlHarbi 2023): journal read from the PDF host; volume, article number and the author's full name not shown.",
+      "ijhs.pectoralis_minor_anomalous_insertion: authors and year not shown; whether it is the same work as Asghar et al. 2021 (Surgical and Radiologic Anatomy 43(5):631–643) not confirmed.",
+      "pmid.27757809 (Webb et al.): year 2018 from one listing; DOI read from a Springer URL only.",
+      "pmc.chest_wall_flaps and pmc.hypogenic_pectoralis_major: authors and journals not shown.",
+      "radiopaedia.pectoralis_major, radiopaedia.serratus_anterior, radiopaedia.poland_syndrome: seen through mirrors of the pages (images.radiopaedia.org, a static-assets host); the canonical radiopaedia.org URLs are recorded.",
+      "imaios.pectoralis_major and imaios.serratus_anterior: seen through the imaios.cn mirror, with imaios.com pages for the clavicular head, the pectoralis minor and the axillary fold.",
+      "gpnotebook.serratus_anterior, doccheck.serratus_anterior, wustl.serratus_anterior: authors and dates not shown; GPnotebook and DocCheck are outside the standard's list and are cited only beside Kenhub; the WUSTL page is a university page."
+    ],
+    "disagreementsAndWording": [
+      "Clavicular head in raising the arm: main (IMAIOS 'primary action'; Kenhub 'prime flexors' with the anterior deltoid; StatPearls; UW; TeachMeAnatomy) against 'assists' (Elsevier) and 'secondary' for the whole muscle (Radiopaedia). The claim says one quick reference calls it assisting; the node action is prime.",
+      "Sternocostal head bringing the arm down: named by StatPearls, Kenhub, UW, IMAIOS ('contributes') and the PMC case report; not listed by Loyola or Elsevier. The claim says two references do not list it. The node action is prime, flagged for review ('assist' is defensible from IMAIOS's word).",
+      "Misattributed wording caught: one summary (Q11) attributed 'the muscle fibers attaching to the sternocostal head permit the horizontal and vertical adduction, extension, and internal rotation' to StatPearls; an exact-phrase search (Q62) found it is Wikipedia's wording. StatPearls is not cited for horizontal adduction; Radiopaedia ('bring the humerus across the chest') and Elsevier ('transversely adducts') carry it, with regional EMG beside them.",
+      "Kenhub video transcript says the pectoralis major turns the arm outward; Kenhub's written pages and every other reference say inward. The video is not cited.",
+      "Decline bench: Barnett et al. found the sternocostal head more active flat than on a decline. A 1997 study (Glass and Armstrong) is often cited for the opposite; it could not be searched (budget), so the claim states only what the three cited studies found and makes no decline recommendation.",
+      "Serratus anterior pulling the shoulder blade down: 'may' for the lowest fibres (WUSTL; Brookbush, not cited), stated flatly by LearnMuscles (not cited); one Kenhub summary said the superior part pulls the scapula down while the German Kenhub page says the superior part elevates it. No node action; the claim says 'one reference says its lowest fibres may help'.",
+      "Serratus rib count: first to eighth (TeachMeAnatomy, StatPearls), first to ninth (Elsevier), eighth or ninth (Kenhub, Radiopaedia). The claims say 'eight or nine'.",
+      "Pectoralis minor depression: 'assists' (Elsevier) against 'primarily depresses the shoulder' (StatPearls thorax muscles) and 'can forcefully depress' (Kenhub). Node action prime, noted.",
+      "Pectoralis minor innervation was given inconsistently by Kenhub pages; not used.",
+      "Poland syndrome incidence: figures differ widely between sources (StatPearls' own figure not seen), so the variation claim says 'rare' and gives no figure; side preference is not stated (copy never names a side)."
+    ],
+    "section12Checks": [
+      "chest.pec_major: kind muscle, role group, parent of both heads, layer —: supported (two heads joining on the humerus).",
+      "chest.pec_major_clavicular and chest.pec_major_sternocostal: kind head, target, surface: supported (most superficial muscle of the pectoral region). The split is supported by function claims; see the notes on the split.",
+      "chest.pec_minor: deep: supported (deep only to the pectoralis major, which almost completely covers it).",
+      "chest.serratus_anterior: surface with no outcrop note: NOT supported as stated; deviation D1.",
+      "Region actions: every one of the eight has a performer: horizontal adduction (both heads), flexion (clavicular), extension (sternocostal), adduction (sternocostal prime, clavicular assist), internal rotation (sternocostal prime, clavicular assist), protraction (pectoralis minor, serratus), depression (pectoralis minor), upward rotation (serratus).",
+      "External member shoulders.anterior_deltoid: the listing rule holds on what this search saw. Kenhub (Q56) names the deltoid's anterior fibres with the clavicular pectoralis major as the prime flexors of the shoulder; Elsevier's clavicular-deltoid page lists flexion as a direct action (Q3); bench-press studies record anterior-deltoid activity that rises with incline (lww.chest_press_angles; pmid.33049982). No content is written for it here; its home is the shoulders.",
+      "Contested placement: serratus anterior in the chest, listed by the shoulders (§1.2): no anatomy reason against. Suggested membership caveats for the shoulders lane are in membershipSuggestions.",
+      "Abdominal part: IMAIOS describes a small abdominal part from the external oblique aponeurosis; TeachMeAnatomy and UW include that origin in the sternocostal head. §1.2's two heads hold; the sternocostal head carries a caveat."
+    ],
+    "policyQuestions": [
+      "Sternocostal head shoulder.extension: prime or assist (see node action note).",
+      "Serratus anterior layer: deviation D1 needs a decision before the drawing lane starts (§1.2 rows change only through an accepted deviation).",
+      "surfaceVisibility 'variable' for the pectoralis major and its sternocostal head: the forearm used 'variable' for a muscle absent in some people; here it is used because breast tissue covers much of the muscle in many women. The review may prefer 'partial'.",
+      "The regional-EMG claims on the two heads say the forward-raising difference was not measured. They are honest but may read as weakening the split; the review decides whether the page shows them."
+    ],
+    "limits": [
+      "Web search only, as for the forearm: page fetches are refused by the network proxy, and every excerpt is a search-tool summary that can misquote (one misquote was caught; see the disagreements notes).",
+      "The shared web-search budget for the turn ran out after 62 queries (Q1–Q62 in searchlog.md; Q63 refused). The 1997 decline-bench study and further confirmation of a few bibliographic details could not be searched.",
+      "'Reviewed' means an automated agent checked each sentence against web-search excerpts and generated summaries on 19 Oct 2026; not the full texts, and not a clinician or anatomist.",
+      "Nothing here is hypertrophy evidence. The selectivity claims cite acute EMG; none sets a credit weight. Regional-growth training studies on bench angle exist but were not searched, by policy (§8: selectivity claims are never growth)."
+    ],
+    "searchLog": "research/chest/searchlog.md beside this file: every query in order with the links and the summary text relied on."
+  }
+}

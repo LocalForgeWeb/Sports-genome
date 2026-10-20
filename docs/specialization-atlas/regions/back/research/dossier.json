@@ -1,0 +1,1831 @@
+{
+ "region": "back",
+ "preparedOn": "2026-10-19",
+ "counts": {
+  "nodes": 10,
+  "nodesByStatus": {
+   "reviewed": 4,
+   "draft": 6
+  },
+  "claims": 20,
+  "claimsByKind": {
+   "function": 10,
+   "appearance": 10
+  },
+  "claimsByStatus": {
+   "reviewed": 8,
+   "draft": 12
+  },
+  "claimsByKindAndStatus": {
+   "function:reviewed": 4,
+   "appearance:reviewed": 4,
+   "function:draft": 6,
+   "appearance:draft": 6
+  },
+  "sources": 17,
+  "sourcesSharedWithOtherLanes": 5,
+  "citations": 45,
+  "nodeActions": 20,
+  "nodeActionsByStatus": {
+   "reviewed": 7,
+   "draft": 13
+  },
+  "actions": 10,
+  "deviations": 4,
+  "contradictionsOfSection12": 0,
+  "searchesRun": 7,
+  "searchesRefused": 2
+ },
+ "nodes": [
+  {
+   "regionId": "back",
+   "parentId": null,
+   "caveats": [
+    "A group here, not a single target: work is counted for its upper, middle and lower parts.",
+    "References divide it into upper, middle and lower parts (descending, transverse and ascending), each with its own attachments on the spine."
+   ],
+   "id": "back.trapezius",
+   "name": "Trapezius",
+   "shortName": "Trapezius",
+   "kind": "muscle",
+   "role": "group",
+   "layerFixed": "—",
+   "layerSuggestedForType": "surface",
+   "catalogMuscleKey": "traps",
+   "databaseMuscle": null,
+   "databaseMuscleNote": "No single 'trapezius' canonical name was seen; the recorded database fixture holds 'middle_trapezius' and 'lower_trapezius' as muscles and 'trapezius' as a muscle_group label. A parent is not drawn or selectable, so null is safe.",
+   "aliases": [
+    "trapezius muscle",
+    "traps"
+   ],
+   "location": "Back of the neck and the upper and middle back, from the base of the skull and the spine out to the collarbone and the shoulder blade.",
+   "whatItDoes": "Moves and steadies the shoulder blade. Its upper part raises it, its middle part pulls it back toward the spine, its lower part pulls it down, and the upper and lower parts turn it upward. The upper part also helps move the head and neck.",
+   "shapeNote": "Together its three parts may contribute to the slope between the neck and the shoulder and to much of the surface of the upper back. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "surfaceVisibility": "clear",
+   "surfaceVisibilityReason": "StatPearls calls the trapezius a broad, superficial back muscle (statpearls.trapezius, Q6).",
+   "layerCheck": "Parent node, not drawn (layer '—' in §1.2). StatPearls calls the whole muscle superficial, so 'surface' is the honest value if the type needs one.",
+   "status": "reviewed"
+  },
+  {
+   "regionId": "back",
+   "parentId": "back.trapezius",
+   "caveats": [
+    "Raising the shoulder blade loads it together with the levator scapulae; this atlas does not split the work between them.",
+    "Its work on the head and neck is anatomy only; neck movements are not counted on this page."
+   ],
+   "id": "back.upper_trapezius",
+   "name": "Upper trapezius",
+   "shortName": "UpperTrap",
+   "kind": "head",
+   "role": "target",
+   "layerFixed": "surface",
+   "catalogMuscleKey": "traps",
+   "databaseMuscle": "upper_trapezius",
+   "databaseMuscleNote": "Candidate; not among the muscles in the recorded database fixture (server/fixtures/liveMuscleAggregation.ts), which holds only the muscles of nine exercises. The database lane checks it.",
+   "aliases": [
+    "upper traps",
+    "upper trapezius fibres",
+    "descending part of the trapezius"
+   ],
+   "location": "Back and side of the neck, from the base of the skull and the neck vertebrae out to the outer end of the collarbone and the point of the shoulder.",
+   "whatItDoes": "Raises your shoulder blade, as in a shrug, and turns it upward when the arm goes overhead. It helps hold the shoulders up when you carry a load, and helps extend the head and neck and bend them to the side.",
+   "shapeNote": "May contribute to the slope from the neck to the point of the shoulder. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "surfaceVisibility": "clear",
+   "surfaceVisibilityReason": "A surface muscle (statpearls.trapezius: superficial) running from the skull and neck to the clavicle and acromion (elsevier.trapezius_descending). That it forms the visible neck-to-shoulder slope is an inference from that location, not reported by a source.",
+   "layerCheck": "§1.2 'surface': supported (StatPearls: the trapezius is superficial; Elsevier's attachments for the descending part). No outcrop note applies.",
+   "status": "reviewed"
+  },
+  {
+   "regionId": "back",
+   "parentId": "back.trapezius",
+   "caveats": [
+    "Pulling the shoulder blades back loads it together with the rhomboids; this atlas does not split the work between them."
+   ],
+   "id": "back.middle_trapezius",
+   "name": "Middle trapezius",
+   "shortName": "MidTrap",
+   "kind": "head",
+   "role": "target",
+   "layerFixed": "surface",
+   "catalogMuscleKey": "upperBack",
+   "databaseMuscle": "middle_trapezius",
+   "databaseMuscleNote": "Seen as a canonical name in the recorded database fixture.",
+   "aliases": [
+    "middle traps",
+    "middle trapezius fibres",
+    "transverse part of the trapezius"
+   ],
+   "location": "Upper back, running across from the spine at the base of the neck and the upper chest vertebrae to the bony ridge of the shoulder blade and the point of the shoulder.",
+   "whatItDoes": "Pulls your shoulder blade back toward the spine, working with the rhomboids.",
+   "shapeNote": "May contribute to the contour of the upper back between the shoulder blades. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "surfaceVisibility": "partial",
+   "surfaceVisibilityReason": "A surface muscle (statpearls.trapezius), but no source seen describes it as separately visible; 'partial' is an inference from its position between the upper and lower parts.",
+   "layerCheck": "§1.2 'surface': supported (StatPearls: superficial; elsevier.trapezius_transverse: C7-T4 to the acromion and the spine of the scapula).",
+   "status": "reviewed"
+  },
+  {
+   "regionId": "back",
+   "parentId": "back.trapezius",
+   "caveats": [
+    "References differ in how much weight they give it in turning the shoulder blade upward: one describes it as helping the upper part, another lists upward rotation among its own actions."
+   ],
+   "id": "back.lower_trapezius",
+   "name": "Lower trapezius",
+   "shortName": "LowerTrap",
+   "kind": "head",
+   "role": "target",
+   "layerFixed": "surface",
+   "catalogMuscleKey": "traps",
+   "databaseMuscle": "lower_trapezius",
+   "databaseMuscleNote": "Seen as a canonical name in the recorded database fixture.",
+   "aliases": [
+    "lower traps",
+    "lower trapezius fibres",
+    "ascending part of the trapezius"
+   ],
+   "location": "Middle of the back: from the spine between and below the shoulder blades up to the inner end of the bony ridge of the shoulder blade.",
+   "whatItDoes": "Pulls your shoulder blade down, and helps the upper trapezius turn it upward when the arm goes overhead. It also helps draw the shoulder blade toward the spine.",
+   "shapeNote": "May contribute to the contour of the middle back between and below the shoulder blades. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "surfaceVisibility": "partial",
+   "surfaceVisibilityReason": "A surface muscle (statpearls.trapezius); no source seen describes its visibility. Inference from location.",
+   "layerCheck": "§1.2 'surface': supported (StatPearls: superficial; elsevier.trapezius_ascending: T5-T12 to the medial end of the spine of the scapula).",
+   "status": "reviewed"
+  },
+  {
+   "regionId": "back",
+   "parentId": null,
+   "caveats": [
+    "Two muscles, rhomboid major and rhomboid minor, shown as one: they share their actions.",
+    "Pulling the shoulder blades back loads them together with the middle trapezius; this atlas does not split the work between them."
+   ],
+   "id": "back.rhomboids",
+   "name": "Rhomboids",
+   "shortName": "Rhomboids",
+   "kind": "muscle",
+   "role": "target",
+   "layerFixed": "intermediate",
+   "catalogMuscleKey": "upperBack",
+   "databaseMuscle": "rhomboid_major",
+   "databaseMuscleNote": "'rhomboid_major' is seen in the recorded database fixture; no 'rhomboid_minor' or 'rhomboids' row was seen. One node stands for both muscles; the database lane decides which canonical name it refines.",
+   "aliases": [
+    "rhomboid major",
+    "rhomboid minor",
+    "rhomboid muscles",
+    "rhomboid"
+   ],
+   "location": "Upper back between the spine and the inner edge of the shoulder blade, from the base of the neck to about the level of the fifth chest vertebra, under the trapezius.",
+   "whatItDoes": "Pull your shoulder blade back toward the spine and up, and turn it so its socket faces down. They also hold its inner edge against the rib cage.",
+   "shapeNote": "Lie under the trapezius, so they have little or no contour of their own; they may add to the fullness of the upper back between the shoulder blades. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "surfaceVisibility": "not_distinct",
+   "surfaceVisibilityReason": "Covered by the trapezius. Not confirmed by an excerpt this session: statpearls.rhomboids places them from C7-T5 to the inner edge of the shoulder blade, inside the area the trapezius covers (elsevier.trapezius_transverse and _ascending: C7-T12 to the spine of the scapula). Inference.",
+   "layerCheck": "§1.2 'intermediate': consistent with the attachments seen, which place the rhomboids inside the area the superficial trapezius covers; no excerpt states their depth. Not contradicted, not confirmed.",
+   "status": "draft"
+  },
+  {
+   "regionId": "back",
+   "parentId": null,
+   "caveats": [
+    "Shown beside the back muscles because of where it sits and what it does to the shoulder blade; back specialization does not target it."
+   ],
+   "id": "back.levator_scapulae",
+   "name": "Levator scapulae",
+   "shortName": "LevScap",
+   "kind": "muscle",
+   "role": "adjacent",
+   "layerFixed": "intermediate",
+   "catalogMuscleKey": null,
+   "databaseMuscle": "levator_scapulae",
+   "databaseMuscleNote": "Candidate; not seen in the recorded database fixture.",
+   "aliases": [
+    "levator scapulae muscle",
+    "levator scap"
+   ],
+   "location": "Side and back of the neck, from the upper neck vertebrae down to the upper inner corner of the shoulder blade.",
+   "whatItDoes": "Raises your shoulder blade, working with the upper trapezius, and helps turn it so its socket faces down. It also helps bend the neck to the side.",
+   "shapeNote": "Mostly covered by the upper trapezius and the muscles at the side of the neck, so it has little contour of its own. It is not a back growth target.",
+   "surfaceVisibility": "not_distinct",
+   "surfaceVisibilityReason": "Not checked this session (no excerpt on its location or depth). Textbook anatomy, unverified here.",
+   "layerCheck": "§1.2 'intermediate': not checked this session. To check in a follow-up: whether part of it lies uncovered in the side of the neck, which would be a surface outcrop in the drawing's Side view.",
+   "status": "draft"
+  },
+  {
+   "regionId": "back",
+   "parentId": null,
+   "caveats": [
+    "Pull-ups, pulldowns and rows load it together with the teres major, which shares its actions at the shoulder; this atlas does not split the work between them."
+   ],
+   "id": "back.latissimus_dorsi",
+   "name": "Latissimus dorsi",
+   "shortName": "Lat",
+   "kind": "muscle",
+   "role": "target",
+   "layerFixed": "surface",
+   "catalogMuscleKey": "lats",
+   "databaseMuscle": "latissimus_dorsi",
+   "databaseMuscleNote": "Seen as a canonical name in the recorded database fixture.",
+   "aliases": [
+    "lats",
+    "lat",
+    "latissimus"
+   ],
+   "location": "Lower and side back: from the lower spine and the back of the pelvis, up across the side of the trunk and under the armpit to the front of the upper-arm bone.",
+   "whatItDoes": "Pulls your arm down to your side and down and back from in front of you, as in a pull-up or a row, and turns the arm inward.",
+   "shapeNote": "May contribute to the width of the back below the armpits and to the outline of the side of the trunk. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "surfaceVisibility": "clear",
+   "surfaceVisibilityReason": "Not checked this session beyond one excerpt that has it covering part of the back of the shoulder blade (kenhub.infraspinatus, a shoulders-lane excerpt). Textbook anatomy, unverified here.",
+   "layerCheck": "§1.2 'surface': consistent with the one excerpt seen (it covers part of the infraspinatus, kenhub.infraspinatus); its attachments and the extent of the lower trapezius over it were not checked. Not contradicted.",
+   "status": "draft"
+  },
+  {
+   "regionId": "back",
+   "parentId": null,
+   "caveats": [
+    "It shares the latissimus dorsi's actions at the shoulder, so pulls load them together; this atlas does not split the work between them."
+   ],
+   "id": "back.teres_major",
+   "name": "Teres major",
+   "shortName": "TMajor",
+   "kind": "muscle",
+   "role": "target",
+   "layerFixed": "surface",
+   "catalogMuscleKey": null,
+   "databaseMuscle": "teres_major",
+   "databaseMuscleNote": "Seen as a canonical name in the recorded database fixture.",
+   "aliases": [
+    "teres major muscle"
+   ],
+   "location": "Lower outer edge of the shoulder blade, below the teres minor, running to the front of the upper-arm bone at the back of the armpit.",
+   "whatItDoes": "Helps pull your arm down to your side and back, and turn it inward, working with the latissimus dorsi.",
+   "shapeNote": "May contribute to a small bulge between the lower outer edge of the shoulder blade and the armpit. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "surfaceVisibility": "partial",
+   "surfaceVisibilityReason": "Not checked this session; the only excerpt places it below the teres minor (kenhub.teres_minor). How much of it the latissimus dorsi and the deltoid cover was not seen.",
+   "layerCheck": "§1.2 'surface': not checked this session. To check: how much of it the latissimus dorsi and the deltoid cover.",
+   "status": "draft"
+  },
+  {
+   "regionId": "back",
+   "parentId": null,
+   "caveats": [
+    "Three columns (iliocostalis, longissimus and spinalis) shown as one: they share the action of straightening the back.",
+    "The sheet of connective tissue over it in the lower back (thoracolumbar fascia) is drawn as structure, not muscle."
+   ],
+   "id": "back.erector_spinae",
+   "name": "Erector spinae",
+   "shortName": "ES",
+   "kind": "muscle",
+   "role": "target",
+   "layerFixed": "deep (surface outcrop, lumbar window)",
+   "catalogMuscleKey": "lowerBack",
+   "databaseMuscle": "erector_spinae",
+   "databaseMuscleNote": "Seen as a canonical name in the recorded database fixture.",
+   "aliases": [
+    "erectors",
+    "spinal erectors",
+    "sacrospinalis",
+    "erector spinae group"
+   ],
+   "location": "Two columns along the back, one on each side of the spine, from the back of the pelvis up toward the base of the skull.",
+   "whatItDoes": "Straightens your back from a forward bend and holds it upright; working on one side it helps bend the trunk to that side.",
+   "shapeNote": "Covered by other back muscles over most of its length, so there it has little or no contour of its own. In the lower back, where it is covered mainly by a sheet of connective tissue, it may contribute to the two columns either side of the spine. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "surfaceVisibility": "partial",
+   "surfaceVisibilityReason": "Not checked this session (no excerpt on the erector spinae was returned before the budget ran out). Textbook anatomy, unverified here.",
+   "layerCheck": "§1.2 'deep (surface outcrop, lumbar window)': not checked this session. Not contradicted.",
+   "status": "draft"
+  },
+  {
+   "regionId": "back",
+   "parentId": null,
+   "caveats": [
+    "Also listed on the core page; it is counted once, as a back muscle."
+   ],
+   "id": "back.quadratus_lumborum",
+   "name": "Quadratus lumborum",
+   "shortName": "QL",
+   "kind": "muscle",
+   "role": "target",
+   "layerFixed": "deep",
+   "catalogMuscleKey": null,
+   "databaseMuscle": "quadratus_lumborum",
+   "databaseMuscleNote": "Candidate; not seen in the recorded database fixture.",
+   "aliases": [
+    "quadratus lumborum muscle",
+    "QL"
+   ],
+   "location": "Deep in the lower back, one on each side of the lower spine, between the lowest rib and the top of the pelvis.",
+   "whatItDoes": "Bends your trunk to the side and helps hold the lower back steady, as when a load is carried in one hand; with both sides working it helps straighten the lower back.",
+   "shapeNote": "Deep in the lower back, in front of the erector spinae, so it has little or no contour of its own. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "surfaceVisibility": "not_distinct",
+   "surfaceVisibilityReason": "Not checked this session. Textbook anatomy, unverified here.",
+   "layerCheck": "§1.2 'deep': not checked this session. Not contradicted.",
+   "status": "draft"
+  }
+ ],
+ "claims": [
+  {
+   "id": "back.trapezius.function",
+   "key": "back:back.trapezius.function",
+   "ownerRegionId": "back",
+   "nodeId": "back.trapezius",
+   "kind": "function",
+   "statement": "The trapezius moves and steadies the shoulder blade. Its upper part raises the shoulder blade and turns it upward, its middle part pulls it back toward the spine, and its lower part pulls it down and helps turn it upward. The upper part also helps move the head and neck.",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.trapezius",
+     "locator": "Introduction; Structure and Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "elsevier.trapezius",
+     "locator": "Quick Facts: Action",
+     "qualification": null
+    },
+    {
+     "sourceId": "kenhub.trapezius",
+     "locator": "Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    }
+   ]
+  },
+  {
+   "id": "back.trapezius.appearance",
+   "key": "back:back.trapezius.appearance",
+   "ownerRegionId": "back",
+   "nodeId": "back.trapezius",
+   "kind": "appearance",
+   "statement": "The trapezius is a broad surface muscle of the back of the neck and the upper and middle back, running from the base of the skull and the spine out to the collarbone and the shoulder blade. Together its parts may contribute to the slope between the neck and the shoulder and to much of the surface of the upper back. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.trapezius",
+     "locator": "Introduction: a broad, superficial back muscle",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "elsevier.trapezius_descending",
+     "locator": "Quick Facts: Origin and insertion",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "elsevier.trapezius_ascending",
+     "locator": "Quick Facts: Origin and insertion",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    }
+   ]
+  },
+  {
+   "id": "back.upper_trapezius.function",
+   "key": "back:back.upper_trapezius.function",
+   "ownerRegionId": "back",
+   "nodeId": "back.upper_trapezius",
+   "kind": "function",
+   "statement": "The upper (descending) part of the trapezius raises the shoulder blade, working with the levator scapulae, and turns it upward together with the lower part and the serratus anterior. It helps hold the shoulders up against gravity when carrying a load, and helps draw the shoulder blade toward the spine. It also extends the head and neck and bends them to the side.",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.trapezius",
+     "locator": "Structure and Function: upper fibres",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "elsevier.trapezius_descending",
+     "locator": "Quick Facts: Action",
+     "qualification": null
+    },
+    {
+     "sourceId": "kenhub.trapezius",
+     "locator": "Function: descending fibres",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "statpearls.serratus_anterior",
+     "locator": "Structure and Function: upward rotation with the trapezius",
+     "qualification": "Seen through web-search excerpts of the page, not the full text. Seen through another lane's search of 19 Oct 2026 (query and excerpt recorded); this lane did not run it."
+    }
+   ]
+  },
+  {
+   "id": "back.upper_trapezius.appearance",
+   "key": "back:back.upper_trapezius.appearance",
+   "ownerRegionId": "back",
+   "nodeId": "back.upper_trapezius",
+   "kind": "appearance",
+   "statement": "The upper part of the trapezius lies in the surface layer, running from the base of the skull, the back of the neck and the lowest neck vertebra to the outer third of the collarbone and the point of the shoulder (acromion), so it may contribute to the slope from the neck to the point of the shoulder. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "elsevier.trapezius_descending",
+     "locator": "Quick Facts: Origin and insertion",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "statpearls.trapezius",
+     "locator": "Introduction: a broad, superficial back muscle",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    }
+   ]
+  },
+  {
+   "id": "back.middle_trapezius.function",
+   "key": "back:back.middle_trapezius.function",
+   "ownerRegionId": "back",
+   "nodeId": "back.middle_trapezius",
+   "kind": "function",
+   "statement": "The middle (transverse) part of the trapezius pulls the shoulder blade back toward the spine (retraction), working with the rhomboids.",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.trapezius",
+     "locator": "Structure and Function: middle fibres",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "elsevier.trapezius_transverse",
+     "locator": "Quick Facts: Action",
+     "qualification": null
+    },
+    {
+     "sourceId": "kenhub.trapezius",
+     "locator": "Function: transverse fibres",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    }
+   ]
+  },
+  {
+   "id": "back.middle_trapezius.appearance",
+   "key": "back:back.middle_trapezius.appearance",
+   "ownerRegionId": "back",
+   "nodeId": "back.middle_trapezius",
+   "kind": "appearance",
+   "statement": "The middle part of the trapezius lies in the surface layer of the upper back, running across from the spine (the lowest neck vertebra to the fourth chest vertebra) to the point of the shoulder and the outer part of the shoulder blade's bony ridge, so it may contribute to the contour of the upper back between the shoulder blades. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "elsevier.trapezius_transverse",
+     "locator": "Quick Facts: Origin and insertion",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "statpearls.trapezius",
+     "locator": "Introduction: a broad, superficial back muscle",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    }
+   ]
+  },
+  {
+   "id": "back.lower_trapezius.function",
+   "key": "back:back.lower_trapezius.function",
+   "ownerRegionId": "back",
+   "nodeId": "back.lower_trapezius",
+   "kind": "function",
+   "statement": "The lower (ascending) part of the trapezius pulls the shoulder blade down (depression) and helps the upper part turn it upward, together with the serratus anterior. It also helps draw the shoulder blade toward the spine.",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.trapezius",
+     "locator": "Structure and Function: lower fibres",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "elsevier.trapezius_ascending",
+     "locator": "Quick Facts: Action",
+     "qualification": null
+    },
+    {
+     "sourceId": "kenhub.trapezius",
+     "locator": "Function: inferior fibres",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "statpearls.serratus_anterior",
+     "locator": "Structure and Function: upward rotation with the trapezius",
+     "qualification": "Seen through web-search excerpts of the page, not the full text. Seen through another lane's search of 19 Oct 2026 (query and excerpt recorded); this lane did not run it."
+    }
+   ]
+  },
+  {
+   "id": "back.lower_trapezius.appearance",
+   "key": "back:back.lower_trapezius.appearance",
+   "ownerRegionId": "back",
+   "nodeId": "back.lower_trapezius",
+   "kind": "appearance",
+   "statement": "The lower part of the trapezius lies in the surface layer of the middle back, its fibres rising from the spine (the fifth to the twelfth chest vertebrae) to the inner end of the shoulder blade's bony ridge, so it may contribute to the contour of the middle back between and below the shoulder blades. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "elsevier.trapezius_ascending",
+     "locator": "Quick Facts: Origin and insertion",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "statpearls.trapezius",
+     "locator": "Introduction: a broad, superficial back muscle",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    }
+   ]
+  },
+  {
+   "id": "back.rhomboids.function",
+   "key": "back:back.rhomboids.function",
+   "ownerRegionId": "back",
+   "nodeId": "back.rhomboids",
+   "kind": "function",
+   "statement": "The rhomboids, major and minor, pull the shoulder blade back toward the spine and up, and rotate it so its socket turns downward. They also hold the inner edge of the shoulder blade against the back of the rib cage, and the serratus anterior works against them.",
+   "basis": "established_anatomy",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "draftReason": "The direction of rotation ('so its socket turns downward') is not in any recorded excerpt: StatPearls says 'rotate the scapula' and Kenhub 'rotate the glenoid cavity'. Downward rotation is inferred from StatPearls naming the serratus anterior (an upward rotator) as their antagonist and from the trapezius article's 'rotation against the levator scapulae and rhomboids'. The search budget ran out before a confirming search (Kenhub or Elsevier rhomboid major). Every other sentence is supported by statpearls.rhomboids and kenhub.rhomboids.",
+   "supportedSubset": "The rhomboids, major and minor, pull the shoulder blade back toward the spine and up, and rotate it. They also hold the inner edge of the shoulder blade against the back of the rib cage, and the serratus anterior works against them.",
+   "sources": [
+    {
+     "sourceId": "statpearls.rhomboids",
+     "locator": "Structure and Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "kenhub.rhomboids",
+     "locator": "Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "statpearls.trapezius",
+     "locator": "Structure and Function: rotation against the levator scapulae and rhomboids",
+     "qualification": "Seen through web-search excerpts of the page, not the full text. Supports the direction of rotation only by inference."
+    },
+    {
+     "sourceId": "elsevier.rhomboid_major",
+     "locator": "Quick Facts: Action (to check)",
+     "qualification": "Seen as a search-result title and URL only; no excerpt from the page was shown. Cited as the reference to check; supports nothing yet."
+    }
+   ]
+  },
+  {
+   "id": "back.rhomboids.appearance",
+   "key": "back:back.rhomboids.appearance",
+   "ownerRegionId": "back",
+   "nodeId": "back.rhomboids",
+   "kind": "appearance",
+   "statement": "The rhomboids lie between the spine and the inner edge of the shoulder blade, from the base of the neck to about the level of the fifth chest vertebra, under the trapezius, so they have little or no contour of their own; they may add to the fullness of the upper back between the shoulder blades. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "draftReason": "Their depth under the trapezius is not stated in any recorded excerpt; it is inferred from the attachments (rhomboids C7-T5 to the inner edge of the shoulder blade; the superficial trapezius C7-T12 to the spine of the scapula). The location sentence is supported by statpearls.rhomboids.",
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.rhomboids",
+     "locator": "Structure and Function: attachments",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "elsevier.trapezius_transverse",
+     "locator": "Quick Facts: Origin and insertion (the area the trapezius covers)",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source. Places the trapezius over the same stretch of spine; says nothing about the rhomboids."
+    }
+   ]
+  },
+  {
+   "id": "back.levator_scapulae.function",
+   "key": "back:back.levator_scapulae.function",
+   "ownerRegionId": "back",
+   "nodeId": "back.levator_scapulae",
+   "kind": "function",
+   "statement": "Levator scapulae raises the shoulder blade, working with the upper trapezius. It also helps rotate the shoulder blade so its socket turns downward, and helps bend the neck to the side.",
+   "basis": "established_anatomy",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "draftReason": "Only the first sentence has an excerpt, and that from another muscle's page (Kenhub's trapezius article, via a generated summary). Downward rotation and bending the neck were not searched. The shared web-search budget for this turn ran out after this lane's seventh search, before this muscle was searched; no workaround was attempted.",
+   "supportedSubset": "Levator scapulae raises the shoulder blade, working with the upper trapezius.",
+   "sources": [
+    {
+     "sourceId": "kenhub.trapezius",
+     "locator": "Function: descending fibres work with levator scapulae",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "statpearls.trapezius",
+     "locator": "Structure and Function: rotation against the levator scapulae and rhomboids",
+     "qualification": "Seen through web-search excerpts of the page, not the full text. Supports the direction of rotation only by inference."
+    },
+    {
+     "sourceId": "elsevier.levator_scapulae",
+     "locator": "Quick Facts: Action (to check)",
+     "qualification": "Seen as a search-result title and URL only; no excerpt from the page was shown. Cited as the reference to check; supports nothing yet."
+    }
+   ]
+  },
+  {
+   "id": "back.levator_scapulae.appearance",
+   "key": "back:back.levator_scapulae.appearance",
+   "ownerRegionId": "back",
+   "nodeId": "back.levator_scapulae",
+   "kind": "appearance",
+   "statement": "Levator scapulae runs down the side and back of the neck from the upper neck vertebrae to the upper inner corner of the shoulder blade, mostly covered by the upper trapezius and the muscles at the side of the neck, so it has little contour of its own. It is not a back growth target.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "draftReason": "No excerpt on its location or depth was recorded. The shared web-search budget for this turn ran out after this lane's seventh search, before this muscle was searched; no workaround was attempted.",
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "elsevier.levator_scapulae",
+     "locator": "Quick Facts: Origin and insertion (to check)",
+     "qualification": "Seen as a search-result title and URL only; no excerpt from the page was shown. Cited as the reference to check; supports nothing yet."
+    }
+   ]
+  },
+  {
+   "id": "back.latissimus_dorsi.function",
+   "key": "back:back.latissimus_dorsi.function",
+   "ownerRegionId": "back",
+   "nodeId": "back.latissimus_dorsi",
+   "kind": "function",
+   "statement": "Latissimus dorsi brings the arm down to the side (adduction) and down and back from in front of the body (extension), and turns it inward. With the pectoralis major and the teres major it is one of the strong adductors anatomy texts call the climbing muscles.",
+   "basis": "established_anatomy",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "draftReason": "Adduction is supported by two references (kenhub.shoulder_joint, luc.upper_limb_joint_actions), both seen only through the chest lane's searches. Extension and turning the arm inward have no recorded excerpt. The shared web-search budget for this turn ran out after this lane's seventh search, before this muscle was searched; no workaround was attempted.",
+   "supportedSubset": "Latissimus dorsi brings the arm down to the side (adduction). With the pectoralis major and the teres major it is one of the strong adductors anatomy texts call the climbing muscles.",
+   "sources": [
+    {
+     "sourceId": "kenhub.shoulder_joint",
+     "locator": "Movements: adduction",
+     "qualification": "Seen through web-search excerpts of the page, not the full text. Seen through another lane's search of 19 Oct 2026 (query and excerpt recorded); this lane did not run it. Tying the line to this page is inferred from the result list."
+    },
+    {
+     "sourceId": "luc.upper_limb_joint_actions",
+     "locator": "Shoulder: adduction",
+     "qualification": "Seen through web-search excerpts of the page, not the full text. Seen through another lane's search of 19 Oct 2026 (query and excerpt recorded); this lane did not run it. Full URL not recorded."
+    },
+    {
+     "sourceId": "elsevier.latissimus_dorsi",
+     "locator": "Quick Facts: Action (to check)",
+     "qualification": "Seen as a search-result title and URL only; no excerpt from the page was shown. Cited as the reference to check; supports nothing yet."
+    }
+   ]
+  },
+  {
+   "id": "back.latissimus_dorsi.appearance",
+   "key": "back:back.latissimus_dorsi.appearance",
+   "ownerRegionId": "back",
+   "nodeId": "back.latissimus_dorsi",
+   "kind": "appearance",
+   "statement": "Latissimus dorsi is a broad surface muscle of the lower and side back, running from the lower spine and the back of the pelvis up across the side of the trunk and under the armpit to the upper-arm bone, and it covers part of the lower shoulder blade. It may contribute to the width of the back below the armpits and to the outline of the side of the trunk. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "draftReason": "Only 'it covers part of the lower shoulder blade' has an excerpt (kenhub.infraspinatus). Its attachments and its surface position over the side and lower back were not searched. The shared web-search budget for this turn ran out after this lane's seventh search, before this muscle was searched; no workaround was attempted.",
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "kenhub.infraspinatus",
+     "locator": "Relations: deep to trapezius, deltoid and latissimus dorsi",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source. Seen through another lane's search of 19 Oct 2026 (query and excerpt recorded); this lane did not run it."
+    },
+    {
+     "sourceId": "elsevier.latissimus_dorsi",
+     "locator": "Quick Facts: Origin and insertion (to check)",
+     "qualification": "Seen as a search-result title and URL only; no excerpt from the page was shown. Cited as the reference to check; supports nothing yet."
+    }
+   ]
+  },
+  {
+   "id": "back.teres_major.function",
+   "key": "back:back.teres_major.function",
+   "ownerRegionId": "back",
+   "nodeId": "back.teres_major",
+   "kind": "function",
+   "statement": "Teres major helps bring the arm down to the side (adduction) and down and back (extension), and turns it inward, working with the latissimus dorsi.",
+   "basis": "established_anatomy",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "draftReason": "Adduction with the latissimus dorsi is supported by two references (Kenhub calls the three 'powerful adductors'; Loyola says adduction is 'aided by teres major'). Extension and turning the arm inward have no recorded excerpt. The shared web-search budget for this turn ran out after this lane's seventh search, before this muscle was searched; no workaround was attempted.",
+   "supportedSubset": "Teres major helps bring the arm down to the side (adduction), working with the latissimus dorsi and the pectoralis major.",
+   "sources": [
+    {
+     "sourceId": "kenhub.shoulder_joint",
+     "locator": "Movements: adduction",
+     "qualification": "Seen through web-search excerpts of the page, not the full text. Seen through another lane's search of 19 Oct 2026 (query and excerpt recorded); this lane did not run it. Tying the line to this page is inferred from the result list."
+    },
+    {
+     "sourceId": "luc.upper_limb_joint_actions",
+     "locator": "Shoulder: adduction",
+     "qualification": "Seen through web-search excerpts of the page, not the full text. Seen through another lane's search of 19 Oct 2026 (query and excerpt recorded); this lane did not run it. Full URL not recorded."
+    }
+   ]
+  },
+  {
+   "id": "back.teres_major.appearance",
+   "key": "back:back.teres_major.appearance",
+   "ownerRegionId": "back",
+   "nodeId": "back.teres_major",
+   "kind": "appearance",
+   "statement": "Teres major runs from the lower outer edge of the shoulder blade, below the teres minor, to the front of the upper-arm bone at the back of the armpit, so it may contribute to a small bulge between the lower outer edge of the shoulder blade and the armpit. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "draftReason": "Only 'below the teres minor' has an excerpt (kenhub.teres_minor). Its attachments, its place at the back of the armpit and how much other muscles cover it were not searched. The shared web-search budget for this turn ran out after this lane's seventh search, before this muscle was searched; no workaround was attempted.",
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "kenhub.teres_minor",
+     "locator": "Relations: inferior neighbour",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source. Seen through another lane's search of 19 Oct 2026 (query and excerpt recorded); this lane did not run it."
+    }
+   ]
+  },
+  {
+   "id": "back.erector_spinae.function",
+   "key": "back:back.erector_spinae.function",
+   "ownerRegionId": "back",
+   "nodeId": "back.erector_spinae",
+   "kind": "function",
+   "statement": "The erector spinae straightens the back from a forward bend and holds it upright; working on one side it helps bend the trunk to that side. It is three columns on each side of the spine (iliocostalis, longissimus and spinalis).",
+   "basis": "established_anatomy",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "draftReason": "No excerpt on the erector spinae was recorded. The shared web-search budget for this turn ran out after this lane's seventh search, before this muscle was searched; no workaround was attempted.",
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.back_muscles",
+     "locator": "Structure and Function (to check)",
+     "qualification": "Returned as a related entry only; no excerpt on the erector spinae was seen. Supports nothing yet."
+    }
+   ]
+  },
+  {
+   "id": "back.erector_spinae.appearance",
+   "key": "back:back.erector_spinae.appearance",
+   "ownerRegionId": "back",
+   "nodeId": "back.erector_spinae",
+   "kind": "appearance",
+   "statement": "The erector spinae runs in two columns, one on each side of the spine, under other back muscles over most of its length, so there it has little or no contour of its own. In the lower back, where a sheet of connective tissue covers it, it may contribute to the two columns either side of the spine. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "draftReason": "No excerpt on its location, depth or the lumbar window was recorded. The shared web-search budget for this turn ran out after this lane's seventh search, before this muscle was searched; no workaround was attempted.",
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.back_muscles",
+     "locator": "Structure and Function (to check)",
+     "qualification": "Returned as a related entry only; no excerpt on the erector spinae was seen. Supports nothing yet."
+    }
+   ]
+  },
+  {
+   "id": "back.quadratus_lumborum.function",
+   "key": "back:back.quadratus_lumborum.function",
+   "ownerRegionId": "back",
+   "nodeId": "back.quadratus_lumborum",
+   "kind": "function",
+   "statement": "Quadratus lumborum bends the trunk to the side and helps hold the lower back steady; with both sides working it helps straighten the lower back.",
+   "basis": "established_anatomy",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "draftReason": "No excerpt on the quadratus lumborum was recorded. The shared web-search budget for this turn ran out after this lane's seventh search, before this muscle was searched; no workaround was attempted.",
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.back_muscles",
+     "locator": "Structure and Function (to check)",
+     "qualification": "Returned as a related entry only; whether it covers the quadratus lumborum is unknown. Supports nothing yet."
+    }
+   ]
+  },
+  {
+   "id": "back.quadratus_lumborum.appearance",
+   "key": "back:back.quadratus_lumborum.appearance",
+   "ownerRegionId": "back",
+   "nodeId": "back.quadratus_lumborum",
+   "kind": "appearance",
+   "statement": "Quadratus lumborum lies deep in the lower back, between the lowest rib and the top of the pelvis and in front of the erector spinae, so it has little or no contour of its own.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "draft",
+   "reviewedAt": null,
+   "reviewNote": null,
+   "draftReason": "No excerpt on its location or depth was recorded. The shared web-search budget for this turn ran out after this lane's seventh search, before this muscle was searched; no workaround was attempted.",
+   "supportedSubset": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.back_muscles",
+     "locator": "Structure and Function (to check)",
+     "qualification": "Returned as a related entry only; whether it covers the quadratus lumborum is unknown. Supports nothing yet."
+    }
+   ]
+  }
+ ],
+ "nodeActions": [
+  {
+   "nodeId": "back.upper_trapezius",
+   "actionId": "scapula.elevation",
+   "role": "prime",
+   "claimId": "back.upper_trapezius.function",
+   "claimKey": "back:back.upper_trapezius.function",
+   "status": "reviewed",
+   "basisInClaim": "Main action in all three references (statpearls.trapezius, elsevier.trapezius_descending, kenhub.trapezius)."
+  },
+  {
+   "nodeId": "back.upper_trapezius",
+   "actionId": "scapula.upward_rotation",
+   "role": "prime",
+   "claimId": "back.upper_trapezius.function",
+   "claimKey": "back:back.upper_trapezius.function",
+   "status": "reviewed",
+   "basisInClaim": "StatPearls credits the upper fibres with upward rotation and the lower fibres with helping; Elsevier lists it for the descending part; StatPearls (serratus anterior) names the upper and lower fibres together."
+  },
+  {
+   "nodeId": "back.upper_trapezius",
+   "actionId": "scapula.retraction",
+   "role": "assist",
+   "claimId": "back.upper_trapezius.function",
+   "claimKey": "back:back.upper_trapezius.function",
+   "status": "reviewed",
+   "basisInClaim": "Elsevier lists retraction for the descending part and Kenhub gives its pull a medial component ('superomedially'); StatPearls names only the middle fibres as retractors."
+  },
+  {
+   "nodeId": "back.middle_trapezius",
+   "actionId": "scapula.retraction",
+   "role": "prime",
+   "claimId": "back.middle_trapezius.function",
+   "claimKey": "back:back.middle_trapezius.function",
+   "status": "reviewed",
+   "basisInClaim": "Main action in all three references."
+  },
+  {
+   "nodeId": "back.lower_trapezius",
+   "actionId": "scapula.depression",
+   "role": "prime",
+   "claimId": "back.lower_trapezius.function",
+   "claimKey": "back:back.lower_trapezius.function",
+   "status": "reviewed",
+   "basisInClaim": "Main action in StatPearls ('depressors') and Elsevier; Kenhub 'inferomedially'."
+  },
+  {
+   "nodeId": "back.lower_trapezius",
+   "actionId": "scapula.upward_rotation",
+   "role": "assist",
+   "claimId": "back.lower_trapezius.function",
+   "claimKey": "back:back.lower_trapezius.function",
+   "status": "reviewed",
+   "basisInClaim": "StatPearls: the lower fibres 'help the upper fibers rotate the scapula upward'. Elsevier lists upward rotation among its actions without ranking; the conservative role follows StatPearls (see disagreements)."
+  },
+  {
+   "nodeId": "back.lower_trapezius",
+   "actionId": "scapula.retraction",
+   "role": "assist",
+   "claimId": "back.lower_trapezius.function",
+   "claimKey": "back:back.lower_trapezius.function",
+   "status": "reviewed",
+   "basisInClaim": "Elsevier lists retraction for the ascending part and Kenhub gives its pull a medial component ('inferomedially')."
+  },
+  {
+   "nodeId": "back.rhomboids",
+   "actionId": "scapula.retraction",
+   "role": "prime",
+   "claimId": "back.rhomboids.function",
+   "claimKey": "back:back.rhomboids.function",
+   "status": "draft",
+   "basisInClaim": "StatPearls 'retract'; Kenhub 'primarily retract the scapula superomedially'."
+  },
+  {
+   "nodeId": "back.rhomboids",
+   "actionId": "scapula.elevation",
+   "role": "assist",
+   "claimId": "back.rhomboids.function",
+   "claimKey": "back:back.rhomboids.function",
+   "status": "draft",
+   "basisInClaim": "StatPearls 'elevate'; Kenhub's 'superomedially' gives the retraction an upward component."
+  },
+  {
+   "nodeId": "back.rhomboids",
+   "actionId": "scapula.downward_rotation",
+   "role": "prime",
+   "claimId": "back.rhomboids.function",
+   "claimKey": "back:back.rhomboids.function",
+   "status": "draft",
+   "basisInClaim": "Direction not in the excerpts (draft): StatPearls 'rotate the scapula', Kenhub 'rotate the glenoid cavity'."
+  },
+  {
+   "nodeId": "back.levator_scapulae",
+   "actionId": "scapula.elevation",
+   "role": "prime",
+   "claimId": "back.levator_scapulae.function",
+   "claimKey": "back:back.levator_scapulae.function",
+   "status": "draft",
+   "basisInClaim": "Kenhub's trapezius page: the descending fibres work with levator scapulae to elevate the scapula (draft: one reference)."
+  },
+  {
+   "nodeId": "back.levator_scapulae",
+   "actionId": "scapula.downward_rotation",
+   "role": "assist",
+   "claimId": "back.levator_scapulae.function",
+   "claimKey": "back:back.levator_scapulae.function",
+   "status": "draft",
+   "basisInClaim": "No excerpt (draft); inferred from StatPearls' 'rotation against the levator scapulae and rhomboids'."
+  },
+  {
+   "nodeId": "back.latissimus_dorsi",
+   "actionId": "shoulder.adduction",
+   "role": "prime",
+   "claimId": "back.latissimus_dorsi.function",
+   "claimKey": "back:back.latissimus_dorsi.function",
+   "status": "draft",
+   "basisInClaim": "Kenhub: one of three powerful adductors; Loyola: the adductors are pectoralis major and latissimus dorsi."
+  },
+  {
+   "nodeId": "back.latissimus_dorsi",
+   "actionId": "shoulder.extension",
+   "role": "prime",
+   "claimId": "back.latissimus_dorsi.function",
+   "claimKey": "back:back.latissimus_dorsi.function",
+   "status": "draft",
+   "basisInClaim": "No excerpt this session (draft)."
+  },
+  {
+   "nodeId": "back.teres_major",
+   "actionId": "shoulder.adduction",
+   "role": "prime",
+   "claimId": "back.teres_major.function",
+   "claimKey": "back:back.teres_major.function",
+   "status": "draft",
+   "basisInClaim": "Kenhub groups it with the latissimus dorsi and pectoralis major as 'powerful adductors'; Loyola says adduction is 'aided by teres major' (disagreement on emphasis). Prime is also what the region tests need: every target muscle needs a main action."
+  },
+  {
+   "nodeId": "back.teres_major",
+   "actionId": "shoulder.extension",
+   "role": "assist",
+   "claimId": "back.teres_major.function",
+   "claimKey": "back:back.teres_major.function",
+   "status": "draft",
+   "basisInClaim": "No excerpt this session (draft)."
+  },
+  {
+   "nodeId": "back.erector_spinae",
+   "actionId": "spine.extension",
+   "role": "prime",
+   "claimId": "back.erector_spinae.function",
+   "claimKey": "back:back.erector_spinae.function",
+   "status": "draft",
+   "basisInClaim": "No excerpt this session (draft)."
+  },
+  {
+   "nodeId": "back.erector_spinae",
+   "actionId": "spine.lateral_flexion",
+   "role": "assist",
+   "claimId": "back.erector_spinae.function",
+   "claimKey": "back:back.erector_spinae.function",
+   "status": "draft",
+   "basisInClaim": "No excerpt this session (draft)."
+  },
+  {
+   "nodeId": "back.quadratus_lumborum",
+   "actionId": "spine.lateral_flexion",
+   "role": "prime",
+   "claimId": "back.quadratus_lumborum.function",
+   "claimKey": "back:back.quadratus_lumborum.function",
+   "status": "draft",
+   "basisInClaim": "No excerpt this session (draft)."
+  },
+  {
+   "nodeId": "back.quadratus_lumborum",
+   "actionId": "spine.extension",
+   "role": "assist",
+   "claimId": "back.quadratus_lumborum.function",
+   "claimKey": "back:back.quadratus_lumborum.function",
+   "status": "draft",
+   "basisInClaim": "No excerpt this session (draft)."
+  }
+ ],
+ "actions": [
+  {
+   "id": "shoulder.extension",
+   "joint": "Shoulder",
+   "label": "Shoulder extension",
+   "plainDescription": "Brings the arm down and back from in front of the body, and on behind it.",
+   "note": "Same wording as the shoulders lane's dossier; shared with the shoulders, chest and upper arm (wave 0 adds one definition)."
+  },
+  {
+   "id": "shoulder.adduction",
+   "joint": "Shoulder",
+   "label": "Shoulder adduction",
+   "plainDescription": "Brings the arm down to the side of the body from out to the side.",
+   "note": "Shared with the chest; proposed wording."
+  },
+  {
+   "id": "shoulder.horizontal_abduction",
+   "joint": "Shoulder",
+   "label": "Horizontal abduction",
+   "plainDescription": "With the arm raised to shoulder height, moves it backward, away from the front of the chest.",
+   "note": "Same wording as the shoulders lane's dossier. No own back muscle has a row for it in this dossier; the back lists it for its external member, the posterior deltoid."
+  },
+  {
+   "id": "scapula.elevation",
+   "joint": "Shoulder blade (on the rib cage)",
+   "label": "Elevation of the shoulder blade",
+   "plainDescription": "Raises the shoulder blade toward the ear, as in a shrug.",
+   "note": "New with the back."
+  },
+  {
+   "id": "scapula.retraction",
+   "joint": "Shoulder blade (on the rib cage)",
+   "label": "Retraction of the shoulder blade",
+   "plainDescription": "Pulls the shoulder blade back toward the spine, drawing the shoulder blades together.",
+   "note": "New with the back."
+  },
+  {
+   "id": "scapula.depression",
+   "joint": "Shoulder blade (on the rib cage)",
+   "label": "Depression of the shoulder blade",
+   "plainDescription": "Pulls the shoulder blade down, away from the ear.",
+   "note": "Shared with the chest; proposed wording."
+  },
+  {
+   "id": "scapula.upward_rotation",
+   "joint": "Shoulder blade (on the rib cage)",
+   "label": "Upward rotation of the shoulder blade",
+   "plainDescription": "Turns the shoulder blade so its socket faces upward, as happens when the arm is raised overhead.",
+   "note": "Same wording as the shoulders lane's dossier; shared with the shoulders and chest."
+  },
+  {
+   "id": "scapula.downward_rotation",
+   "joint": "Shoulder blade (on the rib cage)",
+   "label": "Downward rotation of the shoulder blade",
+   "plainDescription": "Turns the shoulder blade so its socket faces downward, as happens when a raised arm is pulled back down to the side.",
+   "note": "New with the back."
+  },
+  {
+   "id": "spine.extension",
+   "joint": "Spine (trunk)",
+   "label": "Spine extension",
+   "plainDescription": "Straightens the trunk from a forward bend, or arches it back.",
+   "note": "New with the back."
+  },
+  {
+   "id": "spine.lateral_flexion",
+   "joint": "Spine (trunk)",
+   "label": "Side bending of the trunk",
+   "plainDescription": "Bends the trunk to the side.",
+   "note": "Shared with the core; proposed wording."
+  }
+ ],
+ "sources": [
+  {
+   "key": "statpearls.trapezius",
+   "url": "https://www.ncbi.nlm.nih.gov/books/NBK518994/",
+   "title": "StatPearls: Anatomy, Back, Trapezius",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (two searches, Q1 and Q6; generated summaries of the statpearls.com point-of-care copy, 30528, and of the Bookshelf record): a broad, superficial back muscle spanning from the skull and spine out to the shoulder blade; its main job is to move and steady the scapula; the upper fibres elevate and upwardly rotate it, the middle fibres retract it toward the spine, and the lower fibres depress it and help the upper fibres rotate it upward; the scapula's rotation against the levator scapulae and rhomboids, with the deltoid, is essential for throwing; spinal accessory nerve. The Bookshelf id NBK518994 was matched to this title by the search, not opened. Authors and the current update date were not shown (the summary saw copies dated 2023 on statpearls.com and 2026 on the Bookshelf). Section headings were not shown with the excerpts; locators follow StatPearls' usual layout.",
+   "sharedWith": null
+  },
+  {
+   "key": "statpearls.rhomboids",
+   "url": "https://www.ncbi.nlm.nih.gov/books/NBK534856/",
+   "title": "StatPearls: Anatomy, Back, Rhomboid Muscles",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (one search, Q7; lines quoted from the Bookshelf copy, the statpearls.com copy 28567 being partly paywalled): 'Functionally, the rhomboid muscles retract, elevate and rotate the scapula. Additionally, the serratus anterior is the antagonist muscle group to the rhomboids.'; they keep the medial border of the scapula in position at the posterior thoracic wall; rhomboid minor from the ligamentum nuchae and C7-T1 to the medial border near the base of the scapular spine; rhomboid major, quadrangular, from T2-T5, inferior to the minor; dorsal scapular nerve and artery; weakness causes winging of the medial border. The direction of the rotation was not stated in the lines seen. Authors not shown; the Bookshelf id was given by the search, not opened.",
+   "sharedWith": null
+  },
+  {
+   "key": "statpearls.serratus_anterior",
+   "url": "https://www.ncbi.nlm.nih.gov/books/NBK531457/",
+   "title": "StatPearls: Anatomy, Thorax, Serratus Anterior Muscles",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Seen through the chest lane's searches of 19 Oct 2026 (its Q30 and Q32), not run by this lane: the serratus anterior works with the upper and lower fibres of the trapezius to sustain upward rotation of the scapula, which allows overhead lifting. Expected to be held by the chest lane under this same key; the integration lane keeps one record.",
+   "sharedWith": "chest"
+  },
+  {
+   "key": "statpearls.back_muscles",
+   "url": "https://www.ncbi.nlm.nih.gov/books/NBK537216/",
+   "title": "StatPearls: back muscles (NBK537216)",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Returned by one search on 19 Oct 2026 (Q6) only as a related entry that 'covers the back muscles more broadly and lists the trapezius among the extrinsic back muscles'. Its exact title was not shown, and no excerpt about the erector spinae or the quadratus lumborum was seen; whether it covers the quadratus lumborum is unknown. The draft claims that cite it name it as the reference to check first.",
+   "sharedWith": null
+  },
+  {
+   "key": "kenhub.trapezius",
+   "url": "https://www.kenhub.com/en/library/anatomy/trapezius-muscle",
+   "title": "Kenhub: trapezius muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (two searches, Q1 and Q2; generated summaries that cite this page by result number): the descending fibres work with levator scapulae to elevate the scapula and help hold up the shoulders against gravity when carrying a load; acting on one side they laterally flex the head and neck; the transverse fibres pull the scapula toward the midline and retract it, working with the rhomboids; upward rotation is shared with the serratus anterior; the superior fibres draw the scapula superomedially, the middle fibres medially and the inferior fibres inferomedially. A different Kenhub overview (upper limb muscles and movements) assigned the parts' actions differently and is not cited. Lines are tied to this page by the result number in the summary; Q1 returned it once with a space in the URL ('trapezius muscle').",
+   "sharedWith": null
+  },
+  {
+   "key": "kenhub.rhomboids",
+   "url": "https://www.kenhub.com/en/library/anatomy/rhomboid-muscles",
+   "title": "Kenhub: rhomboid muscles",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (one quoted line, Q7): 'Under innervation from the dorsal scapular nerve, the rhomboids primarily retract the scapula superomedially and rotate the glenoid cavity.' The direction of the rotation was not in the line seen.",
+   "sharedWith": null
+  },
+  {
+   "key": "kenhub.shoulder_joint",
+   "url": "https://www.kenhub.com/en/library/anatomy/the-shoulder-joint",
+   "title": "Kenhub: glenohumeral (shoulder) joint",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Shared with the shoulders lane (same key and URL). Seen for the back through the chest lane's search of 19 Oct 2026 (its Q56), not run by this lane: 'Adduction is produced by the pectoralis major, latissimus dorsi and teres major muscles. Together these three are known as the \"climbing muscles\", as they are powerful adductors.' The search returned three Kenhub pages (this one, the shoulder girdle, and upper limb muscles and movements); tying the line to this page is inferred from the result list, as the shoulders lane did for its flexion line. Extension and internal rotation by these muscles were not in the lines seen.",
+   "sharedWith": "shoulders"
+  },
+  {
+   "key": "kenhub.teres_minor",
+   "url": "https://www.kenhub.com/en/library/anatomy/teres-minor-muscle",
+   "title": "Kenhub: teres minor muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Shared with the shoulders lane (same key and URL). Seen for the back only through that lane's recorded excerpt of 19 Oct 2026: the teres major is the teres minor's inferior neighbour ('Teres major lies beneath it').",
+   "sharedWith": "shoulders"
+  },
+  {
+   "key": "kenhub.infraspinatus",
+   "url": "https://www.kenhub.com/en/library/anatomy/infraspinatus-muscle",
+   "title": "Kenhub: infraspinatus muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Shared with the shoulders lane (same key and URL). Seen for the back only through that lane's recorded excerpt of 19 Oct 2026: the infraspinatus 'lies on the dorsal surface of the scapula, deep to trapezius, and parts of the deltoid and latissimus dorsi muscles', so the latissimus dorsi covers part of the back of the shoulder blade.",
+   "sharedWith": "shoulders"
+  },
+  {
+   "key": "elsevier.trapezius",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-back/trapezius-muscle-left/17803",
+   "title": "Elsevier Complete Anatomy, Quick Facts: trapezius muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q4; the page is Elsevier's entry for the left-side model, titled 'Trapezius Muscle (Left)'; the side is dropped from the title so athlete copy carries no screen-side word): describes the whole muscle as elevating, depressing, retracting and upwardly rotating the shoulder girdle, and, contracting on both sides, extending the head and neck.",
+   "sharedWith": null
+  },
+  {
+   "key": "elsevier.trapezius_descending",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-back/descending-part-of-trapezius-muscle/20351",
+   "title": "Elsevier Complete Anatomy, Quick Facts: descending part of trapezius muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q4 and Q5): action 'Elevates, retracts, and upwardly rotates the pectoral girdle at acromioclavicular and sternoclavicular joints; extends and laterally flexes head and neck'; origin the external occipital protuberance and superior nuchal line, the nuchal ligament and the C7 spinous process; insertion the posterior aspect of the lateral third of the clavicle and the acromion. Elsevier frames the actions at the joints of the shoulder girdle, not at the scapula alone.",
+   "sharedWith": null
+  },
+  {
+   "key": "elsevier.trapezius_transverse",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-back/transverse-part-of-trapezius-muscle/19991",
+   "title": "Elsevier Complete Anatomy, Quick Facts: transverse part of trapezius muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q5): origin the spinous processes of C7-T4; insertion the acromion and the lateral end of the spine of the scapula; action 'retracts the pectoral girdle at acromioclavicular and sternoclavicular joints'; accessory nerve and anterior rami of C3-C4; transverse cervical artery.",
+   "sharedWith": null
+  },
+  {
+   "key": "elsevier.trapezius_ascending",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-back/ascending-part-of-trapezius-muscle/20192",
+   "title": "Elsevier Complete Anatomy, Quick Facts: ascending part of trapezius muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (Q3): origin the spinous processes of T5-T12; insertion the medial end of the spine of the scapula; action 'Depresses, retracts, and upwardly rotates the pectoral (shoulder) girdle at acromioclavicular and sternoclavicular joints'; accessory nerve and anterior rami of C3-C4; dorsal scapular artery. The same search returned an Elsevier textbook sample chapter (Gray's Anatomy for Students, back) listing 'Elevates scapula (descending part), retracts scapula (transverse part), depresses scapula (ascending part); rotates'; not cited.",
+   "sharedWith": null
+  },
+  {
+   "key": "elsevier.levator_scapulae",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-back/levator-scapulae/18540",
+   "title": "Elsevier Complete Anatomy, Quick Facts: levator scapulae",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Returned as a search-result title only on 19 Oct 2026 (Q4); no excerpt from it was shown. Cited by draft claims as the reference to check first; it supports nothing yet.",
+   "sharedWith": null
+  },
+  {
+   "key": "elsevier.latissimus_dorsi",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-back/latissimus-dorsi-muscle/20795",
+   "title": "Elsevier Complete Anatomy, Quick Facts: latissimus dorsi muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Returned as a search-result title only on 19 Oct 2026 (Q4); no excerpt from it was shown. Cited by draft claims as the reference to check first; it supports nothing yet.",
+   "sharedWith": null
+  },
+  {
+   "key": "elsevier.rhomboid_major",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-back/rhomboid-major-muscle/20614",
+   "title": "Elsevier Complete Anatomy, Quick Facts: rhomboid major muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Returned as a search-result title only on 19 Oct 2026 (Q5), with the rhomboid minor page (19607); no excerpt from either was shown. Cited by the draft rhomboid claim as the reference to check first for the direction of rotation; it supports nothing yet.",
+   "sharedWith": null
+  },
+  {
+   "key": "luc.upper_limb_joint_actions",
+   "url": null,
+   "title": "Loyola University Chicago, LUMEN: joint actions of the upper limb",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Seen through the chest lane's search of 19 Oct 2026 (its Q60), not run by this lane: 'Adduction (247K) Pectoralis major, Latissimus dorsi, aided by teres major and subscapularis.' The chest lane's log abbreviates the link as 'meddean.luc.edu lumen ue/ueaction.html'; the full URL was not recorded and is deliberately left empty here rather than reconstructed. The chest lane may hold this page under its own key; the integration lane keeps one record.",
+   "sharedWith": "chest"
+  }
+ ],
+ "citations": [
+  {
+   "claimId": "back.trapezius.function",
+   "sourceKey": "statpearls.trapezius",
+   "query": "Q1: StatPearls Anatomy, Back, Trapezius Muscle superior middle inferior fibers elevate retract depress upward rotation scapula || Q6: \"Anatomy, Back, Trapezius\" StatPearls NCBI Bookshelf NBK",
+   "queryRef": [
+    "Q1",
+    "Q6"
+   ],
+   "excerpt": "It describes the upper fibers as the ones that elevate and upwardly rotate the scapula, the middle fibers as adductors that medially retract it, and the lower fibers as depressors that help the upper fibers rotate the scapula upward (1-7, 1-8, 1-9). It also notes that the scapula's rotation against the levator scapulae and rhomboids, together with the deltoid, is essential for throwing. || Its overview describes the trapezius as a broad, superficial back muscle that spans from the skull and spine out to the shoulder blade. Its nerve supply is split between sensory fibers from the cervical rami and motor control from the spinal accessory nerve. Its main job is to move and steady the scapula. The upper fibers elevate and rotate it upward, the middle fibers pull it back toward the spine, and the lower fibers pull it down.",
+   "locator": "Introduction; Structure and Function"
+  },
+  {
+   "claimId": "back.trapezius.function",
+   "sourceKey": "elsevier.trapezius",
+   "query": "Q4: Elsevier Complete Anatomy descending part of trapezius muscle action elevates [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q4"
+   ],
+   "excerpt": "Elsevier's Trapezius (Left) page is consistent with this. It describes the whole muscle as elevating, depressing, retracting, and upwardly rotating the shoulder girdle. It also notes that during bilateral contraction, it extends the head and neck.",
+   "locator": "Quick Facts: Action"
+  },
+  {
+   "claimId": "back.trapezius.function",
+   "sourceKey": "kenhub.trapezius",
+   "query": "Q2: trapezius muscle descending transverse ascending part function elevation retraction depression rotation [allowed_domains: kenhub.com] || Q1: StatPearls Anatomy, Back, Trapezius Muscle superior middle inferior fibers elevate retract depress upward rotation scapula",
+   "queryRef": [
+    "Q2",
+    "Q1"
+   ],
+   "excerpt": "Descending (upper) fibers: These work with levator scapulae to elevate the scapula, and they help hold up the shoulders against gravity when carrying a load (3-6, 3-7). ... Their unilateral action also laterally flexes the head and neck (3-9). ... Transverse (middle) fibers: These pull the scapula toward the midline and retract it, working with the rhomboids (3-1). || Kenhub says the superior fibers draw the scapula superomedially, the middle fibers draw it medially, and the inferior fibers draw it inferomedially (5-1).",
+   "locator": "Function"
+  },
+  {
+   "claimId": "back.trapezius.appearance",
+   "sourceKey": "statpearls.trapezius",
+   "query": "Q6: \"Anatomy, Back, Trapezius\" StatPearls NCBI Bookshelf NBK",
+   "queryRef": [
+    "Q6"
+   ],
+   "excerpt": "Its overview describes the trapezius as a broad, superficial back muscle that spans from the skull and spine out to the shoulder blade.",
+   "locator": "Introduction: a broad, superficial back muscle"
+  },
+  {
+   "claimId": "back.trapezius.appearance",
+   "sourceKey": "elsevier.trapezius_descending",
+   "query": "Q4: Elsevier Complete Anatomy descending part of trapezius muscle action elevates [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q4"
+   ],
+   "excerpt": "the origin is the external occipital protuberance and superior nuchal line of the occipital bone, the nuchal ligament, and the spinous process of C7. Its insertion is the posterior aspect of the lateral one third of the clavicle and the acromion of the scapula.",
+   "locator": "Quick Facts: Origin and insertion"
+  },
+  {
+   "claimId": "back.trapezius.appearance",
+   "sourceKey": "elsevier.trapezius_ascending",
+   "query": "Q3: Elsevier Complete Anatomy quick facts trapezius ascending part action depresses scapula [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q3"
+   ],
+   "excerpt": "Origin: spinous processes of T5-T12 vertebrae ... Insertion: Medial end of spine of scapula.",
+   "locator": "Quick Facts: Origin and insertion"
+  },
+  {
+   "claimId": "back.upper_trapezius.function",
+   "sourceKey": "statpearls.trapezius",
+   "query": "Q1: StatPearls Anatomy, Back, Trapezius Muscle superior middle inferior fibers elevate retract depress upward rotation scapula || Q6: \"Anatomy, Back, Trapezius\" StatPearls NCBI Bookshelf NBK",
+   "queryRef": [
+    "Q1",
+    "Q6"
+   ],
+   "excerpt": "It describes the upper fibers as the ones that elevate and upwardly rotate the scapula, the middle fibers as adductors that medially retract it, and the lower fibers as depressors that help the upper fibers rotate the scapula upward (1-7, 1-8, 1-9). It also notes that the scapula's rotation against the levator scapulae and rhomboids, together with the deltoid, is essential for throwing. || Its overview describes the trapezius as a broad, superficial back muscle that spans from the skull and spine out to the shoulder blade. Its nerve supply is split between sensory fibers from the cervical rami and motor control from the spinal accessory nerve. Its main job is to move and steady the scapula. The upper fibers elevate and rotate it upward, the middle fibers pull it back toward the spine, and the lower fibers pull it down.",
+   "locator": "Structure and Function: upper fibres"
+  },
+  {
+   "claimId": "back.upper_trapezius.function",
+   "sourceKey": "elsevier.trapezius_descending",
+   "query": "Q5: Elsevier transverse part of trapezius muscle quick facts action retracts [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q5"
+   ],
+   "excerpt": "The descending part elevates, retracts, and upwardly rotates the girdle (Action: Elevates, retracts, and upwardly rotates the pectoral girdle at acromioclavicular and sternoclavicular joints; extends and laterally flexes head and neck).",
+   "locator": "Quick Facts: Action"
+  },
+  {
+   "claimId": "back.upper_trapezius.function",
+   "sourceKey": "kenhub.trapezius",
+   "query": "Q2: trapezius muscle descending transverse ascending part function elevation retraction depression rotation [allowed_domains: kenhub.com] || Q1: StatPearls Anatomy, Back, Trapezius Muscle superior middle inferior fibers elevate retract depress upward rotation scapula",
+   "queryRef": [
+    "Q2",
+    "Q1"
+   ],
+   "excerpt": "Descending (upper) fibers: These work with levator scapulae to elevate the scapula, and they help hold up the shoulders against gravity when carrying a load (3-6, 3-7). ... Their unilateral action also laterally flexes the head and neck (3-9). ... The upper fibers are often credited with upward rotation, which Kenhub's trapezius page attributes to the trapezius working with serratus anterior (3-2). || Kenhub says the superior fibers draw the scapula superomedially, the middle fibers draw it medially, and the inferior fibers draw it inferomedially (5-1).",
+   "locator": "Function: descending fibres"
+  },
+  {
+   "claimId": "back.upper_trapezius.function",
+   "sourceKey": "statpearls.serratus_anterior",
+   "query": "chest.Q32: NBK531457 serratus anterior structure and function digitations ribs 1 to 8 medial border scapula inferior angle upward rotation protraction (chest lane) || chest.Q30: StatPearls Anatomy, Thorax, Serratus Anterior Muscles function protraction upward rotation scapula long thoracic nerve winged scapula [allowed: ncbi, statpearls] (chest lane)",
+   "queryRef": [
+    "chest.Q32",
+    "chest.Q30"
+   ],
+   "excerpt": "Q32: \"It also notes that the serratus anterior acts with the upper and lower fibers of the trapezius to sustain upward rotation of the scapula, which allows for overhead lifting.\" Q30: \"(The serratus anterior works in conjunction with the trapezius muscle to allow for sustained upward rotation of the scapula, which is essential for overhead lifting.)\"",
+   "locator": "Structure and Function: upward rotation with the trapezius"
+  },
+  {
+   "claimId": "back.upper_trapezius.appearance",
+   "sourceKey": "elsevier.trapezius_descending",
+   "query": "Q4: Elsevier Complete Anatomy descending part of trapezius muscle action elevates [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q4"
+   ],
+   "excerpt": "the origin is the external occipital protuberance and superior nuchal line of the occipital bone, the nuchal ligament, and the spinous process of C7. Its insertion is the posterior aspect of the lateral one third of the clavicle and the acromion of the scapula.",
+   "locator": "Quick Facts: Origin and insertion"
+  },
+  {
+   "claimId": "back.upper_trapezius.appearance",
+   "sourceKey": "statpearls.trapezius",
+   "query": "Q6: \"Anatomy, Back, Trapezius\" StatPearls NCBI Bookshelf NBK",
+   "queryRef": [
+    "Q6"
+   ],
+   "excerpt": "Its overview describes the trapezius as a broad, superficial back muscle that spans from the skull and spine out to the shoulder blade.",
+   "locator": "Introduction: a broad, superficial back muscle"
+  },
+  {
+   "claimId": "back.middle_trapezius.function",
+   "sourceKey": "statpearls.trapezius",
+   "query": "Q1: StatPearls Anatomy, Back, Trapezius Muscle superior middle inferior fibers elevate retract depress upward rotation scapula || Q6: \"Anatomy, Back, Trapezius\" StatPearls NCBI Bookshelf NBK",
+   "queryRef": [
+    "Q1",
+    "Q6"
+   ],
+   "excerpt": "It describes the upper fibers as the ones that elevate and upwardly rotate the scapula, the middle fibers as adductors that medially retract it, and the lower fibers as depressors that help the upper fibers rotate the scapula upward (1-7, 1-8, 1-9). It also notes that the scapula's rotation against the levator scapulae and rhomboids, together with the deltoid, is essential for throwing. || Its overview describes the trapezius as a broad, superficial back muscle that spans from the skull and spine out to the shoulder blade. Its nerve supply is split between sensory fibers from the cervical rami and motor control from the spinal accessory nerve. Its main job is to move and steady the scapula. The upper fibers elevate and rotate it upward, the middle fibers pull it back toward the spine, and the lower fibers pull it down.",
+   "locator": "Structure and Function: middle fibres"
+  },
+  {
+   "claimId": "back.middle_trapezius.function",
+   "sourceKey": "elsevier.trapezius_transverse",
+   "query": "Q5: Elsevier transverse part of trapezius muscle quick facts action retracts [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q5"
+   ],
+   "excerpt": "(Origin: spinous processes of C7-T4 vertebrae; Insertion: acromion of scapula, lateral end of spine of scapula; Action: retracts the pectoral girdle at acromioclavicular and sternoclavicular joints)",
+   "locator": "Quick Facts: Action"
+  },
+  {
+   "claimId": "back.middle_trapezius.function",
+   "sourceKey": "kenhub.trapezius",
+   "query": "Q2: trapezius muscle descending transverse ascending part function elevation retraction depression rotation [allowed_domains: kenhub.com]",
+   "queryRef": [
+    "Q2"
+   ],
+   "excerpt": "Transverse (middle) fibers: These pull the scapula toward the midline and retract it, working with the rhomboids (3-1).",
+   "locator": "Function: transverse fibres"
+  },
+  {
+   "claimId": "back.middle_trapezius.appearance",
+   "sourceKey": "elsevier.trapezius_transverse",
+   "query": "Q5: Elsevier transverse part of trapezius muscle quick facts action retracts [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q5"
+   ],
+   "excerpt": "(Origin: spinous processes of C7-T4 vertebrae; Insertion: acromion of scapula, lateral end of spine of scapula; Action: retracts the pectoral girdle at acromioclavicular and sternoclavicular joints)",
+   "locator": "Quick Facts: Origin and insertion"
+  },
+  {
+   "claimId": "back.middle_trapezius.appearance",
+   "sourceKey": "statpearls.trapezius",
+   "query": "Q6: \"Anatomy, Back, Trapezius\" StatPearls NCBI Bookshelf NBK",
+   "queryRef": [
+    "Q6"
+   ],
+   "excerpt": "Its overview describes the trapezius as a broad, superficial back muscle that spans from the skull and spine out to the shoulder blade.",
+   "locator": "Introduction: a broad, superficial back muscle"
+  },
+  {
+   "claimId": "back.lower_trapezius.function",
+   "sourceKey": "statpearls.trapezius",
+   "query": "Q1: StatPearls Anatomy, Back, Trapezius Muscle superior middle inferior fibers elevate retract depress upward rotation scapula || Q6: \"Anatomy, Back, Trapezius\" StatPearls NCBI Bookshelf NBK",
+   "queryRef": [
+    "Q1",
+    "Q6"
+   ],
+   "excerpt": "It describes the upper fibers as the ones that elevate and upwardly rotate the scapula, the middle fibers as adductors that medially retract it, and the lower fibers as depressors that help the upper fibers rotate the scapula upward (1-7, 1-8, 1-9). It also notes that the scapula's rotation against the levator scapulae and rhomboids, together with the deltoid, is essential for throwing. || Its overview describes the trapezius as a broad, superficial back muscle that spans from the skull and spine out to the shoulder blade. Its nerve supply is split between sensory fibers from the cervical rami and motor control from the spinal accessory nerve. Its main job is to move and steady the scapula. The upper fibers elevate and rotate it upward, the middle fibers pull it back toward the spine, and the lower fibers pull it down.",
+   "locator": "Structure and Function: lower fibres"
+  },
+  {
+   "claimId": "back.lower_trapezius.function",
+   "sourceKey": "elsevier.trapezius_ascending",
+   "query": "Q3: Elsevier Complete Anatomy quick facts trapezius ascending part action depresses scapula [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q3"
+   ],
+   "excerpt": "Its quick facts list the action as depressing, retracting, and upwardly rotating the pectoral (shoulder) girdle at the acromioclavicular and sternoclavicular joints, not the scapula itself (Action: Depresses, retracts, and upwardly rotates the pectoral (shoulder) girdle at acromioclavicular and sternoclavicular joints.).",
+   "locator": "Quick Facts: Action"
+  },
+  {
+   "claimId": "back.lower_trapezius.function",
+   "sourceKey": "kenhub.trapezius",
+   "query": "Q1: StatPearls Anatomy, Back, Trapezius Muscle superior middle inferior fibers elevate retract depress upward rotation scapula",
+   "queryRef": [
+    "Q1"
+   ],
+   "excerpt": "Kenhub says the superior fibers draw the scapula superomedially, the middle fibers draw it medially, and the inferior fibers draw it inferomedially (5-1).",
+   "locator": "Function: inferior fibres"
+  },
+  {
+   "claimId": "back.lower_trapezius.function",
+   "sourceKey": "statpearls.serratus_anterior",
+   "query": "chest.Q32: NBK531457 serratus anterior structure and function digitations ribs 1 to 8 medial border scapula inferior angle upward rotation protraction (chest lane) || chest.Q30: StatPearls Anatomy, Thorax, Serratus Anterior Muscles function protraction upward rotation scapula long thoracic nerve winged scapula [allowed: ncbi, statpearls] (chest lane)",
+   "queryRef": [
+    "chest.Q32",
+    "chest.Q30"
+   ],
+   "excerpt": "Q32: \"It also notes that the serratus anterior acts with the upper and lower fibers of the trapezius to sustain upward rotation of the scapula, which allows for overhead lifting.\" Q30: \"(The serratus anterior works in conjunction with the trapezius muscle to allow for sustained upward rotation of the scapula, which is essential for overhead lifting.)\"",
+   "locator": "Structure and Function: upward rotation with the trapezius"
+  },
+  {
+   "claimId": "back.lower_trapezius.appearance",
+   "sourceKey": "elsevier.trapezius_ascending",
+   "query": "Q3: Elsevier Complete Anatomy quick facts trapezius ascending part action depresses scapula [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q3"
+   ],
+   "excerpt": "Origin: spinous processes of T5-T12 vertebrae ... Insertion: Medial end of spine of scapula.",
+   "locator": "Quick Facts: Origin and insertion"
+  },
+  {
+   "claimId": "back.lower_trapezius.appearance",
+   "sourceKey": "statpearls.trapezius",
+   "query": "Q6: \"Anatomy, Back, Trapezius\" StatPearls NCBI Bookshelf NBK",
+   "queryRef": [
+    "Q6"
+   ],
+   "excerpt": "Its overview describes the trapezius as a broad, superficial back muscle that spans from the skull and spine out to the shoulder blade.",
+   "locator": "Introduction: a broad, superficial back muscle"
+  },
+  {
+   "claimId": "back.rhomboids.function",
+   "sourceKey": "statpearls.rhomboids",
+   "query": "Q7: StatPearls rhomboid muscle anatomy retract scapula elevate rotate glenoid inferiorly rhomboid major minor",
+   "queryRef": [
+    "Q7"
+   ],
+   "excerpt": "(Functionally, the rhomboid muscles retract, elevate and rotate the scapula. Additionally, the serratus anterior is the antagonist muscle group to the rhomboids.) ... (They also protract the medial border of the scapula, keeping it in position at the posterior thoracic wall.)",
+   "locator": "Structure and Function"
+  },
+  {
+   "claimId": "back.rhomboids.function",
+   "sourceKey": "kenhub.rhomboids",
+   "query": "Q7: StatPearls rhomboid muscle anatomy retract scapula elevate rotate glenoid inferiorly rhomboid major minor",
+   "queryRef": [
+    "Q7"
+   ],
+   "excerpt": "(Under innervation from the dorsal scapular nerve, the rhomboids primarily retract the scapula superomedially and rotate the glenoid cavity.)",
+   "locator": "Function"
+  },
+  {
+   "claimId": "back.rhomboids.function",
+   "sourceKey": "statpearls.trapezius",
+   "query": "Q1: StatPearls Anatomy, Back, Trapezius Muscle superior middle inferior fibers elevate retract depress upward rotation scapula",
+   "queryRef": [
+    "Q1"
+   ],
+   "excerpt": "It also notes that the scapula's rotation against the levator scapulae and rhomboids, together with the deltoid, is essential for throwing.",
+   "locator": "Structure and Function: rotation against the levator scapulae and rhomboids"
+  },
+  {
+   "claimId": "back.rhomboids.function",
+   "sourceKey": "elsevier.rhomboid_major",
+   "query": "Q5: Elsevier transverse part of trapezius muscle quick facts action retracts [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q5"
+   ],
+   "excerpt": "(link only) Result titles \"Rhomboid Major Muscle\" (20614) and \"Rhomboid Minor Muscle\" (19607); the summary quoted nothing from them.",
+   "locator": "Quick Facts: Action (to check)"
+  },
+  {
+   "claimId": "back.rhomboids.appearance",
+   "sourceKey": "statpearls.rhomboids",
+   "query": "Q7: StatPearls rhomboid muscle anatomy retract scapula elevate rotate glenoid inferiorly rhomboid major minor",
+   "queryRef": [
+    "Q7"
+   ],
+   "excerpt": "(The rhomboid minor is a cylindrical muscle that originates at the ligamentum nuchae and C7 and T1 vertebra. It inserts at the scapula's medial border near the base of the spine of the scapula. The rhomboid major is a quadrangular muscle located inferior to the rhomboid minor.) ... The rhomboid major comes from the T2–T5 spinous processes and inserts just below the minor",
+   "locator": "Structure and Function: attachments"
+  },
+  {
+   "claimId": "back.rhomboids.appearance",
+   "sourceKey": "elsevier.trapezius_transverse",
+   "query": "Q5: Elsevier transverse part of trapezius muscle quick facts action retracts [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q5"
+   ],
+   "excerpt": "(Origin: spinous processes of C7-T4 vertebrae; Insertion: acromion of scapula, lateral end of spine of scapula; Action: retracts the pectoral girdle at acromioclavicular and sternoclavicular joints)",
+   "locator": "Quick Facts: Origin and insertion (the area the trapezius covers)"
+  },
+  {
+   "claimId": "back.levator_scapulae.function",
+   "sourceKey": "kenhub.trapezius",
+   "query": "Q2: trapezius muscle descending transverse ascending part function elevation retraction depression rotation [allowed_domains: kenhub.com]",
+   "queryRef": [
+    "Q2"
+   ],
+   "excerpt": "Descending (upper) fibers: These work with levator scapulae to elevate the scapula, and they help hold up the shoulders against gravity when carrying a load (3-6, 3-7).",
+   "locator": "Function: descending fibres work with levator scapulae"
+  },
+  {
+   "claimId": "back.levator_scapulae.function",
+   "sourceKey": "statpearls.trapezius",
+   "query": "Q1: StatPearls Anatomy, Back, Trapezius Muscle superior middle inferior fibers elevate retract depress upward rotation scapula",
+   "queryRef": [
+    "Q1"
+   ],
+   "excerpt": "It also notes that the scapula's rotation against the levator scapulae and rhomboids, together with the deltoid, is essential for throwing.",
+   "locator": "Structure and Function: rotation against the levator scapulae and rhomboids"
+  },
+  {
+   "claimId": "back.levator_scapulae.function",
+   "sourceKey": "elsevier.levator_scapulae",
+   "query": "Q4: Elsevier Complete Anatomy descending part of trapezius muscle action elevates [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q4"
+   ],
+   "excerpt": "(link only) Result title \"Levator Scapulae\", https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-back/levator-scapulae/18540; the summary quoted nothing from it.",
+   "locator": "Quick Facts: Action (to check)"
+  },
+  {
+   "claimId": "back.levator_scapulae.appearance",
+   "sourceKey": "elsevier.levator_scapulae",
+   "query": "Q4: Elsevier Complete Anatomy descending part of trapezius muscle action elevates [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q4"
+   ],
+   "excerpt": "(link only) Result title \"Levator Scapulae\", https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-back/levator-scapulae/18540; the summary quoted nothing from it.",
+   "locator": "Quick Facts: Origin and insertion (to check)"
+  },
+  {
+   "claimId": "back.latissimus_dorsi.function",
+   "sourceKey": "kenhub.shoulder_joint",
+   "query": "chest.Q56: Kenhub shoulder joint movements prime flexors of the glenohumeral joint deltoid anterior fibers pectoralis major clavicular fibers adductors pectoralis major latissimus [allowed: kenhub.com] (chest lane)",
+   "queryRef": [
+    "chest.Q56"
+   ],
+   "excerpt": "Adduction is produced by the pectoralis major, latissimus dorsi and teres major muscles. Together these three are known as the \"climbing muscles\", as they are powerful adductors.",
+   "locator": "Movements: adduction"
+  },
+  {
+   "claimId": "back.latissimus_dorsi.function",
+   "sourceKey": "luc.upper_limb_joint_actions",
+   "query": "chest.Q60: Loyola LUMEN joint actions of upper limb shoulder horizontal flexion horizontal adduction muscles pectoralis major anterior deltoid [allowed: luc.edu] (chest lane)",
+   "queryRef": [
+    "chest.Q60"
+   ],
+   "excerpt": "Adduction (247K) Pectoralis major, Latissimus dorsi, aided by teres major and subscapularis.",
+   "locator": "Shoulder: adduction"
+  },
+  {
+   "claimId": "back.latissimus_dorsi.function",
+   "sourceKey": "elsevier.latissimus_dorsi",
+   "query": "Q4: Elsevier Complete Anatomy descending part of trapezius muscle action elevates [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q4"
+   ],
+   "excerpt": "(link only) Result title \"Latissimus Dorsi Muscle\", https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-back/latissimus-dorsi-muscle/20795; the summary quoted nothing from it.",
+   "locator": "Quick Facts: Action (to check)"
+  },
+  {
+   "claimId": "back.latissimus_dorsi.appearance",
+   "sourceKey": "kenhub.infraspinatus",
+   "query": "shoulders.infraspinatus: infraspinatus muscle relations lies deep to trapezius parts of deltoid latissimus dorsi thick triangular muscle infraspinous fossa [allowed_domains: kenhub.com] (shoulders lane)",
+   "queryRef": [
+    "shoulders.infraspinatus"
+   ],
+   "excerpt": "lies on the dorsal surface of the scapula, deep to trapezius, and parts of the deltoid and latissimus dorsi muscles.",
+   "locator": "Relations: deep to trapezius, deltoid and latissimus dorsi"
+  },
+  {
+   "claimId": "back.latissimus_dorsi.appearance",
+   "sourceKey": "elsevier.latissimus_dorsi",
+   "query": "Q4: Elsevier Complete Anatomy descending part of trapezius muscle action elevates [allowed_domains: elsevier.com]",
+   "queryRef": [
+    "Q4"
+   ],
+   "excerpt": "(link only) Result title \"Latissimus Dorsi Muscle\", https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-back/latissimus-dorsi-muscle/20795; the summary quoted nothing from it.",
+   "locator": "Quick Facts: Origin and insertion (to check)"
+  },
+  {
+   "claimId": "back.teres_major.function",
+   "sourceKey": "kenhub.shoulder_joint",
+   "query": "chest.Q56: Kenhub shoulder joint movements prime flexors of the glenohumeral joint deltoid anterior fibers pectoralis major clavicular fibers adductors pectoralis major latissimus [allowed: kenhub.com] (chest lane)",
+   "queryRef": [
+    "chest.Q56"
+   ],
+   "excerpt": "Adduction is produced by the pectoralis major, latissimus dorsi and teres major muscles. Together these three are known as the \"climbing muscles\", as they are powerful adductors.",
+   "locator": "Movements: adduction"
+  },
+  {
+   "claimId": "back.teres_major.function",
+   "sourceKey": "luc.upper_limb_joint_actions",
+   "query": "chest.Q60: Loyola LUMEN joint actions of upper limb shoulder horizontal flexion horizontal adduction muscles pectoralis major anterior deltoid [allowed: luc.edu] (chest lane)",
+   "queryRef": [
+    "chest.Q60"
+   ],
+   "excerpt": "Adduction (247K) Pectoralis major, Latissimus dorsi, aided by teres major and subscapularis.",
+   "locator": "Shoulder: adduction"
+  },
+  {
+   "claimId": "back.teres_major.appearance",
+   "sourceKey": "kenhub.teres_minor",
+   "query": "shoulders.teres_minor: teres minor muscle narrow elongated lateral border of scapula below infraspinatus above teres major covered by deltoid relations [allowed_domains: kenhub.com, ncbi.nlm.nih.gov, statpearls.com, radiopaedia.org] (shoulders lane)",
+   "queryRef": [
+    "shoulders.teres_minor"
+   ],
+   "excerpt": "Inferior neighbour: Teres major lies beneath it ... Kenhub notes that deltoid covers its superolateral aspect",
+   "locator": "Relations: inferior neighbour"
+  },
+  {
+   "claimId": "back.erector_spinae.function",
+   "sourceKey": "statpearls.back_muscles",
+   "query": "Q6: \"Anatomy, Back, Trapezius\" StatPearls NCBI Bookshelf NBK",
+   "queryRef": [
+    "Q6"
+   ],
+   "excerpt": "Related StatPearls entry: NBK537216 covers the back muscles more broadly and lists the trapezius among the extrinsic back muscles.",
+   "locator": "Structure and Function (to check)"
+  },
+  {
+   "claimId": "back.erector_spinae.appearance",
+   "sourceKey": "statpearls.back_muscles",
+   "query": "Q6: \"Anatomy, Back, Trapezius\" StatPearls NCBI Bookshelf NBK",
+   "queryRef": [
+    "Q6"
+   ],
+   "excerpt": "Related StatPearls entry: NBK537216 covers the back muscles more broadly and lists the trapezius among the extrinsic back muscles.",
+   "locator": "Structure and Function (to check)"
+  },
+  {
+   "claimId": "back.quadratus_lumborum.function",
+   "sourceKey": "statpearls.back_muscles",
+   "query": "Q6: \"Anatomy, Back, Trapezius\" StatPearls NCBI Bookshelf NBK",
+   "queryRef": [
+    "Q6"
+   ],
+   "excerpt": "Related StatPearls entry: NBK537216 covers the back muscles more broadly and lists the trapezius among the extrinsic back muscles.",
+   "locator": "Structure and Function (to check)"
+  },
+  {
+   "claimId": "back.quadratus_lumborum.appearance",
+   "sourceKey": "statpearls.back_muscles",
+   "query": "Q6: \"Anatomy, Back, Trapezius\" StatPearls NCBI Bookshelf NBK",
+   "queryRef": [
+    "Q6"
+   ],
+   "excerpt": "Related StatPearls entry: NBK537216 covers the back muscles more broadly and lists the trapezius among the extrinsic back muscles.",
+   "locator": "Structure and Function (to check)"
+  }
+ ],
+ "deviations": [
+  {
+   "id": "D0",
+   "kind": "none found",
+   "subject": "§1.2 back rows",
+   "finding": "Nothing in the recorded excerpts contradicts any back row of §1.2 (ids, names, short names, kinds, roles, layers, parents, region actions). The trapezius parts' 'surface' layer is supported; every other layer and the erector spinae's lumbar-window outcrop are unchecked, not confirmed.",
+   "contradictsSection12": false
+  },
+  {
+   "id": "D1",
+   "kind": "proposed_addition (not applied)",
+   "subject": "Node actions outside the back's region actions",
+   "finding": "§1.2 lists the latissimus dorsi and teres major as external members of the shoulders, whose region actions include shoulder.internal_rotation, and node actions are declared only by a node's home region (§1.3). The back's region actions do not include internal rotation, so as drafted the shoulders page could show these two muscles only under shoulder.extension. Both draft function claims already state that the muscle turns the arm inward.",
+   "evidence": [
+    "No excerpt this session supports internal rotation for either muscle (search budget exhausted); textbook anatomy, to be confirmed."
+   ],
+   "proposal": "If the follow-up search confirms it and the adversarial review accepts it: add rows (back.latissimus_dorsi, shoulder.internal_rotation, prime) and (back.teres_major, shoulder.internal_rotation, assist) resting on their function claims. The schema has no rule tying a node action to its home region's region actions (node_actions references actions only). Not applied here.",
+   "contradictsSection12": false
+  },
+  {
+   "id": "D2",
+   "kind": "observation (no change proposed)",
+   "subject": "Neck actions",
+   "finding": "The upper trapezius extends the head and neck and bends them to the side (elsevier.trapezius_descending, kenhub.trapezius), and the levator scapulae is described as bending the neck (unconfirmed this session). §1.2 has no neck action; spine.extension and spine.lateral_flexion are worded here for the trunk. The claims state the neck actions as anatomy, and no node action counts them, as the forearm left the hand's actions out.",
+   "contradictsSection12": false
+  },
+  {
+   "id": "D3",
+   "kind": "to check (unevidenced)",
+   "subject": "back.levator_scapulae layer",
+   "finding": "From textbook anatomy, not from an excerpt: part of the levator scapulae lies in the side of the neck between the upper trapezius and the sternocleidomastoid, covered only by fascia and skin. If confirmed, the drawing's Side view could show it as a surface outcrop of an intermediate node. §1.2 is unchanged.",
+   "contradictsSection12": false
+  }
+ ],
+ "notes": {
+  "searchBudget": "This lane ran seven web searches (Q1-Q7). The eighth and ninth were refused: 'this turn's web search budget is used up (limit: 200 WebSearch calls per turn, shared by every agent in it)'. No workaround was attempted (no curl, no reader services). Excerpts the chest and shoulders lanes recorded on 19 Oct 2026 that name back muscles were reused, each citation naming that lane's query. The trapezius (four nodes) is fully reviewed; the rhomboids, levator scapulae, latissimus dorsi, teres major, erector spinae and quadratus lumborum are draft and need a follow-up session.",
+  "singleSourceFunctionClaims": "No reviewed function claim rests on one reference. Sentences inside reviewed claims that rest on one reference: the upper trapezius helping hold the shoulders up against gravity when carrying a load (kenhub.trapezius); the upper trapezius extending the head and neck (Elsevier only, its descending-part and whole-muscle pages); the middle trapezius 'working with the rhomboids' (kenhub.trapezius). Draft function claims with a single supporting reference for what is supported: back.levator_scapulae.function (elevation: kenhub.trapezius, another muscle's page).",
+  "unconfirmedBibliography": [
+   "statpearls.trapezius: authors and update date not shown; the Bookshelf id NBK518994 came from the search, not from opening the page; the excerpts came from the statpearls.com point-of-care copy (30528) and the Bookshelf record.",
+   "statpearls.rhomboids: authors not shown; NBK534856 from the search.",
+   "statpearls.serratus_anterior: seen only through the chest lane; title from that lane's log.",
+   "statpearls.back_muscles: exact title not shown; contents beyond the trapezius unknown.",
+   "luc.upper_limb_joint_actions: full URL not recorded by the chest lane ('meddean.luc.edu lumen ue/ueaction.html'); left empty rather than reconstructed.",
+   "kenhub.shoulder_joint: the adduction line is tied to this page by inference from a three-page result list.",
+   "kenhub.trapezius: lines are tied to the page by the result numbers in generated summaries; Q1 returned it once with a space in the URL.",
+   "elsevier.levator_scapulae, elsevier.latissimus_dorsi, elsevier.rhomboid_major: titles and URLs only."
+  ],
+  "disagreements": [
+   "Lower trapezius and upward rotation. StatPearls frames the lower fibres mainly as depressors that help the upper fibres rotate the scapula upward; Elsevier lists upward rotation among the ascending part's own actions; StatPearls' serratus anterior article names the upper and lower fibres together. Wording: the lower part 'helps the upper part turn it upward'; node action 'assist'; a caveat says references differ.",
+   "Retraction by the upper and lower parts. StatPearls names only the middle fibres as retractors; Elsevier lists retraction for all three parts; Kenhub gives the upper and lower parts' pull a medial component. Wording: 'helps draw the shoulder blade toward the spine'; node actions 'assist'.",
+   "Teres major in adduction. Kenhub groups it with the latissimus dorsi and pectoralis major as 'powerful adductors'; Loyola says adduction is 'aided by teres major'. Wording: 'helps bring the arm down'; node action 'prime' (draft), so that the target has a main action; the follow-up should settle it.",
+   "A second Kenhub overview (upper limb muscles and movements) assigned elevation and depression to the lower fibres and extension, elevation and retraction to the upper and middle fibres, against Kenhub's own trapezius page, StatPearls and Elsevier. Not cited.",
+   "Elsevier frames the trapezius parts' actions at the joints of the shoulder girdle (acromioclavicular and sternoclavicular), StatPearls and Kenhub at the scapula. The claims say 'the shoulder blade', which both framings move.",
+   "Summary errors seen: Q7's summary said Wikipedia's rhomboid insertion order 'differs from the StatPearls description', but the StatPearls lines it quoted say the same (major below minor). Q2's line that the ascending fibres are 'effective for depression and upward rotation, with only assistance in retraction' was numbered (5-5), and result 5 in that list was a patent ('Muscle stretching apparatus'); it is not used."
+  ],
+  "deliberatelyNotClaimed": [
+   "No selectivity claims: no EMG or clinical finding on a back muscle was recorded this session. The chest lane's Ludewig 2004 push-up result (lowest upper-trapezius-to-serratus ratio in the push-up plus) is a serratus finding and is left to the chest.",
+   "No variation claims: none was searched.",
+   "No node actions for the trapezius parent (parents are neither drawn nor selectable, §7.3).",
+   "No horizontal abduction rows for back muscles; the back lists the action for the posterior deltoid (external).",
+   "Neck actions (D2)."
+  ],
+  "followUpSearches": [
+   "Rhomboids: direction of rotation (Kenhub rhomboid muscles 'Function'; Elsevier rhomboid major 20614 'Action'); depth under the trapezius.",
+   "Levator scapulae: StatPearls, Kenhub, Elsevier 18540 (action, attachments, relations, the side-of-neck question in D3).",
+   "Latissimus dorsi: StatPearls, Kenhub, Elsevier 20795 (extension, internal rotation, attachments, surface relations, the lower trapezius over its upper edge).",
+   "Teres major: StatPearls, Kenhub, Elsevier (extension, internal rotation, relations to the latissimus dorsi and deltoid; prime or assist in adduction).",
+   "Erector spinae: StatPearls back muscles NBK537216 or its erector spinae article, Kenhub, Radiopaedia (extension, lateral flexion, columns, depth, the lumbar window and the thoracolumbar fascia).",
+   "Quadratus lumborum: StatPearls, Kenhub (lateral flexion, extension, steadying, depth).",
+   "Selectivity candidates, from the agent's own memory and NOT verified or cited: trapezius and serratus EMG across rehabilitation exercises (Ekstrom and colleagues, 2003); trapezius part ratios (Cools and colleagues, 2007); lat pulldown grip width; pull-up versus chin-up; quadratus lumborum in the side bridge (McGill's group). Each needs a search and an excerpt before it can be a claim.",
+   "Variation candidates, from memory and NOT verified: the axillary arch of the latissimus dorsi; accessory slips of the levator scapulae."
+  ],
+  "testRuleConflictForIntegration": "The forearm test 'gives every muscle a main action' checks every node of kind 'muscle'. back.trapezius is kind 'muscle' with role 'group' and, as a parent, has no node actions (§7.3), so a back test copied from the forearm's would fail on it (the shoulders' deltoid is in the same position). The region test should skip parent nodes.",
+  "copyChecks": "Every node and claim string was checked by script for the forearm test's patterns: no 'left' or 'right', no per cent sign or 'percent', no 'optimal' or 'guarantee', no 'will grow', no vendor name, no 'table' or 'tables'; cited source titles likewise."
+ }
+}
