@@ -41,3 +41,19 @@ export function loadRegionData(id: RegionId): Promise<SpecializationRegionData |
   pending.set(id, next);
   return next;
 }
+
+/**
+ * Starts loading a region's page data without waiting for it. Home calls it as it renders the
+ * page, so the region's chunk downloads beside the page's own: loaded from the page's effect, it
+ * waited for the page's first commit, which React holds back by its Suspense reveal throttle
+ * (about 300 ms), and the summary then rendered after it instead of during it. A failure is left
+ * to the page, which asks again (a failed load is not kept) and says so.
+ */
+export function preloadRegionData(id: RegionId): void {
+  loadRegionData(id).catch(() => undefined);
+}
+
+/** Settles once every load started so far has, loaded or failed: the page's lazy import waits for it, so its first render has its region. */
+export function regionLoadsSettled(): Promise<void> {
+  return Promise.allSettled(Array.from(pending.values())).then(() => undefined);
+}

@@ -4,7 +4,7 @@ import type { StoreWrite } from "@/lib/specialization/stores";
 import { goalProgressLabel, goalsForBothSides } from "@shared/specialization/goals";
 import { addDaysToDateKey } from "@shared/specialization/time";
 import type { GoalMetric, GoalPeriod, GoalProgress, SpecializationGoal, SpecializationRegion, SummarySide } from "@shared/specialization/types";
-import { goalMetricLabels } from "./model";
+import { READ_ONLY_TARGET_NOTE, UNCOUNTED_TARGET_PROGRESS, goalMetricLabels } from "./model";
 import { revealClearOfBars } from "./reveal";
 import { sideWordsFor, type SideWords } from "./sideWords";
 import "./targets.css";
@@ -248,7 +248,7 @@ function ChangeTarget({ goal, description, onSave, onCancel }: {
   </form>;
 }
 
-function TargetRow({ words, goal, side, progress, subjectName, showSubject, readOnly, editing, onEdit, onStopEditing, edits, todayKey }: {
+function TargetRow({ words, goal, side, progress, subjectName, showSubject, readOnly, uncounted, editing, onEdit, onStopEditing, edits, todayKey }: {
   words: SideWords;
   goal: SpecializationGoal;
   side: SummarySide;
@@ -257,6 +257,8 @@ function TargetRow({ words, goal, side, progress, subjectName, showSubject, read
   showSubject: boolean;
   /** A target on a muscle that is not a target here: it can be ended or removed, not changed. */
   readOnly: boolean;
+  /** Nothing can be counted for its muscle (no reviewed mapping): its progress says so, never a zero. */
+  uncounted: boolean;
   editing: boolean;
   onEdit: () => void;
   onStopEditing: () => void;
@@ -273,7 +275,7 @@ function TargetRow({ words, goal, side, progress, subjectName, showSubject, read
   const startsLater = goal.startsOn > todayKey;
   const current = goal.side === side;
   // On this side, the summary's "8 of your 20"; with no summary yet, nothing rather than a guess.
-  const label = !current || startsLater ? null : progress ? progress.label : null;
+  const label = !current || startsLater ? null : uncounted ? UNCOUNTED_TARGET_PROGRESS : progress ? progress.label : null;
   return <li className="spz-target spz-tg-row" data-side={goal.side} data-current={current || undefined}>
     <span>
       <b>{[showSubject ? subjectName : null, sideLabelOf(words, goal.side), goalMetricLabels[goal.metric]].filter(Boolean).join(" · ")}</b>
@@ -305,7 +307,7 @@ function TargetRow({ words, goal, side, progress, subjectName, showSubject, read
  * ("8 of your 20"), and offers Change (the number, in place), End and Remove; a target on a muscle
  * that is not a target of this region (`readOnly`) offers End and Remove only.
  */
-export function TargetRows({ region, goals, side, progress, edits, subjectName, showSubject = false, readOnly = () => false, todayKey, progressReady = true }: {
+export function TargetRows({ region, goals, side, progress, edits, subjectName, showSubject = false, readOnly = () => false, uncounted = () => false, todayKey, progressReady = true }: {
   region: TargetWords;
   goals: readonly SpecializationGoal[];
   side: SummarySide;
@@ -314,6 +316,8 @@ export function TargetRows({ region, goals, side, progress, edits, subjectName, 
   subjectName: (goal: SpecializationGoal) => string;
   showSubject?: boolean;
   readOnly?: (goal: SpecializationGoal) => boolean;
+  /** A target whose muscle nothing can be counted for yet (no reviewed mapping). */
+  uncounted?: (goal: SpecializationGoal) => boolean;
   todayKey: string;
   /** False while the summary is not ready: rows then show no progress rather than a zero. */
   progressReady?: boolean;
@@ -325,7 +329,7 @@ export function TargetRows({ region, goals, side, progress, edits, subjectName, 
       const found = progress.find((item) => item.goal.id === goal.id) ?? null;
       // A ready summary always reads an active target on its side; without one, say what it reads as so far.
       const shown = found ?? (progressReady && goal.side === side && goal.startsOn <= todayKey ? { goal, value: 0, fraction: 0, label: goalProgressLabel(0, goal) } : null);
-      return <TargetRow key={goal.id} words={words} goal={goal} side={side} progress={shown} subjectName={subjectName(goal)} showSubject={showSubject} readOnly={readOnly(goal)}
+      return <TargetRow key={goal.id} words={words} goal={goal} side={side} progress={shown} subjectName={subjectName(goal)} showSubject={showSubject} readOnly={readOnly(goal)} uncounted={uncounted(goal)}
         editing={editingId === goal.id} onEdit={() => setEditingId(goal.id)} onStopEditing={() => setEditingId(null)} edits={edits} todayKey={todayKey} />;
     })}
   </ul>;
@@ -472,8 +476,7 @@ export function savedMessage(region: TargetWords, saved: readonly Specialization
   return `Saved: a ${adjective ? `${adjective} ` : ""}target for ${subjectName}.`;
 }
 
-/** Said beside a target on a muscle that is not a target of the page's region (10-multi-region.md §2.2). */
-export const READ_ONLY_TARGET_NOTE = "Targets are for this region's target muscles. You can end or remove this one.";
+export { READ_ONLY_TARGET_NOTE };
 
 /**
  * "Your target" in the muscle sheet (brief §7). A target is the athlete's intent, attached
@@ -487,12 +490,14 @@ export const READ_ONLY_TARGET_NOTE = "Targets are for this region's target muscl
  * Only a target muscle of the region gets a new target (`canSet`); a target saved earlier on
  * another muscle is shown with End and Remove only (10-multi-region.md §2.2).
  */
-export function TargetsEditor({ region, nodeId, nodeName, canSet, side, goals, progress, timeZone, todayKey, onSave, onRestore, onRemove }: {
+export function TargetsEditor({ region, nodeId, nodeName, canSet, counted = true, side, goals, progress, timeZone, todayKey, onSave, onRestore, onRemove }: {
   region: TargetWords;
   nodeId: string;
   nodeName: string;
   /** The muscle is a target of the page's region: targets can be set and changed. */
   canSet: boolean;
+  /** Something can be counted for the muscle (a reviewed mapping); otherwise its targets say nothing can be counted yet. */
+  counted?: boolean;
   side: SummarySide;
   /** Every saved target for this muscle, both sides, ended ones included. */
   goals: readonly SpecializationGoal[];
@@ -517,7 +522,7 @@ export function TargetsEditor({ region, nodeId, nodeName, canSet, side, goals, p
   return <div className="spz-targets">
     {!canSet && active.length > 0 && <p className="spz-note">{READ_ONLY_TARGET_NOTE}</p>}
     {active.length ? <>
-      <TargetRows region={region} goals={active} side={side} progress={progress} edits={edits} subjectName={subjectName} readOnly={() => !canSet} todayKey={todayKey} />
+      <TargetRows region={region} goals={active} side={side} progress={progress} edits={edits} subjectName={subjectName} readOnly={() => !canSet} uncounted={() => !counted} todayKey={todayKey} />
       {canSet && !onThisSide && side !== "midline" && <p className="spz-note"><b>Not targeted on the {words.of(side)}.</b> Only the other {words.one} has a target for this muscle.</p>}
     </> : canSet && <p className="spz-note"><b>Not targeted.</b> Nothing here is behind: a muscle without a target has no gap to show.</p>}
     <TargetEditStatus edits={edits} />

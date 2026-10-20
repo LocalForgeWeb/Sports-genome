@@ -150,3 +150,62 @@ describe("a target on a muscle that is not a target here, in the Targets overvie
     });
   }
 });
+
+describe("a target on a muscle that is not a target here, in Coverage to review", () => {
+  /** This week: a wrist curl, and a one-arm wrist curl logged with no arm, so the page has a finding about the records. */
+  const week = [{
+    id: "w", title: "Pull", dayLabel: "Week 1 · Day 01 · Pull", startedAt: "2026-10-14T17:00:00.000Z", completedAt: "2026-10-14T18:00:00.000Z", status: "completed",
+    exercises: [
+      { id: "e1", exerciseName: exercises.find((exercise) => exercise.id === 139)!.name, catalogId: 139, plannedPrescription: "3 × 12", sets: [1, 2, 3].map(() => ({ weight: "20", reps: "12", unit: "kg", completed: true })) },
+      { id: "e2", exerciseName: exercises.find((exercise) => exercise.id === 410)!.name, catalogId: 410, plannedPrescription: "1 × 12", sets: [{ weight: "8", reps: "12", unit: "kg", completed: true }] },
+    ],
+  }];
+  const findingTitles = () => Array.from(document.querySelectorAll(".spz-finding strong")).map((item) => item.textContent);
+  const findingOf = (title: string) => Array.from(document.querySelectorAll<HTMLElement>(".spz-finding")).find((item) => item.querySelector("strong")?.textContent === title)!;
+
+  it("is said last, once per muscle, as one to end or remove, never as a target behind with exercises for it", async () => {
+    window.localStorage.setItem("sports-genome-device-workout-history-v1", JSON.stringify(week));
+    saveSpecializationGoals([biceps, anconeus, goal("anc-holds", "forearm.anconeus", { metric: "deliberate_hold_bouts", target: 2 }), goal("fcr", "forearm.fcr", { target: 6 })], null);
+    render(createElement(Harness));
+    await act(async () => {});
+    const more = screen.queryByRole("button", { name: /^Show \d+ more$/ });
+    if (more) await click(more);
+    // A target on a target muscle leads; the records' findings follow; the targets saved earlier come last, once per muscle.
+    expect(findingTitles()).toEqual([
+      "Flexor carpi radialis: 3 of your 6",
+      "1 set with no arm recorded",
+      "Biceps brachii: a target saved earlier",
+      "Anconeus: a target saved earlier",
+    ]);
+    for (const title of ["Biceps brachii: a target saved earlier", "Anconeus: a target saved earlier"]) {
+      expect(findingOf(title).querySelector("p")?.textContent).toBe(READ_ONLY);
+      expect(within(findingOf(title)).getByRole("button").textContent?.trim()).toBe("End or remove it");
+    }
+    expect(screen.getAllByRole("button", { name: /^See exercises for it/ })).toHaveLength(1);
+    // Its action opens the muscle's sheet at its targets, which can be ended or removed there.
+    await click(within(findingOf("Anconeus: a target saved earlier")).getByRole("button"));
+    const sheet = screen.getByRole("dialog", { name: "Anconeus" });
+    expect(within(sheet).getByText(READ_ONLY)).toBeTruthy();
+    expect(within(sheet).getAllByRole("button", { name: /^End the right-arm target/ })).toHaveLength(2);
+  });
+
+  it("says nothing can be counted for a muscle with no mapping, never 0 of the target: in the strip, the sheet and the Targets overview", async () => {
+    window.localStorage.setItem("sports-genome-device-workout-history-v1", JSON.stringify(week));
+    saveSpecializationGoals([anconeus, biceps], null);
+    render(createElement(Harness));
+    await act(async () => {});
+    const sheet = await sheetOf(/^Anconeus,/);
+    expect(within(sheet).getByText("No exercise is mapped to this muscle yet, so there is nothing to count. That is missing mapping, not missing training.")).toBeTruthy();
+    expect(within(sheet).getByText(/4 per calendar week · nothing can be counted for it yet/)).toBeTruthy();
+    expect(sheet.textContent).not.toMatch(/0 of your 4/);
+    await click(within(sheet).getByRole("button", { name: /^Close/ }));
+    expect(document.querySelector(".spz-strip-goal")?.textContent).toBe("Direct bouts: nothing can be counted for it yet");
+    // The biceps is counted here (the forearm's own rows credit it until the upper arm has a version): its target reads as a count.
+    await sheetOf(/^Biceps brachii,/);
+    await click(within(screen.getByRole("dialog")).getByRole("button", { name: /^Close/ }));
+    expect(document.querySelector(".spz-strip-goal")?.textContent).toMatch(/^Direct bouts: \d+ of your 4$/);
+    const targets = await overview();
+    expect(within(targets).getByText(/4 per calendar week · nothing can be counted for it yet/)).toBeTruthy();
+    expect(within(targets).getAllByText(/of your 4/)).toHaveLength(1);
+  });
+});

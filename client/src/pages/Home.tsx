@@ -102,6 +102,7 @@ import { isLaunchExperienceEnabled, launchExperiencePreferenceKey } from "@/lib/
 import { buildStampLabel } from "@/lib/buildStamp";
 import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
+import { preloadRegionData, regionLoadsSettled } from "@/lib/specialization/loadRegion";
 import { clearSpecializationParams, defaultSpecializationState, readRememberedRegion, specializationStateFromParams, withRegion, writeSpecializationParams, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { applyPlanChangeToRecord } from "@/lib/specialization/planChange";
 import { useSpecializationGoals } from "@/lib/specialization/stores";
@@ -159,7 +160,13 @@ const BodyLabNavigator = lazy(() => import("@/components/BodyLabNavigator").then
 const CatalogDiscoveryPanel = lazy(() => import("@/components/CatalogDiscoveryPanel").then((module) => ({ default: module.CatalogDiscoveryPanel })));
 const CatalogExerciseEvidenceCard = lazy(() => import("@/components/CatalogExerciseEvidenceCard").then((module) => ({ default: module.CatalogExerciseEvidenceCard })));
 const StrengthGenomePanel = lazy(() => import("@/components/StrengthGenomePanel").then((module) => ({ default: module.StrengthGenomePanel })));
-const SpecializationPanel = lazy(() => import("@/components/specialization/SpecializationPanel").then((module) => ({ default: module.SpecializationPanel })));
+// The page's chunk waits for the data of the region it opens on, which Home starts loading as it
+// renders the page (preloadRegionData below), so the two download together and the page's first
+// render already shows its region (docs/specialization-atlas/09-page.md, "Opening the page").
+const SpecializationPanel = lazy(() => import("@/components/specialization/SpecializationPanel").then(async (module) => {
+  await regionLoadsSettled();
+  return { default: module.SpecializationPanel };
+}));
 const SelectedActionConnectionCard = lazy(() => import("@/components/SelectedActionConnectionCard").then((module) => ({ default: module.SelectedActionConnectionCard })));
 
 // FIXED DEFAULT per the Sports Genome philosophy's Mobile global navigation contract: four
@@ -596,6 +603,8 @@ export default function Home() {
    */
   const specializationRegionDecided = useRef(typeof window !== "undefined" && addressNamesSpecializationRegion(new URLSearchParams(window.location.search)));
   const [specializationChooseRegion, setSpecializationChooseRegion] = useState(false);
+  // The region's data starts loading with the page's chunk, not after the page's first commit; a no-op once it is loaded or loading.
+  if (workspace === "specialization") preloadRegionData(specializationState.regionId);
   /** What a page is called in words (the browser tab, search's way back): the specialization page by the region it shows, "Forearm specialization". */
   const pageTitle = (place: Workspace): string => (place === "specialization" ? regionIndexEntry(specializationState.regionId)?.heading ?? workspaceTitles.specialization : workspaceTitles[place]);
   /**

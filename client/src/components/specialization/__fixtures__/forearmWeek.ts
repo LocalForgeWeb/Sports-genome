@@ -4,10 +4,14 @@ import { buildDaySlots, emptyDayStore } from "@/lib/trainingDayPlan";
 /**
  * One week of forearm work, and a plan, that reaches every kind of row on the forearm page:
  * two-handed, one-arm, either-way with Both, one and no arm, holds, straps, region-only work, a set
- * matched by name, a warm-up, an unfinished workout; with targets on target muscles, on a movement,
- * and saved earlier on the biceps (external) and the anconeus (adjacent). The page's reading tests
- * (pageNumbers.render.test.ts, pageText.render.test.ts) render it, and so did their reference
- * readings at 8e746b4, so the scenario lives here once.
+ * matched by name, a warm-up, an unfinished workout, more one-arm work on the right than on the left
+ * (the finding on a difference between the arms), and a sled push (296: an exercise the forearm
+ * leaves unmapped by name, listed under "How this is counted"); with targets on target muscles, on a
+ * movement, and saved earlier on the biceps (external, right arm only) and the anconeus (adjacent,
+ * left arm only), so each arm shows each of them both with a target and without one, and the
+ * brachialis with none. The page's reading tests (pageNumbers.render.test.ts,
+ * pageText.render.test.ts) render it, and so did their reference readings at 3986178, the shipped
+ * page, so the scenario lives here once.
  */
 
 export const NOW = "2026-10-16T12:00:00.000Z";
@@ -24,6 +28,7 @@ const ex = (id: string, catalogId: number | null, sets: Record<string, unknown>[
 const workout = (id: string, completedAt: string, exercisesDone: unknown[], over: Record<string, unknown> = {}) => ({ id, title: "Pull", dayLabel: "Week 1 · Day 02 · Pull", startedAt: new Date(Date.parse(completedAt) - 3_600_000).toISOString(), completedAt, status: "completed", exercises: exercisesDone, ...over });
 
 export const sessions = [
+  workout("w-12", "2026-10-12T18:00:00.000Z", [ex("f1", 410, [set({ side: "right" }), set({ side: "right" }), set({ side: "right" })])]),
   workout("w-8", "2026-10-08T18:00:00.000Z", [ex("a1", 139, [set(), set(), set()]), ex("a2", 143, [hold(40), hold(35)])]),
   workout("w-13", "2026-10-13T18:00:00.000Z", [ex("b1", 132, [set(), set(), set({ reps: "10" })]), ex("b2", 139, [set({ weight: "60" }), set({ weight: "60" }), set({ weight: "60", warmup: true })])]),
   workout("w-14", "2026-10-14T18:00:00.000Z", [
@@ -37,7 +42,7 @@ export const sessions = [
     ex("c8", null, [set(), set()]),
     ex("c9", 409, [hold(40, { side: "left" }), hold(40)]),
   ]),
-  workout("w-15", "2026-10-15T18:00:00.000Z", [ex("d1", 140, [set(), set(), set()]), ex("d2", 135, [set()])]),
+  workout("w-15", "2026-10-15T18:00:00.000Z", [ex("d1", 140, [set(), set(), set()]), ex("d2", 135, [set()]), ex("d3", 296, [set({ weight: "180", reps: "1" })])]),
   { ...workout("w-16", "2026-10-16T10:00:00.000Z", [ex("e1", 411, [set(), set({ side: "right" })])]), status: "active", completedAt: undefined },
 ];
 
@@ -46,6 +51,6 @@ export const goals = (["left", "right"] as const).flatMap((side) => [
   goal(`br-${side}`, { side, nodeId: "forearm.br" }),
   goal(`fds-${side}`, { side, nodeId: "forearm.fds", metric: "deliberate_hold_seconds", target: 300 }),
   goal(`wrist-${side}`, { side, actionId: "wrist.flexion", target: 8 }),
-  goal(`biceps-${side}`, { side, nodeId: "upper_arm.biceps", target: 5 }),
-  goal(`anconeus-${side}`, { side, nodeId: "forearm.anconeus", target: 3 }),
+  ...(side === "right" ? [goal(`biceps-${side}`, { side, nodeId: "upper_arm.biceps", target: 5 })] : []),
+  ...(side === "left" ? [goal(`anconeus-${side}`, { side, nodeId: "forearm.anconeus", target: 3 })] : []),
 ]);

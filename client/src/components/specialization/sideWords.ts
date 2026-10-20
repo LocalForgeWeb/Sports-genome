@@ -48,7 +48,11 @@ export type SideWords = {
   neither: string;
   /** "One-arm work logged from now on asks which arm." */
   asksWhich: string;
-  /** "Sets done with both arms count for each arm; only one-arm sets make the arms differ." */
+  /**
+   * "Two-handed sets count for both arms; only one-arm sets make the arms differ.", as the forearm
+   * has always said it (and "both sides" on the chest and back); "Sets done with both legs count for
+   * each leg; only one-leg sets make the legs differ." on a region paired by the leg.
+   */
   differ: string;
   /** "A set done with both arms counts for each arm." */
   bothCount: string;
@@ -88,7 +92,9 @@ export function sideWordsFor(region: Pick<SpecializationRegion, "id" | "sides" |
     aLimb: withArticle(limb),
     neither: `counted for neither ${one}`,
     asksWhich: `One-${limb} work logged from now on asks which ${limb}.`,
-    differ: `Sets done with both ${limbs} count for each ${one}; only one-${limb} sets make the ${many} differ.`,
+    differ: limb === "arm"
+      ? `Two-handed sets count for both ${many}; only one-${limb} sets make the ${many} differ.`
+      : `Sets done with both ${limbs} count for each ${one}; only one-${limb} sets make the ${many} differ.`,
     bothCount: `A set done with both ${limbs} counts for each ${one}.`,
   };
 }

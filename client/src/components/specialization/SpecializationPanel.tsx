@@ -27,7 +27,7 @@ import { TargetsOverview } from "./TargetsOverview";
 import { PlanChangeSheet } from "./PlanChangeSheet";
 import { scrollToTopClear } from "./reveal";
 import { SpecializationDiagram } from "./SpecializationDiagram";
-import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, drawingMirrored, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricShortLabels, holdTime, goalsForNode, latestSessionDayLabel, layerLabels, listedUnmappedReasons, listedUnmappedSentences, movementFocusNodeId, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
+import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, drawingMirrored, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricShortLabels, holdTime, goalsForNode, latestSessionDayLabel, layerLabels, listedUnmappedReasons, listedUnmappedSentences, movementFocusNodeId, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, targetProgressText, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
 import { rowSideTextFor, sideWordsFor, type SideWords } from "./sideWords";
 import "@/components/anatomy/anatomy-figure.css";
 import "./specialization.css";
@@ -122,7 +122,13 @@ export function SpecializationPanel(props: SpecializationPanelProps) {
   const [failed, setFailed] = useState<{ regionId: RegionId; why: "import" | "missing" } | null>(null);
   const data = region ? loadedRegionData(region.id) : null;
   useEffect(() => {
-    if (!region || loadedRegionData(region.id)) return;
+    if (!region) return;
+    // Loaded since this render (a load Home started beside the page's chunk can land between the
+    // render and this effect): show it, rather than keep the loading line with nothing to end it.
+    if (loadedRegionData(region.id)) {
+      if (!data) setLoads((count) => count + 1);
+      return;
+    }
     let live = true;
     setFailed(null);
     loadRegionData(region.id).then(
@@ -131,7 +137,7 @@ export function SpecializationPanel(props: SpecializationPanelProps) {
       () => { if (live) setFailed({ regionId: region.id, why: "import" }); },
     );
     return () => { live = false; };
-  }, [region]);
+  }, [region, data]);
   // The region this account last opened on this device, so the page opens on it next time.
   useEffect(() => { if (region) rememberRegion(accountId, region.id); }, [accountId, region]);
 
@@ -700,7 +706,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           <p className="spz-strip-line">{sentenceFor(selected.id)}</p>
           {/* One line however many targets the muscle has, so the drawing stays on a small phone's
               first screen: the target furthest behind, and how many more the sheet lists. */}
-          {stripGoal && <p className="spz-strip-goal">{goalMetricShortLabels[stripGoal.goal.metric]}: {stripGoal.label}{stripGoalsMore ? ` · ${plural(stripGoalsMore, "more target")}` : ""}</p>}
+          {stripGoal && <p className="spz-strip-goal">{goalMetricShortLabels[stripGoal.goal.metric]}: {targetProgressText(stripGoal, selectedExposure)}{stripGoalsMore ? ` · ${plural(stripGoalsMore, "more target")}` : ""}</p>}
           <div className="spz-actions">
             {hasWork || !summary || selectedExposure?.mappingCoverage !== "reviewed"
               ? <button type="button" className="spz-primary" onClick={() => setSheet({ kind: "muscle" })}>Inspect coverage <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>

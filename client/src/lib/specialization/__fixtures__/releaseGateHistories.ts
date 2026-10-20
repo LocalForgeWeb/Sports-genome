@@ -96,7 +96,8 @@ const offlineSessions = [done("s1", "2026-10-13T18:00:00.000Z", [
  * two-handed one (132: the logger does not ask there, but an import or a swapped exercise can hold
  * a side, and the recorded side is what counts), a warm-up, a skipped set, straps yes, no and
  * unknown, a drop set, an exercise matched by name, holds, region-only work, a workout not
- * finished, a skipped-sets stamp and a skipped exercise.
+ * finished, a skipped-sets stamp and a skipped exercise; and a sled push (296), which carries the
+ * grip quality and is listed unmapped, so no total counts it.
  */
 const edgeSessions: DeviceWorkoutSession[] = [
   done("edge-1", "2026-10-14T18:00:00.000Z", [
@@ -114,6 +115,7 @@ const edgeSessions: DeviceWorkoutSession[] = [
     ex("x12", 200, [set({ id: "x12a" })]),
     ex("x13", 135, [set({ id: "x13a" })], { skippedSets: 2 }),
     ex("x14", 132, [set({ id: "x14a", side: "left" }), set({ id: "x14b", side: "right", warmup: true }), set({ id: "x14c", side: "both" })]),
+    ex("x15", 296, [set({ id: "x15a", weight: "180", reps: "1" }), set({ id: "x15b", weight: "180", reps: "1" })]),
   ], { notPerformed: [{ exerciseName: "Wrist Roller", catalogId: 141, plannedSets: 2, skipped: true }] } as Partial<DeviceWorkoutSession>),
   { ...done("edge-2", "2026-10-16T18:00:00.000Z", [ex("y1", 411, [set({ id: "y1a" }), set({ id: "y1b", side: "right" })])]), status: "active", completedAt: undefined } as unknown as DeviceWorkoutSession,
 ];

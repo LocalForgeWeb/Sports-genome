@@ -26,6 +26,8 @@ import { SpecializationPanel, type SpecializationPanelProps } from "./Specializa
 const loader = vi.hoisted(() => ({
   held: new Map<string, "held" | "failing">(),
   settle: new Map<string, { resolve: (data: unknown) => void; reject: (error: Error) => void }>(),
+  /** Regions whose data lands between the page's next render and its effect (a load Home started beside the page's chunk). */
+  late: new Set<string>(),
 }));
 
 vi.mock("@shared/specialization/regionIndex", async (importOriginal) => {
@@ -37,7 +39,10 @@ vi.mock("@/lib/specialization/loadRegion", async (importOriginal) => {
   const base = loaderWith(await importOriginal(), ["deltoid", "fx_thigh", "fx_back", "fx_shoulder", "fx_core"]);
   return {
     ...base,
-    loadedRegionData: (id: string) => (loader.held.has(id) ? null : base.loadedRegionData(id)),
+    loadedRegionData: (id: string) => {
+      if (loader.late.delete(id)) return null;
+      return loader.held.has(id) ? null : base.loadedRegionData(id);
+    },
     loadRegionData: (id: string) => {
       const how = loader.held.get(id);
       if (!how) return base.loadRegionData(id);
@@ -114,6 +119,7 @@ beforeEach(() => {
   clearSummaryCache();
   loader.held.clear();
   loader.settle.clear();
+  loader.late.clear();
   lastState = null;
 });
 afterEach(() => { cleanup(); vi.useRealTimers(); });
@@ -208,6 +214,14 @@ describe("a region's data, loaded on its own", () => {
     expect(toggle().textContent).toBe("Fixture core");
     loader.held.delete("fx_core");
     await act(async () => { loader.settle.get("fx_core")!.resolve(pageFixtures.fx_core); });
+    expect(screen.getByRole("button", { name: /^Fixture rectus abdominis/ })).toBeTruthy();
+  });
+
+  it("shows the page when its data lands between the page's render and its effect, never a loading line left with nothing to end it", async () => {
+    await loadRegionData("fx_core");
+    loader.late.add("fx_core");
+    await show({ regionId: "fx_core" });
+    expect(screen.queryByText("Loading the fixture core…")).toBeNull();
     expect(screen.getByRole("button", { name: /^Fixture rectus abdominis/ })).toBeTruthy();
   });
 

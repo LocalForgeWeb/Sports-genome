@@ -969,32 +969,32 @@
     "6 direct · 3 grip"
    ],
    [
+    "Flexor carpi radialis",
+    "6 direct"
+   ],
+   [
+    "Flexor carpi ulnaris",
+    "6 direct"
+   ],
+   [
     "Brachioradialis",
     "4 direct · 3 other"
    ],
    [
-    "Flexor carpi radialis",
-    "3 direct"
-   ],
-   [
-    "Flexor carpi ulnaris",
-    "3 direct"
-   ],
-   [
     "Flexor digitorum superficialis",
-    "15 grip"
+    "18 grip"
    ],
    [
     "Flexor digitorum profundus",
-    "15 grip"
+    "18 grip"
+   ],
+   [
+    "Palmaris longus",
+    "6 other"
    ],
    [
     "Extensor digitorum",
     "6 other"
-   ],
-   [
-    "Palmaris longus",
-    "3 other"
    ],
    [
     "Flexor pollicis longus",
@@ -1046,13 +1046,13 @@
    ]
   ],
   "region": [
-   "18",
+   "21",
    "4"
   ],
   "window": [
    "12",
    "18",
-   "18",
+   "21",
    "12",
    "1"
   ],
@@ -1066,7 +1066,7 @@
     "300"
    ],
    [
-    "3",
+    "6",
     "8"
    ]
   ],
@@ -1075,6 +1075,12 @@
     "Reverse Wrist Curl",
     [
      "5"
+    ]
+   ],
+   [
+    "One-Arm Dumbbell Wrist Curl",
+    [
+     "4"
     ]
    ],
    [
@@ -1114,12 +1120,6 @@
     ]
    ],
    [
-    "One-Arm Dumbbell Wrist Curl",
-    [
-     "1"
-    ]
-   ],
-   [
     "Reverse Curl",
     [
      "1"
@@ -1151,7 +1151,7 @@
    ]
   ],
   "days": [
-   "0",
+   "3",
    "5",
    "9",
    "4",
@@ -1160,8 +1160,8 @@
    "0"
   ],
   "completeness": [
+   "28",
    "25",
-   "22",
    "0",
    "3",
    "2",
@@ -1200,7 +1200,7 @@
      "0"
     ],
     [
-     "15"
+     "18"
     ],
     [
      "3"
@@ -1223,32 +1223,32 @@
     "6 direct · 3 grip"
    ],
    [
+    "Flexor carpi radialis",
+    "6 direct"
+   ],
+   [
+    "Flexor carpi ulnaris",
+    "6 direct"
+   ],
+   [
     "Brachioradialis",
     "4 direct · 3 other"
    ],
    [
-    "Flexor carpi radialis",
-    "3 direct"
-   ],
-   [
-    "Flexor carpi ulnaris",
-    "3 direct"
-   ],
-   [
     "Flexor digitorum superficialis",
-    "15 grip"
+    "18 grip"
    ],
    [
     "Flexor digitorum profundus",
-    "15 grip"
+    "18 grip"
+   ],
+   [
+    "Palmaris longus",
+    "6 other"
    ],
    [
     "Extensor digitorum",
     "6 other"
-   ],
-   [
-    "Palmaris longus",
-    "3 other"
    ],
    [
     "Flexor pollicis longus",
@@ -1300,7 +1300,7 @@
    ]
   ],
   "region": [
-   "18",
+   "21",
    "4"
   ],
   "window": [
@@ -1316,7 +1316,7 @@
     "300"
    ],
    [
-    "3",
+    "6",
     "8"
    ]
   ],
@@ -1325,6 +1325,12 @@
     "Reverse Wrist Curl",
     [
      "5"
+    ]
+   ],
+   [
+    "One-Arm Dumbbell Wrist Curl",
+    [
+     "4"
     ]
    ],
    [
@@ -1364,12 +1370,6 @@
     ]
    ],
    [
-    "One-Arm Dumbbell Wrist Curl",
-    [
-     "1"
-    ]
-   ],
-   [
     "Reverse Curl",
     [
      "1"
@@ -1404,15 +1404,15 @@
    "0",
    "0",
    "0",
-   "0",
+   "3",
    "5",
    "9",
    "4",
    "0"
   ],
   "completeness": [
+   "28",
    "25",
-   "22",
    "0",
    "3",
    "2",
@@ -1451,7 +1451,7 @@
      "0"
     ],
     [
-     "15"
+     "18"
     ],
     [
      "3"
@@ -1461,6 +1461,14 @@
  },
  "right/custom": {
   "rows": [
+   [
+    "Flexor carpi radialis",
+    "9 direct"
+   ],
+   [
+    "Flexor carpi ulnaris",
+    "9 direct"
+   ],
    [
     "Extensor carpi radialis longus",
     "6 direct · 3 grip"
@@ -1474,28 +1482,20 @@
     "6 direct · 3 grip"
    ],
    [
-    "Flexor carpi radialis",
-    "6 direct"
-   ],
-   [
-    "Flexor carpi ulnaris",
-    "6 direct"
-   ],
-   [
     "Brachioradialis",
     "4 direct · 3 other"
    ],
    [
     "Flexor digitorum superficialis",
-    "2 holds · 1 min 15 s · 18 grip"
+    "2 holds · 1 min 15 s · 21 grip"
    ],
    [
     "Flexor digitorum profundus",
-    "2 holds · 1 min 15 s · 18 grip"
+    "2 holds · 1 min 15 s · 21 grip"
    ],
    [
     "Palmaris longus",
-    "6 other"
+    "9 other"
    ],
    [
     "Extensor digitorum",
@@ -1551,7 +1551,7 @@
    ]
   ],
   "region": [
-   "23",
+   "26",
    "4"
   ],
   "window": [
@@ -1568,7 +1568,7 @@
     "300"
    ],
    [
-    "3",
+    "6",
     "8"
    ]
   ],
@@ -1583,6 +1583,12 @@
     "Wrist Curl",
     [
      "5"
+    ]
+   ],
+   [
+    "One-Arm Dumbbell Wrist Curl",
+    [
+     "4"
     ]
    ],
    [
@@ -1622,12 +1628,6 @@
     ]
    ],
    [
-    "One-Arm Dumbbell Wrist Curl",
-    [
-     "1"
-    ]
-   ],
-   [
     "Reverse Curl",
     [
      "1"
@@ -1666,15 +1666,15 @@
    "0",
    "0",
    "0",
-   "0",
+   "3",
    "5",
    "9",
    "4",
    "0"
   ],
   "completeness": [
+   "33",
    "30",
-   "27",
    "0",
    "3",
    "2",
@@ -1715,7 +1715,7 @@
      "15"
     ],
     [
-     "18"
+     "21"
     ],
     [
      "3"
@@ -1821,7 +1821,7 @@
   "window": [
    "1",
    "12",
-   "18"
+   "21"
   ],
   "findings": [
    [

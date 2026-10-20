@@ -91,6 +91,11 @@ export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey
   // Only a summary of this side speaks for this side.
   const summaryHere = summary && summary.side === side ? summary : null;
   const progress = summaryHere ? summaryHere.goals : [];
+  // A muscle with no reviewed mapping: nothing can be counted for its targets, so none reads as a zero.
+  const uncounted = (goal: SpecializationGoal) => {
+    const exposure = goal.nodeId ? summaryHere?.nodes.find((node) => node.nodeId === goal.nodeId) : undefined;
+    return exposure !== undefined && exposure.mappingCoverage !== "reviewed";
+  };
 
   return <div className="spz-tg-overview">
     {groups.length ? <ul className="spz-tg-groups">
@@ -102,7 +107,7 @@ export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey
         </div>
         {group.goals.some(readOnly) && <p className="spz-note">{READ_ONLY_TARGET_NOTE}</p>}
         {side !== "midline" && !group.goals.some((goal) => goal.side === side) && <p className="spz-note"><b>Not targeted on the {words.of(side)}.</b></p>}
-        <TargetRows region={data.region} goals={group.goals} side={side} progress={progress} edits={edits} subjectName={subjectName} readOnly={readOnly} todayKey={todayKey} progressReady={summaryHere !== null} />
+        <TargetRows region={data.region} goals={group.goals} side={side} progress={progress} edits={edits} subjectName={subjectName} readOnly={readOnly} uncounted={uncounted} todayKey={todayKey} progressReady={summaryHere !== null} />
       </li>)}
     </ul> : <p className="spz-note"><b>No targets.</b> A muscle or movement without a target is not behind on anything.</p>}
     <TargetEditStatus edits={edits} />

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { registeredRegionIndex, specializationRegionIndex } from "@shared/specialization/regionIndex";
 import { regionDataFor } from "@shared/specialization/registry";
 import { loadableRegionIds, loadedRegionData, loadRegionData } from "./loadRegion";
@@ -22,6 +22,23 @@ describe("the region loader", () => {
       // A second call is the same data, not a second import.
       expect(await loadRegionData(id)).toBe(data);
     }
+  });
+
+  it("starts a region's load for the page's chunk to wait for, once, a region with no page loading nothing", async () => {
+    // A fresh loader (this file's other tests have loaded every region already).
+    vi.resetModules();
+    const fresh = await import("./loadRegion");
+    expect(fresh.loadedRegionData("forearm")).toBeNull();
+    fresh.preloadRegionData("forearm");
+    fresh.preloadRegionData("forearm");
+    fresh.preloadRegionData("upper_arm");
+    expect(fresh.loadedRegionData("forearm")).toBeNull();
+    await fresh.regionLoadsSettled();
+    expect(fresh.loadedRegionData("forearm")?.region.id).toBe("forearm");
+    expect(fresh.loadedRegionData("upper_arm")).toBeNull();
+    // With nothing loading, it settles at once; a load asked for again is the one already made.
+    await fresh.regionLoadsSettled();
+    expect(await fresh.loadRegionData("forearm")).toBe(fresh.loadedRegionData("forearm"));
   });
 
   it("has nothing for a region with no page, and has not loaded one it was never asked for", async () => {

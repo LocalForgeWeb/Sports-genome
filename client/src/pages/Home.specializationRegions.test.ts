@@ -38,9 +38,12 @@ vi.mock("@shared/specialization/regionIndex", async (importOriginal) => {
   const { indexWith } = await import("@/components/specialization/__fixtures__/pageRegions");
   return indexWith(await importOriginal(), ["fx_thigh", "fx_core"]);
 });
+/** The regions Home asked to load as it rendered the page (its preload), in order. */
+const preloads = vi.hoisted(() => [] as string[]);
 vi.mock("@/lib/specialization/loadRegion", async (importOriginal) => {
   const { loaderWith } = await import("@/components/specialization/__fixtures__/pageRegions");
-  return loaderWith(await importOriginal(), ["fx_thigh", "fx_core"]);
+  const base = loaderWith(await importOriginal(), ["fx_thigh", "fx_core"]);
+  return { ...base, preloadRegionData: (id: string) => { preloads.push(id); void base.loadRegionData(id); } };
 });
 // Search itself is covered by its own tests (universalSearch.specialization.test.ts); here it hands Home a result.
 vi.mock("@/components/UniversalSearch", async () => {
@@ -175,6 +178,24 @@ describe("the specialization page with more than one region", () => {
     render(createElement(Home));
     const toggle = await regionToggle();
     expect([toggle.textContent, toggle.getAttribute("aria-expanded")]).toEqual(["Fixture thighs", "false"]);
+  }, 30000);
+
+  it("starts loading the region's data as it renders the page, beside the page's own chunk, not from the page's effect", async () => {
+    preloads.length = 0;
+    window.history.replaceState({}, "", "/?workspace=specialization&region=fx_core");
+    render(createElement(Home));
+    expect(preloads[0]).toBe("fx_core");
+    expect((await regionToggle()).textContent).toBe("Fixture core");
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Search: the thighs' page" })); });
+    await tick();
+    expect(preloads.at(-1)).toBe("fx_thigh");
+    // Nothing is loaded for a page that is not open.
+    cleanup();
+    preloads.length = 0;
+    window.history.replaceState({}, "", "/?workspace=body");
+    render(createElement(Home));
+    await tick();
+    expect(preloads).toEqual([]);
   }, 30000);
 
   it("opens a region's page from search with no Back, and search's way back names the page by its heading", async () => {

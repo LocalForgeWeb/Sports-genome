@@ -187,7 +187,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
       </>}
       {loading ? <p className="spz-note">Your targets and their progress appear once your plan has loaded.</p>
         : showEditor
-          ? <TargetsEditor key={node.id} region={data.region} nodeId={node.id} nodeName={node.name} canSet={node.role === "target"} side={side} goals={goals} progress={progress} timeZone={timeZone} todayKey={todayKey} onSave={onSaveGoals} onRestore={onRestoreGoals} onRemove={onRemoveGoal} />
+          ? <TargetsEditor key={node.id} region={data.region} nodeId={node.id} nodeName={node.name} canSet={node.role === "target"} counted={!exposure || exposure.mappingCoverage === "reviewed"} side={side} goals={goals} progress={progress} timeZone={timeZone} todayKey={todayKey} onSave={onSaveGoals} onRestore={onRestoreGoals} onRemove={onRemoveGoal} />
           : !home && <p className="spz-note">Targets are for this region's target muscles, and this one is not one of them.</p>}
     </section>
 

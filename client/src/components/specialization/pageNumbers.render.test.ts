@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import React, { createElement, useState } from "react";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
@@ -22,10 +22,11 @@ import { NOW, goals, sessions, slots, store } from "./__fixtures__/forearmWeek";
  * the window and each day's bar, the completeness counts, and two muscle sheets' numbers. The
  * words around the numbers changed with wave 0 (the region's own sentences); the numbers did not.
  *
- * The reference was read the same way off the page as it was at 8e746b4 (before lane 0d), by a
- * copy of this file run in that tree: __fixtures__/pageNumbers.8e746b4.json. To read it again,
- * run this file there with READ_PAGE_NUMBERS=<path> and without the region loader. The week and
- * the plan are __fixtures__/forearmWeek.ts.
+ * The reference was read the same way off the page as it shipped, at 3986178, by a copy of this
+ * file run in that tree: __fixtures__/pageNumbers.3986178.json. To read it again, copy this file
+ * and __fixtures__/forearmWeek.ts into a tree at 3986178 and run it there with
+ * READ_PAGE_NUMBERS=<path> and without the region loader (that tree has none). The week and the
+ * plan are __fixtures__/forearmWeek.ts.
  */
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
@@ -98,8 +99,17 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
-describe("the forearm page shows the base's numbers", () => {
-  const reference = JSON.parse(readFileSync(join(process.cwd(), "client/src/components/specialization/__fixtures__/pageNumbers.8e746b4.json"), "utf8")) as Record<string, unknown>;
+const out = process.env.READ_PAGE_NUMBERS;
+describe.runIf(out)("reading the page's numbers", () => {
+  it("writes them", async () => {
+    const read: Record<string, unknown> = {};
+    for (const [id, over] of states) read[id] = await readPage({ ...defaultSpecializationState("forearm"), ...over });
+    writeFileSync(out!, `${JSON.stringify(read, null, 1)}\n`);
+  }, 300000);
+});
+
+describe.skipIf(out)("the forearm page shows the base's numbers", () => {
+  const reference = (out ? {} : JSON.parse(readFileSync(join(process.cwd(), "client/src/components/specialization/__fixtures__/pageNumbers.3986178.json"), "utf8"))) as Record<string, unknown>;
 
   it("reads every state the reference read", () => {
     expect(Object.keys(reference).sort()).toEqual(states.map(([id]) => id).sort());

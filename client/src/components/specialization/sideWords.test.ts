@@ -25,6 +25,9 @@ describe("the side words", () => {
     expect(forearm.onSide("right")).toBe("your right forearm");
     expect([forearm.noneRecorded, forearm.noneRecordedTitle, forearm.neither, forearm.aLimb]).toEqual(["no arm recorded", "No arm recorded", "counted for neither arm", "an arm"]);
     expect(forearm.asksWhich).toBe("One-arm work logged from now on asks which arm.");
+    // The side-difference finding's detail, word for word as shipped on 18 Oct (3986178 model.ts:303).
+    expect(forearm.differ).toBe("Two-handed sets count for both arms; only one-arm sets make the arms differ.");
+    expect(forearm.bothCount).toBe("A set done with both arms counts for each arm.");
   });
 
   it("say leg on a region paired by the leg", () => {
@@ -36,7 +39,7 @@ describe("the side words", () => {
   it("say side on the back, and still name the arm the logger asks about", () => {
     expect([back.group, back.label("right"), back.both, back.onSide("right")]).toEqual(["Side", "Right side", "Both sides", "the right side of your fixture back"]);
     expect([back.noneRecorded, back.neither]).toEqual(["no arm recorded", "counted for neither side"]);
-    expect(back.differ).toBe("Sets done with both arms count for each side; only one-arm sets make the sides differ.");
+    expect(back.differ).toBe("Two-handed sets count for both sides; only one-arm sets make the sides differ.");
   });
 
   it("are empty on a midline region, which names no side", () => {

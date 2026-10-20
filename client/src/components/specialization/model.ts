@@ -249,6 +249,19 @@ export type FindingAction =
   | { kind: "method" };
 export type Finding = { id: string; title: string; detail: string; action: FindingAction | null; actionLabel: string | null };
 
+/** Said beside a target on a muscle that is not a target of the page's region (10-multi-region.md §2.2). */
+export const READ_ONLY_TARGET_NOTE = "Targets are for this region's target muscles. You can end or remove this one.";
+/** A muscle target's progress where nothing is counted for the muscle (no reviewed mapping): unknown is never shown as zero. */
+export const UNCOUNTED_TARGET_PROGRESS = "nothing can be counted for it yet";
+
+/**
+ * A target's progress in words: "3 of your 6", or, for a muscle target whose muscle has no
+ * reviewed exercise mapping here, that nothing can be counted for it yet, never "0 of your 3".
+ */
+export function targetProgressText(progress: Pick<GoalProgress, "goal" | "label">, exposure: Pick<NodeExposure, "mappingCoverage"> | null | undefined): string {
+  return progress.goal.nodeId && exposure && exposure.mappingCoverage !== "reviewed" ? UNCOUNTED_TARGET_PROGRESS : progress.label;
+}
+
 /**
  * "Coverage to review" (design §7, item 6): facts about the records and the mapping, in
  * neutral words, most useful first. A target behind leads, because the athlete set it;
@@ -256,6 +269,11 @@ export type Finding = { id: string; title: string; detail: string; action: Findi
  * then a difference between the sides, and credit a strapped set did not earn. Nothing here is a
  * score, and nothing suggests training only to fill a muscle (brief §10). The sides are said in
  * the region's words (`sideWordsFor`); a midline region has no side, so nothing here names one.
+ *
+ * Only a target on a muscle that is a target here, and that can be counted, is "behind" with
+ * exercises for it. A target saved earlier on a muscle that is not a target here (an external or
+ * adjacent one, 10-multi-region.md §2.2) is said last, once per muscle, as one the athlete can end
+ * or remove: the page offers no target there, so it never sends the athlete to train for one.
  */
 export function findingsFor(input: {
   data: SpecializationRegionData;
@@ -272,9 +290,18 @@ export function findingsFor(input: {
   const window = summary.mode === "planned" ? "in this plan week" : "in this window";
   const region = data.region.label.toLowerCase();
 
+  const exposureOf = (id: string) => summary.nodes.find((node) => node.nodeId === id) ?? null;
+  const readOnlyNodes: string[] = [];
   for (const progress of summary.goals) {
+    const nodeId = progress.goal.nodeId;
+    if (nodeId && nodeById.get(nodeId)?.role !== "target") {
+      if (!readOnlyNodes.includes(nodeId)) readOnlyNodes.push(nodeId);
+      continue;
+    }
+    // Nothing can be counted for its muscle: "without a reviewed exercise mapping" below says why, rather than a zero.
+    if (nodeId && targetProgressText(progress, exposureOf(nodeId)) === UNCOUNTED_TARGET_PROGRESS) continue;
     if (progress.fraction >= 1) continue;
-    const subject = progress.goal.nodeId ? nameOf(progress.goal.nodeId) : data.actions.find((action) => action.id === progress.goal.actionId)?.label ?? "This movement";
+    const subject = nodeId ? nameOf(nodeId) : data.actions.find((action) => action.id === progress.goal.actionId)?.label ?? "This movement";
     findings.push({
       id: `goal:${progress.goal.id}`,
       title: `${subject}: ${progress.label}`,
@@ -365,6 +392,16 @@ export function findingsFor(input: {
       detail: `${currentExposureRule.specification.straps} The rest of each set still counts.`,
       action: { kind: "method" },
       actionLabel: "How this is counted",
+    });
+  }
+
+  for (const nodeId of readOnlyNodes) {
+    findings.push({
+      id: `read-only:${nodeId}`,
+      title: `${nameOf(nodeId)}: a target saved earlier`,
+      detail: READ_ONLY_TARGET_NOTE,
+      action: { kind: "inspect", nodeId },
+      actionLabel: "End or remove it",
     });
   }
 
