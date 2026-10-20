@@ -682,3 +682,20 @@ Every issue the three critics raised, with the verdict and what changed. Experim
 | P10 (medium) | Secondary-tagged unmapped rows vanish; what a mapping rests on is not said | Accepted | §8: `boutsListedUnmapped` and its list under "How this is counted"; required `methodNotes` per version with the stated wording, including incidental credit. |
 | P11 (low) | Grid contents per wave unspecified | Accepted | §6.1: production regions only, body order, 3 reflowing columns, no disabled cells; §9.3 screenshots the grid at each wave at 375, 390, 430. |
 | P12 (low) | "Short origin name" undefined; long names wrap the heading | Accepted, measured | §6.1: `workspaceShortTitles` (≤9 characters); measured one line at 320, 375 and 390 with the longest labels; phone render test; behaviour at 320 stated. |
+
+## Appendix: amendments made while building wave 0 (20 Oct 2026)
+
+What the wave 0 lanes and their reviews changed from the text above. Each was found by a lane or a reviewer, decided in review, and is tested; where this list and a section above disagree, this list holds.
+
+- **§2.1, the order of the side rules.** `nodeSideFor` reads rule 4 (the bout recorded a side of the region's limb) before rule 3 (the limb is structurally bilateral), so a recorded side wins, as the forearm has always counted it (`bouts.ts` before wave 0). The rules are otherwise as written.
+- **§5.1, schema v2 gains:**
+  - `regions.on_side_template`, the sentence form of §1.1 ("your {side} forearm"), checked with the side model: a paired region's template holds `{side}` exactly once, a midline region's none;
+  - `diagram_assets.sides` (`one_side` | `both_sides`; null reads as `one_side`, which is the forearm's);
+  - publishing by state alone: `guard_mapping_version` refuses a draft → published change that also changes the version's id, key, region or method notes, since rules 10–12 read the stored draft;
+  - goals: a reference region takes no target (the upper arm until its promotion in wave A), and a goal on anything no longer offered may only have its end set, kept or brought forward, never moved later or cleared, as `onlyEnds` in `goals.ts` allows.
+- **§5.2, attributes are owned by the seed.** Each seeded variant's attributes are a set the content owns: one the content drops is deleted while unfrozen, and refused (the whole seed with it) once a publish has frozen it.
+- **§5.3, the upper arm's rows from wave 0.** Seed v2 already writes the reference upper arm's two memberships (biceps and brachialis as targets) and its five region actions, from `resolveMembers`; they take no goal until the promotion. The forearm row's new columns are written by schema v2 itself, so seed v2 touches no existing row.
+- **§5.4, the undo refuses more.** Besides seed v3 and `not_applicable`, it refuses while a version other than `forearm_mappings_v1` is published or retired, while any attribute is frozen, and while a goal names a membership or region action only the seed wrote.
+- **§6.1, the page-size gate** counts the page chunk together with the chunks it loads: the logger lane folded the shared `variants` chunk into the page's.
+- **§6.4, the tracker's gates.** `DeviceWorkoutTracker` takes one `loggerGates` prop (`loggerGatesFor(goals)`) in place of `askStraps` and `perArmSets`; a set field the code does not know is kept through every save.
+- **§7.1, the generator's signatures.** `buildAsset(config, views, members)` and `renderModule(config, views, members)` take the members explicitly, read from `regions/<region>/members.ts`, never from the region's page data; every new region's config must set `SIDES`; each drawn region's `evidence/<region>/hit-targets.json` records the SHA-256 of the drawing it measured, and the contract test requires it.
