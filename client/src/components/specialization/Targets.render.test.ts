@@ -55,7 +55,7 @@ function EditorHarness({ side = "right" as ArmSide }) {
   const { goals, save, remove } = useSpecializationGoals(null);
   const mine = goals.filter((item) => item.nodeId === BR);
   const progress = summaryFor(goals, side).goals.filter((item) => item.goal.nodeId === BR);
-  return createElement(TargetsEditor, { regionId: "forearm", nodeId: BR, nodeName: "Brachioradialis", side, goals: mine, progress, timeZone: ZONE, todayKey: TODAY, onSave: save, onRemove: remove });
+  return createElement(TargetsEditor, { region: forearmRegionData.region, nodeId: BR, nodeName: "Brachioradialis", canSet: true, side, goals: mine, progress, timeZone: ZONE, todayKey: TODAY, onSave: save, onRemove: remove });
 }
 
 function OverviewHarness({ side = "right" as ArmSide, onOpenMuscle = (() => {}) as (nodeId: string) => void, onOpenMovement = undefined as ((actionId: string) => void) | undefined, summaryOf = ((goals, arm) => summaryFor(goals, arm)) as (goals: readonly SpecializationGoal[], arm: ArmSide) => SpecializationSummary | null }) {

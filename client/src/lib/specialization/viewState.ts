@@ -1,5 +1,7 @@
+import { scopedKey } from "@/lib/deviceStorageScope";
+import { regionIndexEntry } from "@shared/specialization/regionIndex";
 import { isDateKey } from "@shared/specialization/time";
-import type { ArmSide, DiagramLayerId, DiagramViewId, RegionId, SummaryMode } from "@shared/specialization/types";
+import type { BodySide, DiagramLayerId, DiagramViewId, RegionId, SummaryMode } from "@shared/specialization/types";
 
 /**
  * What the specialization page is showing, kept in the URL so Back, a reload and a
@@ -16,7 +18,12 @@ export type SpecializationMapMode = "volume" | "target";
 export type SpecializationViewState = {
   regionId: RegionId;
   nodeId: string | null;
-  limb: ArmSide;
+  /**
+   * The side shown on a paired region. It stays in the state on a midline region (the core has no
+   * side) and is not written to that region's address, so the next paired region gets it back
+   * (docs/specialization-atlas/10-multi-region.md §2.2).
+   */
+  limb: BodySide;
   window: SpecializationWindow;
   /** Custom window, local dates YYYY-MM-DD (inclusive). */
   from: string | null;
@@ -77,13 +84,24 @@ export function specializationStateFromParams(params: URLSearchParams, defaultRe
   };
 }
 
+/**
+ * Another region, picked on the page (10-multi-region.md §6.1): its muscle (none, unless one is
+ * named) and its first view and surface layer, since those were the old region's; the mode, the
+ * window and its dates, the plan week, what the map shows and the side carry over.
+ */
+export function withRegion(state: SpecializationViewState, regionId: RegionId, nodeId: string | null = null): SpecializationViewState {
+  return { ...state, regionId, nodeId, view: null, layer: "surface" };
+}
+
 /** Writes the page state into URL params, leaving every other param untouched. */
 export function writeSpecializationParams(params: URLSearchParams, state: SpecializationViewState): void {
   clearSpecializationParams(params);
   const base = defaultSpecializationState(state.regionId);
   params.set("region", state.regionId);
   if (state.nodeId) params.set("node", state.nodeId);
-  if (state.limb !== base.limb) params.set("limb", state.limb);
+  // A midline region has no side, so its address names none; the state keeps it for the next paired region.
+  const midline = regionIndexEntry(state.regionId)?.sides.model === "midline";
+  if (!midline && state.limb !== base.limb) params.set("limb", state.limb);
   if (state.window !== "week") params.set("window", state.window);
   if (state.window === "custom" && state.from && state.to) { params.set("from", state.from); params.set("to", state.to); }
   if (state.mode !== base.mode) params.set("mode", state.mode);
@@ -91,6 +109,32 @@ export function writeSpecializationParams(params: URLSearchParams, state: Specia
   if (state.layer !== base.layer) params.set("layer", state.layer);
   if (state.map !== base.map) params.set("map", state.map);
   if (state.planWeek !== null) params.set("pweek", String(state.planWeek));
+}
+
+/**
+ * The region this account last opened on this device, so the page opens on it again
+ * (10-multi-region.md §6.1). Device storage can be missing, full or refused (a private window),
+ * so every read and write is guarded: without it the page opens on the default region.
+ */
+export const specializationRegionKeyBase = "sports-genome-specialization-region-v1";
+
+export function readRememberedRegion(accountId: string | number | null | undefined, knownRegions: ReadonlySet<RegionId>): RegionId | null {
+  try {
+    if (typeof window === "undefined") return null;
+    const stored = window.localStorage.getItem(scopedKey(specializationRegionKeyBase, accountId));
+    return stored && knownRegions.has(stored) ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+export function rememberRegion(accountId: string | number | null | undefined, regionId: RegionId): void {
+  try {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(scopedKey(specializationRegionKeyBase, accountId), regionId);
+  } catch {
+    // Not remembered: the next visit opens on the default region, which is all that is lost.
+  }
 }
 
 /** Removes the page's params, for every workspace that is not the specialization page. */

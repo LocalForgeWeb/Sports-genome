@@ -28,8 +28,9 @@ export type WeekReviewBoardProps = {
   onInspectExercise: (exercise: Exercise) => void;
   onFindExercises?: (muscleKey: string) => void;
   /**
-   * A muscle the specialization page refines (the forearm, today) offers that page, labelled
-   * as the region names its own entry. Absent for every other muscle.
+   * A muscle a specialization region refines (any region with a page: its `bodyMapKeys`) offers
+   * that region's page, labelled as the region names its own entry ("Explore forearm coverage").
+   * Absent for every other muscle.
    */
   specializationEntryFor?: (muscleKey: string) => { label: string; open: () => void } | null;
 };

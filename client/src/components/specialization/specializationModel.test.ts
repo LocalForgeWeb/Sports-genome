@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import type { Contribution, GoalProgress, NodeExposure, RegionBoutRow, SpecializationGoal, SpecializationSummary } from "@shared/specialization/types";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { directWorkBouts, evidenceBasisLabels, overlapsInWindow, exposureSentence, fillForNode, findingsFor, formatSegment, holdTime, latestSessionDayLabel, ledgerByExercise, mappingsBehind, movementFocusNodeId, movementLedger, regionBoutRows, selectableNodes, sortForList, targetStep, volumeStep } from "./model";
+import { sideWordsFor } from "./sideWords";
+
+const forearmWords = sideWordsFor(forearmRegionData.region);
 
 /**
  * The page's own reading of a summary (design §7): fixed bins, honest blanks, the ledger's
@@ -83,19 +86,19 @@ describe("a muscle's fill", () => {
 
 describe("what the page says about a muscle", () => {
   it("names missing mapping as missing mapping", () => {
-    expect(exposureSentence(node({ mappingCoverage: "none" }), "grip")).toMatch(/No exercise is mapped/);
+    expect(exposureSentence(node({ mappingCoverage: "none" }), "grip", forearmWords)).toMatch(/No exercise is mapped/);
   });
   it("lists only the kinds of work that happened, holds in time, and keeps no-arm sets apart", () => {
-    const sentence = exposureSentence(node({ directDynamicBouts: 6, contributingDynamicBouts: 2, deliberateHoldBouts: 2, deliberateHoldSeconds: 60, unknownSide: { bouts: 1, directDynamicBouts: 1, deliberateHoldBouts: 0, deliberateHoldSeconds: 0 } }), "grip");
+    const sentence = exposureSentence(node({ directDynamicBouts: 6, contributingDynamicBouts: 2, deliberateHoldBouts: 2, deliberateHoldSeconds: 60, unknownSide: { bouts: 1, directDynamicBouts: 1, deliberateHoldBouts: 0, deliberateHoldSeconds: 0 } }), "grip", forearmWords);
     expect(sentence).toBe("6 direct dynamic bouts · 2 other dynamic · 2 deliberate holds, 1 min. 1 set with no arm recorded is kept apart.");
   });
   it("names sets under review with no arm recorded apart from this arm's own", () => {
-    const sentence = exposureSentence(node({ pendingReviewBouts: 1, unknownSide: { bouts: 0, directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 2 } }), "grip");
+    const sentence = exposureSentence(node({ pendingReviewBouts: 1, unknownSide: { bouts: 0, directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 2 } }), "grip", forearmWords);
     expect(sentence).toBe("No work for it in this window. 1 set matched a mapping still under review and is not counted. 2 sets with no arm recorded matched a mapping still under review and are not counted.");
   });
   it("names incidental work in the region's own word", () => {
-    expect(exposureSentence(node({ incidentalBouts: 4 }), "grip")).toBe("4 incidental grip or steadying.");
-    expect(exposureSentence(node({ incidentalBouts: 4 }), "bracing")).toBe("4 incidental bracing or steadying.");
+    expect(exposureSentence(node({ incidentalBouts: 4 }), "grip", forearmWords)).toBe("4 incidental grip / stabilization.");
+    expect(exposureSentence(node({ incidentalBouts: 4 }), "bracing", forearmWords)).toBe("4 incidental bracing / stabilization.");
   });
   it("says a hold's time was not recorded rather than 0 s", () => {
     expect(holdTime(0)).toBe("time not recorded");
@@ -160,7 +163,7 @@ describe("coverage to review", () => {
   });
   it("states a difference between the arms in numbers, without judging it", () => {
     const withWork = (count: number) => summary({ nodes: forearmRegionData.nodes.map((item) => node({ nodeId: item.id, ...(item.id === "forearm.fcr" ? { directDynamicBouts: count, contributions: Array.from({ length: count }, (_, index) => contribution({ boutId: `x${index}`, nodeId: "forearm.fcr" })) } : {}) })) });
-    const finding = findingsFor({ data: forearmRegionData, summary: { ...withWork(5), side: "left" }, otherSide: { ...withWork(2), side: "right" } }).find((item) => item.id.startsWith("arms:"));
+    const finding = findingsFor({ data: forearmRegionData, summary: { ...withWork(5), side: "left" }, otherSide: { ...withWork(2), side: "right" } }).find((item) => item.id.startsWith("sides:"));
     expect(finding?.title).toBe("Flexor carpi radialis: 5 direct bouts on the left arm, 2 on the right");
     expect(finding?.detail).not.toMatch(/imbalance|weak|behind/i);
   });

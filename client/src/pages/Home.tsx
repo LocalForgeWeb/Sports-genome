@@ -102,12 +102,13 @@ import { isLaunchExperienceEnabled, launchExperiencePreferenceKey } from "@/lib/
 import { buildStampLabel } from "@/lib/buildStamp";
 import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
-import { clearSpecializationParams, defaultSpecializationState, specializationStateFromParams, writeSpecializationParams, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationViewState } from "@/lib/specialization/viewState";
+import { clearSpecializationParams, defaultSpecializationState, readRememberedRegion, specializationStateFromParams, withRegion, writeSpecializationParams, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { applyPlanChangeToRecord } from "@/lib/specialization/planChange";
 import { useSpecializationGoals } from "@/lib/specialization/stores";
 import { loggerGatesFor } from "@/lib/specialization/loggerGates";
 import { catalogMeasureOf } from "@shared/specialization/holdCatalogIds";
-import { defaultSpecializationRegionId, regionForBodyMapKey, specializationRegionIndex } from "@shared/specialization/regionIndex";
+import { defaultSpecializationRegionId, regionForBodyMapKey, regionIndexEntry, specializationRegionIndex } from "@shared/specialization/regionIndex";
+import type { RegionId } from "@shared/specialization/types";
 
 type Workspace = "command" | "profile" | "progress" | "recommended" | "review" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "strength" | "specialization";
 type Goal = TrainingGoal;
@@ -199,7 +200,8 @@ export const contextualWorkspaces: Record<Exclude<PrimaryDestination, "secondary
    * athlete.
    *
    * Specialize is the one exception, by decision (Oct 16 forearm brief: "Body Lab →
-   * Specialization → Forearms is the canonical workspace"). It reads the athlete's own
+   * Specialization → Forearms is the canonical workspace"; one page for every body region
+   * since 19 Oct, the region picked in its heading). It reads the athlete's own
    * plan and logged work against the same anatomy, muscle by muscle, so it sits beside
    * the map it refines rather than under Progress, and the bottom dock stays at four.
    */
@@ -258,9 +260,30 @@ export const workspaceTitles: Record<Workspace, string> = {
   movement: "Movement explorer",
   body: "Muscle map",
   catalog: "Exercise catalog",
-  specialization: "Forearm specialization",
+  // The page names itself by the region it shows (its heading, `pageTitle`); this is the place's name.
+  specialization: "Specialize",
 };
 const workspaceIds = Object.keys(workspaceTitles) as Workspace[];
+
+/**
+ * Each page that can open the specialization page, named in nine characters or fewer, for the
+ * Back in its heading row ("‹ Muscles"), which shares one 44 px row with the heading on a 320 px
+ * phone (docs/specialization-atlas/10-multi-region.md §6.1). The page never opens itself.
+ */
+export const workspaceShortTitles: Record<Exclude<Workspace, "specialization">, string> = {
+  command: "Home",
+  profile: "About me",
+  progress: "Progress",
+  strength: "Strength",
+  "day-plan": "Plan",
+  review: "Review",
+  tracker: "Workout",
+  recommended: "Matches",
+  movement: "Movements",
+  body: "Muscles",
+  catalog: "Catalog",
+};
+const shortTitleOf = (workspace: Workspace): string => (workspace === "specialization" ? workspaceTitles.specialization : workspaceShortTitles[workspace]);
 
 export function workspaceFromLocation(value: string | null): Workspace {
   // The Genome page folded into the catalog and its overlay; old links still land.
@@ -311,6 +334,10 @@ const specializationRegionIds: ReadonlySet<string> = new Set(specializationRegio
 /** The specialization page's state as an address states it, validated field by field. */
 export function specializationFromLocation(params: URLSearchParams): SpecializationViewState {
   return specializationStateFromParams(params, defaultSpecializationRegionId, specializationRegionIds);
+}
+/** Whether an address opens the specialization page on a region it names (one with a page). */
+function addressNamesSpecializationRegion(params: URLSearchParams): boolean {
+  return params.get("workspace") === "specialization" && specializationRegionIds.has(params.get("region") ?? "");
 }
 
 /** The finished workout a Progress address opens, if any (Oct 7 brief N06): `?workspace=progress&session=<id>`. */
@@ -561,6 +588,16 @@ export default function Home() {
   /** Where the specialization page was opened from, so its in-page Back returns there (brief §6). */
   // Read from the entry itself, so a reload (or iOS bringing the app back) keeps the Back.
   const [specializationOrigin, setSpecializationOrigin] = useState<Workspace | null>(() => (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("workspace") === "specialization" ? specializationOriginFromHistory() : null));
+  /**
+   * Which region the page opens on (docs/specialization-atlas/10-multi-region.md §6.1): the one the
+   * address names; else the one this account last opened on this device; else the default, with
+   * the region grid open once when there is more than one region. Decided once per visit, the
+   * first time the page opens; after that the page keeps the region it was left on.
+   */
+  const specializationRegionDecided = useRef(typeof window !== "undefined" && addressNamesSpecializationRegion(new URLSearchParams(window.location.search)));
+  const [specializationChooseRegion, setSpecializationChooseRegion] = useState(false);
+  /** What a page is called in words (the browser tab, search's way back): the specialization page by the region it shows, "Forearm specialization". */
+  const pageTitle = (place: Workspace): string => (place === "specialization" ? regionIndexEntry(specializationState.regionId)?.heading ?? workspaceTitles.specialization : workspaceTitles[place]);
   /**
    * What the logger asks because of the athlete's targets, per exercise (brief §6: "Keep this
    * information out of the workout logger until relevant"): straps and rows per side only on an
@@ -1241,7 +1278,9 @@ export default function Home() {
     // Review opened for a day (Plan's pointer) or for the week (Home) says which; the tab and
     // the dock say nothing and Review keeps the scope it was left on.
     if (next === "review" && requestedScope) { reviewScopeRef.current = requestedScope; setReviewScopeState(requestedScope); }
-    const specialization = requestedSpecialization ?? specializationState;
+    // An entry point names its region; the tab, the dock and search's generic entry open the page
+    // on the region it was left on, or on first opening the one remembered on this device.
+    const specialization = next !== "specialization" ? specializationState : requestedSpecialization ? decidedSpecialization(requestedSpecialization) : specializationEntry(specializationState);
     if (next === "specialization") setSpecializationState(specialization);
     const url = typeof window === "undefined" ? null : urlForWorkspace(next, catalogDiscovery, reviewScopeRef.current, session, specialization);
     const samePlace = url !== null && url.search === window.location.search;
@@ -1261,13 +1300,32 @@ export default function Home() {
     }
     if (!keepScroll) window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
+  /** A state an entry point or the address chose: the region is decided, and the grid stays closed. */
+  const decidedSpecialization = (state: SpecializationViewState): SpecializationViewState => {
+    specializationRegionDecided.current = true;
+    setSpecializationChooseRegion(false);
+    return state;
+  };
+  /**
+   * The page opened with no region named (the tab, the dock, search's generic entry, an address
+   * with none): the region it was left on in this visit; on first opening, the one this account
+   * last opened on this device, else the default with the region grid open once.
+   */
+  const specializationEntry = (state: SpecializationViewState): SpecializationViewState => {
+    if (specializationRegionDecided.current) return decidedSpecialization(state);
+    const remembered = readRememberedRegion(accountId, specializationRegionIds);
+    decidedSpecialization(state);
+    if (remembered) return remembered === state.regionId ? state : withRegion(state, remembered);
+    setSpecializationChooseRegion(specializationRegionIds.size > 1);
+    return state;
+  };
   /**
    * The specialization page opened from somewhere with a purpose: a region (and, when the
    * entry point names one, a muscle) chosen there. The rest of the view starts from the
-   * defaults, and Back returns to the page it was opened from.
+   * defaults, and Back returns to the page it was opened from. Every entry point names its region.
    */
-  const openSpecialization = (partial: Partial<SpecializationViewState> = {}) => {
-    const next = { ...defaultSpecializationState(partial.regionId ?? defaultSpecializationRegionId), ...partial };
+  const openSpecialization = (partial: Partial<SpecializationViewState> & { regionId: RegionId }) => {
+    const next = { ...defaultSpecializationState(partial.regionId), ...partial };
     navigateWorkspace("specialization", { specialization: next, specializationFrom: workspace });
   };
   /** A change made on the page itself (muscle, arm, window, view): the same entry, its address rewritten. */
@@ -1278,6 +1336,18 @@ export default function Home() {
     writeSpecializationParams(url.searchParams, next);
     if (url.search !== window.location.search) window.history.replaceState(window.history.state, "", url);
   };
+  /**
+   * The specialization page opened on the address alone, with no region in it (a hand-typed or
+   * old link): once the account is known, the region it last opened on this device, as the tab
+   * would; the address is rewritten to name it.
+   */
+  useEffect(() => {
+    if (workspace !== "specialization" || specializationRegionDecided.current) return;
+    if (!directWorkspaceAccess && loading) return;
+    const next = specializationEntry(specializationState);
+    if (next !== specializationState) updateSpecializationState(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspace, loading, accountId]);
   /** The page a muscle key opens, if a specialization region refines it, labelled as the region names its entry. */
   const specializationEntryFor = (muscleKey: string, context: Partial<SpecializationViewState> = {}) => {
     const region = regionForBodyMapKey(muscleKey);
@@ -1370,6 +1440,7 @@ export default function Home() {
       if (next === "specialization") {
         setSpecializationState(specializationFromLocation(params));
         setSpecializationOrigin(specializationOriginFromHistory());
+        if (addressNamesSpecializationRegion(params)) specializationRegionDecided.current = true;
       }
       setWorkspaceState(next);
     };
@@ -2116,10 +2187,13 @@ export default function Home() {
     let pendingInspect: Exercise | null = null;
     // Review's "anchor" is its scope (lib/universalSearch: "review#day"), not a place on the page.
     let scope: ReviewScope | undefined;
+    // The specialization page's is a region ("specialization#forearm"), opened as search opens any page: with no Back.
+    let specialization: SpecializationViewState | undefined;
     if (result.type === "destination") {
       const [workspaceId, anchorId = ""] = result.id.split("#");
       target = workspaceId as Workspace;
       if (target === "review") scope = anchorId === "day" ? "day" : "week";
+      else if (target === "specialization") specialization = specializationRegionIds.has(anchorId) ? defaultSpecializationState(anchorId) : undefined;
       else anchor = anchorId;
     } else if (result.type === "muscle") {
       setActiveMuscle(result.id);
@@ -2150,14 +2224,14 @@ export default function Home() {
     if (!target) return;
     const origin = workspace;
     const originDiscovery = discovery;
-    navigateWorkspace(target, { keepScroll: Boolean(anchor), reviewScope: scope });
+    navigateWorkspace(target, { keepScroll: Boolean(anchor), reviewScope: scope, specialization });
     if (pendingInspect) inspectExercise(pendingInspect);
     // Focus, not just scroll: §11 requires focus to land near the object the
     // athlete came for, and a scrolled page leaves a keyboard or screen-reader
     // user still at the top of it.
     if (anchor) revealWorkspaceAnchor(anchor);
     // Nothing to return to when the result opens the screen already on display.
-    if (target !== origin) setSearchReturn(origin === "catalog" ? { workspace: origin, label: discoveryTitle(originDiscovery, muscleLabels), discovery: originDiscovery } : { workspace: origin, label: workspaceTitles[origin] });
+    if (target !== origin) setSearchReturn(origin === "catalog" ? { workspace: origin, label: discoveryTitle(originDiscovery, muscleLabels), discovery: originDiscovery } : { workspace: origin, label: pageTitle(origin) });
   };
   const completeOnboarding = ({ goal: selectedGoal, trainingDays: selectedDays, sportId: selectedSportId, sportContextMode: selectedMode, focus, constraint, reportedSignals, stackMode, baseline }: AthleteQuizSelection) => {
     setGoal(selectedGoal);
@@ -2234,7 +2308,7 @@ export default function Home() {
    * the destination's name is worth stating and this keeps it.
    */
   // The browser tab names the page the same way the page names itself.
-  useEffect(() => { document.title = `${workspaceTitles[workspace]} · Sports Genome`; }, [workspace]);
+  useEffect(() => { document.title = `${pageTitle(workspace)} · Sports Genome`; }, [workspace, specializationState.regionId]);
   /**
    * A tab goes to its page. That is the whole behaviour.
    *
@@ -2550,8 +2624,9 @@ export default function Home() {
           onApplyPlanChange={applySpecializationChange}
           onInspectExercise={inspectExercise}
           onOpenSession={(id) => navigateWorkspace("progress", { session: id })}
-          backLabel={specializationOrigin ? workspaceTitles[specializationOrigin] : null}
+          backLabel={specializationOrigin ? shortTitleOf(specializationOrigin) : null}
           onBack={specializationOrigin ? () => window.history.back() : null}
+          chooseRegion={specializationChooseRegion}
         />}
         {workspace === "strength" && <StrengthGenomePanel weightUnit={athleteBaseline.weightUnit} baselineBodyWeight={athleteBaseline.bodyWeight} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onRankProfile={(patch) => updateBaseline({ ...athleteBaseline, ...patch })} directAccess={directWorkspaceAccess} onOpenTraining={() => navigateWorkspace("day-plan")} />}
       </main></Suspense>

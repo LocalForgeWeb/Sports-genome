@@ -228,15 +228,21 @@ describe("no region is named in the calculator, the windows, the goals or the ad
  * the forearm page once hard-coded (its view names, "upper-arm"): a region's words come from its
  * data (`region.wording`, `measurementMetrics`, the drawing's `viewOrder`). Comments are not
  * read, since they may cite the forearm brief or give a forearm id as an example; strings and
- * code are. `grip` is not on the list: it is also a measure (`grip_force_n`, offered only when the
- * region lists it) and a kind of mapping (straps), which the components name as such. The muscle
- * sheet and the exposure sentence take the incidental word from `region.wording` too, and
- * SpecializationPanel.deltoid.render.test.ts checks the deltoid's sheet for forearm words.
+ * code are.
+ *
+ * Since several regions (10-multi-region.md §6.2) the scan is also the registry's: every region
+ * word the registry holds (`registryWordPattern`: ids and labels, muscle names, short names and
+ * aliases, view and label texts, wording) and "arm" and "leg", so no component can hard-code a
+ * limb or a side noun again; side phrases come from `sideWordsFor` (sideWords.ts), which builds
+ * them from the region's side model and words. A string that is exactly a limb value ("arm",
+ * "leg") is the model's vocabulary and is left out, as in the calculator's scan.
  */
 describe("no region is named in the page's components", () => {
   const dir = "client/src/components/specialization";
   const files = readdirSync(join(process.cwd(), dir)).filter((name) => /\.tsx?$/.test(name) && !/\.test\.tsx?$/.test(name)).sort();
-  const pageWords = new RegExp(`${regionWords.source}|thumb.side|pinky|\\bpalm|upper.arm`, "i");
+  const registry = registryWordPattern();
+  const pageWords = new RegExp(`${regionWords.source}|thumb.side|pinky|\\bpalm|upper.arm|${registry.source}`, "i");
+  const withoutLimbValues = (line: string) => line.replace(/(["'`])(arm|leg)\1/g, "$1$1");
   /** Lines that must stay, by file and exact code, each with its reason. */
   const allowed: { file: string; code: string; why: string }[] = [
     {
@@ -244,14 +250,39 @@ describe("no region is named in the page's components", () => {
       code: 'if (/pronation|supination|rotation/.test(actionId)) return "rotate";',
       why: "Picks the glyph's shape from the verb in any region's action id (shoulder.internal_rotation, foot pronation): joint-action vocabulary, not a branch on a region.",
     },
+    {
+      file: "SpecializationPanel.tsx",
+      code: 'return <button type="button" className="spz-back" onClick={onBack} aria-label={`Back to ${label}`}><ChevronLeft className="h-5 w-5" aria-hidden="true" />{label}</button>;',
+      why: "The in-page Back to the page that opened this one: navigation, not the back region, whose label the registry holds only as a drawing's view name (\"Back\").",
+    },
+    {
+      file: "MeasurementsPanel.tsx",
+      code: 'const postureLabels: Record<MeasurementPosture, string> = { arm_relaxed_hanging: "Arm relaxed, hanging", arm_extended_supported: "Arm straight, supported", elbow_90_supported: "Elbow at 90°, supported", arm_flexed: "Arm flexed", standing_relaxed: "Standing relaxed", other: "Other" };',
+      why: "The measurement protocol's postures (`MeasurementPosture`), named by the joint they set; which ones a page offers is the region's (`postureChoicesFor`: its defaults and its limb's).",
+    },
+    {
+      file: "MeasurementsPanel.tsx",
+      code: 'grip_force_n: { button: "Grip strength", instrument: "Dynamometer", noun: "grip reading", title: (units) => `Grip strength on a dynamometer (${units.force}; its own measure, not exercise load)`, field: (units) => `Grip (${units.force} on the dynamometer)`, best: "Highest grip reading so far" },',
+      why: "The words of the grip-strength measure (`grip_force_n`, a dynamometer reading), offered only where a region's `measurementMetrics` lists it: a measure's name, not a region's.",
+    },
   ];
 
   it("finds the page's components, and reads strings and code but not comments", () => {
-    expect(files).toEqual(expect.arrayContaining(["SpecializationPanel.tsx", "SpecializationDiagram.tsx", "MeasurementsPanel.tsx", "MuscleSheet.tsx", "model.ts", "diagramGeometry.ts"]));
+    expect(files).toEqual(expect.arrayContaining(["SpecializationPanel.tsx", "SpecializationDiagram.tsx", "MeasurementsPanel.tsx", "MuscleSheet.tsx", "model.ts", "diagramGeometry.ts", "sideWords.ts"]));
     expect(files.some((name) => name.includes(".test."))).toBe(false);
     const sample = 'const a = "Thumb side"; // forearm\n/** forearm */\nconst b = <p>{/* forearm */}upper-arm</p>;';
     expect(codeLines("sample.tsx", sample).map((line) => pageWords.test(line))).toEqual([true, false, true]);
     expect(codeLines("sample.tsx", sample)[0].trimEnd()).toBe('const a = "Thumb side";');
+  });
+
+  it("refuses a limb or a side noun written into a component, and the registry's words", () => {
+    for (const line of ['const label = "Left arm";', "<p>counted for neither leg</p>", "`${side} arm`", '"Incidental grip / stabilization"', "<h3>Muscles of the forearms</h3>", '"or steadying"']) {
+      expect(pageWords.test(withoutLimbValues(line)), line).toBe(true);
+    }
+    // The model's limb values and identifiers that only contain the words are not copy.
+    for (const line of ['region.sides.limb === "arm"', "const armSide = bout.armSide;", "sideWords.noneRecorded", 'grip_force_n: "x"']) {
+      expect(pageWords.test(withoutLimbValues(line)), line).toBe(false);
+    }
   });
 
   for (const file of files) {
@@ -259,13 +290,13 @@ describe("no region is named in the page's components", () => {
       const lines = codeLines(file, readFileSync(join(process.cwd(), dir, file), "utf8"));
       const hits = lines
         .map((line, index) => [index + 1, line.trim()] as const)
-        .filter(([, line]) => pageWords.test(line) && !allowed.some((entry) => entry.file === file && entry.code === line));
+        .filter(([, line]) => pageWords.test(withoutLimbValues(line)) && !allowed.some((entry) => entry.file === file && entry.code === line));
       expect(hits).toEqual([]);
     });
   }
 
   it("keeps the allow-list short and true: every entry is still a line of its file", () => {
-    expect(allowed.length).toBeLessThanOrEqual(3);
+    expect(allowed.length).toBeLessThanOrEqual(4);
     for (const entry of allowed) {
       expect(entry.why.length, entry.code).toBeGreaterThan(40);
       const lines = codeLines(entry.file, readFileSync(join(process.cwd(), dir, entry.file), "utf8")).map((line) => line.trim());

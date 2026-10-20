@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 import React, { createElement, useState } from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { SpecializationPanel, type SpecializationPanelProps } from "./SpecializationPanel";
 import { exercises } from "@/lib/exerciseCatalog";
 import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
+import { loadRegionData } from "@/lib/specialization/loadRegion";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { buildDaySlots, commitDay, emptyDayStore } from "@/lib/trainingDayPlan";
@@ -53,6 +54,8 @@ function Harness(props: { initial?: Partial<SpecializationViewState>; onOpenSess
   return createElement(SpecializationPanel, panel);
 }
 
+// The region's data loads on its own (loadRegion.ts); loaded once, the page draws it at once.
+beforeAll(async () => { await loadRegionData("forearm"); });
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date("2026-10-16T12:00:00.000Z"));
@@ -162,7 +165,7 @@ describe("planned work is planned, not done (F-phone-7)", () => {
   it("says the region's planned bouts are planned for it, in that plan week, and never that they touched it", () => {
     render(createElement(Harness, { initial: { mode: "planned" } }));
     const strip = screen.getByRole("group", { name: "Selected muscle" });
-    expect(strip.textContent).toMatch(/^\d+ distinct bouts? (is|are) planned for the forearms on the right arm in Plan Week 1\./);
+    expect(strip.textContent).toMatch(/^\d+ distinct bouts? (is|are) planned for your right forearm in Plan Week 1\./);
     expect(strip.textContent).not.toMatch(/touched/);
   });
 
@@ -180,7 +183,7 @@ describe("planned work is planned, not done (F-phone-7)", () => {
 
   it("still says logged work touched the region in completed mode", () => {
     render(createElement(Harness));
-    expect(screen.getByRole("group", { name: "Selected muscle" }).textContent).toMatch(/^3 distinct bouts touched the forearms on the right arm\./);
+    expect(screen.getByRole("group", { name: "Selected muscle" }).textContent).toMatch(/^3 distinct bouts touched your right forearm\./);
   });
 });
 

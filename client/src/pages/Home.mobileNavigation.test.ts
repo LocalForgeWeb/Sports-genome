@@ -242,9 +242,11 @@ describe("workspace side navigation", () => {
     expect(source).toContain('className="topbar-utilities"');
     expect(source).toContain("{contextualWorkspaceTabs.length > 1 && <WorkspaceTabs");
     expect(source).not.toContain("actions={<>");
-    // Every page has one name, used for the browser tab as well.
+    // Every page has one name, used for the browser tab as well; the specialization page is named
+    // by the region it shows ("Forearm specialization"), through the same `pageTitle`.
     expect(source).toContain("export const workspaceTitles: Record<Workspace, string>");
-    expect(source).toContain("document.title = `${workspaceTitles[workspace]} · Sports Genome`");
+    expect(source).toContain("document.title = `${pageTitle(workspace)} · Sports Genome`");
+    expect(source).toContain('const pageTitle = (place: Workspace): string => (place === "specialization" ? regionIndexEntry(specializationState.regionId)?.heading ?? workspaceTitles.specialization : workspaceTitles[place]);');
     // The retired side-rail list and its second set of page names are gone, not kept in step.
     expect(source).not.toMatch(/\bnavItems\b|\bnavGroups\b/);
 

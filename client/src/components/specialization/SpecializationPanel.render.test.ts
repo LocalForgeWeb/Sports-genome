@@ -2,10 +2,11 @@
 import { readFileSync } from "node:fs";
 import React, { createElement, useState } from "react";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { SpecializationPanel, type SpecializationPanelProps } from "./SpecializationPanel";
 import { exercises } from "@/lib/exerciseCatalog";
 import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
+import { loadRegionData } from "@/lib/specialization/loadRegion";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { saveSpecializationGoals, specializationGoalsKeyBase } from "@/lib/specialization/stores";
 import type { SpecializationGoal } from "@shared/specialization/types";
@@ -55,6 +56,8 @@ function Harness(props: { initial?: Partial<SpecializationViewState>; onApply?: 
   });
 }
 
+// The region's data loads on its own (loadRegion.ts); loaded once, the page draws it at once, as on a return visit.
+beforeAll(async () => { await loadRegionData("forearm"); });
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date("2026-10-16T12:00:00.000Z"));
@@ -72,7 +75,7 @@ describe("the specialization page", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Forearm specialization" })).not.toBeNull();
     // Three two-handed hammer curls: three direct bouts for the right arm, never six.
     expect(row(/^Brachioradialis, Surface\. 3 direct dynamic bouts/)).not.toBeNull();
-    expect(screen.getByText(/3 distinct bouts touched the forearms on the right arm/)).not.toBeNull();
+    expect(within(screen.getByRole("group", { name: "Selected muscle" })).getByText(/3 distinct bouts touched your right forearm/)).not.toBeNull();
   });
 
   it("opens a muscle's sheet from the list, in the brief's order, and says Not targeted rather than a gap", async () => {
@@ -241,10 +244,10 @@ describe("the selected muscle, on the same screen as the drawing (brief §6 mobi
     const onOpenSession = vi.fn();
     render(createElement(Harness, { onOpenSession }));
     const strip = within(mapCard()).getByRole("group", { name: "Selected muscle" });
-    expect(within(strip).getByText(/^3 distinct bouts touched the forearms on the right arm\./)).not.toBeNull();
+    expect(within(strip).getByText(/^3 distinct bouts touched your right forearm\./)).not.toBeNull();
     await act(async () => { fireEvent.click(within(strip).getByRole("button", { name: /See these sets/ })); });
     const sheet = screen.getByRole("dialog", { name: "3 distinct bouts" });
-    expect(sheet.textContent).toMatch(/every set that loaded a muscle of the forearms on the right arm/);
+    expect(sheet.textContent).toMatch(/every set that touched your right forearm/);
     expect(within(sheet).getByText("Hammer Curl")).not.toBeNull();
     const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
     expect(open).toHaveLength(3);
@@ -284,7 +287,7 @@ describe("totals for the whole region open their sets (brief §1)", () => {
     await act(async () => { fireEvent.click(within(finding).getByRole("button", { name: /See these sets/ })); });
     const sheet = screen.getByRole("dialog", { name: "1 set with no arm recorded" });
     expect(within(sheet).getByText("One-Arm Dumbbell Wrist Curl")).not.toBeNull();
-    expect(within(sheet).getByText(/Arm not recorded/)).not.toBeNull();
+    expect(within(sheet).getByText(/No arm recorded/)).not.toBeNull();
   });
 
   it("in planned mode, calls the sets planned rather than done", async () => {
@@ -292,7 +295,7 @@ describe("totals for the whole region open their sets (brief §1)", () => {
     const strip = within(mapCard()).getByRole("group", { name: "Selected muscle" });
     await act(async () => { fireEvent.click(within(strip).getByRole("button", { name: /See these sets/ })); });
     const sheet = screen.getByRole("dialog");
-    expect(sheet.textContent).toMatch(/every set planned for a muscle of the forearms on the right arm/);
+    expect(sheet.textContent).toMatch(/every set planned for your right forearm/);
     expect(sheet.textContent).not.toMatch(/loaded/);
     expect(within(sheet).queryAllByRole("button", { name: /Open this workout/ })).toEqual([]);
   });
@@ -316,7 +319,7 @@ describe("totals for the whole region open their sets (brief §1)", () => {
     expect(bars.map((bar) => bar.getAttribute("aria-label"))).toEqual([expect.stringMatching(/13.*: 3 distinct bouts\. See these sets$/)]);
     await act(async () => { fireEvent.click(bars[0]); });
     const sheet = screen.getByRole("dialog", { name: bars[0].getAttribute("aria-label")!.replace(/: 3 distinct bouts\. See these sets$/, "") });
-    expect(sheet.textContent).toMatch(/3 distinct bouts that day: every set that loaded a muscle of the forearms on the right arm/);
+    expect(sheet.textContent).toMatch(/3 distinct bouts that day: every set that touched your right forearm/);
     expect(within(sheet).getByText("Hammer Curl")).not.toBeNull();
     const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
     expect(open).toHaveLength(3);
@@ -337,7 +340,7 @@ describe("the window line's pair opens its sets (brief §1: every total opens th
     const sheet = screen.getByRole("dialog", { name: /^3 logged · \d+ planned$/ });
     const headings = within(sheet).getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent);
     // Counted as the line counts them: bouts, each set once however many muscles it loads.
-    expect(headings).toEqual(["Logged on the right arm: 3 bouts", expect.stringMatching(/^Planned in Plan Week 1: \d+ bouts$/)]);
+    expect(headings).toEqual(["Logged for your right forearm: 3 bouts", expect.stringMatching(/^Planned in Plan Week 1: \d+ bouts$/)]);
     expect(sheet.textContent).toMatch(/This week · \d+–\d+ Oct, logged, beside Plan Week 1, as written\./);
     // Only the logged sets have a workout to open.
     const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
