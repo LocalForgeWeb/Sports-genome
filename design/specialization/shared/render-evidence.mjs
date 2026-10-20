@@ -10,24 +10,34 @@
  * (design/specialization/<region>/evidence.mjs): every view and layer on each side the drawing
  * offers, one muscle selected per layer, and any extra figures it lists. Writes
  * diagram-<width>-<figure>.png and hit-targets.json: for each muscle on each layer, at each width,
- * the largest square of screen that a tap there selects it and nothing else, in CSS px.
+ * the largest square of screen shown to select it and nothing else, in CSS px, and the SHA-256 of
+ * the generated module it measured.
+ *
+ * It draws the asset it builds from the region's views, and refuses (exit 1) unless that is the
+ * committed diagram.generated.ts byte for byte: run emit.mjs first. So the record is always of the
+ * committed drawing, and client/src/lib/specialization/diagramContract.test.ts requires the
+ * record's hash to be the committed file's.
  *
  * The gate (10-multi-region.md §7.3): every muscle's square at least 44 px at both widths. The
  * script exits 1, after writing everything, if one is smaller.
  */
+import { createHash } from "node:crypto";
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { build } from "esbuild";
 import { buildAsset } from "./asset.mjs";
 import { chromium } from "./browser.mjs";
-import { loadDrawing, regionArgument, root } from "./region.mjs";
+import { renderModule } from "./emit.mjs";
+import { generatedPath, loadDrawing, regionArgument, root } from "./region.mjs";
 
 /** The phones: the design width and the small one (CLAUDE.md), each at device scale 3. */
 const PHONES = [{ width: 390, height: 844 }, { width: 375, height: 667 }];
 /** The smallest square of screen, in CSS px, a tap must have to select a muscle (Apple HIG; CLAUDE.md). */
 const GATE_PX = 44;
+/** The sweep's spacing, in CSS px. */
+const STEP_PX = 1.5;
 
 const args = process.argv.slice(2);
 const usage = "node design/specialization/shared/render-evidence.mjs <region> [outDir] [--only=<figure>,...] [--scale=3]";
@@ -35,11 +45,22 @@ const region = regionArgument(args, usage);
 const outDir = resolve(root, args.filter((arg) => !arg.startsWith("--"))[1] ?? `docs/specialization-atlas/evidence/${region}`);
 const only = (args.find((arg) => arg.startsWith("--only=")) ?? "").slice(7).split(",").filter(Boolean);
 const scale = Number((args.find((arg) => arg.startsWith("--scale=")) ?? "--scale=3").slice(8));
-mkdirSync(outDir, { recursive: true });
 
 const { config, views, members } = await loadDrawing(region);
+const target = generatedPath(region);
+let committed = null;
+try {
+  committed = readFileSync(target);
+} catch {
+  committed = null;
+}
+if (committed === null || committed.toString("utf8") !== renderModule(config, views, members)) {
+  console.error(`${relative(root, target)} is ${committed === null ? "missing" : "stale"}: run node design/specialization/shared/emit.mjs ${region} first, so the gate measures the committed drawing`);
+  process.exit(1);
+}
 const { asset } = buildAsset(config, views, members);
 const { FIGURES } = await import(pathToFileURL(resolve(root, "design/specialization", region, "evidence.mjs")).href);
+mkdirSync(outDir, { recursive: true });
 
 const bundleDir = mkdtempSync(resolve(tmpdir(), `${region}-diagram-evidence-`));
 await build({
@@ -49,8 +70,7 @@ await build({
   format: "iife",
   jsx: "automatic",
   loader: { ".css": "css" },
-  // The region's data module (its config's REGION_DATA), so a region draws before it is registered.
-  alias: { "@shared": resolve(root, "shared"), "@": resolve(root, "client/src"), "@evidence/region": resolve(root, config.REGION_DATA.module) },
+  alias: { "@shared": resolve(root, "shared"), "@": resolve(root, "client/src") },
   define: { "process.env.NODE_ENV": '"production"' },
   logLevel: "warning",
 });
@@ -89,17 +109,24 @@ for (const extra of FIGURES.extra ?? []) {
   figures.push({ id: extra.id, file: extra.file, title: extra.title, view: extra.view, layer: extra.layer, mirrored: side.mirrored, selected: extra.selected, fills: fills[extra.fills], caption: caption(extra.view, extra.layer, side) });
 }
 
+// What the entry draws: this asset and the region's members (what the renderer and the labels read of them).
+const drawnMembers = members.map(({ id, kind, parentId, name, shortName }) => ({ id, kind, parentId, name, shortName }));
 const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>${tokens}
 html, body { margin: 0; background: radial-gradient(circle at 14% 3%, #1e5f98 0, var(--sg-surface-panel) 35%, var(--sg-surface-deep) 82%); background-attachment: fixed; color: var(--sg-text-on-dark); font-family: "DM Sans", Inter, system-ui, sans-serif; }
 .evidence { display: grid; gap: 16px; padding: 16px; }
 .evidence-card { display: grid; gap: .6rem; border: 1px solid rgb(164 200 232 / .18); background: rgb(255 255 255 / .035); padding: 16px; }
 .evidence-card h2 { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--sg-text-muted-on-dark); }
-${css}</style></head><body><div id="root"></div><script>window.EVIDENCE = ${JSON.stringify({ region, export: config.REGION_DATA.export, figures })};</script><script>${js}</script></body></html>`;
+${css}</style></head><body><div id="root"></div><script>window.EVIDENCE = ${JSON.stringify({ region, asset, members: drawnMembers, figures }).replace(/</g, "\\u003c")};</script><script>${js}</script></body></html>`;
 writeFileSync(resolve(bundleDir, "evidence.html"), html);
 
 const browser = await chromium.launch();
-const report = { note: `Headless Chromium emulating a phone (viewport, isMobile, hasTouch, deviceScaleFactor ${scale}): not an iPhone, not Safari. Each figure on an evidence card; the square is the largest one of screen whose every point, read with elementFromPoint every 1.5 px, selects that muscle.`, gatePx: GATE_PX, widths: {} };
+const report = {
+  note: `Headless Chromium emulating a phone (viewport, isMobile, hasTouch, deviceScaleFactor ${scale}): not an iPhone, not Safari. Each figure on an evidence card. A muscle's square is the largest square of screen shown to select it and nothing else, rounded down to 0.1 px: its own tap square (the renderer's rect, measured exactly) where every point inside it read with elementFromPoint every ${STEP_PX} px selects it and no other muscle's square overlaps it, or else, if larger, the span between the outermost points of the largest square of points that all select it.`,
+  gatePx: GATE_PX,
+  generated: { file: relative(root, target), sha256: createHash("sha256").update(committed).digest("hex") },
+  widths: {},
+};
 for (const phone of PHONES) {
   const page = await browser.newPage({ viewport: phone, deviceScaleFactor: scale, isMobile: true, hasTouch: true });
   await page.setContent(html, { waitUntil: "load" });
@@ -110,9 +137,8 @@ for (const phone of PHONES) {
   // elementFromPoint while the drawing is scrolled through the viewport.
   const measured = {};
   for (const figure of figures) {
-    measured[figure.id] = await page.evaluate(async (id) => {
+    measured[figure.id] = await page.evaluate(async ({ id, step }) => {
       const svg = document.querySelector(`#${id} .spz-diagram-svg`);
-      const step = 1.5;
       svg.scrollIntoView({ block: "start" });
       let box = svg.getBoundingClientRect();
       const cols = Math.floor(box.width / step);
@@ -138,7 +164,7 @@ for (const phone of PHONES) {
           grid[r * cols + c] = indexOf.get(node);
         }
       }
-      // Largest square of cells all selecting the same muscle (dynamic programming).
+      // Largest square of points all selecting the same muscle (dynamic programming), in points a side.
       const best = new Array(labels.length).fill(0);
       const size = new Int32Array(cols * rows);
       for (let r = 0; r < rows; r++) {
@@ -153,8 +179,36 @@ for (const phone of PHONES) {
           if (size[k] > best[v]) best[v] = size[k];
         }
       }
-      return { svgWidth: box.width, squares: Object.fromEntries(labels.map((label, index) => [label, Math.round(best[index] * step)])) };
-    }, figure.id);
+      // Each muscle's own tap square as drawn, in the drawing's box (read together, so scrolling
+      // does not matter), cut to the drawing: its exact side counts where nothing else takes a tap in it.
+      box = svg.getBoundingClientRect();
+      const squares = [...svg.querySelectorAll(".spz-diagram-hit")].map((hit) => {
+        const rect = hit.querySelector("rect").getBoundingClientRect();
+        return {
+          node: hit.getAttribute("data-hit"),
+          left: Math.max(0, rect.left - box.left), right: Math.min(box.width, rect.right - box.left),
+          top: Math.max(0, rect.top - box.top), bottom: Math.min(box.height, rect.bottom - box.top),
+        };
+      });
+      const overlaps = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0.01 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 0.01;
+      const exact = new Map();
+      for (const square of squares) {
+        const side = Math.min(square.right - square.left, square.bottom - square.top);
+        if (side <= 0 || squares.some((other) => other !== square && overlaps(square, other))) continue;
+        let alone = true;
+        for (let r = Math.ceil((square.top - step / 2) / step); alone && r < rows && r * step + step / 2 < square.bottom; r++) {
+          if (r * step + step / 2 <= square.top) continue;
+          for (let c = Math.ceil((square.left - step / 2) / step); c < cols && c * step + step / 2 < square.right; c++) {
+            if (c * step + step / 2 <= square.left) continue;
+            if (labels[grid[r * cols + c]] !== square.node) { alone = false; break; }
+          }
+        }
+        if (alone) exact.set(square.node, side);
+      }
+      // A square of n × n points holding one muscle spans (n − 1) steps between its outer points.
+      const proven = (label, index) => Math.max(exact.get(label) ?? 0, (best[index] - 1) * step);
+      return { svgWidth: box.width, squares: Object.fromEntries(labels.map((label, index) => [label, Math.floor(proven(label, index) * 10) / 10])) };
+    }, { id: figure.id, step: STEP_PX });
   }
   await page.close();
   const smallest = Math.min(...Object.values(measured).flatMap((result) => Object.values(result.squares)));
@@ -168,7 +222,7 @@ for (const [width, { smallest, figures: measured }] of Object.entries(report.wid
   for (const [id, result] of Object.entries(measured)) {
     const small = Object.entries(result.squares).filter(([, px]) => px < GATE_PX);
     const squares = Object.values(result.squares);
-    console.log(`${width} ${id}: drawn ${Math.round(result.svgWidth)} px wide; smallest tap square ${squares.length ? Math.min(...squares) : "(none)"} px${small.length ? `; under ${GATE_PX}: ${small.map(([node, px]) => `${node} ${px}`).join(", ")}` : ""}`);
+    console.log(`${width} ${id}: drawn ${result.svgWidth} px wide; smallest tap square ${squares.length ? Math.min(...squares) : "(none)"} px${small.length ? `; under ${GATE_PX}: ${small.map(([node, px]) => `${node} ${px}`).join(", ")}` : ""}`);
   }
   console.log(`${width} pt: smallest tap square on any layer ${smallest} px`);
   if (smallest < GATE_PX) failed = true;

@@ -4,6 +4,7 @@ import { join } from "node:path";
 import React, { createElement } from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { actionLibrary } from "@shared/specialization/actions";
 import { forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import type { DiagramAsset, DiagramPath } from "@shared/specialization/types";
@@ -294,6 +295,45 @@ describe("tap targets on a phone", () => {
     expect(containsPoint(flattenPath(band.d), bandNode.labelAnchor)).toBe(true);
   });
 
+  describe("anchors along a belly's length, whichever way it lies (10-multi-region.md §7.3)", () => {
+    const rect = (x1: number, y1: number, x2: number, y2: number) => `M${x1} ${y1} L${x2} ${y1} L${x2} ${y2} L${x1} ${y2} Z`;
+    const belly = (nodeId: string, d: string): DiagramPath => ({ id: `front__surface__${nodeId}__1`, nodeId, kind: "belly", d });
+    const canvas = { width: 360, height: 300 };
+    const square = HIT_SQUARE_SHARE * canvas.width;
+    /** The node's square is whole: inside its own belly and a full side from every other square. */
+    const expectClear = (paths: DiagramPath[], nodeId: string) => {
+      const placed = drawnNodes(paths, { square, canvas });
+      const node = placed.find((item) => item.nodeId === nodeId)!;
+      for (const other of placed.filter((item) => item !== node)) {
+        expect(Math.max(Math.abs(other.hitAnchor.x - node.hitAnchor.x), Math.abs(other.hitAnchor.y - node.hitAnchor.y)), `${nodeId} and ${other.nodeId}`).toBeGreaterThanOrEqual(square - 0.01);
+      }
+      expect(containsPoint(flattenPath(paths.find((path) => path.nodeId === nodeId)!.d), node.hitAnchor)).toBe(true);
+    };
+
+    it("finds a band's square along it when small muscles above and below take every place across it", () => {
+      // Their squares stand over the middle and the quarter points of every horizontal slice
+      // through the band, so only its vertical slices give its square room.
+      const small = [95, 180, 265].flatMap((x, index) => [belly(`a${index}`, rect(x - 24, 80, x + 24, 108)), belly(`b${index}`, rect(x - 24, 142, x + 24, 170))]);
+      expectClear([belly("band", rect(10, 110, 350, 140)), ...small], "band");
+    });
+
+    it("tries an upright belly's vertical slices where none of its horizontal ones has room", () => {
+      // A column of thin muscles beside it stands too close to every horizontal slice's middle and quarter points.
+      const upright = belly("upright", rect(150, 20, 210, 280));
+      expect(acrossAxis(flattenPath(upright.d))).toBe("rows");
+      expectClear([upright, ...[20, 72, 124, 176, 228].map((y, index) => belly(`s${index}`, rect(212, y, 222, y + 50)))], "upright");
+    });
+
+    it("points a band's name at its thickest part, not at the middle of its longest horizontal line", () => {
+      // A wedge lying across, 40 units thick at one end and 10 at the other.
+      const wedge = belly("wedge", "M10 100 L350 135 L350 145 L10 140 Z");
+      expect(acrossAxis(flattenPath(wedge.d))).toBe("columns");
+      const [node] = drawnNodes([wedge], { square, canvas });
+      expect(node.labelAnchor.x).toBeLessThan(60);
+      expect(containsPoint(flattenPath(wedge.d), node.labelAnchor)).toBe(true);
+    });
+  });
+
   it("lets taps pass through the labels and the selected muscle's name", () => {
     const css = readFileSync(join(process.cwd(), "client/src/components/specialization/specialization-diagram.css"), "utf8");
     expect(css).toMatch(/\.spz-diagram-labels, \.spz-diagram-callout \{ pointer-events: none; \}/);
@@ -412,5 +452,15 @@ describe("action glyphs", () => {
       expect(arrow.getAttribute("marker-end")).toBe(arrow.getAttribute("marker-start"));
       cleanup();
     }
+  });
+
+  it("draws every action in the shared list as a movement, except the holds", () => {
+    // "Steady" is the hold drawing (a still limb, two arrows pointing in). A new action that no
+    // verb or id matches would fall to it, so each one has to be given a glyph or listed here.
+    const holds = ["abdomen.compression", "hand.palmar_aponeurosis_tension", "forearm.distal_radioulnar_stabilization"];
+    expect(actionLibrary.length).toBeGreaterThan(40);
+    expect(actionLibrary.filter((action) => actionGlyphKind(action.id) === "steady").map((action) => action.id).sort()).toEqual([...holds].sort());
+    // Tilting the sole in or out is a tilt, as the hand's is toward the thumb or the little finger.
+    expect(["foot.inversion", "foot.eversion"].map(actionGlyphKind)).toEqual(["tilt", "tilt"]);
   });
 });

@@ -11,12 +11,12 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { relative } from "node:path";
 import { buildAsset } from "./asset.mjs";
-import { generatedPath, loadDrawing, regionArgument, root } from "./region.mjs";
-
-const json = (value) => JSON.stringify(value);
+import { exportStem, generatedPath, loadDrawing, regionArgument, root } from "./region.mjs";
 
 /** `upper_arm` → `upperArm`: the stem of the module's export names (`upperArmDiagram`, `upperArmDiagramOutcrops`). */
-export const exportStem = (region) => region.replace(/_([a-z0-9])/g, (_, letter) => letter.toUpperCase());
+export { exportStem };
+
+const json = (value) => JSON.stringify(value);
 
 /**
  * The words of the module's two comments, from the config's MODULE_TEXT where it has them (the

@@ -51,6 +51,10 @@ export function buildAsset(config, views, members) {
   for (const view of config.VIEW_ORDER) {
     if (!/^[a-z][a-z0-9_]*$/.test(view.id) || !view.label.trim()) throw new Error(`View ${JSON.stringify(view)}: an id of lowercase letters, digits and underscores, and a label`);
   }
+  // A drawing says whether it shows one side, mirrored for the other, or both. Only one published
+  // before the side policy (its text pinned by MODULE_TEXT: the forearm) leaves it out, and is
+  // read as one side; the contract test ties the policy to the region's side model.
+  if (config.SIDES === undefined && !config.MODULE_TEXT) throw new Error("SIDES: one_side (a paired region, mirrored for the left) or both_sides (a midline region, never mirrored)");
   if (config.SIDES !== undefined && config.SIDES !== "one_side" && config.SIDES !== "both_sides") throw new Error(`SIDES ${JSON.stringify(config.SIDES)}: one_side or both_sides`);
   const drawable = drawableMembers(members);
   const listOnly = config.LIST_ONLY ?? {};

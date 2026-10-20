@@ -92,8 +92,8 @@ function focusVisible(element: Element): boolean {
   }
 }
 
-/** Text width estimate for the label pill (no DOM measuring, so tests and phones agree). */
-const textWidth = (text: string, size: number) => text.length * size * 0.6;
+/** Text width estimate for the label pill and the anatomy labels (no DOM measuring, so tests and phones agree). */
+export const textWidth = (text: string, size: number) => text.length * size * 0.6;
 
 export function SpecializationDiagram({ asset, view, layer, mirrored, nodes: members, fillFor, selectedNodeId, onSelect, labelFor, describeFor, caption }: SpecializationDiagramProps) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
