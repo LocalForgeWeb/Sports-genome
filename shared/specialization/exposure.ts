@@ -714,9 +714,11 @@ function listedUnmappedOf(region: SpecializationRegionData, index: RegionIndex, 
   const reason = bout.catalogExerciseId === null ? undefined : index.unmappedReasons.get(bout.catalogExerciseId);
   const secondary = tagsOf(region, index, bout, catalogMusclesFor) === "secondary";
   if (!secondary && reason === undefined) return null;
-  const creditedTo = Array.from(found.effects)
-    .filter(([nodeId, effect]) => index.nodeById.has(nodeId) && !index.regionNodeIds.has(nodeId) && ["counted", "unknown"].includes(nodeOnSide(effect, side)?.kind ?? ""))
-    .map(([nodeId]) => nodeId);
+  const shown = (effect: NodeEffect) => {
+    const kind = nodeOnSide(effect, side)?.kind;
+    return kind === "counted" || kind === "unknown";
+  };
+  const creditedTo = Array.from(found.effects).filter(([nodeId, effect]) => index.nodeById.has(nodeId) && !index.regionNodeIds.has(nodeId) && shown(effect)).map(([nodeId]) => nodeId);
   return { ...regionRowOf(bout, found.reading, countedSide), tag: secondary ? "secondary" : "listed", reason: reason ?? null, creditedTo };
 }
 
