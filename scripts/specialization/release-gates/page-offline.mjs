@@ -2,7 +2,7 @@
  * What the specialization page does with no network (brief §9: "Provide zero, loading,
  * partial-data, error, and offline states distinctly"). Headless Chromium emulating an iPhone
  * (390 × 844, isMobile, hasTouch, device scale 3) on the production build served from dist/public:
- * not an iPhone, not Safari. The pattern is design/specialization/forearm/render-page.mjs.
+ * not an iPhone, not Safari. The pattern is design/specialization/shared/render-page.mjs.
  *
  *   npx vite build && node scripts/specialization/release-gates/page-offline.mjs [outDir]
  *

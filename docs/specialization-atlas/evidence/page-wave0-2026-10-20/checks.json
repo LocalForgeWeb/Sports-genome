@@ -1,0 +1,1560 @@
+{
+  "note": "Headless Chromium emulating an iPhone (viewport, isMobile, hasTouch, deviceScaleFactor 3); not an iPhone, not Safari. Production build served for the forearm scenes; a scratch build with the test regions given pages (fixture-build.mjs, never committed) for the heading-row and grid scenes. Device stores seeded (this week: Hammer Curl x3, Wrist Curl x4, Dumbbell Row one per arm, Suitcase Carry in the left hand on Monday; Reverse Wrist Curl x3, Wrist Curl x4, Back Squat x2, Single-Leg Romanian Deadlift on the left leg, Decline Sit-Up on Tuesday; a 4-day Upper/Lower plan). Run on 2026-10-20, UTC. Page coordinates are CSS px from the top of the screen.",
+  "scenes": [
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "FCU selected",
+      "viewport": "390x844",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": null,
+      "dockTop": 774,
+      "stripTop": 436,
+      "stripBottom": 535,
+      "drawingTop": 541,
+      "drawingOnFirstScreenPx": 233,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": [],
+      "file": "first-screen-fcu-390.png"
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "with a target",
+      "viewport": "390x844",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": null,
+      "dockTop": 774,
+      "stripTop": 436,
+      "stripBottom": 560,
+      "drawingTop": 566,
+      "drawingOnFirstScreenPx": 208,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Custom dates",
+      "viewport": "390x844",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": null,
+      "dockTop": 774,
+      "stripTop": 463,
+      "stripBottom": 562,
+      "drawingTop": 568,
+      "drawingOnFirstScreenPx": 206,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Custom dates and a target",
+      "viewport": "390x844",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": null,
+      "dockTop": 774,
+      "stripTop": 463,
+      "stripBottom": 587,
+      "drawingTop": 593,
+      "drawingOnFirstScreenPx": 181,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Back",
+      "viewport": "390x844",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": "Muscles",
+      "dockTop": 774,
+      "stripTop": 457,
+      "stripBottom": 555,
+      "drawingTop": 561,
+      "drawingOnFirstScreenPx": 213,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Back and a target",
+      "viewport": "390x844",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": "Muscles",
+      "dockTop": 774,
+      "stripTop": 457,
+      "stripBottom": 580,
+      "drawingTop": 586,
+      "drawingOnFirstScreenPx": 188,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Back and Custom dates",
+      "viewport": "390x844",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": "Muscles",
+      "dockTop": 774,
+      "stripTop": 484,
+      "stripBottom": 582,
+      "drawingTop": 588,
+      "drawingOnFirstScreenPx": 186,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Back, Custom dates and a target",
+      "viewport": "390x844",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": "Muscles",
+      "dockTop": 774,
+      "stripTop": 484,
+      "stripBottom": 607,
+      "drawingTop": 613,
+      "drawingOnFirstScreenPx": 161,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": [],
+      "file": "first-screen-back-custom-target-390.png"
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "FCU selected",
+      "viewport": "375x667",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": null,
+      "dockTop": 597,
+      "stripTop": 421,
+      "stripBottom": 520,
+      "drawingTop": 524,
+      "drawingOnFirstScreenPx": 73,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": [],
+      "file": "first-screen-fcu-375.png"
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "with a target",
+      "viewport": "375x667",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": null,
+      "dockTop": 597,
+      "stripTop": 421,
+      "stripBottom": 545,
+      "drawingTop": 549,
+      "drawingOnFirstScreenPx": 48,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Custom dates",
+      "viewport": "375x667",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": null,
+      "dockTop": 597,
+      "stripTop": 446,
+      "stripBottom": 545,
+      "drawingTop": 549,
+      "drawingOnFirstScreenPx": 48,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Custom dates and a target",
+      "viewport": "375x667",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": null,
+      "dockTop": 597,
+      "stripTop": 446,
+      "stripBottom": 570,
+      "drawingTop": 574,
+      "drawingOnFirstScreenPx": 23,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Back",
+      "viewport": "375x667",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": "Muscles",
+      "dockTop": 597,
+      "stripTop": 443,
+      "stripBottom": 541,
+      "drawingTop": 545,
+      "drawingOnFirstScreenPx": 52,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Back and a target",
+      "viewport": "375x667",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": "Muscles",
+      "dockTop": 597,
+      "stripTop": 443,
+      "stripBottom": 566,
+      "drawingTop": 570,
+      "drawingOnFirstScreenPx": 27,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Back and Custom dates",
+      "viewport": "375x667",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": "Muscles",
+      "dockTop": 597,
+      "stripTop": 468,
+      "stripBottom": 566,
+      "drawingTop": 570,
+      "drawingOnFirstScreenPx": 27,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Back, Custom dates and a target",
+      "viewport": "375x667",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": "Muscles",
+      "dockTop": 597,
+      "stripTop": 468,
+      "stripBottom": 591,
+      "drawingTop": 595,
+      "drawingOnFirstScreenPx": 2,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": [],
+      "file": "first-screen-back-custom-target-375.png"
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "FCU selected",
+      "viewport": "430x932",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": null,
+      "dockTop": 862,
+      "stripTop": 439,
+      "stripBottom": 537,
+      "drawingTop": 543,
+      "drawingOnFirstScreenPx": 319,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": [],
+      "file": "first-screen-fcu-430.png"
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "with a target",
+      "viewport": "430x932",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": null,
+      "dockTop": 862,
+      "stripTop": 439,
+      "stripBottom": 562,
+      "drawingTop": 568,
+      "drawingOnFirstScreenPx": 294,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Custom dates",
+      "viewport": "430x932",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": null,
+      "dockTop": 862,
+      "stripTop": 466,
+      "stripBottom": 564,
+      "drawingTop": 570,
+      "drawingOnFirstScreenPx": 292,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Custom dates and a target",
+      "viewport": "430x932",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": null,
+      "dockTop": 862,
+      "stripTop": 466,
+      "stripBottom": 589,
+      "drawingTop": 595,
+      "drawingOnFirstScreenPx": 267,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Back",
+      "viewport": "430x932",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": "Muscles",
+      "dockTop": 862,
+      "stripTop": 457,
+      "stripBottom": 555,
+      "drawingTop": 561,
+      "drawingOnFirstScreenPx": 301,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Back and a target",
+      "viewport": "430x932",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": "Muscles",
+      "dockTop": 862,
+      "stripTop": 457,
+      "stripBottom": 580,
+      "drawingTop": 586,
+      "drawingOnFirstScreenPx": 276,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Back and Custom dates",
+      "viewport": "430x932",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": "Muscles",
+      "dockTop": 862,
+      "stripTop": 484,
+      "stripBottom": 582,
+      "drawingTop": 588,
+      "drawingOnFirstScreenPx": 274,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Back, Custom dates and a target",
+      "viewport": "430x932",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 1,
+      "back": "Muscles",
+      "dockTop": 862,
+      "stripTop": 484,
+      "stripBottom": 607,
+      "drawingTop": 613,
+      "drawingOnFirstScreenPx": 249,
+      "stripPastDockPx": 0,
+      "stripWhole": true,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": [],
+      "file": "first-screen-back-custom-target-430.png"
+    },
+    {
+      "scene": "first-screen",
+      "build": "production",
+      "state": "Back, Custom dates and a target",
+      "viewport": "320x568",
+      "heading": "Forearm specialization",
+      "headingIsToggle": false,
+      "headingLines": 2,
+      "back": "Muscles",
+      "dockTop": 498,
+      "stripTop": 637,
+      "stripBottom": 760,
+      "drawingTop": 764,
+      "drawingOnFirstScreenPx": -266,
+      "stripPastDockPx": 262,
+      "stripWhole": false,
+      "horizontalOverflowPx": 0,
+      "controlsUnder44px": [],
+      "file": "first-screen-back-custom-target-320.png"
+    },
+    {
+      "scene": "inline-dates",
+      "build": "production",
+      "viewport": "320x568",
+      "rows": 2,
+      "wholeDateShown": true,
+      "fields": [
+        {
+          "label": "From",
+          "input": [
+            246,
+            44
+          ],
+          "fontSize": "16px",
+          "contentWidth": 232,
+          "dateTextWidth": 80.6,
+          "top": 310
+        },
+        {
+          "label": "To",
+          "input": [
+            246,
+            44
+          ],
+          "fontSize": "16px",
+          "contentWidth": 232,
+          "dateTextWidth": 86.3,
+          "top": 360
+        }
+      ],
+      "horizontalOverflowPx": 0,
+      "file": "dates-320.png"
+    },
+    {
+      "scene": "inline-dates",
+      "build": "production",
+      "viewport": "375x667",
+      "rows": 1,
+      "wholeDateShown": true,
+      "fields": [
+        {
+          "label": "From",
+          "input": [
+            130.4,
+            44
+          ],
+          "fontSize": "16px",
+          "contentWidth": 116,
+          "dateTextWidth": 80.6,
+          "top": 262
+        },
+        {
+          "label": "To",
+          "input": [
+            147.2,
+            44
+          ],
+          "fontSize": "16px",
+          "contentWidth": 133,
+          "dateTextWidth": 86.3,
+          "top": 262
+        }
+      ],
+      "horizontalOverflowPx": 0,
+      "file": "dates-375.png"
+    },
+    {
+      "scene": "inline-dates",
+      "build": "production",
+      "viewport": "390x844",
+      "rows": 1,
+      "wholeDateShown": true,
+      "fields": [
+        {
+          "label": "From",
+          "input": [
+            137.2,
+            44
+          ],
+          "fontSize": "16px",
+          "contentWidth": 123,
+          "dateTextWidth": 80.6,
+          "top": 267
+        },
+        {
+          "label": "To",
+          "input": [
+            154,
+            44
+          ],
+          "fontSize": "16px",
+          "contentWidth": 140,
+          "dateTextWidth": 86.3,
+          "top": 267
+        }
+      ],
+      "horizontalOverflowPx": 0,
+      "file": "dates-390.png"
+    },
+    {
+      "scene": "inline-dates",
+      "build": "production",
+      "viewport": "430x932",
+      "rows": 1,
+      "wholeDateShown": true,
+      "fields": [
+        {
+          "label": "From",
+          "input": [
+            155.4,
+            44
+          ],
+          "fontSize": "16px",
+          "contentWidth": 141,
+          "dateTextWidth": 80.6,
+          "top": 270
+        },
+        {
+          "label": "To",
+          "input": [
+            172.2,
+            44
+          ],
+          "fontSize": "16px",
+          "contentWidth": 158,
+          "dateTextWidth": 86.3,
+          "top": 270
+        }
+      ],
+      "horizontalOverflowPx": 0,
+      "file": "dates-430.png"
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "build": "fixture",
+      "viewport": "320x568",
+      "back": null,
+      "head": {
+        "top": 125,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 139,
+        "height": 44,
+        "expanded": "true",
+        "border": {
+          "border": "rgb(172, 192, 214)",
+          "behind": {
+            "right": "rgb(28, 90, 145)",
+            "above": "rgb(29, 91, 146)"
+          },
+          "ratio": 3.8
+        }
+      },
+      "grid": {
+        "top": 175,
+        "height": 167.5,
+        "columns": 2,
+        "rows": 3
+      },
+      "cells": [
+        {
+          "label": "Forearms",
+          "targets": "2 targets",
+          "pressed": "true",
+          "width": 141,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 175
+        },
+        {
+          "label": "Deltoids",
+          "targets": null,
+          "pressed": "false",
+          "width": 141,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 175
+        },
+        {
+          "label": "Fixture thighs",
+          "targets": "1 target",
+          "pressed": "false",
+          "width": 141,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 231
+        },
+        {
+          "label": "Fixture back",
+          "targets": null,
+          "pressed": "false",
+          "width": 141,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 231
+        },
+        {
+          "label": "Fixture shoulders",
+          "targets": null,
+          "pressed": "false",
+          "width": 141,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 288
+        },
+        {
+          "label": "Fixture core",
+          "targets": null,
+          "pressed": "false",
+          "width": 141,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 288
+        }
+      ],
+      "controlsUnder44px": [],
+      "controlsChecked": 7,
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-320.png",
+        "region-grid-320.png"
+      ]
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "build": "fixture",
+      "viewport": "320x568",
+      "back": "Muscles",
+      "head": {
+        "top": 125,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 139,
+        "height": 44,
+        "expanded": "true",
+        "border": {
+          "border": "rgb(172, 192, 214)",
+          "behind": {
+            "right": "rgb(28, 88, 141)",
+            "above": "rgb(29, 89, 144)"
+          },
+          "ratio": 3.91
+        }
+      },
+      "grid": {
+        "top": 175,
+        "height": 167.5,
+        "columns": 2,
+        "rows": 3
+      },
+      "cells": [
+        {
+          "label": "Forearms",
+          "targets": "2 targets",
+          "pressed": "true",
+          "width": 141,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 175
+        },
+        {
+          "label": "Deltoids",
+          "targets": null,
+          "pressed": "false",
+          "width": 141,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 175
+        },
+        {
+          "label": "Fixture thighs",
+          "targets": "1 target",
+          "pressed": "false",
+          "width": 141,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 231
+        },
+        {
+          "label": "Fixture back",
+          "targets": null,
+          "pressed": "false",
+          "width": 141,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 231
+        },
+        {
+          "label": "Fixture shoulders",
+          "targets": null,
+          "pressed": "false",
+          "width": 141,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 288
+        },
+        {
+          "label": "Fixture core",
+          "targets": null,
+          "pressed": "false",
+          "width": 141,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 288
+        }
+      ],
+      "controlsUnder44px": [],
+      "controlsChecked": 8,
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-back-320.png"
+      ]
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "build": "fixture",
+      "viewport": "375x667",
+      "back": null,
+      "head": {
+        "top": 129.6,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 139,
+        "height": 44,
+        "expanded": "true",
+        "border": {
+          "border": "rgb(172, 192, 214)",
+          "behind": {
+            "right": "rgb(29, 90, 145)",
+            "above": "rgb(29, 91, 146)"
+          },
+          "ratio": 3.8
+        }
+      },
+      "grid": {
+        "top": 179.6,
+        "height": 132,
+        "columns": 3,
+        "rows": 2
+      },
+      "cells": [
+        {
+          "label": "Forearms",
+          "targets": "2 targets",
+          "pressed": "true",
+          "width": 109.8,
+          "height": 71.2,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 180
+        },
+        {
+          "label": "Deltoids",
+          "targets": null,
+          "pressed": "false",
+          "width": 109.8,
+          "height": 71.2,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 180
+        },
+        {
+          "label": "Fixture thighs",
+          "targets": "1 target",
+          "pressed": "false",
+          "width": 109.8,
+          "height": 71.2,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 180
+        },
+        {
+          "label": "Fixture back",
+          "targets": null,
+          "pressed": "false",
+          "width": 109.8,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 257
+        },
+        {
+          "label": "Fixture shoulders",
+          "targets": null,
+          "pressed": "false",
+          "width": 109.8,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 257
+        },
+        {
+          "label": "Fixture core",
+          "targets": null,
+          "pressed": "false",
+          "width": 109.8,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 257
+        }
+      ],
+      "controlsUnder44px": [],
+      "controlsChecked": 7,
+      "horizontalOverflowPx": 0,
+      "files": [
+        "region-grid-375.png"
+      ]
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "build": "fixture",
+      "viewport": "375x667",
+      "back": "Muscles",
+      "head": {
+        "top": 129.6,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 139,
+        "height": 44,
+        "expanded": "true",
+        "border": {
+          "border": "rgb(172, 192, 214)",
+          "behind": {
+            "right": "rgb(28, 87, 141)",
+            "above": "rgb(28, 89, 144)"
+          },
+          "ratio": 3.91
+        }
+      },
+      "grid": {
+        "top": 179.6,
+        "height": 132,
+        "columns": 3,
+        "rows": 2
+      },
+      "cells": [
+        {
+          "label": "Forearms",
+          "targets": "2 targets",
+          "pressed": "true",
+          "width": 109.8,
+          "height": 71.2,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 180
+        },
+        {
+          "label": "Deltoids",
+          "targets": null,
+          "pressed": "false",
+          "width": 109.8,
+          "height": 71.2,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 180
+        },
+        {
+          "label": "Fixture thighs",
+          "targets": "1 target",
+          "pressed": "false",
+          "width": 109.8,
+          "height": 71.2,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 180
+        },
+        {
+          "label": "Fixture back",
+          "targets": null,
+          "pressed": "false",
+          "width": 109.8,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 257
+        },
+        {
+          "label": "Fixture shoulders",
+          "targets": null,
+          "pressed": "false",
+          "width": 109.8,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 257
+        },
+        {
+          "label": "Fixture core",
+          "targets": null,
+          "pressed": "false",
+          "width": 109.8,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 257
+        }
+      ],
+      "controlsUnder44px": [],
+      "controlsChecked": 8,
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-back-375.png"
+      ]
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "build": "fixture",
+      "viewport": "390x844",
+      "back": null,
+      "head": {
+        "top": 129.6,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 142.7,
+        "height": 44,
+        "expanded": "true",
+        "border": {
+          "border": "rgb(172, 192, 214)",
+          "behind": {
+            "right": "rgb(28, 90, 145)",
+            "above": "rgb(29, 91, 146)"
+          },
+          "ratio": 3.8
+        }
+      },
+      "grid": {
+        "top": 179.6,
+        "height": 132,
+        "columns": 3,
+        "rows": 2
+      },
+      "cells": [
+        {
+          "label": "Forearms",
+          "targets": "2 targets",
+          "pressed": "true",
+          "width": 114.3,
+          "height": 71.2,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 180
+        },
+        {
+          "label": "Deltoids",
+          "targets": null,
+          "pressed": "false",
+          "width": 114.3,
+          "height": 71.2,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 180
+        },
+        {
+          "label": "Fixture thighs",
+          "targets": "1 target",
+          "pressed": "false",
+          "width": 114.3,
+          "height": 71.2,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 180
+        },
+        {
+          "label": "Fixture back",
+          "targets": null,
+          "pressed": "false",
+          "width": 114.3,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 257
+        },
+        {
+          "label": "Fixture shoulders",
+          "targets": null,
+          "pressed": "false",
+          "width": 114.3,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 257
+        },
+        {
+          "label": "Fixture core",
+          "targets": null,
+          "pressed": "false",
+          "width": 114.3,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 257
+        }
+      ],
+      "controlsUnder44px": [],
+      "controlsChecked": 7,
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-390.png",
+        "region-grid-390.png"
+      ]
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "build": "fixture",
+      "viewport": "390x844",
+      "back": "Muscles",
+      "head": {
+        "top": 129.6,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 142.7,
+        "height": 44,
+        "expanded": "true",
+        "border": {
+          "border": "rgb(172, 192, 214)",
+          "behind": {
+            "right": "rgb(28, 87, 141)",
+            "above": "rgb(28, 89, 143)"
+          },
+          "ratio": 3.92
+        }
+      },
+      "grid": {
+        "top": 179.6,
+        "height": 132,
+        "columns": 3,
+        "rows": 2
+      },
+      "cells": [
+        {
+          "label": "Forearms",
+          "targets": "2 targets",
+          "pressed": "true",
+          "width": 114.3,
+          "height": 71.2,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 180
+        },
+        {
+          "label": "Deltoids",
+          "targets": null,
+          "pressed": "false",
+          "width": 114.3,
+          "height": 71.2,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 180
+        },
+        {
+          "label": "Fixture thighs",
+          "targets": "1 target",
+          "pressed": "false",
+          "width": 114.3,
+          "height": 71.2,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 180
+        },
+        {
+          "label": "Fixture back",
+          "targets": null,
+          "pressed": "false",
+          "width": 114.3,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 257
+        },
+        {
+          "label": "Fixture shoulders",
+          "targets": null,
+          "pressed": "false",
+          "width": 114.3,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 257
+        },
+        {
+          "label": "Fixture core",
+          "targets": null,
+          "pressed": "false",
+          "width": 114.3,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 257
+        }
+      ],
+      "controlsUnder44px": [],
+      "controlsChecked": 8,
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-back-390.png"
+      ]
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "build": "fixture",
+      "viewport": "430x932",
+      "back": null,
+      "head": {
+        "top": 129.6,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 152.5,
+        "height": 44,
+        "expanded": "true",
+        "border": {
+          "border": "rgb(172, 192, 214)",
+          "behind": {
+            "right": "rgb(29, 90, 145)",
+            "above": "rgb(29, 91, 146)"
+          },
+          "ratio": 3.8
+        }
+      },
+      "grid": {
+        "top": 179.6,
+        "height": 111.2,
+        "columns": 3,
+        "rows": 2
+      },
+      "cells": [
+        {
+          "label": "Forearms",
+          "targets": "2 targets",
+          "pressed": "true",
+          "width": 126.4,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 180
+        },
+        {
+          "label": "Deltoids",
+          "targets": null,
+          "pressed": "false",
+          "width": 126.4,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 180
+        },
+        {
+          "label": "Fixture thighs",
+          "targets": "1 target",
+          "pressed": "false",
+          "width": 126.4,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 180
+        },
+        {
+          "label": "Fixture back",
+          "targets": null,
+          "pressed": "false",
+          "width": 126.4,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 236
+        },
+        {
+          "label": "Fixture shoulders",
+          "targets": null,
+          "pressed": "false",
+          "width": 126.4,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 236
+        },
+        {
+          "label": "Fixture core",
+          "targets": null,
+          "pressed": "false",
+          "width": 126.4,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 236
+        }
+      ],
+      "controlsUnder44px": [],
+      "controlsChecked": 7,
+      "horizontalOverflowPx": 0,
+      "files": [
+        "region-grid-430.png"
+      ]
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "build": "fixture",
+      "viewport": "430x932",
+      "back": "Muscles",
+      "head": {
+        "top": 129.6,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 152.5,
+        "height": 44,
+        "expanded": "true",
+        "border": {
+          "border": "rgb(172, 192, 214)",
+          "behind": {
+            "right": "rgb(27, 87, 140)",
+            "above": "rgb(28, 89, 143)"
+          },
+          "ratio": 3.92
+        }
+      },
+      "grid": {
+        "top": 179.6,
+        "height": 111.2,
+        "columns": 3,
+        "rows": 2
+      },
+      "cells": [
+        {
+          "label": "Forearms",
+          "targets": "2 targets",
+          "pressed": "true",
+          "width": 126.4,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 180
+        },
+        {
+          "label": "Deltoids",
+          "targets": null,
+          "pressed": "false",
+          "width": 126.4,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 180
+        },
+        {
+          "label": "Fixture thighs",
+          "targets": "1 target",
+          "pressed": "false",
+          "width": 126.4,
+          "height": 50.4,
+          "labelFont": "16px",
+          "targetsFont": "12px",
+          "row": 180
+        },
+        {
+          "label": "Fixture back",
+          "targets": null,
+          "pressed": "false",
+          "width": 126.4,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 236
+        },
+        {
+          "label": "Fixture shoulders",
+          "targets": null,
+          "pressed": "false",
+          "width": 126.4,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 236
+        },
+        {
+          "label": "Fixture core",
+          "targets": null,
+          "pressed": "false",
+          "width": 126.4,
+          "height": 54.8,
+          "labelFont": "16px",
+          "targetsFont": null,
+          "row": 236
+        }
+      ],
+      "controlsUnder44px": [],
+      "controlsChecked": 8,
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-back-430.png"
+      ]
+    },
+    {
+      "scene": "pick-and-midline",
+      "build": "fixture",
+      "viewport": "390x844",
+      "afterPick": {
+        "address": "?workspace=specialization&region=fx_thigh",
+        "gridHidden": true,
+        "focus": {
+          "tag": "BUTTON",
+          "className": "spz-region-toggle",
+          "text": "Fixture thighs"
+        },
+        "said": "Fixture thighs: 2 distinct bouts touched your right fixture thigh.",
+        "heading": "Fixture thighs",
+        "sideGroup": 1
+      },
+      "core": {
+        "address": "?workspace=specialization&region=fx_core",
+        "sideGroups": 0,
+        "regionLine": "2 distinct bouts touched your fixture core. Choose a muscle in the list for its numbers.  See these sets"
+      },
+      "controlsUnder44px": [],
+      "horizontalOverflowPx": 0,
+      "files": [
+        "picked-thighs-390.png",
+        "midline-core-390.png"
+      ]
+    },
+    {
+      "scene": "pick-and-midline",
+      "build": "fixture",
+      "viewport": "375x667",
+      "afterPick": {
+        "address": "?workspace=specialization&region=fx_thigh",
+        "gridHidden": true,
+        "focus": {
+          "tag": "BUTTON",
+          "className": "spz-region-toggle",
+          "text": "Fixture thighs"
+        },
+        "said": "Fixture thighs: 2 distinct bouts touched your right fixture thigh.",
+        "heading": "Fixture thighs",
+        "sideGroup": 1
+      },
+      "core": {
+        "address": "?workspace=specialization&region=fx_core",
+        "sideGroups": 0,
+        "regionLine": "2 distinct bouts touched your fixture core. Choose a muscle in the list for its numbers.  See these sets"
+      },
+      "controlsUnder44px": [],
+      "horizontalOverflowPx": 0,
+      "files": []
+    },
+    {
+      "scene": "pick-and-midline",
+      "build": "fixture",
+      "viewport": "320x568",
+      "afterPick": {
+        "address": "?workspace=specialization&region=fx_thigh",
+        "gridHidden": true,
+        "focus": {
+          "tag": "BUTTON",
+          "className": "spz-region-toggle",
+          "text": "Fixture thighs"
+        },
+        "said": "Fixture thighs: 2 distinct bouts touched your right fixture thigh.",
+        "heading": "Fixture thighs",
+        "sideGroup": 1
+      },
+      "core": {
+        "address": "?workspace=specialization&region=fx_core",
+        "sideGroups": 0,
+        "regionLine": "2 distinct bouts touched your fixture core. Choose a muscle in the list for its numbers.  See these sets"
+      },
+      "controlsUnder44px": [],
+      "horizontalOverflowPx": 0,
+      "files": []
+    },
+    {
+      "scene": "external-home",
+      "build": "fixture",
+      "viewport": "390x844",
+      "link": {
+        "width": 352.9,
+        "height": 44
+      },
+      "sheetControlsUnder44px": [],
+      "afterOpen": {
+        "address": "?workspace=specialization&region=fx_shoulder&node=fx_shoulder.rear_delt",
+        "heading": "Fixture shoulders",
+        "focus": {
+          "tag": "BUTTON",
+          "className": "spz-region-toggle",
+          "text": "Fixture shoulders"
+        },
+        "said": "Fixture shoulders: 1 distinct bout touched your right fixture shoulder."
+      },
+      "files": [
+        "external-home-390.png"
+      ]
+    },
+    {
+      "scene": "external-home",
+      "build": "fixture",
+      "viewport": "375x667",
+      "link": {
+        "width": 339.3,
+        "height": 44
+      },
+      "sheetControlsUnder44px": [],
+      "afterOpen": {
+        "address": "?workspace=specialization&region=fx_shoulder&node=fx_shoulder.rear_delt",
+        "heading": "Fixture shoulders",
+        "focus": {
+          "tag": "BUTTON",
+          "className": "spz-region-toggle",
+          "text": "Fixture shoulders"
+        },
+        "said": "Fixture shoulders: 1 distinct bout touched your right fixture shoulder."
+      },
+      "files": []
+    },
+    {
+      "scene": "first-open-chooses",
+      "build": "fixture",
+      "viewport": "390x844",
+      "address": "?workspace=specialization&region=forearm",
+      "expanded": "true"
+    }
+  ],
+  "kept": [
+    "dates-320.png",
+    "dates-375.png",
+    "dates-390.png",
+    "dates-430.png",
+    "external-home-390.png",
+    "first-screen-back-custom-target-320.png",
+    "first-screen-back-custom-target-375.png",
+    "first-screen-back-custom-target-390.png",
+    "first-screen-back-custom-target-430.png",
+    "first-screen-fcu-375.png",
+    "first-screen-fcu-390.png",
+    "first-screen-fcu-430.png",
+    "heading-row-320.png",
+    "heading-row-390.png",
+    "heading-row-back-320.png",
+    "heading-row-back-375.png",
+    "heading-row-back-390.png",
+    "heading-row-back-430.png",
+    "midline-core-390.png",
+    "picked-thighs-390.png",
+    "region-grid-320.png",
+    "region-grid-375.png",
+    "region-grid-390.png",
+    "region-grid-430.png"
+  ]
+}
