@@ -1,13 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import type { SpecializationExclusions } from "@/lib/specialization/exclusions";
 import type { Recommendations } from "@/lib/specialization/recommendations";
 import type { StoreWrite } from "@/lib/specialization/stores";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
-import type { AnatomyNode, ArmSide, GoalProgress, NodeExposure, SpecializationGoal, SpecializationRegionData, SummaryMode } from "@shared/specialization/types";
+import { regionIndexEntry, specializationRegionIndex } from "@shared/specialization/regionIndex";
+import type { AnatomyNode, GoalProgress, NodeExposure, RegionId, SpecializationGoal, SpecializationRegionData, SummaryMode, SummarySide } from "@shared/specialization/types";
 import { ActionGlyph } from "./ActionGlyph";
 import { BoutItem, boutDay } from "./BoutItem";
-import { categoryLabel, formatSegment, holdTime, layerLabels, ledgerByExercise, sideLabels } from "./model";
+import { categoryLabel, formatSegment, holdTime, incidentalWords, layerLabels, ledgerByExercise } from "./model";
+import { rowSideTextFor, sideWordsFor } from "./sideWords";
 import { SpecializationSheet } from "./SpecializationSheet";
 import { Suggestions } from "./Suggestions";
 import { TargetsEditor } from "./TargetsEditor";
@@ -23,17 +25,22 @@ const basisLabels: Record<string, string> = {
 
 /**
  * One muscle, in the brief's order (§6 "Muscle detail sheet"): name, location and layer;
- * what it does; how it contributes to shape; its exposure for the window and arm; the
+ * what it does; how it contributes to shape; its exposure for the window and side; the
  * contribution ledger behind every number (exercise → bout → segment); your target;
  * exercises for it, with why; and the sources and method.
+ *
+ * Targets are set only on the region's own target muscles (10-multi-region.md §2.2): another
+ * region's muscle says where its targets are set, with a way there once that page exists; a target
+ * already saved on a muscle that is not a target here is shown with End and Remove only.
  */
-export function MuscleSheet({ data, node, exposure, loading = false, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, initialSection, paired, pairNote = null, exclusions, equipmentOf, onSetExerciseExcluded, onSetEquipmentExcluded, onSaveGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onClose }: {
+export function MuscleSheet({ data, node, exposure, loading = false, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, initialSection, paired, pairNote = null, exclusions, equipmentOf, onSetExerciseExcluded, onSetEquipmentExcluded, onSaveGoals, onRestoreGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onOpenRegion, onClose }: {
   data: SpecializationRegionData;
   node: AnatomyNode;
   exposure: NodeExposure | null;
   /** Planned mode while the plan is still loading: no numbers yet, and none shown as zero or as "not mapped". */
   loading?: boolean;
-  side: ArmSide;
+  /** The side on screen: left or right on a paired region, `midline` on a midline one. */
+  side: SummarySide;
   mode: SummaryMode;
   intervalLabel: string;
   weightUnit: DisplayWeightUnit;
@@ -54,11 +61,15 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
   onSetExerciseExcluded: (catalogExerciseId: number, excluded: boolean) => StoreWrite;
   onSetEquipmentExcluded: (equipment: string, excluded: boolean) => StoreWrite;
   onSaveGoals: (goals: SpecializationGoal[]) => StoreWrite;
+  /** Undo's write: targets as they were before End or Remove, read-only ones included. */
+  onRestoreGoals?: (goals: SpecializationGoal[]) => StoreWrite;
   onRemoveGoal: (goalId: string) => StoreWrite;
   onChooseExercise: (catalogExerciseId: number) => void;
   onInspectExercise: (catalogExerciseId: number | null, name: string) => void;
   onOpenSession: (sessionId: string) => void;
   onOpenMethod: () => void;
+  /** Opens another region's page on one of its muscles (an external muscle's home). */
+  onOpenRegion?: (regionId: RegionId, nodeId: string) => void;
   onClose: () => void;
 }) {
   const actionById = new Map(data.actions.map((action) => [action.id, action] as const));
@@ -66,7 +77,20 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
   const claims = data.claims.filter((claim) => claim.nodeId === node.id && claim.reviewStatus !== "rejected");
   const sourceById = new Map(data.sources.map((source) => [source.id, source] as const));
   const nodeName = (id: string) => data.nodes.find((item) => item.id === id)?.shortName ?? id;
-  const armWord = side === "left" ? "left arm" : "right arm";
+  const words = sideWordsFor(data.region);
+  const sideText = rowSideTextFor(data);
+  const onSide = side === "midline" ? null : words.of(side);
+  const wording = data.region.wording;
+  // Another region's muscle: its targets are set on its home region's page, linked once that page exists.
+  const home = node.role === "external" ? regionIndexEntry(node.regionId) : null;
+  const homeHasPage = home !== null && specializationRegionIndex.some((region) => region.id === home.id);
+  const homePage = home ? `the ${home.label.toLowerCase()} page` : null;
+  // A muscle that is not a target here shows its editor only for targets saved on it earlier; once
+  // shown, it stays for as long as the sheet shows this muscle, so removing the last of them leaves
+  // the message and its Undo in place, with focus on Undo, rather than taking them away with it.
+  const [editorShownFor, setEditorShownFor] = useState<string | null>(() => (goals.length ? node.id : null));
+  if (goals.length && editorShownFor !== node.id) setEditorShownFor(node.id);
+  const showEditor = node.role === "target" || goals.length > 0 || editorShownFor === node.id;
   const ledger = exposure ? ledgerByExercise(exposure.contributions) : [];
   const notCounted = exposure?.notCounted ?? [];
   useEffect(() => {
@@ -103,7 +127,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-exposure">
-      <h3 id="spz-exposure">{mode === "planned" ? "Planned" : "Completed"} · {intervalLabel} · {armWord}</h3>
+      <h3 id="spz-exposure">{[mode === "planned" ? "Planned" : "Completed", intervalLabel, onSide].filter(Boolean).join(" · ")}</h3>
       {loading ? <p className="spz-note">Loading your plan…</p>
         : !exposure || exposure.mappingCoverage === "none"
         ? <p className="spz-note">No exercise is mapped to this muscle yet, so there is nothing to count. That is missing mapping, not missing training.</p>
@@ -111,15 +135,15 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
           <div><dt>Direct dynamic bouts</dt><dd>{exposure.directDynamicBouts}{exposure.directDynamicReps ? <small> · {exposure.directDynamicReps} reps</small> : null}</dd></div>
           <div><dt>Other dynamic bouts</dt><dd>{exposure.contributingDynamicBouts}{exposure.contributingDynamicReps ? <small> · {exposure.contributingDynamicReps} reps</small> : null}</dd></div>
           <div><dt>Deliberate holds</dt><dd>{exposure.deliberateHoldBouts}{exposure.deliberateHoldBouts ? <small> · {holdTime(exposure.deliberateHoldSeconds)}</small> : null}</dd></div>
-          <div><dt>Incidental {data.region.wording.incidentalWork} or steadying</dt><dd>{exposure.incidentalBouts}</dd></div>
+          <div><dt>Incidental {incidentalWords(wording.incidentalWork)}</dt><dd>{exposure.incidentalBouts}</dd></div>
           {exposure.mixedBouts > 0 && <div><dt>Mixed bouts</dt><dd>{exposure.mixedBouts}</dd></div>}
           {exposure.unknownBouts > 0 && <div><dt>Unclassified</dt><dd>{exposure.unknownBouts}</dd></div>}
-          {exposure.unknownSide.bouts > 0 && <div><dt>No arm recorded</dt><dd>{exposure.unknownSide.bouts}<small> · counted for neither arm</small></dd></div>}
+          {words.paired && exposure.unknownSide.bouts > 0 && <div><dt>{words.noneRecordedTitle}</dt><dd>{exposure.unknownSide.bouts}<small> · {words.neither}</small></dd></div>}
           {exposure.pendingReviewBouts > 0 && <div><dt>Mapping under review</dt><dd>{exposure.pendingReviewBouts}<small> · shown, not counted</small></dd></div>}
-          {(exposure.unknownSide.pendingReviewBouts ?? 0) > 0 && <div><dt>Under review, no arm recorded</dt><dd>{exposure.unknownSide.pendingReviewBouts}<small> · shown, not counted</small></dd></div>}
+          {words.paired && (exposure.unknownSide.pendingReviewBouts ?? 0) > 0 && <div><dt>Under review, {words.noneRecorded}</dt><dd>{exposure.unknownSide.pendingReviewBouts}<small> · shown, not counted</small></dd></div>}
         </dl>}
       {exposure?.mappingCoverage === "pending_review" && <p className="spz-note">Its exercise mapping is still under review, so nothing is counted for it yet.</p>}
-      {!loading && paired && exposure?.mappingCoverage === "reviewed" && <p className="spz-note"><b>{paired.label}:</b> {paired.exposure ? `${paired.exposure.directDynamicBouts} direct dynamic · ${paired.exposure.contributingDynamicBouts} other dynamic · ${paired.exposure.deliberateHoldBouts} holds` : "nothing"}, {side === "left" ? "left" : "right"} arm.</p>}
+      {!loading && paired && exposure?.mappingCoverage === "reviewed" && <p className="spz-note"><b>{paired.label}:</b> {paired.exposure ? `${paired.exposure.directDynamicBouts} direct dynamic · ${paired.exposure.contributingDynamicBouts} other dynamic · ${paired.exposure.deliberateHoldBouts} holds` : "nothing"}{onSide ? `, ${onSide}` : ""}.</p>}
       {!loading && !paired && pairNote && exposure?.mappingCoverage === "reviewed" && <p className="spz-note">{pairNote}</p>}
     </section>
 
@@ -131,11 +155,11 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
           <ol className="spz-bouts">
             {group.rows.map((row) => <li key={row.boutId} className="spz-bout">
               <div className="spz-bout-head">
-                <b>{categoryLabel(row.category)}</b>
-                <small>{[row.sessionLabel, row.performedAt ? new Date(row.performedAt).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) : null, sideLabels[row.side]].filter(Boolean).join(" · ")}</small>
+                <b>{categoryLabel(row.category, wording)}</b>
+                <small>{[row.sessionLabel, row.performedAt ? new Date(row.performedAt).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) : null, ...sideText(row)].filter(Boolean).join(" · ")}</small>
               </div>
               <ul className="spz-segments">{row.segments.map((segment, index) => <li key={segment.id}>{row.kind === "drop" ? `Drop ${index + 1}: ` : ""}{formatSegment(segment, weightUnit)}</li>)}</ul>
-              {row.category === "mixed" && <p className="spz-note">Parts: {row.parts.map((part) => categoryLabel(part.category)).join(" and ")}. Counted once.</p>}
+              {row.category === "mixed" && <p className="spz-note">Parts: {row.parts.map((part) => categoryLabel(part.category, wording)).join(" and ")}. Counted once.</p>}
               {row.sharedWith.length > 0 && <p className="spz-note">Shared with {row.sharedWith.map(nodeName).join(", ")}: the work is real but cannot be split between them.</p>}
               {row.notes.length > 0 && <p className="spz-note">{row.notes.join(" · ")}</p>}
               {row.sessionId && <button type="button" className="spz-link" onClick={() => onOpenSession(row.sessionId!)}>Open this workout <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
@@ -147,7 +171,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
         {notCounted.length > 0 && <details className="spz-disclosure">
           <summary><span><b>Not counted</b><small>{notCounted.length} bout{notCounted.length === 1 ? "" : "s"} matched but earned nothing</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
           {/* The same set records as the ledger above (brief §1): its segments as logged and the workout it was in, with why it earned nothing. */}
-          <ol className="spz-bouts">{notCounted.map((row) => <BoutItem key={`${row.boutId}-nc`} row={row} title={row.exerciseName} meta={[row.sessionLabel, boutDay(row.performedAt), sideLabels[row.side], row.matchedBy === "name" ? "matched by name" : null].filter(Boolean).join(" · ")} weightUnit={weightUnit} onOpenSession={onOpenSession}>
+          <ol className="spz-bouts">{notCounted.map((row) => <BoutItem key={`${row.boutId}-nc`} row={row} title={row.exerciseName} meta={[row.sessionLabel, boutDay(row.performedAt), ...sideText(row), row.matchedBy === "name" ? "matched by name" : null].filter(Boolean).join(" · ")} sideText={sideText} weightUnit={weightUnit} onOpenSession={onOpenSession}>
             <p className="spz-note">{row.notes.join(" · ") || "Not counted."}</p>
           </BoutItem>)}</ol>
         </details>}
@@ -157,8 +181,14 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
     <section className="spz-sheet-section" aria-labelledby="spz-target">
       <h3 id="spz-target">Your target</h3>
       {/* While the plan loads there is no progress to read, and the editor would show each target at 0. */}
+      {home && homePage && <>
+        <p className="spz-note">Targets for this muscle are set on {homePage}{homeHasPage ? "." : ", which is not available yet."}</p>
+        {homeHasPage && onOpenRegion && <button type="button" className="spz-link" onClick={() => onOpenRegion(home.id, node.id)}>Open {homePage} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
+      </>}
       {loading ? <p className="spz-note">Your targets and their progress appear once your plan has loaded.</p>
-        : <TargetsEditor regionId={data.region.id} nodeId={node.id} nodeName={node.name} side={side} goals={goals} progress={progress} timeZone={timeZone} todayKey={todayKey} onSave={onSaveGoals} onRemove={onRemoveGoal} />}
+        : showEditor
+          ? <TargetsEditor key={node.id} region={data.region} nodeId={node.id} nodeName={node.name} canSet={node.role === "target"} side={side} goals={goals} progress={progress} timeZone={timeZone} todayKey={todayKey} onSave={onSaveGoals} onRestore={onRestoreGoals} onRemove={onRemoveGoal} />
+          : !home && <p className="spz-note">Targets are for this region's target muscles, and this one is not one of them.</p>}
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-exercises">

@@ -241,15 +241,43 @@ describe("no region is named in the calculator, the windows, the goals or the ad
  * the forearm page once hard-coded (its view names, "upper-arm"): a region's words come from its
  * data (`region.wording`, `measurementMetrics`, the drawing's `viewOrder`). Comments are not
  * read, since they may cite the forearm brief or give a forearm id as an example; strings and
- * code are. `grip` is not on the list: it is also a measure (`grip_force_n`, offered only when the
- * region lists it) and a kind of mapping (straps), which the components name as such. The muscle
- * sheet and the exposure sentence take the incidental word from `region.wording` too, and
- * SpecializationPanel.deltoid.render.test.ts checks the deltoid's sheet for forearm words.
+ * code are.
+ *
+ * Since several regions (10-multi-region.md §6.2) the scan is also the registry's: every region
+ * word the registry holds (`registryWordPattern`: ids and labels, muscle names, short names and
+ * aliases, view and label texts, wording) and "arm" and "leg", so no component can hard-code a
+ * limb or a side noun again; side phrases come from `sideWordsFor` (sideWords.ts), which builds
+ * them from the region's side model and words. A limb value the code compares with a limb field
+ * or names in a type (`limb === "arm"`, `"arm" | "leg"`) is the model's vocabulary and is left
+ * out; any other limb string is copy, and is read.
+ *
+ * The registry holds only the regions a wave has registered (in wave 0 the forearm and the
+ * reference upper arm), so the scan also reads the nine regions' fixed words from 10-multi-region.md
+ * §1.1 (`atlasWords`): without them a component could write "chest" or "your right thigh" in wave 0
+ * and pass until that region shipped.
  */
 describe("no region is named in the page's components", () => {
   const dir = "client/src/components/specialization";
   const files = readdirSync(join(process.cwd(), dir)).filter((name) => /\.tsx?$/.test(name) && !/\.test\.tsx?$/.test(name)).sort();
-  const pageWords = new RegExp(`${regionWords.source}|thumb.side|pinky|\\bpalm|upper.arm`, "i");
+  const registry = registryWordPattern();
+  /**
+   * The nine regions' words fixed by 10-multi-region.md §1.1: their ids, labels and headings' first
+   * words, every body-map key they own, and the side words a region's switch and sentences use.
+   */
+  const atlasWords = [
+    "shoulders?", "chest", "back", "upper[ _-]arms?", "forearms?", "core", "hips?", "thighs?", "lower[ _-]legs?",
+    "frontDelts", "sideDelts", "rearDelts", "rotatorCuff", "serratusAnterior", "lats", "upperBack", "rhomboids", "traps", "lowerBack",
+    "biceps", "brachialis", "triceps", "brachioradialis", "abs", "obliques", "glutes", "abductors", "tfl", "hipFlexors", "adductors",
+    "quads", "hamstrings", "calves", "soleus", "tibialis", "peroneals",
+    "(left|right) side",
+  ];
+  const atlas = `\\b(${atlasWords.join("|")})\\b`;
+  const pageWords = new RegExp(`${regionWords.source}|thumb.side|pinky|\\bpalm|upper.arm|${registry.source}|${atlas}`, "i");
+  /** A limb value compared with a limb field or named in a type is the model's vocabulary; `Math.abs` is arithmetic. */
+  const withoutLimbValues = (line: string) => line
+    .replace(/(===|!==|\|)\s*(["'`])(arm|leg)\2/g, "$1 $2$2")
+    .replace(/(["'`])(arm|leg)\1(\s*(?:===|!==|\|))/g, "$1$1$3")
+    .replace(/\bMath\.abs\b/g, "Math.");
   /** Lines that must stay, by file and exact code, each with its reason. */
   const allowed: { file: string; code: string; why: string }[] = [
     {
@@ -257,14 +285,48 @@ describe("no region is named in the page's components", () => {
       code: 'if (/pronation|supination|rotation/.test(actionId)) return "rotate";',
       why: "Picks the glyph's shape from the verb in any region's action id (shoulder.internal_rotation, foot pronation): joint-action vocabulary, not a branch on a region.",
     },
+    {
+      file: "SpecializationPanel.tsx",
+      code: 'return <button type="button" className="spz-back" onClick={onBack} aria-label={`Back to ${label}`}><ChevronLeft className="h-5 w-5" aria-hidden="true" />{label}</button>;',
+      why: "The in-page Back to the page that opened this one: navigation, not the back region, whose label the registry holds only as a drawing's view name (\"Back\").",
+    },
+    {
+      file: "model.ts",
+      code: 'const holdingWord = "steadying";',
+      why: "The plain word for incidental work, holding a position while other muscles move the load (§8's method note), joined to each region's own word (\"grip or steadying\"); it is also one region's word, so `incidentalWords` never says it twice.",
+    },
+    {
+      file: "MeasurementsPanel.tsx",
+      code: 'const postureLabels: Record<MeasurementPosture, string> = { arm_relaxed_hanging: "Arm relaxed, hanging", arm_extended_supported: "Arm straight, supported", elbow_90_supported: "Elbow at 90°, supported", arm_flexed: "Arm flexed", standing_relaxed: "Standing relaxed", other: "Other" };',
+      why: "The measurement protocol's postures (`MeasurementPosture`), named by the joint they set; which ones a page offers is the region's (`postureChoicesFor`: its defaults and its limb's).",
+    },
+    {
+      file: "MeasurementsPanel.tsx",
+      code: 'grip_force_n: { button: "Grip strength", instrument: "Dynamometer", noun: "grip reading", title: (units) => `Grip strength on a dynamometer (${units.force}; its own measure, not exercise load)`, field: (units) => `Grip (${units.force} on the dynamometer)`, best: "Highest grip reading so far" },',
+      why: "The words of the grip-strength measure (`grip_force_n`, a dynamometer reading), offered only where a region's `measurementMetrics` lists it: a measure's name, not a region's.",
+    },
   ];
 
   it("finds the page's components, and reads strings and code but not comments", () => {
-    expect(files).toEqual(expect.arrayContaining(["SpecializationPanel.tsx", "SpecializationDiagram.tsx", "MeasurementsPanel.tsx", "MuscleSheet.tsx", "model.ts", "diagramGeometry.ts"]));
+    expect(files).toEqual(expect.arrayContaining(["SpecializationPanel.tsx", "SpecializationDiagram.tsx", "MeasurementsPanel.tsx", "MuscleSheet.tsx", "model.ts", "diagramGeometry.ts", "sideWords.ts"]));
     expect(files.some((name) => name.includes(".test."))).toBe(false);
     const sample = 'const a = "Thumb side"; // forearm\n/** forearm */\nconst b = <p>{/* forearm */}upper-arm</p>;';
     expect(codeLines("sample.tsx", sample).map((line) => pageWords.test(line))).toEqual([true, false, true]);
     expect(codeLines("sample.tsx", sample)[0].trimEnd()).toBe('const a = "Thumb side";');
+  });
+
+  it("refuses a limb or a side noun written into a component, and the registry's words", () => {
+    for (const line of ['const label = "Left arm";', "<p>counted for neither leg</p>", "`${side} arm`", '"Incidental grip / stabilization"', "<h3>Muscles of the forearms</h3>", '"or steadying"']) {
+      expect(pageWords.test(withoutLimbValues(line)), line).toBe(true);
+    }
+    // Words of regions not registered yet (10-multi-region.md §1.1), and a limb string that is copy.
+    for (const line of ['"Muscles of the chest"', "<p>Left thigh · Right thigh</p>", '"your right shoulder"', 'const word = "arm";', '"Both legs"', '"Left side · Right side"', 'const key = "quads";', "<p>Lower legs</p>", 'id === "upper_arm"']) {
+      expect(pageWords.test(withoutLimbValues(line)), line).toBe(true);
+    }
+    // The model's limb values and identifiers that only contain the words are not copy.
+    for (const line of ['region.sides.limb === "arm"', 'limb: "arm" | "leg" | null;', 'words.limb === "arm" && recorded.limb === "leg"', "const armSide = bout.armSide;", "sideWords.noneRecorded", 'grip_force_n: "x"', "Math.abs(left - right)", "const backLabel = onBack;", "the other side"]) {
+      expect(pageWords.test(withoutLimbValues(line)), line).toBe(false);
+    }
   });
 
   for (const file of files) {
@@ -272,13 +334,13 @@ describe("no region is named in the page's components", () => {
       const lines = codeLines(file, readFileSync(join(process.cwd(), dir, file), "utf8"));
       const hits = lines
         .map((line, index) => [index + 1, line.trim()] as const)
-        .filter(([, line]) => pageWords.test(line) && !allowed.some((entry) => entry.file === file && entry.code === line));
+        .filter(([, line]) => pageWords.test(withoutLimbValues(line)) && !allowed.some((entry) => entry.file === file && entry.code === line));
       expect(hits).toEqual([]);
     });
   }
 
   it("keeps the allow-list short and true: every entry is still a line of its file", () => {
-    expect(allowed.length).toBeLessThanOrEqual(3);
+    expect(allowed.length).toBeLessThanOrEqual(5);
     for (const entry of allowed) {
       expect(entry.why.length, entry.code).toBeGreaterThan(40);
       const lines = codeLines(entry.file, readFileSync(join(process.cwd(), dir, entry.file), "utf8")).map((line) => line.trim());

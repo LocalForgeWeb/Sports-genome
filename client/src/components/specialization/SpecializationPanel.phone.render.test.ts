@@ -1,10 +1,13 @@
 // @vitest-environment jsdom
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import React, { createElement, useState } from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { SpecializationPanel, type SpecializationPanelProps } from "./SpecializationPanel";
 import { exercises } from "@/lib/exerciseCatalog";
 import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
+import { loadRegionData } from "@/lib/specialization/loadRegion";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { buildDaySlots, commitDay, emptyDayStore } from "@/lib/trainingDayPlan";
@@ -53,6 +56,8 @@ function Harness(props: { initial?: Partial<SpecializationViewState>; onOpenSess
   return createElement(SpecializationPanel, panel);
 }
 
+// The region's data loads on its own (loadRegion.ts); loaded once, the page draws it at once.
+beforeAll(async () => { await loadRegionData("forearm"); });
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date("2026-10-16T12:00:00.000Z"));
@@ -162,7 +167,7 @@ describe("planned work is planned, not done (F-phone-7)", () => {
   it("says the region's planned bouts are planned for it, in that plan week, and never that they touched it", () => {
     render(createElement(Harness, { initial: { mode: "planned" } }));
     const strip = screen.getByRole("group", { name: "Selected muscle" });
-    expect(strip.textContent).toMatch(/^\d+ distinct bouts? (is|are) planned for the forearms on the right arm in Plan Week 1\./);
+    expect(strip.textContent).toMatch(/^\d+ distinct bouts? (is|are) planned for your right forearm in Plan Week 1\./);
     expect(strip.textContent).not.toMatch(/touched/);
   });
 
@@ -180,7 +185,36 @@ describe("planned work is planned, not done (F-phone-7)", () => {
 
   it("still says logged work touched the region in completed mode", () => {
     render(createElement(Harness));
-    expect(screen.getByRole("group", { name: "Selected muscle" }).textContent).toMatch(/^3 distinct bouts touched the forearms on the right arm\./);
+    expect(screen.getByRole("group", { name: "Selected muscle" }).textContent).toMatch(/^3 distinct bouts touched your right forearm\./);
+  });
+});
+
+describe("Custom's dates, their labels inline", () => {
+  /** The rules of one `@media (max-width: …)` block of the page's stylesheet. */
+  const mediaBlock = (css: string, width: number) => {
+    const start = css.indexOf(`@media (max-width: ${width}px) {`);
+    return start < 0 ? "" : css.slice(start, css.indexOf("\n}", start));
+  };
+
+  it("sit in one row only from 375 px, the two dates as wide as each other; below it, where the From date was cut in Chromium, they stack", () => {
+    const css = readFileSync(join(__dirname, "specialization.css"), "utf8");
+    // Each label its own column, the two date columns sharing the rest equally.
+    expect(css).toMatch(/\.spz-field\.spz-dates \{[^}]*grid-template-columns: max-content minmax\(0, 1fr\) max-content minmax\(0, 1fr\)/);
+    expect(mediaBlock(css, 374)).toMatch(/\.spz-field\.spz-dates \{ grid-template-columns: 2\.25rem minmax\(0, 1fr\); \}/);
+    // The regions' grid keeps its own breakpoint; the dates are not in it.
+    expect(mediaBlock(css, 359)).toMatch(/\.spz-regions/);
+    expect(mediaBlock(css, 359)).not.toMatch(/spz-dates|spz-field/);
+    // 16 px inputs (the field's), so iOS does not zoom on focus.
+    expect(css).not.toMatch(/\.spz-dates > input \{[^}]*font-size/);
+    expect(css).toMatch(/\.spz-field :is\(input, select\) \{[^}]*font-size: var\(--sg-text-lg\)/);
+  });
+
+  it("render as From and To, each labelling its own date field", () => {
+    render(createElement(Harness, { initial: { window: "custom", from: "2026-10-08", to: "2026-10-16" } }));
+    expect((screen.getByLabelText("From") as HTMLInputElement).value).toBe("2026-10-08");
+    expect((screen.getByLabelText("To") as HTMLInputElement).value).toBe("2026-10-16");
+    const dates = document.querySelector(".spz-dates")!;
+    expect(Array.from(dates.children).map((child) => child.tagName)).toEqual(["LABEL", "INPUT", "LABEL", "INPUT"]);
   });
 });
 

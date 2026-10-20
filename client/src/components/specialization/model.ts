@@ -1,6 +1,10 @@
 import { formatDisplayWeight, type DisplayWeightUnit } from "@/lib/weightUnits";
-import { categoryFor, exposureCategoryLabels } from "@shared/specialization/rules";
-import type { AnatomyNode, Contribution, ContributionSegment, ExposureCategory, GoalMetric, GoalProgress, MappingEvidenceBasis, MuscleMode, NodeExposure, NodeId, RegionBoutRow, Relationship, SpecializationRegionData, SpecializationSummary, VariantMapping } from "@shared/specialization/types";
+import { diagramSidesOf } from "@shared/specialization/compose";
+import { mappingsByKey } from "@shared/specialization/exposure";
+import { categoryFor, currentExposureRule, exposureCategoryLabelsFor } from "@shared/specialization/rules";
+import type { AnatomyNode, BodySide, Contribution, ContributionSegment, DiagramAsset, ExposureCategory, GoalMetric, GoalProgress, JointAction, MappingEvidenceBasis, MuscleMode, NodeExposure, NodeId, RegionBoutRow, RegionWording, Relationship, SideRelation, SpecializationRegion, SpecializationRegionData, SpecializationSummary, VariantMapping } from "@shared/specialization/types";
+import { drawableNodeIds } from "./diagramGeometry";
+import { sideWordsFor, type SideWords } from "./sideWords";
 
 /**
  * What the specialization page shows, worked out from one summary (design §7). Pure, so
@@ -82,30 +86,53 @@ export function holdTime(seconds: number): string {
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
 /**
+ * The plain word for holding a position while other muscles move the load, the kind of work every
+ * region's incidental credit is (10-multi-region.md §8, the method note). One region's own word for
+ * it is the same word, which is why the page scan lists this line.
+ */
+const holdingWord = "steadying";
+
+/**
+ * Incidental work in a sentence, as the forearm page has said it since 17 Oct: the region's word for
+ * it and steadying ("grip or steadying"), or the region's word alone where it is that word.
+ */
+export function incidentalWords(incidentalWork: string): string {
+  return incidentalWork === holdingWord ? incidentalWork : `${incidentalWork} or ${holdingWord}`;
+}
+
+/** What "other work" for a movement is, beside its number in the movement sheet: "helping or steadying". */
+export const otherWorkWords = `helping or ${holdingWord}`;
+
+/**
  * The parts of a muscle's exposure that are not zero, in the brief's order (§5 "Default muscle
- * totals"). `incidentalWork` is the region's word for incidental work (`region.wording`).
+ * totals"). Incidental work is said in the region's word for it (`wording.incidentalWork`):
+ * "4 incidental grip or steadying".
  */
 export function exposureParts(node: NodeExposure, incidentalWork: string): string[] {
   const parts: string[] = [];
   if (node.directDynamicBouts) parts.push(`${plural(node.directDynamicBouts, "direct dynamic bout")}`);
   if (node.contributingDynamicBouts) parts.push(`${node.contributingDynamicBouts} other dynamic`);
   if (node.deliberateHoldBouts) parts.push(`${plural(node.deliberateHoldBouts, "deliberate hold")}, ${holdTime(node.deliberateHoldSeconds)}`);
-  if (node.incidentalBouts) parts.push(`${node.incidentalBouts} incidental ${incidentalWork} or steadying`);
+  if (node.incidentalBouts) parts.push(`${node.incidentalBouts} incidental ${incidentalWords(incidentalWork)}`);
   if (node.mixedBouts) parts.push(`${node.mixedBouts} mixed`);
   if (node.unknownBouts) parts.push(`${node.unknownBouts} unclassified`);
   return parts;
 }
 
-/** One line for a muscle: what it got, or why there is nothing to count. */
-export function exposureSentence(node: NodeExposure | null, incidentalWork: string): string {
+/**
+ * One line for a muscle: what it got, or why there is nothing to count. The sets kept apart for
+ * want of a side name the limb the logger asks about (`sides`); a midline region keeps none apart.
+ */
+export function exposureSentence(node: NodeExposure | null, incidentalWork: string, sides: SideWords): string {
   if (!node || node.mappingCoverage === "none") return "No exercise is mapped to this muscle yet, so nothing can be counted for it.";
   const parts = exposureParts(node, incidentalWork);
   const pending = node.pendingReviewBouts ? `${plural(node.pendingReviewBouts, "set")} matched a mapping still under review and ${node.pendingReviewBouts === 1 ? "is" : "are"} not counted.` : "";
-  const noArmPending = node.unknownSide.pendingReviewBouts ?? 0;
-  const pendingNoArm = noArmPending ? `${plural(noArmPending, "set")} with no arm recorded matched a mapping still under review and ${noArmPending === 1 ? "is" : "are"} not counted.` : "";
-  const unknownSide = node.unknownSide.bouts ? `${plural(node.unknownSide.bouts, "set")} with no arm recorded ${node.unknownSide.bouts === 1 ? "is" : "are"} kept apart.` : "";
+  const unsidedPending = sides.paired ? node.unknownSide.pendingReviewBouts ?? 0 : 0;
+  const pendingUnsided = unsidedPending ? `${plural(unsidedPending, "set")} with ${sides.noneRecorded} matched a mapping still under review and ${unsidedPending === 1 ? "is" : "are"} not counted.` : "";
+  const unsided = sides.paired ? node.unknownSide.bouts : 0;
+  const unknownSide = unsided ? `${plural(unsided, "set")} with ${sides.noneRecorded} ${unsided === 1 ? "is" : "are"} kept apart.` : "";
   const head = parts.length ? `${parts.join(" · ")}.` : node.mappingCoverage === "pending_review" ? "Its exercise mapping is still under review." : "No work for it in this window.";
-  return [head, pending, pendingNoArm, unknownSide].filter(Boolean).join(" ");
+  return [head, pending, pendingUnsided, unknownSide].filter(Boolean).join(" ");
 }
 
 /** Every bout counted in the list's bar, by kind, on this arm. */
@@ -122,9 +149,23 @@ export function barParts(node: NodeExposure) {
 /** The bar's fixed scale: 20 bouts fill it, more stays at full width with its number shown. */
 export const BAR_SCALE = 20;
 
-/** The muscles the list and the diagram can select: muscles and heads, not the compartments that group them. */
+/**
+ * The muscles the list and the diagram can select: the drawing's rule (`drawableNodeIds`), muscles
+ * and heads, never a group, a compartment or any node's parent (the deltoid over its heads), which
+ * would overlap its parts and read "Mapping not reviewed" (10-multi-region.md §7.3).
+ */
 export function selectableNodes(data: SpecializationRegionData): AnatomyNode[] {
-  return data.nodes.filter((node) => node.kind === "muscle" || node.kind === "head");
+  const drawable = drawableNodeIds(data.nodes);
+  return data.nodes.filter((node) => drawable.has(node.id));
+}
+
+/**
+ * Whether the drawing is shown mirrored (10-multi-region.md §7.3): a drawing of one side shows the
+ * subject's right and is mirrored for the left; a drawing of both sides (a midline region's) is
+ * never mirrored, and neither is any drawing of a region with no sides.
+ */
+export function drawingMirrored(region: Pick<SpecializationRegion, "sides">, asset: Pick<DiagramAsset, "sides">, side: BodySide): boolean {
+  return region.sides.model === "paired" && diagramSidesOf(asset) !== "both_sides" && side === "left";
 }
 
 export const layerLabels: Record<AnatomyNode["layer"], string> = { surface: "Surface", intermediate: "Middle layer", deep: "Deep", mixed: "Mixed layers" };
@@ -158,8 +199,9 @@ export const goalMetricShortLabels: Record<GoalMetric, string> = {
   deliberate_hold_seconds: "Hold seconds",
 };
 
-export function categoryLabel(category: ExposureCategory): string {
-  return exposureCategoryLabels[category];
+/** A kind of work as the ledger names it, incidental work in the region's word ("Incidental grip / stabilization"). */
+export function categoryLabel(category: ExposureCategory, wording: Pick<RegionWording, "incidentalWork">): string {
+  return exposureCategoryLabelsFor(wording)[category];
 }
 
 /** One segment of a bout, as the athlete logged it: "20 kg × 12", "30 s", "× 10". */
@@ -191,12 +233,14 @@ export function ledgerByExercise<T extends LedgerRow>(rows: readonly T[]): Ledge
     .sort((left, right) => right.rows.length - left.rows.length || latest(right).localeCompare(latest(left)) || left.name.localeCompare(right.name));
 }
 
-export const sideLabels: Record<Contribution["side"], string> = { left: "Left arm", right: "Right arm", bilateral: "Both arms", unknown: "Arm not recorded" };
-
 // ---------------------------------------------------------------- findings
 
-/** Which region-level list of bouts a total opens: the region's distinct bouts, the ones with no arm, or work mapped to no muscle. */
-export type RegionBoutList = "region" | "unknown-side" | "region-only";
+/**
+ * Which region-level list of bouts a total opens: the region's distinct bouts, the ones with no
+ * side recorded, work mapped to no muscle, or the sets whose exercise tags the region but which it
+ * does not count (10-multi-region.md §8).
+ */
+export type RegionBoutList = "region" | "unknown-side" | "region-only" | "listed-unmapped";
 export type FindingAction =
   | { kind: "inspect"; nodeId: string }
   | { kind: "add"; nodeId: string }
@@ -208,21 +252,24 @@ export type Finding = { id: string; title: string; detail: string; action: Findi
 /**
  * "Coverage to review" (design §7, item 6): facts about the records and the mapping, in
  * neutral words, most useful first. A target behind leads, because the athlete set it;
- * after it what the numbers cannot see (no arm, no mapping, a mapping under review); then
- * a difference between the arms, and grip a strapped set did not earn. Nothing here is a
- * score, and nothing suggests training only to fill a muscle (brief §10).
+ * after it what the numbers cannot see (no side recorded, no mapping, a mapping under review);
+ * then a difference between the sides, and credit a strapped set did not earn. Nothing here is a
+ * score, and nothing suggests training only to fill a muscle (brief §10). The sides are said in
+ * the region's words (`sideWordsFor`); a midline region has no side, so nothing here names one.
  */
 export function findingsFor(input: {
   data: SpecializationRegionData;
   summary: SpecializationSummary;
   otherSide: SpecializationSummary | null;
 }): Finding[] {
-  const { data, summary, otherSide } = input;
+  const { data, summary } = input;
+  const sides = sideWordsFor(data.region);
+  const side = summary.side === "midline" ? null : summary.side;
+  const otherSide = side ? input.otherSide : null;
   const findings: Finding[] = [];
   const nodeById = new Map(data.nodes.map((node) => [node.id, node] as const));
   const nameOf = (id: string) => nodeById.get(id)?.name ?? id;
   const window = summary.mode === "planned" ? "in this plan week" : "in this window";
-  const arm = summary.side === "left" ? "left arm" : "right arm";
   const region = data.region.label.toLowerCase();
 
   for (const progress of summary.goals) {
@@ -232,18 +279,18 @@ export function findingsFor(input: {
       id: `goal:${progress.goal.id}`,
       title: `${subject}: ${progress.label}`,
       // Planned mode reads the plan week on screen; completed mode reads the target's own period.
-      detail: `${goalMetricLabels[progress.goal.metric]}, ${arm}, ${summary.mode === "planned" ? `${summary.interval.label}` : progress.goal.period === "calendar_week" ? "this calendar week" : "the last 7 days"}. The target is yours, not a prescription.`,
+      detail: `${[goalMetricLabels[progress.goal.metric], side ? sides.of(side) : null, summary.mode === "planned" ? `${summary.interval.label}` : progress.goal.period === "calendar_week" ? "this calendar week" : "the last 7 days"].filter(Boolean).join(", ")}. The target is yours, not a prescription.`,
       // A muscle target opens the muscle's exercises; a movement target opens the movement: its sets and its exercises.
       action: progress.goal.nodeId ? { kind: "add", nodeId: progress.goal.nodeId } : progress.goal.actionId ? { kind: "movement", actionId: progress.goal.actionId } : null,
       actionLabel: progress.goal.nodeId ? "See exercises for it" : progress.goal.actionId ? "See its sets and exercises" : null,
     });
   }
 
-  if (summary.regionUnknownSideBouts > 0) {
+  if (sides.paired && summary.regionUnknownSideBouts > 0) {
     findings.push({
       id: "unknown-side",
-      title: `${plural(summary.regionUnknownSideBouts, "set")} with no arm recorded`,
-      detail: `They are kept apart and counted for neither arm. One-arm work logged from now on asks which arm.`,
+      title: `${plural(summary.regionUnknownSideBouts, "set")} with ${sides.noneRecorded}`,
+      detail: `They are kept apart and ${sides.neither}. ${sides.asksWhich}`,
       action: { kind: "bouts", list: "unknown-side" },
       actionLabel: "See these sets",
     });
@@ -260,16 +307,16 @@ export function findingsFor(input: {
     });
   }
 
-  // Sets with no arm recorded are in neither arm's count (unknownSide), and are named as such.
-  const noArmPendingOf = (node: NodeExposure) => node.unknownSide.pendingReviewBouts ?? 0;
-  const pending = summary.nodes.filter((node) => node.pendingReviewBouts > 0 || noArmPendingOf(node) > 0);
+  // Sets with no side recorded are in neither side's count (unknownSide), and are named as such.
+  const unsidedPendingOf = (node: NodeExposure) => (sides.paired ? node.unknownSide.pendingReviewBouts ?? 0 : 0);
+  const pending = summary.nodes.filter((node) => node.pendingReviewBouts > 0 || unsidedPendingOf(node) > 0);
   if (pending.length) {
-    const onArm = pending.reduce((sum, node) => sum + node.pendingReviewBouts, 0);
-    const noArm = pending.reduce((sum, node) => sum + noArmPendingOf(node), 0);
+    const onSide = pending.reduce((sum, node) => sum + node.pendingReviewBouts, 0);
+    const unsided = pending.reduce((sum, node) => sum + unsidedPendingOf(node), 0);
     findings.push({
       id: "pending-review",
       title: `Mapping under review for ${pending.slice(0, 2).map((node) => nameOf(node.nodeId)).join(" and ")}${pending.length > 2 ? ` and ${pending.length - 2} more` : ""}`,
-      detail: `${plural(onArm + noArm, "set")} ${window} matched a mapping that is not reviewed yet${noArm ? `, ${noArm} of them with no arm recorded` : ""}. ${onArm + noArm === 1 ? "It is" : "They are"} shown in the ledger and not counted.`,
+      detail: `${plural(onSide + unsided, "set")} ${window} matched a mapping that is not reviewed yet${unsided ? `, ${unsided} of them with ${sides.noneRecorded}` : ""}. ${onSide + unsided === 1 ? "It is" : "They are"} shown in the ledger and not counted.`,
       action: { kind: "inspect", nodeId: pending[0].nodeId },
       actionLabel: "Inspect coverage",
     });
@@ -286,7 +333,7 @@ export function findingsFor(input: {
     });
   }
 
-  if (otherSide) {
+  if (side && otherSide) {
     const gaps = summary.nodes
       .map((node) => {
         const other = otherSide.nodes.find((item) => item.nodeId === node.nodeId);
@@ -296,24 +343,26 @@ export function findingsFor(input: {
       .sort((left, right) => Math.abs(right.here - right.there) - Math.abs(left.here - left.there));
     if (gaps.length) {
       const top = gaps[0];
-      const otherArm = summary.side === "left" ? "right" : "left";
       findings.push({
-        id: `arms:${top.node.nodeId}`,
-        title: `${nameOf(top.node.nodeId)}: ${top.here} direct bouts on the ${summary.side} arm, ${top.there} on the ${otherArm}`,
-        detail: `${gaps.length > 1 ? `${gaps.length - 1} more muscle${gaps.length === 2 ? "" : "s"} differ by two or more bouts. ` : ""}Two-handed sets count for both arms; only one-arm sets make the arms differ.`,
+        id: `sides:${top.node.nodeId}`,
+        title: `${nameOf(top.node.nodeId)}: ${top.here} direct bouts on the ${sides.of(side)}, ${top.there} on the ${side === "left" ? "right" : "left"}`,
+        detail: `${gaps.length > 1 ? `${gaps.length - 1} more muscle${gaps.length === 2 ? "" : "s"} differ by two or more bouts. ` : ""}${sides.differ}`,
         action: { kind: "inspect", nodeId: top.node.nodeId },
         actionLabel: "Inspect coverage",
       });
     }
   }
 
-  const strapped = new Set<string>();
-  for (const node of summary.nodes) for (const row of node.notCounted ?? []) if (row.notes.some((note) => /strap/i.test(note) && /not counted/i.test(note))) strapped.add(row.boutId);
+  // Credit withheld from a strapped set, in the calculator's note and the published rule's words
+  // (rules.ts `straps`), so the page adds no words about which muscles hold the bar.
+  const strapped = new Map<string, string>();
+  for (const node of summary.nodes) for (const row of node.notCounted ?? []) for (const note of row.notes) if (/^strapped:/i.test(note)) strapped.set(row.boutId, note.replace(/^strapped:\s*/i, ""));
   if (strapped.size) {
+    const withheld = Array.from(new Set(strapped.values()));
     findings.push({
       id: "straps",
-      title: `${plural(strapped.size, "strapped set")} earned no grip credit`,
-      detail: "Straps hold the bar for the hand, so the finger flexors are not credited for those sets. The rest of each set still counts.",
+      title: `${plural(strapped.size, "strapped set")}: ${withheld.join("; ")}`,
+      detail: `${currentExposureRule.specification.straps} The rest of each set still counts.`,
       action: { kind: "method" },
       actionLabel: "How this is counted",
     });
@@ -399,7 +448,38 @@ export function overlapsInWindow(summary: SpecializationSummary, data: Specializ
 export function regionBoutRows(summary: SpecializationSummary, list: RegionBoutList): RegionBoutRow[] {
   if (list === "region") return summary.regionBoutRows ?? [];
   if (list === "unknown-side") return summary.regionUnknownSideRows ?? [];
+  if (list === "listed-unmapped") return summary.listedUnmappedRows ?? [];
   return summary.regionUnclassifiedRows ?? [];
+}
+
+/**
+ * What the page says about the sets it does not count although their exercise tags the region
+ * (10-multi-region.md §8), one sentence per kind: tagged as a secondary muscle where the region
+ * counts primary tags only, or one of the exercises the region lists as left unmapped. Each
+ * exercise's own reason is said where the sets open (`listedUnmappedReasons`).
+ */
+export function listedUnmappedSentences(summary: SpecializationSummary, data: SpecializationRegionData): string[] {
+  const rows = summary.listedUnmappedRows ?? [];
+  const region = data.region.label.toLowerCase();
+  const secondary = rows.filter((row) => row.tag === "secondary").length;
+  const listed = rows.length - secondary;
+  const are = (count: number) => (count === 1 ? "is" : "are");
+  return [
+    secondary ? `${plural(secondary, "set")} tag the ${region} as a secondary muscle and ${are(secondary)} not counted here.` : "",
+    listed ? `${plural(listed, "set")} of exercises left unmapped here ${are(listed)} not counted, each for the reason given with it.` : "",
+  ].filter(Boolean);
+}
+
+/** Each exercise's reason, by the ledger's exercise key, for the sets `listedUnmappedSentences` counts. */
+export function listedUnmappedReasons(summary: SpecializationSummary, data: SpecializationRegionData): Map<string, string> {
+  const region = data.region.label.toLowerCase();
+  const reasons = new Map<string, string>();
+  for (const row of summary.listedUnmappedRows ?? []) {
+    const key = exerciseKeyOf(row);
+    if (reasons.has(key)) continue;
+    reasons.set(key, row.reason ?? (row.tag === "secondary" ? `It tags the ${region} as a secondary muscle; this page counts only exercises that tag it as a primary muscle.` : "Left unmapped here."));
+  }
+  return reasons;
 }
 
 /**
@@ -522,6 +602,8 @@ export function missingActionNote(input: {
 
 /** One bout behind a movement's numbers: the set, the kinds of work it gave the movement, and the muscles that did it. */
 export type MovementBout = RegionBoutRow & {
+  /** Where its first muscle's mapping loads the muscle relative to the recorded side (`same`, `opposite`, `both`). */
+  sideRelation?: SideRelation;
   /** The kinds of work this bout gave the movement, strongest first: one set can move it directly with one muscle and help with another. */
   categories: ExposureCategory[];
   /** The region's muscles credited with this movement in this bout. */
@@ -556,7 +638,8 @@ export function movementLedger(summary: SpecializationSummary, data: Specializat
       const parts = row.parts.filter((part) => part.actionId === actionId);
       if (!parts.length) continue;
       const entry = byBout.get(row.boutId) ?? {
-        boutId: row.boutId, side: row.side, sideSource: row.sideSource, catalogExerciseId: row.catalogExerciseId, exerciseName: row.exerciseName, matchedBy: row.matchedBy,
+        boutId: row.boutId, side: row.side, sideSource: row.sideSource, countedSide: row.countedSide, recordedSide: row.recordedSide, sideRelation: row.sideRelation,
+        catalogExerciseId: row.catalogExerciseId, exerciseName: row.exerciseName, matchedBy: row.matchedBy,
         sessionId: row.sessionId, sessionLabel: row.sessionLabel, performedAt: row.performedAt, kind: row.kind, segments: row.segments,
         categories: [], nodeIds: [], mappingIds: [], holdSeconds: row.holdSeconds, notes: [],
       };
@@ -631,17 +714,23 @@ export function latestSessionDayLabel(sessions: readonly { dayLabel?: string | n
   return latest?.label ?? null;
 }
 
-/** The mappings with these ids, each once, in the order given. Ids the region does not have are skipped. */
+/**
+ * The mappings behind ledger keys, each once, in the order given (`mappingsByKey`): a key is a
+ * mapping's id in the region's own version and `<version>/<id>` in an external member's home
+ * version (10-multi-region.md §4.1). Keys the region does not credit are skipped.
+ */
 export function mappingsBehind(data: SpecializationRegionData, ids: readonly string[]): VariantMapping[] {
-  const byId = new Map(data.mappings.map((mapping) => [mapping.id, mapping] as const));
-  const seen = new Set<string>();
-  const out: VariantMapping[] = [];
-  for (const id of ids) {
-    const mapping = byId.get(id);
-    if (!mapping || seen.has(id)) continue;
-    seen.add(id);
-    out.push(mapping);
-  }
-  return out;
+  return mappingsByKey(data, ids);
+}
+
+/**
+ * A mapping's joint action as its own version names it: an external member's mapping is labelled
+ * from its home version's actions (`externalMappingVersions[].actions`), never from the page's own
+ * (a muscle of another region can be credited for an action this region does not list).
+ */
+export function mappingAction(data: SpecializationRegionData, mapping: Pick<VariantMapping, "versionKey" | "actionId">): JointAction | null {
+  if (!mapping.actionId) return null;
+  const actions = mapping.versionKey === data.mappingVersion.key ? data.actions : data.externalMappingVersions.find((external) => external.version.key === mapping.versionKey)?.actions ?? [];
+  return actions.find((action) => action.id === mapping.actionId) ?? null;
 }
 

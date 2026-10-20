@@ -240,7 +240,7 @@ describe("the region's own measures", () => {
     await type(/^Circumference \(cm\)$/, "48");
     await click("Save reading");
     expect(saved).toHaveLength(1);
-    expect(saved[0]).toMatchObject({ regionId: "deltoid", metric: "circumference_cm", value: 48, protocol: { landmark: "Thickest point", posture: "arm_relaxed_hanging" } });
+    expect(saved[0]).toMatchObject({ regionId: "deltoid", metric: "circumference_cm", value: 48, protocol: { landmark: "Around the shoulder", posture: "arm_relaxed_hanging" } });
     expect(container.textContent).toMatch(/Distinct bouts per week on the deltoids, completed/);
   });
 
@@ -381,7 +381,7 @@ describe("the weekly bars open their bouts (brief §1: every total opens its set
     expect(buttons[0].textContent).toBe("28 Sep2");
     await click("Week of 28 Sep: 2 distinct bouts. See these sets");
     const sheet = screen.getByRole("dialog", { name: "Week of 28 Sep" });
-    expect(sheet.textContent).toMatch(/28 Sep – 4 Oct: 2 distinct bouts, every set that loaded a muscle of the forearms on the right arm/);
+    expect(sheet.textContent).toMatch(/28 Sep – 4 Oct: 2 distinct bouts, every set that touched your right forearm/);
     expect(within(sheet).getByText("Hammer Curl")).not.toBeNull();
     const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
     expect(open).toHaveLength(2);

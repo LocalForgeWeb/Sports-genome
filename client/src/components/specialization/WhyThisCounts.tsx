@@ -1,7 +1,7 @@
 import { ChevronDown } from "lucide-react";
-import { categoryFor, exposureRuleV1 } from "@shared/specialization/rules";
+import { categoryFor, currentExposureRule } from "@shared/specialization/rules";
 import type { SpecializationRegionData } from "@shared/specialization/types";
-import { categoryLabel, evidenceBasisLabels, mappingsBehind, muscleModeLabels, relationshipLabels } from "./model";
+import { categoryLabel, evidenceBasisLabels, mappingAction, mappingsBehind, muscleModeLabels, relationshipLabels } from "./model";
 
 /**
  * "Why this counts": the reviewed mapping(s) behind an exercise's credit, said plainly (brief
@@ -17,7 +17,6 @@ export function WhyThisCounts({ data, mappingIds }: { data: SpecializationRegion
   const mappings = mappingsBehind(data, mappingIds);
   if (!mappings.length) return null;
   const nodeName = (id: string) => data.nodes.find((node) => node.id === id)?.name ?? id;
-  const actionLabel = (id: string | null) => (id ? data.actions.find((action) => action.id === id)?.label ?? null : null);
   const variantById = new Map(data.variants.map((variant) => [variant.id, variant] as const));
   const sourceById = new Map(data.sources.map((source) => [source.id, source] as const));
   const bases = Array.from(new Set(mappings.map((mapping) => evidenceBasisLabels[mapping.evidenceBasis])));
@@ -25,10 +24,10 @@ export function WhyThisCounts({ data, mappingIds }: { data: SpecializationRegion
     <summary><span><b>Why this counts</b><small>{bases.join(" · ")}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
     <ul className="spz-why-list">
       {mappings.map((mapping) => {
-        const action = actionLabel(mapping.actionId);
+        const action = mappingAction(data, mapping)?.label ?? null;
         const variant = variantById.get(mapping.variantId);
-        const counted = variant ? categoryLabel(categoryFor(mapping.relationship, mapping.muscleMode, variant.deliberateHold)) : null;
-        return <li key={mapping.id}>
+        const counted = variant ? categoryLabel(categoryFor(mapping.relationship, mapping.muscleMode, variant.deliberateHold), data.region.wording) : null;
+        return <li key={`${mapping.versionKey}/${mapping.id}`}>
           <p className="spz-why-head"><b>{nodeName(mapping.nodeId)}{action ? ` · ${action}` : ""}</b></p>
           <p className="spz-why-line">{relationshipLabels[mapping.relationship]}, {muscleModeLabels[mapping.muscleMode]}{counted ? `. Counted as ${counted.toLowerCase()}.` : "."}</p>
           <p className="spz-why-basis"><span className="spz-badge">{evidenceBasisLabels[mapping.evidenceBasis]}</span>{mapping.reviewStatus !== "reviewed" ? <small>Not reviewed yet</small> : null}</p>
@@ -46,6 +45,6 @@ export function WhyThisCounts({ data, mappingIds }: { data: SpecializationRegion
         </li>;
       })}
     </ul>
-    <p className="spz-note">Which kind of work a mapping counts as is set by the counting rule ({exposureRuleV1.id}), a Sports Genome choice; the sources speak to what the muscle does, not to how much it grows.</p>
+    <p className="spz-note">Which kind of work a mapping counts as is set by the counting rule ({currentExposureRule.id}), a Sports Genome choice; the sources speak to what the muscle does, not to how much it grows.</p>
   </details>;
 }

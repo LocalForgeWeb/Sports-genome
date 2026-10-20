@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 import React, { createElement, useState } from "react";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { SpecializationPanel, type SpecializationPanelProps } from "./SpecializationPanel";
 import { exercises } from "@/lib/exerciseCatalog";
 import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
 import { deltoidIds, deltoidRegionData } from "@/lib/specialization/__fixtures__/deltoidRegion";
+import { loadRegionData } from "@/lib/specialization/loadRegion";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { buildDaySlots, emptyDayStore } from "@/lib/trainingDayPlan";
@@ -14,16 +15,20 @@ import { buildDaySlots, emptyDayStore } from "@/lib/trainingDayPlan";
  * Brief §1 "Deltoid specialization can be added without a new schema or calculator" and §11
  * "New deltoid region fixture: same components/API work without forearm-specific branches":
  * the specialization page itself, rendered on the deltoid fixture. The fixture reaches the page
- * the way a production region would, through the registry's regionDataFor (mocked here only to
- * hand it out; it is never registered), and the page shows it in the fixture's own words: its
- * heading, its drawing's views (Front · Side · Rear), its external group, its incidental work
- * and its one measure. Nothing of the forearm's shows through.
+ * the way a production region would, through the light index and the region loader (both mocked
+ * here only to hand it out; it is never registered), and the page shows it in the fixture's own
+ * words: its label in the heading (two regions, so the heading picks between them), its
+ * drawing's views (Front · Side · Rear), its external group, its incidental work and its one
+ * measure from its own place and posture. Nothing of the forearm's shows through.
  */
 
-vi.mock("@shared/specialization/registry", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@shared/specialization/registry")>();
-  const { deltoidRegionData: fixture } = await import("@/lib/specialization/__fixtures__/deltoidRegion");
-  return { ...actual, regionDataFor: (id: string | null | undefined) => (id === fixture.region.id ? fixture : actual.regionDataFor(id)) };
+vi.mock("@shared/specialization/regionIndex", async (importOriginal) => {
+  const { indexWith } = await import("./__fixtures__/pageRegions");
+  return indexWith(await importOriginal(), ["deltoid"]);
+});
+vi.mock("@/lib/specialization/loadRegion", async (importOriginal) => {
+  const { loaderWith } = await import("./__fixtures__/pageRegions");
+  return loaderWith(await importOriginal(), ["deltoid"]);
 });
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
@@ -66,6 +71,8 @@ function Harness(props: { initial?: Partial<SpecializationViewState> }) {
   return createElement(SpecializationPanel, props_);
 }
 
+// The forearm's data loads on its own (loadRegion.ts); the deltoid's the mocked loader hands out at once.
+beforeAll(async () => { await loadRegionData("forearm"); expect(deltoidRegionData.region.status).toBe("fixture"); });
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date("2026-10-16T12:00:00.000Z"));
@@ -82,18 +89,20 @@ const viewButtons = () => within(within(mapCard()).getByRole("group", { name: "V
  * Everything the page says or labels, read aloud or not (text and accessible names), apart from
  * "How this is counted": that is the published accounting rule's own text (rules.ts,
  * specialization_exposure_v1), the same for every region and immutable once published, and it
- * names grip credit and straps as part of the rule.
+ * names grip credit and straps as part of the rule. The region grid under the heading names the
+ * other regions by design (the forearm among them), so it is left out too.
  */
 const pageWords = () => {
   const page = document.body.cloneNode(true) as HTMLElement;
   page.querySelector("#spz-method")?.remove();
+  page.querySelector("#spz-regions")?.remove();
   return [page.textContent ?? "", ...Array.from(page.querySelectorAll("[aria-label]")).map((element) => element.getAttribute("aria-label") ?? "")].join("\n");
 };
 
 describe("the specialization page on the deltoid fixture", () => {
   it("is the region's page in the region's own words", () => {
     render(createElement(Harness));
-    expect(screen.getByRole("heading", { level: 1, name: "Deltoid specialization" })).not.toBeNull();
+    expect(screen.getByRole("heading", { level: 1, name: "Deltoids" })).not.toBeNull();
     expect(viewButtons().map((button) => button.textContent)).toEqual(["Front", "Side", "Rear"]);
     expect(viewButtons().map((button) => button.getAttribute("aria-pressed"))).toEqual(["true", "false", "false"]);
     // Muscles of the region, then the external contributor under the fixture's own heading.
@@ -110,7 +119,7 @@ describe("the specialization page on the deltoid fixture", () => {
   it("says nothing of the forearm: no forearm, grip, palm or thumb side anywhere on the page", () => {
     render(createElement(Harness));
     expect(document.getElementById("spz-method")).not.toBeNull();
-    expect(pageWords()).toMatch(/Deltoid specialization/);
+    expect(pageWords()).toMatch(/Deltoids/);
     expect(pageWords()).not.toMatch(/forearm|grip|palm|thumb side|pinky|upper-arm|wrist|dynamometer/i);
   });
 
@@ -180,7 +189,7 @@ describe("the specialization page on the deltoid fixture", () => {
 describe("the same page on the forearm, for contrast", () => {
   it("reads the forearm's words from the forearm's data: Palm · Back · Thumb side, the upper-arm group, grip", async () => {
     render(createElement(Harness, { initial: { regionId: "forearm" } }));
-    expect(screen.getByRole("heading", { level: 1, name: "Forearm specialization" })).not.toBeNull();
+    expect(screen.getByRole("heading", { level: 1, name: "Forearms" })).not.toBeNull();
     expect(viewButtons().map((button) => button.textContent)).toEqual(["Palm", "Back", "Thumb side"]);
     expect(screen.getByRole("heading", { level: 3, name: "Upper-arm muscles credited here" })).not.toBeNull();
     expect(document.querySelector(".spz-legend-line")!.textContent).toMatch(/Incidental grip · bar full at/);
@@ -200,10 +209,13 @@ describe("the same page on the forearm, for contrast", () => {
     await act(async () => { fireEvent.click(within(details()).getByRole("button", { name: "Grip strength" })); });
     expect((within(details()).getByLabelText(/^Posture$/) as HTMLSelectElement).value).toBe("elbow_90_supported");
     await act(async () => { setHarnessState!({ ...lastState!, regionId: "deltoid", nodeId: null, view: null }); });
-    expect(screen.getByRole("heading", { level: 1, name: "Deltoid specialization" })).not.toBeNull();
+    expect(screen.getByRole("heading", { level: 1, name: "Deltoids" })).not.toBeNull();
+    // The page below the heading is the deltoid's own (keyed by region): nothing the forearm's left open carries over.
+    expect(details().open).toBe(false);
+    await act(async () => { details().open = true; fireEvent(details(), new Event("toggle")); });
     await act(async () => { fireEvent.click(within(details()).getByRole("button", { name: "Add a reading" })); });
     expect(within(details()).queryByRole("button", { name: "Grip strength" })).toBeNull();
-    expect((within(details()).getByLabelText(/^Where \(landmark\)$/) as HTMLInputElement).value).toBe("Thickest point");
+    expect((within(details()).getByLabelText(/^Where \(landmark\)$/) as HTMLInputElement).value).toBe("Around the shoulder");
     expect((within(details()).getByLabelText(/^Posture$/) as HTMLSelectElement).value).toBe("arm_relaxed_hanging");
     expect(details().textContent).not.toMatch(/grip|dynamometer|forearm/i);
   });
