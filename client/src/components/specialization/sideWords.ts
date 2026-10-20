@@ -15,6 +15,8 @@ import type { BodySide, CountedSide, RecordedSide, SideAnchor, SideRelation, Spe
 export type SideWords = {
   /** False for a midline region: no switch, no side in a sentence, nothing kept apart for want of a side. */
   paired: boolean;
+  /** The limb the logger asks about on a paired region ("arm", "leg"); none on a midline region. */
+  limb: "arm" | "leg" | null;
   /** The region's word for one side and for both: "arm" and "arms", "side" and "sides", "leg" and "legs". */
   one: string;
   many: string;
@@ -57,7 +59,7 @@ export function sideWordsFor(region: Pick<SpecializationRegion, "id" | "sides" |
   const onSide = (side: SummarySide) => regionOnSide(region, side);
   if (region.sides.model === "midline") {
     const none = () => "";
-    return { paired: false, one: "", many: "", group: "", label: none, of: none, adjective: none, only: none, onSide: () => regionOnSide(region, "midline"), both: "", perSide: "", noLimb: "", noneRecorded: "", noneRecordedTitle: "", aLimb: "", neither: "", asksWhich: "", differ: "", bothCount: "" };
+    return { paired: false, limb: null, one: "", many: "", group: "", label: none, of: none, adjective: none, only: none, onSide: () => regionOnSide(region, "midline"), both: "", perSide: "", noLimb: "", noneRecorded: "", noneRecordedTitle: "", aLimb: "", neither: "", asksWhich: "", differ: "", bothCount: "" };
   }
   const limb = region.sides.limb;
   const limbs = `${limb}s`;
@@ -66,6 +68,7 @@ export function sideWordsFor(region: Pick<SpecializationRegion, "id" | "sides" |
   const label = (side: BodySide) => `${capitalised(side)} ${one}`;
   return {
     paired: true,
+    limb,
     one,
     many,
     group: capitalised(one),
@@ -112,12 +115,14 @@ export function rowSideLabel(words: SideWords, row: SidedRow): string | null {
  * What the set recorded, where the row's counted side does not say it (10-multi-region.md §2.1):
  * the loaded hand for the arm ("Left hand: opposite side" for a suitcase carry credited on the
  * right), the variant's anchor leg for the leg ("Standing leg: left"). Nothing where the counted
- * side says it all, for a plan's assumed sides (the row says "Each side assumed"), or on a midline
- * region, which names no side.
+ * side says it all, for a plan's assumed sides (the row says "Each side assumed"), on a midline
+ * region, which names no side, or for a leg's side on a region paired by the arm, whose page names
+ * no leg (the row says "No arm recorded").
  */
 export function recordedSideNote(words: SideWords, row: SidedRow, anchor: SideAnchor | null | undefined): string | null {
   const recorded = row.recordedSide;
   if (!words.paired || !recorded || recorded.source === "plan_assumption") return null;
+  if (words.limb === "arm" && recorded.limb === "leg") return null;
   const relation = row.sideRelation ?? "same";
   const hand = recorded.limb === "arm";
   const what = hand

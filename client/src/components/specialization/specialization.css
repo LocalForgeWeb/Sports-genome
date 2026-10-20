@@ -244,6 +244,8 @@ button.spz-day:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outli
 .spz-subsection h3 { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .spz-method { display: grid; gap: .6rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-method b { color: var(--sg-text-on-dark); }
+/* The published rule's paragraphs, grouped for what reads them; laid out as the method's own. */
+.spz-rule-text { display: contents; }
 .spz-categories { display: grid; gap: .4rem; }
 .spz-categories div { display: grid; gap: .1rem; }
 .spz-categories dt { color: var(--sg-text-on-dark); font-weight: 700; }

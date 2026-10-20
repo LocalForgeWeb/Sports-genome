@@ -1,7 +1,8 @@
 import { formatDisplayWeight, type DisplayWeightUnit } from "@/lib/weightUnits";
+import { diagramSidesOf } from "@shared/specialization/compose";
 import { mappingsByKey } from "@shared/specialization/exposure";
 import { categoryFor, currentExposureRule, exposureCategoryLabelsFor } from "@shared/specialization/rules";
-import type { AnatomyNode, Contribution, ContributionSegment, ExposureCategory, GoalMetric, GoalProgress, JointAction, MappingEvidenceBasis, MuscleMode, NodeExposure, NodeId, RegionBoutRow, RegionWording, Relationship, SideRelation, SpecializationRegionData, SpecializationSummary, VariantMapping } from "@shared/specialization/types";
+import type { AnatomyNode, BodySide, Contribution, ContributionSegment, DiagramAsset, ExposureCategory, GoalMetric, GoalProgress, JointAction, MappingEvidenceBasis, MuscleMode, NodeExposure, NodeId, RegionBoutRow, RegionWording, Relationship, SideRelation, SpecializationRegion, SpecializationRegionData, SpecializationSummary, VariantMapping } from "@shared/specialization/types";
 import { drawableNodeIds } from "./diagramGeometry";
 import { sideWordsFor, type SideWords } from "./sideWords";
 
@@ -138,6 +139,15 @@ export const BAR_SCALE = 20;
 export function selectableNodes(data: SpecializationRegionData): AnatomyNode[] {
   const drawable = drawableNodeIds(data.nodes);
   return data.nodes.filter((node) => drawable.has(node.id));
+}
+
+/**
+ * Whether the drawing is shown mirrored (10-multi-region.md §7.3): a drawing of one side shows the
+ * subject's right and is mirrored for the left; a drawing of both sides (a midline region's) is
+ * never mirrored, and neither is any drawing of a region with no sides.
+ */
+export function drawingMirrored(region: Pick<SpecializationRegion, "sides">, asset: Pick<DiagramAsset, "sides">, side: BodySide): boolean {
+  return region.sides.model === "paired" && diagramSidesOf(asset) !== "both_sides" && side === "left";
 }
 
 export const layerLabels: Record<AnatomyNode["layer"], string> = { surface: "Surface", intermediate: "Middle layer", deep: "Deep", mixed: "Mixed layers" };
@@ -449,7 +459,7 @@ export function listedUnmappedReasons(summary: SpecializationSummary, data: Spec
   for (const row of summary.listedUnmappedRows ?? []) {
     const key = exerciseKeyOf(row);
     if (reasons.has(key)) continue;
-    reasons.set(key, row.reason ?? (row.tag === "secondary" ? `It tags the ${region} as a secondary muscle; this page counts exercises that tag the ${region} as a primary muscle.` : "Left unmapped here."));
+    reasons.set(key, row.reason ?? (row.tag === "secondary" ? `It tags the ${region} as a secondary muscle; this page counts only exercises that tag it as a primary muscle.` : "Left unmapped here."));
   }
   return reasons;
 }

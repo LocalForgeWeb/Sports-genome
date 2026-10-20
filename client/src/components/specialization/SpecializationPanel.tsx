@@ -13,7 +13,6 @@ import { rememberRegion, withRegion, type SpecializationPlanChange, type Special
 import { emptyDayStore, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import type { TrainingGoal } from "@/lib/workoutPlanner";
-import { diagramSidesOf } from "@shared/specialization/compose";
 import { goalScopeOf } from "@shared/specialization/goals";
 import { regionIndexEntry, specializationRegionIndex } from "@shared/specialization/regionIndex";
 import { currentExposureRule, exposureCategoryLabelsFor } from "@shared/specialization/rules";
@@ -28,7 +27,7 @@ import { TargetsOverview } from "./TargetsOverview";
 import { PlanChangeSheet } from "./PlanChangeSheet";
 import { scrollToTopClear } from "./reveal";
 import { SpecializationDiagram } from "./SpecializationDiagram";
-import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricShortLabels, holdTime, goalsForNode, latestSessionDayLabel, layerLabels, listedUnmappedReasons, listedUnmappedSentences, movementFocusNodeId, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
+import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, drawingMirrored, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricShortLabels, holdTime, goalsForNode, latestSessionDayLabel, layerLabels, listedUnmappedReasons, listedUnmappedSentences, movementFocusNodeId, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
 import { rowSideTextFor, sideWordsFor, type SideWords } from "./sideWords";
 import "@/components/anatomy/anatomy-figure.css";
 import "./specialization.css";
@@ -366,9 +365,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const view = shownView?.id ?? state.view ?? "";
   const layers = (Object.keys(layerControlLabels) as DiagramLayerId[]).filter((layer) => asset?.views[view]?.[layer]);
   const layer: DiagramLayerId = layers.includes(state.layer) ? state.layer : layers[0] ?? state.layer;
-  // A drawing of one side shows the right and is mirrored for the left; a drawing of both sides
-  // (a midline region's) is never mirrored (10-multi-region.md §7.3).
-  const mirrored = words.paired && asset !== null && diagramSidesOf(asset) !== "both_sides" && state.limb === "left";
+  const mirrored = asset !== null && drawingMirrored(data.region, asset, state.limb);
 
   // A hand-edited or stale address: an unknown muscle, a plan week that is not built, or a view
   // this drawing does not have (or its first view, which the address leaves out) is dropped from
@@ -769,13 +766,16 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       <details ref={methodRef} className="spz-disclosure spz-card" id="spz-method">
         <summary><span><b>How this is counted</b><small>{rule.id} · {data.mappingVersion.key}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
         <div className="spz-method">
-          <p>{rule.specification.bout} {rule.specification.dropSet}</p>
-          <p>{rule.specification.perNodeBout} {rule.specification.sides}</p>
-          <dl className="spz-categories">{(Object.keys(categoryLabels) as ExposureCategory[]).map((category) => <div key={category}><dt>{categoryLabels[category]}</dt><dd>{rule.specification.categories[category]}</dd></div>)}</dl>
-          <p>{strapsSensitive ? `${rule.specification.straps} ` : ""}{rule.specification.holds}</p>
-          <p>{rule.specification.unmapped} {rule.specification.regionTotal}</p>
-          <p><b>Not counted:</b> {rule.specification.excludedFromCompleted.join(" ")}</p>
-          <ul className="spz-caveats">{rule.specification.notConverted.map((line) => <li key={line}>{line}</li>)}</ul>
+          {/* The published rule's own text (rules.ts), the same on every region and never edited once published. */}
+          <div className="spz-rule-text" data-rule={rule.id}>
+            <p>{rule.specification.bout} {rule.specification.dropSet}</p>
+            <p>{rule.specification.perNodeBout} {rule.specification.sides}</p>
+            <dl className="spz-categories">{(Object.keys(categoryLabels) as ExposureCategory[]).map((category) => <div key={category}><dt>{categoryLabels[category]}</dt><dd>{rule.specification.categories[category]}</dd></div>)}</dl>
+            <p>{strapsSensitive ? `${rule.specification.straps} ` : ""}{rule.specification.holds}</p>
+            <p>{rule.specification.unmapped} {rule.specification.regionTotal}</p>
+            <p><b>Not counted:</b> {rule.specification.excludedFromCompleted.join(" ")}</p>
+            <ul className="spz-caveats">{rule.specification.notConverted.map((line) => <li key={line}>{line}</li>)}</ul>
+          </div>
           {completeness && <p><b>This window{sideShort ? `, ${sideShort}` : ""}:</b> {completeness.boutsConsidered} sets considered: {completeness.boutsWithReviewedMapping} with a reviewed mapping, {completeness.boutsPendingReview} under review, {completeness.boutsRegionOnly} {regionWord} only. {completeness.boutsNameMatched} matched by name{words.paired ? `, ${completeness.boutsUnknownSide} with ${words.noneRecorded}` : ""}. Left out: {completeness.boutsExcluded.notCompleted} not completed, {completeness.boutsExcluded.warmup} warm-ups.</p>}
           {/* Each count that has its set records opens them (brief §1); the rest say where they are, or that they are not kept as a list. */}
           {completeness && (regionOnlyRows.length > 0 || unknownSideRows.length > 0) && <div className="spz-actions">
@@ -788,7 +788,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
             <p>{listedUnmappedSentences(summary, data).join(" ")}</p>
             <div className="spz-actions"><button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "listed-unmapped" })}>See {listedUnmappedRows.length === 1 ? "this set" : "these sets"} and why <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>
           </>}
-          <p className="spz-note">{data.mappingVersion.methodNotes}</p>
+          <p className="spz-note spz-method-notes">{data.mappingVersion.methodNotes}</p>
           <p className="spz-note">{REVIEW_STATEMENT}{asset ? ` ${DRAWING_STATEMENT}` : ""}</p>
         </div>
       </details>
