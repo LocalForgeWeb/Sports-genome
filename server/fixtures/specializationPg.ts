@@ -58,6 +58,20 @@ export const readMigration = (path: string) => readFileSync(path, "utf8");
 export const USER_A = "00000000-0000-4000-8000-00000000000a";
 export const USER_B = "00000000-0000-4000-8000-00000000000b";
 
+/**
+ * Rows of public.muscles: the canonical names the content's nodes refine (`databaseMuscle`), as
+ * production holds them. Read from production read-only at the start of each wave
+ * (10-multi-region.md §5.2); server/specializationSeed.test.ts fails on a name the content uses
+ * and this list lacks.
+ */
+export const stubMuscles = [
+  { name: "Brachioradialis", canonical_name: "brachioradialis" },
+  { name: "Forearm flexors", canonical_name: "forearm_flexors" },
+  { name: "Forearm extensors", canonical_name: "forearm_extensors" },
+  { name: "Biceps brachii", canonical_name: "biceps_brachii" },
+  { name: "Brachialis", canonical_name: "brachialis" },
+] as const;
+
 /** Rows of public.exercises: matched by catalog id, by the canonical-name suffix only, and not at all. */
 export const stubExercises = [
   { id: "10000000-0000-4000-8000-000000000139", name: "Wrist Curl", canonical_name: "wrist_curl__catalog_139", source_catalog_id: 139, source_repository: "LocalForgeWeb/Sports-genome" },
@@ -93,8 +107,7 @@ create table public.muscles (
   canonical_name text not null unique
 );
 insert into public.muscles (name, canonical_name) values
-  ('Brachioradialis', 'brachioradialis'), ('Forearm flexors', 'forearm_flexors'), ('Forearm extensors', 'forearm_extensors'),
-  ('Biceps brachii', 'biceps_brachii'), ('Brachialis', 'brachialis');
+${stubMuscles.map((row) => `  ('${row.name}', '${row.canonical_name}')`).join(",\n")};
 
 create table public.exercises (
   id uuid primary key,
@@ -275,20 +288,12 @@ export async function rowVersions(db: PGlite): Promise<Record<string, string[]>>
   return out;
 }
 
-/**
- * Schema v1 twice (idempotence), the applied seed, then the current seed over it, without
- * schema v2: the seed tests' database until the emitter writes schema v2's columns and rows
- * (10-multi-region.md §5.2), when they move to createReleaseDb.
- */
-export async function createSeededDb(): Promise<PGlite> {
-  const db = await createSupabaseLikeDb();
-  await replayMigrations(db, "current seed", ["schema v2", "schema v2 again"]);
-  return db;
-}
-
 /** A complete database as production will hold it after this release: every step of MIGRATION_STEPS. */
 export async function createReleaseDb(): Promise<PGlite> {
   const db = await createSupabaseLikeDb();
   await replayMigrations(db);
   return db;
 }
+
+/** The seeded database: since the current seed writes schema v2's columns and tables, the full replay (createReleaseDb). */
+export const createSeededDb = createReleaseDb;

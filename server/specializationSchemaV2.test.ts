@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import type { PGlite } from "@electric-sql/pglite";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { registeredRegionContents } from "@shared/specialization/registry";
 import {
   APPLIED_MIGRATION_PATHS,
   MIGRATION_STEPS,
@@ -69,6 +70,10 @@ const FOREARM_SIDES = {
 };
 const PAGE_WORDS = "heading, entry_label, external_group, incidental_work, progress_subtitle";
 const PAGE_VALUES = "'Test specialization', 'Explore test coverage', 'Other muscles credited here', 'bracing', 'Performance from your logged sets'";
+/** What the current seed lists, from the registered content: every region's members and actions (the forearm's and the upper arm's). */
+const SEEDED_MEMBERS = registeredRegionContents.reduce((n, content) => n + content.members.length, 0);
+const SEEDED_ACTIONS = registeredRegionContents.map((content) => ({ region_id: content.region.id, n: content.actions.length })).sort((a, b) => a.region_id.localeCompare(b.region_id));
+const SEEDED_ACTION_COUNT = SEEDED_ACTIONS.reduce((n, region) => n + region.n, 0);
 
 const userA = { user: USER_A };
 const userB = { user: USER_B };
@@ -270,10 +275,20 @@ describe("structure", () => {
 // ---------------------------------------------------------------- what it writes over the applied files
 
 describe("what schema v2 writes", () => {
+  // Over the applied files, before the current seed lists the rest: the rows schema v2 writes itself.
+  let backfilled: PGlite;
+  beforeAll(async () => {
+    backfilled = await createSupabaseLikeDb();
+    await replayMigrations(backfilled, "schema v2 again");
+  }, SETUP);
+  afterAll(async () => {
+    await backfilled?.close();
+  });
+
   it("lists the muscles the published version maps, in their version's region, with v1's role and order: 19 forearm targets and the biceps and brachialis as externals", async () => {
-    const members = await rows<{ node_id: string; role: string; sort_order: number; caveats: string[]; listed: boolean }>(db, "select node_id, role, sort_order, caveats, listed from specialization.region_nodes where region_id = 'forearm' order by node_id");
+    const members = await rows<{ node_id: string; role: string; sort_order: number; caveats: string[]; listed: boolean }>(backfilled, "select node_id, role, sort_order, caveats, listed from specialization.region_nodes where region_id = 'forearm' order by node_id");
     const mapped = await rows<{ node_id: string; role: string; sort_order: number }>(
-      db,
+      backfilled,
       `select distinct m.node_id, case when n.region_id = 'forearm' then n.role else 'external' end as role, n.sort_order
        from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id join specialization.nodes n on n.id = m.node_id
        where v.version_key = 'forearm_mappings_v1' order by 1`,
@@ -281,13 +296,14 @@ describe("what schema v2 writes", () => {
     expect(members).toEqual(mapped.map((row) => ({ ...row, caveats: [], listed: true })));
     expect(members.filter((row) => row.role === "target")).toHaveLength(19);
     expect(members.filter((row) => row.role === "external").map((row) => row.node_id)).toEqual(["upper_arm.biceps", "upper_arm.brachialis"]);
-    expect(await count(db, "select 1 from specialization.region_nodes where region_id <> 'forearm'")).toBe(0);
+    expect(await count(backfilled, "select 1 from specialization.region_nodes where region_id <> 'forearm'")).toBe(0);
   });
 
   it("lists the forearm's 20 actions in v1's order", async () => {
-    const offered = await rows(db, "select action_id, sort_order, listed from specialization.region_actions where region_id = 'forearm' order by sort_order");
-    expect(offered).toEqual(await rows(db, "select id as action_id, sort_order, true as listed from specialization.actions order by sort_order"));
+    const offered = await rows(backfilled, "select action_id, sort_order, listed from specialization.region_actions where region_id = 'forearm' order by sort_order");
+    expect(offered).toEqual(await rows(backfilled, "select id as action_id, sort_order, true as listed from specialization.actions order by sort_order"));
     expect(offered).toHaveLength(20);
+    expect(await count(backfilled, "select 1 from specialization.region_actions where region_id <> 'forearm'")).toBe(0);
   });
 
   it("writes the forearm's side model, words, catalog keys, tag scope, external heading and measure defaults; the upper arm, a reference region, gets none", async () => {
@@ -320,8 +336,8 @@ describe("row-level security on the new tables", () => {
           ('zz_hidden.muscle', 'zz_hidden', 'muscle', 'target', 'Fixture muscle', 'FM', 'surface', 'clear', 'reviewed', 'Test', 'Test', 'Test'),
           ('forearm.zz_draft', 'forearm', 'muscle', 'target', 'Draft muscle', 'DM', 'surface', 'clear', 'draft', 'Test', 'Test', 'Test');
         insert into specialization.region_nodes (region_id, node_id, role) values ('zz_hidden', 'zz_hidden.muscle', 'target'), ('forearm', 'forearm.zz_draft', 'target');
-        insert into specialization.region_nodes (region_id, node_id, role, listed) values ('forearm', 'forearm.anconeus', 'adjacent', false);
-        insert into specialization.variant_attributes (variant_key, dimension_id, value) values ('cat-140', 'sided_by', 'none');
+        update specialization.region_nodes set listed = false where region_id = 'forearm' and node_id = 'forearm.anconeus';
+        insert into specialization.variant_attributes (variant_key, dimension_id, value) values ('cat-140', 'sided_by', 'none') on conflict do nothing;
       `);
     });
   });
@@ -348,8 +364,9 @@ describe("row-level security on the new tables", () => {
     expect(a.members).toContain("forearm forearm.anconeus (unlisted)");
     expect(a.members).toContain("forearm upper_arm.biceps");
     expect(a.members.filter((member) => member.includes("zz_"))).toEqual([]);
-    expect(a.members).toHaveLength(22);
-    expect(a.actions).toEqual([{ region_id: "forearm", n: 20 }]);
+    expect(a.members).toHaveLength(SEEDED_MEMBERS);
+    expect(a.members).toContain("upper_arm upper_arm.biceps");
+    expect(a.actions).toEqual(SEEDED_ACTIONS);
     expect(a).toMatchObject({
       dimensions: await count(db, "select 1 from specialization.variant_dimensions"),
       values: await count(db, "select 1 from specialization.variant_dimension_values"),
@@ -377,8 +394,8 @@ describe("row-level security on the new tables", () => {
 
   it("the service role reads every row, hidden ones included, and writes them; it holds no TRUNCATE", async () => {
     await as(db, "service_role", async () => {
-      expect(await count(db, "select 1 from specialization.region_nodes")).toBe(24);
-      expect(await count(db, "select 1 from specialization.region_actions")).toBe(21);
+      expect(await count(db, "select 1 from specialization.region_nodes")).toBe(SEEDED_MEMBERS + 2);
+      expect(await count(db, "select 1 from specialization.region_actions")).toBe(SEEDED_ACTION_COUNT + 1);
       expect(await failure(db, "insert into specialization.variant_dimensions (id, label, kind) values ('zz_dimension', 'Test', 'descriptive')")).toBeNull();
       expect(await failure(db, "update specialization.variant_dimensions set label = 'Renamed' where id = 'zz_dimension'")).toBeNull();
       expect(await failure(db, "delete from specialization.variant_dimensions where id = 'zz_dimension'")).toBeNull();
@@ -392,7 +409,7 @@ describe("row-level security on the new tables", () => {
     }
     // Reached through CASCADE from tables that have no guard of their own.
     expect(await failure(db, "truncate specialization.variant_dimensions cascade")).toMatch(/variant_attributes holds rows .* cannot be truncated/);
-    expect(await count(db, "select 1 from specialization.region_nodes")).toBe(24);
+    expect(await count(db, "select 1 from specialization.region_nodes")).toBe(SEEDED_MEMBERS + 2);
   });
 });
 
@@ -766,7 +783,7 @@ describe("memberships", () => {
     await as(db, "service_role", async () => {
       expect(await attempt("update specialization.region_nodes set role = 'target', listed = true where region_id = 'forearm' and node_id = 'forearm.anconeus'")).toBeNull();
       expect(await attempt("delete from specialization.region_nodes where region_id = 'forearm' and node_id = 'forearm.anconeus'")).toBeNull();
-      expect(await attempt("insert into specialization.region_nodes (region_id, node_id, role, sort_order) values ('forearm', 'forearm.anterior', 'group', 30)")).toBeNull();
+      expect(await attempt("insert into specialization.region_nodes (region_id, node_id, role, sort_order) values ('forearm', 'zz_legs.quad', 'external', 30)")).toBeNull();
     });
   });
 
@@ -819,7 +836,7 @@ describe("goals", () => {
     const notTarget = (node: string) => new RegExp(`node ${node.replace(".", "\\.")} is not a listed target muscle of region forearm; a target names one of the region's own target muscles`);
     expect(await goal(userA, "adjacent", "forearm", { node: "forearm.anconeus" }, "left")).toMatch(notTarget("forearm.anconeus"));
     expect(await goal(userA, "external", "forearm", { node: "upper_arm.biceps" }, "left")).toMatch(notTarget("upper_arm.biceps"));
-    expect(await goal(userA, "not-member", "forearm", { node: "forearm.anterior" }, "left")).toMatch(notTarget("forearm.anterior"));
+    expect(await goal(userA, "group", "forearm", { node: "forearm.anterior" }, "left")).toMatch(notTarget("forearm.anterior"));
     expect(await goal(userA, "other-region", "upper_arm", { node: "forearm.fcu" }, "left")).toMatch(/node forearm\.fcu is not a listed target muscle of region upper_arm/);
     expect(await goal(userA, "unlisted-action", "forearm", { action: "knee.extension" }, "left")).toMatch(/action knee\.extension is not a listed movement of region forearm/);
     expect(await goal(userA, "other-action", "forearm", { action: "spine.flexion" }, "left")).toMatch(/action spine\.flexion is not a listed movement of region forearm/);
@@ -907,7 +924,7 @@ describe("the prototype experiment's cases", () => {
           side_model = 'paired', side_limb = 'arm', side_word = 'arm', side_word_plural = 'arms', catalog_keys = array['biceps', 'brachialis', 'triceps'],
           region_only_tag_scope = 'primary', external_heading = 'Upper-arm muscles credited here'
           where id = 'upper_arm';
-        insert into specialization.region_actions (region_id, action_id, sort_order) values ('upper_arm', 'elbow.flexion', 0), ('upper_arm', 'elbow.extension', 1);
+        insert into specialization.region_actions (region_id, action_id, sort_order) values ('upper_arm', 'elbow.flexion', 0), ('upper_arm', 'elbow.extension', 1) on conflict do nothing;
         insert into specialization.catalog_exercises (catalog_id, name) values (9100, 'Experiment Triceps Pushdown');
         insert into specialization.exercise_variants (variant_key, catalog_id, organization, forearm_orientation, wrist_position, grip_type, straps, laterality, phase, measure, deliberate_hold)
           values ('cat-9100', 9100, 'single_joint', 'pronated', 'not_applicable', 'overhand', 'not_applicable', 'bilateral', 'concentric_eccentric', 'reps', false);
@@ -915,7 +932,8 @@ describe("the prototype experiment's cases", () => {
       await newMuscle("upper_arm.triceps", "upper_arm", "elbow.extension");
       await db.exec(`
         insert into specialization.region_nodes (region_id, node_id, role, sort_order) values
-          ('upper_arm', 'upper_arm.biceps', 'target', 0), ('upper_arm', 'upper_arm.brachialis', 'target', 1), ('upper_arm', 'upper_arm.triceps', 'target', 2), ('upper_arm', 'forearm.br', 'external', 3);
+          ('upper_arm', 'upper_arm.biceps', 'target', 0), ('upper_arm', 'upper_arm.brachialis', 'target', 1), ('upper_arm', 'upper_arm.triceps', 'target', 2), ('upper_arm', 'forearm.br', 'external', 3)
+          on conflict do nothing;
         insert into specialization.region_nodes (region_id, node_id, role) values ('forearm', 'forearm.anconeus', 'adjacent') on conflict do nothing;
       `);
       for (const [variant, dimension, value] of [["cat-9100", "sided_by", "none"], ["cat-121", "grip_width", "shoulder"], ["cat-125", "grip_width", "shoulder"]]) await giveAttribute(variant, dimension, value);
@@ -939,7 +957,7 @@ describe("the prototype experiment's cases", () => {
     ["unlist brachioradialis from the upper arm (listed, not mapped there)", "update specialization.region_nodes set listed = false where region_id = 'upper_arm' and node_id = 'forearm.br'", null],
     ["cat-121 grip width -> wide (frozen by the upper arm's publish)", "update specialization.variant_attributes set value = 'wide' where variant_key = 'cat-121' and dimension_id = 'grip_width'", /attribute grip_width of variant cat-121 is frozen/],
     ["delete cat-121 grip width", "delete from specialization.variant_attributes where variant_key = 'cat-121' and dimension_id = 'grip_width'", /attribute grip_width of variant cat-121 is frozen/],
-    ["cat-125 grip width (no version maps it since) -> wide", "update specialization.variant_attributes set value = 'wide' where variant_key = 'cat-125'", null],
+    ["cat-125 grip width (no version maps it since) -> wide", "update specialization.variant_attributes set value = 'wide' where variant_key = 'cat-125' and dimension_id = 'grip_width'", null],
     ["new attribute on frozen cat-122", "insert into specialization.variant_attributes (variant_key, dimension_id, value) values ('cat-122', 'grip_width', 'narrow')", null],
     ["a value outside the dimension's list", "insert into specialization.variant_attributes (variant_key, dimension_id, value) values ('cat-123', 'grip_width', 'overhead')", /variant_attributes_value_listed/],
     ["frozen v1 node role still frozen", "update specialization.nodes set role = 'target' where id = 'upper_arm.biceps'", /node upper_arm\.biceps is mapped by mapping version .*its region, role and catalog muscle key/],
@@ -1074,7 +1092,7 @@ describe("applied over what production holds", () => {
         await applyMigrationAsDoBlock(wrapped, path);
       }
       const expected = await snapshot(direct);
-      expect(expected.data.region_nodes).toHaveLength(21);
+      expect(expected.data.region_nodes).toHaveLength(SEEDED_MEMBERS);
       expect(await snapshot(wrapped)).toEqual(expected);
     } finally {
       await direct.close();
@@ -1106,7 +1124,7 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
     expect(readdirSync(resolve(process.cwd(), "supabase/migrations")).filter((name) => name.includes("undo"))).toEqual([]);
   });
 
-  it("after schema v2 and the current seed gives the database schema v1 and seed v1 gave; both then apply again; it refuses after seed v3 and while a variant uses not_applicable", async () => {
+  it("after schema v2 and the current seed gives the database schema v1 and seed v1 gave, plus the rows the seed added to v1's tables; both then apply again; it refuses after seed v3 and while a variant uses not_applicable", async () => {
     const target = await createSupabaseLikeDb();
     const release = await createReleaseDb();
     try {
@@ -1119,12 +1137,21 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
       }
       expect(await recorded(target)).toEqual([...v1Recorded, migrationRecord(SCHEMA_V2_MIGRATION_PATH), migrationRecord(SEED_MIGRATION_PATH)]);
       const beforeUndo = await rowVersions(target);
+      // The undo's limit (its header, 04-database.md §10): a row the seed added to a table of v1's stays.
+      // In this release those are the upper arm's two shoulder actions; every other row it wrote is in schema v2's tables.
+      const seeded = await snapshot(target);
+      const v1Columns = (table: string) => new Set(v1.catalog.columns.filter((column) => column.table_name === table).map((column) => column.column_name as string));
+      const asV1Row = (table: string, row: string) => JSON.stringify(Object.fromEntries(Object.entries(JSON.parse(row) as Record<string, unknown>).filter(([column]) => v1Columns(table).has(column))));
+      const added = Object.fromEntries(Object.keys(v1.data).map((table) => [table, seeded.data[table].map((row) => asV1Row(table, row)).filter((row) => !v1.data[table].includes(row))]));
+      expect(Object.fromEntries(Object.entries(added).filter(([, extra]) => extra.length).map(([table, extra]) => [table, extra.map((row) => (JSON.parse(row) as { id: string }).id)]))).toEqual({
+        actions: ["shoulder.extension", "shoulder.flexion"],
+      });
 
       expect(await scriptFailure(target, undo)).toBeNull();
       // Catalog (tables, columns, constraints, indexes, triggers, functions with their bodies, policies, grants, comments) and rows, table by table.
       const undone = await snapshot(target);
       expect(undone.catalog).toEqual(v1.catalog);
-      for (const table of Object.keys(v1.data)) expect(undone.data[table], table).toEqual(v1.data[table]);
+      for (const table of Object.keys(v1.data)) expect(undone.data[table], table).toEqual([...v1.data[table], ...added[table]].sort());
       expect(Object.keys(undone.data)).toEqual(Object.keys(v1.data));
       expect(await recorded(target)).toEqual(v1Recorded);
       // It wrote no row of v1's tables.

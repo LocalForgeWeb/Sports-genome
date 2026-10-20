@@ -120,7 +120,7 @@ export const fixtureArmRegion: SpecializationRegion = {
   measurementDefaults: {},
 };
 
-const fixtureArmContent: RegionContent = {
+export const fixtureArmContent: RegionContent = {
   region: fixtureArmRegion,
   nodes: [{ ...head(deltoidIds.triceps, "Triceps brachii", "Triceps", "triceps", "Back of the upper arm"), regionId: ARM, kind: "muscle" }],
   members: [{ nodeId: deltoidIds.triceps, sortOrder: 0 }],
@@ -135,7 +135,7 @@ const fixtureArmContent: RegionContent = {
   diagram: null,
 };
 
-const deltoidContent: RegionContent = {
+export const deltoidContent: RegionContent = {
   region: {
     id: REGION,
     label: "Deltoids",
