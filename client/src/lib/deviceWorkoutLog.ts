@@ -45,6 +45,13 @@ export type DeviceSetLog = {
    */
   side?: SetSide;
   /**
+   * Which leg did the set, named by the exercise's side anchor (front leg on a split squat,
+   * standing leg on a single-leg hinge; 10-multi-region.md §2.1). Kept apart from `side`, which
+   * stays the arm's, so a reader that drops this field leaves the set with no leg side rather
+   * than turning it into an arm side. Absent means not asked or not said.
+   */
+  legSide?: SetSide;
+  /**
    * How long a hold lasted, in whole seconds as typed, on exercises measured in seconds (dead
    * hangs, farmer holds, pinches). A hold set has no reps: `reps` stays empty, so every reader
    * of reps reads it as "no reps" rather than a number, and none of them turns seconds into
