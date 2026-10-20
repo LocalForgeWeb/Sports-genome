@@ -283,11 +283,12 @@ function classifyBout(region: SpecializationRegionData, index: RegionIndex, bout
   const effects = new Map<NodeId, NodeEffect>();
   let hasReviewed = false;
   let ownMapped = false;
-  for (const mapping of mine ? mappings : []) {
+  for (const mapping of mappings) {
     const effect = effects.get(mapping.nodeId) ?? { credited: [], strapped: [], pending: [] };
     effects.set(mapping.nodeId, effect);
     const own = index.regionNodeIds.has(mapping.nodeId);
     ownMapped ||= own;
+    // A mapping is listed under its variant, so a bout with mappings has the region's variant.
     const entry: MappingEffect = { mapping, part: partOf(region, mapping, mine!), reading: nodeSideFor(region.region, mine!, mapping, bout) };
     if (mapping.reviewStatus !== "reviewed") {
       effect.pending.push(entry);
