@@ -575,17 +575,38 @@ export interface SpecializationRegionData {
 
 // ---------------------------------------------------------------- calculator input
 
+/**
+ * A summary's single reading of a row's side, as the page read it before sides were resolved per
+ * mapping (`Contribution.side`): `bilateral` for a row counted on both sides (or on a plan's
+ * assumed sides), `unknown` for a row kept apart. `countedSide` is the reading per mapping.
+ */
 export type BoutSide = "left" | "right" | "bilateral" | "unknown";
 /** Where a bout's side came from, so the ledger can say it. */
 export type SideSource = "recorded" | "structural" | "plan_assumption" | "unknown";
-/** One limb's side as a set stores it (10-multi-region.md §2.1): one side, or both together. */
-export type RecordedSide = "left" | "right" | "both";
-/**
- * The side a contribution is counted on (10-multi-region.md §2.1): a side, each side
- * (`bilateral`), `midline` on a midline region, or `unknown`, kept apart and never counted.
- */
-export type CountedSide = BoutSide | "midline";
 export type SummaryMode = "planned" | "completed";
+
+/** A side as a set records it for one limb: `both` when the athlete chose Both. */
+export type RecordedSideValue = "left" | "right" | "both";
+
+/**
+ * One limb's side as a bout carries it, before any region reads it (10-multi-region.md §2.1):
+ * what the athlete recorded on the set, or what the plan assumes for a planned one-sided set.
+ */
+export interface LimbSideRecord {
+  side: RecordedSideValue;
+  source: "recorded" | "plan_assumption";
+}
+
+/** A recorded side together with the limb it was recorded for, as a contribution reports it. */
+export interface RecordedSide extends LimbSideRecord {
+  limb: Limb;
+}
+
+/**
+ * The side a summary counts a row on (`nodeSideFor`, exposure.ts): the summary's own side, `midline`
+ * in a midline region, or `unknown` for a row kept apart and counted on neither side.
+ */
+export type CountedSide = SummarySide | "unknown";
 
 export interface ExposureSegment {
   id: string;
@@ -610,19 +631,13 @@ export interface ExposureBout {
   catalogExerciseId: number | null;
   exerciseName: string;
   matchedBy: "id" | "name" | "none";
-  side: BoutSide;
-  sideSource: SideSource;
   /**
-   * Each limb's side as recorded, in a field of its own (10-multi-region.md §2.1): `armSide` from
-   * the set's `side`, `legSide` from its `legSide`, or a planned one-sided set's side
-   * (`plan_assumption`); null where that limb's side was not recorded. Each region reads them per
-   * node and mapping. Absent on bouts from code that reads only `side`, the arm's side as the
-   * forearm has always counted it.
+   * The arm's side as the set recorded it (the set's `side`), or as the plan assumes it; null
+   * when none was recorded. Never resolved here: the calculator reads it per region and mapping.
    */
-  armSide?: RecordedSide | null;
-  armSideSource?: SideSource;
-  legSide?: RecordedSide | null;
-  legSideSource?: SideSource;
+  armSide: LimbSideRecord | null;
+  /** The leg's side (the set's `legSide`, named by the variant's anchor), or the plan's assumption; null when none. */
+  legSide: LimbSideRecord | null;
   straps: "yes" | "no" | "unknown";
   warmup: boolean;
   effort: "failure" | "not_to_failure" | null;
@@ -720,19 +735,15 @@ export interface Contribution {
   category: ExposureCategory;
   /** The mappings that produced it (more than one only when the category is `mixed`). */
   parts: { mappingId: string; actionId: ActionId | null; relationship: Relationship; muscleMode: MuscleMode; category: ExposureCategory }[];
+  /** The summary's single reading of the side (`BoutSide`); `countedSide` is the reading per mapping. */
   side: BoutSide;
   sideSource: SideSource;
-  /**
-   * The side this contribution is counted on, resolved per node and mapping (10-multi-region.md
-   * §2.1); the side recorded for the limb the variant is sided by, as the set stores it (null where
-   * none was recorded); and where the mapping loads its muscle relative to that side
-   * (`sideRelationOf`). The ledger labels the row by `countedSide` and adds a note where it differs
-   * from the side recorded ("Left hand: opposite side"). Absent on contributions from code that
-   * reads only `side`.
-   */
-  countedSide?: CountedSide;
-  recordedSide?: RecordedSide | null;
-  sideRelation?: SideRelation;
+  /** The side this row is counted on: the summary's side, `midline`, or `unknown` (kept apart, counted on neither side). */
+  countedSide: CountedSide;
+  /** The side the set recorded for the limb that decided `countedSide`; null when none was recorded. */
+  recordedSide: RecordedSide | null;
+  /** Where the counted mappings' muscle is loaded relative to the recorded side (the first part's, where they differ). */
+  sideRelation: SideRelation;
   catalogExerciseId: number | null;
   exerciseName: string;
   matchedBy: "id" | "name" | "none";
@@ -807,6 +818,13 @@ export interface SummaryCompleteness {
   boutsNameMatched: number;
   boutsUnknownSide: number;
   boutsExcluded: { notCompleted: number; warmup: number };
+  /**
+   * Sets in the window whose exercise tags the region outside its tag scope (a secondary tag where
+   * the region reads primary tags only), or is one of its listed unmapped exercises, and that are
+   * not counted here (10-multi-region.md §8). Not part of `boutsConsidered`; the rows are
+   * `listedUnmappedRows`.
+   */
+  boutsListedUnmapped: number;
 }
 
 /**
@@ -816,8 +834,19 @@ export interface SummaryCompleteness {
  */
 export interface RegionBoutRow {
   boutId: string;
+  /** The summary's single reading of the side, as on a contribution. */
   side: BoutSide;
   sideSource: SideSource;
+  /**
+   * The side the region counts the bout on, or `unknown` for a bout in the unknown-side set or
+   * with no side. Always set by `getSpecializationSummary`.
+   */
+  countedSide?: CountedSide;
+  /**
+   * The side the set recorded for the limb that decided `countedSide`, else for another limb;
+   * null when none was. Always set by `getSpecializationSummary`.
+   */
+  recordedSide?: RecordedSide | null;
   catalogExerciseId: number | null;
   exerciseName: string;
   matchedBy: "id" | "name" | "none";
@@ -826,6 +855,14 @@ export interface RegionBoutRow {
   performedAt: string | null;
   kind: "standard" | "drop";
   segments: ContributionSegment[];
+}
+
+/** A set the region does not count although its exercise tags the region (10-multi-region.md §8). */
+export interface ListedUnmappedRow extends RegionBoutRow {
+  /** `secondary`: tagged as a secondary muscle, outside the region's tag scope; `listed`: one of the region's listed unmapped exercises. */
+  tag: "secondary" | "listed";
+  /** The region's listed reason for leaving the exercise unmapped; null where none is listed. */
+  reason: string | null;
 }
 
 export interface SpecializationSummary {
@@ -849,6 +886,8 @@ export interface SpecializationSummary {
   regionUnknownSideRows?: RegionBoutRow[];
   /** The bouts behind `regionUnclassified`, one row each (each names its exercise), oldest first. */
   regionUnclassifiedRows?: RegionBoutRow[];
+  /** The bouts behind `completeness.boutsListedUnmapped`, each with its exercise's listed reason (null where none is listed), oldest first. */
+  listedUnmappedRows?: ListedUnmappedRow[];
   goals: GoalProgress[];
   completeness: SummaryCompleteness;
   calculatedAt: string;
@@ -865,8 +904,11 @@ export interface SummaryRequest {
   region: SpecializationRegionData;
   bouts: readonly ExposureBout[];
   interval: SummaryInterval;
+  /** `left` or `right` for a paired region, `midline` for a midline one. */
   side: SummarySide;
   mode: SummaryMode;
+  /** The published rule the summary applies; the region's current rule (`exposureRuleFor`) when absent. */
+  rule?: RuleVersion;
   goals: readonly SpecializationGoal[];
   /**
    * The catalog's muscle tags for an exercise, so work tagged with the region's catalog

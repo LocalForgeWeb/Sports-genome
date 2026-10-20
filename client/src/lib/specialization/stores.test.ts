@@ -205,3 +205,44 @@ describe("measurements", () => {
     expect(loadSpecializationMeasurements("a").map((item) => item.id)).toEqual(["m2"]);
   });
 });
+
+describe("what a later version writes survives this one (10-multi-region.md §2.1)", () => {
+  const stored = (base: string) => JSON.parse(localStorage.getItem(`${base}::a`) ?? "[]") as unknown[];
+  // Shapes this version cannot read: a later version's, and plain damage.
+  const unreadGoals = [{ ...goal({ id: "future" }), metric: "girth_targets" }, { ...goal({ id: "both" }), side: "both" }, null, 7, "text"];
+
+  it("reads a midline target, and keeps every stored target it cannot read, written back untouched by every save and removal", () => {
+    localStorage.setItem(`${specializationGoalsKeyBase}::a`, JSON.stringify([goal({ id: "kept" }), goal({ id: "core", regionId: "core", nodeId: "core.rectus_abdominis", side: "midline" }), ...unreadGoals]));
+    expect(loadSpecializationGoals("a").map((item) => [item.id, item.side])).toEqual([["kept", "left"], ["core", "midline"]]);
+    expect(saveSpecializationGoals([...loadSpecializationGoals("a"), goal({ id: "added", side: "right" })], "a")).toBe(true);
+    expect(stored(specializationGoalsKeyBase)).toEqual([goal({ id: "kept" }), goal({ id: "core", regionId: "core", nodeId: "core.rectus_abdominis", side: "midline" }), goal({ id: "added", side: "right" }), ...unreadGoals]);
+    const { result } = renderHook(() => useSpecializationGoals("a"));
+    act(() => { expect(result.current.remove("kept")).toEqual({ ok: true }); });
+    act(() => { expect(result.current.save(goal({ id: "fcu", nodeId: "forearm.fcu" }))).toEqual({ ok: true }); });
+    expect(stored(specializationGoalsKeyBase).slice(-unreadGoals.length)).toEqual(unreadGoals);
+    expect(result.current.goals.map((item) => item.id)).toEqual(["core", "added", "fcu"]);
+  });
+
+  it("holds a new muscle target to the page's targets when the page passes its scope", () => {
+    const scope = { region: { id: "forearm", sides: { model: "paired" as const, limb: "arm" as const }, wording: { externalGroup: "", externalHeading: "", incidentalWork: "grip", progressSubtitle: "", sideWord: "arm", sideWordPlural: "arms", onSideTemplate: "your {side} forearm" } }, targetNodeIds: new Set(["forearm.fcr"]) };
+    expect(upsertGoal([], goal(), scope).ok).toBe(true);
+    expect(upsertGoal([], goal({ nodeId: "upper_arm.biceps" }), scope)).toEqual({ ok: false, reason: "Targets are for this region's target muscles. You can end or remove this one." });
+    const { result } = renderHook(() => useSpecializationGoals("a"));
+    act(() => { expect(result.current.save(goal({ nodeId: "forearm.anconeus" }), scope).ok).toBe(false); });
+    expect(result.current.goals).toEqual([]);
+  });
+
+  it("reads a girth around the trunk on the midline, and keeps measurements it cannot read", () => {
+    const girth = measurement({ id: "girth", regionId: "chest", side: "midline", metric: "girth_cm", value: 104, protocol: { ...measurement().protocol, landmark: "Under the arms", posture: "standing_relaxed" } });
+    const flexed = measurement({ id: "flexed", protocol: { ...measurement().protocol, posture: "arm_flexed" } });
+    const unread = [{ ...measurement({ id: "limb-midline" }), side: "midline" }, { ...girth, id: "girth-left", side: "left" }, { ...measurement({ id: "skinfold" }), metric: "skinfold_mm" }];
+    localStorage.setItem(`${specializationMeasurementsKeyBase}::a`, JSON.stringify([girth, flexed, ...unread]));
+    expect(loadSpecializationMeasurements("a").map((item) => item.id)).toEqual(["flexed", "girth"]);
+    expect(parseStoredMeasurement(girth)).toEqual(girth);
+    expect(saveSpecializationMeasurements([girth], "a")).toBe(true);
+    expect(stored(specializationMeasurementsKeyBase)).toEqual([girth, ...unread]);
+    const { result } = renderHook(() => useSpecializationMeasurements("a"));
+    act(() => { expect(result.current.save(measurement({ id: "m3" }))).toEqual({ ok: true }); });
+    expect(stored(specializationMeasurementsKeyBase).slice(-unread.length)).toEqual(unread);
+  });
+});

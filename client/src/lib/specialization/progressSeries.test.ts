@@ -3,6 +3,7 @@ import type { DeviceSetLog, DeviceWorkoutSession } from "@/lib/deviceWorkoutLog"
 import { exercises } from "@/lib/exerciseCatalog";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import type { SpecializationMeasurement } from "@shared/specialization/types";
+import { fxCore, fxThigh } from "./__fixtures__/multiRegion";
 import {
   CM_PER_INCH, KG_PER_LB, NEWTONS_PER_KGF, bestSoFar, chartPerformance, directlyMappedCatalogIds, formatPerformance, formatReading, formatScale, latestReading, performanceBest,
   performanceBestLabel, performanceSeries, progressAxis, progressUnitsFor, protocolChanges, readingBest, samePlaceAndPosture, sameProtocol, splitByAxis, toShownValue,
@@ -155,6 +156,16 @@ describe("comparable exercise performance", () => {
     expect(right.points.map((point) => [point.load, point.sideUnrecorded])).toEqual([[25, false], [27.5, true], [30, false]]);
     const left = performanceSeries(history, input("left"))[0];
     expect(left.points.map((point) => point.load)).toEqual([40, 27.5, 30]);
+  });
+
+  it("reads sides as the region does: by the leg on a leg page, every set on a midline page (10-multi-region.md §6.3)", () => {
+    const squats = [session("a", "2026-10-01", [exercise("e", "Bulgarian Split Squat", 173, [set(20, 10, { legSide: "right" }), set(30, 8, { legSide: "left" }), set(25, 9, { side: "left" })])])];
+    const leg = (side: "left" | "right") => performanceSeries(squats, { data: fxThigh, side, weightUnit: "lb", timeZone: "Europe/London" })[0].points.map((point) => [point.load, point.sideUnrecorded]);
+    // An arm side says nothing about the legs: the set is kept, and marked, on both legs' series.
+    expect(leg("right")).toEqual([[25, true]]);
+    expect(leg("left")).toEqual([[30, false]]);
+    const sitUps = [session("a", "2026-10-01", [exercise("e", "Decline Sit-Up", 241, [set(10, 15, { side: "left" }), set(15, 12)])])];
+    expect(performanceSeries(sitUps, { data: fxCore, side: "midline", weightUnit: "lb", timeZone: "Europe/London" })[0].points.map((point) => [point.load, point.sideUnrecorded])).toEqual([[15, false]]);
   });
 
   it("reads a hold exercise as its longest hold, and a two-handed exercise without a side as both arms", () => {

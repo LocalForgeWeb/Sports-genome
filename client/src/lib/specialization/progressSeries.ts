@@ -3,9 +3,10 @@ import { formatLoad } from "@/lib/dropSets";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { kilogramsToDisplayWeight, type DisplayWeightUnit } from "@/lib/weightUnits";
 import { loadConventionFor } from "@shared/loadConventions";
+import { nodeSideFor } from "@shared/specialization/exposure";
 import { addDaysToDateKey, dateRangeLabel, isDateKey, localDateKey, mondayIndexOfDateKey } from "@shared/specialization/time";
-import type { ArmSide, MeasurementMetric, MeasurementProtocol, SetMeasure, SpecializationMeasurement, SpecializationRegionData } from "@shared/specialization/types";
-import { holdSecondsOf, sideOf, variantLookup } from "./bouts";
+import type { MeasurementMetric, MeasurementProtocol, SetMeasure, SpecializationMeasurement, SpecializationRegionData, SummarySide } from "@shared/specialization/types";
+import { holdSecondsOf, recordedSidesOf, variantLookup } from "./bouts";
 
 /**
  * The Progress disclosure's arithmetic (brief §10, design §5), kept apart from the page so
@@ -188,7 +189,7 @@ export type PerformancePoint = {
   load: number | null;
   reps: number | null;
   seconds: number | null;
-  /** The set recorded no arm and the exercise is not two-handed: kept, and marked. */
+  /** The set recorded no side for the region's limb and the exercise is not two-sided: kept, and marked. */
   sideUnrecorded: boolean;
 };
 
@@ -233,7 +234,7 @@ const countOf = (value: string | undefined): number | null => {
 
 type Candidate = { loadKg: number | null; reps: number | null; seconds: number | null; sideUnrecorded: boolean };
 
-/** Heaviest, then most reps (or longest, then heaviest, for holds); a set with its arm recorded before one without. */
+/** Heaviest, then most reps (or longest, then heaviest, for holds); a set with its side recorded before one without. */
 function better(measure: SetMeasure, a: Candidate, b: Candidate): boolean {
   const first = measure === "seconds" ? [(a.seconds ?? 0) - (b.seconds ?? 0), (a.loadKg ?? 0) - (b.loadKg ?? 0)] : [(a.loadKg ?? 0) - (b.loadKg ?? 0), (a.reps ?? 0) - (b.reps ?? 0)];
   for (const difference of first) if (difference !== 0) return difference > 0;
@@ -242,12 +243,13 @@ function better(measure: SetMeasure, a: Candidate, b: Candidate): boolean {
 
 /**
  * Every directly mapped exercise in the finished workouts, as one point per session on one
- * arm: the top set (heaviest load, then most reps; a drop set reads its first stage), or the
- * longest hold for an exercise measured in seconds. Completed sets only. A set logged for the
- * other arm is left out; one done with both arms counts for either; one with no arm recorded
- * is kept and marked, never guessed onto an arm. Exercises are matched by catalog id only.
+ * side: the top set (heaviest load, then most reps; a drop set reads its first stage), or the
+ * longest hold for an exercise measured in seconds. Completed sets only. Sides are read as the
+ * region reads them (`nodeSideFor`): a set counted only on the other side is left out; one counted
+ * on both counts for either; one with no side is kept and marked, never guessed onto a side. A
+ * midline region's series reads every set (side `midline`). Exercises are matched by catalog id only.
  */
-export function performanceSeries(sessions: readonly DeviceWorkoutSession[], input: { data: SpecializationRegionData; side: ArmSide; weightUnit: DisplayWeightUnit; timeZone: string; catalog?: readonly Pick<Exercise, "id" | "name">[] }): PerformanceSeries[] {
+export function performanceSeries(sessions: readonly DeviceWorkoutSession[], input: { data: SpecializationRegionData; side: SummarySide; weightUnit: DisplayWeightUnit; timeZone: string; catalog?: readonly Pick<Exercise, "id" | "name">[] }): PerformanceSeries[] {
   const { data, side, weightUnit, timeZone } = input;
   const mapped = directlyMappedCatalogIds(data);
   const variantOf = variantLookup(data.variants);
@@ -266,9 +268,9 @@ export function performanceSeries(sessions: readonly DeviceWorkoutSession[], inp
       for (const set of exercise.sets) {
         // Completed work only: a skipped, unlogged or warm-up set is not a top set.
         if (!isCompletedSet(set) || set.warmup === true) continue;
-        const arm = sideOf(set, variant).side;
-        if (arm !== side && arm !== "bilateral" && arm !== "unknown") continue;
-        const candidate: Candidate = { loadKg: setWeightKg(set, session, weightUnit) ?? null, reps: null, seconds: null, sideUnrecorded: arm === "unknown" };
+        const { sides } = nodeSideFor(data.region, variant, null, recordedSidesOf(set));
+        if (sides.length && !sides.includes(side)) continue;
+        const candidate: Candidate = { loadKg: setWeightKg(set, session, weightUnit) ?? null, reps: null, seconds: null, sideUnrecorded: !sides.length };
         if (measure === "seconds") {
           candidate.seconds = holdSecondsOf(set);
           if (candidate.seconds === null) continue;
@@ -366,8 +368,8 @@ export function readingsInOrder(readings: readonly SpecializationMeasurement[]):
   return [...readings].sort((a, b) => Date.parse(a.measuredAt) - Date.parse(b.measuredAt) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
 
-/** The latest reading of one measure on one arm of a region: where the next one starts from. Null when there is none. */
-export function latestReading(readings: readonly SpecializationMeasurement[], match: { regionId: string; side: ArmSide; metric: MeasurementMetric }): SpecializationMeasurement | null {
+/** The latest reading of one measure on one side of a region (or around it, `midline`): where the next one starts from. Null when there is none. */
+export function latestReading(readings: readonly SpecializationMeasurement[], match: { regionId: string; side: SummarySide; metric: MeasurementMetric }): SpecializationMeasurement | null {
   const same = readings.filter((entry) => entry.regionId === match.regionId && entry.side === match.side && entry.metric === match.metric);
   const ordered = readingsInOrder(same);
   return ordered[ordered.length - 1] ?? null;

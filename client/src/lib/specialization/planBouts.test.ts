@@ -102,9 +102,16 @@ describe("a hold never gets a rep default", () => {
     expect(plannedSummary(day([{ id: deadHang.id }]), "left").nodes.find((node) => node.nodeId === forearmMuscleIds.flexorDigitorumSuperficialis)!.deliberateHoldSeconds).toBe(90);
   });
 
-  it("still plans a one-arm exercise's sets once for each arm", () => {
+  it("still plans a one-arm exercise's sets once for each arm: two bouts per planned set, Right then Left", () => {
     const bouts = plan(day([{ id: oneArmCurl.id, prescription: "3 × 12" }]));
-    expect(bouts).toHaveLength(3);
-    expect(bouts.every((bout) => bout.side === "bilateral" && bout.sideSource === "plan_assumption" && bout.segments[0].reps === 12)).toBe(true);
+    expect(bouts.map((bout) => bout.id)).toEqual([1, 2, 3].flatMap((n) => [`plan/1/${slots[0].key}/410/${n}#right`, `plan/1/${slots[0].key}/410/${n}#left`]));
+    expect(bouts.map((bout) => bout.armSide?.side)).toEqual(["right", "left", "right", "left", "right", "left"]);
+    expect(bouts.every((bout) => bout.armSide?.source === "plan_assumption" && bout.legSide === null && bout.segments[0].reps === 12 && bout.segments[0].id === bout.id)).toBe(true);
+    // Each arm still gets 3 for "3 × 12" (10-multi-region.md §2.1).
+    for (const side of ["left", "right"] as const) {
+      const summary = plannedSummary(day([{ id: oneArmCurl.id, prescription: "3 × 12" }]), side);
+      expect(summary.regionDistinctBouts, side).toBe(3);
+      expect(summary.regionBoutRows!.every((row) => row.boutId.endsWith(`#${side}`) && row.countedSide === side), side).toBe(true);
+    }
   });
 });
