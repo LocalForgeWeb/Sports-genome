@@ -853,6 +853,12 @@ export interface ListedUnmappedRow extends RegionBoutRow {
   tag: "secondary" | "listed";
   /** The region's listed reason for leaving the exercise unmapped; null where none is listed. */
   reason: string | null;
+  /**
+   * The external members whose rows show this set on this side, counted or kept apart with no
+   * side: their home region's version credits it, though this region counts it nowhere. Empty for
+   * a set no mapping speaks for.
+   */
+  creditedTo: NodeId[];
 }
 
 export interface SpecializationSummary {

@@ -163,8 +163,16 @@ export function registryWordPattern(): RegExp {
   return new RegExp(`${Array.from(terms).sort().join("|")}|\\barms?\\b|\\blegs?\\b`, "i");
 }
 
+/**
+ * The calculator files are read twice. Their code and strings, by the registry's words and the
+ * region words written out here (`regionWords`: the forearm's three-letter muscle names, the
+ * fixture's deltoid, the forearm's joint actions, which no registry name of four letters or more
+ * covers); and every line, comments included, by the written-out words alone, as before regions
+ * were data: a comment may say "arm" or "grip" in prose, never name a region's muscle.
+ */
 describe("no region is named in the calculator, the windows, the goals or the adapters", () => {
-  const pattern = registryWordPattern();
+  const registry = registryWordPattern();
+  const pattern = new RegExp(`${registry.source}|${regionWords.source}`, "i");
   const files = [
     "shared/specialization/exposure.ts",
     "shared/specialization/time.ts",
@@ -187,12 +195,14 @@ describe("no region is named in the calculator, the windows, the goals or the ad
     },
   ];
 
-  it("builds its words from the registry: every region's id, label, muscles, views and wording, and the limbs", () => {
+  it("builds its words from the registry: every region's id, label, muscles, views and wording, and the limbs; and keeps the words written out", () => {
     for (const word of ["forearm", "Forearms", "upper arm", "upper-arm", "Brachioradialis", "Flexor carpi ulnaris", "Biceps brachii", "Thumb side", "grip", "your left forearm", "Upper-arm muscles credited here", "arm", "legs"]) {
       expect(pattern.test(word), word).toBe(true);
     }
-    // Whole words only: a field named for a region's measure or a variant's column is not a region word.
-    for (const word of ["grip_force_n", "forearmOrientation", "legSide", "armSide", "sidedBy", "the side"]) expect(pattern.test(word), word).toBe(false);
+    // Short names under four letters, the fixture's region and the forearm's joint actions: no registry word covers them.
+    for (const word of ["FCU", "fdp", "ECU", "deltoid", "delts", "triceps", "pronation", "supination"]) expect(pattern.test(word), word).toBe(true);
+    // The registry's words are whole words: a field named for a region's measure or a variant's column is not one.
+    for (const word of ["grip_force_n", "forearmOrientation", "legSide", "armSide", "sidedBy", "the side"]) expect(registry.test(word), word).toBe(false);
     // The limbs as copy are found; only a string that is exactly a limb value is left to the model.
     expect(pattern.test(withoutLimbValues('notes.push("Left arm only")'))).toBe(true);
     expect(pattern.test(withoutLimbValues('limb === "arm" ? bout.armSide : bout.legSide'))).toBe(false);
@@ -207,9 +217,12 @@ describe("no region is named in the calculator, the windows, the goals or the ad
 
   for (const file of files) {
     it(file, () => {
-      const lines = codeLines(file, readFileSync(join(process.cwd(), file), "utf8"));
+      const text = readFileSync(join(process.cwd(), file), "utf8");
+      const lines = codeLines(file, text);
       const hits = lines.map((line, index) => [index + 1, line.trim()] as const).filter(([, line]) => pattern.test(withoutLimbValues(line)) && !allowed.some((entry) => entry.file === file && entry.code === line));
       expect(hits).toEqual([]);
+      const anywhere = text.split("\n").map((line, index) => [index + 1, line] as const).filter(([, line]) => regionWords.test(line));
+      expect(anywhere).toEqual([]);
     });
   }
 

@@ -211,7 +211,7 @@ export type PerformanceSeries = {
 
 /**
  * Catalog exercises whose variant has a reviewed, direct mapping (current mapping version) to
- * a node of this region, an external contributor (biceps on a curl) not counting. The variant
+ * a node of this region, an external member (another region's muscle on a curl) not counting. The variant
  * is the one the exposure reads for that catalog id.
  */
 export function directlyMappedCatalogIds(data: SpecializationRegionData): Set<number> {

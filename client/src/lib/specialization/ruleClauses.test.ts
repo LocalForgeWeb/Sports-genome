@@ -15,6 +15,7 @@ import {
   type RuleBranch,
 } from "@shared/specialization/rules";
 import { calendarWeekInterval } from "@shared/specialization/time";
+import { variantLibrary } from "@shared/specialization/variants";
 import type { ExerciseVariant, ExposureBout, RuleVersion, SideRelation, SpecializationRegion } from "@shared/specialization/types";
 import { catalogMusclesLookup } from "./useSpecializationSummary";
 import { fxBack, fxBackBeforeShoulder, fxCore, fxThigh, fxVariants } from "./__fixtures__/multiRegion";
@@ -34,6 +35,8 @@ const variants: ExerciseVariant[] = [...Object.values(fxVariants), { ...fxVarian
 const relations: (SideRelation | undefined)[] = [undefined, "same", "opposite", "both"];
 const records = [null, ...(["left", "right", "both"] as const).flatMap((side) => (["recorded", "plan_assumption"] as const).map((source) => ({ side, source })))];
 const bouts: Pick<ExposureBout, "armSide" | "legSide">[] = records.flatMap((armSide) => records.map((legSide) => ({ armSide, legSide })));
+/** A hands-free exercise a later wave's library may hold, tagged with the forearms as a secondary muscle: 200 45-Degree Back Extension. */
+const handsFree: ExerciseVariant = { ...forearmRegionData.variants[0], id: "cat-200", catalogExerciseId: 200, catalogName: "45-Degree Back Extension", laterality: "not_applicable", sidedBy: "none" };
 
 describe("every branch has a clause", () => {
   it("maps every branch nodeSideFor takes, over every side model, variant, relation and recorded side, and every side clause is taken", () => {
@@ -44,6 +47,20 @@ describe("every branch has a clause", () => {
     for (const branch of Array.from(taken)) expect(ruleClauses[branch], branch).toBeDefined();
     const sideClauses = (Object.keys(ruleClauses) as RuleBranch[]).filter((branch) => branch.startsWith("side."));
     expect(Array.from(taken).sort()).toEqual(sideClauses.sort());
+  });
+
+  it("lists, in ruleBranchesOf, every side branch a region's data can reach: through each mapping that credits it, and for a set no mapping speaks for, with any variant of the region or the shared library", () => {
+    for (const region of [...specializationRegions, fxCore, fxThigh, fxBack, fxBackBeforeShoulder, deltoidRegionData]) {
+      const index = indexRegion(region);
+      const variantById = new Map(region.variants.map((variant) => [variant.id, variant] as const));
+      const reached = new Set<RuleBranch>();
+      for (const bout of bouts) {
+        for (const variant of [null, ...region.variants, ...variantLibrary, handsFree]) reached.add(nodeSideFor(region.region, variant, null, bout).branch);
+        for (const [variantId, mappings] of Array.from(index.mappingsByVariant)) for (const mapping of mappings) reached.add(nodeSideFor(region.region, variantById.get(variantId) ?? null, mapping, bout).branch);
+      }
+      const listed = ruleBranchesOf(region);
+      expect(Array.from(reached).filter((branch) => !listed.has(branch)).sort(), region.region.id).toEqual([]);
+    }
   });
 
   it("maps every version indexRegion credits a node by", () => {
@@ -90,6 +107,20 @@ describe("production data reaches only published clauses", () => {
     // The deltoid fixture is paired by the arm like the forearm, maps only its own muscles' and the
     // triceps' rows, and reads tags at any scope: v1 covers it.
     expect(missing(deltoidRegionData)).toEqual([]);
+  });
+
+  it("reads a region-only set of a hands-free exercise as a side not recorded, which v1 publishes: a library variant never takes the forearm off v1", () => {
+    const region = { ...forearmRegionData, variants: [...forearmRegionData.variants, handsFree] };
+    expect(nodeSideFor(region.region, handsFree, null, { armSide: null, legSide: null }).branch).toBe("side.arm.unknown");
+    expect(unpublishedBranches(ruleBranchesOf(region))).toEqual([]);
+    const set: ExposureBout = {
+      id: "b200", mode: "completed", performedAt: "2026-10-14T18:00:00.000Z", sessionId: "s", sessionLabel: "Day", planWeek: null, dayKey: null, exerciseEntryId: "e", catalogExerciseId: 200,
+      exerciseName: "45-Degree Back Extension", matchedBy: "id", armSide: null, legSide: null, straps: "unknown", warmup: false, effort: null, kind: "standard", segments: [{ id: "b200", reps: 12, loadKg: null, holdSeconds: null }],
+    };
+    for (const side of ["left", "right"] as const) {
+      const summary = getSpecializationSummary({ region, bouts: [set], interval: calendarWeekInterval("2026-10-16T12:00:00.000Z", "Europe/London"), side, mode: "completed", goals: [], catalogMusclesFor: catalogMusclesLookup(exercises), sourceRevision: "", planRevision: null, now: "2026-10-16T12:00:00.000Z" });
+      expect([summary.regionUnclassified.bouts, summary.completeness.boutsUnknownSide], side).toEqual([1, 1]);
+    }
   });
 
   it("lets each wave publish its rule: with v2 to v5 published, every fixture region is covered", () => {

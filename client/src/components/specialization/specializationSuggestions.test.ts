@@ -136,7 +136,7 @@ describe("Already covered by, in words", () => {
   });
 
   it("reads the recommender's own entries that way", () => {
-    // A one-arm exercise: the logger asks the arm there, so a set can lack one (a two-handed exercise counts on both arms whatever was recorded, lane 0b).
+    // A one-arm exercise: a two-handed one with no arm recorded counts on both arms (as the adapter always read it), so only a one-arm set lacks an arm.
     const ONE_ARM_WRIST_CURL = 410;
     const result = candidatesFor(m.flexorCarpiUlnaris, {
       summary: summary([bout(ONE_ARM_WRIST_CURL, "right"), bout(ONE_ARM_WRIST_CURL, "unknown")]),
@@ -150,14 +150,14 @@ describe("a bar of bouts per day opens the bouts it counts", () => {
   it("lists, for each local day, exactly the distinct bouts on this arm the bar counts", () => {
     const tuesday = "2026-10-13T17:00:00.000Z";
     const thursday = "2026-10-15T07:30:00.000Z";
-    // One-arm wrist curls (410, 411): the logger asks the arm there (lane 0b: a two-handed exercise counts on both arms whatever was recorded).
-    const result = summary([bout(410, "right", tuesday), bout(132, "bilateral", tuesday), bout(411, "left", tuesday), bout(410, "unknown", thursday), bout(132, "bilateral", thursday)]);
+    // The set with no arm recorded is a one-arm wrist curl (410): a two-handed one with no arm recorded counts on both arms.
+    const result = summary([bout(WRIST_CURL, "right", tuesday), bout(132, "bilateral", tuesday), bout(140, "left", tuesday), bout(410, "unknown", thursday), bout(132, "bilateral", thursday)]);
     const dayKeyOf = (iso: string) => localDateKey(iso, ZONE);
     const counts = boutsByDay(result, forearmRegionData, dayKeyOf);
     expect(Array.from(counts.entries()).sort()).toEqual([["2026-10-13", 2], ["2026-10-15", 1]]);
     for (const [key, count] of Array.from(counts.entries())) expect(regionBoutRowsOnDay(result, key, dayKeyOf)).toHaveLength(count);
     // The left-arm set and the set with no arm recorded are in neither bar.
-    expect(regionBoutRowsOnDay(result, "2026-10-13", dayKeyOf).map((row) => row.exerciseName).sort()).toEqual(["Hammer Curl", "One-Arm Dumbbell Wrist Curl"]);
+    expect(regionBoutRowsOnDay(result, "2026-10-13", dayKeyOf).map((row) => row.exerciseName).sort()).toEqual(["Hammer Curl", "Wrist Curl"]);
     expect(regionBoutRowsOnDay(result, "2026-10-14", dayKeyOf)).toEqual([]);
   });
 });

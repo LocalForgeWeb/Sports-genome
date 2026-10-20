@@ -159,17 +159,27 @@ export function nodeHomeRegionId(nodeId: NodeId): RegionId | null {
   return dot > 0 ? nodeId.slice(0, dot) : null;
 }
 
+/** The side fits the region: left or right in a paired region, `midline` in a midline one. */
+export function sideFitsRegion(region: Pick<SpecializationRegion, "sides">, side: SummarySide): boolean {
+  return (region.sides.model === "midline") === (side === "midline");
+}
+
 /**
  * A stored target as it is read now (10-multi-region.md §2.2). A muscle target saved on another
  * region's page, on a muscle that page lists as external, keeps counting there until the muscle's
  * home region is in production; from then it is read as a target of the home region, with the same
- * id, and the next save writes it so. Every other target is returned as it is.
+ * id, and the next save writes it so. A target whose side the home cannot hold (a midline page's
+ * target on a muscle whose home is paired) stays where it was saved: read as the home's, it would
+ * match neither of the home's sides, so no page would show it or let it be ended. Every other
+ * target is returned as it is. `homeOf` gives a registered region's record, or null.
  */
-export function rehomedGoal(goal: SpecializationGoal, isProduction: (regionId: RegionId) => boolean): SpecializationGoal {
+export function rehomedGoal(goal: SpecializationGoal, homeOf: (regionId: RegionId) => Pick<SpecializationRegion, "status" | "sides"> | null): SpecializationGoal {
   if (goal.nodeId === null) return goal;
-  const home = nodeHomeRegionId(goal.nodeId);
-  if (home === null || home === goal.regionId || !isProduction(home)) return goal;
-  return { ...goal, regionId: home };
+  const homeId = nodeHomeRegionId(goal.nodeId);
+  if (homeId === null || homeId === goal.regionId) return goal;
+  const home = homeOf(homeId);
+  if (home?.status !== "production" || !sideFitsRegion(home, goal.side)) return goal;
+  return { ...goal, regionId: homeId };
 }
 
 /** Active on a local date: started, and not yet ended (the end date is included). */

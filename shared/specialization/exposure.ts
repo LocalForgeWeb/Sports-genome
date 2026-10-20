@@ -82,16 +82,24 @@ function lateralityFor(variant: ExerciseVariant | null, limb: Limb) {
 const sourceOf = (recorded: RecordedSide | null, otherwise: SideSource): SideSource => (recorded ? (recorded.source === "plan_assumption" ? "plan_assumption" : "recorded") : otherwise);
 
 /**
- * The sides one mapping's work in one bout is counted on (10-multi-region.md §2.1), in order:
+ * The sides one mapping's work in one bout is counted on (10-multi-region.md §2.1):
  * 1. a midline region counts it once, `midline`, whatever was recorded;
  * 2. a mapping loaded on both sides (`sideRelation: both`) counts on each side, side or none;
- * 3. a variant two-sided for the region's limb by definition counts on each side;
+ * 3. a variant two-sided for the region's limb by definition counts on each side, as today;
  * 4. a side recorded for the region's limb counts on that side (`same`) or the other (`opposite`),
  *    and a recorded `both` on each side;
  * 5. a variant the region's limb plays no part in gives no side (its mappings are `both`, so rule 2
  *    has answered for them);
  * 6. anything else, a side recorded only for the other limb included, is unknown.
- * `mapping` null reads the bout as the region does when no mapping speaks (region-only work).
+ *
+ * Rule 4 is read before rule 3. "As today" is the calculator as it first shipped: a side recorded on
+ * a two-handed exercise (only an import or a swapped exercise can hold one; the logger does not ask
+ * there) counted on that side alone, and a shipped region's numbers do not change at wave 0 (§4.3,
+ * the golden test). Read in the other order, such a set would count on both sides.
+ *
+ * `mapping` null reads the bout as the region does when no mapping speaks (region-only and
+ * unrelated work): relation `same`, and no rule 5, which is about mappings, so a limb the exercise
+ * does not use gives no side by rule 6.
  */
 export function nodeSideFor(
   region: Pick<SpecializationRegion, "sides">,
@@ -109,14 +117,14 @@ export function nodeSideFor(
   const recorded = recordedFor(bout, limb);
   const laterality = lateralityFor(variant, limb);
   if (relation === "both") return { sides: BOTH, branch: `side.${limb}.relation_both`, recorded, relation, source: sourceOf(recorded, "structural") };
-  if (laterality === "bilateral") return { sides: BOTH, branch: `side.${limb}.structural`, recorded, relation, source: "structural" };
   if (recorded) {
     if (recorded.side === "both") return { sides: BOTH, branch: `side.${limb}.recorded`, recorded, relation, source: sourceOf(recorded, "recorded") };
     const opposite = relation === "opposite";
     return { sides: [opposite ? otherSide(recorded.side) : recorded.side], branch: opposite ? `side.${limb}.recorded_opposite` : `side.${limb}.recorded`, recorded, relation, source: sourceOf(recorded, "recorded") };
   }
+  if (laterality === "bilateral") return { sides: BOTH, branch: `side.${limb}.structural`, recorded, relation, source: "structural" };
   const elsewhere = recordedFor(bout, limb === "arm" ? "leg" : "arm");
-  if (laterality === "not_applicable") return { sides: NONE, branch: `side.${limb}.not_applicable`, recorded: elsewhere, relation, source: "unknown" };
+  if (laterality === "not_applicable" && mapping) return { sides: NONE, branch: `side.${limb}.not_applicable`, recorded: elsewhere, relation, source: "unknown" };
   return { sides: NONE, branch: `side.${limb}.unknown`, recorded: elsewhere, relation, source: "unknown" };
 }
 
@@ -163,7 +171,6 @@ type BoutClass = {
   kind: "mapped" | "region_only" | "external_only" | "unrelated";
   variant: ExerciseVariant | null;
   effects: Map<NodeId, NodeEffect>;
-  hasReviewed: boolean;
   reading: NodeSideReading;
 };
 
@@ -281,20 +288,17 @@ function classifyBout(region: SpecializationRegionData, index: RegionIndex, bout
   const variant = mine ?? variantFor(bout.catalogExerciseId);
   const reading = nodeSideFor(region.region, variant, null, bout);
   const effects = new Map<NodeId, NodeEffect>();
-  let hasReviewed = false;
   let ownMapped = false;
   for (const mapping of mappings) {
     const effect = effects.get(mapping.nodeId) ?? { credited: [], strapped: [], pending: [] };
     effects.set(mapping.nodeId, effect);
-    const own = index.regionNodeIds.has(mapping.nodeId);
-    ownMapped ||= own;
+    ownMapped ||= index.regionNodeIds.has(mapping.nodeId);
     // A mapping is listed under its variant, so a bout with mappings has the region's variant.
     const entry: MappingEffect = { mapping, part: partOf(region, mapping, mine!), reading: nodeSideFor(region.region, mine!, mapping, bout) };
     if (mapping.reviewStatus !== "reviewed") {
       effect.pending.push(entry);
       continue;
     }
-    if (own) hasReviewed = true;
     // Grip that needs a bare hand is not earned by a strapped set; unknown straps keep it (noted).
     if (mapping.requiresNoStraps && bout.straps === "yes") {
       effect.strapped.push(entry);
@@ -302,12 +306,12 @@ function classifyBout(region: SpecializationRegionData, index: RegionIndex, bout
     }
     effect.credited.push(entry);
   }
-  if (ownMapped) return { kind: "mapped", variant, effects, hasReviewed, reading };
+  if (ownMapped) return { kind: "mapped", variant, effects, reading };
   // No own muscle is mapped: region work if the catalog tags it so, and then ONLY at region
   // level. It never fans out into credit for every node.
   const tagged = tagsOf(region, index, bout, catalogMusclesFor) === "in_scope";
-  if (tagged) return { kind: "region_only", variant, effects, hasReviewed: false, reading };
-  return { kind: effects.size ? "external_only" : "unrelated", variant, effects, hasReviewed: false, reading };
+  if (tagged) return { kind: "region_only", variant, effects, reading };
+  return { kind: effects.size ? "external_only" : "unrelated", variant, effects, reading };
 }
 
 function partOf(region: SpecializationRegionData, mapping: VariantMapping, variant: ExerciseVariant): Part {
@@ -337,25 +341,25 @@ const sideless = (effects: readonly MappingEffect[]) => effects.filter((effect) 
 
 /**
  * What one node shows for one bout on one side: work counted on that side; else work kept apart
- * with no side (unknown); else, with nothing credited here, the withheld (strapped) or pending
- * mappings that apply on that side or have none. Work counted only on the other side is nothing.
+ * with no side (unknown); else, with nothing credited here, the withheld (strapped) mappings, then
+ * the pending ones, that apply on that side, else those that have no side. Work counted only on
+ * the other side is nothing.
  */
 type NodeOnSide =
   | { kind: "counted" | "unknown"; effects: MappingEffect[] }
-  | { kind: "strapped"; effects: MappingEffect[] }
-  | { kind: "pending"; effects: MappingEffect[]; unknown: boolean };
+  | { kind: "strapped" | "pending"; effects: MappingEffect[]; unknown: boolean };
 
 function nodeOnSide(effect: NodeEffect, side: SummarySide): NodeOnSide | null {
   const counted = onSide(effect.credited, side);
   if (counted.length) return { kind: "counted", effects: counted };
   const unknown = sideless(effect.credited);
   if (unknown.length) return { kind: "unknown", effects: unknown };
-  const strapped = [...onSide(effect.strapped, side), ...sideless(effect.strapped)];
-  if (strapped.length) return { kind: "strapped", effects: effect.strapped.filter((item) => strapped.includes(item)) };
-  const pending = onSide(effect.pending, side);
-  if (pending.length) return { kind: "pending", effects: pending, unknown: false };
-  const pendingUnknown = sideless(effect.pending);
-  if (pendingUnknown.length) return { kind: "pending", effects: pendingUnknown, unknown: true };
+  for (const kind of ["strapped", "pending"] as const) {
+    const here = onSide(effect[kind], side);
+    if (here.length) return { kind, effects: here, unknown: false };
+    const apart = sideless(effect[kind]);
+    if (apart.length) return { kind, effects: apart, unknown: true };
+  }
   return null;
 }
 
@@ -528,19 +532,33 @@ function inWindow(bout: ExposureBout, request: Pick<SummaryRequest, "mode" | "in
   return bout.mode === "planned" && (request.interval.planWeek === null || bout.planWeek === request.interval.planWeek);
 }
 
-/**
- * Where a bout stands for the region's own totals on one side: `on` that side, `unknown` (no side
- * here, and on no side elsewhere), or `elsewhere` (only the other side's). For a mapped bout it is
- * read from its own members' mappings, so a bout reaches the region's unknown-side set only when no
- * own node counts it on this side; region-only and unrelated work is read with no mapping.
- */
-function ownStanding(found: BoutClass, index: RegionIndex, side: SummarySide): "on" | "unknown" | "elsewhere" {
-  if (found.kind !== "mapped") return found.reading.sides.includes(side) ? "on" : found.reading.sides.length ? "elsewhere" : "unknown";
-  const readings = Array.from(found.effects)
-    .filter(([nodeId]) => index.regionNodeIds.has(nodeId))
-    .flatMap(([, effect]) => [...effect.credited, ...effect.strapped, ...effect.pending].map((item) => item.reading));
+/** Where readings put a bout on one side: `on` it, `unknown` (no side here, and none of them on a side), or `elsewhere` (only the other side's). */
+type Standing = "on" | "unknown" | "elsewhere";
+
+function standingOf(readings: readonly NodeSideReading[], side: SummarySide): Standing {
   if (readings.some((reading) => reading.sides.includes(side))) return "on";
   return readings.some((reading) => !reading.sides.length) ? "unknown" : "elsewhere";
+}
+
+/**
+ * Where a bout stands for the region's own totals and completeness on one side, and whether
+ * reviewed work puts it there. Region-only and unrelated work is read with no mapping. A mapped
+ * bout is read from its own members' mappings in the order a node row reads them: credited, then
+ * strapped, then pending; the first kind that has the bout on this side or with no side decides.
+ * So a bout is `on` this side for completeness exactly when it is in the region's distinct bouts
+ * here, or none of its own work is credited here and withheld or pending work is on this side; it
+ * is `unknown` exactly when it is in the region's unknown-side set, or none of its own work is
+ * credited here and the rest has no side; and it is reviewed here only when credited or strapped
+ * work decides (10-multi-region.md §2.1, §4.2).
+ */
+function ownStanding(found: BoutClass, index: RegionIndex, side: SummarySide): { standing: Standing; reviewed: boolean } {
+  if (found.kind !== "mapped") return { standing: standingOf([found.reading], side), reviewed: false };
+  const own = Array.from(found.effects).filter(([nodeId]) => index.regionNodeIds.has(nodeId)).map(([, effect]) => effect);
+  for (const kind of ["credited", "strapped", "pending"] as const) {
+    const standing = standingOf(own.flatMap((effect) => effect[kind].map((item) => item.reading)), side);
+    if (standing !== "elsewhere") return { standing, reviewed: kind !== "pending" };
+  }
+  return { standing: "elsewhere", reviewed: false };
 }
 
 /** The request's side fits the region: `left` or `right` for a paired region, `midline` for a midline one. */
@@ -585,14 +603,13 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
   for (const bout of all) {
     if (!inWindow(bout, request)) continue;
     const found = classOf(bout);
-    const standing = ownStanding(found, index, side);
-    if (found.kind === "unrelated") {
-      if (!bout.excluded && !bout.warmup && standing !== "elsewhere") {
-        const listed = listedUnmappedOf(region, index, bout, request.catalogMusclesFor, found.reading, standing === "on" ? side : "unknown");
-        if (listed) listedUnmappedRows.push(listed);
-      }
-      continue;
+    const { standing, reviewed } = ownStanding(found, index, side);
+    // What is not counted here is shown (§8): a set that tags the region and is in none of its totals.
+    if ((found.kind === "unrelated" || found.kind === "external_only") && !bout.excluded && !bout.warmup && standing !== "elsewhere") {
+      const listed = listedUnmappedOf(region, index, bout, request.catalogMusclesFor, found, side, standing === "on" ? side : "unknown");
+      if (listed) listedUnmappedRows.push(listed);
     }
+    if (found.kind === "unrelated") continue;
     // Only own work makes a bout the region's: an external-only bout is credited on its rows and nowhere else.
     const regionWork = found.kind !== "external_only" && standing !== "elsewhere";
     if (bout.excluded === "not_completed") { if (regionWork) completeness.boutsExcluded.notCompleted += 1; continue; }
@@ -609,7 +626,7 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
         entry.bouts += 1;
         unclassified.set(key, entry);
         unclassifiedRows.push(regionRowOf(bout, found.reading, standing === "on" ? side : "unknown"));
-      } else if (found.hasReviewed) completeness.boutsWithReviewedMapping += 1;
+      } else if (reviewed) completeness.boutsWithReviewedMapping += 1;
       else completeness.boutsPendingReview += 1;
     }
 
@@ -625,7 +642,7 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
       const strappedHere = here.kind === "strapped" ? here.effects : [...onSide(effect.strapped, side), ...sideless(effect.strapped)];
       const notes = notesFor(bout, here.effects, strappedHere);
       if (here.kind === "strapped") {
-        node.notCounted!.push(contributionOf(bout, nodeId, here.effects, here.effects[0].reading.sides.includes(side) ? side : "unknown", notes, []));
+        node.notCounted!.push(contributionOf(bout, nodeId, here.effects, here.unknown ? "unknown" : side, notes, []));
         continue;
       }
       if (here.kind === "pending") {
@@ -687,15 +704,20 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
 }
 
 /**
- * A set that tags the region but is not counted here (10-multi-region.md §8): its exercise tags
- * the region as a secondary muscle where the region reads primary tags only, or is one of the
- * region's listed unmapped exercises. Null for any other set.
+ * A set that tags the region but is in none of its totals (10-multi-region.md §8): an unrelated or
+ * external-only set whose exercise tags the region as a secondary muscle where the region reads
+ * primary tags only, or is one of the region's listed unmapped exercises. An external-only set
+ * names the external members whose rows show it on this side (`creditedTo`): their home region
+ * credits it, this region does not count it. Null for any other set.
  */
-function listedUnmappedOf(region: SpecializationRegionData, index: RegionIndex, bout: ExposureBout, catalogMusclesFor: SummaryRequest["catalogMusclesFor"], reading: NodeSideReading, countedSide: CountedSide): ListedUnmappedRow | null {
+function listedUnmappedOf(region: SpecializationRegionData, index: RegionIndex, bout: ExposureBout, catalogMusclesFor: SummaryRequest["catalogMusclesFor"], found: BoutClass, side: SummarySide, countedSide: CountedSide): ListedUnmappedRow | null {
   const reason = bout.catalogExerciseId === null ? undefined : index.unmappedReasons.get(bout.catalogExerciseId);
   const secondary = tagsOf(region, index, bout, catalogMusclesFor) === "secondary";
   if (!secondary && reason === undefined) return null;
-  return { ...regionRowOf(bout, reading, countedSide), tag: secondary ? "secondary" : "listed", reason: reason ?? null };
+  const creditedTo = Array.from(found.effects)
+    .filter(([nodeId, effect]) => index.nodeById.has(nodeId) && !index.regionNodeIds.has(nodeId) && ["counted", "unknown"].includes(nodeOnSide(effect, side)?.kind ?? ""))
+    .map(([nodeId]) => nodeId);
+  return { ...regionRowOf(bout, found.reading, countedSide), tag: secondary ? "secondary" : "listed", reason: reason ?? null, creditedTo };
 }
 
 // ---------------------------------------------------------------- goals
@@ -761,7 +783,9 @@ export function nodeExposureIn(summary: SpecializationSummary, nodeId: NodeId): 
  * The branches of the rule (rules.ts `RuleBranch`) a region's data can reach, read from the data
  * alone: its side model, the variants and relations of the mappings that credit its nodes, the
  * version each node is credited by, the classes of bout its mappings allow, and its tag scope. A
- * test refuses production data that reaches a branch no published rule holds.
+ * bout no mapping speaks for, whatever its variant, reaches only the side branches every paired
+ * region lists (two-sided, recorded, unknown) or the midline. A test refuses production data that
+ * reaches a branch no published rule holds.
  */
 export function ruleBranchesOf(region: SpecializationRegionData): Set<RuleBranch> {
   const index = indexRegion(region);
@@ -781,10 +805,13 @@ export function ruleBranchesOf(region: SpecializationRegionData): Set<RuleBranch
     if (sides.model === "midline") continue;
     for (const mapping of mappings) {
       const relation = sideRelationOf(mapping);
-      const laterality = lateralityFor(variant, sides.limb);
-      if (relation === "both") branches.add(`side.${sides.limb}.relation_both`);
-      else if (laterality === "not_applicable") branches.add(`side.${sides.limb}.not_applicable`);
-      else if (relation === "opposite" && laterality !== "bilateral") branches.add(`side.${sides.limb}.recorded_opposite`);
+      if (relation === "both") {
+        branches.add(`side.${sides.limb}.relation_both`);
+        continue;
+      }
+      // A recorded side is read before the exercise's own two sides, so an opposite mapping reaches its branch on any variant.
+      if (relation === "opposite") branches.add(`side.${sides.limb}.recorded_opposite`);
+      if (lateralityFor(variant, sides.limb) === "not_applicable") branches.add(`side.${sides.limb}.not_applicable`);
     }
   }
   return branches;

@@ -7,7 +7,7 @@ import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { currentExposureRule } from "@shared/specialization/rules";
 import { calendarWeekInterval, customInterval, isDateKey, planWeekInterval, rolling7dInterval } from "@shared/specialization/time";
-import type { ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummaryInterval, SummaryMode, SummaryRequest, SummarySide } from "@shared/specialization/types";
+import type { ExerciseVariant, ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummaryInterval, SummaryMode, SummaryRequest, SummarySide } from "@shared/specialization/types";
 import { variantLibrary } from "@shared/specialization/variants";
 import { boutsFromSessions, excludedRecordsFromSessions } from "./bouts";
 import { boutsFromPlan } from "./planBouts";
@@ -88,6 +88,24 @@ export function catalogMusclesLookup(catalog: readonly Exercise[]): SummaryReque
     const exercise = (catalogExerciseId !== null ? found.byId.get(catalogExerciseId) : undefined) ?? found.byName.get(exerciseName);
     return exercise ? { primary: exercise.primaryMuscles, secondary: exercise.secondaryMuscles } : null;
   };
+}
+
+const planningLists = new WeakMap<readonly ExerciseVariant[], readonly ExerciseVariant[]>();
+/**
+ * The variants a region's page lays the plan out by: the region's own records, then the shared
+ * library's (`variantLibrary`) for every exercise the region has none of. Each exercise is read as
+ * the calculator reads it (the region's variant, else the library's), so the page's planned
+ * numbers and its add and swap preview are laid out alike, on every region that shares the
+ * library. One list per region, so lookups over it are built once.
+ */
+export function planningVariantsFor(region: Pick<SpecializationRegionData, "variants">): readonly ExerciseVariant[] {
+  let list = planningLists.get(region.variants);
+  if (!list) {
+    const own = new Set(region.variants.map((variant) => variant.catalogExerciseId));
+    list = [...region.variants, ...variantLibrary.filter((variant) => !own.has(variant.catalogExerciseId))];
+    planningLists.set(region.variants, list);
+  }
+  return list;
 }
 
 /** The window the page's controls describe. Planned mode always reads a plan week. */
@@ -192,10 +210,8 @@ export function useSpecializationSummary(input: UseSpecializationSummaryInput): 
   const sessions = useDeviceWorkoutSessions();
   const catalog = input.catalog ?? exerciseCatalog;
   const fallbackUnit = input.fallbackUnit ?? "lb";
-  // The plan is laid out by the shared library, as the tracker lays it out, so every region's page
-  // reads the same planned bouts; a region's own variants come first, for a test region's records.
-  const regionVariants = input.region.variants;
-  const variants = useMemo(() => [...regionVariants, ...variantLibrary], [regionVariants]);
+  // The plan is laid out as the calculator reads each exercise: the region's variant, else the shared library's.
+  const variants = planningVariantsFor(input.region);
   const source = useMemo(() => sourceRevision(sessions), [sessions]);
   const completedBouts = useMemo(
     () => {

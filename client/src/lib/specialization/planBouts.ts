@@ -26,8 +26,9 @@ export type PlanBoutInput = {
   /** That week's saved days. */
   store: WeeklyDayStore;
   /**
-   * Atlas variants, for each exercise's sides, measure and default straps: the shared library
-   * (`variantLibrary`) on the page, so a plan is laid out the same on every region's page.
+   * Atlas variants, for each exercise's sides, measure and default straps: on a region's page the
+   * region's own and then the shared library's (`planningVariantsFor`), so a plan is laid out the
+   * same on every region's page.
    */
   variants: readonly ExerciseVariant[];
   /**

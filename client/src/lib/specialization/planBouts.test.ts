@@ -6,8 +6,11 @@ import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { forearmMuscleIds } from "@shared/specialization/regions/forearm/ids";
 import { planWeekInterval } from "@shared/specialization/time";
+import { variantLibrary } from "@shared/specialization/variants";
+import { variantLookup } from "./bouts";
 import { boutsFromPlan, holdDefaultPrescription, plannedTarget, prescriptionOf } from "./planBouts";
-import { catalogMusclesLookup } from "./useSpecializationSummary";
+import { catalogMusclesLookup, planningVariantsFor } from "./useSpecializationSummary";
+import { fxThigh } from "./__fixtures__/multiRegion";
 
 /**
  * One reading of a bare target for the set card and the plan, by the exercise's measure (R1). The
@@ -113,5 +116,23 @@ describe("a hold never gets a rep default", () => {
       expect(summary.regionDistinctBouts, side).toBe(3);
       expect(summary.regionBoutRows!.every((row) => row.boutId.endsWith(`#${side}`) && row.countedSide === side), side).toBe(true);
     }
+  });
+});
+
+describe("the variants a region's page lays the plan out by (planningVariantsFor)", () => {
+  it("are the region's own, then the shared library's for every exercise the region has none of, one list per region", () => {
+    const list = planningVariantsFor(fxThigh);
+    // The thigh's single-leg RDL is its own record, one leg at a time; the library's (the forearm's, either arm) would win a lookup over both, as a default id.
+    expect(variantLookup(list)(188)?.id).toBe("fx-188");
+    expect(variantLookup([...fxThigh.variants, ...variantLibrary])(188)?.id).toBe("cat-188");
+    expect(variantLookup(list)(410)?.id).toBe("cat-410");
+    expect(planningVariantsFor(fxThigh)).toBe(list);
+    // The forearm's own are the library's 119 through wave 0: its plan is laid out as it shipped.
+    expect(planningVariantsFor(forearmRegionData).map((variant) => variant.id)).toEqual(forearmRegionData.variants.map((variant) => variant.id));
+  });
+
+  it("so the thigh's page plans a single-leg RDL once per leg, as the tracker lays it out", () => {
+    const bouts = boutsFromPlan({ week: 1, slots, store: day([{ id: 188, prescription: "3 × 10" }]), variants: planningVariantsFor(fxThigh) });
+    expect(bouts.map((bout) => [bout.legSide?.side, bout.armSide])).toEqual([1, 2, 3].flatMap(() => [["right", null], ["left", null]]));
   });
 });
