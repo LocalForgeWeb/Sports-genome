@@ -1,16 +1,17 @@
 /* The atlas's two questions on the live set card (components/DeviceWorkoutTracker.tsx,
    docs/specialization-atlas/07-logger.md). Each appears only on an exercise where it matters.
 
-   Arm: a segmented control in the set-type control's style, clearly visible at rest - a bordered
-   group, every segment outlined, the chosen one filled and marked. Four columns at every width:
-   the label and three 44 px segments fit 320 px with the card's padding.
+   Arm (or the leg a one-leg exercise names, "Standing leg"): a segmented control in the set-type
+   control's style, clearly visible at rest - a bordered group, every segment outlined, the chosen
+   one filled and marked. Four columns at every width: each segment keeps at least 44 px, and a
+   long leg label wraps onto two lines at 320 px rather than squeezing them.
 
    Straps: quieter, because it is asked once per exercise rather than every set - two outlined
    pills after a small label, wrapping under it when the text is large. Still visible at rest:
    no hover-only state, no faint control. */
 .live-set-side {
   display: grid;
-  grid-template-columns: auto repeat(3, minmax(0, 1fr));
+  grid-template-columns: auto repeat(3, minmax(2.75rem, 1fr));
   align-items: center;
   gap: .35rem;
   margin-top: .85rem;

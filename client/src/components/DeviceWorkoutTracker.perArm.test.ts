@@ -14,7 +14,8 @@ import { catalogMusclesLookup } from "@/lib/specialization/useSpecializationSumm
 import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { calendarWeekInterval, planWeekInterval } from "@shared/specialization/time";
-import type { ArmSide, ExposureBout, SpecializationSummary } from "@shared/specialization/types";
+import type { ArmSide, ExposureBout, SpecializationGoal, SpecializationSummary } from "@shared/specialization/types";
+import { loggerGatesFor, loggerGatesForRegions } from "@/lib/specialization/loggerGates";
 
 vi.mock("sonner", () => {
   const record = () => undefined;
@@ -27,10 +28,11 @@ import { DeviceWorkoutTracker } from "./DeviceWorkoutTracker";
 
 /**
  * A planned one-arm set is per arm (02-design.md §3 "each side", planBouts): "3 × 12" on a one-arm
- * wrist curl is three sets for each arm. For an athlete with a specialization target (`perArmSets`,
- * which Home passes with `askStraps`), the tracker builds the same plan as two rows per planned set,
- * Right then Left, so the workout logged as built gives each arm what the plan counts for it. These
- * run on the real forearm data: no variant is injected.
+ * wrist curl is three sets for each arm. For an athlete with a target in a region that maps the
+ * exercise (the gates Home builds, lib/specialization/loggerGates.ts: here a forearm target), the
+ * tracker builds the same plan as two rows per planned set, Right then Left, so the workout logged
+ * as built gives each arm what the plan counts for it. These run on the real forearm data: no
+ * variant is injected.
  */
 const byId = (id: number) => exercises.find((exercise) => exercise.id === id)!;
 const oneArmCurl = byId(410); // One-Arm Dumbbell Wrist Curl: unilateral
@@ -48,9 +50,9 @@ const arm = () => within(card()).getByRole("group", { name: /^Arm for set/ });
 const pressedArm = () => within(arm()).getAllByRole("button").filter((button) => button.getAttribute("aria-pressed") === "true").map((button) => button.textContent);
 const sides = () => stored()[0].exercises[0].sets.map((set) => set.side);
 
-function mount(workout: Exercise[], options: { prescription?: string; perArmSets?: boolean; goal?: TrainingGoal; prescriptions?: Record<number, string> } = {}) {
+function mount(workout: Exercise[], options: { prescription?: string; forearmTarget?: boolean; goal?: TrainingGoal; prescriptions?: Record<number, string> } = {}) {
   const prescriptions = options.prescriptions ?? Object.fromEntries(workout.map((exercise) => [exercise.id, options.prescription ?? "3 × 12"]));
-  render(createElement(DeviceWorkoutTracker, { workout, prescriptions, settings: {}, goal: options.goal ?? "Athleticism", dayLabel: DAY, weightUnit: "lb", perArmSets: options.perArmSets }));
+  render(createElement(DeviceWorkoutTracker, { workout, prescriptions, settings: {}, goal: options.goal ?? "Athleticism", dayLabel: DAY, weightUnit: "lb", loggerGates: options.forearmTarget ? loggerGatesForRegions(["forearm"]) : undefined }));
 }
 const startWorkout = () => fireEvent.click(screen.getByRole("button", { name: /start workout/i }));
 
@@ -59,7 +61,7 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe("A planned one-arm set, for an athlete with a target", () => {
   it("builds two rows per planned set, Right then Left, and every count reads the rows", () => {
-    mount([oneArmCurl], { perArmSets: true });
+    mount([oneArmCurl], { forearmTarget: true });
     expect(document.querySelector(".session-prestart-counts")!.textContent).toBe("1 exercise · 6 sets");
     expect(document.querySelector(".session-prestart-name small")!.textContent).toBe("3 × 12 · each arm");
     startWorkout();
@@ -74,7 +76,7 @@ describe("A planned one-arm set, for an athlete with a target", () => {
   });
 
   it("logs each row with its arm, and the logged week equals the planned week arm for arm", () => {
-    mount([oneArmCurl], { perArmSets: true });
+    mount([oneArmCurl], { forearmTarget: true });
     startWorkout();
     type(/^Weight/, "25");
     type("Reps", "12");
@@ -114,7 +116,7 @@ describe("A planned one-arm set, for an athlete with a target", () => {
   });
 
   it("re-alternates the rows still to do when the athlete starts on the other arm", () => {
-    mount([oneArmCurl], { perArmSets: true });
+    mount([oneArmCurl], { forearmTarget: true });
     startWorkout();
     fireEvent.click(within(arm()).getByRole("button", { name: "Left" }));
     expect(sides()).toEqual(["left", "right", "left", "right", "left", "right"]);
@@ -128,7 +130,7 @@ describe("A planned one-arm set, for an athlete with a target", () => {
   });
 
   it("names each row's arm in the full workout list before it is logged", () => {
-    mount([oneArmCurl], { perArmSets: true });
+    mount([oneArmCurl], { forearmTarget: true });
     startWorkout();
     fireEvent.click(screen.getByText("Full workout"));
     const headers = Array.from(document.querySelectorAll(".session-set-row > strong")).map((node) => node.textContent);
@@ -137,7 +139,7 @@ describe("A planned one-arm set, for an athlete with a target", () => {
   });
 
   it("reads a per-set prescription once per arm: 10, 10, 8, 8, 6, 6", () => {
-    mount([oneArmCurl], { perArmSets: true, prescription: "3 × 10/8/6" });
+    mount([oneArmCurl], { forearmTarget: true, prescription: "3 × 10/8/6" });
     startWorkout();
     const targets: string[] = [];
     type(/^Weight/, "25");
@@ -150,7 +152,7 @@ describe("A planned one-arm set, for an athlete with a target", () => {
   });
 
   it("splits a one-arm hold the same way", () => {
-    mount([platePinch], { perArmSets: true, prescription: "2 × 30" });
+    mount([platePinch], { forearmTarget: true, prescription: "2 × 30" });
     expect(document.querySelector(".session-prestart-counts")!.textContent).toBe("1 exercise · 4 sets");
     startWorkout();
     expect(sides()).toEqual(["right", "left", "right", "left"]);
@@ -158,11 +160,18 @@ describe("A planned one-arm set, for an athlete with a target", () => {
 });
 
 describe("The gate", () => {
-  it("is the one Home asks straps with: an athlete with an active specialization target", () => {
+  it("is the gates Home builds from the athlete's goals and passes to the tracker", () => {
     const home = readFileSync(resolve(process.cwd(), "client/src/pages/Home.tsx"), "utf8");
     const tracker = home.split("\n").find((line) => line.includes("<DeviceWorkoutTracker "))!;
-    expect(tracker).toContain("askStraps={askStraps} perArmSets={askStraps}");
-    expect(home).toMatch(/const askStraps = useMemo\(\(\) => \{[^\n]*specializationGoals\.some\(\(item\) => isGoalActiveAt\(item, now\)\)/);
+    expect(tracker).toContain("loggerGates={loggerGates}");
+    expect(home).toContain("const loggerGates = useMemo(() => loggerGatesFor(specializationGoals), [specializationGoals]);");
+  });
+
+  it("splits the one-arm curl for an athlete with an active forearm target, read from the goals", () => {
+    const goal: SpecializationGoal = { id: "g1", regionId: "forearm", nodeId: "forearm.fcr", actionId: null, side: "right", metric: "direct_dynamic_bouts", target: 6, period: "calendar_week", startsOn: "2026-10-01", endsOn: null, timezone: "UTC", createdAt: "2026-10-01T00:00:00.000Z", updatedAt: "2026-10-01T00:00:00.000Z" };
+    render(createElement(DeviceWorkoutTracker, { workout: [oneArmCurl], prescriptions: { [oneArmCurl.id]: "3 × 12" }, settings: {}, goal: "Athleticism", dayLabel: DAY, weightUnit: "lb", loggerGates: loggerGatesFor([goal], "2026-10-20T12:00:00.000Z") }));
+    startWorkout();
+    expect(sides()).toEqual(["right", "left", "right", "left", "right", "left"]);
   });
 });
 
@@ -181,7 +190,7 @@ describe("Everyone else, and every exercise that is not one-arm, is built as bef
   });
 
   it("never splits a two-handed or an either-arm exercise, even with the gate", () => {
-    mount([hammerCurl, machinePreacher, deadHang], { perArmSets: true });
+    mount([hammerCurl, machinePreacher, deadHang], { forearmTarget: true });
     expect(document.querySelector(".session-prestart-counts")!.textContent).toBe("3 exercises · 9 sets");
     startWorkout();
     for (const exercise of stored()[0].exercises) {

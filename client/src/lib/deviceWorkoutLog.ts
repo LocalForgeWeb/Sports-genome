@@ -1,5 +1,6 @@
 import { displayWeightToKilograms, kilogramsToDisplayWeight, type DisplayWeightUnit } from "./weightUnits";
 import { isSetEffort, type SetEffort } from "@shared/setEffort";
+import type { Limb } from "@shared/specialization/types";
 
 export type DeviceSetLog = {
   weight: string;
@@ -66,9 +67,11 @@ export type DeviceSetLog = {
   warmup?: boolean;
 };
 
-/** Which arm a set was done with. */
+/** Which arm (`side`) or which leg (`legSide`) a set was done with. */
 export type SetSide = "left" | "right" | "both";
 const isSetSide = (value: unknown): value is SetSide => value === "left" || value === "right" || value === "both";
+/** Where a set stores the side of a limb: the arm's in `side`, the leg's in `legSide`. */
+export const sideFieldOf = (limb: Limb): "side" | "legSide" => (limb === "leg" ? "legSide" : "side");
 /** Whether straps were used on an exercise in a workout: recorded only when the athlete said. */
 export type StrapsUsed = "yes" | "no";
 const isStrapsUsed = (value: unknown): value is StrapsUsed => value === "yes" || value === "no";
@@ -100,10 +103,12 @@ export type DeviceWorkoutExercise = {
   plannedPrescription: string;
   sets: DeviceSetLog[];
   /**
-   * The rows were built per arm: a one-arm exercise planned for an athlete with a specialization
-   * target, where "3 × 12" is three sets for each arm, so each planned set is two rows, Right then
-   * Left (components/DeviceWorkoutTracker.tsx `perArmSets`). Row `n` follows planned set
-   * `floor(n / 2)`. Absent on every other exercise, and on workouts from before it existed.
+   * The rows were built per side: an exercise done one arm (or one leg) at a time, planned for an
+   * athlete with a specialization target in a region that maps it, where "3 × 12" is three sets
+   * for each side, so each planned set is two rows, Right then Left, each with its side on that
+   * limb (components/DeviceWorkoutTracker.tsx, `perSideRows` in lib/specialization/loggerGates.ts).
+   * Row `n` follows planned set `floor(n / 2)`. Absent on every other exercise, and on workouts
+   * from before it existed. The name is the one stored since 17 Oct, when only arms were split.
    */
   perArm?: boolean;
   /** This exercise took over the rest of another one's work mid-workout. */
@@ -121,8 +126,9 @@ export type DeviceWorkoutExercise = {
   skippedSets?: number;
   /**
    * Straps on this exercise in this workout, when the athlete said (02-design.md §6). Asked only
-   * where a grip mapping is not earned by a strapped set, and only once the athlete has a forearm
-   * goal. Absent is "not recorded", which is not the same as "no".
+   * where a grip mapping is not earned by a strapped set, and only of an athlete with an active
+   * target in a region that has such a mapping of it (lib/specialization/loggerGates.ts). Absent
+   * is "not recorded", which is not the same as "no".
    */
   straps?: StrapsUsed;
 };
@@ -183,18 +189,30 @@ export type DeviceWorkoutSession = {
 
 const isWeightUnit = (value: unknown): value is DisplayWeightUnit => value === "lb" || value === "kg";
 
+/** The set fields this code reads and validates; `normalizeSet` keeps every other field as stored. */
+const knownSetFields: ReadonlySet<string> = new Set(["weight", "reps", "unit", "height", "completed", "skipped", "id", "type", "stages", "effort", "side", "legSide", "holdSeconds", "warmup"]);
+
 /**
  * Keeps a set's unit only when it is one the app knows, and a drop set's stages only when they
  * are stages: anything else stored there is dropped rather than read as load. The atlas's set
- * fields are kept the same way: a side only when it is one of the three, hold seconds only when
- * they are a whole number, and a warm-up mark only when it is `true`.
+ * fields are kept the same way: a side (the arm's in `side`, the leg's in `legSide`) only when it
+ * is one of the three, hold seconds only when they are a whole number, and a warm-up mark only
+ * when it is `true`.
+ *
+ * A field this code does not know is kept exactly as stored (10-multi-region.md §2.1). Every save
+ * rewrites the whole history through here, so a field a later release adds to a set survives a
+ * save by this one; before 20 Oct such fields were dropped on the next save.
  */
 function normalizeSet(set: DeviceSetLog): DeviceSetLog {
   const normalized: DeviceSetLog = { weight: String(set.weight || ""), reps: String(set.reps || ""), height: String(set.height || ""), completed: Boolean(set.completed), skipped: Boolean(set.skipped) };
+  for (const [field, value] of Object.entries(set)) {
+    if (!knownSetFields.has(field)) (normalized as Record<string, unknown>)[field] = value;
+  }
   if (isWeightUnit(set.unit)) normalized.unit = set.unit;
   if (typeof set.id === "string" && set.id) normalized.id = set.id;
   if (isSetEffort(set.effort)) normalized.effort = set.effort;
   if (isSetSide(set.side)) normalized.side = set.side;
+  if (isSetSide(set.legSide)) normalized.legSide = set.legSide;
   const seconds = holdSecondsText(set.holdSeconds);
   if (seconds) normalized.holdSeconds = seconds;
   if (set.warmup === true) normalized.warmup = true;

@@ -4,8 +4,9 @@ import { countPlannedSets, type DeviceSetLog, type DeviceWorkoutExercise, type D
 import { addAfter, addSets, applySwap, perArmRowSides, swapMeasurementNotes, swapSets, undoSwap } from "./workoutSwap";
 
 /**
- * Swap and add mid-workout with sets laid out per arm (the tracker's `perArmSets` gate, for an
- * athlete tracking per-arm totals). A planned one-arm "3 × 12" is six rows, Right then Left; a
+ * Swap and add mid-workout with sets laid out per arm (the per-side rows gate,
+ * lib/specialization/loggerGates.ts, for an athlete tracking per-arm totals). A planned one-arm
+ * "3 × 12" is six rows, Right then Left; a
  * swap counts the plan in planned sets, so whichever exercise does the work, the plan's work is
  * the same: three two-handed sets, or six one-arm rows with their arms.
  */
