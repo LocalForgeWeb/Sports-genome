@@ -488,27 +488,26 @@
       "build": "production",
       "viewport": "320x568",
       "rows": 2,
-      "wholeDateShown": true,
       "fields": [
         {
           "label": "From",
           "input": [
-            246,
+            244,
             44
           ],
           "fontSize": "16px",
-          "contentWidth": 232,
+          "contentWidth": 230,
           "dateTextWidth": 80.6,
           "top": 310
         },
         {
           "label": "To",
           "input": [
-            246,
+            244,
             44
           ],
           "fontSize": "16px",
-          "contentWidth": 232,
+          "contentWidth": 230,
           "dateTextWidth": 86.3,
           "top": 360
         }
@@ -521,27 +520,26 @@
       "build": "production",
       "viewport": "375x667",
       "rows": 1,
-      "wholeDateShown": true,
       "fields": [
         {
           "label": "From",
           "input": [
-            130.4,
+            136.8,
             44
           ],
           "fontSize": "16px",
-          "contentWidth": 116,
+          "contentWidth": 123,
           "dateTextWidth": 80.6,
           "top": 262
         },
         {
           "label": "To",
           "input": [
-            147.2,
+            136.8,
             44
           ],
           "fontSize": "16px",
-          "contentWidth": 133,
+          "contentWidth": 123,
           "dateTextWidth": 86.3,
           "top": 262
         }
@@ -554,27 +552,26 @@
       "build": "production",
       "viewport": "390x844",
       "rows": 1,
-      "wholeDateShown": true,
       "fields": [
         {
           "label": "From",
           "input": [
-            137.2,
+            143.6,
             44
           ],
           "fontSize": "16px",
-          "contentWidth": 123,
+          "contentWidth": 130,
           "dateTextWidth": 80.6,
           "top": 267
         },
         {
           "label": "To",
           "input": [
-            154,
+            143.6,
             44
           ],
           "fontSize": "16px",
-          "contentWidth": 140,
+          "contentWidth": 130,
           "dateTextWidth": 86.3,
           "top": 267
         }
@@ -587,27 +584,26 @@
       "build": "production",
       "viewport": "430x932",
       "rows": 1,
-      "wholeDateShown": true,
       "fields": [
         {
           "label": "From",
           "input": [
-            155.4,
+            161.8,
             44
           ],
           "fontSize": "16px",
-          "contentWidth": 141,
+          "contentWidth": 148,
           "dateTextWidth": 80.6,
           "top": 270
         },
         {
           "label": "To",
           "input": [
-            172.2,
+            161.8,
             44
           ],
           "fontSize": "16px",
-          "contentWidth": 158,
+          "contentWidth": 148,
           "dateTextWidth": 86.3,
           "top": 270
         }

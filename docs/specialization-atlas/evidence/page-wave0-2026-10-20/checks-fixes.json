@@ -1,0 +1,557 @@
+{
+ "note": "Headless Chromium emulating an iPhone (viewport, isMobile, hasTouch, deviceScaleFactor 3, en-US); not an iPhone, not Safari. Production build, device stores seeded (Hammer Curl x3, One-Arm Dumbbell Wrist Curl logged Both, Left and with no arm, Dumbbell Row one per arm on Monday; Wrist Curl x3 on Tuesday; targets saved earlier on the biceps and the anconeus, right arm). Run on 2026-10-20, UTC. Coordinates are CSS px from the top of the screen.",
+ "scenes": [
+  {
+   "scene": "inline-dates",
+   "viewport": "320x568",
+   "rows": 2,
+   "fields": [
+    {
+     "label": "From",
+     "input": [
+      244,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 230,
+     "datePx": 91.7,
+     "top": 310
+    },
+    {
+     "label": "To",
+     "input": [
+      244,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 230,
+     "datePx": 86.3,
+     "top": 360
+    }
+   ],
+   "datesHeight": 94,
+   "horizontalOverflowPx": 0,
+   "file": "fix-dates-320.png"
+  },
+  {
+   "scene": "inline-dates",
+   "viewport": "360x780",
+   "rows": 2,
+   "fields": [
+    {
+     "label": "From",
+     "input": [
+      283.6,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 270,
+     "datePx": 91.7,
+     "top": 320
+    },
+    {
+     "label": "To",
+     "input": [
+      283.6,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 270,
+     "datePx": 86.3,
+     "top": 370
+    }
+   ],
+   "datesHeight": 94,
+   "horizontalOverflowPx": 0,
+   "file": "fix-dates-360.png"
+  },
+  {
+   "scene": "inline-dates",
+   "viewport": "368x780",
+   "rows": 2,
+   "fields": [
+    {
+     "label": "From",
+     "input": [
+      290.9,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 277,
+     "datePx": 91.7,
+     "top": 320
+    },
+    {
+     "label": "To",
+     "input": [
+      290.9,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 277,
+     "datePx": 86.3,
+     "top": 370
+    }
+   ],
+   "datesHeight": 94,
+   "horizontalOverflowPx": 0
+  },
+  {
+   "scene": "inline-dates",
+   "viewport": "372x780",
+   "rows": 2,
+   "fields": [
+    {
+     "label": "From",
+     "input": [
+      294.5,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 281,
+     "datePx": 91.7,
+     "top": 266
+    },
+    {
+     "label": "To",
+     "input": [
+      294.5,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 281,
+     "datePx": 86.3,
+     "top": 316
+    }
+   ],
+   "datesHeight": 94,
+   "horizontalOverflowPx": 0
+  },
+  {
+   "scene": "inline-dates",
+   "viewport": "375x667",
+   "rows": 1,
+   "fields": [
+    {
+     "label": "From",
+     "input": [
+      136.8,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 123,
+     "datePx": 91.7,
+     "top": 262
+    },
+    {
+     "label": "To",
+     "input": [
+      136.8,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 123,
+     "datePx": 86.3,
+     "top": 262
+    }
+   ],
+   "datesHeight": 44,
+   "horizontalOverflowPx": 0,
+   "file": "fix-dates-375.png"
+  },
+  {
+   "scene": "inline-dates",
+   "viewport": "390x844",
+   "rows": 1,
+   "fields": [
+    {
+     "label": "From",
+     "input": [
+      143.6,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 130,
+     "datePx": 91.7,
+     "top": 267
+    },
+    {
+     "label": "To",
+     "input": [
+      143.6,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 130,
+     "datePx": 86.3,
+     "top": 267
+    }
+   ],
+   "datesHeight": 44,
+   "horizontalOverflowPx": 0,
+   "file": "fix-dates-390.png"
+  },
+  {
+   "scene": "inline-dates",
+   "viewport": "430x932",
+   "rows": 1,
+   "fields": [
+    {
+     "label": "From",
+     "input": [
+      161.8,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 148,
+     "datePx": 91.7,
+     "top": 270
+    },
+    {
+     "label": "To",
+     "input": [
+      161.8,
+      44
+     ],
+     "fontSize": "16px",
+     "contentPx": 148,
+     "datePx": 86.3,
+     "top": 270
+    }
+   ],
+   "datesHeight": 44,
+   "horizontalOverflowPx": 0
+  },
+  {
+   "scene": "first-screen",
+   "state": "Back, Custom dates and a target",
+   "viewport": "375x667",
+   "dockTop": 597,
+   "stripBottom": 612,
+   "drawingOnFirstScreenPx": -19,
+   "stripWhole": false,
+   "horizontalOverflowPx": 0
+  },
+  {
+   "scene": "first-screen",
+   "state": "Back, Custom dates and a target",
+   "viewport": "390x844",
+   "dockTop": 774,
+   "stripBottom": 628,
+   "drawingOnFirstScreenPx": 140,
+   "stripWhole": true,
+   "horizontalOverflowPx": 0
+  },
+  {
+   "scene": "first-screen",
+   "state": "Back, Custom dates and a target",
+   "viewport": "430x932",
+   "dockTop": 862,
+   "stripBottom": 628,
+   "drawingOnFirstScreenPx": 228,
+   "stripWhole": true,
+   "horizontalOverflowPx": 0
+  },
+  {
+   "scene": "first-screen",
+   "state": "Back, Custom dates and a target",
+   "viewport": "360x780",
+   "dockTop": 710,
+   "stripBottom": 786,
+   "drawingOnFirstScreenPx": -82,
+   "stripWhole": false,
+   "horizontalOverflowPx": 0
+  },
+  {
+   "scene": "read-only-target-undo",
+   "where": "muscle sheet",
+   "muscle": "Biceps brachii",
+   "action": "Remove",
+   "viewport": "390x844",
+   "before": [
+    "forearm.anconeus:right:open",
+    "upper_arm.biceps:right:open"
+   ],
+   "afterAction": {
+    "stored": [
+     "forearm.anconeus:right:open"
+    ],
+    "message": "Right-arm target for Biceps brachii removed.",
+    "undo": {
+     "width": 70.1,
+     "height": 44,
+     "top": 400.4
+    },
+    "focus": {
+     "tag": "BUTTON",
+     "text": "Undo"
+    },
+    "alerts": []
+   },
+   "afterUndo": {
+    "stored": [
+     "forearm.anconeus:right:open",
+     "upper_arm.biceps:right:open"
+    ],
+    "message": "Target restored.",
+    "focus": {
+     "tag": "P",
+     "text": "Target restored."
+    },
+    "alerts": []
+   },
+   "restored": true,
+   "horizontalOverflowPx": 0,
+   "files": [
+    "fix-undo-biceps-remove-390.png",
+    "fix-undo-biceps-remove-390-undone.png"
+   ]
+  },
+  {
+   "scene": "read-only-target-undo",
+   "where": "muscle sheet",
+   "muscle": "Anconeus",
+   "action": "End",
+   "viewport": "390x844",
+   "before": [
+    "forearm.anconeus:right:open",
+    "upper_arm.biceps:right:open"
+   ],
+   "afterAction": {
+    "stored": [
+     "forearm.anconeus:right:2026-10-19",
+     "upper_arm.biceps:right:open"
+    ],
+    "message": "Right-arm target for Anconeus ended. It stops counting from today and is listed under Ended targets.",
+    "undo": {
+     "width": 70.1,
+     "height": 44,
+     "top": 452.9
+    },
+    "focus": {
+     "tag": "BUTTON",
+     "text": "Undo"
+    },
+    "alerts": []
+   },
+   "afterUndo": {
+    "stored": [
+     "forearm.anconeus:right:open",
+     "upper_arm.biceps:right:open"
+    ],
+    "message": "Target restored.",
+    "focus": {
+     "tag": "P",
+     "text": "Target restored."
+    },
+    "alerts": []
+   },
+   "restored": true,
+   "horizontalOverflowPx": 0,
+   "files": [
+    "fix-undo-anconeus-end-390.png",
+    "fix-undo-anconeus-end-390-undone.png"
+   ]
+  },
+  {
+   "scene": "read-only-target-undo",
+   "where": "muscle sheet",
+   "muscle": "Biceps brachii",
+   "action": "Remove",
+   "viewport": "375x667",
+   "before": [
+    "forearm.anconeus:right:open",
+    "upper_arm.biceps:right:open"
+   ],
+   "afterAction": {
+    "stored": [
+     "forearm.anconeus:right:open"
+    ],
+    "message": "Right-arm target for Biceps brachii removed.",
+    "undo": {
+     "width": 70.1,
+     "height": 44,
+     "top": 306.8
+    },
+    "focus": {
+     "tag": "BUTTON",
+     "text": "Undo"
+    },
+    "alerts": []
+   },
+   "afterUndo": {
+    "stored": [
+     "forearm.anconeus:right:open",
+     "upper_arm.biceps:right:open"
+    ],
+    "message": "Target restored.",
+    "focus": {
+     "tag": "P",
+     "text": "Target restored."
+    },
+    "alerts": []
+   },
+   "restored": true,
+   "horizontalOverflowPx": 0,
+   "files": []
+  },
+  {
+   "scene": "read-only-target-undo",
+   "where": "muscle sheet",
+   "muscle": "Anconeus",
+   "action": "End",
+   "viewport": "375x667",
+   "before": [
+    "forearm.anconeus:right:open",
+    "upper_arm.biceps:right:open"
+   ],
+   "afterAction": {
+    "stored": [
+     "forearm.anconeus:right:2026-10-19",
+     "upper_arm.biceps:right:open"
+    ],
+    "message": "Right-arm target for Anconeus ended. It stops counting from today and is listed under Ended targets.",
+    "undo": {
+     "width": 70.1,
+     "height": 44,
+     "top": 359.3
+    },
+    "focus": {
+     "tag": "BUTTON",
+     "text": "Undo"
+    },
+    "alerts": []
+   },
+   "afterUndo": {
+    "stored": [
+     "forearm.anconeus:right:open",
+     "upper_arm.biceps:right:open"
+    ],
+    "message": "Target restored.",
+    "focus": {
+     "tag": "P",
+     "text": "Target restored."
+    },
+    "alerts": []
+   },
+   "restored": true,
+   "horizontalOverflowPx": 0,
+   "files": []
+  },
+  {
+   "scene": "read-only-target-undo",
+   "where": "Targets overview",
+   "muscle": "Biceps brachii",
+   "action": "End",
+   "viewport": "390x844",
+   "before": [
+    "forearm.anconeus:right:open",
+    "upper_arm.biceps:right:open"
+   ],
+   "afterEnd": {
+    "stored": [
+     "forearm.anconeus:right:open",
+     "upper_arm.biceps:right:2026-10-19"
+    ],
+    "undo": {
+     "width": 70.1,
+     "height": 44,
+     "top": 292.1
+    },
+    "focus": {
+     "tag": "BUTTON",
+     "text": "Undo"
+    },
+    "alerts": []
+   },
+   "afterUndo": {
+    "stored": [
+     "forearm.anconeus:right:open",
+     "upper_arm.biceps:right:open"
+    ],
+    "alerts": []
+   },
+   "restored": true
+  },
+  {
+   "scene": "failed-load-reload",
+   "viewport": "390x844",
+   "chunk": "index-BuK5zPju.js",
+   "failed": {
+    "text": "The page for the forearms could not be loaded. Reloading usually fixes this. Reload",
+    "reload": {
+     "width": 80.8,
+     "height": 44,
+     "top": 229.6
+    },
+    "back": "Muscles",
+    "requests": 1
+   },
+   "reloaded": {
+    "rows": 22,
+    "requests": 2,
+    "address": "?workspace=specialization&region=forearm",
+    "back": "Muscles",
+    "heading": "Forearm specialization"
+   },
+   "horizontalOverflowPx": 0,
+   "file": "fix-reload-390.png"
+  },
+  {
+   "scene": "failed-load-reload",
+   "viewport": "375x667",
+   "chunk": "index-BuK5zPju.js",
+   "failed": {
+    "text": "The page for the forearms could not be loaded. Reloading usually fixes this. Reload",
+    "reload": {
+     "width": 80.8,
+     "height": 44,
+     "top": 229.6
+    },
+    "back": "Muscles",
+    "requests": 1
+   },
+   "reloaded": {
+    "rows": 22,
+    "requests": 2,
+    "address": "?workspace=specialization&region=forearm",
+    "back": "Muscles",
+    "heading": "Forearm specialization"
+   },
+   "horizontalOverflowPx": 0
+  },
+  {
+   "scene": "ledger-side-labels",
+   "viewport": "390x844",
+   "muscle": "Flexor carpi radialis",
+   "side": "left",
+   "rowLines": [
+    "Week 1 · Day 04 · Upper · Tue, Oct 20 · Both arms",
+    "Week 1 · Day 04 · Upper · Tue, Oct 20 · Both arms",
+    "Week 1 · Day 04 · Upper · Tue, Oct 20 · Both arms",
+    "Week 1 · Day 02 · Pull · Mon, Oct 19 · Both arms",
+    "Week 1 · Day 02 · Pull · Mon, Oct 19 · Left arm",
+    "Week 1 · Day 02 · Pull · Mon, Oct 19 · Arm not recorded"
+   ],
+   "file": "fix-ledger-fcr-left-390.png"
+  },
+  {
+   "scene": "planned-announcement",
+   "viewport": "390x844",
+   "said": "Plan Week 1, as written: 12 distinct bouts are planned for your left forearm.",
+   "planWeekNamed": 1
+  }
+ ],
+ "kept": [
+  "fix-dates-320.png",
+  "fix-dates-360.png",
+  "fix-dates-375.png",
+  "fix-dates-390.png",
+  "fix-ledger-fcr-left-390.png",
+  "fix-reload-390.png",
+  "fix-undo-anconeus-end-390-undone.png",
+  "fix-undo-anconeus-end-390.png",
+  "fix-undo-biceps-remove-390-undone.png",
+  "fix-undo-biceps-remove-390.png"
+ ]
+}

@@ -277,6 +277,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   onOpenRegion: (regionId: RegionId, nodeId: string) => void;
 }) {
   const timeZone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC", []);
+  const datesId = useId();
   const [nowIso, setNowIso] = useState(() => new Date().toISOString());
   useEffect(() => {
     // A page left open over midnight or a week boundary reads the new day when it is looked at
@@ -651,10 +652,13 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           : <div className="spz-segment" role="group" aria-label="Plan week">
             {(builtWeeks.length ? builtWeeks : [planWeek]).map((week) => <button key={week} type="button" aria-pressed={week === planWeek} onClick={() => update({ planWeek: week === trainingWeek ? null : week })}>Week {week}</button>)}
           </div>}
-        {/* The labels sit beside their fields, one 44 px row for both from 375 px (stacked below it). */}
-        {state.mode === "completed" && state.window === "custom" && <div className="spz-dates">
-          <label className="spz-field spz-field-inline"><span>From</span><input type="date" value={state.from ?? ""} max={todayKey} onChange={(event) => setCustom("from", event.target.value)} /></label>
-          <label className="spz-field spz-field-inline"><span>To</span><input type="date" value={state.to ?? ""} max={todayKey} onChange={(event) => setCustom("to", event.target.value)} /></label>
+        {/* The labels sit beside their fields, one 44 px row for both from 375 px (stacked below it);
+            each label is a grid column of its own, so the two dates get the same width. */}
+        {state.mode === "completed" && state.window === "custom" && <div className="spz-field spz-dates">
+          <label htmlFor={`${datesId}-from`}>From</label>
+          <input id={`${datesId}-from`} type="date" value={state.from ?? ""} max={todayKey} onChange={(event) => setCustom("from", event.target.value)} />
+          <label htmlFor={`${datesId}-to`}>To</label>
+          <input id={`${datesId}-to`} type="date" value={state.to ?? ""} max={todayKey} onChange={(event) => setCustom("to", event.target.value)} />
         </div>}
       </div>
       {/* One line: the window, the side, and (for this week) logged beside planned (design §4). The

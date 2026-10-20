@@ -183,20 +183,21 @@ for (const [width, height] of [[390, 844], [375, 667], [430, 932]]) {
 
 for (const [width, height] of [[320, 568], [375, 667], [390, 844], [430, 932]]) {
   const { context, page } = await open(prod.base, width, height, { query: `&node=forearm.fcu${custom}` });
-  const fields = await page.evaluate(() => Array.from(document.querySelectorAll(".spz-dates .spz-field")).map((field) => {
-    const input = field.querySelector("input");
-    const label = field.querySelector("span");
+  // Each label is a grid column beside its date field (`label[for]`), so the two dates are as wide as each other.
+  const fields = await page.evaluate(() => Array.from(document.querySelectorAll(".spz-dates input")).map((input) => {
     const style = getComputedStyle(input);
     const canvas = document.createElement("canvas").getContext("2d");
     canvas.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
     const [y, m, d] = input.value.split("-");
     const box = input.getBoundingClientRect();
     const content = input.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-    return { label: label.textContent, input: [Math.round(box.width * 10) / 10, Math.round(box.height * 10) / 10], fontSize: style.fontSize, contentWidth: Math.round(content * 10) / 10, dateTextWidth: Math.round(canvas.measureText(`${m}/${d}/${y}`).width * 10) / 10, top: Math.round(field.getBoundingClientRect().top) };
+    return { label: document.querySelector(`label[for="${input.id}"]`)?.textContent ?? null, input: [Math.round(box.width * 10) / 10, Math.round(box.height * 10) / 10], fontSize: style.fontSize, contentWidth: Math.round(content * 10) / 10, dateTextWidth: Math.round(canvas.measureText(`${m}/${d}/${y}`).width * 10) / 10, top: Math.round(box.top) };
   }));
   const dates = await page.locator(".spz-dates").boundingBox();
   await page.screenshot({ path: shot(`dates-${width}`), clip: { x: 0, y: dates.y - 8, width, height: dates.height + 16 } });
-  record({ scene: "inline-dates", build: "production", viewport: `${width}x${height}`, rows: new Set(fields.map((field) => field.top)).size, wholeDateShown: fields.every((field) => field.contentWidth >= field.dateTextWidth), fields, horizontalOverflowPx: await overflowX(page), file: `dates-${width}.png` });
+  // Chromium draws its calendar icon inside the content box, so a content width larger than the date's
+  // text does not prove the date shows whole; the screenshots do (and capture-fixes.mjs, with wide digits).
+  record({ scene: "inline-dates", build: "production", viewport: `${width}x${height}`, rows: new Set(fields.map((field) => field.top)).size, fields, horizontalOverflowPx: await overflowX(page), file: `dates-${width}.png` });
   await context.close();
 }
 
