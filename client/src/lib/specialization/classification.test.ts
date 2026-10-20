@@ -7,7 +7,7 @@ import { calendarWeekInterval } from "@shared/specialization/time";
 import type { ExposureBout, RegionContent, SpecializationRegionData, SpecializationSummary, SummarySide } from "@shared/specialization/types";
 import { boutsFromSessions } from "./bouts";
 import { catalogMusclesLookup } from "./useSpecializationSummary";
-import { fx, fxBackContent, fxCore, fxCoreContent } from "./__fixtures__/multiRegion";
+import { fx, fxBackContent, fxCore, fxCoreContent, fxVariants } from "./__fixtures__/multiRegion";
 import { exercise, finished, workSet, type AtlasSet } from "./__fixtures__/syntheticForearm";
 
 /**
@@ -51,11 +51,15 @@ describe("a bout is classified by the region's own muscles", () => {
     expect([row(summary, fx.obliques).contributions, summary.regionDistinctBouts]).toEqual([[], 0]);
   });
 
-  it("external-only: no own muscle mapped and not tagged: on the external row, in no total and not in completeness", () => {
+  it("external-only: no own muscle mapped and not tagged within scope: on the external row, in no total and not in completeness", () => {
     const region = coreWithout409(["abs"]);
     const summary = summarize(region, logged(409, [{ side: "left" }]), "midline");
     expect(row(summary, fx.ql).deliberateHoldBouts).toBe(1);
-    expect([summary.regionDistinctBouts, summary.regionUnclassified.bouts, summary.completeness.boutsConsidered, summary.completeness.boutsListedUnmapped]).toEqual([0, 0, 0, 0]);
+    expect([summary.regionDistinctBouts, summary.regionUnclassified.bouts, summary.completeness.boutsConsidered]).toEqual([0, 0, 0]);
+    // 409 tags abs as a secondary muscle, outside this core's primary scope: listed as not counted here, with the row that credits it (§8).
+    expect(summary.listedUnmappedRows!.map((item) => [item.tag, item.creditedTo])).toEqual([["secondary", [fx.ql]]]);
+    // Tagged with none of the region's keys, it is not listed either.
+    expect(summarize(coreWithout409(["calves"]), logged(409, [{ side: "left" }]), "midline").completeness.boutsListedUnmapped).toBe(0);
   });
 
   it("mapped: an own muscle is mapped; reviewed and pending counts read own mappings only", () => {
@@ -78,6 +82,24 @@ describe("what is not counted is shown (§8)", () => {
     const summary = summarize(fxCore, logged(161, [{}, {}]), "midline");
     expect(summary.completeness).toMatchObject({ boutsConsidered: 0, boutsRegionOnly: 0, boutsListedUnmapped: 2 });
     expect(summary.listedUnmappedRows!.map((item) => [item.exerciseName, item.tag, item.reason, item.countedSide])).toEqual([["Back Squat", "secondary", null, "midline"], ["Back Squat", "secondary", null, "midline"]]);
+  });
+
+  it("lists an external-only set too, naming the external rows that credit it: a home region's mapping never hides a set from the list", () => {
+    // The back maps the back squat to its quadratus lumborum, which the core lists; the core maps no muscle of its own for it.
+    const ql = fxBackContent.mappings.find((item) => item.nodeId === fx.ql)!;
+    const back: RegionContent = {
+      ...fxBackContent,
+      variants: [...fxBackContent.variants, fxVariants.backSquat],
+      mappings: [...fxBackContent.mappings, { ...ql, id: `${fxVariants.backSquat.id}:${fx.ql}`, variantId: fxVariants.backSquat.id, relationship: "stabilizer", sideRelation: "both" }],
+    };
+    const sets = logged(161, [{}, {}]);
+    const summary = summarize(composeRegionData(fxCoreContent, [back]), sets, "midline");
+    expect(row(summary, fx.ql).incidentalBouts).toBe(2);
+    expect([summary.regionDistinctBouts, summary.regionUnclassified.bouts, summary.completeness.boutsConsidered]).toEqual([0, 0, 0]);
+    expect(summary.completeness.boutsListedUnmapped).toBe(2);
+    expect(summary.listedUnmappedRows!.map((item) => [item.exerciseName, item.tag, item.creditedTo])).toEqual([["Back Squat", "secondary", [fx.ql]], ["Back Squat", "secondary", [fx.ql]]]);
+    // Without the back's mapping the same sets are listed, and no row credits them.
+    expect(summarize(fxCore, sets, "midline").listedUnmappedRows!.map((item) => item.creditedTo)).toEqual([[], []]);
   });
 
   it("gives a listed unmapped exercise its listed reason", () => {

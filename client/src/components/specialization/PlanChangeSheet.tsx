@@ -4,6 +4,7 @@ import type { Exercise } from "@/lib/exerciseCatalog";
 import { applyPlanChangeToRecord } from "@/lib/specialization/planChange";
 import { boutsFromPlan, plannedExercisesInWeek, prescriptionOf } from "@/lib/specialization/planBouts";
 import { previewPlannedChange, type PlannedValues, type RecommendationCandidate } from "@/lib/specialization/recommendations";
+import { planningVariantsFor } from "@/lib/specialization/useSpecializationSummary";
 import type { SpecializationPlanChange, SpecializationPlanChangeResult } from "@/lib/specialization/viewState";
 import { commitDay, emptyDayStore, loadDay, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import type { TrainingGoal } from "@/lib/workoutPlanner";
@@ -80,8 +81,8 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
 
   const preview = useMemo(() => {
     if (!outcome?.ok || !slot) return null;
-    const before = boutsFromPlan({ week, slots: plan.slots, store, variants: data.variants, goal });
-    const after = boutsFromPlan({ week, slots: plan.slots, store: commitDay(store, slot.key, outcome.record), variants: data.variants, goal });
+    const before = boutsFromPlan({ week, slots: plan.slots, store, variants: planningVariantsFor(data), goal });
+    const after = boutsFromPlan({ week, slots: plan.slots, store: commitDay(store, slot.key, outcome.record), variants: planningVariantsFor(data), goal });
     return previewPlannedChange({ region: data, before, after, side, planWeek: week });
   }, [outcome, slot, week, plan.slots, store, data, goal, side]);
 

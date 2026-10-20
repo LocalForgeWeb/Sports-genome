@@ -94,15 +94,15 @@ export function parseStoredGoal(value: unknown): SpecializationGoal | null {
   };
 }
 
-/** Whether a registered region has a page: a target on its muscle saved elsewhere is read as its own (`rehomedGoal`). */
-const isProductionRegion = (regionId: string) => regionIndexEntry(regionId)?.status === "production";
-
-/** The account's targets as they are read now: each stored target this version can read, re-homed where its muscle's home has a page. */
+/**
+ * The account's targets as they are read now: each stored target this version can read, re-homed
+ * where its muscle's home has a page (the registered index's status and sides, `rehomedGoal`).
+ */
 export function loadSpecializationGoals(accountId?: AccountScope): SpecializationGoal[] {
   return readList(specializationGoalsKeyBase, accountId)
     .map(parseStoredGoal)
     .filter((goal): goal is SpecializationGoal => goal !== null)
-    .map((goal) => rehomedGoal(goal, isProductionRegion));
+    .map((goal) => rehomedGoal(goal, regionIndexEntry));
 }
 
 /** Returns whether the write reached the device. Stored entries this version cannot read are written back after the targets, untouched. */

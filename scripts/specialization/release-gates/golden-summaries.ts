@@ -21,7 +21,7 @@ import { createHash } from "node:crypto";
 import { writeFileSync } from "node:fs";
 import { canonicalJson, GOLDEN_NOW, goldenSummaries, summaryTotals } from "../../../client/src/lib/specialization/__fixtures__/releaseGateHistories";
 
-const FULL_LIMIT = 80_000;
+const FULL_LIMIT = 90_000;
 
 const arg = (name: string) => {
   const at = process.argv.indexOf(name);

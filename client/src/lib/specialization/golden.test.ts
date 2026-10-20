@@ -15,7 +15,8 @@ import { canonicalJson, goldenSummaries, summaryTotals } from "./__fixtures__/re
  *    two bouts, `…/n#right` and `…/n#left`, where it was one, `…/n` (§2.1); each arm's summary
  *    holds its own, and its segment carries the same id;
  * 2. the new fields `countedSide`, `recordedSide` and `sideRelation` on a contribution and
- *    `countedSide` and `recordedSide` on a region row;
+ *    `countedSide` and `recordedSide` on a region row, each checked against the fields the
+ *    reference pins before it is set aside (`expectNewSideFields`);
  * 3. the new §8 fields `completeness.boutsListedUnmapped` and `listedUnmappedRows`, which these
  *    histories leave at zero and empty (no set here tags the forearm outside its tag scope or is a
  *    listed unmapped exercise not counted here).
@@ -48,6 +49,23 @@ function unsplit(id: string, catalogExerciseId: number | null, summary: Speciali
   return match[1];
 }
 
+/**
+ * The new side fields say what the old ones do, on the forearm: a row is counted on the summary's
+ * arm unless it is kept apart; the recorded side is the arm's as the set or the plan gave it (a
+ * split planned bout's own side, Both for an either-way plan), and none where the side came from
+ * the exercise or is unknown; and no forearm mapping has a side relation but `same`.
+ */
+function expectNewSideFields(item: Contribution | RegionBoutRow, summary: SpecializationSummary): void {
+  const at = `${item.boutId} on the ${summary.side} arm`;
+  expect(item.countedSide, at).toBe(item.side === "unknown" ? "unknown" : summary.side);
+  const recorded =
+    item.sideSource === "recorded" ? { limb: "arm", side: item.side === "bilateral" ? "both" : item.side, source: "recorded" }
+    : item.sideSource === "plan_assumption" ? { limb: "arm", side: SPLIT.exec(item.boutId)?.[2] ?? "both", source: "plan_assumption" }
+    : null;
+  expect(item.recordedSide, at).toEqual(recorded);
+  if ("sideRelation" in item) expect(item.sideRelation, at).toBe("same");
+}
+
 function withoutNew<T extends object>(item: T, fields: readonly string[], seen: Seen): T {
   const copy = { ...item } as Record<string, unknown>;
   for (const field of fields) {
@@ -61,10 +79,12 @@ function withoutNew<T extends object>(item: T, fields: readonly string[], seen: 
 /** The summary with the allowed differences taken back out; every other field as computed. */
 function normalised(summary: SpecializationSummary, seen: Seen): SpecializationSummary {
   const row = (item: RegionBoutRow): RegionBoutRow => {
+    expectNewSideFields(item, summary);
     const plain = withoutNew(item, NEW_ROW_FIELDS, seen);
     return { ...plain, boutId: unsplit(plain.boutId, plain.catalogExerciseId, summary, seen), segments: plain.segments.map((segment) => ({ ...segment, id: unsplit(segment.id, plain.catalogExerciseId, summary, seen) })) };
   };
   const contribution = (item: Contribution): Contribution => {
+    expectNewSideFields(item, summary);
     const plain = withoutNew(item, NEW_CONTRIBUTION_FIELDS, seen);
     return { ...plain, boutId: unsplit(plain.boutId, plain.catalogExerciseId, summary, seen), segments: plain.segments.map((segment) => ({ ...segment, id: unsplit(segment.id, plain.catalogExerciseId, summary, seen) })) };
   };

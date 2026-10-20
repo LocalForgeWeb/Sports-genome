@@ -3,8 +3,9 @@ import { GOAL_TARGET_SANITY_MAX, goalPeriodInterval, goalProgressLabel, goalScop
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { forearmAdjacentIds, forearmMuscleIds } from "@shared/specialization/regions/forearm/ids";
 import { upperArmMuscleIds } from "@shared/specialization/regions/upper_arm/ids";
-import type { SpecializationGoal } from "@shared/specialization/types";
-import { fx, fxCore, fxThigh } from "./__fixtures__/multiRegion";
+import { regionIndexEntry } from "@shared/specialization/regionIndex";
+import type { SpecializationGoal, SpecializationRegion } from "@shared/specialization/types";
+import { fx, fxBack, fxCore, fxThigh } from "./__fixtures__/multiRegion";
 
 /**
  * Targets are the athlete's own (brief §7, design §5): any positive number, above 15
@@ -174,8 +175,12 @@ describe("targets only on a region's own target muscles (§2.2)", () => {
 
 describe("a target on another region's muscle is re-homed on read (§2.2)", () => {
   const forearmListed = goal({ id: "legacy", nodeId: upperArmMuscleIds.biceps });
-  const before = (regionId: string) => regionId === "forearm";
-  const after = (regionId: string) => regionId === "forearm" || regionId === "upper_arm";
+  // The registered index as it is (the upper arm a reference region), and once the upper arm is promoted.
+  const before = regionIndexEntry;
+  const after = (regionId: string): SpecializationRegion | null => {
+    const entry = regionIndexEntry(regionId);
+    return entry && regionId === "upper_arm" ? { ...entry, status: "production" } : entry;
+  };
 
   it("reads a node's home from its id", () => {
     expect([nodeHomeRegionId(upperArmMuscleIds.biceps), nodeHomeRegionId(forearmMuscleIds.brachioradialis), nodeHomeRegionId("nodot")]).toEqual(["upper_arm", "forearm", null]);
@@ -191,6 +196,19 @@ describe("a target on another region's muscle is re-homed on read (§2.2)", () =
     const movement = goal({ id: "move", nodeId: null, actionId: "elbow.flexion" });
     const home = goal({ id: "home", regionId: "upper_arm", nodeId: upperArmMuscleIds.biceps });
     for (const item of [anconeus, movement, home]) expect(rehomedGoal(item, after)).toBe(item);
+  });
+
+  it("leaves a target whose side the home cannot hold where it was saved: a midline page's target on a muscle whose home is paired", () => {
+    // The fixture core lists the back's quadratus lumborum; a core target on it is a midline target.
+    const coreListed = goal({ id: "core-ql", regionId: fxCore.region.id, nodeId: fx.ql, side: "midline", metric: "deliberate_hold_bouts" });
+    const regions = new Map([fxCore, fxBack].map((data) => [data.region.id, { ...data.region, status: "production" as const }] as const));
+    const homeOf = (regionId: string) => regions.get(regionId) ?? null;
+    expect(rehomedGoal(coreListed, homeOf)).toBe(coreListed);
+    // Left where it was, it stays a target the core page can end.
+    expect(validateGoal({ ...coreListed, endsOn: "2026-10-20" }, [coreListed], goalScopeOf(fxCore))).toEqual({ ok: true });
+    // A paired target on the same muscle (saved on a paired page that lists it) moves to the back as before.
+    const pairedListed = goal({ id: "paired-ql", regionId: "fx_other", nodeId: fx.ql, side: "left" });
+    expect(rehomedGoal(pairedListed, homeOf)).toEqual({ ...pairedListed, regionId: fxBack.region.id });
   });
 
   it("is the same target as one saved on the home page: they clash, before and after the move", () => {

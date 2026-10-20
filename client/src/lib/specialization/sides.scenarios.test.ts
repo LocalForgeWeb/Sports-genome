@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
 import { buildDaySlots, emptyDayStore, type WeeklyDayStore } from "@/lib/trainingDayPlan";
+import { composeRegionData } from "@shared/specialization/compose";
 import { getSpecializationSummary, indexRegion, nodeSideFor } from "@shared/specialization/exposure";
 import { goalMetrics } from "@shared/specialization/goals";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
@@ -10,14 +11,15 @@ import type { ExerciseVariant, ExposureBout, GoalMetric, NodeExposure, Specializ
 import { boutsFromSessions } from "./bouts";
 import { boutsFromPlan } from "./planBouts";
 import { catalogMusclesLookup } from "./useSpecializationSummary";
-import { fx, fxBack, fxBackBeforeShoulder, fxCore, fxShoulder, fxThigh, fxVariants } from "./__fixtures__/multiRegion";
+import { fx, fxBack, fxBackBeforeShoulder, fxBackContent, fxCore, fxShoulder, fxShoulderContent, fxThigh, fxVariants } from "./__fixtures__/multiRegion";
 import { exercise, finished, workSet, type AtlasSet } from "./__fixtures__/syntheticForearm";
 
 /**
  * 10-multi-region.md §2.1, "Consequences, each a test": the side rules on a page paired by the
  * leg, one paired by the arm whose side word is "side", and a midline page, completed and planned,
  * on the test regions of __fixtures__/multiRegion.ts and on the forearm's real data. Every summary
- * here also holds §2.2: each target's value equals its row (`goalsEqualRows`).
+ * here also holds §2.2, each target's value equals its row (`goalsEqualRows`), and its region
+ * totals and completeness are the ones its rows give (`expectCompletenessFromRows`).
  */
 
 const TZ = "Europe/London";
@@ -29,7 +31,42 @@ const PAIRED: SummarySide[] = ["left", "right"];
 const sidesOf = (region: SpecializationRegionData): SummarySide[] => (region.region.sides.model === "midline" ? ["midline"] : PAIRED);
 
 function summarize(region: SpecializationRegionData, bouts: readonly ExposureBout[], side: SummarySide, mode: "completed" | "planned" = "completed", goals: SpecializationGoal[] = []): SpecializationSummary {
-  return getSpecializationSummary({ region, bouts, interval: mode === "completed" ? WEEK : planWeekInterval(1, TZ), side, mode, goals, catalogMusclesFor, sourceRevision: "s", planRevision: mode === "planned" ? "p" : null, now: NOW });
+  const summary = getSpecializationSummary({ region, bouts, interval: mode === "completed" ? WEEK : planWeekInterval(1, TZ), side, mode, goals, catalogMusclesFor, sourceRevision: "s", planRevision: mode === "planned" ? "p" : null, now: NOW });
+  expectCompletenessFromRows(region, summary);
+  return summary;
+}
+
+/**
+ * The region's totals and completeness are the ones its rows give (§2.1, §4.2). Each set the
+ * region's own muscles show is read as a node row reads it: its counted contributions first, then
+ * its withheld (strapped) rows, then its pending ones; the first that has it decides whether it is
+ * on this side or kept apart, and whether reviewed work puts it here. So a set is in the distinct
+ * bouts or the unknown-side set exactly as completeness counts it, and is counted as reviewed only
+ * where reviewed work of the region's own puts it.
+ */
+function expectCompletenessFromRows(region: SpecializationRegionData, summary: SpecializationSummary): void {
+  const own = indexRegion(region).regionNodeIds;
+  const decided = new Map<string, { kind: number; on: boolean }>();
+  const read = (boutId: string, kind: number, on: boolean) => {
+    const was = decided.get(boutId);
+    if (!was || kind < was.kind) decided.set(boutId, { kind, on });
+    else if (kind === was.kind) was.on ||= on;
+  };
+  for (const node of summary.nodes.filter((item) => own.has(item.nodeId))) {
+    for (const item of node.contributions) read(item.boutId, 0, item.countedSide !== "unknown");
+    for (const item of node.notCounted ?? []) read(item.boutId, item.notes.includes("Mapping pending review") ? 2 : 1, item.countedSide !== "unknown");
+  }
+  const sets = Array.from(decided.values());
+  const regionOnly = summary.regionUnclassifiedRows ?? [];
+  const at = `${summary.regionId} ${summary.side} ${summary.mode}`;
+  expect([summary.regionDistinctBouts, summary.regionUnknownSideBouts], at).toEqual([sets.filter((item) => item.kind === 0 && item.on).length, sets.filter((item) => item.kind === 0 && !item.on).length]);
+  expect(summary.completeness, at).toMatchObject({
+    boutsConsidered: sets.length + regionOnly.length,
+    boutsWithReviewedMapping: sets.filter((item) => item.kind < 2).length,
+    boutsPendingReview: sets.filter((item) => item.kind === 2).length,
+    boutsRegionOnly: regionOnly.length,
+    boutsUnknownSide: sets.filter((item) => !item.on).length + regionOnly.filter((item) => item.countedSide === "unknown").length,
+  });
 }
 
 /** Sets of one exercise in one finished workout, as the logger stores them. */
@@ -194,6 +231,33 @@ describe("a page paired by the arm, with the side words of the back", () => {
   });
 });
 
+describe("completeness agrees with the region totals when a set's own mappings read its sides differently", () => {
+  // The back with its erectors' row on the one-arm row still a draft (loaded on both sides) beside the lat's reviewed row (the recorded side).
+  const draftErectors = composeRegionData(
+    { ...fxBackContent, mappings: fxBackContent.mappings.map((item) => (item.nodeId === fx.erectors && item.variantId === fxVariants.oneArmRow.id ? { ...item, reviewStatus: "draft" as const } : item)) },
+    [fxShoulderContent],
+  );
+
+  it("logged Right: on the left only the pending erectors have it, so it is under review there, not reviewed", () => {
+    const sets = logged(46, [{ side: "right" }]);
+    const left = summarize(draftErectors, sets, "left");
+    expect([left.regionDistinctBouts, left.regionUnknownSideBouts]).toEqual([0, 0]);
+    expect(left.completeness).toMatchObject({ boutsConsidered: 1, boutsWithReviewedMapping: 0, boutsPendingReview: 1, boutsUnknownSide: 0 });
+    expect(row(left, fx.erectors).pendingReviewBouts).toBe(1);
+    const right = summarize(draftErectors, sets, "right");
+    expect([right.regionDistinctBouts, right.completeness.boutsWithReviewedMapping, right.completeness.boutsPendingReview]).toEqual([1, 1, 0]);
+  });
+
+  it("no side recorded: the lat keeps it apart, so it is in the unknown-side set and counted with no side, though the pending erectors are on both sides", () => {
+    const sets = logged(46, [{}]);
+    for (const side of PAIRED) {
+      const summary = summarize(draftErectors, sets, side);
+      expect([summary.regionDistinctBouts, summary.regionUnknownSideBouts], side).toEqual([0, 1]);
+      expect(summary.completeness, side).toMatchObject({ boutsConsidered: 1, boutsWithReviewedMapping: 1, boutsPendingReview: 0, boutsUnknownSide: 1 });
+    }
+  });
+});
+
 describe("a midline page", () => {
   it("counts a suitcase carry once, the obliques on the midline, and the quadratus lumborum as the back's distinct bouts, once", () => {
     const sets = [...logged(409, [{ side: "left" }, { side: "right" }], "30"), ...logged(409, [{}], "30")];
@@ -274,6 +338,18 @@ describe("the forearm, a page paired by the arm, on its real data", () => {
     goalsEqualRows(forearmRegionData, sets, "completed");
     expect(credited(row(summarize(forearmRegionData, sets, "left"), forearmMuscleIds.flexorCarpiUlnaris))).toBeGreaterThan(0);
   });
+
+  it("counts a side recorded on a two-handed exercise on that side alone, as it did when the forearm shipped", () => {
+    // 132 Hammer Curl: the logger does not ask the arm there, but an import or a swapped exercise can hold one.
+    const sets = logged(132, [{ side: "left" }, { side: "both" }]);
+    const [left, right] = PAIRED.map((side) => summarize(forearmRegionData, sets, side));
+    expect([left.regionDistinctBouts, right.regionDistinctBouts]).toEqual([2, 1]);
+    expect(left.regionBoutRows!.map((item) => [item.side, item.sideSource, item.countedSide, item.recordedSide])).toEqual([
+      ["left", "recorded", "left", { limb: "arm", side: "left", source: "recorded" }],
+      ["bilateral", "recorded", "left", { limb: "arm", side: "both", source: "recorded" }],
+    ]);
+    goalsEqualRows(forearmRegionData, sets, "completed");
+  });
 });
 
 describe("nodeSideFor, rule by rule", () => {
@@ -292,9 +368,10 @@ describe("nodeSideFor, rule by rule", () => {
     for (const bout of [none, arm("left")]) expect(nodeSideFor(backRegion, fxVariants.oneArmRow, { sideRelation: "both" }, bout)).toMatchObject({ sides: ["left", "right"], branch: "side.arm.relation_both" });
   });
 
-  it("3. two-sided by definition for the region's limb: each side, a recorded side notwithstanding", () => {
+  it("3. two-sided by definition for the region's limb: each side, where no side of that limb was recorded", () => {
     expect(nodeSideFor(thighRegion, fxVariants.backSquat, null, none)).toMatchObject({ sides: ["left", "right"], branch: "side.leg.structural", source: "structural" });
-    expect(nodeSideFor(thighRegion, fxVariants.backSquat, null, leg("left"))).toMatchObject({ sides: ["left", "right"], branch: "side.leg.structural" });
+    // A side recorded only for the other limb says nothing about this one.
+    expect(nodeSideFor(thighRegion, fxVariants.backSquat, null, arm("left"))).toMatchObject({ sides: ["left", "right"], branch: "side.leg.structural", recorded: null });
   });
 
   it("4. a side recorded for the region's limb: that side, the other for an opposite mapping, both for Both", () => {
@@ -304,8 +381,15 @@ describe("nodeSideFor, rule by rule", () => {
     expect(nodeSideFor(thighRegion, fxVariants.splitSquat, null, { armSide: null, legSide: { side: "left", source: "plan_assumption" } })).toMatchObject({ sides: ["left"], source: "plan_assumption" });
   });
 
-  it("5. a limb the exercise does not use gives no side", () => {
-    expect(nodeSideFor(backRegion, fxVariants.legExtension, null, leg("left"))).toMatchObject({ sides: [], branch: "side.arm.not_applicable", recorded: { limb: "leg", side: "left" } });
+  it("4 before 3: a side recorded on an exercise two-sided for the region's limb counts on that side, as the forearm counted it when it shipped", () => {
+    expect(nodeSideFor(thighRegion, fxVariants.backSquat, null, leg("left"))).toMatchObject({ sides: ["left"], branch: "side.leg.recorded", source: "recorded" });
+    expect(nodeSideFor(thighRegion, fxVariants.backSquat, null, leg("both"))).toMatchObject({ sides: ["left", "right"], branch: "side.leg.recorded", source: "recorded" });
+    expect(nodeSideFor(thighRegion, fxVariants.backSquat, { sideRelation: "opposite" }, leg("left"))).toMatchObject({ sides: ["right"], branch: "side.leg.recorded_opposite" });
+  });
+
+  it("5. a limb the exercise does not use gives no side; with no mapping to speak for it, the set's side is simply unknown (rule 6)", () => {
+    expect(nodeSideFor(backRegion, fxVariants.legExtension, {}, leg("left"))).toMatchObject({ sides: [], branch: "side.arm.not_applicable", recorded: { limb: "leg", side: "left" } });
+    expect(nodeSideFor(backRegion, fxVariants.legExtension, null, leg("left"))).toMatchObject({ sides: [], branch: "side.arm.unknown", recorded: { limb: "leg", side: "left" } });
   });
 
   it("6. anything else, a side recorded only for the other limb included, is unknown", () => {

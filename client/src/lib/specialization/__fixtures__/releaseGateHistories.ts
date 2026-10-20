@@ -3,11 +3,12 @@ import { exercises as catalog } from "@/lib/exerciseCatalog";
 import { buildDaySlots, emptyDayStore, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import { boutsFromSessions, excludedRecordsFromSessions } from "@/lib/specialization/bouts";
 import { boutsFromPlan } from "@/lib/specialization/planBouts";
+import * as summaryHook from "@/lib/specialization/useSpecializationSummary";
 import { catalogMusclesLookup } from "@/lib/specialization/useSpecializationSummary";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { regionDataFor } from "@shared/specialization/registry";
 import { calendarWeekInterval, customInterval, planWeekInterval, rolling7dInterval } from "@shared/specialization/time";
-import type { ExposureBout, SpecializationGoal, SpecializationSummary, SummaryInterval } from "@shared/specialization/types";
+import type { ExerciseVariant, ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummaryInterval } from "@shared/specialization/types";
 
 /**
  * The forearm's golden histories (10-multi-region.md §4.3): the workout histories and plans the
@@ -17,9 +18,10 @@ import type { ExposureBout, SpecializationGoal, SpecializationSummary, SummaryIn
  * both modes.
  *
  * It reads only what the calculator and its adapters exported when the forearm shipped (6738eeb),
- * by the same paths and with the same arguments, and names forearm ids as plain strings, so the
- * same file runs against that tree and against this one: scripts/specialization/release-gates/
- * golden-summaries.ts writes the reference, client/src/lib/specialization/golden.test.ts compares.
+ * by the same paths and with the same arguments (and the page's planning variants where the tree
+ * has them, `planningVariants`), and names forearm ids as plain strings, so the same file runs
+ * against that tree and against this one: scripts/specialization/release-gates/golden-summaries.ts
+ * writes the reference, client/src/lib/specialization/golden.test.ts compares.
  */
 
 const region = regionDataFor("forearm")!;
@@ -30,6 +32,14 @@ const nameOf = new Map(catalog.map((exercise) => [exercise.id, exercise.name]));
 const exerciseOf = (id: number) => catalog.find((exercise) => exercise.id === id)!;
 const holdIds = new Set(region.variants.filter((variant) => variant.measure === "seconds").map((variant) => variant.catalogExerciseId));
 const oneArm = new Set(region.variants.filter((variant) => variant.laterality === "unilateral").map((variant) => variant.catalogExerciseId));
+/**
+ * The variants the page lays the plan out by (`planningVariantsFor`, from 10-multi-region.md wave
+ * 0): the forearm's own, then the shared library's for every other exercise, so a variant a later
+ * release adds to the library shows here as it shows on the page. The shipped tree has no such
+ * helper and laid the plan out by the forearm's own variants.
+ */
+const planningVariants: readonly ExerciseVariant[] =
+  (summaryHook as { planningVariantsFor?: (data: SpecializationRegionData) => readonly ExerciseVariant[] }).planningVariantsFor?.(region) ?? region.variants;
 
 // summary-cost.ts's four day templates, rotated: pressing, pulling, legs, arms.
 const days: { title: string; items: [number, number][] }[] = [
@@ -82,11 +92,11 @@ const offlineSessions = [done("s1", "2026-10-13T18:00:00.000Z", [
 
 /**
  * One week of what the release-gate histories leave out: Both, one arm and no arm recorded on an
- * either-way exercise (350), one arm and none on one-arm ones, a warm-up, a skipped set, straps
- * yes, no and unknown, a drop set, an exercise matched by name, holds, region-only work, a workout
- * not finished, a skipped-sets stamp and a skipped exercise. No arm is recorded on a two-handed
- * exercise: the logger never asks there, and the rule reads such a set differently since
- * 10-multi-region.md §2.1 (rule 3 before rule 4; exposure.test.ts holds it).
+ * either-way exercise (350), one arm and none on one-arm ones, one arm and Both recorded on a
+ * two-handed one (132: the logger does not ask there, but an import or a swapped exercise can hold
+ * a side, and the recorded side is what counts), a warm-up, a skipped set, straps yes, no and
+ * unknown, a drop set, an exercise matched by name, holds, region-only work, a workout not
+ * finished, a skipped-sets stamp and a skipped exercise.
  */
 const edgeSessions: DeviceWorkoutSession[] = [
   done("edge-1", "2026-10-14T18:00:00.000Z", [
@@ -103,6 +113,7 @@ const edgeSessions: DeviceWorkoutSession[] = [
     ex("x11", 190, [set({ id: "x11a" })]),
     ex("x12", 200, [set({ id: "x12a" })]),
     ex("x13", 135, [set({ id: "x13a" })], { skippedSets: 2 }),
+    ex("x14", 132, [set({ id: "x14a", side: "left" }), set({ id: "x14b", side: "right", warmup: true }), set({ id: "x14c", side: "both" })]),
   ], { notPerformed: [{ exerciseName: "Wrist Roller", catalogId: 141, plannedSets: 2, skipped: true }] } as Partial<DeviceWorkoutSession>),
   { ...done("edge-2", "2026-10-16T18:00:00.000Z", [ex("y1", 411, [set({ id: "y1a" }), set({ id: "y1b", side: "right" })])]), status: "active", completedAt: undefined } as unknown as DeviceWorkoutSession,
 ];
@@ -191,7 +202,7 @@ export function goldenSummaries(): GoldenCase[] {
     }
   }
   for (const plan of plans) {
-    const bouts = boutsFromPlan({ week: 1, slots: plan.slots, store: plan.store, variants: region.variants, goal: plan.goal });
+    const bouts = boutsFromPlan({ week: 1, slots: plan.slots, store: plan.store, variants: planningVariants, goal: plan.goal });
     for (const side of ["left", "right"] as const) out.push({ id: `planned/${plan.id}/${side}`, summary: summarize(bouts, planWeekInterval(1, TZ), side, "planned") });
   }
   return out;
