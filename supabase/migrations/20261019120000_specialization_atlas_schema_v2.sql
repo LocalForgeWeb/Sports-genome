@@ -12,9 +12,11 @@
 --     side_anchor, and descriptive ones such as knee or stance), held beside the variant so a
 --     frozen variant row is never written. An attribute freezes when a version that maps its
 --     variant is published.
---   * regions: the side model (paired by arm or by leg, or midline) and its words, the catalog
---     keys, the region-only tag scope, the heading other pages put over the region's muscles,
---     and the measures' default landmark and posture. Written here for the forearm.
+--   * regions: the side model (paired by arm or by leg, or midline) and its words, the sentence
+--     that names the region and a side, the catalog keys, the region-only tag scope, the heading
+--     other pages put over the region's muscles, and the measures' default landmark and posture.
+--     Written here for the forearm.
+--   * diagram_assets.sides: whether a drawing shows one side, mirrored for the other, or both.
 --   * not_applicable in exercise_variants' laterality, forearm_orientation and wrist_position;
 --     variant_mappings.side_relation (same, opposite, both); side midline on goals and
 --     measurements, the girth_cm metric and two postures; which goals may be written.
@@ -35,12 +37,14 @@
 -- is unrecorded: scripts/specialization/release/schema_v2_undo.sql (04-database.md §10).
 
 -- ---------------------------------------------------------------------------
--- 1. Regions: sides, catalog keys, words and measure defaults
+-- 1. Regions: sides, catalog keys, words and measure defaults; a drawing's sides
 -- ---------------------------------------------------------------------------
 
 -- side_model: paired (by side_limb, arm or leg) or midline (the core: counted once, no side).
 -- side_word, side_word_plural: the limb the logger asks about, as the page names it ('arm',
--- 'arms'; 'side', 'sides' on the chest and back). catalog_keys: the catalog muscle keys whose
+-- 'arms'; 'side', 'sides' on the chest and back). on_side_template: the region and a side in a
+-- sentence, '{side}' standing for left or right ('your {side} forearm'); a midline region's names
+-- no side ('your core'). catalog_keys: the catalog muscle keys whose
 -- tagged work is the region's (no longer derived from its target muscles), read within
 -- region_only_tag_scope ('any': primary and secondary tags; 'primary'). external_heading: the
 -- heading another region's page puts over this region's muscles. measurement_defaults: each
@@ -53,7 +57,8 @@ alter table specialization.regions
   add column if not exists catalog_keys text[] not null default '{}',
   add column if not exists region_only_tag_scope text not null default 'any' check (region_only_tag_scope in ('any', 'primary')),
   add column if not exists external_heading text check (btrim(external_heading) <> ''),
-  add column if not exists measurement_defaults jsonb not null default '{}'::jsonb check (jsonb_typeof(measurement_defaults) = 'object');
+  add column if not exists measurement_defaults jsonb not null default '{}'::jsonb check (jsonb_typeof(measurement_defaults) = 'object'),
+  add column if not exists on_side_template text check (btrim(on_side_template) <> '');
 
 -- The forearm as shipped: paired by arm, catalog key forearms (what its target muscles' keys
 -- gave), primary and secondary tags. Written once, before the sides rule and the guard below
@@ -66,7 +71,8 @@ set side_model = 'paired',
     catalog_keys = array['forearms'],
     region_only_tag_scope = 'any',
     external_heading = 'Forearm muscles credited here',
-    measurement_defaults = '{"circumference_cm": {"landmark": "Thickest point", "posture": "arm_relaxed_hanging"}, "grip_force_n": {"landmark": "Dynamometer grip", "posture": "elbow_90_supported"}}'::jsonb
+    measurement_defaults = '{"circumference_cm": {"landmark": "Thickest point", "posture": "arm_relaxed_hanging"}, "grip_force_n": {"landmark": "Dynamometer grip", "posture": "elbow_90_supported"}}'::jsonb,
+    on_side_template = 'your {side} forearm'
 where id = 'forearm' and side_model is null;
 
 alter table specialization.regions drop constraint if exists regions_measurement_metrics_check;
@@ -74,7 +80,8 @@ alter table specialization.regions add constraint regions_measurement_metrics_ch
   check (measurement_metrics <@ array['circumference_cm', 'grip_force_n', 'girth_cm']::text[]);
 
 -- Production and fixture regions need a complete side model; a reference region needs none.
--- A paired region has a limb and its words, a midline region has neither. Checked on the
+-- A paired region has a limb, its words and a sentence naming one side ('{side}' once); a
+-- midline region has no limb and no words, and a sentence naming no side. Checked on the
 -- stored row by an AFTER trigger, not by a CHECK: Postgres evaluates a CHECK on the row an
 -- upsert proposes before it finds the conflict, so a seed that does not name these columns
 -- (seed v1, which upserts the forearm row unchanged) would be refused. The rows already there
@@ -87,10 +94,12 @@ as $fn$
 begin
   if not (case new.side_model
              when 'paired' then new.side_limb is not null and new.side_word is not null and new.side_word_plural is not null
+               and new.on_side_template is not null and new.on_side_template like '%{side}%' and new.on_side_template not like '%{side}%{side}%'
              when 'midline' then new.side_limb is null and new.side_word is null and new.side_word_plural is null
-             else new.status = 'reference' and new.side_limb is null and new.side_word is null and new.side_word_plural is null
+               and new.on_side_template is not null and new.on_side_template not like '%{side}%'
+             else new.status = 'reference' and new.side_limb is null and new.side_word is null and new.side_word_plural is null and new.on_side_template is null
            end) then
-    raise exception 'region % (%) needs a complete side model: paired with a limb and its words, or midline with neither; only a reference region may have none', new.id, new.status
+    raise exception 'region % (%) needs a complete side model: paired with a limb, its words and a sentence naming {side} once, or midline with no limb, no words and a sentence naming no side; only a reference region may have none', new.id, new.status
       using errcode = '23514';
   end if;
   return null;
@@ -105,8 +114,10 @@ begin
   from specialization.regions r
   where not case r.side_model
               when 'paired' then r.side_limb is not null and r.side_word is not null and r.side_word_plural is not null
+                and r.on_side_template is not null and r.on_side_template like '%{side}%' and r.on_side_template not like '%{side}%{side}%'
               when 'midline' then r.side_limb is null and r.side_word is null and r.side_word_plural is null
-              else r.status = 'reference' and r.side_limb is null and r.side_word is null and r.side_word_plural is null
+                and r.on_side_template is not null and r.on_side_template not like '%{side}%'
+              else r.status = 'reference' and r.side_limb is null and r.side_word is null and r.side_word_plural is null and r.on_side_template is null
             end;
   if v_regions is not null then
     raise exception 'regions without a complete side model: %', v_regions
@@ -118,6 +129,12 @@ $do$;
 create or replace trigger regions_sides_shape
   after insert or update on specialization.regions
   for each row execute function specialization.check_region_sides();
+
+-- A drawing's sides: one_side, drawn for the subject's right side and mirrored for the left;
+-- both_sides, drawn whole and never mirrored (a midline region's). Null reads as one_side: the
+-- forearm's drawing, as published, leaves it out. Adding the column writes no row.
+alter table specialization.diagram_assets
+  add column if not exists sides text check (sides in ('one_side', 'both_sides'));
 
 -- ---------------------------------------------------------------------------
 -- 2. Variants and mappings
@@ -339,39 +356,47 @@ alter table specialization.measurements add constraint measurements_protocol_sha
 
 -- What a goal may name. Its side is midline exactly in a midline region. A new goal, or one
 -- moved to another muscle or movement, names a muscle its region lists as a target, or a
--- movement its region lists. A goal already stored on anything else (a muscle the region lists
--- as adjacent or external, or no longer lists) stays, and may only be ended (ends_on, with
--- updated_at) or deleted. Runs as the caller, so a signed-in user is checked against the
--- memberships RLS shows them.
+-- movement its region lists, in a region with a page: production (or a fixture, in tests). A
+-- reference region (the upper arm before its promotion) has no page and no Targets editor, so it
+-- takes no goal; in wave 0 every membership and region action a goal can name is then one this
+-- file backfills, and the undo can be followed by this file again. A goal already stored on
+-- anything else (a muscle the region lists as adjacent or external, or no longer lists) stays,
+-- and may only be ended or deleted: an end date set, kept or brought forward, with updated_at,
+-- never moved later or back to open (onlyEnds in shared/specialization/goals.ts). Runs as the
+-- caller, so a signed-in user is checked against the memberships RLS shows them.
 create or replace function specialization.check_goal_target()
 returns trigger
 language plpgsql
 set search_path = ''
 as $fn$
 declare
+  v_listed boolean;
   v_offered boolean;
+  v_status text;
   v_side_model text;
 begin
   if num_nonnulls(new.node_id, new.action_id) <> 1 then
     return new; -- goals_one_target refuses it
   end if;
   if new.node_id is not null then
-    v_offered := exists (
+    v_listed := exists (
       select 1 from specialization.region_nodes rn
       where rn.region_id = new.region_id and rn.node_id = new.node_id and rn.role = 'target' and rn.listed
     );
   else
-    v_offered := exists (
+    v_listed := exists (
       select 1 from specialization.region_actions ra
       where ra.region_id = new.region_id and ra.action_id = new.action_id and ra.listed
     );
   end if;
+  select r.status, r.side_model into v_status, v_side_model from specialization.regions r where r.id = new.region_id;
+  v_offered := v_listed and coalesce(v_status in ('production', 'fixture'), false);
 
   if tg_op = 'UPDATE' and not v_offered
      and (new.region_id, new.node_id, new.action_id) is not distinct from (old.region_id, old.node_id, old.action_id) then
     if (new.user_id, new.id, new.side, new.metric, new.target, new.period, new.starts_on, new.timezone, new.created_at)
          is distinct from (old.user_id, old.id, old.side, old.metric, old.target, old.period, old.starts_on, old.timezone, old.created_at)
-       or (new.ends_on is null and old.ends_on is not null) then
+       or (new.ends_on is distinct from old.ends_on and (new.ends_on is null or new.ends_on > old.ends_on)) then
       raise exception 'goal % is on %, which region % no longer offers as a target; it can only be ended or deleted', new.id, coalesce(new.node_id, new.action_id), new.region_id
         using errcode = '23514';
     end if;
@@ -379,6 +404,10 @@ begin
   end if;
 
   if not v_offered then
+    if v_listed then
+      raise exception 'region % has no page yet (it is a % region), so it takes no target', new.region_id, v_status
+        using errcode = '23514';
+    end if;
     if new.node_id is not null then
       raise exception 'node % is not a listed target muscle of region %; a target names one of the region''s own target muscles', new.node_id, new.region_id
         using errcode = '23514';
@@ -388,7 +417,6 @@ begin
   end if;
 
   if tg_op = 'INSERT' or (new.region_id, new.side) is distinct from (old.region_id, old.side) then
-    select r.side_model into v_side_model from specialization.regions r where r.id = new.region_id;
     if new.side = 'midline' and v_side_model is distinct from 'midline' then
       raise exception 'region % is not midline: a goal there is for the left or the right side', new.region_id
         using errcode = '23514';
@@ -567,9 +595,9 @@ comment on function specialization.mapping_version_problems(uuid) is
   'The mapping-version publication rule: null when the version may be published, else the problems. Rules 11 and 12 are read only while the version is a draft. Enforced by the mapping_versions trigger; callable by the service role to check a draft first.';
 
 -- Versions are created as drafts, may change while draft, are published once (when the
--- rule above passes), and may then only be retired. Published and retired versions are
--- never deleted. Publishing freezes the attributes of the variants it maps that exist at that
--- moment (variant_attributes.frozen_at).
+-- rule above passes, by a change of state alone), and may then only be retired. Published and
+-- retired versions are never deleted. Publishing freezes the attributes of the variants it maps
+-- that exist at that moment (variant_attributes.frozen_at).
 create or replace function specialization.guard_mapping_version()
 returns trigger
 language plpgsql
@@ -600,6 +628,12 @@ begin
         using errcode = '23514';
     end if;
     if new.state = 'published' then
+      -- The rule below reads the stored draft (its region among it), so the publish changes the
+      -- state alone: a region or notes changed in the same statement would be judged as they were.
+      if (new.id, new.version_key, new.region_id, new.method_notes) is distinct from (old.id, old.version_key, old.region_id, old.method_notes) then
+        raise exception 'mapping version % is published by changing its state alone: change its key, region or notes while it is a draft, then publish it', old.version_key
+          using errcode = '23514';
+      end if;
       new.published_at := coalesce(new.published_at, pg_catalog.now());
       -- Lock what the version is about to rest on (the rows the guards in section 7b of
       -- schema v1 and the guards of schema v2 freeze), so a concurrent change to one of them

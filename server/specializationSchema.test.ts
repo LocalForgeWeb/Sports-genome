@@ -3,10 +3,14 @@ import { resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { goalsForBothArms } from "@shared/specialization/goals";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
+import { registeredRegionContents } from "@shared/specialization/registry";
 import { emitSeedSql, productionSeedInput } from "../scripts/specialization/emit-seed";
 import {
+  MIGRATION_STEPS,
   SCHEMA_MIGRATION_PATH,
+  SCHEMA_V2_MIGRATION_PATH,
   SEED_MIGRATION_PATH,
+  SEED_V1_MIGRATION_PATH,
   USER_A,
   USER_B,
   applyMigration,
@@ -59,13 +63,18 @@ const userB = { user: USER_B };
 // Counts from the content itself, so a content change only needs the seed regenerated.
 const reviewedMappingCount = forearmRegionData.mappings.filter((mapping) => mapping.reviewStatus === "reviewed").length;
 const draftMappingCount = forearmRegionData.mappings.filter((mapping) => mapping.reviewStatus === "draft").length;
-const catalogCount = new Set(forearmRegionData.variants.map((variant) => variant.catalogExerciseId)).size;
+/** Records the seed writes once each, however many regions list them. */
+const distinctIn = (ids: (number | string)[]) => new Set(ids).size;
+const sourceCount = distinctIn(registeredRegionContents.flatMap((content) => content.sources.map((source) => source.id)));
+const actionCount = distinctIn(registeredRegionContents.flatMap((content) => content.actions.map((action) => action.id)));
+const variantCount = distinctIn(registeredRegionContents.flatMap((content) => content.variants.map((variant) => variant.id)));
+const catalogCount = distinctIn(registeredRegionContents.flatMap((content) => content.variants.map((variant) => variant.catalogExerciseId)));
 
 /** Tables holding what a published or retired mapping version rests on (refuse TRUNCATE while one exists). */
 const FROZEN_TABLES = ["mapping_versions", "variant_mappings", "mapping_sources", "rule_versions", "exercise_variants", "nodes", "node_actions", "claims", "claim_sources", "sources", "region_nodes", "variant_attributes"];
 
 /** What a production or fixture region needs since schema v2: a complete side model. */
-const PAIRED_BY_ARM = { side_model: "paired", side_limb: "arm", side_word: "arm", side_word_plural: "arms" };
+const PAIRED_BY_ARM = { side_model: "paired", side_limb: "arm", side_word: "arm", side_word_plural: "arms", on_side_template: "your {side} arm" };
 
 let db: Awaited<ReturnType<typeof createReleaseDb>>;
 
@@ -265,20 +274,8 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     if (!line) throw new Error(`No ${iface}.${prop} in types.ts`);
     return literals(line);
   };
-  /**
-   * Values schema v2 adds (10-multi-region.md §2, §3, §4.4), which types.ts may not have yet
-   * (wave 0's model lane adds them). The database holds exactly the type's values and these.
-   */
-  const addedByV2: Record<string, string[]> = {
-    "exercise_variants.laterality": ["not_applicable"],
-    "exercise_variants.forearm_orientation": ["not_applicable"],
-    "exercise_variants.wrist_position": ["not_applicable"],
-    "goals.side": ["midline"],
-    "measurements.side": ["midline"],
-    "measurements.metric": ["girth_cm"],
-    "regions.measurement_metrics": ["girth_cm"],
-  };
-  const withV2 = (key: string, values: string[]) => [...new Set([...values, ...(addedByV2[key] ?? [])])].sort();
+  /** The side models a region record can name: `model` in each member of RegionSides. */
+  const sideModels = () => [...(/export type RegionSides = (.+);$/m.exec(typesSource)?.[1] ?? "").matchAll(/model: "([^"]+)"/g)].map((match) => match[1]).sort();
 
   const expected: [table: string, column: string, values: () => string[]][] = [
     ["nodes", "kind", () => union("NodeKind")],
@@ -309,13 +306,22 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     // Diagram view and layer ids are the drawing's own: a shape, not a list (tested below).
     ["diagram_paths", "kind", () => union("DiagramPathKind")],
     ["diagram_labels", "anchor", () => property("DiagramLabel", "anchor")],
-    ["goals", "side", () => union("BodySide")],
+    // Schema v2: one side drawn and mirrored, or both drawn (null reads as one side).
+    ["diagram_assets", "sides", () => union("DiagramSides")],
+    // A goal's or measurement's side: left or right in a paired region, midline in a midline region or for a girth.
+    ["goals", "side", () => union("SummarySide")],
     ["goals", "metric", () => union("GoalMetric")],
     ["goals", "period", () => union("GoalPeriod")],
-    ["measurements", "side", () => union("BodySide")],
+    ["measurements", "side", () => union("SummarySide")],
     ["measurements", "metric", () => union("MeasurementMetric")],
     // `reference`: a region that only holds other regions' external members.
     ["regions", "status", () => union("RegionStatus")],
+    // Schema v2.
+    ["regions", "side_model", sideModels],
+    ["regions", "side_limb", () => union("Limb")],
+    ["regions", "region_only_tag_scope", () => union("RegionOnlyTagScope")],
+    ["variant_mappings", "side_relation", () => union("SideRelation")],
+    ["region_nodes", "role", () => union("NodeRole")],
   ];
 
   it.each(expected)("%s.%s", async (table, column, values) => {
@@ -329,7 +335,7 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     const def = defs.find((text) => pattern.test(text));
     expect(def, `${table}.${column} has a CHECK vocabulary`).toBeDefined();
     const inDb = [...pattern.exec(def!)![1].matchAll(/'([^']+)'::text/g)].map((match) => match[1]).sort();
-    expect(inDb).toEqual(withV2(`${table}.${column}`, values()));
+    expect(inDb).toEqual(values());
   });
 
   it("diagram view and layer ids are the drawing's own: any lowercase id (front, side, rear), no fixed list", async () => {
@@ -385,7 +391,7 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     // The measures a region may offer are the measurements table's own list, MeasurementMetric in types.ts.
     const offered = defs.map((def) => /\(measurement_metrics <@ ARRAY\[([^\]]+)\]\)/.exec(def)?.[1]).find(Boolean);
     expect(offered, "regions.measurement_metrics has a CHECK vocabulary").toBeDefined();
-    expect([...offered!.matchAll(/'([^']+)'::text/g)].map((match) => match[1]).sort()).toEqual(withV2("regions.measurement_metrics", union("MeasurementMetric")));
+    expect([...offered!.matchAll(/'([^']+)'::text/g)].map((match) => match[1]).sort()).toEqual(union("MeasurementMetric"));
 
     await as(db, "service_role", async () => {
       const insert = (id: string, status: string, columns: Record<string, string | string[] | null>) => {
@@ -435,8 +441,8 @@ describe("reference content, as a signed-in user", () => {
     // Rows that must stay hidden, next to the seeded ones.
     await as(db, "service_role", async () => {
       await db.exec(`
-        insert into specialization.regions (id, label, heading, status, entry_label, external_group, incidental_work, progress_subtitle, side_model, side_limb, side_word, side_word_plural)
-          values ('zz_fixture', 'Fixture', 'Fixture', 'fixture', 'Fixture', 'Other muscles', 'bracing', 'Circumference, by arm', 'paired', 'arm', 'arm', 'arms');
+        insert into specialization.regions (id, label, heading, status, entry_label, external_group, incidental_work, progress_subtitle, side_model, side_limb, side_word, side_word_plural, on_side_template)
+          values ('zz_fixture', 'Fixture', 'Fixture', 'fixture', 'Fixture', 'Other muscles', 'bracing', 'Circumference, by arm', 'paired', 'arm', 'arm', 'arms', 'your {side} arm');
         insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status) values ('test:fcu.draft', 'forearm.fcu', 'selectivity', 'Draft claim.', 'unknown', 'draft');
         insert into specialization.claim_sources (claim_id, source_id, locator) select c.id, s.id, 'Test' from specialization.claims c, specialization.sources s where c.claim_key = 'test:fcu.draft' and s.source_key = 'S2';
         insert into specialization.rule_versions (id, specification, published_at, notes) values ('zz_rule_draft', '{}', null, 'Unpublished rule.');
@@ -500,7 +506,7 @@ describe("reference content, as a signed-in user", () => {
                 (select count(*)::int from specialization.exercise_variants) as variants, (select count(*)::int from specialization.catalog_exercises) as catalog`,
       ),
     );
-    expect(seen[0]).toEqual({ rules: ["specialization_exposure_v1"], sources: forearmRegionData.sources.length, actions: forearmRegionData.actions.length, variants: forearmRegionData.variants.length, catalog: catalogCount });
+    expect(seen[0]).toEqual({ rules: ["specialization_exposure_v1"], sources: sourceCount, actions: actionCount, variants: variantCount, catalog: catalogCount });
   });
 
   it("cannot insert, update, delete or truncate any reference table", async () => {
@@ -1191,7 +1197,9 @@ describe("goal rules", () => {
 // ---------------------------------------------------------------- rollback
 
 describe("rollback", () => {
-  it("drops cleanly with the header's SQL, and the schema and seed apply again", async () => {
+  // Schema v1's header line, on the pair it was written for (seed v1). Every later file is
+  // forward-only: after schema v2 this line would destroy published history (04-database.md §10).
+  it("drops cleanly with schema v1's header SQL, and schema v1 and seed v1 apply again", async () => {
     const fresh = await createSupabaseLikeDb();
     try {
       await applyMigration(fresh, SCHEMA_MIGRATION_PATH);
@@ -1202,7 +1210,7 @@ describe("rollback", () => {
       `);
       expect(await scriptFailure(fresh, "truncate specialization.mapping_versions, specialization.rule_versions cascade")).toBeNull();
       expect(await scriptFailure(fresh, "delete from specialization.regions where id = 'zz_region'")).toBeNull();
-      await applyMigration(fresh, SEED_MIGRATION_PATH);
+      await applyMigration(fresh, SEED_V1_MIGRATION_PATH);
       await fresh.query("select set_config('request.jwt.claim.sub', $1, false)", [USER_A]);
       await fresh.exec("set role authenticated");
       await fresh.query("insert into specialization.goals (id, region_id, node_id, side, metric, target, period, starts_on, timezone) values ('rollback-goal', 'forearm', 'forearm.br', 'left', 'direct_dynamic_bouts', 8, 'calendar_week', '2026-10-12', 'UTC')");
@@ -1215,7 +1223,7 @@ describe("rollback", () => {
       expect((await fresh.query<{ n: number }>("select count(*)::int as n from pg_extension where extname = 'btree_gist'")).rows[0].n).toBe(1);
 
       await applyMigration(fresh, SCHEMA_MIGRATION_PATH);
-      await applyMigration(fresh, SEED_MIGRATION_PATH);
+      await applyMigration(fresh, SEED_V1_MIGRATION_PATH);
       const [after] = (await fresh.query<{ mappings: number; goals: number }>("select (select count(*)::int from specialization.variant_mappings) as mappings, (select count(*)::int from specialization.goals) as goals")).rows;
       expect(after).toEqual({ mappings: forearmRegionData.mappings.length, goals: 0 });
     } finally {
@@ -1228,7 +1236,7 @@ describe("rollback", () => {
 
 describe("applied as one DO block per file, the way it reaches production", () => {
   it("wraps a file as exactly one statement, with quote tags the file does not contain", () => {
-    for (const path of [SCHEMA_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+    for (const path of [SCHEMA_MIGRATION_PATH, SEED_V1_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
       const text = readMigration(path);
       const block = asDoBlock(text);
       expect(block.startsWith("do $outer$ declare body text := $body$")).toBe(true);
@@ -1242,10 +1250,11 @@ describe("applied as one DO block per file, the way it reaches production", () =
   });
 
   /**
-   * The runbook (04-database.md §9) names every existing table the two files lock, so the
-   * owner can choose the moment to apply them. The schema's foreign keys take SHARE ROW
+   * The runbook (04-database.md §9) names every existing table the files lock, so the
+   * owner can choose the moment to apply them. Schema v1's foreign keys take SHARE ROW
    * EXCLUSIVE on what they reference, which blocks writes there (sign-ups, sign-ins and
-   * account deletions on auth.users) until it commits; the seed only reads and key-shares.
+   * account deletions on auth.users) until it commits; a seed only reads and key-shares.
+   * Schema v2 locks nothing outside the schema (server/specializationSchemaV2.test.ts).
    */
   it("locks only the existing tables the runbook names: auth.users, public.muscles and public.exercises", async () => {
     const fresh = await createSupabaseLikeDb();
@@ -1265,21 +1274,30 @@ describe("applied as one DO block per file, the way it reaches production", () =
         ["auth.users", "public.exercises", "public.muscles"].flatMap((relation) => [{ relation, mode: "AccessShareLock" }, { relation, mode: "ShareRowExclusiveLock" }]),
       );
       await fresh.exec("commit");
+      // Each seed over the files production applies before it. It reads public.exercises for the
+      // catalog links, and foreign-key checks key-share the rows they name. Neither blocks ordinary writes.
+      const seedLocks = [{ relation: "public.exercises", mode: "AccessShareLock" }, { relation: "public.exercises", mode: "RowShareLock" }, { relation: "public.muscles", mode: "RowShareLock" }];
+      await fresh.exec("begin");
+      await applyMigration(fresh, SEED_V1_MIGRATION_PATH);
+      expect(await held()).toEqual(seedLocks);
+      await fresh.exec("commit");
+      await applyMigration(fresh, SCHEMA_V2_MIGRATION_PATH);
       await fresh.exec("begin");
       await applyMigration(fresh, SEED_MIGRATION_PATH);
-      // Reads public.exercises for the catalog links; foreign-key checks key-share the rows they name. Neither blocks ordinary writes.
-      expect(await held()).toEqual([{ relation: "public.exercises", mode: "AccessShareLock" }, { relation: "public.exercises", mode: "RowShareLock" }, { relation: "public.muscles", mode: "RowShareLock" }]);
+      const current = await held();
+      expect(current).toContainEqual({ relation: "public.exercises", mode: "AccessShareLock" });
+      expect(seedLocks).toEqual(expect.arrayContaining(current));
       await fresh.exec("rollback");
     } finally {
       await fresh.close();
     }
   }, SETUP);
 
-  it("gives the same database as applying the files directly, and refuses a changed seed the same way, applying none of it", async () => {
+  it("gives the same database as applying the files directly, every file in production's order, and refuses a changed seed the same way, applying none of it", async () => {
     const direct = await createSupabaseLikeDb();
     const wrapped = await createSupabaseLikeDb();
     try {
-      for (const path of [SCHEMA_MIGRATION_PATH, SCHEMA_MIGRATION_PATH, SEED_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+      for (const path of [...MIGRATION_STEPS.map((entry) => entry.path), SEED_MIGRATION_PATH]) {
         await applyMigration(direct, path);
         await applyMigrationAsDoBlock(wrapped, path);
       }
@@ -1290,7 +1308,7 @@ describe("applied as one DO block per file, the way it reaches production", () =
 
       const changed = emitSeedSql({
         ...productionSeedInput(),
-        regions: [{ ...forearmRegionData, variants: forearmRegionData.variants.map((variant) => (variant.id === "cat-403" ? { ...variant, deliberateHold: !variant.deliberateHold } : variant)) }],
+        regions: registeredRegionContents.map((content) => ({ ...content, variants: content.variants.map((variant) => (variant.id === "cat-403" ? { ...variant, deliberateHold: !variant.deliberateHold } : variant)) })),
       });
       const refusal = /variant cat-403 is used by mapping version forearm_mappings_v1 \(published\)/;
       expect(await scriptFailure(direct, changed)).toMatch(refusal);

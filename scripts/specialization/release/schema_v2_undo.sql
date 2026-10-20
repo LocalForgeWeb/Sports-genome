@@ -6,8 +6,11 @@
 --
 -- One DO block, so one transaction. It refuses, changing nothing, while any specialization
 -- migration after seed v2 is recorded in supabase_migrations.schema_migrations (from seed v3 on
--- the database is forward-only: published versions rest on what schema v2 added) or any
--- variant uses not_applicable (v1's checks refuse it). Otherwise it restores v1's
+-- the database is forward-only: published versions rest on what schema v2 added), while any
+-- variant uses not_applicable (v1's checks refuse it), while a version other than
+-- forearm_mappings_v1 is published or any attribute is frozen (a publish under schema v2, by a
+-- seed or by hand, rests on it), or while a goal names a muscle or movement that schema v2,
+-- applied again, would not list before it adds the goals' keys. Otherwise it restores v1's
 -- mapping_version_problems and guard_mapping_version as v1 wrote them; drops the five tables
 -- (memberships, region actions, dimensions, values and attributes, with their rows), the
 -- columns, constraints and triggers schema v2 added to v1's tables, and the functions it
@@ -21,12 +24,15 @@
 --
 -- Tested (server/specializationSchemaV2.test.ts › the undo): schema v1, seed v1, schema v2 and
 -- the current seed, then this, give the database schema v1 and seed v1 gave, catalog and rows
--- table by table; schema v2 and the current seed then apply again; it refuses after seed v3 is
--- recorded and while a variant uses not_applicable.
+-- table by table, a goal on a forearm muscle and movement kept; schema v2 and the current seed
+-- then apply again; it refuses after seed v3 is recorded, while a variant uses not_applicable,
+-- after a publish under schema v2, and while a goal names what schema v2 would not list.
 do $undo$
 declare
   v_later text;
   v_variants text;
+  v_versions text;
+  v_goals text;
 begin
   select string_agg(m.version || ' ' || m.name, ', ' order by m.version) into v_later
   from supabase_migrations.schema_migrations m
@@ -40,6 +46,40 @@ begin
   where 'not_applicable' in (ev.laterality, ev.forearm_orientation, ev.wrist_position);
   if v_variants is not null then
     raise exception 'schema v2 cannot be undone: variants % use not_applicable, which schema v1''s checks refuse', v_variants
+      using errcode = '55000';
+  end if;
+  -- A version published under schema v2 rests on rules 10 to 12, its memberships and its frozen
+  -- attributes, however it was published (a seed, or by hand): the undo would drop them under it.
+  -- forearm_mappings_v1 was published before schema v2. (Read only where schema v2's tables are.)
+  select string_agg(v.version_key || ' (' || v.state || ')', ', ' order by v.version_key) into v_versions
+  from specialization.mapping_versions v
+  where v.state <> 'draft' and v.version_key <> 'forearm_mappings_v1';
+  if v_versions is null and pg_catalog.to_regclass('specialization.variant_attributes') is not null then
+    select 'attributes of ' || string_agg(distinct a.variant_key, ', ' order by a.variant_key) into v_versions
+    from specialization.variant_attributes a
+    where a.frozen_at is not null;
+  end if;
+  if v_versions is not null then
+    raise exception 'schema v2 cannot be undone: a version published under it rests on what it added (%)', v_versions
+      using errcode = '55000';
+  end if;
+  -- A goal names its membership and region action by key, and schema v2 applied again writes back
+  -- only the memberships of published versions and the forearm's 20 actions before it adds those
+  -- keys; a goal on anything else would make that apply fail.
+  select string_agg(g.id, ', ' order by g.id) into v_goals
+  from specialization.goals g
+  where (g.node_id is not null and not exists (
+          select 1 from specialization.variant_mappings m
+          join specialization.mapping_versions v on v.id = m.version_id and v.state <> 'draft'
+          where v.region_id = g.region_id and m.node_id = g.node_id))
+     or (g.action_id is not null and not (g.region_id = 'forearm' and g.action_id = any (array[
+          'elbow.flexion', 'elbow.extension', 'forearm.pronation', 'forearm.supination', 'wrist.flexion', 'wrist.extension',
+          'wrist.radial_deviation', 'wrist.ulnar_deviation', 'fingers.mcp_flexion', 'fingers.pip_flexion', 'fingers.dip_flexion',
+          'fingers.extension', 'little_finger.extension', 'index_finger.extension', 'thumb.ip_flexion', 'thumb.cmc_abduction',
+          'thumb.mcp_extension', 'thumb.ip_extension', 'hand.palmar_aponeurosis_tension', 'forearm.distal_radioulnar_stabilization'
+        ])));
+  if v_goals is not null then
+    raise exception 'schema v2 cannot be undone: goals % name a muscle or movement that schema v2, applied again, would not list first, so it could not be applied again', v_goals
       using errcode = '55000';
   end if;
 
@@ -236,7 +276,9 @@ $fn$;
     drop column if exists catalog_keys,
     drop column if exists region_only_tag_scope,
     drop column if exists external_heading,
-    drop column if exists measurement_defaults;
+    drop column if exists measurement_defaults,
+    drop column if exists on_side_template;
+  alter table specialization.diagram_assets drop column if exists sides;
   alter table specialization.regions drop constraint if exists regions_measurement_metrics_check;
   alter table specialization.regions add constraint regions_measurement_metrics_check
     check (measurement_metrics <@ array['circumference_cm', 'grip_force_n']::text[]);

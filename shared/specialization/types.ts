@@ -138,9 +138,8 @@ export interface RegionWording {
    * forearm", "the {side} side of your chest". A midline region's has no slot ("your core").
    * Rendered by `onSide` (regionIndex.ts).
    *
-   * Held in code only: schema v2 gives the regions row no column for it (10-multi-region.md §5.1),
-   * so the seed does not write it and a comparison of the record with its row leaves it out. Every
-   * other word here has its column.
+   * The seed writes it to `regions.on_side_template` (schema v2), which holds `{side}` once on a
+   * paired region and never on a midline one, as every other word here has its column.
    */
   onSideTemplate: string;
 }
