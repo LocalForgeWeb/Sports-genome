@@ -6,7 +6,7 @@ import { rankExerciseMatches } from "@/lib/exerciseSearch";
 import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 import { trapTabWithin } from "@/lib/modalBackground";
 import { ExerciseMedia } from "@/components/ExerciseMedia";
-import { addSets, swapMeasurementNotes, swapSets, swapSuggestions, type DraftChoice, type PartialDropChoice, type SwapAssessment } from "@/lib/workoutSwap";
+import { addSets, rowsLimbOf, swapMeasurementNotes, swapSets, swapSuggestions, type DraftChoice, type PartialDropChoice, type SwapAssessment } from "@/lib/workoutSwap";
 import type { DeviceWorkoutExercise } from "@/lib/deviceWorkoutLog";
 import { loggingPolicyFor } from "@shared/specialization/loggingPolicy";
 import type { Limb } from "@shared/specialization/types";
@@ -123,7 +123,8 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
    */
   const moving = swapSets(exercise, { draft: draftChoice, partialDrop, perArm: incoming?.perArm });
   const added = incoming?.perArm ? addSets(incoming.prescription, true) : null;
-  const fromLimb: Limb = loggingPolicyFor(exercise.catalogId ?? catalogEntry?.id).sideLimb ?? "arm";
+  // The original's rows say the limb they were built on, as the swap reads it (`rowsLimbOf`).
+  const fromLimb: Limb = rowsLimbOf(exercise) ?? loggingPolicyFor(exercise.catalogId ?? catalogEntry?.id).sideLimb ?? "arm";
   const toLimb: Limb = incoming?.limb ?? "arm";
   const eachSide = (planned: number, rows: number) => `${setsWord(planned)}, done once with each ${toLimb}: ${rows} sets`;
   const perArmFrom = Boolean(exercise.perArm);

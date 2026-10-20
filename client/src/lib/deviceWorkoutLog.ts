@@ -193,21 +193,37 @@ const isWeightUnit = (value: unknown): value is DisplayWeightUnit => value === "
 const knownSetFields: ReadonlySet<string> = new Set(["weight", "reps", "unit", "height", "completed", "skipped", "id", "type", "stages", "effort", "side", "legSide", "holdSeconds", "warmup"]);
 
 /**
+ * A set type a later release added: a name other than "standard" and "drop". Every reader here
+ * asks `type === "drop"`, so such a set reads as the standard set its weight and reps give.
+ */
+const isLaterSetType = (type: unknown) => typeof type === "string" && type !== "standard" && type !== "drop";
+
+/**
+ * What a stored set holds that this code does not understand, exactly as stored: every field it
+ * does not know, and a later release's set type with its stages (a list). Loading, saving and
+ * logging the set all keep these (10-multi-region.md §2.1), so a later release's data survives
+ * this one, a rollback to it or a second tab open on it.
+ */
+export function unknownSetFields(set: DeviceSetLog): Record<string, unknown> {
+  const laterType = isLaterSetType(set.type);
+  return Object.fromEntries(Object.entries(set).filter(([field, value]) => !knownSetFields.has(field)
+    || (laterType && (field === "type" || (field === "stages" && Array.isArray(value))))));
+}
+
+/**
  * Keeps a set's unit only when it is one the app knows, and a drop set's stages only when they
  * are stages: anything else stored there is dropped rather than read as load. The atlas's set
  * fields are kept the same way: a side (the arm's in `side`, the leg's in `legSide`) only when it
  * is one of the three, hold seconds only when they are a whole number, and a warm-up mark only
  * when it is `true`.
  *
- * A field this code does not know is kept exactly as stored (10-multi-region.md §2.1). Every save
- * rewrites the whole history through here, so a field a later release adds to a set survives a
- * save by this one; before 20 Oct such fields were dropped on the next save.
+ * What this code does not understand is kept exactly as stored (`unknownSetFields`), and so is a
+ * drop stage's field it does not know. Every save rewrites the whole history through here, so a
+ * field a later release adds to a set survives a save by this one; before 20 Oct such fields
+ * were dropped on the next save.
  */
 function normalizeSet(set: DeviceSetLog): DeviceSetLog {
-  const normalized: DeviceSetLog = { weight: String(set.weight || ""), reps: String(set.reps || ""), height: String(set.height || ""), completed: Boolean(set.completed), skipped: Boolean(set.skipped) };
-  for (const [field, value] of Object.entries(set)) {
-    if (!knownSetFields.has(field)) (normalized as Record<string, unknown>)[field] = value;
-  }
+  const normalized: DeviceSetLog = { weight: String(set.weight || ""), reps: String(set.reps || ""), height: String(set.height || ""), completed: Boolean(set.completed), skipped: Boolean(set.skipped), ...unknownSetFields(set) };
   if (isWeightUnit(set.unit)) normalized.unit = set.unit;
   if (typeof set.id === "string" && set.id) normalized.id = set.id;
   if (isSetEffort(set.effort)) normalized.effort = set.effort;
@@ -221,8 +237,9 @@ function normalizeSet(set: DeviceSetLog): DeviceSetLog {
     normalized.stages = (Array.isArray(set.stages) ? set.stages : [])
       .filter((stage): stage is DropStage => typeof stage === "object" && stage !== null)
       .map((stage, index) => {
-        const kept: DropStage = { id: typeof stage.id === "string" && stage.id ? stage.id : `${normalized.id ?? "set"}-stage-${index + 1}`, weight: String(stage.weight || ""), reps: String(stage.reps || "") };
-        if (isWeightUnit(stage.unit)) kept.unit = stage.unit;
+        const { unit, ...stored } = stage;
+        const kept: DropStage = { ...stored, id: typeof stage.id === "string" && stage.id ? stage.id : `${normalized.id ?? "set"}-stage-${index + 1}`, weight: String(stage.weight || ""), reps: String(stage.reps || "") };
+        if (isWeightUnit(unit)) kept.unit = unit;
         return kept;
       });
   }

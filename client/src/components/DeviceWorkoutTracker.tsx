@@ -9,12 +9,12 @@ import { exercisePhotoSet } from "@/lib/exercisePhotos";
 import {
   activePosition, carriedEntryFor, countCompletedSets, countPlannedSets, finalizeSession, freshId, newSetId,
   deviceWorkoutHistoryKey, isCompletedSet, isCompletedWorkout, isDraftSet, isDropInProgress, isExerciseSkipped, lastCompletedSetFor, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, skipExercise,
-  sideFieldOf, unskipExercise, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession, type SetSide, type StrapsUsed,
+  sideFieldOf, unknownSetFields, unskipExercise, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession, type SetSide, type StrapsUsed,
 } from "@/lib/deviceWorkoutLog";
 import { loggingPolicyFor, sideQuestionLabel, type LoggingPolicy } from "@shared/specialization/loggingPolicy";
 import type { Limb } from "@shared/specialization/types";
 import { noLoggerGates, type LoggerGates } from "@/lib/specialization/loggerGates";
-import { addAfter, addSets, applySwap, assessSwap, canUndoSwap, catalogIdOf, perArmRowSides, rowSidesOn, swapNote, undoSwap, type SwapReceipt, type SwapTarget } from "@/lib/workoutSwap";
+import { addAfter, addSets, applySwap, assessSwap, canUndoSwap, catalogIdOf, perArmRowSides, rowSidesOn, rowsLimbOf, swapNote, undoSwap, type SwapReceipt, type SwapTarget } from "@/lib/workoutSwap";
 import { dropSetLine, dropSetSummary, newStageId, performedSetLine, setVolume, stageLoadText, stageNote, stageProblem, volumeText } from "@/lib/dropSets";
 import { loadConventionFor } from "@shared/loadConventions";
 import { SetEffortChoice } from "@/components/SetEffortChoice";
@@ -365,6 +365,12 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   /** The limb a session exercise's sides are recorded on: the arm when it records none. */
   const limbOf = (exercise: Pick<DeviceWorkoutExercise, "catalogId" | "exerciseName">): Limb => policyFor(exercise).sideLimb ?? "arm";
   /**
+   * The limb a session exercise's rows name their sides on: for rows laid out per side, the limb
+   * they were built on (`rowsLimbOf`: a workout left open across a release can hold rows built per
+   * leg on an exercise this release does not know), else the exercise's own.
+   */
+  const rowLimbOf = (exercise: DeviceWorkoutExercise): Limb => rowsLimbOf(exercise) ?? limbOf(exercise);
+  /**
    * The plan entry a session exercise was built from, in the day open in the plan: its own, or,
    * for one swapped in, the one it took the place of. -1 when there is none, or when this
    * workout is from another day.
@@ -579,6 +585,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
           // The other limb's side, where the set holds one, is kept as it is.
           const side = policy.askSide ? set[sideFieldOf(limb)] ?? defaultSideFor(item, setIndex, policy) : set[sideFieldOf(limb)];
           return {
+            // What this release does not understand stays as stored (a later release's field).
+            ...unknownSetFields(set),
             // The set keeps the id it was created with.
             ...(set.id ? { id: set.id } : {}),
             // What you see in the box is what gets logged, including a field
@@ -749,7 +757,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         const result = applySwap(session, exerciseId, target, {
           swapId, newExerciseId: freshId(String(choice.target.id)), at: new Date().toISOString(), draft: choice.draft, partialDrop: choice.partialDrop, newSetId,
           measureOf: (item) => policyFor({ catalogId: item.id, exerciseName: item.name }).measure,
-          sideLimbOf: (item) => limbOf({ catalogId: item.id, exerciseName: item.name }),
+          sideLimbOf: (item) => policyFor({ catalogId: item.id, exerciseName: item.name }).sideLimb,
           ...(incoming ? { perArm: incoming.perArm, prescription: incoming.prescription } : {}),
         }, exerciseCatalog);
         out.receipt = result.receipt;
@@ -772,7 +780,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       const kept = receipt.original ? receipt.original.sets.filter(isCompletedSet).length : 0;
       // Where rows per side come into it, the count the new exercise got, as the sheet said it.
       const rows = receipt.replacement.sets.length;
-      const count = receipt.before.perArm || receipt.replacement.perArm ? `${rows} ${rows === 1 ? "set" : "sets"}${receipt.replacement.perArm ? `, one ${limbOf(receipt.replacement)} at a time` : ""}` : "";
+      const count = receipt.before.perArm || receipt.replacement.perArm ? `${rows} ${rows === 1 ? "set" : "sets"}${receipt.replacement.perArm ? `, one ${rowLimbOf(receipt.replacement)} at a time` : ""}` : "";
       toast(`Swapped to ${choice.target.name}`, {
         id: `swap-${swapId}`,
         description: `${kept ? `Your ${kept} logged ${kept === 1 ? "set stays" : "sets stay"} with ${fromName}.${count ? ` ${choice.target.name} has ${count}.` : ""}` : `${choice.target.name} takes ${fromName}'s place${count ? ` with ${count}` : ""}.`}${planLine}`,
@@ -844,7 +852,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     if (type === "standard" && (set.stages?.length ?? 0) > 0) return;
     setDropProblem(null);
     setDropNote(null);
-    updateSet(exercise.id, position.setIndex, type === "drop" ? { type: "drop", id: set.id ?? freshId("set"), stages: set.stages ?? [] } : { type: undefined, stages: undefined });
+    // A drop set starts from its own stages, never from those of a set type a later release added.
+    updateSet(exercise.id, position.setIndex, type === "drop" ? { type: "drop", id: set.id ?? freshId("set"), stages: set.type === "drop" ? set.stages ?? [] : [] } : { type: undefined, stages: undefined });
   };
 
   const forgetTouched = () => setTouchedEntries((current) => {
@@ -1078,7 +1087,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
                 from before ids were kept, its name), and a name the catalog no longer
                 has gets the placeholder frame rather than a guess. */}
             <ExerciseMedia exerciseId={catalogEntry?.id ?? -1} exerciseName={exercise.exerciseName} equipment={catalogEntry?.equipment} variant="thumb" />
-            <div><strong>{exercise.exerciseName}</strong><small>{exerciseSkipped ? "Skipped · nothing recorded" : `${shownPrescription(exercise)}${exercise.perArm ? ` · each ${limbOf(exercise)}` : ""}`}</small>{note && <small className="session-swap-note">{note}</small>}</div>
+            <div><strong>{exercise.exerciseName}</strong><small>{exerciseSkipped ? "Skipped · nothing recorded" : `${shownPrescription(exercise)}${exercise.perArm ? ` · each ${rowLimbOf(exercise)}` : ""}`}</small>{note && <small className="session-swap-note">{note}</small>}</div>
             {!exercise.replacedBy && <span className="session-exercise-actions">
               <button type="button" className="session-exercise-skip" onClick={() => setSwapForId(exercise.id)} aria-label={`Swap ${exercise.exerciseName}`}>
                 <ArrowLeftRight className="h-3.5 w-3.5" /><span>Swap</span>
@@ -1108,7 +1117,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
               </div>;
             }
             // A row laid out per side names its side before it is logged too: logging it here records that side.
-            const side = set.completed || exercise.perArm ? sideWordsOf(set, limbOf(exercise)) : null;
+            const side = set.completed || exercise.perArm ? sideWordsOf(set, rowLimbOf(exercise)) : null;
             // A hold's row logs only with its seconds in, and says so in the row.
             const secondsMissing = queueHold && !set.completed && !holdSecondsReady(set.holdSeconds);
             const hintId = `${exercise.id}-${setIndex}-seconds-hint`;
@@ -1482,7 +1491,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             <ol>{exercise.sets.filter(isCompletedSet).map((set, index) => {
               const unit = setWeightUnit(set, activeSession, sessionUnit);
               const volume = set.type === "drop" && (set.stages?.length ?? 0) >= 2 ? setVolume(set, unit, convention, sessionUnit) : null;
-              const side = sideWordsOf(set, limbOf(exercise));
+              const side = sideWordsOf(set, rowLimbOf(exercise));
               return <li key={set.id ?? index}>{performedSetLine(set, unit, convention)}{side ? ` · ${side}` : ""}{set.type === "drop" && (set.stages?.length ?? 0) >= 2 && <small>{dropSetSummary(set)}{volume ? ` · ${volumeText(volume)}` : ""}</small>}</li>;
             })}</ol>
           </li>;
