@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
 import { buildDaySlots, emptyDayStore, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
-import { regionDataFor, specializationRegions } from "@shared/specialization/registry";
+import { regionDataFor, registeredRegionContents, specializationRegions } from "@shared/specialization/registry";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { calendarWeekInterval } from "@shared/specialization/time";
 import type { ArmSide, ExposureBout, SpecializationGoal, SpecializationRegionData } from "@shared/specialization/types";
@@ -111,26 +111,115 @@ describe("the same calculator on the deltoid region", () => {
 /** Region and muscle words that region-agnostic code must never contain. */
 const regionWords = /forearm|deltoid|delts?\b|\bfc[ru]\b|\bfd[sp]\b|\becr[lb]\b|\becu\b|brachioradialis|wrist|biceps|triceps|pronat|supinat/i;
 
+/** The file's lines with every comment blanked out, by the TypeScript parser (JSX text is text, not a comment). */
+function codeLines(file: string, text: string): string[] {
+  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+  const chars = text.split("");
+  const blank = (ranges: readonly ts.CommentRange[] | undefined) => {
+    for (const range of ranges ?? []) for (let index = range.pos; index < range.end; index++) if (chars[index] !== "\n") chars[index] = " ";
+  };
+  const startsWithText = (node: ts.Node) => node.getChildren(source)[0]?.kind === ts.SyntaxKind.JsxText;
+  const visit = (node: ts.Node) => {
+    // A doc comment is blanked whole; JSX text is never trivia, so it is never scanned for comments.
+    if (ts.isJSDoc(node)) { blank([{ pos: node.pos, end: node.end, kind: ts.SyntaxKind.MultiLineCommentTrivia }]); return; }
+    if (node.kind === ts.SyntaxKind.JsxText) return;
+    if (!startsWithText(node)) blank(ts.getLeadingCommentRanges(text, node.pos));
+    const children = node.getChildren(source);
+    if (!children.length && node.kind !== ts.SyntaxKind.GreaterThanToken) blank(ts.getTrailingCommentRanges(text, node.end));
+    children.forEach(visit);
+  };
+  visit(source);
+  return chars.join("").split("\n");
+}
+
+const escaped = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+/** A term as a whole word or phrase: bounded by non-word characters where it starts or ends with a word character. */
+const bounded = (term: string) => `${/^\w/.test(term) ? "\\b" : ""}${term}${/\w$/.test(term) ? "\\b" : ""}`;
+
+/**
+ * Every region word the registry holds (10-multi-region.md §6.2): each registered region's id and
+ * label, its nodes' names, short names and aliases of four characters or more, its drawing's view
+ * labels and label texts, and its wording (a side in a sentence as the template reads with either
+ * side); plus "arm" and "leg", singular and plural. Built from the data, so every region a wave
+ * registers adds its words without anyone editing this list.
+ */
+export function registryWordPattern(): RegExp {
+  const terms = new Set<string>();
+  const add = (text: string | undefined) => {
+    const term = text?.trim().replace(/\s+/g, " ");
+    if (term && term.length >= 4) terms.add(bounded(escaped(term.toLowerCase())));
+  };
+  for (const content of registeredRegionContents) {
+    const { id, label, wording } = content.region;
+    for (const form of [id, id.replace(/_/g, " "), id.replace(/_/g, "-"), label]) add(form);
+    for (const [key, value] of Object.entries(wording)) {
+      if (key !== "onSideTemplate") add(value);
+      else for (const side of ["left", "right"]) add(value.replace("{side}", side));
+    }
+    for (const node of content.nodes) for (const text of [node.name, node.shortName, ...node.aliases]) add(text);
+    for (const view of content.diagram?.viewOrder ?? []) add(view.label);
+    for (const layers of Object.values(content.diagram?.views ?? {})) for (const layer of Object.values(layers ?? {})) for (const item of layer?.labels ?? []) add(item.text);
+  }
+  return new RegExp(`${Array.from(terms).sort().join("|")}|\\barms?\\b|\\blegs?\\b`, "i");
+}
+
 describe("no region is named in the calculator, the windows, the goals or the adapters", () => {
+  const pattern = registryWordPattern();
   const files = [
     "shared/specialization/exposure.ts",
     "shared/specialization/time.ts",
     "shared/specialization/goals.ts",
     "client/src/lib/specialization/bouts.ts",
     "client/src/lib/specialization/planBouts.ts",
+    "client/src/lib/specialization/planChange.ts",
+    "client/src/lib/specialization/progressSeries.ts",
     "client/src/lib/specialization/revision.ts",
     "client/src/lib/specialization/stores.ts",
     "client/src/lib/specialization/recommendations.ts",
     "client/src/lib/specialization/useSpecializationSummary.ts",
   ];
+  /** Lines that must stay, by file and exact code, each with its reason. */
+  const allowed: { file: string; code: string; why: string }[] = [
+    {
+      file: "shared/specialization/exposure.ts",
+      code: 'if (strapped.length) notes.push("Strapped: grip not counted");',
+      why: "Straps withhold only a grip mapping (`requiresNoStraps`), so the note names that kind of mapping, as the rule's straps clause does; a region with no such mapping never shows it.",
+    },
+  ];
+
+  it("builds its words from the registry: every region's id, label, muscles, views and wording, and the limbs", () => {
+    for (const word of ["forearm", "Forearms", "upper arm", "upper-arm", "Brachioradialis", "Flexor carpi ulnaris", "Biceps brachii", "Thumb side", "grip", "your left forearm", "Upper-arm muscles credited here", "arm", "legs"]) {
+      expect(pattern.test(word), word).toBe(true);
+    }
+    // Whole words only: a field named for a region's measure or a variant's column is not a region word.
+    for (const word of ["grip_force_n", "forearmOrientation", "legSide", "armSide", "sidedBy", "the side"]) expect(pattern.test(word), word).toBe(false);
+    // The limbs as copy are found; only a string that is exactly a limb value is left to the model.
+    expect(pattern.test(withoutLimbValues('notes.push("Left arm only")'))).toBe(true);
+    expect(pattern.test(withoutLimbValues('limb === "arm" ? bout.armSide : bout.legSide'))).toBe(false);
+  });
+
+  /**
+   * A string that is exactly one of the data model's limbs (`Limb`: "arm", "leg") names which of a
+   * bout's two side fields to read, as "paired" and "midline" name a side model: vocabulary of the
+   * model, not words on a page. It is left out of the scan; any other string or code is read.
+   */
+  const withoutLimbValues = (line: string) => line.replace(/(["'`])(arm|leg)\1/g, "$1$1");
 
   for (const file of files) {
     it(file, () => {
-      const source = readFileSync(join(process.cwd(), file), "utf8");
-      const hits = source.split("\n").map((line, index) => [index + 1, line] as const).filter(([, line]) => regionWords.test(line));
+      const lines = codeLines(file, readFileSync(join(process.cwd(), file), "utf8"));
+      const hits = lines.map((line, index) => [index + 1, line.trim()] as const).filter(([, line]) => pattern.test(withoutLimbValues(line)) && !allowed.some((entry) => entry.file === file && entry.code === line));
       expect(hits).toEqual([]);
     });
   }
+
+  it("keeps the allow-list short and true: every entry is still a line of its file", () => {
+    expect(allowed.length).toBeLessThanOrEqual(2);
+    for (const entry of allowed) {
+      expect(entry.why.length, entry.code).toBeGreaterThan(40);
+      expect(codeLines(entry.file, readFileSync(join(process.cwd(), entry.file), "utf8")).map((line) => line.trim()), entry.code).toContain(entry.code);
+    }
+  });
 });
 
 /**
@@ -156,27 +245,6 @@ describe("no region is named in the page's components", () => {
       why: "Picks the glyph's shape from the verb in any region's action id (shoulder.internal_rotation, foot pronation): joint-action vocabulary, not a branch on a region.",
     },
   ];
-
-  /** The file's lines with every comment blanked out, by the TypeScript parser (JSX text is text, not a comment). */
-  const codeLines = (file: string, text: string) => {
-    const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
-    const chars = text.split("");
-    const blank = (ranges: readonly ts.CommentRange[] | undefined) => {
-      for (const range of ranges ?? []) for (let index = range.pos; index < range.end; index++) if (chars[index] !== "\n") chars[index] = " ";
-    };
-    const startsWithText = (node: ts.Node) => node.getChildren(source)[0]?.kind === ts.SyntaxKind.JsxText;
-    const visit = (node: ts.Node) => {
-      // A doc comment is blanked whole; JSX text is never trivia, so it is never scanned for comments.
-      if (ts.isJSDoc(node)) { blank([{ pos: node.pos, end: node.end, kind: ts.SyntaxKind.MultiLineCommentTrivia }]); return; }
-      if (node.kind === ts.SyntaxKind.JsxText) return;
-      if (!startsWithText(node)) blank(ts.getLeadingCommentRanges(text, node.pos));
-      const children = node.getChildren(source);
-      if (!children.length && node.kind !== ts.SyntaxKind.GreaterThanToken) blank(ts.getTrailingCommentRanges(text, node.end));
-      children.forEach(visit);
-    };
-    visit(source);
-    return chars.join("").split("\n");
-  };
 
   it("finds the page's components, and reads strings and code but not comments", () => {
     expect(files).toEqual(expect.arrayContaining(["SpecializationPanel.tsx", "SpecializationDiagram.tsx", "MeasurementsPanel.tsx", "MuscleSheet.tsx", "model.ts", "diagramGeometry.ts"]));
