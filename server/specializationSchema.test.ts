@@ -74,7 +74,7 @@ const catalogCount = distinctIn(registeredRegionContents.flatMap((content) => co
 const FROZEN_TABLES = ["mapping_versions", "variant_mappings", "mapping_sources", "rule_versions", "exercise_variants", "nodes", "node_actions", "claims", "claim_sources", "sources", "region_nodes", "variant_attributes"];
 
 /** What a production or fixture region needs since schema v2: a complete side model. */
-const PAIRED_BY_ARM = { side_model: "paired", side_limb: "arm", side_word: "arm", side_word_plural: "arms" };
+const PAIRED_BY_ARM = { side_model: "paired", side_limb: "arm", side_word: "arm", side_word_plural: "arms", on_side_template: "your {side} arm" };
 
 let db: Awaited<ReturnType<typeof createReleaseDb>>;
 
@@ -306,6 +306,8 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     // Diagram view and layer ids are the drawing's own: a shape, not a list (tested below).
     ["diagram_paths", "kind", () => union("DiagramPathKind")],
     ["diagram_labels", "anchor", () => property("DiagramLabel", "anchor")],
+    // Schema v2: one side drawn and mirrored, or both drawn (null reads as one side).
+    ["diagram_assets", "sides", () => union("DiagramSides")],
     // A goal's or measurement's side: left or right in a paired region, midline in a midline region or for a girth.
     ["goals", "side", () => union("SummarySide")],
     ["goals", "metric", () => union("GoalMetric")],
@@ -439,8 +441,8 @@ describe("reference content, as a signed-in user", () => {
     // Rows that must stay hidden, next to the seeded ones.
     await as(db, "service_role", async () => {
       await db.exec(`
-        insert into specialization.regions (id, label, heading, status, entry_label, external_group, incidental_work, progress_subtitle, side_model, side_limb, side_word, side_word_plural)
-          values ('zz_fixture', 'Fixture', 'Fixture', 'fixture', 'Fixture', 'Other muscles', 'bracing', 'Circumference, by arm', 'paired', 'arm', 'arm', 'arms');
+        insert into specialization.regions (id, label, heading, status, entry_label, external_group, incidental_work, progress_subtitle, side_model, side_limb, side_word, side_word_plural, on_side_template)
+          values ('zz_fixture', 'Fixture', 'Fixture', 'fixture', 'Fixture', 'Other muscles', 'bracing', 'Circumference, by arm', 'paired', 'arm', 'arm', 'arms', 'your {side} arm');
         insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status) values ('test:fcu.draft', 'forearm.fcu', 'selectivity', 'Draft claim.', 'unknown', 'draft');
         insert into specialization.claim_sources (claim_id, source_id, locator) select c.id, s.id, 'Test' from specialization.claims c, specialization.sources s where c.claim_key = 'test:fcu.draft' and s.source_key = 'S2';
         insert into specialization.rule_versions (id, specification, published_at, notes) values ('zz_rule_draft', '{}', null, 'Unpublished rule.');

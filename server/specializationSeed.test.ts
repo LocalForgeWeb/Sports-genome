@@ -94,7 +94,7 @@ const readRegions = () =>
     `select id, label, heading, sort_order as "sortOrder", status, body_map_keys as "bodyMapKeys", entry_label as "entryLabel", node_for_body_map_key as "nodeForBodyMapKey",
             external_group as "externalGroup", incidental_work as "incidentalWork", progress_subtitle as "progressSubtitle", measurement_metrics as "measurementMetrics",
             side_model as "sideModel", side_limb as "sideLimb", side_word as "sideWord", side_word_plural as "sideWordPlural", catalog_keys as "catalogKeys",
-            region_only_tag_scope as "regionOnlyTagScope", external_heading as "externalHeading", measurement_defaults as "measurementDefaults"
+            region_only_tag_scope as "regionOnlyTagScope", external_heading as "externalHeading", measurement_defaults as "measurementDefaults", on_side_template as "onSideTemplate"
      from specialization.regions order by id`,
   );
 /** A region record as its row holds it. */
@@ -103,19 +103,21 @@ const asRegionRow = (region: SpecializationRegion) => ({
   nodeForBodyMapKey: region.nodeForBodyMapKey ?? {}, externalGroup: region.wording.externalGroup, incidentalWork: region.wording.incidentalWork, progressSubtitle: region.wording.progressSubtitle,
   measurementMetrics: region.measurementMetrics, sideModel: region.sides.model, sideLimb: region.sides.model === "paired" ? region.sides.limb : null,
   sideWord: region.wording.sideWord ?? null, sideWordPlural: region.wording.sideWordPlural ?? null, catalogKeys: region.catalogKeys, regionOnlyTagScope: region.regionOnlyTagScope,
-  externalHeading: region.wording.externalHeading, measurementDefaults: region.measurementDefaults,
+  externalHeading: region.wording.externalHeading, measurementDefaults: region.measurementDefaults, onSideTemplate: region.wording.onSideTemplate,
 });
-/** The row a reference region keeps: its id, label and status, as seed v1 wrote the upper arm's. */
-const referenceRow = (id: string, label: string) => ({
-  id, label, heading: null, sortOrder: 0, status: "reference", bodyMapKeys: [], entryLabel: null, nodeForBodyMapKey: {}, externalGroup: null, incidentalWork: null, progressSubtitle: null,
-  measurementMetrics: [], sideModel: null, sideLimb: null, sideWord: null, sideWordPlural: null, catalogKeys: [], regionOnlyTagScope: "any", externalHeading: null, measurementDefaults: {},
+/**
+ * A reference region's row until its promotion: schema v1's columns as seed v1 wrote the upper
+ * arm's (its label and status, nothing of a page), schema v2's from its record.
+ */
+const asReferenceRow = (region: SpecializationRegion) => ({
+  ...asRegionRow(region), heading: null, sortOrder: 0, bodyMapKeys: [], entryLabel: null, nodeForBodyMapKey: {}, externalGroup: null, incidentalWork: null, progressSubtitle: null, measurementMetrics: [],
 });
 
 /** One seeded drawing read back whole, in the content's own shape (DiagramAsset): its views in order with their words, every layer's paths and labels in draw order. */
 async function readDrawing(key: string, version: number): Promise<DiagramAsset | null> {
-  const [asset] = await rows<{ id: string; regionId: string; width: number; height: number; licenseNote: string }>(
+  const [asset] = await rows<{ id: string; regionId: string; width: number; height: number; licenseNote: string; sides: DiagramAsset["sides"] | null }>(
     db,
-    `select id, region_id as "regionId", view_box_width::float8 as width, view_box_height::float8 as height, license_note as "licenseNote" from specialization.diagram_assets where asset_key = $1 and version = $2`,
+    `select id, region_id as "regionId", view_box_width::float8 as width, view_box_height::float8 as height, license_note as "licenseNote", sides from specialization.diagram_assets where asset_key = $1 and version = $2`,
     [key, version],
   );
   if (!asset) return null;
@@ -134,11 +136,15 @@ async function readDrawing(key: string, version: number): Promise<DiagramAsset |
   const layerOf = (view: string, layer: string) => ((views[view] ??= {})[layer] ??= { paths: [], labels: [] });
   for (const { view, layer, ...path } of paths) layerOf(view, layer).paths.push(path);
   for (const { view, layer, ...label } of labels) layerOf(view, layer).labels.push(label);
-  return { key, version, regionId: asset.regionId, viewBox: { width: asset.width, height: asset.height }, viewOrder, views: views as DiagramAsset["views"], licenseNote: asset.licenseNote };
+  // A drawing that leaves its sides out is stored with none (null), which reads as one_side.
+  return {
+    key, version, regionId: asset.regionId, ...(asset.sides === null ? {} : { sides: asset.sides }), viewBox: { width: asset.width, height: asset.height }, viewOrder, views: views as DiagramAsset["views"],
+    licenseNote: asset.licenseNote,
+  };
 }
 
 /** A drawing compared as data: the same views in the same order, each layer's paths and labels in the same order (object key order aside). */
-const sameDrawing = ({ sides: _sides, ...drawing }: DiagramAsset) => ({
+const sameDrawing = (drawing: DiagramAsset) => ({
   ...drawing,
   views: Object.fromEntries(Object.entries(drawing.views).map(([view, layers]) => [view, Object.fromEntries(Object.entries(layers ?? {}).map(([layer, drawn]) => [layer, { paths: drawn!.paths, labels: drawn!.labels }]))])),
 });
@@ -304,19 +310,38 @@ describe("over what production holds: seed v1's rows stay as they were", () => {
   });
 
   /**
-   * §5.2 "What a seed may change in existing rows, and nothing else". In this release: nothing.
-   * Every row it writes is new (rows of schema v2's tables, and the upper arm's two shoulder
-   * actions), and applied a second time it touches no row. xmin and ctid compared on every table.
+   * §5.2 "What a seed may change in existing rows, and nothing else". In this release, one row:
+   * the upper arm's, in the columns schema v2 added (a region row's new columns), its v1 columns
+   * staying as seed v1 wrote them. Every other row it writes is new (rows of schema v2's tables,
+   * and the upper arm's two shoulder actions), and applied a second time it touches no row. xmin
+   * and ctid compared on every table.
    */
-  it("changes no row production holds, adds only new rows, and applied again touches nothing; forearm_mappings_v1 still passes its publication rule", async () => {
+  it("changes only the upper arm's new region columns, adds only new rows, and applied again touches nothing; forearm_mappings_v1 still passes its publication rule", async () => {
     const fresh = await freshDb("schema v2 again");
     try {
+      const regionRows = async () => {
+        const found = await rows<{ id: string; row: Record<string, unknown>; v: string }>(fresh, "select id, to_jsonb(r) as row, xmin::text || '@' || ctid::text as v from specialization.regions r order by id");
+        return Object.fromEntries(found.map(({ id, ...rest }) => [id, rest]));
+      };
       const prior = await rowVersions(fresh);
+      const regionsBefore = await regionRows();
       await applyMigration(fresh, SEED_MIGRATION_PATH);
       const after = await rowVersions(fresh);
-      const allowedChanges: Record<string, number> = {};
+      const allowedChanges: Record<string, number> = { regions: 1 };
       const changed = Object.fromEntries(Object.keys(prior).map((table) => [table, prior[table].filter((version) => !after[table].includes(version)).length]).filter(([, n]) => n));
       expect(changed).toEqual(allowedChanges);
+      // That row is the upper arm's: schema v1's columns exactly as seed v1 wrote them, schema v2's from its record. The forearm's is untouched.
+      const regionsAfter = await regionRows();
+      expect(regionsAfter.forearm.v).toBe(regionsBefore.forearm.v);
+      const v2Columns = ["side_model", "side_limb", "side_word", "side_word_plural", "catalog_keys", "region_only_tag_scope", "external_heading", "measurement_defaults", "on_side_template"];
+      const v1Part = (row: Record<string, unknown>) => Object.fromEntries(Object.entries(row).filter(([column]) => !v2Columns.includes(column)));
+      expect(v1Part(regionsAfter.upper_arm.row)).toEqual(v1Part(regionsBefore.upper_arm.row));
+      expect(v1Part(regionsAfter.upper_arm.row)).toMatchObject({ label: "Upper arm", heading: null, sort_order: 0, status: "reference", body_map_keys: [], entry_label: null, measurement_metrics: [] });
+      const record = upperArmContent.region;
+      expect(Object.fromEntries(v2Columns.map((column) => [column, regionsAfter.upper_arm.row[column]]))).toEqual({
+        side_model: "paired", side_limb: "arm", side_word: record.wording.sideWord, side_word_plural: record.wording.sideWordPlural, catalog_keys: record.catalogKeys,
+        region_only_tag_scope: record.regionOnlyTagScope, external_heading: record.wording.externalHeading, measurement_defaults: record.measurementDefaults, on_side_template: record.wording.onSideTemplate,
+      });
       const added = Object.fromEntries(Object.keys(after).map((table) => [table, after[table].length - prior[table].length]).filter(([, n]) => n));
       expect(added).toEqual({
         actions: allActions.filter((action) => v1SortOrders.actions[action.id] === undefined).length,
@@ -469,14 +494,15 @@ describe("the seeded database", () => {
     expect(rule).toEqual(exposureRuleV1);
   });
 
-  it("holds each region's row: the forearm's side model, words, catalog keys, tag scope and measure defaults as its record has them; the upper arm's as seed v1 wrote it", async () => {
-    expect(await readRegions()).toEqual([asRegionRow(forearmContent.region), referenceRow("upper_arm", "Upper arm")]);
+  it("holds each region's row as its record has it, side sentence included; the upper arm's v1 columns as seed v1 wrote them, its v2 columns from its record", async () => {
+    expect(await readRegions()).toEqual([asRegionRow(forearmContent.region), asReferenceRow(upperArmContent.region)]);
+    expect(upperArmContent.region.status).toBe("reference");
     // The defaults have one shape on both sides: {metric: {landmark, posture}}, as schema v2 wrote the forearm's.
     expect(forearmContent.region.measurementDefaults).toEqual({
       circumference_cm: { landmark: "Thickest point", posture: "arm_relaxed_hanging" },
       grip_force_n: { landmark: "Dynamometer grip", posture: "elbow_90_supported" },
     });
-    expect(upperArmContent.region.status).toBe("reference");
+    expect(forearmContent.region.wording.onSideTemplate).toBe("your {side} forearm");
   });
 
   it("lists each region's members and actions in its order, the role derived from each member's home", async () => {
@@ -494,6 +520,9 @@ describe("the seeded database", () => {
     const drawing = forearmContent.diagram!;
     expect(drawing.viewOrder).toEqual([{ id: "palm", label: "Palm" }, { id: "back", label: "Back" }, { id: "thumb", label: "Thumb side" }]);
     expect(await readDrawing(drawing.key, drawing.version)).toEqual(sameDrawing(drawing));
+    // Its sides are left out on purpose (the published file stays byte for byte), so the row holds none: one side, mirrored.
+    expect(drawing.sides).toBeUndefined();
+    expect(await rows(db, "select sides from specialization.diagram_assets where asset_key = $1", [drawing.key])).toEqual([{ sides: null }]);
     // Users read the drawing, views included.
     expect(await as(db, { user: USER_B }, () => count(db, "select 1 from specialization.diagram_views"))).toBe(drawing.viewOrder.length);
   });
@@ -688,11 +717,12 @@ describe("changing content", () => {
     const before = await rowVersions(db);
     expect(await seeded(withDeltoid())).toBeNull();
     expect(await rowVersions(db)).toEqual(before);
-    // Redrawn: the rear view gone, the side view renamed and trimmed.
+    // Redrawn: the rear view gone, the side view renamed and trimmed, drawn whole for both sides.
     const redrawn: RegionContent = {
       ...deltoidContent,
       diagram: {
         ...drawing,
+        sides: "both_sides",
         viewOrder: [{ id: "front", label: "Front" }, { id: "side", label: "Outside" }],
         views: { front: drawing.views.front, side: { surface: { paths: drawing.views.side!.surface!.paths.slice(0, 3), labels: [{ text: "Back side", x: 4, y: 77, anchor: "start" as const }] } } },
       },
@@ -954,6 +984,23 @@ describe("the emitter refuses content it cannot seed faithfully", () => {
     expect(() => withRegion({ wording: noWord })).toThrow(/Region deltoid: a paired region needs wording\.sideWord and wording\.sideWordPlural/);
     expect(() => withRegion({ sides: { model: "midline" } })).toThrow(/Region deltoid: a midline region has no side words/);
     expect(() => withRegion({ sides: undefined as unknown as typeof region.sides })).toThrow(/Region deltoid needs a side model/);
+    // The sentence that names the region and a side: {side} once on a paired region, never on a midline one.
+    const sentence = (onSideTemplate: string) => ({ ...region.wording, onSideTemplate });
+    expect(() => withRegion({ wording: sentence("your shoulder") })).toThrow(/Region deltoid: a paired region's wording\.onSideTemplate names \{side\} once/);
+    expect(() => withRegion({ wording: sentence("your {side} shoulder, {side}") })).toThrow(/names \{side\} once/);
+    expect(() => withRegion({ wording: sentence(" ") })).toThrow(/Region deltoid: wording\.onSideTemplate must be text/);
+    const { sideWord: _one, sideWordPlural: _both, ...midlineWords } = region.wording;
+    expect(() => withRegion({ sides: { model: "midline" }, wording: { ...midlineWords, onSideTemplate: "your {side} trunk" } })).toThrow(/Region deltoid: a midline region's wording\.onSideTemplate names no side/);
+    expect(() => withRegion({ sides: { model: "midline" }, wording: { ...midlineWords, onSideTemplate: "your trunk" } })).not.toThrow();
+  });
+
+  it("a reference region's record, though its row keeps no page: its side model and sentence are written", () => {
+    const reference = upperArmContent.region;
+    const withReference = (patch: Partial<typeof reference>) => emitSeedSql(withRegions({ ...upperArmContent, region: { ...reference, ...patch } }));
+    expect(() => withReference({ wording: { ...reference.wording, onSideTemplate: "your upper arm" } })).toThrow(/Region upper_arm: a paired region's wording\.onSideTemplate names \{side\} once/);
+    expect(() => withReference({ wording: { ...reference.wording, externalHeading: "" } })).toThrow(/Region upper_arm: wording\.externalHeading must be text/);
+    // Its page words are not written before its promotion, so they are not asked for.
+    expect(() => withReference({ wording: { ...reference.wording, incidentalWork: "" } })).not.toThrow();
   });
 
   it("a variant without its sided_by, or an attribute outside the dimension vocabulary", () => {

@@ -12,9 +12,11 @@
 --     side_anchor, and descriptive ones such as knee or stance), held beside the variant so a
 --     frozen variant row is never written. An attribute freezes when a version that maps its
 --     variant is published.
---   * regions: the side model (paired by arm or by leg, or midline) and its words, the catalog
---     keys, the region-only tag scope, the heading other pages put over the region's muscles,
---     and the measures' default landmark and posture. Written here for the forearm.
+--   * regions: the side model (paired by arm or by leg, or midline) and its words, the sentence
+--     that names the region and a side, the catalog keys, the region-only tag scope, the heading
+--     other pages put over the region's muscles, and the measures' default landmark and posture.
+--     Written here for the forearm.
+--   * diagram_assets.sides: whether a drawing shows one side, mirrored for the other, or both.
 --   * not_applicable in exercise_variants' laterality, forearm_orientation and wrist_position;
 --     variant_mappings.side_relation (same, opposite, both); side midline on goals and
 --     measurements, the girth_cm metric and two postures; which goals may be written.
@@ -35,12 +37,14 @@
 -- is unrecorded: scripts/specialization/release/schema_v2_undo.sql (04-database.md §10).
 
 -- ---------------------------------------------------------------------------
--- 1. Regions: sides, catalog keys, words and measure defaults
+-- 1. Regions: sides, catalog keys, words and measure defaults; a drawing's sides
 -- ---------------------------------------------------------------------------
 
 -- side_model: paired (by side_limb, arm or leg) or midline (the core: counted once, no side).
 -- side_word, side_word_plural: the limb the logger asks about, as the page names it ('arm',
--- 'arms'; 'side', 'sides' on the chest and back). catalog_keys: the catalog muscle keys whose
+-- 'arms'; 'side', 'sides' on the chest and back). on_side_template: the region and a side in a
+-- sentence, '{side}' standing for left or right ('your {side} forearm'); a midline region's names
+-- no side ('your core'). catalog_keys: the catalog muscle keys whose
 -- tagged work is the region's (no longer derived from its target muscles), read within
 -- region_only_tag_scope ('any': primary and secondary tags; 'primary'). external_heading: the
 -- heading another region's page puts over this region's muscles. measurement_defaults: each
@@ -53,7 +57,8 @@ alter table specialization.regions
   add column if not exists catalog_keys text[] not null default '{}',
   add column if not exists region_only_tag_scope text not null default 'any' check (region_only_tag_scope in ('any', 'primary')),
   add column if not exists external_heading text check (btrim(external_heading) <> ''),
-  add column if not exists measurement_defaults jsonb not null default '{}'::jsonb check (jsonb_typeof(measurement_defaults) = 'object');
+  add column if not exists measurement_defaults jsonb not null default '{}'::jsonb check (jsonb_typeof(measurement_defaults) = 'object'),
+  add column if not exists on_side_template text check (btrim(on_side_template) <> '');
 
 -- The forearm as shipped: paired by arm, catalog key forearms (what its target muscles' keys
 -- gave), primary and secondary tags. Written once, before the sides rule and the guard below
@@ -66,7 +71,8 @@ set side_model = 'paired',
     catalog_keys = array['forearms'],
     region_only_tag_scope = 'any',
     external_heading = 'Forearm muscles credited here',
-    measurement_defaults = '{"circumference_cm": {"landmark": "Thickest point", "posture": "arm_relaxed_hanging"}, "grip_force_n": {"landmark": "Dynamometer grip", "posture": "elbow_90_supported"}}'::jsonb
+    measurement_defaults = '{"circumference_cm": {"landmark": "Thickest point", "posture": "arm_relaxed_hanging"}, "grip_force_n": {"landmark": "Dynamometer grip", "posture": "elbow_90_supported"}}'::jsonb,
+    on_side_template = 'your {side} forearm'
 where id = 'forearm' and side_model is null;
 
 alter table specialization.regions drop constraint if exists regions_measurement_metrics_check;
@@ -74,7 +80,8 @@ alter table specialization.regions add constraint regions_measurement_metrics_ch
   check (measurement_metrics <@ array['circumference_cm', 'grip_force_n', 'girth_cm']::text[]);
 
 -- Production and fixture regions need a complete side model; a reference region needs none.
--- A paired region has a limb and its words, a midline region has neither. Checked on the
+-- A paired region has a limb, its words and a sentence naming one side ('{side}' once); a
+-- midline region has no limb and no words, and a sentence naming no side. Checked on the
 -- stored row by an AFTER trigger, not by a CHECK: Postgres evaluates a CHECK on the row an
 -- upsert proposes before it finds the conflict, so a seed that does not name these columns
 -- (seed v1, which upserts the forearm row unchanged) would be refused. The rows already there
@@ -87,10 +94,12 @@ as $fn$
 begin
   if not (case new.side_model
              when 'paired' then new.side_limb is not null and new.side_word is not null and new.side_word_plural is not null
+               and new.on_side_template is not null and new.on_side_template like '%{side}%' and new.on_side_template not like '%{side}%{side}%'
              when 'midline' then new.side_limb is null and new.side_word is null and new.side_word_plural is null
-             else new.status = 'reference' and new.side_limb is null and new.side_word is null and new.side_word_plural is null
+               and new.on_side_template is not null and new.on_side_template not like '%{side}%'
+             else new.status = 'reference' and new.side_limb is null and new.side_word is null and new.side_word_plural is null and new.on_side_template is null
            end) then
-    raise exception 'region % (%) needs a complete side model: paired with a limb and its words, or midline with neither; only a reference region may have none', new.id, new.status
+    raise exception 'region % (%) needs a complete side model: paired with a limb, its words and a sentence naming {side} once, or midline with no limb, no words and a sentence naming no side; only a reference region may have none', new.id, new.status
       using errcode = '23514';
   end if;
   return null;
@@ -105,8 +114,10 @@ begin
   from specialization.regions r
   where not case r.side_model
               when 'paired' then r.side_limb is not null and r.side_word is not null and r.side_word_plural is not null
+                and r.on_side_template is not null and r.on_side_template like '%{side}%' and r.on_side_template not like '%{side}%{side}%'
               when 'midline' then r.side_limb is null and r.side_word is null and r.side_word_plural is null
-              else r.status = 'reference' and r.side_limb is null and r.side_word is null and r.side_word_plural is null
+                and r.on_side_template is not null and r.on_side_template not like '%{side}%'
+              else r.status = 'reference' and r.side_limb is null and r.side_word is null and r.side_word_plural is null and r.on_side_template is null
             end;
   if v_regions is not null then
     raise exception 'regions without a complete side model: %', v_regions
@@ -118,6 +129,12 @@ $do$;
 create or replace trigger regions_sides_shape
   after insert or update on specialization.regions
   for each row execute function specialization.check_region_sides();
+
+-- A drawing's sides: one_side, drawn for the subject's right side and mirrored for the left;
+-- both_sides, drawn whole and never mirrored (a midline region's). Null reads as one_side: the
+-- forearm's drawing, as published, leaves it out. Adding the column writes no row.
+alter table specialization.diagram_assets
+  add column if not exists sides text check (sides in ('one_side', 'both_sides'));
 
 -- ---------------------------------------------------------------------------
 -- 2. Variants and mappings

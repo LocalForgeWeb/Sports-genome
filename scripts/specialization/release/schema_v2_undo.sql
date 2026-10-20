@@ -236,7 +236,9 @@ $fn$;
     drop column if exists catalog_keys,
     drop column if exists region_only_tag_scope,
     drop column if exists external_heading,
-    drop column if exists measurement_defaults;
+    drop column if exists measurement_defaults,
+    drop column if exists on_side_template;
+  alter table specialization.diagram_assets drop column if exists sides;
   alter table specialization.regions drop constraint if exists regions_measurement_metrics_check;
   alter table specialization.regions add constraint regions_measurement_metrics_check
     check (measurement_metrics <@ array['circumference_cm', 'grip_force_n']::text[]);

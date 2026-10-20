@@ -308,7 +308,7 @@ function legacySortOrders(regions: readonly RegionContent[], members: ReadonlyMa
 const DIAGRAM_ID = /^[a-z][a-z0-9_]*$/;
 
 /** The words a region with a page carries in its row (RegionWording), each refused blank like the database does. */
-const PAGE_WORDS = ["externalGroup", "externalHeading", "incidentalWork", "progressSubtitle"] as const;
+const PAGE_WORDS = ["externalGroup", "incidentalWork", "progressSubtitle"] as const;
 
 /** Every dimension of the vocabulary (variants/dimensions.ts) in its order: the counting ones, then the descriptive ones. */
 const dimensionVocabulary = [
@@ -330,24 +330,27 @@ function attributesOf(variant: ExerciseVariant): [dimension: string, value: stri
   return out;
 }
 
-/** A region's row. A reference region has no page: its row holds its id, label and status and none of a page's words or measures. */
-function regionRow(region: SpecializationRegion): Value[] {
-  if (region.status === "reference") {
-    return [region.id, region.label, null, 0, "reference", [], null, { jsonb: {} }, null, null, null, [], null, null, null, null, [], "any", null, { jsonb: {} }];
-  }
+/**
+ * The columns schema v2 added to a region's row, from its record: the side model with its words
+ * and its sentence, catalog keys, tag scope, external heading and measure defaults. Refused here
+ * where the database's side model (regions_sides_shape) would refuse them: a paired region names
+ * its limb, the words for it and a sentence with `{side}` once; a midline region has no limb or
+ * words, and a sentence that names no side.
+ */
+function sideColumns(region: SpecializationRegion): Value[] {
   const { wording, sides } = region;
-  if (!wording) throw new Error(`Region ${region.id} has no wording`);
-  for (const field of PAGE_WORDS) {
-    const text: unknown = wording[field];
-    if (typeof text !== "string" || !text.trim()) throw new Error(`Region ${region.id}: wording.${field} must be text`);
-  }
-  // The database's side model (schema v2, regions_sides_shape): a paired region names its limb and the words for it; a midline region has neither.
+  const heading: unknown = wording.externalHeading;
+  if (typeof heading !== "string" || !heading.trim()) throw new Error(`Region ${region.id}: wording.externalHeading must be text`);
   const sideWords = [wording.sideWord, wording.sideWordPlural];
+  const template: unknown = wording.onSideTemplate;
+  if (typeof template !== "string" || !template.trim()) throw new Error(`Region ${region.id}: wording.onSideTemplate must be text`);
   if (sides?.model === "paired") {
     if (sides.limb !== "arm" && sides.limb !== "leg") throw new Error(`Region ${region.id}: a paired region names its limb, arm or leg`);
     if (sideWords.some((word) => typeof word !== "string" || !word.trim())) throw new Error(`Region ${region.id}: a paired region needs wording.sideWord and wording.sideWordPlural`);
+    if (template.split("{side}").length !== 2) throw new Error(`Region ${region.id}: a paired region's wording.onSideTemplate names {side} once`);
   } else if (sides?.model === "midline") {
     if (sideWords.some((word) => word !== undefined)) throw new Error(`Region ${region.id}: a midline region has no side words`);
+    if (template.includes("{side}")) throw new Error(`Region ${region.id}: a midline region's wording.onSideTemplate names no side`);
   } else {
     throw new Error(`Region ${region.id} needs a side model, paired or midline`);
   }
@@ -357,10 +360,28 @@ function regionRow(region: SpecializationRegion): Value[] {
     if (!defaults?.landmark.trim()) throw new Error(`Region ${region.id}: the ${metric} default needs a landmark`);
   }
   return [
-    region.id, region.label, region.heading, region.sortOrder, region.status, [...region.bodyMapKeys], region.entryLabel, { jsonb: region.nodeForBodyMapKey ?? {} },
-    wording.externalGroup, wording.incidentalWork, wording.progressSubtitle, [...region.measurementMetrics],
     sides.model, sides.model === "paired" ? sides.limb : null, wording.sideWord ?? null, wording.sideWordPlural ?? null,
-    [...region.catalogKeys], region.regionOnlyTagScope, wording.externalHeading, { jsonb: region.measurementDefaults ?? {} },
+    [...region.catalogKeys], region.regionOnlyTagScope, wording.externalHeading, { jsonb: region.measurementDefaults ?? {} }, template,
+  ];
+}
+
+/**
+ * A region's row. A reference region has no page: until its promotion, schema v1's columns hold
+ * what seed v1 wrote for the upper arm (its label and status; no heading, entry label, words or
+ * measures; sort order 0; no keys), and only schema v2's come from its record (10-multi-region.md
+ * §1.3, §5.2), so the promotion is the one change that writes the rest.
+ */
+function regionRow(region: SpecializationRegion): Value[] {
+  const { wording } = region;
+  if (!wording) throw new Error(`Region ${region.id} has no wording`);
+  if (region.status === "reference") return [region.id, region.label, null, 0, "reference", [], null, { jsonb: {} }, null, null, null, [], ...sideColumns(region)];
+  for (const field of PAGE_WORDS) {
+    const text: unknown = wording[field];
+    if (typeof text !== "string" || !text.trim()) throw new Error(`Region ${region.id}: wording.${field} must be text`);
+  }
+  return [
+    region.id, region.label, region.heading, region.sortOrder, region.status, [...region.bodyMapKeys], region.entryLabel, { jsonb: region.nodeForBodyMapKey ?? {} },
+    wording.externalGroup, wording.incidentalWork, wording.progressSubtitle, [...region.measurementMetrics], ...sideColumns(region),
   ];
 }
 
@@ -454,12 +475,12 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
   const section = (title: string, sql: string) => sections.push(`-- ${title}\n${sql}`);
 
   section(
-    "Regions (a reference region only holds other regions' members, and has no page, side model or measures)",
+    "Regions (a reference region only holds other regions' members and has no page: schema v1's columns stay as seed v1 wrote them until its promotion)",
     upsertValues(
       "regions",
       [
         "id", "label", "heading", "sort_order", "status", "body_map_keys", "entry_label", "node_for_body_map_key", "external_group", "incidental_work", "progress_subtitle", "measurement_metrics",
-        "side_model", "side_limb", "side_word", "side_word_plural", "catalog_keys", "region_only_tag_scope", "external_heading", "measurement_defaults",
+        "side_model", "side_limb", "side_word", "side_word_plural", "catalog_keys", "region_only_tag_scope", "external_heading", "measurement_defaults", "on_side_template",
       ],
       ["id"],
       regions.map((content) => regionRow(content.region)),
@@ -620,9 +641,10 @@ export function emitSeedSql(input: SeedInput = productionSeedInput()): string {
       "Diagram assets",
       upsertValues(
         "diagram_assets",
-        ["region_id", "asset_key", "version", "view_box_width", "view_box_height", "license_note"],
+        ["region_id", "asset_key", "version", "view_box_width", "view_box_height", "license_note", "sides"],
         ["asset_key", "version"],
-        sorted.map((diagram) => [diagram.regionId, diagram.key, diagram.version, diagram.viewBox.width, diagram.viewBox.height, diagram.licenseNote]),
+        // sides: null where the drawing leaves it out (the forearm's, as published), which reads as one_side.
+        sorted.map((diagram) => [diagram.regionId, diagram.key, diagram.version, diagram.viewBox.width, diagram.viewBox.height, diagram.licenseNote, diagram.sides ?? null]),
       ),
     );
     const viewRows: Value[][] = [];
