@@ -71,3 +71,7 @@
 ## Follow-up, 20 Oct 2026: both arms as one
 
 The owner's instruction was "there's no reason for a left and right arm". This supersedes the brief's §4 left/right items (data selected independently per side, and a mirrored model for the left arm). The page now counts each set once per muscle, whichever arm did it. It has no arm switch and no mirrored model; targets and readings name no arm; the logger asks no arm. Details, and what was kept for compatibility, are in [README.md](README.md#both-arms-as-one-20-oct-2026).
+
+## Follow-up, 20 Oct 2026: the row of muscles
+
+The owner sent a recording of the supplied demo ("the selecting muscle section doesn't work right, it should be more like this"). The "Choose muscle" sheet (`ChooseMuscleSheet.tsx`, removed) is replaced by the demo's row of numbered muscle chips right above the model, and the demo's "Selected structure" box is back on the model. One tap selects, with no sheet and no page movement. Each chip is a 44 px target in the app's type. The ledger rows above that mention Choose muscle describe the first release. Details: [README.md](README.md). Tests: `Atlas3d.render.test.ts`. Evidence: `evidence/rail-*.png` and `evidence/recording-390-muscle-row.mp4`.

@@ -11,7 +11,7 @@ import type { CanvasFailure, CanvasStatus } from "./modelTypes";
  *
  * Failures are told apart (§8): no WebGL (the drawing and the list stand in), a model or
  * decoder that did not load, or a lost context (both can be retried). The muscle list and
- * Choose muscle work throughout: they never depend on the canvas.
+ * the row of muscles above it work throughout: they never depend on the canvas.
  */
 
 const loadView = () => import("./ForearmModelView");
@@ -59,16 +59,15 @@ class ModelBoundary extends Component<{ onError: () => void; children: ReactNode
 
 type StageStatus = { status: CanvasStatus; failure?: CanvasFailure };
 
-export function AnatomyModelStage({ config, selectedNodeId, label, onSelect, onOverview, onShowDrawing, overviewShown }: {
+export function AnatomyModelStage({ config, selectedNodeId, selected, label, onSelect, onShowDrawing }: {
   config: AnatomyModelConfig;
   selectedNodeId: string | null;
+  /** The selected muscle's name and layer, shown on the model as the supplied demo did; null for the whole region. */
+  selected: { name: string; layer: string } | null;
   /** What the canvas shows, for a screen reader: the region and the selection. */
   label: string;
   onSelect: (nodeId: string) => void;
-  onOverview: () => void;
   onShowDrawing: () => void;
-  /** Whether a muscle is selected, so Overview has something to clear. */
-  overviewShown: boolean;
 }) {
   const webgl = useMemo(() => webglAvailable(), []);
   const reducedMotion = usePrefersReducedMotion();
@@ -105,12 +104,16 @@ export function AnatomyModelStage({ config, selectedNodeId, label, onSelect, onO
         : failure === "context-lost"
           ? "The device reset the 3D view."
           : "The 3D model did not load."}</p>
-      <p className="sg-anatomy3d-small">Choose muscle and the list below still have every muscle and its numbers.</p>
+      <p className="sg-anatomy3d-small">The row above and the list below still have every muscle and its numbers.</p>
       <div className="sg-anatomy3d-actions">
         {failure !== "webgl" && <button type="button" className="sg-anatomy3d-button" onClick={retry}>{failure === "context-lost" ? "Reload the model" : "Try again"}</button>}
         <button type="button" className="sg-anatomy3d-button sg-anatomy3d-button-quiet" onClick={onShowDrawing}>Show the drawing</button>
       </div>
     </div>}
-    {stage.status === "ready" && overviewShown && <button type="button" className="sg-anatomy3d-float sg-anatomy3d-overview" onClick={onOverview}>Overview</button>}
+    {stage.status === "ready" && selected && <div className="sg-anatomy3d-selected" aria-hidden="true">
+      <small>Selected structure</small>
+      <b>{selected.name}</b>
+      <small>{selected.layer}</small>
+    </div>}
   </div>;
 }

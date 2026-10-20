@@ -9,13 +9,15 @@
 
 .sg-anatomy3d { --sg-anatomy3d-accent: #f15a32; display: grid; gap: .5rem; min-width: 0; }
 
-/* The selected muscle and "Choose muscle", above the stage. Two lines are reserved for the
-   name, so choosing a longer one never pushes the stage down under the finger. */
-.sg-anatomy3d-bar { display: flex; align-items: center; justify-content: space-between; gap: .5rem .75rem; min-width: 0; min-height: 3.25rem; }
-.sg-anatomy3d-bar-name { display: grid; gap: .1rem; min-width: 0; }
-.sg-anatomy3d-bar-name small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
-.sg-anatomy3d-bar-name b { display: -webkit-box; overflow: hidden; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 800; line-height: var(--sg-leading-snug); -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.sg-anatomy3d-choose { flex: 0 0 auto; }
+/* The muscles as one row right above the stage, as in the supplied demo (owner, 20 Oct 2026):
+   swipe along it, tap one. The row scrolls on its own and never pushes the page sideways; each
+   chip is a 44 px target in the app's type, solid at rest, the selected one lit orange. */
+.sg-anatomy3d-rail { position: relative; display: flex; gap: .4rem; min-width: 0; margin: 0 -.25rem; padding: .25rem .25rem .5rem; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+.sg-anatomy3d-rail-chip { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .45rem; min-height: 2.75rem; border: 1px solid rgb(137 168 187 / .32); border-radius: var(--sg-radius-sm); background: rgb(5 20 34 / .6); padding: 0 .85rem 0 .55rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; white-space: nowrap; scroll-snap-align: start; }
+.sg-anatomy3d-rail-mark { display: inline-grid; place-items: center; min-width: 1.5rem; height: 1.5rem; border: 1px solid rgb(234 160 139 / .7); border-radius: var(--sg-radius-pill); color: #f3b5a3; font-size: var(--sg-text-xs); font-weight: 800; font-variant-numeric: tabular-nums; }
+.sg-anatomy3d-rail-chip[aria-pressed="true"] { border-color: rgb(241 90 50 / .9); background: linear-gradient(135deg, rgb(241 90 50 / .26), rgb(241 90 50 / .08)); color: #fff0ea; box-shadow: inset 0 0 0 1px rgb(241 90 50 / .18); }
+.sg-anatomy3d-rail-chip[aria-pressed="true"] .sg-anatomy3d-rail-mark { border-color: var(--sg-anatomy3d-accent); background: var(--sg-anatomy3d-accent); color: #fff; }
+.sg-anatomy3d-rail-chip:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -2px; }
 
 /* The stage: the handoff's ground, a bounded height (generous on a phone, never the whole screen). */
 .sg-anatomy3d-stage { position: relative; height: clamp(300px, 54svh, 540px); overflow: hidden; border: 1px solid rgb(142 176 198 / .16); border-radius: var(--sg-radius-md); background: radial-gradient(ellipse at 50% 42%, rgb(136 76 72 / .18), transparent 32%), radial-gradient(ellipse at 50% 55%, rgb(76 123 154 / .23), transparent 54%), radial-gradient(ellipse at 48% 88%, rgb(241 90 50 / .11), transparent 45%), linear-gradient(130deg, rgb(7 24 40 / .98), rgb(3 14 25 / .98)); }
@@ -33,11 +35,15 @@
 .sg-anatomy3d-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; }
 
 /* Controls on the stage: solid, 44 px, readable over the model. */
-.sg-anatomy3d-button, .sg-anatomy3d-float { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; min-width: 2.75rem; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: var(--sg-radius-pill); background: #0d2640; padding: 0 1rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 800; }
+/* The selected structure, on the model's top-left as the supplied demo shows it (the handoff's box). */
+.sg-anatomy3d-selected { position: absolute; top: .75rem; left: .75rem; z-index: 2; display: grid; gap: .15rem; max-width: min(68%, 15rem); border: 1px solid rgb(241 90 50 / .72); background: linear-gradient(135deg, rgb(23 45 61 / .96), rgb(12 28 43 / .9)); padding: .5rem .7rem .55rem .85rem; box-shadow: 0 12px 30px rgb(0 0 0 / .2), inset 3px 0 var(--sg-anatomy3d-accent); pointer-events: none; }
+.sg-anatomy3d-selected small { color: #f3b5a3; font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.sg-anatomy3d-selected small + b + small { color: var(--sg-text-muted-on-dark); }
+.sg-anatomy3d-selected b { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 700; line-height: var(--sg-leading-snug); }
+.sg-anatomy3d-button { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; min-width: 2.75rem; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: var(--sg-radius-pill); background: #0d2640; padding: 0 1rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 800; }
 .sg-anatomy3d-button { border-color: var(--sg-action); background: var(--sg-action-fill); color: var(--sg-action-on); }
 .sg-anatomy3d-button-quiet { border-color: var(--sg-control-border-on-dark); background: #0d2640; color: var(--sg-text-on-dark); }
-.sg-anatomy3d-overview { position: absolute; top: .6rem; left: .6rem; z-index: 2; box-shadow: 0 6px 18px rgb(0 0 0 / .28); }
-:is(.sg-anatomy3d-button, .sg-anatomy3d-float):focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.sg-anatomy3d-button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 
 /* The panel under the stage: the selected muscle's numbers, in the brief's order. */
 .sg-anatomy3d-detail { display: grid; gap: .75rem; min-width: 0; padding-top: .25rem; }
@@ -75,15 +81,3 @@
 .sg-anatomy3d-credits { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
 .sg-anatomy3d-credits a { color: var(--sg-link-on-dark); text-decoration: underline; text-underline-offset: 2px; }
 .sg-anatomy3d-credits p + p { margin-top: .5rem; }
-
-/* Choose muscle: one row per muscle, 44 px or taller, grouped by compartment. */
-.sg-anatomy3d-picker { display: grid; gap: 1rem; }
-.sg-anatomy3d-picker h3 { margin: 0 0 .25rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
-.sg-anatomy3d-picker ul { display: grid; margin: 0; padding: 0; list-style: none; }
-.sg-anatomy3d-pick { display: flex; align-items: center; justify-content: space-between; gap: .5rem .75rem; width: 100%; min-height: 3rem; border-top: 1px solid rgb(164 200 232 / .14); padding: .5rem .25rem; color: var(--sg-text-on-dark); text-align: left; }
-.sg-anatomy3d-pick > span { display: grid; gap: .1rem; min-width: 0; }
-.sg-anatomy3d-pick b { font-size: var(--sg-text-lg); font-weight: 700; }
-.sg-anatomy3d-pick small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
-.sg-anatomy3d-pick-value { flex: 0 0 auto; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
-.sg-anatomy3d-pick[aria-pressed="true"] { background: rgb(255 255 255 / .07); box-shadow: inset 3px 0 0 var(--sg-anatomy3d-accent); padding-left: .75rem; }
-.sg-anatomy3d-pick:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -2px; }

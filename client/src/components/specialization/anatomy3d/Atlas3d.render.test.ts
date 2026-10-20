@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 import React, { createElement, useEffect, useState } from "react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SpecializationPanel, type SpecializationPanelProps } from "../SpecializationPanel";
@@ -114,12 +116,14 @@ const ready = async () => {
 };
 const tap = async (sourceId: string) => click(document.querySelector(`[data-pick="${sourceId}"]`)!);
 const detail = () => document.querySelector(".sg-anatomy3d-detail") as HTMLElement;
-const bar = () => document.querySelector(".sg-anatomy3d-bar") as HTMLElement;
+/** The row of muscles above the model (the supplied demo's rail, owner 20 Oct 2026). */
+const rail = () => screen.getByRole("group", { name: /^Muscles of the 3D model/ });
+const pressedChip = () => within(rail()).getAllByRole("button").filter((chip) => chip.getAttribute("aria-pressed") === "true").map((chip) => chip.textContent?.replace(/^[\d◎]+/, ""));
+/** What the model's "Selected structure" box says, or null with none selected. */
+const shownOnModel = () => document.querySelector(".sg-anatomy3d-selected")?.textContent ?? null;
 const choose = async (name: string) => {
-  await click(screen.getByRole("button", { name: /^Choose muscle/ }));
-  const sheet = screen.getByRole("dialog", { name: "Choose muscle" });
-  await click(within(sheet).getByRole("button", { name: new RegExp(`^${name},`) }));
-  await waitFor(() => expect(screen.queryByRole("dialog", { name: "Choose muscle" })).toBeNull());
+  await click(within(rail()).getByRole("button", { name }));
+  expect(screen.queryByRole("dialog")).toBeNull();
 };
 
 describe("the 3D model is the page's map for the forearm", () => {
@@ -127,7 +131,7 @@ describe("the 3D model is the page's map for the forearm", () => {
     render(createElement(Harness));
     await ready();
     expect(screen.getByRole("button", { name: "3D model" }).getAttribute("aria-pressed")).toBe("true");
-    expect(bar().textContent).toContain("Whole forearms");
+    expect(pressedChip()).toEqual(["Overview"]);
     await click(screen.getByRole("button", { name: "Drawing" }));
     expect(screen.queryByTestId("fake-canvas")).toBeNull();
     expect(canvas.unmounts).toBe(1);
@@ -156,7 +160,8 @@ describe("selection: every structure, by model, list or link, to the same muscle
       const canonical = canonicalForModelSource(entry.id)!;
       expect(latest!.nodeId).toBe(canonical);
       expect(detail().querySelector("h3")?.textContent).toBe(nameOf(canonical));
-      expect(bar().textContent).toContain(nameOf(canonical));
+      expect(pressedChip()).toEqual([nameOf(canonical)]);
+      expect(shownOnModel()).toContain(nameOf(canonical));
       expect(canvas.last?.selectedMuscleId).toBe(entry.id);
     }
     expect(canvas.mounts).toBe(1);
@@ -215,25 +220,27 @@ describe("selection: every structure, by model, list or link, to the same muscle
     render(createElement(Harness, { initial: { nodeId: "forearm.not-a-muscle" } }));
     await ready();
     await waitFor(() => expect(document.querySelector('[data-status="unavailable"]')?.textContent).toMatch(/“forearm.not-a-muscle” is not a muscle in this atlas/));
-    expect(bar().textContent).toContain("Whole forearms");
+    expect(pressedChip()).toEqual(["Overview"]);
     expect(canvas.last?.selectedMuscleId).toBeNull();
   });
 
   it("Overview clears the selection and the model shows the whole forearm", async () => {
     render(createElement(Harness, { initial: { nodeId: m.flexorDigitorumProfundus } }));
     await ready();
-    await click(screen.getByRole("button", { name: "Overview" }));
-    expect(bar().textContent).toContain("Whole forearms");
+    await click(within(rail()).getByRole("button", { name: "Overview" }));
+    expect(pressedChip()).toEqual(["Overview"]);
     expect(canvas.last?.selectedMuscleId).toBeNull();
-    expect(screen.queryByRole("button", { name: "Overview" })).toBeNull();
+    expect(shownOnModel()).toBeNull();
   });
 
-  it("lists the upper-arm muscles credited here, marked as not in the model, with the model at its overview", async () => {
-    render(createElement(Harness));
+  it("shows an upper-arm muscle credited here, opened from the list, as not in the model, with the model at its overview", async () => {
+    render(createElement(Harness, { initial: { nodeId: "upper_arm.biceps" } }));
     await ready();
-    await choose("Biceps brachii");
     expect(detail().textContent).toContain("Not in the 3D model");
+    expect(shownOnModel()).toContain("Not in the 3D model");
     expect(canvas.last?.selectedMuscleId).toBeNull();
+    // Not in the model, so not in the row above it: no chip is lit.
+    expect(pressedChip()).toEqual([]);
   });
 });
 
@@ -320,43 +327,52 @@ describe("actions open the real records and flows, and come back", () => {
   });
 });
 
-describe("Choose muscle: a sheet, and Back closes it first", () => {
-  it("lists every selectable muscle as a 44 px button, grouped, with the selected one pressed", async () => {
-    render(createElement(Harness, { initial: { nodeId: m.flexorDigitorumProfundus } }));
-    await ready();
-    await click(screen.getByRole("button", { name: /^Choose muscle/ }));
-    const sheet = screen.getByRole("dialog", { name: "Choose muscle" });
-    const rows = within(sheet).getAllByRole("button").filter((button) => button.classList.contains("sg-anatomy3d-pick"));
-    // The whole forearm, then every muscle the page can select.
-    expect(rows).toHaveLength(1 + data.nodes.filter((node) => node.kind === "muscle" || node.kind === "head").length);
-    expect(within(sheet).getByRole("button", { name: /^Flexor digitorum profundus,/ }).getAttribute("aria-pressed")).toBe("true");
-    expect(within(sheet).getByRole("button", { name: /^Anconeus,/ })).toBeTruthy();
-    expect(within(sheet).getByRole("button", { name: /^Biceps brachii, .*not in the 3D model/ })).toBeTruthy();
-  });
-
-  it("closes on Back without leaving the page or changing the muscle, and leaves no extra history entry", async () => {
-    render(createElement(Harness, { initial: { nodeId: m.flexorCarpiUlnaris } }));
-    await ready();
-    await click(screen.getByRole("button", { name: /^Choose muscle/ }));
-    expect(window.history.state?.spzPicker).toBe(true);
-    await act(async () => { window.history.back(); });
-    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Choose muscle" })).toBeNull());
-    expect(window.history.state?.spzPicker).toBeFalsy();
-    expect(detail().querySelector("h3")?.textContent).toBe("Flexor carpi ulnaris");
-  });
-
-  it("applies a choice after its own history entry is gone", async () => {
+describe("the row of muscles above the model, as in the supplied demo (owner, 20 Oct 2026)", () => {
+  it("lists Overview, then the model's 20 structures in its own order, numbered, each a button", async () => {
     render(createElement(Harness));
     await ready();
-    await choose("Supinator");
-    expect(window.history.state?.spzPicker).toBeFalsy();
-    expect(detail().querySelector("h3")?.textContent).toBe("Supinator");
-    expect(canvas.last?.selectedMuscleId).toBe("supinator");
+    const chips = within(rail()).getAllByRole("button");
+    expect(chips).toHaveLength(21);
+    expect(chips.every((chip) => chip.classList.contains("sg-anatomy3d-rail-chip"))).toBe(true);
+    expect(chips[0].textContent).toBe("◎Overview");
+    expect(chips.slice(1, 4).map((chip) => chip.textContent)).toEqual(["1Brachioradialis", "2Anconeus", "3Supinator"]);
+    expect(chips.slice(1).map((chip) => chip.getAttribute("aria-pressed"))).toEqual(Array(20).fill("false"));
+  });
+
+  it("selects with one tap, no sheet, and the model frames that muscle", async () => {
+    render(createElement(Harness));
+    await ready();
+    await choose("Flexor carpi ulnaris");
+    expect(pressedChip()).toEqual(["Flexor carpi ulnaris"]);
+    expect(canvas.last?.selectedMuscleId).toBe("flexor-carpi-ulnaris");
+    expect(detail().querySelector("h3")?.textContent).toBe("Flexor carpi ulnaris");
+    expect(shownOnModel()).toBe("Selected structureFlexor carpi ulnarisSurface");
+    await choose("Flexor digitorum profundus");
+    expect(pressedChip()).toEqual(["Flexor digitorum profundus"]);
+    expect(shownOnModel()).toContain("Deep");
+  });
+
+  it("lights the chip of a muscle tapped on the model, or opened from a link", async () => {
+    render(createElement(Harness, { initial: { nodeId: m.extensorIndicis } }));
+    await ready();
+    expect(pressedChip()).toEqual(["Extensor indicis"]);
+    await tap("pronator-teres");
+    expect(pressedChip()).toEqual(["Pronator teres"]);
+  });
+
+  it("gives each chip a 44 px target, solid at rest, in the app's type", () => {
+    const css = readFileSync(resolve(process.cwd(), "client/src/components/specialization/anatomy3d/anatomy3d.css"), "utf8");
+    const rule = css.slice(css.indexOf(".sg-anatomy3d-rail-chip {"), css.indexOf("}", css.indexOf(".sg-anatomy3d-rail-chip {")));
+    expect(rule).toContain("min-height: 2.75rem");
+    expect(rule).toMatch(/border: 1px solid/);
+    expect(rule).toContain("font-size: var(--sg-text-base)");
+    // The row scrolls sideways by itself; the page never does.
+    expect(css).toMatch(/\.sg-anatomy3d-rail \{[^}]*overflow-x: auto/);
   });
 });
 
 describe("when the model cannot show", () => {
-  it("says the model did not load, keeps Choose muscle working, and Try again builds a new canvas", async () => {
+  it("says the model did not load, keeps the muscle row working, and Try again builds a new canvas", async () => {
     canvas.outcome = "model";
     render(createElement(Harness));
     await ready();
@@ -384,8 +400,8 @@ describe("for a screen reader", () => {
   it("names the model, its arm and its selection, and every control by what it does", async () => {
     render(createElement(Harness, { initial: { nodeId: m.flexorPollicisLongus } }));
     await ready();
-    expect(screen.getByRole("img", { name: /^3D model of the forearms\. Flexor pollicis longus selected\. Every muscle is also in Choose muscle\.$/ })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /^Choose muscle/ }).getAttribute("aria-haspopup")).toBe("dialog");
+    expect(screen.getByRole("img", { name: /^3D model of the forearms\. Flexor pollicis longus selected\. Every muscle is in the row above it\.$/ })).toBeTruthy();
+    expect(within(rail()).getByRole("button", { name: "Flexor pollicis longus" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByRole("heading", { name: "Flexor pollicis longus" })).toBeTruthy();
     expect(screen.getByRole("group", { name: "Show the muscles as" })).toBeTruthy();
   });

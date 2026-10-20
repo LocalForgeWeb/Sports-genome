@@ -12,8 +12,8 @@ The supplied 3D forearm viewer runs inside the existing forearm atlas. It is the
   1. Heading and Back.
   2. Completed/Planned, the arm, and the window.
   3. **Muscle map**, with a **3D model | Drawing** switch.
-  4. The selected muscle's name and **Choose muscle**.
-  5. The stage. It is a fixed `clamp(300px, 54svh, 540px)` tall and holds **Overview** and the arm caption.
+  4. The **row of muscles** (since 20 Oct 2026; it replaced "Choose muscle"): Overview, then the model's 20 structures, numbered. Swipe along it, tap one.
+  5. The stage. It is a fixed `clamp(300px, 54svh, 540px)` tall and shows the **Selected structure** box (name and layer) at its top left, as the supplied demo did.
   6. The panel:
      - the muscle's function;
      - its direct dynamic bouts, and the athlete's target when its period is the window on screen;
@@ -23,7 +23,13 @@ The supplied 3D forearm viewer runs inside the existing forearm atlas. It is the
      - folded sections for shape, what the numbers mean, and **About the 3D model** (credits).
 
    The muscle list, findings and disclosures follow unchanged. The 22-muscle list never sits between the model and its panel.
-- **Choose muscle** is a sheet that lists every selectable muscle in four groups: palm side, back and thumb side, nearby (anconeus), and the upper-arm muscles credited here (marked "not in the 3D model"). Opening it adds a history entry, so Back closes it first. Closing it or choosing a muscle removes that entry. After a choice, the model is scrolled into view if it is off screen.
+- **The row of muscles** (`ModelMuscleRail.tsx`) is the supplied demo's focus rail, rebuilt for a phone after the owner sent a recording of it ("it should be more like this", 20 Oct 2026):
+  - Overview first, then the 20 structures in the manifest's order, numbered 1–20.
+  - One tap selects a muscle and the model frames it at once; there is no sheet.
+  - Each chip is a 44 px target in the app's type, solid at rest, the selected one lit orange.
+  - The row scrolls sideways by itself and brings the selected chip into view; the page does not move (checked in the browser: 0 px across six taps).
+  - The upper-arm muscles credited here are not in the model, so they are not in the row; they open from the page's muscle list, and the model's box says "Not in the 3D model".
+  - It replaced the "Choose muscle" sheet of the first release, which took two taps and moved the page.
 - **One selection state:** `state.nodeId`, a canonical id, kept in the URL.
   - A tap on the model maps the source id to its canonical id and selects that muscle. Tapping the selected muscle again keeps it. **Overview** clears the selection.
   - An address naming an unknown muscle shows the whole forearm, with a line saying which id was not found.
@@ -92,7 +98,7 @@ The integration made these changes:
 - **Rendering on demand.** Frames run while the camera eases, while the controls move, and for 90 frames after a drag, so the damping is spent. Rendering pauses while the page is hidden or the canvas is off screen. Measured: 0 frames in 2 s idle.
 - Dragging cancels an automatic camera move. A new selection starts from the current camera, so it interrupts the old move.
 - Reduced motion jumps to the final pose. There is no orbit and no tracer: the supplied tracer was never created and has been removed. There is no "Show function" animation.
-- Failures are reported apart, and the list and Choose muscle keep working through all of them:
+- Failures are reported apart, and the list and the row of muscles keep working through all of them:
   - `webgl`: WebGL cannot start. The page offers the drawing.
   - `model`: the GLB, the decoder or the lazy chunk failed. **Try again** builds a new canvas.
   - `context-lost`: the device dropped the context. **Reload the model**.

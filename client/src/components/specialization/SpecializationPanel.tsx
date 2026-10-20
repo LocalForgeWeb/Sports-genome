@@ -23,12 +23,12 @@ import { MuscleSheet } from "./MuscleSheet";
 import { splitTargets } from "./TargetsEditor";
 import { TargetsOverview } from "./TargetsOverview";
 import { PlanChangeSheet } from "./PlanChangeSheet";
-import { clearBand, scrollToTopClear } from "./reveal";
+import { scrollToTopClear } from "./reveal";
 import { SpecializationDiagram } from "./SpecializationDiagram";
 import { AnatomyModelCredits } from "./anatomy3d/AnatomyModelCredits";
 import { AnatomyModelStage, webglAvailable } from "./anatomy3d/AnatomyModelStage";
-import { ChooseMuscleSheet } from "./anatomy3d/ChooseMuscleSheet";
-import { anatomyModelFor } from "./anatomy3d/modelIdentity";
+import { ModelMuscleRail } from "./anatomy3d/ModelMuscleRail";
+import { anatomyModelFor, modelSourceForCanonical } from "./anatomy3d/modelIdentity";
 import { ModelMusclePanel } from "./anatomy3d/ModelMusclePanel";
 import { viewerMuscleData, type ViewerSummaryState } from "./anatomy3d/viewerData";
 import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricLabels, goalMetricShortLabels, holdTime, goalsForNode, latestSessionDayLabel, layerLabels, movementFocusNodeId, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
@@ -73,8 +73,6 @@ const plural = (count: number, one: string, many = `${one}s`) => `${count} ${cou
 
 type SheetState =
   | { kind: "muscle"; section?: "exercises" | "ledger" }
-  /** Choose muscle, over the 3D model: every muscle, so none has to be found on the model. */
-  | { kind: "picker" }
   | { kind: "movement"; actionId: string }
   /** An add or swap, started from a muscle's exercises or from a movement's. */
   | { kind: "change"; exerciseId: number; from: { kind: "muscle" } | { kind: "movement"; actionId: string } }
@@ -434,28 +432,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   /** The 3D panel's numbers: the same summary as the list and the sheet, through the viewer's adapter. */
   const viewerState: ViewerSummaryState = summary ? { kind: "ready", summary } : here.status === "error" ? { kind: "error", note: `The totals could not be worked out: ${here.message}` } : { kind: "loading", note: waiting };
   const viewerData = showModel && selected ? viewerMuscleData({ data, nodeId: selected.id, state: viewerState, view: { mode: state.mode, window: state.window, side, timeZone } }) : null;
-  /**
-   * After a choice in Choose muscle, the model is brought into view if any of it is off screen,
-   * with the selected name above it, so the athlete sees the muscle they chose.
-   */
-  const modelRef = useRef<HTMLDivElement>(null);
-  const revealModel = () => window.requestAnimationFrame(() => {
-    const block = modelRef.current;
-    if (!block) return;
-    const top = block.getBoundingClientRect().top;
-    const bottom = block.querySelector(".sg-anatomy3d-stage")?.getBoundingClientRect().bottom ?? top;
-    const band = clearBand();
-    if (top < band.top || bottom > band.bottom) scrollToTopClear(block);
-  });
   /** A tap on the model chooses that muscle; tapping the one already chosen keeps it (Overview clears). */
   const chooseOnModel = (nodeId: string) => { if (nodeId !== selected?.id) select(nodeId); };
-  const pickerValue = (id: string) => {
-    if (!summary) return planLoading ? "Loading" : "…";
-    const exposure = exposureOf(id);
-    if (!exposure || exposure.mappingCoverage === "none") return "Not mapped";
-    if (exposure.mappingCoverage === "pending_review") return "Under review";
-    return `${exposure.directDynamicBouts} direct`;
-  };
 
   return <section className="spz-page" aria-labelledby="spz-heading">
     {/* The top of the page is kept short, so the selected muscle and the top of the drawing are on
@@ -513,21 +491,18 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           {views.map((item) => <button key={item.id} type="button" aria-pressed={item.id === view} onClick={() => update({ view: item.id === views[0].id ? null : item.id })}>{item.label}</button>)}
         </div>}
       </div>
-      {showModel && modelConfig ? <div ref={modelRef} className="sg-anatomy3d">
-        {/* The selected muscle and Choose muscle sit above the model (§6, item 3); two lines are kept
-            for the name, so a choice never moves the model under the finger. */}
-        <div className="sg-anatomy3d-bar">
-          <p className="sg-anatomy3d-bar-name"><small>{selected ? layerLabels[selected.layer] : "Overview"}</small><b>{selected ? selected.name : `Whole ${regionWord}`}</b></p>
-          <button type="button" className="spz-button sg-anatomy3d-choose" aria-haspopup="dialog" onClick={() => setSheet({ kind: "picker" })}>Choose muscle <ChevronDown className="h-4 w-4" aria-hidden="true" /></button>
-        </div>
+      {showModel && modelConfig ? <div className="sg-anatomy3d">
+        {/* The muscles as one row right above the model, as the supplied demo had them (owner,
+            20 Oct 2026): swipe along it, tap one, and the model frames it at once. The row keeps
+            one height, so a choice never moves the model under the finger. */}
+        <ModelMuscleRail data={data} selectedId={selected?.id ?? null} onSelect={select} />
         <AnatomyModelStage
           config={modelConfig}
           selectedNodeId={selected?.id ?? null}
-          label={`3D model of the ${regionWord}. ${selected ? `${selected.name} selected.` : "No muscle selected."} Every muscle is also in Choose muscle.`}
+          selected={selected ? { name: selected.name, layer: modelSourceForCanonical(selected.id) ? layerLabels[selected.layer] : "Not in the 3D model" } : null}
+          label={`3D model of the ${regionWord}. ${selected ? `${selected.name} selected.` : "No muscle selected."} Every muscle is in the row above it.`}
           onSelect={chooseOnModel}
-          onOverview={() => select(null)}
           onShowDrawing={() => update({ figure: "drawing" })}
-          overviewShown={Boolean(selected)}
         />
         {droppedNode && !selected && <p className="sg-anatomy3d-status" data-status="unavailable">“{droppedNode}” is not a muscle in this atlas, so the whole {regionWord} is shown instead.</p>}
         <ModelMusclePanel
@@ -681,15 +656,6 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       </details>
     </div>
 
-    {sheet?.kind === "picker" && <ChooseMuscleSheet
-      data={data}
-      nodes={nodes}
-      selectedId={selected?.id ?? null}
-      valueFor={pickerValue}
-      onChoose={(nodeId) => { select(nodeId); revealModel(); }}
-      onOverview={() => { select(null); revealModel(); }}
-      onClose={() => setSheet((current) => (current?.kind === "picker" ? null : current))}
-    />}
     {sheet?.kind === "muscle" && selected && <MuscleSheet
       data={data}
       node={selected}
