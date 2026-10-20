@@ -29,11 +29,16 @@ import type {
  *   function claims behind the node actions it shows.
  * - Sources: the region's own list, then any its claims cite from a home region's list.
  * - Mappings: the region's own version; the external members' home versions, where published,
- *   in `externalMappingVersions`.
+ *   in `externalMappingVersions`, each with the home's actions its mappings name.
  */
 
-/** The role a region lists a node with: its home role in its home region, `external` anywhere else. */
+/**
+ * The role a region lists a node with: its home role in its home region, `external` anywhere else.
+ * It takes the node's home record (in its region's content, `regionContentFor(node.regionId)`): a
+ * page's copy of another region's node says `external`, which is no home role, so it is refused.
+ */
 export function memberRole(regionId: RegionId, node: Pick<AnatomyNode, "regionId" | "role">): NodeRole {
+  if (node.role === "external") throw new Error(`memberRole takes a node's home record, not a page's copy (role external) of a node of ${node.regionId}`);
   return node.regionId === regionId ? node.role : "external";
 }
 
@@ -130,7 +135,9 @@ export function composeRegionData(content: RegionContent, homes: readonly Region
   const externalMappingVersions: ExternalMappingVersion[] = externalHomes.flatMap((home) => {
     const version = home.mappingVersion;
     if (!version || version.state !== "published") return [];
-    return [{ regionId: home.region.id, version, mappings: home.mappings.filter((mapping) => mapping.versionKey === version.key && externalIds.has(mapping.nodeId)) }];
+    const mappings = home.mappings.filter((mapping) => mapping.versionKey === version.key && externalIds.has(mapping.nodeId));
+    const named = new Set(mappings.map((mapping) => mapping.actionId));
+    return [{ regionId: home.region.id, version, mappings, actions: home.actions.filter((action) => named.has(action.id)) }];
   });
 
   const cited = new Set([

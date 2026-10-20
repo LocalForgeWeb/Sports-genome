@@ -1,6 +1,5 @@
 import type {
   AnatomyNode,
-  ArmSide,
   Contribution,
   ContributionSegment,
   ExerciseVariant,
@@ -16,6 +15,7 @@ import type {
   SpecializationSummary,
   SummaryCompleteness,
   SummaryRequest,
+  SummarySide,
   VariantId,
   VariantMapping,
 } from "./types";
@@ -338,7 +338,7 @@ function inWindow(bout: ExposureBout, request: Pick<SummaryRequest, "mode" | "in
   return bout.mode === "planned" && (request.interval.planWeek === null || bout.planWeek === request.interval.planWeek);
 }
 
-const onArm = (bout: ExposureBout, side: ArmSide) => bout.side === "bilateral" || bout.side === side;
+const onArm = (bout: ExposureBout, side: SummarySide) => bout.side === "bilateral" || bout.side === side;
 
 export function getSpecializationSummary(request: SummaryRequest): SpecializationSummary {
   const { region, side } = request;

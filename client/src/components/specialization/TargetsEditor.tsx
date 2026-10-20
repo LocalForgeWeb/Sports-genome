@@ -3,7 +3,7 @@ import { ChevronDown, Plus } from "lucide-react";
 import type { StoreWrite } from "@/lib/specialization/stores";
 import { goalProgressLabel, goalsForBothArms } from "@shared/specialization/goals";
 import { addDaysToDateKey } from "@shared/specialization/time";
-import type { ArmSide, GoalMetric, GoalPeriod, GoalProgress, SpecializationGoal } from "@shared/specialization/types";
+import type { ArmSide, GoalMetric, GoalPeriod, GoalProgress, SpecializationGoal, SummarySide } from "@shared/specialization/types";
 import { goalMetricLabels } from "./model";
 import { revealClearOfBars } from "./reveal";
 import "./targets.css";
@@ -57,7 +57,12 @@ export function formatDateKey(dateKey: string): string {
 
 const isSeconds = (goal: Pick<SpecializationGoal, "metric">) => goal.metric === "deliberate_hold_seconds";
 const amountOf = (goal: Pick<SpecializationGoal, "metric" | "target">) => `${goal.target}${isSeconds(goal) ? " seconds" : ""}`;
-const armWord = (side: ArmSide) => `${side}-arm`;
+/** A target's arm. The editor sets targets per arm; the goal store and validateGoal refuse any other side. */
+function armOf(side: SummarySide): ArmSide {
+  if (side === "midline") throw new Error("A midline target has no arm");
+  return side;
+}
+const armWord = (side: SummarySide) => `${armOf(side)}-arm`;
 const capitalised = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 /**
@@ -253,7 +258,7 @@ function TargetRow({ goal, side, progress, subjectName, showSubject, editing, on
   const label = !current || startsLater ? null : progress ? progress.label : null;
   return <li className="spz-target spz-tg-row" data-side={goal.side} data-current={current || undefined}>
     <span>
-      <b>{showSubject ? `${subjectName} · ` : ""}{sideLabels[goal.side]} · {goalMetricLabels[goal.metric]}</b>
+      <b>{showSubject ? `${subjectName} · ` : ""}{sideLabels[armOf(goal.side)]} · {goalMetricLabels[goal.metric]}</b>
       <small>
         {amountOf(goal)} {targetPeriodLabels[goal.period].toLowerCase()}
         {startsLater ? ` · starts ${formatDateKey(goal.startsOn)}` : ""}
@@ -317,7 +322,7 @@ export function EndedTargets({ goals, subjectName, showSubject = false }: {
     <ul className="spz-target-list">
       {sorted.map((goal) => <li key={goal.id} className="spz-target" data-side={goal.side}>
         <span>
-          <b>{showSubject ? `${subjectName(goal)} · ` : ""}{sideLabels[goal.side]} · {goalMetricLabels[goal.metric]}</b>
+          <b>{showSubject ? `${subjectName(goal)} · ` : ""}{sideLabels[armOf(goal.side)]} · {goalMetricLabels[goal.metric]}</b>
           <small>{amountOf(goal)} {targetPeriodLabels[goal.period].toLowerCase()} · {formatDateKey(goal.startsOn)} to {formatDateKey(goal.endsOn ?? goal.startsOn)}</small>
         </span>
       </li>)}
