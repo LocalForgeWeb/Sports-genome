@@ -148,7 +148,7 @@ export function composeRegionData(content: RegionContent, homes: readonly Region
   const listed = new Set(content.sources.map((source) => source.id));
   const sources: Source[] = [...content.sources, ...uniqueById(homes.map((home) => home.sources.filter((source) => cited.has(source.id) && !listed.has(source.id))))];
 
-  // The very array the logger reads when no home version adds a variant (shared/specialization/loggingRegions.ts).
+  // The very array the logging table is generated from when no home version adds a variant (scripts/specialization/emit-logging-table.ts).
   const externallyMapped = new Set(externalMappingVersions.flatMap((external) => external.mappings.map((mapping) => mapping.variantId)));
   const variants: ExerciseVariant[] = externallyMapped.size
     ? uniqueById([content.variants, ...externalHomes.map((home) => home.variants.filter((variant) => externallyMapped.has(variant.id)))])

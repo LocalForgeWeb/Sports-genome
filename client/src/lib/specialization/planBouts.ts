@@ -78,7 +78,7 @@ type PlannedSides = { suffix: string } & Pick<ExposureBout, "armSide" | "legSide
  * - done one side at a time on that limb (`unilateral`): one bout per side, `…/n#right` then
  *   `…/n#left`, each on its side. A planned set count is per side: "3 × 12" is three sets for
  *   each side (02-design.md §3, "each side"). The tracker lays the same set out as two rows,
- *   Right then Left (DeviceWorkoutTracker `perArmSets`), so the plan logged as built gives every
+ *   Right then Left (DeviceWorkoutTracker, `loggerGates.of(policy).perSideRows`), so the plan logged as built gives every
  *   region's page exactly the bouts planned here, a page that counts the plan once included;
  * - done either way (`either`): one bout recorded on both sides, as the tracker logs it, one row
  *   starting on Both;

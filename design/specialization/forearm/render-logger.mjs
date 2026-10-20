@@ -30,7 +30,7 @@ const planWith = (ids, prescriptions = {}) => {
 };
 const profile = { version: 3, sportId: "", sportContextMode: "general", goal: "Athleticism", trainingDays: 4, gymMinutes: 60, movementId: "", baseline: { experience: "Intermediate", weightUnit: "lb", sexForReference: "male", birthYear: 1995, bodyWeight: 180 } };
 const today = new Date().toISOString().slice(0, 10);
-// An active forearm target: the gate (Home's askStraps, passed as perArmSets).
+// An active forearm target: what opens the gates (Home's loggerGatesFor: the straps question and per-side rows).
 const goal = { id: "g1", regionId: "forearm", nodeId: "forearm.fcr", actionId: null, side: "right", metric: "direct_dynamic_bouts", target: 6, period: "calendar_week", startsOn: "2026-10-01", endsOn: null, timezone: "UTC", createdAt: `${today}T00:00:00.000Z`, updatedAt: `${today}T00:00:00.000Z` };
 
 const browser = await chromium.launch();
