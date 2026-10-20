@@ -18,7 +18,7 @@ Status on 20 Oct 2026: **first pass and independent second review done for all e
 | lower_leg | 6 | 19 (19 / 0) | 47 | 78 | 2 |
 
 Questions the second reviews left for the anatomy lanes and the platform, besides each dossier's own:
-- **Parent muscles and the "main action" test.** The deltoid, pectoralis major, trapezius and triceps are kind `muscle`, role `group`, with no node action of their own; `regionContent.test.ts` ("gives every muscle a main action") must skip any node that is another node's parent, as the drawing contract does (§7.3). A platform fix, before any of these regions lands.
+- **Parent muscles and the "main action" test.** The deltoid, pectoralis major, trapezius and triceps are kind `muscle`, role `group`, with no node action of their own; `regionContent.test.ts` ("gives every muscle a main action, and an adjacent muscle at least one action, parents aside") skips any node that is another node's parent, as the drawing contract does (§7.3). Done in wave 0 (the platform follow-up).
 - **One wording per shared action.** The shoulders, chest and back lanes worded `shoulder.adduction`, `scapula.depression` and `scapula.upward_rotation` differently; the shared library's wording (`shared/specialization/actions/joints.ts`) is the one used.
 - **One key per publisher.** Loyola pages are `loyola.` in the chest and `luc.` in the shoulders; the integration lane picks one.
 - **Prime versus assist where only prime drives suggestions** (`recommendations.ts`): the sternocostal head's shoulder extension is assist on the evidence; no mappable upper-arm muscle is prime for `shoulder.flexion`. Each lane records a product choice as a product choice, never as evidence.

@@ -127,7 +127,7 @@ A gate on the page's size should count the page chunk with the chunks it loads: 
 
 ## The recap after Finish, and a workout opened from Progress
 
-- Sets read "30 s", "70 lb × 40 s · Left", "20 lb × 25 s · Both arms", "50 lb × 10 · Right".
+- Sets read "30 s", "70 lb × 40 s · Left", "20 lb × 25 s · Both arms", "50 lb × 10 · Right"; a set of a leg-sided exercise reads its `legSide` as the live set card does, "40 kg × 8 · Left", "· Both legs" (`setSideLabel` in `sessionRecap.ts`, which the card's words share; `sessionRecap.legSide.test.ts`; added in the release review, latent until wave D maps a leg variant).
 - A hold logged with no seconds (before they were required) reads "Seconds not recorded", or "20 lb · seconds not recorded"; never "— lb × —".
 - The exercise line adds "Straps used" or "Straps not used" where it was recorded.
 - Working sets count holds like any set.

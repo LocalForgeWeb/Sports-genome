@@ -2,12 +2,14 @@
 
 What will be built, and the decisions each part is held to. The brief is `brief-2026-10-16.md`; why the architecture is device-first is `01-reconciliation.md`.
 
+**Since 19 Oct, `10-multi-region.md` (the atlas for nine regions, wave 0 built on 20 Oct) supersedes §1, §2, §7 and §10 here where they differ**: shared libraries for actions, sources and variants, members and memberships, sides as region data, the heading as the region picker with Back in its row, a region's data loaded on its own. What follows is the forearm's design as first written, with the file names corrected.
+
 ## 1. Layers
 
 | Layer | Where | Owns |
 |---|---|---|
 | Reference model | `shared/specialization/types.ts`, `ids.ts`, `rules.ts`, `registry.ts`, `regionIndex.ts`, `loggingTable.generated.ts`, `loggingPolicy.ts`, `holdCatalogIds.ts` | Types, stable ids, the published accounting rule, the region registry (full data, for the seed and the content tests) and its light twins: the regions' names, sides, words and entry points for the screens that link to the page and for the page's region picker, one generated row per mapped exercise for the workout logger, and the catalog ids measured in seconds for the first screens. Region-agnostic. |
-| Region content | `shared/specialization/regions/forearm/*.ts` | The region record, nodes, actions, node actions, claims, sources, variants, mappings and mapping sources for the forearm, gathered in `index.ts` (everything, which the page loads through `client/src/lib/specialization/loadRegion.ts`). Pure data. |
+| Region content | `shared/specialization/regions/forearm/*.ts`, with the shared libraries `shared/specialization/{actions,sources,variants}/` | The region record, nodes, members, node actions, claims, the mapping version and its mappings, and the listed unmapped exercises for the forearm (`region.ts`, `nodes.ts`, `members.ts`, `nodeActions.ts`, `claims.ts`, `mappings.ts`, `unmapped.ts`); its actions, sources and variants are records of the shared libraries (`actions/`, `sources/forearm.ts` and `sources/forearmMappings.ts`, `variants/forearm.ts`). Gathered without the drawing in `content.ts`, and with it in `index.ts`, which the page loads through `client/src/lib/specialization/loadRegion.ts`. Pure data. |
 | Calculator | `shared/specialization/exposure.ts`, `time.ts`, `goals.ts` | `getSpecializationSummary()` over plain bouts; zoned intervals; goal validation and progress. No React, no storage, no client imports. |
 | Device adapters | `client/src/lib/specialization/*.ts` | Plan and device sessions → bouts; goal and measurement stores; recommendations; the hook the page reads. |
 | Page | `client/src/components/specialization/*.tsx`, CSS in the same folder (`specialization.css`, `specialization-diagram.css`, `plan-change.css`, `targets.css`, `progress.css`) | The Body Lab "Specialize" workspace, the diagram, the muscle sheet, the add/swap sheet, targets, measurements. Region-agnostic: shows any production region of the index, each loaded on its own (`loadRegion.ts`), with every side phrase from the region (`sideWords.ts`) and the heading as the region picker once there are two (10-multi-region.md §6). |
@@ -19,8 +21,8 @@ Tests for `shared/` code live under `client/src/lib/specialization/` (vitest doe
 ## 2. Ids
 
 - Region: `forearm`. External region for contributors: `upper_arm`. Test fixture: `deltoid` (never registered in production).
-- Nodes: `forearm.<abbr>` for the 19 muscles (`br, fcr, fcu, pl, fds, fdp, fpl, pt, pq, ecrl, ecrb, ecu, ed, edm, ei, apl, epb, epl, supinator`), groups `forearm.anterior` and `forearm.posterior`, adjacent `forearm.anconeus`, external `upper_arm.biceps` and `upper_arm.brachialis`. The full list is `ids.ts`.
-- Actions: `<joint>.<action>`, for example `wrist.flexion`, `forearm.pronation`, `fingers.dip_flexion`, `thumb.ip_flexion`. The full list is `ids.ts`.
+- Nodes: `forearm.<abbr>` for the 19 muscles (`br, fcr, fcu, pl, fds, fdp, fpl, pt, pq, ecrl, ecrb, ecu, ed, edm, ei, apl, epb, epl, supinator`), groups `forearm.anterior` and `forearm.posterior`, adjacent `forearm.anconeus`, external `upper_arm.biceps` and `upper_arm.brachialis`. The full list is `regions/forearm/ids.ts` (`shared/specialization/ids.ts` keeps only the cross-region constants: the rule version and `variantIdFor`).
+- Actions: `<joint>.<action>`, for example `wrist.flexion`, `forearm.pronation`, `fingers.dip_flexion`, `thumb.ip_flexion`. The full list is `shared/specialization/actions/ids.ts`.
 - Variants: `cat-<catalogId>` (one default variant per catalog exercise).
 - Mapping version `forearm_mappings_v1`. Rule version `specialization_exposure_v1`.
 - Sources: short stable keys: `S1`–`S8` as in the brief (its S9 was removed: cited by nothing, 03-anatomy-evidence.md §3), `A1`–`A55` for anatomy references added during review, `M1`–`M8` for mapping sources.
@@ -94,9 +96,9 @@ Tests for `shared/` code live under `client/src/lib/specialization/` (vitest doe
 
 **Entry points:** Body Lab tab; the Muscles map's next step when the forearm or brachioradialis is selected; Review → Week → forearm muscle detail, "Explore forearm coverage" (opens with that plan week and `mode=planned`); universal search "Forearm specialization".
 
-**Phone layout (390 × 844 first; the selected muscle and the top of the drawing are on the first screen at 375 × 667 and 430 × 932 too, except at 375 × 667 with Back to … and Custom dates together, 09-page.md):**
-1. Heading "Forearm specialization", on one line from 375 px, under "Back to …" when another page opened it. The tab row above it already names Body Lab · Specialize, so there is no eyebrow. What is counted is said under the map card.
-2. Controls in two rows: Completed / Planned beside Left / Right arm; then the window (This week · Rolling 7 days · Custom, with two date fields for Custom), or the plan weeks in Planned mode. Then one line: the window in words, the arm, and for this week the pair from §4 (logged beside planned). The pair is a total, so with a pair the whole line is one button (44 px tall, the pair underlined in link colour with an arrow at its end; its words stay on-dark ink, which reads at AA on the Body Lab blue where link ink does not) that opens the sets behind it: this week's logged bouts on the arm (and any with no arm recorded), then the plan week's.
+**Phone layout (390 × 844 first; the selected muscle and the top of the drawing are on the first screen at 375 × 667 and 430 × 932 too, in every state 09-page.md tabulates, Back with Custom dates included since wave 0):**
+1. Heading "Forearm specialization", on one line from 375 px, with "‹ Muscles" (Back, by the opening page's short name) in the same row when another page opened it (10-multi-region.md §6.1). The tab row above it already names Body Lab · Specialize, so there is no eyebrow. What is counted is said under the map card.
+2. Controls in two rows: Completed / Planned beside Left / Right arm; then the window (This week · Rolling 7 days · Custom, with Custom's two date fields inline, "From [date] To [date]"), or the plan weeks in Planned mode. Then one line: the window in words, the arm, and for this week the pair from §4 (logged beside planned). The pair is a total, so with a pair the whole line is one button (44 px tall, the pair underlined in link colour with an arrow at its end; its words stay on-dark ink, which reads at AA on the Body Lab blue where link ink does not) that opens the sets behind it: this week's logged bouts on the arm (and any with no arm recorded), then the plan week's.
 3. Diagram card, its controls in two rows: the heading beside the view (Palm · Back · Thumb side); the layer (Surface · Middle · Deep, as each view has them: the palm side has a middle layer, FDS) beside the map (Volume · Target). Each segment wraps to a row of its own rather than push the page sideways. Thumb side and pinky side labelled on the drawing, mirrored for the left arm. Fixed bins with a numeric legend: 0 · 1–2 · 3–5 · 6–9 · 10–14 · 15+ bouts, on the existing `--sg-exposure-*` ramp (never the rank or role colours). Hatching means mapping not reviewed; an empty outline means mapped, no work. Target mode bins: under 25 %, 25–49 %, 50–74 %, 75–99 %, 100 % and over, with the number always shown.
 4. Selected muscle, inside the card between its controls and the drawing: name, layer badge, one exposure sentence, its targets, and one CTA: "Inspect coverage" (opens the sheet), or "Add targeted exercise" when it has no work in the window. A tap on the drawing that changes this strip's height scrolls the page by as much, so the drawing stays under the finger.
 5. Muscle list, sorted by direct bouts: name, layer badge, a stacked bar (direct, other dynamic, holds, incidental) and numbers. Deep muscles are marked "Deep".
@@ -178,15 +180,15 @@ Tests: the calculator, adapters and suggestions run on the fixture (`regionAgnos
 
 Still forearm-worded on every region's page: "How this is counted" shows the published rule's own text (`rules.ts`, `specialization_exposure_v1`), which speaks of grip credit and straps. The muscle sheet's "Incidental … or steadying" line and the exposure sentence take their incidental word from `wording.incidentalWork` (`MuscleSheet.tsx`, `exposureParts` in `model.ts`).
 
-A few things outside region data still name the forearm or assume an arm: the browser tab title and the search destination (Home, universal search), the region the Specialize tab opens, the one rule version, the word "arm" on the page and in the logger, and the two measures. README.md ("Adding a production region") lists them with every file and list a new region needs.
+Since wave 0 (10-multi-region.md §6) the browser tab title, the search destination, the region the Specialize tab opens, the side words ("arm", "leg", "side") and the measures are region data (the heading, `regionIndex`, `sideWordsFor`, `measurementMetrics` with `girth_cm`). What still names the forearm is the one published rule version, whose text speaks of grip and straps, until rule v2 (wave A). README.md ("Adding a production region") lists every file and list a new region needs.
 
 ## 11. Ownership for parallel work
 
 | Lane | Files |
 |---|---|
 | Foundation (done first) | `shared/specialization/{types,ids,rules,registry}.ts` |
-| Anatomy content and evidence | `shared/specialization/regions/forearm/{nodes,actions,nodeActions,claims,sources}.ts` |
-| Mappings and catalog | `shared/specialization/regions/forearm/{variants,mappings,mappingSources}.ts`, catalog rows 401+, catalog fixes, photos for new rows |
+| Anatomy content and evidence | `shared/specialization/regions/forearm/{nodes,members,nodeActions,claims}.ts`, `shared/specialization/actions/`, `shared/specialization/sources/forearm.ts` (moved there from the region folder in wave 0) |
+| Mappings and catalog | `shared/specialization/regions/forearm/{mappings,unmapped}.ts`, `shared/specialization/variants/forearm.ts`, `shared/specialization/sources/forearmMappings.ts` (wave 0's moves), catalog rows 401+, catalog fixes, photos for new rows |
 | Calculator | `shared/specialization/{exposure,time,goals}.ts`, `client/src/lib/specialization/` adapters, deltoid fixture, calculator tests |
 | Logger | `deviceWorkoutLog.ts`, `setEntryFields.ts`, `DeviceWorkoutTracker.tsx`, recap, readers that must skip holds |
 | Diagram | `design/specialization/forearm/` (now the forearm's config and views; the shared generator is `design/specialization/shared/`), `shared/specialization/regions/forearm/diagram.generated.ts`, `client/src/components/specialization/SpecializationDiagram.tsx` |

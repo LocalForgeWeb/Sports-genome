@@ -140,7 +140,7 @@ describe("nothing moved: the forearm and the deltoid fixture as composed", () =>
     for (const mapping of forearmRegionData.mappings) expect(sideRelationOf(mapping), mapping.id).toBe("same");
   });
 
-  it("hands the logger and the page the very same region, variants and mappings", () => {
+  it("hands the page the folder's own region, variants and mappings, record for record", () => {
     expect(forearmRegionData.region).toBe(forearmContent.region);
     expect(forearmRegionData.variants).toBe(forearmContent.variants);
     expect(forearmRegionData.mappings).toBe(forearmContent.mappings);
