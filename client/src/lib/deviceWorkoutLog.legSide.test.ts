@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from "vitest";
-import { deviceWorkoutHistoryKey, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, type DeviceSetLog, type DeviceWorkoutSession } from "./deviceWorkoutLog";
+import { deviceWorkoutHistoryKey, isDropInProgress, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, type DeviceSetLog, type DeviceWorkoutSession } from "./deviceWorkoutLog";
 import { sourceRevision } from "./specialization/revision";
 import { shippedHistoryKey, shippedLoadDeviceWorkoutSessions, shippedSaveDeviceWorkoutSessions, shippedSideOf } from "./__fixtures__/workoutLogReaders.6738eeb";
 
@@ -51,6 +51,39 @@ describe("this release's readers", () => {
     // Known fields are still validated: a unit and an arm side the app does not know are dropped.
     expect(stored).not.toHaveProperty("unit");
     expect(stored).not.toHaveProperty("side");
+  });
+
+  it("keep a drop stage's fields they do not know, and still drop a stage's bad unit", () => {
+    window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([session([set({ type: "drop", stages: [
+      { id: "a-1", weight: "40", reps: "8", unit: "kg", restSeconds: 0, effort: "failure" },
+      { id: "a-2", weight: "30", reps: "6", unit: "stone", restSeconds: 5 },
+    ] })])]));
+    saveDeviceWorkoutSessions(loadDeviceWorkoutSessions());
+    const [stored] = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey)!)[0].exercises[0].sets;
+    expect(stored.stages).toEqual([
+      { id: "a-1", weight: "40", reps: "8", unit: "kg", restSeconds: 0, effort: "failure" },
+      { id: "a-2", weight: "30", reps: "6", restSeconds: 5 },
+    ]);
+  });
+
+  it("keep a set type a later release adds, with its stages, as stored, and read the set as the standard set it mirrors", () => {
+    const stages = [{ id: "c-1", weight: "40", reps: "3", restSeconds: 15 }, { id: "c-2", weight: "40", reps: "3" }];
+    window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([session([
+      set({ weight: "40", reps: "3", type: "cluster", stages }),
+      // A type that is not a name is not a set type: dropped, with whatever is in `stages`, as before.
+      set({ type: 7, stages }),
+      // A standard set has no stages.
+      set({ type: "standard", stages }),
+    ])]));
+    const loaded = loadDeviceWorkoutSessions()[0].exercises[0].sets;
+    expect(loaded[0]).toMatchObject({ weight: "40", reps: "3", completed: true, type: "cluster", stages });
+    expect(isDropInProgress(loaded[0])).toBe(false);
+    expect(loaded[1]).not.toHaveProperty("type");
+    expect(loaded[1]).not.toHaveProperty("stages");
+    expect(loaded[2]).not.toHaveProperty("type");
+    expect(loaded[2]).not.toHaveProperty("stages");
+    saveDeviceWorkoutSessions(loadDeviceWorkoutSessions());
+    expect(JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey)!)[0].exercises[0].sets[0]).toMatchObject({ type: "cluster", stages });
   });
 
   it("change the summary's source revision when only a leg side changes", () => {

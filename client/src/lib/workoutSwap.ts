@@ -88,9 +88,10 @@ export type SwapOptions = {
   perArm?: boolean;
   /**
    * The limb an exercise's rows laid out per side are split on (the atlas's logging policy, which
-   * the tracker passes): each row's side is stored on that limb. The arm when not said.
+   * the tracker passes): each row's side is stored on that limb. Null, or not said, is the arm,
+   * except for the original's rows, which say their own limb where they can (`rowsLimbOf`).
    */
-  sideLimbOf?: (target: SwapTarget) => Limb;
+  sideLimbOf?: (target: SwapTarget) => Limb | null;
   /** The new exercise's planned prescription, as its own measure reads it; the original's text when not given. */
   prescription?: string;
 };
@@ -127,6 +128,21 @@ export const rowSidesOn = (side: SetSide, limb: Limb): RowSides => (limb === "le
 
 /** The sides a row already holds, the arm's and the leg's, copied together. */
 const sidesOf = (set: DeviceSetLog): RowSides => ({ ...(set.side ? { side: set.side } : {}), ...(set.legSide ? { legSide: set.legSide } : {}) });
+
+/**
+ * The limb an exercise's rows laid out per side were built on, read from the rows: each was built
+ * with its side on that limb, and a row may also hold the other limb's side, picked on the card,
+ * so it is the limb more of the rows hold a side on. Null for rows not laid out per side, or as
+ * many on each. The rows answer before the logging policy does: a workout left open across a
+ * release can hold rows built per leg on an exercise this release does not know, or sides on
+ * another limb than this release asks about, and their sides must stay on the leg.
+ */
+export function rowsLimbOf(exercise: Pick<DeviceWorkoutExercise, "perArm" | "sets">): Limb | null {
+  if (!exercise.perArm) return null;
+  const arm = exercise.sets.filter((set) => set.side).length;
+  const leg = exercise.sets.filter((set) => set.legSide).length;
+  return leg > arm ? "leg" : arm > leg ? "arm" : null;
+}
 
 /** The original's sets that stay with it, the ones that move on, and a typed set to reuse. */
 function partitionSets(original: DeviceWorkoutExercise, draft: DraftChoice, partialDrop: PartialDropChoice) {
@@ -227,8 +243,9 @@ export function applySwap(session: DeviceWorkoutSession, exerciseId: string, tar
   const completedOnOriginal = kept.filter(isCompletedSet).length;
   // Every slot not kept by the original moves on, counted in planned sets (`movedRowSides`).
   const newSet = newSetWith(options.newSetId);
-  const sideLimbOf = options.sideLimbOf ?? (() => "arm" as const);
-  const sets = movedRowSides(original, moved, Boolean(options.perArm), sideLimbOf(from), sideLimbOf(target)).map((sides) => ({ ...newSet(), ...sides }));
+  const sideLimbOf = options.sideLimbOf ?? (() => null);
+  const fromLimb = rowsLimbOf(original) ?? sideLimbOf(from) ?? "arm";
+  const sets = movedRowSides(original, moved, Boolean(options.perArm), fromLimb, sideLimbOf(target) ?? "arm").map((sides) => ({ ...newSet(), ...sides }));
   if (reused) sets[0] = { ...sets[0], reps: reused.reps, ...(reused.holdSeconds ? { holdSeconds: reused.holdSeconds } : {}), ...(reused.height ? { height: reused.height } : {}) };
   const replacement: DeviceWorkoutExercise = {
     id: options.newExerciseId,
