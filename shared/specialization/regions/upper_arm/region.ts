@@ -7,6 +7,12 @@ import { UPPER_ARM_REGION_ID, upperArmMuscleIds } from "./ids";
  * lists, with no page. Its words are §1.1's, so other pages can name it ("Upper-arm muscles
  * credited here"). The label is the reference row's, as seed v1 wrote it; the promotion sets
  * "Upper arms" with the status.
+ *
+ * Its database row keeps seed v1's columns as seed v1 wrote them until that promotion (§5.2): the
+ * label and status, no heading, entry label or words, sort order 0, no keys and no measures. Only
+ * the columns schema v2 added come from this record before then, so the promotion is the one
+ * change that writes the heading, sort order, keys, words and measures below
+ * (client/src/lib/specialization/regionContent.test.ts holds the emitted row to seed v1's).
  */
 export const upperArmRegion: SpecializationRegion = {
   id: UPPER_ARM_REGION_ID,

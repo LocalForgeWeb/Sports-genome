@@ -1,15 +1,18 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { diagramSidesOf } from "@shared/specialization/compose";
 import { specializationRegions } from "@shared/specialization/registry";
 import type { AnatomyNode, DiagramAsset, DiagramLayerId, DiagramPath, DiagramViewId, SpecializationRegionData } from "@shared/specialization/types";
-import { HIT_SQUARE_SHARE } from "@/components/specialization/SpecializationDiagram";
+import { HIT_SQUARE_SHARE, textWidth } from "@/components/specialization/SpecializationDiagram";
 import { containsPoint, drawableNodeIds, drawnNodes, flattenPath, polygonArea, type Point } from "@/components/specialization/diagramGeometry";
 import { deltoidRegionData } from "./__fixtures__/deltoidRegion";
 // The shared generator, so every committed drawing is checked against what it produces.
 import { buildAsset, drawableMembers } from "../../../../design/specialization/shared/asset.mjs";
 import { exportStem, renderModule } from "../../../../design/specialization/shared/emit.mjs";
 import { C, clipBy, clipToPolygon, closed, columnsShape, edgeAt, fan, insetPolygon, labels, rotate, rowsShape } from "../../../../design/specialization/shared/geometry.mjs";
+import { loadMembers, memberSources } from "../../../../design/specialization/shared/region.mjs";
 
 /**
  * The drawing contract (10-multi-region.md §7.3; 02-design.md §12): what every region's drawing
@@ -70,6 +73,32 @@ const LAYERS: readonly DiagramLayerId[] = ["surface", "intermediate", "deep"];
 const STRUCTURE_KINDS = new Set(["skin", "bone", "outline"]);
 /** The most of a layer's drawn muscle any drawing may have under another muscle's tap square. */
 const COVER_CEILING = 0.1;
+/**
+ * The anatomy labels' size in view-box units: specialization-diagram.css sets them in
+ * --sg-text-base, .875rem (14 px), and a CSS length on SVG text is in the drawing's own units.
+ */
+const LABEL_SIZE = 14;
+/** The phone widths the Chromium gate measures (render-evidence.mjs), and its floor in CSS px. */
+const GATE_WIDTHS = ["375", "390"];
+const GATE_PX = 44;
+
+const sha256 = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
+
+/** Every module a TypeScript module imports, followed through its relative imports to the end. */
+function importClosure(entry: string): Set<string> {
+  const seen = new Set<string>();
+  const visit = (file: string) => {
+    if (seen.has(file)) return;
+    seen.add(file);
+    for (const [, specifier] of readFileSync(file, "utf8").matchAll(/(?:\bfrom|\bimport\(?)\s*["'](\.{1,2}\/[^"']+)["']/g)) {
+      const base = resolve(dirname(file), specifier);
+      const found = [`${base}.ts`, `${base}.tsx`, join(base, "index.ts"), base].find((candidate) => existsSync(candidate) && statSync(candidate).isFile());
+      if (found) visit(found);
+    }
+  };
+  visit(entry);
+  return seen;
+}
 
 type Placed = DiagramPath & { view: DiagramViewId; layer: DiagramLayerId };
 const placedOf = (asset: DiagramAsset): Placed[] => asset.viewOrder.flatMap(({ id: view }) => LAYERS.flatMap((layer) => (asset.views[view]?.[layer]?.paths ?? []).map((path) => ({ ...path, view, layer }))));
@@ -87,6 +116,14 @@ function inside(point: Point, polygon: readonly Point[]): boolean {
 
 it("finds the drawings: every registered region's, and the fixtures'", () => {
   expect(drawings.map((drawing) => drawing.region)).toEqual(expect.arrayContaining(["forearm", deltoidRegionData.region.id]));
+});
+
+it("measures the anatomy labels at the size the page sets them", () => {
+  const css = readFileSync(join(process.cwd(), "client/src/components/specialization/specialization-diagram.css"), "utf8");
+  const tokens = readFileSync(join(process.cwd(), "client/src/index.css"), "utf8");
+  expect(css).toMatch(/\.spz-diagram-labels text \{[^}]*font-size: var\(--sg-text-base\)/);
+  expect(tokens).toContain("--sg-text-base: .875rem;");
+  expect(LABEL_SIZE).toBe(0.875 * 16);
 });
 
 it("lets only a test fixture's drawing leave a check for later", () => {
@@ -131,6 +168,45 @@ for (const drawing of drawings) {
         expect(asset.viewBox.width).toBe(360);
         expect(asset.viewBox).toEqual(config.CANVAS);
       });
+
+      it("is built from the members the page lists, read from modules that never import a drawing", async () => {
+        // The generator's input must not include its output (or the page's data, which imports it
+        // and needs a mapping version): then a missing, stale or conflicted diagram.generated.ts
+        // can always be rebuilt, and a region can be drawn before it has a page.
+        const sources = memberSources(drawing.region);
+        for (const file of [sources.compose, ...(sources.members ? [sources.members] : []), ...sources.nodes.map((item: { path: string }) => item.path)]) {
+          const reached = [...importClosure(file)].filter((path) => /diagram\.generated\.ts$|\/regions\/[^/]+\/index\.ts$/.test(path));
+          expect(reached, file).toEqual([]);
+        }
+        const loaded = await loadMembers(drawing.region, (path: string) => import(/* @vite-ignore */ path));
+        expect(loaded.map((node: AnatomyNode) => node.id)).toEqual(data.nodes.map((node) => node.id));
+      });
+
+      it(`has the Chromium gate on record for this very drawing: every tap square at least ${GATE_PX} px at ${GATE_WIDTHS.join(" and ")}`, () => {
+        // Written by node design/specialization/shared/render-evidence.mjs <region>, which measures
+        // the committed drawing only; re-run it after every emit.
+        const file = join(process.cwd(), "docs/specialization-atlas/evidence", drawing.region, "hit-targets.json");
+        expect(existsSync(file), `${file}: run node design/specialization/shared/render-evidence.mjs ${drawing.region}`).toBe(true);
+        type Measured = { svgWidth: number; squares: Record<string, number> };
+        const record = JSON.parse(readFileSync(file, "utf8")) as { gatePx: number; generated?: { sha256: string }; widths: Record<string, { viewport: { width: number }; smallest: number; figures: Record<string, Measured> }> };
+        const committed = readFileSync(join(process.cwd(), "shared/specialization/regions", drawing.region, "diagram.generated.ts"));
+        expect(record.generated?.sha256, `hit-targets.json measured another drawing: run node design/specialization/shared/render-evidence.mjs ${drawing.region}`).toBe(sha256(committed));
+        expect(record.gatePx).toBe(GATE_PX);
+        for (const width of GATE_WIDTHS) {
+          const reading = record.widths[width];
+          expect(reading?.viewport.width, width).toBe(Number(width));
+          const squares = Object.values(reading.figures).flatMap((figure) => Object.values(figure.squares));
+          expect(reading.smallest, width).toBe(Math.min(...squares));
+          expect(reading.smallest, `${width} pt: a muscle's tap square is under ${GATE_PX} px`).toBeGreaterThanOrEqual(GATE_PX);
+          // Every muscle on every view and layer was measured.
+          for (const { view, layer, drawn } of layersOf(asset)) {
+            const figures = Object.entries(reading.figures).filter(([id]) => id.startsWith(`${view}-${layer}-`));
+            expect(figures.length, `${width} ${view}/${layer}`).toBeGreaterThan(0);
+            const shown = new Set(drawn.paths.filter((path) => path.kind === "belly" && path.nodeId).map((path) => path.nodeId));
+            for (const [id, figure] of figures) expect(Object.keys(figure.squares).sort(), `${width} ${id}`).toEqual([...shown].sort());
+          }
+        }
+      });
     }
 
     it("belongs to its region, with a licence note", () => {
@@ -140,6 +216,12 @@ for (const drawing of drawings) {
       expect(asset.licenseNote.trim()).not.toBe("");
       const sides = (asset as DiagramAsset & { sides?: string }).sides;
       if (sides !== undefined) expect(["one_side", "both_sides"]).toContain(sides);
+    });
+
+    it("covers the sides as its region counts them: one side, mirrored for the other, or both on a midline region", () => {
+      // The page mirrors a one-side drawing for the left; a midline region's drawing shows both
+      // sides and is never mirrored, or its "Your right" and "Your left" would swap.
+      expect(diagramSidesOf(asset), `${drawing.region} is ${data.region.sides.model}`).toBe(data.region.sides.model === "midline" ? "both_sides" : "one_side");
     });
 
     it("lists its views in the page's order, each once, with button words of 10 characters or fewer", () => {
@@ -279,8 +361,10 @@ for (const drawing of drawings) {
       }
     });
 
-    it("draws no layer without a muscle on it", () => {
-      for (const { view, layer, drawn } of layersOf(asset)) expect(drawn.paths.some((path) => path.kind === "belly"), `${view}/${layer}`).toBe(true);
+    it("draws a layer only where a muscle of that layer is drawn whole, not for an outcrop alone", () => {
+      for (const { view, layer, drawn } of layersOf(asset)) {
+        expect(drawn.paths.some((path) => path.kind === "belly" && members.get(path.nodeId!)?.layer === layer), `${view}/${layer} draws none of its own layer's muscles`).toBe(true);
+      }
     });
 
     check("skin", "keeps every belly inside the skin", () => {
@@ -308,14 +392,18 @@ for (const drawing of drawings) {
       expect(placed.filter((path) => (path.kind === "tendon" || path.kind === "ghost") && !withBelly.has(path.nodeId)).map((path) => path.id)).toEqual([]);
     });
 
-    it("keeps its labels on the canvas", () => {
+    it("keeps its labels on the canvas, their words included (the drawing clips at its edges)", () => {
       for (const { view, layer, drawn } of layersOf(asset)) {
         for (const label of drawn.labels) {
           expect(label.text.trim(), `${view}/${layer}`).not.toBe("");
-          expect(label.x, label.text).toBeGreaterThanOrEqual(0);
-          expect(label.x, label.text).toBeLessThanOrEqual(asset.viewBox.width);
           expect(label.y, label.text).toBeGreaterThan(0);
           expect(label.y, label.text).toBeLessThan(asset.viewBox.height);
+          // The words' extent, by the renderer's own estimate, from where the anchor puts them.
+          // Mirroring re-places a label symmetrically, so a label on the canvas stays on it.
+          const width = textWidth(label.text, LABEL_SIZE);
+          const left = label.anchor === "start" ? label.x : label.anchor === "end" ? label.x - width : label.x - width / 2;
+          expect(left, `${view}/${layer} "${label.text}" starts off the canvas`).toBeGreaterThanOrEqual(0);
+          expect(left + width, `${view}/${layer} "${label.text}" runs off the canvas`).toBeLessThanOrEqual(asset.viewBox.width);
         }
       }
     });
@@ -391,7 +479,7 @@ describe("the shared generator", () => {
     { id: "r.group", parentId: null, kind: "group", shortName: "Group" },
     { id: "other.m", parentId: null, kind: "muscle", shortName: "Other" },
   ];
-  const config = { REGION: "r", ASSET_KEY: "r_schematic", ASSET_VERSION: 1, CANVAS: { width: 360, height: 400 }, VIEW_ORDER: [{ id: "front", label: "Front" }], LICENSE_NOTE: "Drawn for this test." };
+  const config = { REGION: "r", ASSET_KEY: "r_schematic", ASSET_VERSION: 1, CANVAS: { width: 360, height: 400 }, VIEW_ORDER: [{ id: "front", label: "Front" }], SIDES: "one_side", LICENSE_NOTE: "Drawn for this test." };
   const skin = { kind: "skin", structure: "skin", d: closed([[20, 20], [340, 20], [340, 380], [20, 380]]) };
   const viewsDrawing = (node: string) => ({ front: { surface: { paths: [skin, { kind: "belly", node, d: closed([[60, 60], [160, 60], [160, 300], [60, 300]]) }], labels: [] } } });
 
@@ -410,13 +498,16 @@ describe("the shared generator", () => {
     expect(() => drawableMembers([{ id: "r.x", parentId: null, kind: "muscle", shortName: "Glute max" }])).toThrow(/short name/);
   });
 
-  it("writes a sides line only when the config sets one", () => {
-    expect(renderModule(config, viewsDrawing("Front"), members)).not.toContain("sides:");
-    const module = renderModule({ ...config, SIDES: "one_side" }, viewsDrawing("Front"), members);
+  it("requires a side policy and writes it; only a drawing whose published text is pinned leaves it out", () => {
+    const module = renderModule(config, viewsDrawing("Front"), members);
     expect(module).toContain('  sides: "one_side",\n  viewOrder:');
     expect(module).toContain("export const rDiagram: DiagramAsset = {");
+    expect(renderModule({ ...config, SIDES: "both_sides" }, viewsDrawing("Front"), members)).toContain('  sides: "both_sides",\n');
     expect(exportStem("lower_leg")).toBe("lowerLeg");
+    expect(() => renderModule({ ...config, SIDES: undefined }, viewsDrawing("Front"), members)).toThrow(/SIDES: one_side .* or both_sides/);
     expect(() => renderModule({ ...config, SIDES: "left" }, viewsDrawing("Front"), members)).toThrow(/one_side or both_sides/);
+    // The forearm's case: published before the side policy, its text kept word for word, read as one side.
+    expect(renderModule({ ...config, SIDES: undefined, MODULE_TEXT: {} }, viewsDrawing("Front"), members)).not.toContain("sides:");
   });
 
   it("cuts an outline on any side, and to a convex window, with square corners where it is cut", () => {

@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
-import { actionLibrary, actionsFor } from "@shared/specialization/actions";
+import { actionById, actionLibrary, actionsFor } from "@shared/specialization/actions";
 import { claimKeyOf, composeRegionData, diagramSidesOf, memberRole, resolveMembers, sideRelationOf, versionedMappingKey } from "@shared/specialization/compose";
 import { defaultSpecializationRegionId, onSide, regionForBodyMapKey, regionIndexEntry, registeredRegionIndex, specializationRegionIndex } from "@shared/specialization/regionIndex";
 import { regionContentFor, regionDataFor, registeredRegionContents, specializationRegions } from "@shared/specialization/registry";
@@ -13,7 +13,7 @@ import { sourceLibrary } from "@shared/specialization/sources";
 import { isCurrentVariant, variantById, variantFor, variantLibrary, variantsMappedBy } from "@shared/specialization/variants";
 import { countingDimensions, descriptiveDimensions } from "@shared/specialization/variants/dimensions";
 import { forearmV1Variants } from "@shared/specialization/variants/forearm";
-import type { AnatomyNode, Claim, MappingVersion, RegionContent, SpecializationRegionData, VariantMapping } from "@shared/specialization/types";
+import type { AnatomyNode, Claim, ExerciseVariant, Limb, MappingVersion, RegionContent, SpecializationRegionData, VariantMapping } from "@shared/specialization/types";
 import { emitSeedSql } from "../../../../scripts/specialization/emit-seed";
 import { deltoidIds, deltoidRegionData } from "./__fixtures__/deltoidRegion";
 
@@ -40,6 +40,64 @@ const catalogById = new Map<number, Exercise>(exercises.map((exercise) => [exerc
 const shortOf = (nodeId: string) => nodeId.slice(nodeId.indexOf(".") + 1);
 const forPage = (data: SpecializationRegionData) => data.region.id;
 
+// ---------------------------------------------------------------- seed v1, as applied
+
+const seedV1 = readFileSync(join(root, "supabase/migrations/20261016120100_specialization_atlas_seed_v1.sql"), "utf8");
+
+/** One section of a generated seed, from its `-- <title>` line to the next section. */
+function seedSection(sql: string, title: string): string {
+  const start = sql.indexOf(`\n-- ${title}\n`);
+  if (start === -1) throw new Error(`The seed has no section "${title}"`);
+  const end = sql.indexOf("\n\n-- ", start + 1);
+  return sql.slice(start, end === -1 ? undefined : end);
+}
+
+const claimKeysIn = (sql: string) => Array.from(seedSection(sql, "Claims (key: <region>:<claim id>)").matchAll(/^ {2}\(\$\$([^$]+)\$\$, \$\$/gm), (match) => match[1]);
+/** Each node-action row as `<node> <action> <role> <claim key>`. */
+const nodeActionsIn = (sql: string) =>
+  Array.from(seedSection(sql, "Node actions (each rests on a function claim of its own node)").matchAll(/^ {2}\(\$\$([^$]+)\$\$, \$\$([^$]+)\$\$, \$\$([a-z]+)\$\$, \$\$([^$]+)\$\$\)/gm), (match) => match.slice(1, 5).join(" "));
+
+/** The claim keys seed v1 wrote: the only claims that keep the shipped short id form (§1.3). */
+const seedV1ClaimKeys = new Set(claimKeysIn(seedV1));
+
+/** A row's values, split at the commas outside dollar quotes, brackets and parentheses. */
+function sqlValues(row: string): string[] {
+  const values: string[] = [];
+  let depth = 0;
+  let quoted = false;
+  let from = 0;
+  for (let i = 0; i < row.length; i += 1) {
+    if (row.startsWith("$$", i)) {
+      quoted = !quoted;
+      i += 1;
+    } else if (!quoted && (row[i] === "[" || row[i] === "(")) depth += 1;
+    else if (!quoted && (row[i] === "]" || row[i] === ")")) depth -= 1;
+    else if (!quoted && depth === 0 && row[i] === ",") {
+      values.push(row.slice(from, i).trim());
+      from = i + 1;
+    }
+  }
+  values.push(row.slice(from).trim());
+  return values;
+}
+
+/** The rows a seed's `insert into specialization.<table>` writes, by their first value, each as column → SQL literal. */
+function insertedRows(sql: string, table: string): Map<string, Record<string, string>> {
+  const head = `insert into specialization.${table} as t (`;
+  const start = sql.indexOf(head);
+  if (start === -1) throw new Error(`The seed writes no ${table}`);
+  const valuesAt = sql.indexOf(") values\n", start);
+  const columns = sql.slice(start + head.length, valuesAt).split(", ");
+  const rows = new Map<string, Record<string, string>>();
+  for (const line of sql.slice(valuesAt + ") values\n".length).split("\n")) {
+    if (!line.startsWith("  (")) break;
+    const values = sqlValues(line.trim().replace(/,$/, "").slice(1, -1));
+    expect(values, line).toHaveLength(columns.length);
+    rows.set(values[0], Object.fromEntries(columns.map((column, index) => [column, values[index]])));
+  }
+  return rows;
+}
+
 /** The fields the multi-region model added, taken off so the rest can be compared with the data as it was at 6738eeb. */
 function asAt6738eeb(data: SpecializationRegionData) {
   const { sides: _sides, catalogKeys: _keys, regionOnlyTagScope: _scope, measurementDefaults: _defaults, wording, ...region } = data.region;
@@ -52,7 +110,9 @@ function asAt6738eeb(data: SpecializationRegionData) {
     nodeActions: data.nodeActions.map(({ claimKey: _key, ...row }) => row),
     claims: data.claims.map(({ ownerRegionId: _owner, ...claim }) => claim),
     sources: data.sources,
-    variants: data.variants.map(({ sidedBy: _sidedBy, ...variant }) => variant),
+    // The attributes §3 stores beside the frozen columns, which a later wave may add to these
+    // variants. `replaces` stays: it is only ever on a new record, never on one of these.
+    variants: data.variants.map(({ sidedBy: _sidedBy, legLaterality: _legs, sideAnchor: _anchor, dimensions: _dimensions, ...variant }) => variant),
     mappings: data.mappings,
     mappingVersion: data.mappingVersion,
     diagram,
@@ -206,6 +266,11 @@ describe("registry rules (§1.2, §1.3)", () => {
     }
   });
 
+  it("give every node a flat id under its home region, `<region>.<slug>`", () => {
+    // Claim ids and the seed's short claim ids cut a node id at its first dot (§1.2).
+    for (const node of [...allNodes, ...deltoidRegionData.nodes]) expect(node.id).toMatch(new RegExp(`^${node.regionId}\\.[a-z0-9_]+$`));
+  });
+
   it("keep the stored role apart from the home role on exactly the two frozen upper-arm muscles", () => {
     expect(allNodes.filter((node) => node.storedRole !== undefined).map((node) => [node.id, node.storedRole, node.role])).toEqual([
       ["upper_arm.biceps", "external", "target"],
@@ -249,7 +314,7 @@ describe("registry rules (§1.2, §1.3)", () => {
       expect(homeNodeById.has(claim.nodeId), claim.id).toBe(true);
     }
     // The forearm's four claims on the upper-arm muscles stay the forearm's, beside their nodes.
-    expect(upperArmContent.claims.map(claimKeyOf)).toEqual(["forearm:biceps.function", "forearm:biceps.appearance", "forearm:brachialis.function", "forearm:brachialis.appearance"]);
+    expect(upperArmContent.claims.filter((claim) => claim.ownerRegionId === "forearm").map(claimKeyOf)).toEqual(["forearm:biceps.function", "forearm:biceps.appearance", "forearm:brachialis.function", "forearm:brachialis.appearance"]);
   });
 
   it("declare each node action once, in the node's home region, on a function claim of the same node", () => {
@@ -279,37 +344,81 @@ describe("registry rules (§1.2, §1.3)", () => {
   });
 });
 
-describe("claim keys and node-action claim keys, byte for byte as seed v1 wrote them (§1.3)", () => {
-  const seedV1 = readFileSync(join(root, "supabase/migrations/20261016120100_specialization_atlas_seed_v1.sql"), "utf8");
-  const section = (sql: string, title: string) => {
-    const start = sql.indexOf(`\n-- ${title}\n`);
-    expect(start, title).toBeGreaterThan(-1);
-    const end = sql.indexOf("\n\n-- ", start + 1);
-    return sql.slice(start, end === -1 ? undefined : end);
-  };
-  const claimKeysIn = (sql: string) => Array.from(section(sql, "Claims (key: <region>:<claim id>)").matchAll(/^ {2}\(\$\$([^$]+)\$\$, \$\$/gm), (match) => match[1]);
-  const nodeActionsIn = (sql: string) =>
-    Array.from(section(sql, "Node actions (each rests on a function claim of its own node)").matchAll(/^ {2}\(\$\$([^$]+)\$\$, \$\$([^$]+)\$\$, \$\$[a-z]+\$\$, \$\$([^$]+)\$\$\)/gm), (match) => `${match[1]} ${match[2]} ${match[3]}`);
-  const sorted = (values: string[]) => [...values].sort();
+describe("what seed v1 wrote, byte for byte (§1.3, §5.2)", () => {
+  let seed: string | undefined;
+  /** The seed the emitter writes now, once per run. */
+  const emitted = () => (seed ??= emitSeedSql());
 
-  it("comes out of the content exactly as seed v1 holds them", () => {
+  it("holds the forearm's 60 claims and 38 node actions, every claim the forearm's", () => {
     expect(claimKeysIn(seedV1)).toHaveLength(60);
+    expect(new Set(claimKeysIn(seedV1)).size).toBe(60);
+    expect(claimKeysIn(seedV1).every((key) => key.startsWith("forearm:"))).toBe(true);
     expect(nodeActionsIn(seedV1)).toHaveLength(38);
-    expect(sorted(allClaims.map(claimKeyOf))).toEqual(sorted(claimKeysIn(seedV1)));
-    expect(sorted(contents.flatMap((content) => content.nodeActions.map((row) => `${row.nodeId} ${row.actionId} ${row.claimKey}`)))).toEqual(sorted(nodeActionsIn(seedV1)));
   });
 
-  it("comes out of the seed emitter exactly as seed v1 holds them", () => {
-    const emitted = emitSeedSql();
-    expect(claimKeysIn(emitted)).toEqual(claimKeysIn(seedV1));
-    expect(nodeActionsIn(emitted)).toEqual(nodeActionsIn(seedV1));
+  // Inclusion, not equality: a later region adds claims and node actions; none of seed v1's may change.
+  it("keeps every claim key and node-action row of seed v1 in the content", () => {
+    expect(allClaims.map(claimKeyOf)).toEqual(expect.arrayContaining(claimKeysIn(seedV1)));
+    expect(contents.flatMap((content) => content.nodeActions.map((row) => `${row.nodeId} ${row.actionId} ${row.role} ${row.claimKey}`))).toEqual(expect.arrayContaining(nodeActionsIn(seedV1)));
+  });
+
+  it("keeps every claim key and node-action row of seed v1 in what the seed emitter writes", () => {
+    expect(claimKeysIn(emitted())).toEqual(expect.arrayContaining(claimKeysIn(seedV1)));
+    expect(nodeActionsIn(emitted())).toEqual(expect.arrayContaining(nodeActionsIn(seedV1)));
+  });
+
+  it("keeps every region row seed v1 wrote, its v1 columns unchanged until the region's status changes (the upper arm's promotion)", () => {
+    const v1Rows = insertedRows(seedV1, "regions");
+    const rows = insertedRows(emitted(), "regions");
+    expect(Array.from(v1Rows.keys())).toEqual(["$$forearm$$", "$$upper_arm$$"]);
+    for (const [key, v1Row] of v1Rows) {
+      const region = regionContentFor(key.replaceAll("$$", ""))?.region;
+      expect(region, key).toBeDefined();
+      const row = rows.get(key);
+      expect(row, key).toBeDefined();
+      if (`$$${region!.status}$$` !== v1Row.status) continue;
+      // The upper arm's row is seed v1's reference row (a label, no heading, sort 0, no keys or
+      // words) until its promotion, though its record already holds §1.1's (upper_arm/region.ts).
+      for (const [column, value] of Object.entries(v1Row)) expect(row![column], `${key} ${column}`).toBe(value);
+    }
   });
 });
+
+/**
+ * How a page credits its external members (§4.2), as problems: only through each home's published
+ * version, each mapping on an external member of that home, for an action the version names
+ * (`actions`) and the library's current variant of its exercise, which the page lists.
+ */
+function externalCreditProblems(data: SpecializationRegionData): string[] {
+  const problems: string[] = [];
+  const nodeById = new Map(data.nodes.map((node) => [node.id, node]));
+  const listed = new Set(data.variants.map((variant) => variant.id));
+  for (const external of data.externalMappingVersions) {
+    const where = `${data.region.id} ← ${external.version.key}`;
+    if (external.version.state !== "published") problems.push(`${where}: not published`);
+    for (const action of external.actions) if (actionById.get(action.id) !== action) problems.push(`${where}: ${action.id} is not the library's record`);
+    const named = new Set(external.actions.map((action) => action.id));
+    for (const mapping of external.mappings) {
+      const at = `${where} ${mapping.id}`;
+      if (mapping.versionKey !== external.version.key) problems.push(`${at}: under ${mapping.versionKey}`);
+      if (mapping.id !== `${mapping.variantId}:${mapping.nodeId}`) problems.push(`${at}: not keyed by its variant and node`);
+      const node = nodeById.get(mapping.nodeId);
+      if (node?.role !== "external" || node.regionId !== external.regionId) problems.push(`${at}: not an external member whose home is ${external.regionId}`);
+      if (mapping.actionId === null || !named.has(mapping.actionId)) problems.push(`${at}: ${mapping.actionId} is not among the version's actions`);
+      const variant = variantById.get(mapping.variantId);
+      if (!variant || variantFor(variant.catalogExerciseId) !== variant) problems.push(`${at}: not the current library variant`);
+      if (!listed.has(mapping.variantId)) problems.push(`${at}: the page does not list its variant`);
+    }
+  }
+  return problems;
+}
 
 describe("composition (§1.3, §4.2)", () => {
   const draft: MappingVersion = { key: "upper_arm_test_v1", state: "draft", publishedAt: null, methodNotes: "Test version." };
   const curl = forearmContent.mappings.find((mapping) => mapping.id === "cat-121:upper_arm.biceps")!;
   const homeMapping: VariantMapping = { ...curl, versionKey: draft.key, rationale: "The upper arm's own reading, for this test." };
+  /** The upper arm with its own version published, crediting the biceps with these mappings. */
+  const publishedWith = (...mappings: VariantMapping[]): RegionContent => ({ ...upperArmContent, mappingVersion: { ...draft, state: "published", publishedAt: "2026-10-20" }, mappings, variants: variantsMappedBy(mappings) });
 
   it("resolves each member to its home record and the role the region lists it with", () => {
     const members = resolveMembers(forearmContent, [upperArmContent]);
@@ -332,10 +441,17 @@ describe("composition (§1.3, §4.2)", () => {
 
   it("shows the claims a page owns on its members and the function claims behind its node actions, nothing else", () => {
     // The upper arm as a page: the forearm's function claims rest under its node actions; the forearm's appearance claims are not its own.
+    // Held as rules, so the upper arm's own claims, members and sources can join without changing the test.
     const page = composeRegionData({ ...upperArmContent, mappingVersion: draft }, [forearmContent]);
-    expect(page.claims.map(claimKeyOf)).toEqual(["forearm:biceps.function", "forearm:brachialis.function"]);
-    expect(page.nodes.map((node) => [node.id, node.role])).toEqual([["upper_arm.biceps", "target"], ["upper_arm.brachialis", "target"]]);
-    expect(page.sources.map((source) => source.id)).toEqual(["A50", "A51"]);
+    const shown = page.claims.map(claimKeyOf);
+    expect(shown).toEqual(expect.arrayContaining(["forearm:biceps.function", "forearm:brachialis.function"]));
+    expect(shown).not.toContain("forearm:biceps.appearance");
+    expect(shown).not.toContain("forearm:brachialis.appearance");
+    const memberIds = new Set(page.nodes.map((node) => node.id));
+    const behind = new Set(page.nodeActions.map((row) => row.claimKey));
+    for (const claim of page.claims) expect((claim.ownerRegionId === "upper_arm" && memberIds.has(claim.nodeId)) || behind.has(claimKeyOf(claim)), claimKeyOf(claim)).toBe(true);
+    expect(page.nodes.filter((node) => node.id === "upper_arm.biceps" || node.id === "upper_arm.brachialis").map((node) => [node.id, node.role])).toEqual([["upper_arm.biceps", "target"], ["upper_arm.brachialis", "target"]]);
+    expect(page.sources.map((source) => source.id)).toEqual(expect.arrayContaining(["A50", "A51"]));
   });
 
   it("adds a membership's caveats after the node's own, on that page's copy only", () => {
@@ -347,13 +463,43 @@ describe("composition (§1.3, §4.2)", () => {
   });
 
   it("credits an external member through its home's published version, keeping each mapping's version key", () => {
-    const published: RegionContent = { ...upperArmContent, mappingVersion: { ...draft, state: "published", publishedAt: "2026-10-20" }, mappings: [homeMapping], variants: variantsMappedBy([homeMapping]) };
+    const published = publishedWith(homeMapping);
     const page = composeRegionData(forearmContent, [published]);
-    expect(page.externalMappingVersions).toEqual([{ regionId: "upper_arm", version: published.mappingVersion, mappings: [homeMapping] }]);
+    expect(page.externalMappingVersions).toEqual([{ regionId: "upper_arm", version: published.mappingVersion, mappings: [homeMapping], actions: [actionById.get("elbow.flexion")] }]);
     expect(page.mappings).toBe(forearmContent.mappings);
     expect(versionedMappingKey(homeMapping)).not.toBe(versionedMappingKey(curl));
+    expect(externalCreditProblems(page)).toEqual([]);
     // A home whose version is still a draft credits nothing here: the page reads its own rows.
     expect(composeRegionData(forearmContent, [{ ...published, mappingVersion: draft }]).externalMappingVersions).toEqual([]);
+  });
+
+  it("names the home's actions an external member is credited for, apart from the page's own", () => {
+    // The upper arm may credit the biceps for shoulder flexion, which is no forearm action.
+    const raise: VariantMapping = { ...homeMapping, actionId: "shoulder.flexion" };
+    const page = composeRegionData(forearmContent, [publishedWith(raise)]);
+    const [external] = page.externalMappingVersions;
+    expect(external.mappings).toEqual([raise]);
+    expect(external.actions).toEqual([actionById.get("shoulder.flexion")]);
+    expect(external.actions[0]).toBe(upperArmContent.actions.find((action) => action.id === "shoulder.flexion"));
+    // Movement targets read the page's own actions, which stay the forearm's 20.
+    expect(page.actions).toBe(forearmContent.actions);
+    expect(page.actions.map((action) => action.id)).not.toContain("shoulder.flexion");
+    expect(externalCreditProblems(page)).toEqual([]);
+  });
+
+  it("finds external credit a page could not name or place", () => {
+    const page = composeRegionData(forearmContent, [publishedWith(homeMapping)]);
+    const [external] = page.externalMappingVersions;
+    const onOwnMuscle: VariantMapping = { ...homeMapping, id: "cat-121:forearm.br", nodeId: "forearm.br" };
+    const unnamed: VariantMapping = { ...homeMapping, actionId: "shoulder.extension" };
+    const broken: SpecializationRegionData = { ...page, externalMappingVersions: [{ ...external, mappings: [onOwnMuscle, unnamed] }] };
+    expect(externalCreditProblems(broken)).toEqual([
+      "forearm ← upper_arm_test_v1 cat-121:forearm.br: not an external member whose home is upper_arm",
+      "forearm ← upper_arm_test_v1 cat-121:upper_arm.biceps: shoulder.extension is not among the version's actions",
+    ]);
+    expect(externalCreditProblems({ ...page, variants: forearmContent.variants.filter((variant) => variant.id !== "cat-121") })).toEqual([
+      "forearm ← upper_arm_test_v1 cat-121:upper_arm.biceps: the page does not list its variant",
+    ]);
   });
 
   it("refuses a member it cannot find and a region with no version", () => {
@@ -384,6 +530,9 @@ function copyStrings(content: RegionContent): { where: string; text: string }[] 
 
 const actionCopy = actionLibrary.flatMap((action) => [{ where: `${action.id}.label`, text: action.label }, { where: `${action.id}.plainDescription`, text: action.plainDescription }]);
 
+/** What no copy says (§8): a growth promise (a percentage, "optimal", "guarantee", "will grow"), the backend vendor, or "table". */
+const forbiddenInCopy = [/%|\bper ?cent\b/i, /optimal|guarantee/i, /\bwill (grow|get bigger|increase)\b/i, /supabase|\btables?\b/i];
+
 describe("anatomy content, in every region", () => {
   for (const content of contents) {
     describe(content.region.id, () => {
@@ -405,16 +554,20 @@ describe("anatomy content, in every region", () => {
         }
       });
 
-      it("gives every muscle a main action, adjacent muscles aside", () => {
-        for (const node of content.nodes.filter((item) => item.kind === "muscle" && item.role !== "adjacent")) {
-          expect(content.nodeActions.some((row) => row.nodeId === node.id && row.role === "prime"), node.id).toBe(true);
+      // A parent (the deltoid over its three heads, the triceps over its heads) acts through its parts and
+      // is neither drawn nor selected (10-multi-region.md §7.3), so it needs no action of its own.
+      it("gives every muscle a main action, and an adjacent muscle at least one action, parents aside", () => {
+        const parents = new Set(content.nodes.map((item) => item.parentId).filter(Boolean));
+        for (const node of content.nodes.filter((item) => item.kind === "muscle" && !parents.has(item.id))) {
+          expect(content.nodeActions.some((row) => row.nodeId === node.id && (row.role === "prime" || node.role === "adjacent")), node.id).toBe(true);
         }
       });
 
-      it("gives every claim an id that names its node and kind", () => {
+      it("gives every claim an id of its node's full id and its kind, the forearm's shipped claims keeping their short form", () => {
         for (const claim of content.claims) {
-          const node = `(${shortOf(claim.nodeId)}|${claim.nodeId})`.replace(/[.]/g, "\\.");
-          expect(claim.id).toMatch(new RegExp(`^${node}\\.${claim.kind}(\\.\\d+)?$`));
+          const key = claimKeyOf(claim);
+          const node = (seedV1ClaimKeys.has(key) ? shortOf(claim.nodeId) : claim.nodeId).replace(/[.]/g, "\\.");
+          expect(claim.id, key).toMatch(new RegExp(`^${node}\\.${claim.kind}(\\.\\d+)?$`));
         }
       });
 
@@ -452,12 +605,7 @@ describe("anatomy content, in every region", () => {
       });
 
       it("makes no growth promise and never names the backend vendor or says 'table'", () => {
-        for (const { where, text } of copyStrings(content)) {
-          expect(text, where).not.toMatch(/%|\bper ?cent\b/i);
-          expect(text, where).not.toMatch(/optimal|guarantee/i);
-          expect(text, where).not.toMatch(/\bwill (grow|get bigger|increase)\b/i);
-          expect(text, where).not.toMatch(/supabase|\btables?\b/i);
-        }
+        for (const { where, text } of copyStrings(content)) for (const pattern of forbiddenInCopy) expect(text, where).not.toMatch(pattern);
         const cited = new Set(content.claims.flatMap((claim) => claim.sources.map((ref) => ref.sourceId)));
         for (const source of content.sources.filter((item) => cited.has(item.id))) expect(source.title, source.id).not.toMatch(/supabase|\btables?\b/i);
       });
@@ -521,6 +669,10 @@ describe("each page's data", () => {
           expect(node!.kind === "group" || node!.kind === "compartment" || node!.role === "group" || node!.role === "adjacent", mapping.id).toBe(false);
           expect(mapping.actionId !== null && actionIds.has(mapping.actionId), `${mapping.id}: action`).toBe(true);
         }
+      });
+
+      it("credits its external members only through their homes' published versions, for actions and current variants it can name", () => {
+        expect(externalCreditProblems(data)).toEqual([]);
       });
 
       it("cites a source for every mapping, a located one where reviewed, and EMG only with an EMG source in hand", () => {
@@ -619,7 +771,7 @@ describe("the action library", () => {
     }
     for (const { where, text } of actionCopy) {
       expect(text, where).not.toMatch(/\b(left|right)\b/i);
-      expect(text, where).not.toMatch(/%|optimal|guarantee|supabase|\btables?\b/i);
+      for (const pattern of forbiddenInCopy) expect(text, where).not.toMatch(pattern);
     }
   });
 });
@@ -649,6 +801,47 @@ describe("the source library", () => {
   });
 });
 
+/**
+ * Both-limb variants: one-sided for the arms and for the legs, so the first wave that maps one in a
+ * new version decides which limb records its side, and the variants lane lists each with its
+ * decision in docs/specialization-atlas/regions/variants.md (§3). 188 and 264, the single-leg
+ * Romanian deadlifts, are read by the arm now and may move to the standing leg (§11 decision 9).
+ */
+const bothLimbCatalogIds = new Set([188, 264]);
+
+const oneSided = (laterality: string | undefined) => laterality === "unilateral" || laterality === "either";
+
+/**
+ * §3's limb rules for every variant a paired page maps, by its own version or a home's, as
+ * problems: a one-sided or either variant is read by the side of the page's limb, both-limb
+ * variants aside; a leg page also needs each variant's legLaterality, and a one-sided or either
+ * one's side anchor. A midline page reads no side.
+ */
+function limbSideProblems(data: SpecializationRegionData): string[] {
+  if (data.region.sides.model !== "paired") return [];
+  const limb = data.region.sides.limb;
+  const listed = new Map(data.variants.map((variant) => [variant.id, variant]));
+  const mapped = new Set([...data.mappings, ...data.externalMappingVersions.flatMap((external) => external.mappings)].map((mapping) => mapping.variantId));
+  const problems: string[] = [];
+  for (const id of Array.from(mapped)) {
+    const variant = listed.get(id);
+    if (!variant) {
+      problems.push(`${id}: not among the page's variants`);
+      continue;
+    }
+    const bothLimbs = bothLimbCatalogIds.has(variant.catalogExerciseId);
+    const laterality = limb === "arm" ? variant.laterality : variant.legLaterality;
+    if (laterality === undefined) {
+      problems.push(`${id}: no legLaterality`);
+      continue;
+    }
+    if (!oneSided(laterality)) continue;
+    if (variant.sidedBy !== limb && !bothLimbs) problems.push(`${id}: ${laterality} for the ${limb}s, sided by ${variant.sidedBy}`);
+    if (limb === "leg" && variant.sideAnchor === undefined) problems.push(`${id}: no side anchor`);
+  }
+  return problems;
+}
+
 describe("the variant library", () => {
   it("holds one current variant per catalog exercise, a replaced one only behind its link", () => {
     const ids = variantLibrary.map((variant) => variant.id);
@@ -668,12 +861,11 @@ describe("the variant library", () => {
     expect(forearmV1Variants).toHaveLength(119);
     for (const variant of forearmV1Variants) expect(variantLibrary).toContain(variant);
     const arm = [46, 49, 52, 53, 56, 61, 127, 129, 131, 142, 188, 256, 257, 264, 338, 340, 342, 350, 379, 383, 384, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414];
-    // 188 and 264 (single-leg Romanian deadlifts) are the only listed exceptions: a later wave may read them by the standing leg (§3, §11 decision 9).
-    const allowedLater = new Set([188, 264]);
+    // The both-limb variants 188 and 264 are the only listed exceptions: a later wave may read them by the standing leg (§3, §11 decision 9).
     for (const variant of forearmV1Variants) {
       const pinned = arm.includes(variant.catalogExerciseId) ? "arm" : "none";
       expect(pinned, variant.id).toBe(variant.laterality === "bilateral" ? "none" : "arm");
-      if (allowedLater.has(variant.catalogExerciseId)) expect(["arm", "leg"], variant.id).toContain(variant.sidedBy);
+      if (bothLimbCatalogIds.has(variant.catalogExerciseId)) expect(["arm", "leg"], variant.id).toContain(variant.sidedBy);
       else expect(variant.sidedBy, variant.id).toBe(pinned);
     }
   });
@@ -695,11 +887,36 @@ describe("the variant library", () => {
     }
   });
 
-  it("is read by the side of the arm wherever an arm region maps a one-sided or either variant", () => {
-    for (const data of pages) {
-      if (data.region.sides.model !== "paired" || data.region.sides.limb !== "arm") continue;
-      for (const variant of data.variants) if (variant.laterality === "unilateral" || variant.laterality === "either") expect(variant.sidedBy, variant.id).toBe("arm");
-    }
+  it("is read by the side of a page's limb wherever the page maps a one-sided or either variant, both-limb variants aside", () => {
+    for (const data of pages) expect(limbSideProblems(data), data.region.id).toEqual([]);
+    // Each listed both-limb variant has its limb written out.
+    for (const catalogId of Array.from(bothLimbCatalogIds)) expect(["arm", "leg"], String(catalogId)).toContain(variantFor(catalogId)?.sidedBy);
+  });
+
+  it("holds an arm page and a leg page to those rules, through their homes' versions too", () => {
+    const pageFor = (limb: Limb, variants: ExerciseVariant[]): SpecializationRegionData => ({
+      ...forearmRegionData,
+      region: { ...forearmRegionData.region, sides: { model: "paired", limb } },
+      variants,
+      mappings: variants.map((variant) => ({ ...forearmRegionData.mappings[0], id: `${variant.id}:forearm.br`, variantId: variant.id })),
+      externalMappingVersions: [],
+    });
+    const oneArm = variantFor(46)!;
+    expect(oneArm).toMatchObject({ laterality: "unilateral", sidedBy: "arm" });
+    // 188 as §11 decision 9 would read it, from the release that maps it in a new version.
+    const standingLeg: ExerciseVariant = { ...variantFor(188)!, sidedBy: "leg", legLaterality: "unilateral", sideAnchor: "stance_leg" };
+
+    expect(limbSideProblems(pageFor("arm", [oneArm, standingLeg]))).toEqual([]);
+    expect(limbSideProblems(pageFor("arm", [{ ...oneArm, sidedBy: "none" }]))).toEqual(["cat-46: unilateral for the arms, sided by none"]);
+    expect(limbSideProblems(pageFor("leg", [standingLeg]))).toEqual([]);
+    expect(limbSideProblems(pageFor("leg", [{ ...oneArm, legLaterality: "bilateral" }]))).toEqual([]);
+    expect(limbSideProblems(pageFor("leg", [oneArm]))).toEqual(["cat-46: no legLaterality"]);
+    expect(limbSideProblems(pageFor("leg", [{ ...oneArm, legLaterality: "either" }]))).toEqual(["cat-46: either for the legs, sided by arm", "cat-46: no side anchor"]);
+    // A variant the page maps only through a home's version is held to the page's limb as well.
+    const leg = pageFor("leg", [oneArm]);
+    const throughHome: SpecializationRegionData = { ...leg, mappings: [], externalMappingVersions: [{ regionId: "upper_arm", version: leg.mappingVersion, mappings: leg.mappings, actions: [] }] };
+    expect(limbSideProblems(throughHome)).toEqual(["cat-46: no legLaterality"]);
+    expect(limbSideProblems({ ...forearmRegionData, region: { ...forearmRegionData.region, sides: { model: "midline" } } })).toEqual([]);
   });
 
   it("names its dimensions and values as the database stores them", () => {
@@ -716,12 +933,17 @@ describe("the variant library", () => {
 });
 
 describe("node records the page reads", () => {
-  it("keep the home's region on another region's node and resolve its role per page", () => {
+  it("keep the home's region on another region's node, its home role read from the home's record", () => {
     const biceps = forearmRegionData.nodes.find((node) => node.id === "upper_arm.biceps") as AnatomyNode;
     expect(biceps).toMatchObject({ regionId: "upper_arm", role: "external" });
-    expect(memberRole("upper_arm", biceps)).toBe("external");
-    const home = upperArmContent.nodes.find((node) => node.id === "upper_arm.biceps")!;
+    // The page's copy says external, which is no home role: memberRole refuses it rather than answer for the home.
+    expect(() => memberRole("upper_arm", biceps)).toThrow(/home record/);
+    const home = regionContentFor(biceps.regionId)!.nodes.find((node) => node.id === biceps.id)!;
+    expect(home).toBe(upperArmContent.nodes.find((node) => node.id === "upper_arm.biceps"));
     expect(memberRole("upper_arm", home)).toBe("target");
     expect(memberRole("forearm", home)).toBe("external");
+    // A page's copy of its own node keeps its home role, so a page may still ask about its own members.
+    const fcu = forearmRegionData.nodes.find((node) => node.id === "forearm.fcu")!;
+    expect(memberRole("forearm", fcu)).toBe("target");
   });
 });

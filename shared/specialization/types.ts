@@ -137,6 +137,10 @@ export interface RegionWording {
    * The region and a side in a sentence, `{side}` standing for "left" or "right": "your {side}
    * forearm", "the {side} side of your chest". A midline region's has no slot ("your core").
    * Rendered by `onSide` (regionIndex.ts).
+   *
+   * Held in code only: schema v2 gives the regions row no column for it (10-multi-region.md §5.1),
+   * so the seed does not write it and a comparison of the record with its row leaves it out. Every
+   * other word here has its column.
    */
   onSideTemplate: string;
 }
@@ -475,9 +479,9 @@ export interface DiagramAsset {
   version: number;
   regionId: RegionId;
   /**
-   * Absent means `one_side`, which is what every drawing so far is (`diagramSidesOf`). The
-   * forearm's generated drawing does not write it yet, so its file stays byte for byte as
-   * shipped; the drawing platform lane writes it.
+   * Absent means `one_side` (`diagramSidesOf`). The forearm's drawing leaves it out on purpose,
+   * to keep its published file byte for byte; every other region's config sets it, and the
+   * drawing contract test ties it to the region's side model (midline: `both_sides`).
    */
   sides?: DiagramSides;
   viewBox: { width: number; height: number };
@@ -509,6 +513,12 @@ export interface ExternalMappingVersion {
   version: MappingVersion;
   /** The home version's mappings of this region's external members only; each keeps its `versionKey`. */
   mappings: VariantMapping[];
+  /**
+   * The home region's joint actions these mappings name, so the page can name every action it
+   * credits (the upper arm credits the biceps for shoulder flexion, which is no forearm action).
+   * Not this region's actions: `SpecializationRegionData.actions`, which movement targets read.
+   */
+  actions: JointAction[];
 }
 
 /**
@@ -568,6 +578,13 @@ export interface SpecializationRegionData {
 export type BoutSide = "left" | "right" | "bilateral" | "unknown";
 /** Where a bout's side came from, so the ledger can say it. */
 export type SideSource = "recorded" | "structural" | "plan_assumption" | "unknown";
+/** One limb's side as a set stores it (10-multi-region.md §2.1): one side, or both together. */
+export type RecordedSide = "left" | "right" | "both";
+/**
+ * The side a contribution is counted on (10-multi-region.md §2.1): a side, each side
+ * (`bilateral`), `midline` on a midline region, or `unknown`, kept apart and never counted.
+ */
+export type CountedSide = BoutSide | "midline";
 export type SummaryMode = "planned" | "completed";
 
 export interface ExposureSegment {
@@ -595,6 +612,17 @@ export interface ExposureBout {
   matchedBy: "id" | "name" | "none";
   side: BoutSide;
   sideSource: SideSource;
+  /**
+   * Each limb's side as recorded, in a field of its own (10-multi-region.md §2.1): `armSide` from
+   * the set's `side`, `legSide` from its `legSide`, or a planned one-sided set's side
+   * (`plan_assumption`); null where that limb's side was not recorded. Each region reads them per
+   * node and mapping. Absent on bouts from code that reads only `side`, the arm's side as the
+   * forearm has always counted it.
+   */
+  armSide?: RecordedSide | null;
+  armSideSource?: SideSource;
+  legSide?: RecordedSide | null;
+  legSideSource?: SideSource;
   straps: "yes" | "no" | "unknown";
   warmup: boolean;
   effort: "failure" | "not_to_failure" | null;
@@ -623,7 +651,7 @@ export interface SpecializationGoal {
   /** Exactly one of nodeId and actionId is set. */
   nodeId: NodeId | null;
   actionId: ActionId | null;
-  side: ArmSide;
+  side: SummarySide;
   metric: GoalMetric;
   target: number;
   period: GoalPeriod;
@@ -657,7 +685,7 @@ export interface MeasurementProtocol {
 export interface SpecializationMeasurement {
   id: string;
   regionId: RegionId;
-  side: ArmSide;
+  side: SummarySide;
   measuredAt: string;
   metric: MeasurementMetric;
   value: number;
@@ -694,6 +722,17 @@ export interface Contribution {
   parts: { mappingId: string; actionId: ActionId | null; relationship: Relationship; muscleMode: MuscleMode; category: ExposureCategory }[];
   side: BoutSide;
   sideSource: SideSource;
+  /**
+   * The side this contribution is counted on, resolved per node and mapping (10-multi-region.md
+   * §2.1); the side recorded for the limb the variant is sided by, as the set stores it (null where
+   * none was recorded); and where the mapping loads its muscle relative to that side
+   * (`sideRelationOf`). The ledger labels the row by `countedSide` and adds a note where it differs
+   * from the side recorded ("Left hand: opposite side"). Absent on contributions from code that
+   * reads only `side`.
+   */
+  countedSide?: CountedSide;
+  recordedSide?: RecordedSide | null;
+  sideRelation?: SideRelation;
   catalogExerciseId: number | null;
   exerciseName: string;
   matchedBy: "id" | "name" | "none";
@@ -792,7 +831,7 @@ export interface RegionBoutRow {
 export interface SpecializationSummary {
   regionId: RegionId;
   interval: SummaryInterval;
-  side: ArmSide;
+  side: SummarySide;
   mode: SummaryMode;
   mappingVersion: string;
   ruleVersion: string;
@@ -826,7 +865,7 @@ export interface SummaryRequest {
   region: SpecializationRegionData;
   bouts: readonly ExposureBout[];
   interval: SummaryInterval;
-  side: ArmSide;
+  side: SummarySide;
   mode: SummaryMode;
   goals: readonly SpecializationGoal[];
   /**

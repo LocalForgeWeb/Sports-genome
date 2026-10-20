@@ -22,7 +22,7 @@ export function actionGlyphKind(actionId: string): ActionGlyphKind {
   const keyed = SCAPULA_GLYPHS[actionId];
   if (keyed) return keyed;
   if (/pronation|supination|rotation/.test(actionId)) return "rotate";
-  if (/deviation|abduction|adduction/.test(actionId)) return "tilt";
+  if (/deviation|abduction|adduction|inversion|eversion/.test(actionId)) return "tilt";
   if (/extension/.test(actionId)) return "straighten";
   if (/flexion/.test(actionId)) return "bend";
   return "steady";
