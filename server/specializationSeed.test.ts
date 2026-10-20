@@ -35,7 +35,8 @@ import type { AnatomyNode, DiagramAsset, RegionContent, SpecializationRegion } f
  * Postgres (PGlite) in production's order (schema v1, seed v1, schema v2, then this seed;
  * server/fixtures/specializationPg.ts) and reads every record back in the content's own shape,
  * so "the database carries the content" is checked, not assumed. It also proves what the seed
- * may change in rows production already holds: nothing, in this release (10-multi-region.md §5.2).
+ * may change in rows production already holds (10-multi-region.md §5.2): in this release, the
+ * upper arm's region row in the columns schema v2 added, and nothing else.
  */
 
 const SETUP = 120_000;
