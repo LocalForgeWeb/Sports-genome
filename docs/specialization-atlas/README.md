@@ -1,5 +1,7 @@
 # Muscle Specialization Atlas, forearms first: completion report
 
+> **20 Oct 2026:** the map on Specialize is now the supplied 3D forearm by default, with this drawing one tap away (**3D model | Drawing**). See [`forearm-3d/`](forearm-3d/README.md) and its ledger [`SG-FOREARM-INTEGRATION-20261019.md`](forearm-3d/SG-FOREARM-INTEGRATION-20261019.md). Everything below still describes the drawing and the calculator, which are unchanged.
+
 Owner's brief: [`brief-2026-10-16.md`](brief-2026-10-16.md). This page is the brief's §12 completion report: what exists, where, how it was tested, and what is still owed. Details live in the numbered notes. Counts, names and timings below were read from the code at `1cb619a` (18 Oct 2026) with scripts, not written from memory.
 
 | Note | What it covers |

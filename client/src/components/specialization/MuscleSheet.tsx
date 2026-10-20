@@ -42,8 +42,8 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
   timeZone: string;
   todayKey: string;
   recommendations: Recommendations | null;
-  /** Opened to add work: the sheet starts at "Exercises for this muscle". */
-  initialSection?: "exercises";
+  /** Opened to add work: the sheet starts at "Exercises for this muscle"; opened for the records behind a number: at "Where the numbers come from". */
+  initialSection?: "exercises" | "ledger";
   /** The paired view (design §4): this week's logged work beside the plan week as written, or the reverse. */
   paired: { label: string; exposure: NodeExposure | null } | null;
   /** Why there is no pair, when the plan week shown is not the week being trained (design §4). */
@@ -70,9 +70,10 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
   const ledger = exposure ? ledgerByExercise(exposure.contributions) : [];
   const notCounted = exposure?.notCounted ?? [];
   useEffect(() => {
-    if (initialSection !== "exercises") return;
-    // After the heading has taken focus: bring the exercises into view without moving focus.
-    const frame = window.requestAnimationFrame(() => document.getElementById("spz-exercises")?.scrollIntoView({ block: "start" }));
+    if (!initialSection) return;
+    // After the heading has taken focus: bring the section into view without moving focus.
+    const target = initialSection === "exercises" ? "spz-exercises" : "spz-ledger";
+    const frame = window.requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ block: "start" }));
     return () => window.cancelAnimationFrame(frame);
   }, [initialSection, node.id]);
 

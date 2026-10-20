@@ -23,11 +23,18 @@ import { MuscleSheet } from "./MuscleSheet";
 import { splitTargets } from "./TargetsEditor";
 import { TargetsOverview } from "./TargetsOverview";
 import { PlanChangeSheet } from "./PlanChangeSheet";
-import { scrollToTopClear } from "./reveal";
+import { clearBand, scrollToTopClear } from "./reveal";
 import { SpecializationDiagram } from "./SpecializationDiagram";
+import { AnatomyModelCredits } from "./anatomy3d/AnatomyModelCredits";
+import { AnatomyModelStage, webglAvailable } from "./anatomy3d/AnatomyModelStage";
+import { ChooseMuscleSheet } from "./anatomy3d/ChooseMuscleSheet";
+import { anatomyModelFor } from "./anatomy3d/modelIdentity";
+import { ModelMusclePanel } from "./anatomy3d/ModelMusclePanel";
+import { viewerMuscleData, type ViewerSummaryState } from "./anatomy3d/viewerData";
 import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricLabels, goalMetricShortLabels, holdTime, goalsForNode, latestSessionDayLabel, layerLabels, movementFocusNodeId, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
 import "@/components/anatomy/anatomy-figure.css";
 import "./specialization.css";
+import "./anatomy3d/anatomy3d.css";
 
 /** What Home hands the page: its plan, the catalog, and the few actions that change Home's state. */
 export type SpecializationPanelProps = {
@@ -59,7 +66,9 @@ const SHOWN_FINDINGS = 3;
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
 type SheetState =
-  | { kind: "muscle"; section?: "exercises" }
+  | { kind: "muscle"; section?: "exercises" | "ledger" }
+  /** Choose muscle, over the 3D model: every muscle, so none has to be found on the model. */
+  | { kind: "picker" }
   | { kind: "movement"; actionId: string }
   /** An add or swap, started from a muscle's exercises or from a movement's. */
   | { kind: "change"; exerciseId: number; from: { kind: "muscle" } | { kind: "movement"; actionId: string } }
@@ -187,6 +196,15 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const view = shownView?.id ?? state.view ?? "";
   const layers = (Object.keys(layerControlLabels) as DiagramLayerId[]).filter((layer) => asset?.views[view]?.[layer]);
   const layer: DiagramLayerId = layers.includes(state.layer) ? state.layer : layers[0] ?? state.layer;
+  /**
+   * The 3D model (SG-FOREARM-INTEGRATION-20261019): for a region that has one, the map card
+   * shows it unless the athlete chose the drawing, or this browser cannot draw it. The drawing
+   * stays one tap away and is unchanged.
+   */
+  const modelConfig = anatomyModelFor(data.region.id);
+  const canDrawModel = useMemo(() => webglAvailable(), []);
+  const figure = state.figure ?? (modelConfig && canDrawModel ? "model" : "drawing");
+  const showModel = Boolean(modelConfig) && figure === "model";
 
   // A hand-edited or stale address: an unknown muscle, a plan week that is not built, or a view
   // this drawing does not have (or its first view, which the address leaves out) is dropped from
@@ -194,8 +212,11 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const staleView = state.view !== null && views.length > 0 && (state.view !== shownView?.id || state.view === views[0].id);
   const staleWeek = plan.ready && state.planWeek !== null && builtWeeks.length > 0 && !builtWeeks.includes(state.planWeek);
   const staleNode = Boolean(state.nodeId) && !selected;
+  /** A muscle the address named that the atlas does not have: said once, in place of its numbers (never another muscle's). */
+  const [droppedNode, setDroppedNode] = useState<string | null>(null);
   useEffect(() => {
     if (!staleNode && !staleWeek && !staleView) return;
+    if (staleNode) setDroppedNode(state.nodeId);
     onStateChange({ ...state, ...(staleNode ? { nodeId: null } : {}), ...(staleWeek ? { planWeek: null } : {}), ...(staleView ? { view: null } : {}) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [staleNode, staleWeek, staleView]);
@@ -211,6 +232,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const regionWord = data.region.label.toLowerCase();
   const [announcement, setAnnouncement] = useState("");
   const select = (nodeId: string | null) => {
+    setDroppedNode(null);
     update({ nodeId });
     if (nodeId) setAnnouncement(`${nameOf(nodeId)} selected. ${sentenceFor(nodeId)}`);
   };
@@ -400,6 +422,32 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const regionOnlyRows = summary ? regionBoutRows(summary, "region-only") : [];
   const unknownSideRows = summary ? regionBoutRows(summary, "unknown-side") : [];
 
+  /** The 3D panel's numbers: the same summary as the list and the sheet, through the viewer's adapter. */
+  const viewerState: ViewerSummaryState = summary ? { kind: "ready", summary } : here.status === "error" ? { kind: "error", note: `The totals could not be worked out: ${here.message}` } : { kind: "loading", note: waiting };
+  const viewerData = showModel && selected ? viewerMuscleData({ data, nodeId: selected.id, state: viewerState, view: { mode: state.mode, window: state.window, side: state.limb, timeZone } }) : null;
+  /**
+   * After a choice in Choose muscle, the model is brought into view if any of it is off screen,
+   * with the selected name above it, so the athlete sees the muscle they chose.
+   */
+  const modelRef = useRef<HTMLDivElement>(null);
+  const revealModel = () => window.requestAnimationFrame(() => {
+    const block = modelRef.current;
+    if (!block) return;
+    const top = block.getBoundingClientRect().top;
+    const bottom = block.querySelector(".sg-anatomy3d-stage")?.getBoundingClientRect().bottom ?? top;
+    const band = clearBand();
+    if (top < band.top || bottom > band.bottom) scrollToTopClear(block);
+  });
+  /** A tap on the model chooses that muscle; tapping the one already chosen keeps it (Overview clears). */
+  const chooseOnModel = (nodeId: string) => { if (nodeId !== selected?.id) select(nodeId); };
+  const pickerValue = (id: string) => {
+    if (!summary) return planLoading ? "Loading" : "…";
+    const exposure = exposureOf(id);
+    if (!exposure || exposure.mappingCoverage === "none") return "Not mapped";
+    if (exposure.mappingCoverage === "pending_review") return "Under review";
+    return `${exposure.directDynamicBouts} direct`;
+  };
+
   return <section className="spz-page" aria-labelledby="spz-heading">
     {/* The top of the page is kept short, so the selected muscle and the top of the drawing are on
         a 375 × 667 phone's first screen too (brief §6 "Mobile overview"): the heading on one line
@@ -452,10 +500,47 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           the colours show. Each segment wraps onto its own row rather than push the page sideways. */}
       <div className="spz-section-head">
         <h2 id="spz-map-title">Muscle map</h2>
-        {asset && <div className="spz-segment" role="group" aria-label="View">
+        {modelConfig && <div className="spz-segment" role="group" aria-label="Show the muscles as">
+          <button type="button" aria-pressed={showModel} onClick={() => update({ figure: "model" })}>3D model</button>
+          <button type="button" aria-pressed={!showModel} onClick={() => update({ figure: "drawing" })}>Drawing</button>
+        </div>}
+        {asset && !showModel && <div className="spz-segment" role="group" aria-label="View">
           {views.map((item) => <button key={item.id} type="button" aria-pressed={item.id === view} onClick={() => update({ view: item.id === views[0].id ? null : item.id })}>{item.label}</button>)}
         </div>}
       </div>
+      {showModel && modelConfig ? <div ref={modelRef} className="sg-anatomy3d">
+        {/* The selected muscle and Choose muscle sit above the model (§6, item 3); two lines are kept
+            for the name, so a choice never moves the model under the finger. */}
+        <div className="sg-anatomy3d-bar">
+          <p className="sg-anatomy3d-bar-name"><small>{selected ? `${layerLabels[selected.layer]} · ${armWord}` : `Overview · ${armWord}`}</small><b>{selected ? selected.name : `Whole ${regionWord}`}</b></p>
+          <button type="button" className="spz-button sg-anatomy3d-choose" aria-haspopup="dialog" onClick={() => setSheet({ kind: "picker" })}>Choose muscle <ChevronDown className="h-4 w-4" aria-hidden="true" /></button>
+        </div>
+        <AnatomyModelStage
+          config={modelConfig}
+          selectedNodeId={selected?.id ?? null}
+          side={state.limb}
+          label={`3D model of the ${regionWord}, ${armWord}${state.limb === "left" ? " (the right-arm model, mirrored)" : ""}. ${selected ? `${selected.name} selected.` : "No muscle selected."} Every muscle is also in Choose muscle.`}
+          sideCaption={state.limb === "left" ? "Left arm · mirrored" : "Right arm"}
+          onSelect={chooseOnModel}
+          onOverview={() => select(null)}
+          onShowDrawing={() => update({ figure: "drawing" })}
+          overviewShown={Boolean(selected)}
+        />
+        {droppedNode && !selected && <p className="sg-anatomy3d-status" data-status="unavailable">“{droppedNode}” is not a muscle in this atlas, so the whole {regionWord} is shown instead.</p>}
+        <ModelMusclePanel
+          data={viewerData}
+          mode={state.mode}
+          windowLabel={interval.label}
+          armWord={armWord}
+          regionLine={regionLine}
+          onViewContributions={() => setSheet({ kind: "muscle", section: "ledger" })}
+          onAddExercise={addTargeted}
+          onViewExercise={inspect}
+          onOpenMethod={openMethod}
+          onSeeRegionSets={summary && regionBoutsBehind > 0 ? () => setSheet({ kind: "bouts", list: "region" }) : null}
+          credits={<AnatomyModelCredits />}
+        />
+      </div> : <>
       {asset && <div className="spz-diagram-controls">
         {layers.length > 1 && <div className="spz-segment" role="group" aria-label="Layer">
           {layers.map((item) => <button key={item} type="button" aria-pressed={item === layer} onClick={() => update({ layer: item })}>{layerControlLabels[item]}</button>)}
@@ -491,6 +576,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
         <SpecializationDiagram asset={asset} view={view} layer={layer} mirrored={state.limb === "left"} fillFor={fillFor} selectedNodeId={selected?.id ?? null} onSelect={tapDrawing} labelFor={(id) => data.nodes.find((node) => node.id === id)?.shortName ?? id} describeFor={describeFor} caption={`${data.region.label}, ${armWord}, ${(shownView?.label ?? view).toLowerCase()} view, ${layerControlLabels[layer].toLowerCase()} layer`} />
         <MapLegend map={state.map} />
       </> : <p className="spz-note">The drawing is not ready yet. Every muscle is in the list below, with the same numbers.</p>}
+      </>}
     </section>
 
     {/* The counting rule sits under the drawing, so the drawing starts on a phone's first screen (brief §6: the illustration above the fold). */}
@@ -593,6 +679,15 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       </details>
     </div>
 
+    {sheet?.kind === "picker" && <ChooseMuscleSheet
+      data={data}
+      nodes={nodes}
+      selectedId={selected?.id ?? null}
+      valueFor={pickerValue}
+      onChoose={(nodeId) => { select(nodeId); revealModel(); }}
+      onOverview={() => { select(null); revealModel(); }}
+      onClose={() => setSheet((current) => (current?.kind === "picker" ? null : current))}
+    />}
     {sheet?.kind === "muscle" && selected && <MuscleSheet
       data={data}
       node={selected}

@@ -12,6 +12,12 @@ import type { ArmSide, DiagramLayerId, DiagramViewId, RegionId, SummaryMode } fr
  */
 export type SpecializationWindow = "week" | "7d" | "custom";
 export type SpecializationMapMode = "volume" | "target";
+/**
+ * How the map card draws the region: the 3D model, or the drawing. Null is automatic: the 3D
+ * model when the region has one and the browser can show it, else the drawing. The address
+ * names a figure only when the athlete chose one.
+ */
+export type SpecializationFigure = "model" | "drawing";
 
 export type SpecializationViewState = {
   regionId: RegionId;
@@ -30,11 +36,12 @@ export type SpecializationViewState = {
   view: DiagramViewId | null;
   layer: DiagramLayerId;
   map: SpecializationMapMode;
+  figure: SpecializationFigure | null;
   /** The plan week planned exposure reads; null = the week Home trains from. */
   planWeek: number | null;
 };
 
-export const specializationParamNames = ["region", "node", "limb", "window", "from", "to", "mode", "view", "layer", "map", "pweek"] as const;
+export const specializationParamNames = ["region", "node", "limb", "window", "from", "to", "mode", "view", "layer", "map", "fig", "pweek"] as const;
 
 /** A view id's shape (the database checks the same): which views exist is the drawing's business. */
 const VIEW_ID = /^[a-z][a-z0-9_]*$/;
@@ -43,7 +50,7 @@ const LAYERS: readonly DiagramLayerId[] = ["surface", "intermediate", "deep"];
 const LAST_DATE = "9999-12-30";
 
 export function defaultSpecializationState(regionId: RegionId): SpecializationViewState {
-  return { regionId, nodeId: null, limb: "right", window: "week", from: null, to: null, mode: "completed", view: null, layer: "surface", map: "volume", planWeek: null };
+  return { regionId, nodeId: null, limb: "right", window: "week", from: null, to: null, mode: "completed", view: null, layer: "surface", map: "volume", figure: null, planWeek: null };
 }
 
 /** Reads the page state from a URL, falling back field by field to the defaults. */
@@ -57,6 +64,7 @@ export function specializationStateFromParams(params: URLSearchParams, defaultRe
   const view = params.get("view");
   const layer = params.get("layer");
   const map = params.get("map");
+  const figure = params.get("fig");
   const from = params.get("from");
   const to = params.get("to");
   const planWeek = Number.parseInt(params.get("pweek") ?? "", 10);
@@ -73,6 +81,7 @@ export function specializationStateFromParams(params: URLSearchParams, defaultRe
     view: view && VIEW_ID.test(view) ? view : base.view,
     layer: LAYERS.includes(layer as DiagramLayerId) ? (layer as DiagramLayerId) : base.layer,
     map: map === "target" ? "target" : "volume",
+    figure: figure === "model" || figure === "drawing" ? figure : null,
     planWeek: Number.isInteger(planWeek) && planWeek > 0 ? planWeek : null,
   };
 }
@@ -90,6 +99,7 @@ export function writeSpecializationParams(params: URLSearchParams, state: Specia
   if (state.view) params.set("view", state.view);
   if (state.layer !== base.layer) params.set("layer", state.layer);
   if (state.map !== base.map) params.set("map", state.map);
+  if (state.figure) params.set("fig", state.figure);
   if (state.planWeek !== null) params.set("pweek", String(state.planWeek));
 }
 
