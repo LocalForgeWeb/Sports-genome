@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Check } from "lucide-react";
+import { Check, SlidersHorizontal } from "lucide-react";
 import type { DaySlot } from "@/lib/trainingDayPlan";
 import type { DayTrainingState } from "@/lib/liveSession";
 
@@ -21,7 +21,7 @@ import type { DayTrainingState } from "@/lib/liveSession";
  */
 export function TrainingPlanHeader({
   weeks, activeWeek, onSelectWeek, onGenerateWeek, nextWeekToGenerate,
-  slots, activeIndex, exerciseCountFor, trainingStateFor, onChooseDay,
+  slots, activeIndex, exerciseCountFor, trainingStateFor, onChooseDay, onEditDays,
 }: {
   weeks: { week: number; ready: boolean; savedDays: number }[];
   activeWeek: number;
@@ -33,6 +33,8 @@ export function TrainingPlanHeader({
   exerciseCountFor: (slot: DaySlot) => number;
   trainingStateFor?: (index: number) => DayTrainingState | null;
   onChooseDay: (index: number) => void;
+  /** Opens the day editor, where the athlete picks what each day trains. */
+  onEditDays?: () => void;
 }) {
   const active = slots[activeIndex] || slots[0];
   const count = active ? exerciseCountFor(active) : 0;
@@ -48,8 +50,13 @@ export function TrainingPlanHeader({
 
   return <section className="training-plan-header" aria-label="Training plan selection">
     <div className="training-plan-title">
-      <p className="metric-label">Saved training days</p>
-      <h1>Training plan</h1>
+      <div>
+        <p className="metric-label">Saved training days</p>
+        <h1>Training plan</h1>
+      </div>
+      {/* The days are the athlete's to choose: what each one trains, and how many. The
+          frequency used to decide every day's type, with no way to change one. */}
+      {onEditDays && <button type="button" className="training-plan-edit-days" onClick={onEditDays}><SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> Edit days</button>}
     </div>
 
     <div className="training-plan-weeks" role="group" aria-label="Training week">

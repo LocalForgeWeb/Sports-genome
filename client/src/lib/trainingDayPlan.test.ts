@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildDaySlots,
+  carriedDayIndex,
   clearDay,
   commitDay,
   dayExerciseCount,
@@ -9,13 +10,14 @@ import {
   hasDayContent,
   loadDay,
   placeImportedDays,
+  previewSplitChange,
   remapDaysForFrequency,
   resolveActiveSlot,
   slotForKey,
   visibleDayPlan,
   type WeeklyDayStore,
 } from "@/lib/trainingDayPlan";
-import { splitDaysForFrequency } from "@/lib/splitCycle";
+import { splitDaysForFrequency, type SplitDay } from "@/lib/splitCycle";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import type { ExerciseSettings } from "@/lib/workoutPlanner";
 
@@ -196,6 +198,75 @@ describe("changing the training frequency", () => {
       const targets = Object.values(moved);
       expect(new Set(targets).size, `frequency ${frequency}`).toBe(targets.length);
     }
+  });
+});
+
+describe("choosing the days of the week", () => {
+  const ppl = (): WeeklyDayStore => {
+    let store = commitDay(emptyDayStore(), "0-Push", { workout: [bench], prescriptions: { [bench.id]: "4 × 5" }, settings: {} });
+    store = commitDay(store, "1-Pull", { workout: [row], prescriptions: {}, settings: {} });
+    store = commitDay(store, "2-Legs", { workout: [squat], prescriptions: { [squat.id]: "5 × 5" }, settings: {} });
+    return store;
+  };
+
+  it("keeps a renamed day's exercises on that day", () => {
+    const { store } = remapDaysForFrequency(ppl(), ["Push", "Pull", "Legs"], ["Push", "Pull", "Lower"]);
+    expect(loadDay(store, "2-Lower").workout[0].name).toBe("Back Squat");
+    expect(loadDay(store, "2-Lower").prescriptions[squat.id]).toBe("5 × 5");
+    expect(Object.keys(visibleDayPlan(store, ["Push", "Pull", "Lower"]).plan)).toEqual(["0-Push", "1-Pull", "2-Lower"]);
+  });
+
+  it("moves a day's exercises with it when two days swap places", () => {
+    const { store } = remapDaysForFrequency(ppl(), ["Push", "Pull", "Legs"], ["Pull", "Push", "Legs"]);
+    expect(loadDay(store, "0-Pull").workout[0].name).toBe("Cable Row");
+    expect(loadDay(store, "1-Push").workout[0].name).toBe("Barbell Bench Press");
+  });
+
+  it("brings a hidden day back on its own slot instead of letting another day overwrite it", () => {
+    // Day 04 · Lower was hidden when the week went down to three days.
+    let store = commitDay(emptyDayStore(), "0-Lower", { workout: [squat], prescriptions: {}, settings: {} });
+    store = commitDay(store, "2-Lower", { workout: [row], prescriptions: {}, settings: {} });
+    store = commitDay(store, "3-Lower", { workout: [bench], prescriptions: {}, settings: {} });
+    const { store: next } = remapDaysForFrequency(store, ["Lower", "Upper", "Lower"], ["Upper", "Upper", "Upper", "Lower"]);
+    // The hidden day is what Day 04 shows again...
+    expect(loadDay(next, "3-Lower").workout.map((item) => item.name)).toEqual(["Barbell Bench Press"]);
+    // ...and the Lower days it would have been overwritten by are kept, not lost.
+    const kept = Object.values(next.plan).flat().map((item) => item.name).sort();
+    expect(kept).toEqual(["Back Squat", "Barbell Bench Press", "Cable Row"]);
+  });
+
+  it("never lets an empty day take a slot from a built one", () => {
+    // Push and Lower are built; Pull and Full Body are empty.
+    let store = commitDay(emptyDayStore(), "0-Push", { workout: [bench], prescriptions: {}, settings: {} });
+    store = commitDay(store, "2-Lower", { workout: [squat], prescriptions: {}, settings: {} });
+    const twoFullBody = remapDaysForFrequency(store, ["Push", "Pull", "Lower", "Full Body"], ["Full Body", "Full Body"]).store;
+    // The empty Full Body day used to claim Day 01 by its label and hide Push behind it.
+    expect(loadDay(twoFullBody, "0-Full Body").workout.map((item) => item.name)).toEqual(["Barbell Bench Press"]);
+    // An empty Lower at Day 02 used to keep Day 04's built Lower from moving in.
+    let upperLower = commitDay(emptyDayStore(), "0-Upper", { workout: [bench], prescriptions: {}, settings: {} });
+    upperLower = commitDay(upperLower, "3-Lower", { workout: [squat], prescriptions: {}, settings: {} });
+    const twoDay = remapDaysForFrequency(upperLower, ["Upper", "Lower", "Upper", "Lower"], ["Upper", "Lower"]).store;
+    expect(loadDay(twoDay, "1-Lower").workout.map((item) => item.name)).toEqual(["Back Squat"]);
+  });
+
+  it("follows the open day to wherever its record went", () => {
+    const previous: SplitDay[] = ["Push", "Pull", "Legs"];
+    const next: SplitDay[] = ["Pull", "Push", "Legs"];
+    const { moved } = remapDaysForFrequency(ppl(), previous, next);
+    expect(carriedDayIndex(previous, next, 0, moved)).toBe(1);
+    // A day with nowhere to go leaves the athlete on the last day of the shorter week.
+    expect(carriedDayIndex(previous, ["Full Body"], 2, remapDaysForFrequency(ppl(), previous, ["Full Body"]).moved)).toBe(0);
+  });
+
+  it("previews each new day's exercise count, and names the built days that will be hidden", () => {
+    expect(previewSplitChange(ppl(), ["Push", "Pull", "Legs"], ["Upper", "Lower", "Full Body", "Full Body"])).toEqual({
+      counts: [1, 1, 1, 0],
+      from: ["Day 01 · Push", "Day 02 · Pull", "Day 03 · Legs", null],
+      hidden: [],
+    });
+    expect(previewSplitChange(ppl(), ["Push", "Pull", "Legs"], ["Full Body", "Full Body"])).toEqual({ counts: [1, 1], from: ["Day 01 · Push", "Day 02 · Pull"], hidden: [{ label: "Day 03 · Legs", count: 1 }] });
+    // A day that stays where it is comes from nowhere else.
+    expect(previewSplitChange(ppl(), ["Push", "Pull", "Legs"], ["Pull", "Push", "Legs"]).from).toEqual(["Day 02 · Pull", "Day 01 · Push", null]);
   });
 });
 

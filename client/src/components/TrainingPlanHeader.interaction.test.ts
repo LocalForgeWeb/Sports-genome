@@ -100,3 +100,29 @@ describe("the identity line confirms the week and day being shown", () => {
     expect(status.parentElement!.textContent).toBe("Week 1 · Day 01 · Empty");
   });
 });
+
+describe("the days are the athlete's to choose", () => {
+  afterEach(() => { document.body.innerHTML = ""; });
+  const mount = (onEditDays?: () => void) => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    render(React.createElement(TrainingPlanHeader, {
+      weeks: [{ week: 1, ready: true, savedDays: 0 }],
+      activeWeek: 1, onSelectWeek: () => undefined, onGenerateWeek: () => undefined, nextWeekToGenerate: 2,
+      slots, activeIndex: 0, exerciseCountFor: () => 0, onChooseDay: () => undefined, onEditDays,
+    }));
+  };
+
+  it("opens the day editor from the plan, outside the day tabs", () => {
+    const onEditDays = vi.fn();
+    mount(onEditDays);
+    const edit = screen.getByRole("button", { name: "Edit days" });
+    expect(screen.getByRole("tablist", { name: "Day of the week" }).contains(edit)).toBe(false);
+    fireEvent.click(edit);
+    expect(onEditDays).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows no editor button where nothing can edit the days", () => {
+    mount();
+    expect(screen.queryByRole("button", { name: "Edit days" })).toBeNull();
+  });
+});

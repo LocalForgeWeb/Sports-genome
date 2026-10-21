@@ -104,7 +104,9 @@ describe("Home hydrates and writes against the same account", () => {
   });
 
   it("re-hydrates when the account changes, and not before the saved profile says how many days this athlete trains", () => {
-    expect(home).toContain("}, [workoutPlanKey, loading, profileHydrated]);");
+    // Intentional change, Oct 21: planReadRequest also re-reads the record after the account's
+    // copy of the plan is written over it (adoptServerPlan); it changes only then.
+    expect(home).toContain("}, [workoutPlanKey, loading, profileHydrated, planReadRequest]);");
     expect(home).toContain("if (!profileHydrated) return;");
   });
 

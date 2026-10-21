@@ -185,17 +185,24 @@ export function remapDaysForFrequency(store: WeeklyDayStore, previousDays: Split
     claimed.add(previousSlot.key);
     moved[previousSlot.key] = nextSlot.key;
   };
-  const takenTargets = () => new Set(Object.values(moved));
+  // A day hidden by an earlier change comes back when its own slot does. Nothing else may
+  // move onto that slot, or the hidden day's record would be overwritten rather than shown.
+  const previousKeys = new Set(previousSlots.map((slot) => slot.key));
+  const revived = new Set(nextSlots.filter((slot) => !previousKeys.has(slot.key) && hasDayContent(store, slot.key)).map((slot) => slot.key));
+  const takenTargets = () => new Set([...Object.values(moved), ...Array.from(revived)]);
+  // Only a built day has anything to carry. An empty one claiming a slot by its label (an
+  // empty Full Body taking Day 01 of a Full body week) only pushed a built day out of it.
+  const builtSlots = previousSlots.filter((slot) => hasDayContent(store, slot.key));
 
   // A slot that survives unchanged keeps its own record.
   for (const nextSlot of nextSlots) {
-    const exact = previousSlots.find((slot) => slot.key === nextSlot.key && !claimed.has(slot.key));
+    const exact = builtSlots.find((slot) => slot.key === nextSlot.key && !claimed.has(slot.key));
     if (exact) claim(nextSlot, exact);
   }
   // The same day at a new position keeps its stack; the nearest position wins.
   for (const nextSlot of nextSlots) {
     if (takenTargets().has(nextSlot.key)) continue;
-    const byLabel = previousSlots
+    const byLabel = builtSlots
       .filter((slot) => !claimed.has(slot.key) && slot.day === nextSlot.day)
       .sort((left, right) => Math.abs(left.index - nextSlot.index) - Math.abs(right.index - nextSlot.index))[0];
     if (byLabel) claim(nextSlot, byLabel);
@@ -203,7 +210,7 @@ export function remapDaysForFrequency(store: WeeklyDayStore, previousDays: Split
   // Otherwise whatever was built in this position carries over under the new label.
   for (const nextSlot of nextSlots) {
     if (takenTargets().has(nextSlot.key)) continue;
-    const byIndex = previousSlots.find((slot) => !claimed.has(slot.key) && slot.index === nextSlot.index);
+    const byIndex = builtSlots.find((slot) => !claimed.has(slot.key) && slot.index === nextSlot.index);
     if (byIndex) claim(nextSlot, byIndex);
   }
 
@@ -224,6 +231,42 @@ export function remapDaysForFrequency(store: WeeklyDayStore, previousDays: Split
     next.context[nextKey] = store.context[previousKey] || [];
   }
   return { store: next, moved };
+}
+
+/**
+ * Where a week's open day is after a change of split: the slot its record moved to, else
+ * the same position, kept inside the new week.
+ */
+export function carriedDayIndex(previousDays: SplitDay[], nextDays: SplitDay[], activeIndex: number, moved: Record<string, string>): number {
+  const from = buildDaySlots(previousDays)[activeIndex];
+  const to = from && moved[from.key] ? slotForKey(nextDays, moved[from.key]) : null;
+  return to ? to.index : Math.max(0, Math.min(nextDays.length - 1, activeIndex));
+}
+
+export type SplitChangePreview = {
+  /** Exercises each day of the new week will hold, in its order. */
+  counts: number[];
+  /** For each new day, the built day its exercises come from when that is a different day; else null. */
+  from: (string | null)[];
+  /** Built days the new week has no place for. They are hidden, not deleted. */
+  hidden: { label: string; count: number }[];
+};
+
+/** What a change of split does to one week, worked out by the same remap that applies it. */
+export function previewSplitChange(store: WeeklyDayStore, previousDays: SplitDay[], nextDays: SplitDay[]): SplitChangePreview {
+  const { store: next, moved } = remapDaysForFrequency(store, previousDays, nextDays);
+  const nextSlots = buildDaySlots(nextDays);
+  const visible = new Set(nextSlots.map((slot) => slot.key));
+  const sourceOf = new Map(buildDaySlots(previousDays)
+    .filter((slot) => moved[slot.key] && moved[slot.key] !== slot.key && dayExerciseCount(store, slot.key) > 0)
+    .map((slot) => [moved[slot.key], slot.label]));
+  return {
+    counts: nextSlots.map((slot) => dayExerciseCount(next, slot.key)),
+    from: nextSlots.map((slot) => sourceOf.get(slot.key) ?? null),
+    hidden: buildDaySlots(previousDays)
+      .filter((slot) => dayExerciseCount(store, slot.key) > 0 && !visible.has(moved[slot.key] ?? slot.key))
+      .map((slot) => ({ label: slot.label, count: dayExerciseCount(store, slot.key) })),
+  };
 }
 
 const importAliases = (label: string): string[] => {

@@ -920,6 +920,10 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
    Weeks are pills, days are tabs, and the day states itself once. */
 
 .training-plan-header { display: grid; gap: .8rem; }
+.training-plan-title { display: flex; align-items: flex-end; justify-content: space-between; gap: .75rem; }
+.training-plan-edit-days { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .4rem; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: 0 .9rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.training-plan-edit-days:hover { background: rgb(255 255 255 / .06); }
+.training-plan-edit-days:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 .training-plan-title h1 { margin-top: .2rem; font-family: var(--font-display, sans-serif); font-size: clamp(2.1rem, 8vw, 3rem); font-weight: 800; line-height: .9; text-transform: uppercase; }
 
 .training-plan-weeks { display: flex; flex-wrap: wrap; gap: .4rem; }
