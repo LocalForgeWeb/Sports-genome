@@ -179,8 +179,12 @@ export function summaryTotals(summary: SpecializationSummary): unknown {
   };
 }
 
-/** Every golden summary, in a fixed order. */
-export function goldenSummaries(): GoldenCase[] {
+/**
+ * Every golden summary, in a fixed order, for each of `sides`: per arm (the calculator's per-side
+ * capability, dormant on the page) by default, or `both`, the page's summary since both arms are
+ * counted as one (owner, 20 Oct 2026). The side is the last part of each case's id.
+ */
+export function goldenSummaries(sides: readonly ("left" | "right" | "both")[] = ["left", "right"]): GoldenCase[] {
   const deps = { catalog, variants: region.variants, fallbackUnit: "kg" as const };
   const completed: [string, DeviceWorkoutSession[]][] = [
     ["one-week-4", history(1, 4)],
@@ -195,17 +199,17 @@ export function goldenSummaries(): GoldenCase[] {
     ["custom-year", customInterval("2025-10-18", "2026-10-17", TZ)],
   ];
   const out: GoldenCase[] = [];
-  const summarize = (bouts: readonly ExposureBout[], interval: SummaryInterval, side: "left" | "right", mode: "completed" | "planned") =>
+  const summarize = (bouts: readonly ExposureBout[], interval: SummaryInterval, side: (typeof sides)[number], mode: "completed" | "planned") =>
     getSpecializationSummary({ region, bouts, interval, side, mode, goals: goldenGoals, catalogMusclesFor, sourceRevision: "golden", planRevision: mode === "planned" ? "golden-plan" : null, now: GOLDEN_NOW });
   for (const [historyId, sessions] of completed) {
     const bouts = [...boutsFromSessions(sessions, deps), ...excludedRecordsFromSessions(sessions, deps)];
     for (const [intervalId, interval] of intervals) {
-      for (const side of ["left", "right"] as const) out.push({ id: `completed/${historyId}/${intervalId}/${side}`, summary: summarize(bouts, interval, side, "completed") });
+      for (const side of sides) out.push({ id: `completed/${historyId}/${intervalId}/${side}`, summary: summarize(bouts, interval, side, "completed") });
     }
   }
   for (const plan of plans) {
     const bouts = boutsFromPlan({ week: 1, slots: plan.slots, store: plan.store, variants: planningVariants, goal: plan.goal });
-    for (const side of ["left", "right"] as const) out.push({ id: `planned/${plan.id}/${side}`, summary: summarize(bouts, planWeekInterval(1, TZ), side, "planned") });
+    for (const side of sides) out.push({ id: `planned/${plan.id}/${side}`, summary: summarize(bouts, planWeekInterval(1, TZ), side, "planned") });
   }
   return out;
 }
