@@ -919,7 +919,7 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
    changing day meant scrolling past the one you were on to a grid below it.
    Weeks are pills, days are tabs, and the day states itself once. */
 
-.training-plan-header { display: grid; gap: .8rem; }
+.training-plan-header { display: grid; grid-template-columns: minmax(0, 1fr); gap: .8rem; }
 .training-plan-title h1 { margin-top: .2rem; font-family: var(--font-display, sans-serif); font-size: clamp(2.1rem, 8vw, 3rem); font-weight: 800; line-height: .9; text-transform: uppercase; }
 
 .training-plan-weeks { display: flex; flex-wrap: wrap; gap: .4rem; }
@@ -930,6 +930,23 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .training-plan-week:disabled { opacity: .45; }
 .training-plan-week-active { border-color: var(--sg-selected-on-dark); background: rgb(255 255 255 / .1); color: var(--sg-text-on-dark); }
 .training-plan-week-active small { color: var(--sg-text-muted-on-dark); }
+/* Naming a week: the button closes the week row, and the field opens under it, in place. */
+.training-plan-week-bar { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .4rem; }
+.training-plan-week-name { max-width: 9.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.training-plan-rename { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: 0 .95rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.training-plan-rename[aria-expanded="true"] { border-color: var(--sg-selected-on-dark); background: rgb(255 255 255 / .1); }
+.training-plan-rename:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.training-plan-naming { display: grid; grid-template-columns: minmax(0, 1fr); gap: .4rem; }
+.training-plan-naming label { color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.training-plan-naming small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 600; }
+.training-plan-naming-row { display: flex; gap: .4rem; }
+.training-plan-naming input { flex: 1 1 0; width: 0; min-width: 0; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; background: rgb(255 255 255 / .06); padding: 0 .85rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.training-plan-naming input::placeholder { color: var(--sg-text-faint-on-dark); }
+.training-plan-naming input:focus-visible { border-color: var(--sg-selected-on-dark); outline: 2px solid var(--sg-focus-on-dark); outline-offset: 1px; }
+.training-plan-naming-save, .training-plan-naming-cancel { flex: 0 0 auto; min-width: 2.75rem; min-height: 2.75rem; border-radius: 12px; padding: 0 .95rem; font-size: var(--sg-text-sm); font-weight: 800; }
+.training-plan-naming-save { background: var(--sg-action-fill); color: var(--sg-action-on); }
+.training-plan-naming-cancel { border: 1px solid var(--sg-control-border-on-dark); color: var(--sg-text-on-dark); }
+.training-plan-naming-save:focus-visible, .training-plan-naming-cancel:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 
 /* The day row scrolls rather than wrapping: five names on one line is the whole
    point, and a wrapped second line reads as a second group. */
