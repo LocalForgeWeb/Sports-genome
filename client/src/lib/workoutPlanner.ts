@@ -1,9 +1,10 @@
-import { measurementFor } from "@shared/exerciseMeasurement";
+import { catalogDoseOf, measurementFor } from "@shared/exerciseMeasurement";
 import { getExerciseGenome, getWorkoutGenome } from "@/lib/exerciseGenome";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { getGymTimeBudget, timeAdjustedSetBand } from "@/lib/gymTimeBudget";
 import { evidenceBoundary, trainingEvidence } from "@/lib/trainingEvidence";
 import { logicCalibration } from "@/lib/evidenceTraceability";
+import { parseSetCount } from "@/lib/sessionVolume";
 
 export type ExerciseSettings = {
   rpe?: string;
@@ -70,6 +71,78 @@ function goalRepPrescription(goal: TrainingGoal, index: number) {
   if (goal === "Muscle growth") return `3 × ${trainingEvidence.hypertrophy.workingRepetitions[0]}–${trainingEvidence.hypertrophy.workingRepetitions[1]}`;
   if (goal === "Capacity") return index < 2 ? "4 × 8–12" : "3 × 12–20";
   return index < 2 ? "4 × 3–6" : "3 × 6–10";
+}
+
+/**
+ * One reading of a plan entry's prescription for every screen: the Plan editor, the picker,
+ * print and share, the review panels, Train (DeviceWorkoutTracker) and the planned atlas
+ * (specialization/planBouts). Each passes the exercise's measure: the atlas's for the screens
+ * that load it, `catalogMeasureOf` (shared/specialization/holdCatalogIds) for the first screens.
+ * A carry or sled is measured in distance (shared/exerciseMeasurement.ts). Passing the catalog id
+ * as well lets an exercise with its own target use it ("20 sec" for a neck hold, "30 m" for a
+ * carry); without one, a hold's target is `holdDefaultTarget`.
+ */
+export type PrescriptionMeasure = "reps" | "seconds" | "distance";
+
+/**
+ * A hold's default target. The goal's defaults are rep ranges ("3 × 6–10"), and a rep range on a
+ * hold reads as seconds on the set card ("6–10 sec") while meaning nothing the athlete chose; a
+ * hold gets a hold's target instead.
+ */
+export const holdDefaultTarget = "30 sec";
+/** A hold's default with no goal to take a set count from. */
+export const holdDefaultPrescription = `3 × ${holdDefaultTarget}`;
+
+/** A hold's target: the exercise's own where it states one in seconds, else the default. */
+const holdTargetFor = (catalogExerciseId: number | undefined) => {
+  const own = measurementFor(catalogExerciseId).defaultTarget;
+  return own && /\bsec$/.test(own) ? own : holdDefaultTarget;
+};
+
+/**
+ * The default for an entry with nothing of its own. A rep exercise takes the goal's default for
+ * its position. A hold takes the goal's set count for that position with a hold's target
+ * ("4 × 30 sec" where the goal says "4 × 3–6"), so every plan reader that counts sets from the
+ * goal's default (the weekly volume map, Today, the week review) still counts the same sets.
+ */
+function defaultPrescriptionOf(index: number, goal: TrainingGoal | undefined, measure: PrescriptionMeasure | undefined, catalogExerciseId?: number): string | undefined {
+  const goalDefault = goal ? getGoalPrescription(goal, index, catalogExerciseId === undefined ? undefined : { id: catalogExerciseId }) : undefined;
+  if (measure !== "seconds") return goalDefault;
+  const target = holdTargetFor(catalogExerciseId);
+  return goalDefault ? `${parseSetCount(goalDefault)} × ${target}` : `3 × ${target}`;
+}
+
+/** Every goal's default for every place in a day: the texts the planner pins on an entry it builds. */
+const trainingGoals = ["Athleticism", "Muscle growth", "Max strength", "Capacity"] as const satisfies readonly TrainingGoal[];
+// Every goal is listed: a goal added to TrainingGoal and not here fails to compile.
+const everyGoalListed: Exclude<TrainingGoal, (typeof trainingGoals)[number]> extends never ? true : never = true;
+void everyGoalListed;
+const pinnedGoalDefaults: ReadonlySet<string> = new Set(trainingGoals.flatMap((goal) => [0, 1, 2, 3].map((index) => getGoalPrescription(goal, index))));
+
+/**
+ * The prescription every plan reader uses for an entry: the saved one, else the default for its
+ * position (`defaultPrescriptionOf`), so a hold never gets a rep default.
+ *
+ * On a hold, a saved prescription that is one of the goals' defaults is read as the default it
+ * is, with its own set count: "3 × 6–10" on a hang is "3 × 30 sec". The planner pins that text
+ * on every entry when it builds a day or a week, so it says nothing the athlete chose; read
+ * literally it would be a rep range taken as seconds. It is matched against every goal's default
+ * for every position, not only this entry's: an entry moved within its day, or a goal changed
+ * after the week was built, keeps the text it was pinned with. Any other saved text is the
+ * athlete's and is kept. The stored text is not rewritten: a rep exercise put in the hold's place
+ * reads the goal's reps again.
+ */
+export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal, measure?: PrescriptionMeasure, catalogExerciseId?: number): string;
+export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal | undefined, measure?: PrescriptionMeasure, catalogExerciseId?: number): string | undefined;
+export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal | undefined, measure?: PrescriptionMeasure, catalogExerciseId?: number): string | undefined {
+  // With only an id, the measure is the catalog's own (the atlas's holds, then the expansion's modes).
+  const dose = measure ?? (catalogExerciseId === undefined ? undefined : catalogDoseOf(catalogExerciseId));
+  if (saved && dose === "seconds" && pinnedGoalDefaults.has(saved.trim())) return `${parseSetCount(saved)} × ${holdTargetFor(catalogExerciseId)}`;
+  // A carry's pinned rep default is read the same way, as the carry's own distance.
+  const distance = dose === "distance" ? measurementFor(catalogExerciseId).defaultTarget : undefined;
+  if (saved && distance && pinnedGoalDefaults.has(saved.trim())) return `${parseSetCount(saved)} × ${distance}`;
+  if (saved) return saved;
+  return defaultPrescriptionOf(index, goal, dose, catalogExerciseId);
 }
 
 export function getWorkoutDiagnostics(workout: Exercise[], prescriptions: Record<number, string>, settings: Record<number, ExerciseSettings>, goal: TrainingGoal = "Athleticism", gymMinutes = 60): WorkoutDiagnostics {

@@ -147,7 +147,7 @@ export function getExerciseActionConnection(exercise: Exercise, movement?: Enric
  * The same connection, worked out once per exercise for one selected action.
  *
  * The catalog asks for it on every search keystroke and filter change, and the
- * action-link filter asks for all 400 exercises at once. The answer depends only
+ * action-link filter asks for every exercise at once. The answer depends only
  * on the exercise and the action, so one lookup per action can keep it.
  */
 export function createActionConnectionLookup(movement?: EnrichedSportMovement): (exercise: Exercise) => ExerciseActionConnection {

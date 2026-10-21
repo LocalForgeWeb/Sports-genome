@@ -27,7 +27,7 @@ describe("Review reads as one page", () => {
     expect(branch).toContain("onScope={setReviewScope}");
     expect(branch).toContain('reviewScope === "week"');
     // The week's title names the week and the plan; the day's names the day.
-    expect(branch).toContain("`Week ${activeWeek} · ${trainingDays}-day plan`");
+    expect(branch).toContain("`${activeWeekLabel} · ${trainingDays}-day plan`");
     expect(branch).toContain(": activeDayLabel}");
   });
 

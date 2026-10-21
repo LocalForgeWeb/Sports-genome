@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { aggregateMuscleBenchmarkScores, betterScore, type BoundedScoreInput, type MappingRow } from "./muscleAggregation";
 import { rankForMuscle, rankForPercentile, type MuscleScore } from "../shared/capabilityRank";
 import { placeOnCurve, resolveStrengthPercentile, STRENGTH_LEVEL_SOURCE_STUDY_ID, type StrengthCurve } from "../shared/strengthPercentile";
-import { percentileBoundOf } from "./supabaseStrengthProfile";
+import { percentileBoundOf, tailEstimateForPlacement } from "./supabaseStrengthProfile";
 import { latsScreenshots as fx } from "./fixtures/latsScreenshots";
 
 /**
@@ -155,12 +155,21 @@ describe("The database's placement, read in its own words", () => {
   });
 
   /** Server/local parity: the card's engine and the database answer the same lifts the same way. */
-  it("agrees with the shared engine on the screenshot lifts: 89.49 exact, and past the 95th anchor", () => {
+  it("agrees with the shared engine on the screenshot lifts: 89.49 exact, and past the 95th anchor the same estimate", () => {
     const curve: StrengthCurve = { exerciseId: PULLDOWN, sourceStudyId: STRENGTH_LEVEL_SOURCE_STUDY_ID, sex: "male", normalizationMethod: "direct_community_relative_1rm_percentile", unit: "x_bodyweight", sourceRole: "beta_fallback", confidenceCap: 0.82, anchors: [{ percentile: 5, value: 0.5 }, { percentile: 20, value: 0.75 }, { percentile: 50, value: 1 }, { percentile: 80, value: 1.5 }, { percentile: 95, value: 1.75 }] };
     const context = { sex: "male" as const, bodyMassKg: 65.8, ageYears: 17 };
     const ordinary = resolveStrengthPercentile(curve, { loadKg: 84.822, repetitions: 6 }, context);
     expect(ordinary.status === "resolved" && ordinary.percentile).toBeCloseTo(89.49, 2);
-    expect(resolveStrengthPercentile(curve, { loadKg: 158.757, repetitions: 1 }, context)).toEqual({ status: "unavailable", reason: "above_highest_anchor", censoredAt: 95 });
+    // Past the top anchor the engine places the lift on the curve's estimated tail (owner, 14 Oct 2026)...
+    const past = resolveStrengthPercentile(curve, { loadKg: 158.757, repetitions: 1 }, context);
+    expect(past).toMatchObject({ status: "resolved", tailEstimate: { version: "lognormal_upper_tail_v1", aboveAnchorPercentile: 95 } });
+    // ...and the route, handed the curve the database answers above_range with, reads the same number:
+    // one lift, one percentile, on its card and in the ranks.
+    const routed = tailEstimateForPlacement({ ...fx.scores["158.757x1"].percentile, curve: curve.anchors });
+    expect(past.status === "resolved" && routed?.percentile).toBeCloseTo(past.status === "resolved" ? past.percentile : NaN, 3);
+    expect(routed!.percentile).toBeGreaterThan(95);
+    // Without a curve there is nothing to estimate from: the placement stays a bound at the anchor.
+    expect(tailEstimateForPlacement(fx.scores["158.757x1"].percentile)).toBeNull();
     // Equivalent lb and kg inputs place identically (the route always sends kg).
     const inPounds = resolveStrengthPercentile(curve, { loadKg: 187 * 0.45359237, repetitions: 6 }, context);
     expect(inPounds.status === "resolved" && inPounds.percentile).toBeCloseTo(89.49, 2);

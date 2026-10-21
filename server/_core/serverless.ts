@@ -34,25 +34,35 @@ app.use(requestContext);
 app.use(express.json({ limit: BODY_LIMIT }));
 app.use(express.urlencoded({ limit: BODY_LIMIT, extended: true }));
 
+/** The request again, at `path`, with the rewrite's carrier dropped from the query. */
+function restorePath(req: express.Request, carrier: string, path: string): void {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(req.query)) {
+    if (key !== carrier && typeof value === "string") search.set(key, value);
+  }
+  const query = search.toString();
+  req.url = `${path}${query ? `?${query}` : ""}`;
+}
+
+/** Plain path segments only: no empty segment, no dot-segment, no query or fragment. */
+const CARRIED_API_PATH = /^(?!.*(?:^|\/)\.\.?(?:\/|$))[A-Za-z0-9._~-]+(?:\/[A-Za-z0-9._~-]+)+$/;
+
 /**
- * Restores the tRPC path when the platform routes through a rewrite.
+ * Restores the request path when the platform routes through a rewrite.
  *
- * `/api/trpc/<procedure>` is rewritten to the function file, and depending on how the
- * platform resolves that, the app may receive the function's own path instead of the
- * request path. The rewrite carries the original procedure path in `__trpc`, so when
- * the mount point is missing it can be rebuilt exactly. When the request arrives
- * unmodified this is a no-op.
+ * `api/[...path].js` only matches ONE segment under this framework preset, so every deeper
+ * path is rewritten to the function file (vercel.json): `/api/trpc/<procedure>` carrying
+ * `__trpc`, and any other `/api/<a>/<b>...` (e.g. `/api/health/ready`) carrying `__api`.
+ * Depending on how the platform resolves that, the app may receive the function's own path
+ * instead of the request path, so the carried copy rebuilds it exactly. When the request
+ * arrives unmodified this is a no-op. A carried path only selects a route, never a
+ * privilege: every route still applies its own checks.
  */
 app.use((req, _res, next) => {
-  const carried = typeof req.query.__trpc === "string" ? req.query.__trpc : null;
-  if (carried && !req.path.startsWith("/api/trpc")) {
-    const search = new URLSearchParams();
-    for (const [key, value] of Object.entries(req.query)) {
-      if (key !== "__trpc" && typeof value === "string") search.set(key, value);
-    }
-    const query = search.toString();
-    req.url = `/api/trpc/${carried}${query ? `?${query}` : ""}`;
-  }
+  const trpc = typeof req.query.__trpc === "string" ? req.query.__trpc : null;
+  const api = typeof req.query.__api === "string" && CARRIED_API_PATH.test(req.query.__api) ? req.query.__api : null;
+  if (trpc && !req.path.startsWith("/api/trpc")) restorePath(req, "__trpc", `/api/trpc/${trpc}`);
+  else if (api && req.path !== `/api/${api}`) restorePath(req, "__api", `/api/${api}`);
   next();
 });
 

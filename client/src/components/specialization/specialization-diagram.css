@@ -1,0 +1,65 @@
+/* -- The specialization diagram (SpecializationDiagram.tsx) ------------------------ *
+
+   Drawn on the dark Body Lab ground. The arm is a dark skin tone with a light outline;
+   muscles at rest are the resting-muscle tone and take the exposure ramp from the page
+   (fixed bins, legend beside the drawing); tendons are a cool neutral that never comes
+   from that ramp, because a tendon is not muscle bulk (brief §6). Bone is a slightly
+   lighter dark with its own edge. Strokes are non-scaling, so a keyline is one screen
+   pixel whether the drawing is 320 or 600 px wide. Opacity encodes nothing: the halo's
+   softness is decoration around a selection that is also outlined and named. */
+
+.spz-diagram {
+  --spz-diagram-skin: #1b2c3e;
+  --spz-diagram-skin-edge: #6b839b;
+  --spz-diagram-keyline: #0b1826;
+  --spz-diagram-tendon: #9aabbd;
+  --spz-diagram-bone: #2b425b;
+  --spz-diagram-bone-edge: #93a9bf;
+  --spz-diagram-crease: #4d657e;
+  --spz-diagram-ghost: #6d849c;
+  --spz-diagram-zero-edge: #9fb3c8;
+  --spz-diagram-selected: var(--sg-selected-on-dark, #f2c14d);
+  display: grid; justify-items: center; gap: .5rem; min-width: 0; margin: 0;
+}
+.spz-diagram-svg { display: block; width: 100%; max-width: 26rem; height: auto; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+
+.spz-diagram-skin { fill: var(--spz-diagram-skin); stroke: var(--spz-diagram-skin-edge); stroke-width: 1.25; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.spz-diagram-bone { fill: var(--spz-diagram-bone); stroke: var(--spz-diagram-bone-edge); stroke-width: 1; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.spz-diagram-outline { fill: none; stroke: var(--spz-diagram-crease); stroke-width: 1.25; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.spz-diagram-ghost { fill: none; stroke: var(--spz-diagram-ghost); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.spz-diagram-ghost[data-selected] { stroke: var(--spz-diagram-selected); stroke-width: 2; }
+.spz-diagram-belly { stroke: var(--spz-diagram-keyline); stroke-width: 1; stroke-linejoin: round; vector-effect: non-scaling-stroke; transition: fill var(--sg-motion-base) var(--sg-ease); }
+/* Mapped, no direct work: the resting fill with a dashed edge, as the legend draws it. */
+.spz-diagram-belly[data-fill="zero"] { stroke: var(--spz-diagram-zero-edge); stroke-width: 1.25; stroke-dasharray: 3 2; }
+.spz-diagram-tendon { fill: var(--spz-diagram-tendon); stroke: var(--spz-diagram-keyline); stroke-width: .75; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+
+/* The selected muscle, outside its shapes only (the inner half of each stroke is masked off, so
+   belly and tendons read as one outline): from the edge out, a 1 px dark keyline, a 2 px gold
+   line, a 1 px dark keyline, a soft halo. Readable on the palest exposure step and on the ground. */
+.spz-diagram-selection path { fill: none; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; pointer-events: none; }
+.spz-diagram-halo { stroke: var(--spz-diagram-selected); stroke-width: 16; stroke-opacity: .28; }
+.spz-diagram-outer-keyline { stroke: #07182e; stroke-width: 8; }
+.spz-diagram-ring { stroke: var(--spz-diagram-selected); stroke-width: 6; }
+.spz-diagram-keyline { stroke: #07182e; stroke-width: 2; }
+
+/* Keyboard focus is its own colour, never the selected gold. */
+.spz-diagram-focus path { fill: none; stroke: var(--sg-focus-ring, #3b86db); stroke-width: 3; stroke-linejoin: round; vector-effect: non-scaling-stroke; pointer-events: none; }
+
+/* Tap targets: invisible, larger than the drawing, never changing it. */
+.spz-diagram-hit { cursor: pointer; outline: none; }
+.spz-diagram-hit, .spz-diagram-reach > g { cursor: pointer; }
+.spz-diagram-hit rect, .spz-diagram-reach path { fill: transparent; stroke: transparent; stroke-linejoin: round; pointer-events: all; }
+
+.spz-diagram-labels, .spz-diagram-callout { pointer-events: none; }
+.spz-diagram-labels text { fill: var(--sg-text-muted-on-dark, #c3d7ea); font-size: var(--sg-text-base); font-weight: 600; }
+.spz-diagram-callout line { stroke: var(--spz-diagram-selected); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.spz-diagram-callout circle { fill: var(--spz-diagram-selected); stroke: #07182e; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.spz-diagram-callout rect { fill: #07182e; stroke: var(--spz-diagram-selected); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.spz-diagram-callout text { fill: var(--sg-text-on-dark, #f7fbff); font-size: var(--sg-text-lg); font-weight: 800; }
+
+.spz-diagram-caption { display: grid; gap: .25rem; justify-items: center; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); text-align: center; }
+.spz-diagram-note { color: var(--sg-text-on-dark); font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+  .spz-diagram-belly { transition: none; }
+}

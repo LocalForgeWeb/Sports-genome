@@ -239,3 +239,17 @@ returned.
   - the catalog-link gap for 120 app exercises;
   - a decision on machine aliases;
   - refreshing the stored anchors against the current source.
+
+## Reconciled with main (21 October 2026)
+
+Main had meanwhile decided, on 14 October, to estimate percentiles past the 95th. A lift past the curve's top anchor is placed on the curve's estimated upper tail (`lognormal_upper_tail_v1`, capped at 99.99) and labelled "estimated". Main also added floors on 15 October: a set stopped short of failure may raise a muscle's score, never lower it. Merging the two:
+
+**Per lift.** An `ok` placement stays exact.
+- **Above the top anchor:** the database answers `above_range`. If that answer carries the curve, the route places the lift on the estimated tail (`tailEstimateForPlacement`) as a point value marked `estimated`. This is the same number the lift's own card shows; a test checks the route and the shared engine agree. Only when nothing can be estimated (no curve in the answer) is the lift entered as the `above` bound described above.
+- **Below the bottom anchor:** `below_range` stays a `below` bound.
+
+**Per muscle.** The score is still the v3 weighted mean, with its bounds. Floors are applied to it the way main applies them to v2: strongest first, kept only where they raise the score. A muscle is flagged `estimated` when it passes the top anchor through an estimated lift, and `atLeast` when it rests on floors alone. Either flag makes its rank a minimum.
+
+**Wording.** A muscle keeps "Benchmark score …", because it is a weighted mean, not a percentile. Main's markers are carried into that wording: "≈ 98 (estimated)" and "at least 41". A lift's own result uses main's percentile wording: "≈ 99th percentile on its own (estimated)", "at least …", "· not to failure".
+
+**Fixtures.** The lats fixtures were recorded with the curve arrays left out, so the screenshot tests above still exercise the bound fallback. `server/rankScreenshots.test.ts` ("With the curve the database sends") runs the same lifts with the pulldown's curve attached. The 350 × 1 pulldown is then exact and estimated, above 95, and the lats score is estimated with it.

@@ -2,18 +2,11 @@ import "@/capability-rank.css";
 import type { ReactNode } from "react";
 import { RANKS, confidenceLabel, muscleScoreBounds, rankColorToken, rankForMuscle, rankRangeLabel, type MuscleEvidence, type MuscleScore, type RankId, type RegionRank } from "@shared/capabilityRank";
 import { RankIcon } from "@/components/RankIcon";
-import { ordinal } from "@/lib/strengthPercentileCard";
+import { ordinal, percentileFigure } from "@/lib/strengthPercentileCard";
 
-/**
- * The integer a percentile is shown as.
- *
- * Floored, not rounded, so the printed number always sits inside the band its colour and
- * name come from: 19.6 rounds to "20th", which the legend files under JV, while the rank -
- * read on the raw value - is Prospect. Flooring keeps "Prospect · 19th" true to the legend's
- * 0-19. The source clamps muscle scores to 1-99, and nothing reads as "0th".
- */
+/** The number a rank percentile is printed as: the one rule a lift's card uses too (`percentileFigure`). */
 export function displayPercentile(percentile: number): number {
-  return Math.max(1, Math.floor(percentile));
+  return percentileFigure(percentile);
 }
 
 /**
@@ -21,7 +14,15 @@ export function displayPercentile(percentile: number): number {
  * "below 6". Floored like a percentile so it never prints into the band above its colour; an
  * upper bound is rounded up so "below" stays true.
  */
-export function muscleScoreValue(muscle: Pick<MuscleScore, "percentile" | "scoreBound" | "lowerBound" | "upperBound">): string {
+export function muscleScoreValue(muscle: Pick<MuscleScore, "percentile" | "scoreBound" | "lowerBound" | "upperBound" | "estimated" | "atLeast">): string {
+  const value = boundedScoreValue(muscle);
+  // Past the top anchor through an estimated lift, the score is as much an estimate as that lift:
+  // "≈ 98 (estimated)". Read from sets stopped short of failure only, it is a floor: "at least 41".
+  const shown = muscle.estimated ? `≈ ${value} (estimated)` : value;
+  return muscle.atLeast && muscleScoreBounds(muscle).bound === "exact" ? `at least ${shown}` : shown;
+}
+
+function boundedScoreValue(muscle: Pick<MuscleScore, "percentile" | "scoreBound" | "lowerBound" | "upperBound">): string {
   const { bound, lower, upper } = muscleScoreBounds(muscle);
   if (bound === "exact") return String(displayPercentile(lower));
   if (bound === "at_least") return `above ${displayPercentile(lower)}`;
@@ -37,17 +38,22 @@ export function muscleScoreValue(muscle: Pick<MuscleScore, "percentile" | "score
  * never printed as "41st percentile".
  */
 export function rankScoreText(regionRank: Pick<RegionRank, "representative" | "confidence">): string {
-  const value = muscleScoreValue(regionRank.representative);
-  const exact = muscleScoreBounds(regionRank.representative).bound === "exact";
-  return regionRank.confidence === "low" && exact ? `Benchmark score about ${value}` : `Benchmark score ${value}`;
+  const { representative } = regionRank;
+  const value = muscleScoreValue(representative);
+  const plain = muscleScoreBounds(representative).bound === "exact" && !representative.estimated && !representative.atLeast;
+  return regionRank.confidence === "low" && plain ? `Benchmark score about ${value}` : `Benchmark score ${value}`;
 }
 
-/** One lift's own result: "89th percentile on its own", or where it stands past a benchmark. */
-export function liftResultText(item: Pick<MuscleEvidence, "exercisePercentile" | "bound">): string | null {
+/**
+ * One lift's own result: "89th percentile on its own", "≈ 98th percentile on its own (estimated)"
+ * on the estimated tail, "at least 41st …" for a set stopped short of failure, or where it stands
+ * past a benchmark when its curve allows no estimate.
+ */
+export function liftResultText(item: Pick<MuscleEvidence, "exercisePercentile" | "bound" | "estimated" | "notToFailure">): string | null {
   if (item.exercisePercentile == null) return null;
   if (item.bound === "above") return `above the ${ordinal(displayPercentile(item.exercisePercentile))}-percentile benchmark`;
   if (item.bound === "below") return `below the ${ordinal(Math.max(1, Math.ceil(item.exercisePercentile)))}-percentile benchmark`;
-  return `${ordinal(displayPercentile(item.exercisePercentile))} percentile on its own`;
+  return rankOrdinal(item.exercisePercentile, item.estimated, "percentile on its own", item.notToFailure);
 }
 
 /**
@@ -79,6 +85,30 @@ export function scoreArithmeticText(muscle: Pick<MuscleScore, "evidence" | "perc
   const { bound, lower, upper } = muscleScoreBounds(muscle);
   const result = bound === "exact" ? oneDecimal(lower) : bound === "at_least" ? `above ${oneDecimal(lower)}` : bound === "at_most" ? `below ${oneDecimal(upper)}` : `${oneDecimal(lower)} to ${oneDecimal(upper)}`;
   return `${rows.map(term).join(" + ")} = ${result}`;
+}
+
+/**
+ * A percentile as a rank surface prints it: "96th", or "≈ 96th (estimated)" when it is past the
+ * top anchor the comparison data measures and rests on the estimated tail. `noun` goes between
+ * the number and the label: "96th percentile", "≈ 96th percentile (estimated)". A floor - read from
+ * sets stopped short of failure - reads "at least 41st", lower case, for the middle of a line.
+ */
+export function rankOrdinal(percentile: number, estimated?: boolean, noun = "", floor = false): string {
+  const text = `${ordinal(displayPercentile(percentile))}${noun ? ` ${noun}` : ""}`;
+  const shown = estimated ? `≈ ${text} (estimated)` : text;
+  return floor ? `at least ${shown}` : shown;
+}
+
+/**
+ * "41st percentile", "About 41st percentile" where the evidence is thin, "≈ 97th percentile
+ * (estimated)" past the top anchor, or "At least 41st percentile" from sets stopped short of failure.
+ */
+export function rankPercentileText(regionRank: Pick<RegionRank, "representative" | "confidence">): string {
+  const { percentile, estimated, atLeast } = regionRank.representative;
+  if (atLeast) return `At least ${rankOrdinal(percentile, estimated, "percentile")}`;
+  if (estimated) return rankOrdinal(percentile, true, "percentile");
+  const text = rankOrdinal(percentile, false, "percentile");
+  return regionRank.confidence === "low" ? `About ${text}` : text;
 }
 
 const sexWord = { male: "men", female: "women" } as const;
@@ -203,7 +233,7 @@ export function RankCard({ regionRank, provenance }: { regionRank: RegionRank; p
                 const counted = countedText(item);
                 return (
                   <li key={`${item.exerciseName}-${index}`}>
-                    {item.exerciseName}{item.role ? ` · ${item.role}` : ""}{result ? ` · ${result}` : ""}{counted ? ` · ${counted}` : ""}{shared && item.weightShare != null ? ` · ${Math.round(item.weightShare * 100)}% of this rank` : ""}
+                    {item.exerciseName}{item.role ? ` · ${item.role}` : ""}{result ? ` · ${result}` : ""}{counted ? ` · ${counted}` : ""}{item.notToFailure ? " · not to failure" : ""}{shared && item.weightShare != null ? ` · ${Math.round(item.weightShare * 100)}% of this rank` : ""}
                   </li>
                 );
               })}

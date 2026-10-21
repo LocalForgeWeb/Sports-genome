@@ -1,10 +1,13 @@
 import { loadConventionFor } from "@shared/loadConventions";
+import { catalogMeasureOf } from "@shared/specialization/holdCatalogIds";
 import { exercises as catalog } from "./exerciseCatalog";
-import { isCompletedSet, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, type DeviceSetLog, type DeviceWorkoutSession } from "./deviceWorkoutLog";
+import { isCompletedSet, isHoldSet, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, type DeviceSetLog, type DeviceWorkoutSession, type SetSide, type StrapsUsed } from "./deviceWorkoutLog";
 import { loadSyncedKeys, loadSyncQueue, removeQueuedLiftsForSession, saveSyncQueue } from "./strengthSyncQueue";
 import { workoutObservationId } from "./workoutStrengthRecord";
-import { dropSetSummary, isDropSet, performedSetLine, setVolume, volumeText } from "./dropSets";
-import { swapNote } from "./workoutSwap";
+import { dropSetSummary, isDropSet, performedSetLine, setVolume, stageLoadText, volumeText } from "./dropSets";
+import { swapNote } from "./workoutSwapRecord";
+import type { SetDoseMeasure } from "./setEntryFields";
+import type { LoadConvention } from "@shared/loadConventions";
 import type { DisplayWeightUnit } from "./weightUnits";
 import type { IncomingDraftDay } from "./planImport";
 
@@ -18,7 +21,18 @@ import type { IncomingDraftDay } from "./planImport";
  * drop set is one set. Load x reps appears only inside a drop set's detail, labelled lb-reps or
  * kg-reps; there is no workout-wide "volume", calorie, effort or score figure.
  */
-export type RecapSet = { index: number; set: DeviceSetLog; line: string; detail: string | null; drop: boolean };
+export type RecapSet = {
+  index: number;
+  set: DeviceSetLog;
+  /** "185 lb × 5", "30 s", "70 lb × 30 s · Left": what was done, with the arm where it was recorded. */
+  line: string;
+  detail: string | null;
+  drop: boolean;
+  /** A hold: its dose is seconds, so a correction edits seconds rather than reps. */
+  hold: boolean;
+  /** "Left", "Right" or "Both arms", only where the side was recorded. */
+  side: string | null;
+};
 
 export type RecapExercise = {
   id: string;
@@ -32,8 +46,21 @@ export type RecapExercise = {
   skipped: number;
   /** Planned sets neither completed nor skipped - untouched, or typed and never logged. */
   unrecorded: number;
+  /** "Straps used" / "Straps not used", only where the athlete said. */
+  straps: string | null;
   sets: RecapSet[];
 };
+
+const sideLabels: Record<SetSide, string> = { left: "Left", right: "Right", both: "Both arms" };
+/** "Left", "Right" or "Both arms" for a recorded side; null when none was recorded. */
+export function sideLabel(side: SetSide | undefined): string | null {
+  return side ? sideLabels[side] ?? null : null;
+}
+
+/** What an exercise's straps record says, or null when nothing was recorded. */
+export function strapsLabel(straps: StrapsUsed | undefined): string | null {
+  return straps === "yes" ? "Straps used" : straps === "no" ? "Straps not used" : null;
+}
 
 export type SessionRecap = {
   id: string;
@@ -52,7 +79,45 @@ export type SessionRecap = {
 const byId = new Map(catalog.map((exercise) => [exercise.id, exercise]));
 const byName = new Map(catalog.map((exercise) => [exercise.name, exercise]));
 
-export function sessionRecap(session: DeviceWorkoutSession, fallbackUnit: DisplayWeightUnit): SessionRecap {
+/**
+ * What an exercise's sets are measured in, by its catalog id. By default the light list of
+ * exercises the atlas measures in seconds (shared/specialization/holdCatalogIds, kept equal to
+ * the atlas's variants by a test): this module loads with the app's first screens and does not
+ * import the atlas's region data. Every reader here - the recap, the session detail, Correct a
+ * set and an exercise's history - reads holds the same way.
+ */
+export type MeasureOf = (catalogExerciseId: number | undefined) => SetDoseMeasure;
+
+/**
+ * Whether a logged set is a hold: it holds seconds, or it is on an exercise measured in seconds and
+ * holds no reps (a hold logged before its seconds were required).
+ *
+ * The rule for reps on a hold (07-logger.md, "Reps logged before stay reps"; the owner can change
+ * it): a set of such an exercise that holds reps was logged in reps before the exercise was
+ * measured in seconds. It stays a rep set everywhere - its line reads reps, Correct a set edits
+ * its reps, the strength record reads it as before - and its reps are never read as seconds.
+ */
+function isHoldOn(set: DeviceSetLog, measure: SetDoseMeasure | undefined): boolean {
+  return isHoldSet(set) || (measure === "seconds" && !set.reps.trim() && !isDropSet(set));
+}
+
+/**
+ * "40 reps", or "70 lb · 40 reps": a set logged in reps on an exercise now measured in seconds, worded
+ * as the live card words it ("Last set: 70 lb · 40 reps"), so it can never be read as 40 seconds.
+ */
+function repsOnHoldLine(set: DeviceSetLog, unit: DisplayWeightUnit, convention: LoadConvention): string {
+  const loaded = set.weight.trim() !== "" && Number(set.weight) > 0;
+  const reps = `${set.reps.trim()} ${set.reps.trim() === "1" ? "rep" : "reps"}`;
+  return loaded ? `${stageLoadText({ weight: set.weight, unit: set.unit }, unit, convention)} · ${reps}` : reps;
+}
+
+/** "Seconds not recorded", or "70 lb · seconds not recorded" with a load: a hold with no time on it. */
+function holdWithoutSecondsLine(set: DeviceSetLog, unit: DisplayWeightUnit, convention: LoadConvention): string {
+  const loaded = set.weight.trim() !== "" && Number(set.weight) > 0;
+  return loaded ? `${stageLoadText({ weight: set.weight, unit: set.unit }, unit, convention)} · seconds not recorded` : "Seconds not recorded";
+}
+
+export function sessionRecap(session: DeviceWorkoutSession, fallbackUnit: DisplayWeightUnit, measureOf: MeasureOf = catalogMeasureOf): SessionRecap {
   const completedAt = new Date(session.completedAt ?? session.startedAt);
   const started = Date.parse(session.startedAt);
   const finished = session.completedAt ? Date.parse(session.completedAt) : NaN;
@@ -60,6 +125,7 @@ export function sessionRecap(session: DeviceWorkoutSession, fallbackUnit: Displa
   const exercises = session.exercises.map((exercise): RecapExercise => {
     const catalogEntry = (exercise.catalogId !== undefined ? byId.get(exercise.catalogId) : undefined) ?? byName.get(exercise.exerciseName);
     const convention = loadConventionFor(catalogEntry?.id);
+    const measure = measureOf(catalogEntry?.id ?? exercise.catalogId);
     const done = exercise.sets.map((set, index) => ({ set, index })).filter(({ set }) => isCompletedSet(set));
     // A record from before planned counts were kept still holds any set it left open: those are
     // evidence of the plan, so they count; with none left open the plan is simply unknown.
@@ -75,11 +141,19 @@ export function sessionRecap(session: DeviceWorkoutSession, fallbackUnit: Displa
       planned,
       skipped,
       unrecorded: planned === null ? 0 : Math.max(0, planned - done.length - skipped),
+      straps: strapsLabel(exercise.straps),
       sets: done.map(({ set, index }) => {
         const unit = setWeightUnit(set, session, fallbackUnit);
         const drop = isDropSet(set);
         const volume = drop ? setVolume(set, unit, convention, fallbackUnit) : null;
-        return { index, set, line: performedSetLine(set, unit, convention), detail: drop ? `${dropSetSummary(set)}${volume ? ` · ${volumeText(volume)}` : ""}` : null, drop };
+        const side = sideLabel(set.side);
+        const hold = isHoldOn(set, measure);
+        // A hold logged with no seconds says so, rather than "— lb × —"; Correct a set adds them.
+        // Reps logged before the exercise was measured in seconds say "reps".
+        const performed = hold && !isHoldSet(set) ? holdWithoutSecondsLine(set, unit, convention)
+          : !hold && !drop && measure === "seconds" ? repsOnHoldLine(set, unit, convention)
+          : performedSetLine(set, unit, convention);
+        return { index, set, line: `${performed}${side ? ` · ${side}` : ""}`, detail: drop ? `${dropSetSummary(set)}${volume ? ` · ${volumeText(volume)}` : ""}` : null, drop, hold, side };
       }),
     };
   });
@@ -118,15 +192,38 @@ export function elapsedText(minutes: number): string {
  * same one when the change cannot apply. A correction never removes a workout's last completed
  * set: that is removing the workout, which Progress does with its own confirmation.
  */
-export function correctSet(session: DeviceWorkoutSession, exerciseId: string, setIndex: number, patch: { weight: string; reps: string }, at = new Date().toISOString()): DeviceWorkoutSession {
-  const reps = Number(patch.reps);
+/**
+ * A hold is corrected in seconds and keeps no reps; any other set in reps. Everything else on the
+ * set - its side, its unit, its effort, its id - and the exercise's straps record stay as they were.
+ *
+ * Whether a set is a hold is read from the set and from its exercise's measure (`measureOf`, the
+ * light list of holds by default): a set with no reps on an exercise measured in seconds is a hold
+ * whose seconds were never typed, so it is corrected in seconds and a reps patch is refused.
+ * Seconds never become reps. A set of that exercise logged in reps before it was measured in
+ * seconds keeps its reps, and is corrected in reps (`isHoldOn`).
+ */
+export function correctSet(session: DeviceWorkoutSession, exerciseId: string, setIndex: number, patch: { weight: string; reps?: string; holdSeconds?: string }, at = new Date().toISOString(), measureOf: MeasureOf = catalogMeasureOf): DeviceWorkoutSession {
   const weight = patch.weight.trim() === "" ? 0 : Number(patch.weight);
-  if (!Number.isInteger(reps) || reps < 1 || reps > 1000 || !Number.isFinite(weight) || weight < 0) return session;
+  if (!Number.isFinite(weight) || weight < 0) return session;
+  const wholeIn = (value: string | undefined, max: number) => {
+    const parsed = Number((value ?? "").trim());
+    return (value ?? "").trim() !== "" && Number.isInteger(parsed) && parsed >= 1 && parsed <= max ? parsed : null;
+  };
   let changed = false;
   const exercises = session.exercises.map((exercise) => exercise.id !== exerciseId ? exercise : {
     ...exercise,
     sets: exercise.sets.map((set, index) => {
       if (index !== setIndex || !isCompletedSet(set) || set.type === "drop") return set;
+      // The exercise as the recap reads it: by the id it kept, else by its name.
+      const entry = (exercise.catalogId !== undefined ? byId.get(exercise.catalogId) : undefined) ?? byName.get(exercise.exerciseName);
+      if (isHoldOn(set, measureOf(entry?.id ?? exercise.catalogId))) {
+        const seconds = wholeIn(patch.holdSeconds, 86_400);
+        if (seconds === null) return set;
+        changed = true;
+        return { ...set, weight: patch.weight.trim(), reps: "", holdSeconds: String(seconds) };
+      }
+      const reps = wholeIn(patch.reps, 1000);
+      if (reps === null) return set;
       changed = true;
       return { ...set, weight: patch.weight.trim(), reps: String(reps) };
     }),
@@ -217,14 +314,19 @@ export function exerciseHistoryCount(target: { exerciseName: string; catalogId?:
   return sessions.filter((session) => session.status === "completed" && session.id !== excludeSessionId && session.exercises.some((exercise) => matches(exercise) && exercise.sets.some(isCompletedSet))).length;
 }
 
-export function exerciseHistory(target: { exerciseName: string; catalogId?: number }, sessions: readonly DeviceWorkoutSession[], fallbackUnit: DisplayWeightUnit, limit = 5): { entries: ExerciseHistoryEntry[]; total: number } {
+/**
+ * Each set reads as the recap and the session detail read it (`sessionRecap`, with the same
+ * measure): a hold in seconds ("30 s", "70 lb × 30 s"), a hold logged without its seconds as
+ * "Seconds not recorded", never "— lb × —".
+ */
+export function exerciseHistory(target: { exerciseName: string; catalogId?: number }, sessions: readonly DeviceWorkoutSession[], fallbackUnit: DisplayWeightUnit, limit = 5, measureOf: MeasureOf = catalogMeasureOf): { entries: ExerciseHistoryEntry[]; total: number } {
   const matches = sameExercise(target);
   const all = sessions
     .filter((session) => session.status === "completed")
     .flatMap((session) => {
       const done = session.exercises.filter((exercise) => matches(exercise) && exercise.sets.some(isCompletedSet));
       if (!done.length) return [];
-      const recap = sessionRecap(session, fallbackUnit);
+      const recap = sessionRecap(session, fallbackUnit, measureOf);
       const ids = new Set(done.map((exercise) => exercise.id));
       const sets = recap.exercises.filter((exercise) => ids.has(exercise.id)).flatMap((exercise) => exercise.sets.map((set) => ({ line: set.line, detail: set.detail })));
       const dayName = session.dayLabel.split(" · ").map((part) => part.trim()).filter(Boolean).pop() || session.title;

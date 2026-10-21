@@ -2,6 +2,7 @@ import type { ComparableStrengthObservation, WithinAthleteStrengthChange } from 
 import type { StrengthPercentileResult } from "@shared/strengthPercentile";
 import { catalogExerciseIdForName, ordinal, strengthPercentileCard, strengthPercentileGapCopy, type StrengthPercentileCard } from "@/lib/strengthPercentileCard";
 import { ageAtLift } from "@/lib/normsCohort";
+import { effectiveEffort } from "@shared/setEffort";
 
 /**
  * The Progress section's side of the beta percentile route.
@@ -34,6 +35,8 @@ export type PercentileLift = {
   request: PercentileLiftRequest;
   /** Which weight the lift is read against, so the card can say when it is borrowed. */
   bodyMassSource: "recorded" | "profile" | null;
+  /** How hard the set was taken, as the card reads it (shared/setEffort.ts): a floor reads "At least". */
+  effort: ReturnType<typeof effectiveEffort>;
 };
 
 /** The two answers the curves are split by; anything else is not placed rather than guessed. */
@@ -75,12 +78,14 @@ export function liftsToPlace(
     const bodyMassSource: PercentileLift["bodyMassSource"] = recorded && recorded > 0 ? "recorded" : fallback && fallback > 0 ? "profile" : null;
     const bodyMassKg = bodyMassSource === "recorded" ? recorded! : bodyMassSource === "profile" ? fallback! : null;
 
+    const catalogExerciseId = catalogExerciseIdForName(change.exerciseName) ?? null;
     lifts.push({
       key: trendKey(change),
       exerciseName: change.exerciseName,
       bodyMassSource,
+      effort: effectiveEffort({ catalogExerciseId, measurementType: observation.measurementType, effort: observation.effort }),
       request: {
-        catalogExerciseId: catalogExerciseIdForName(change.exerciseName) ?? null,
+        catalogExerciseId,
         exerciseName: change.exerciseName,
         sex: context.sex,
         bodyMassKg,
@@ -119,7 +124,7 @@ export function summarizeProgressPercentiles(
     const lift = lifts[index];
     if (!lift) return;
     if (result.status === "resolved" && sex) {
-      const card = strengthPercentileCard(result, { sex, bodyMassKg: lift.request.bodyMassKg });
+      const card = strengthPercentileCard(result, { sex, bodyMassKg: lift.request.bodyMassKg, effort: lift.effort });
       if (!card) return;
       cards.set(lift.key, { ...card, percentile: result.percentile, bound: "exact", bodyMassSource: lift.bodyMassSource });
       if (!best || result.percentile > best.percentile) best = { exerciseName: lift.exerciseName, percentile: result.percentile, headline: card.headline };

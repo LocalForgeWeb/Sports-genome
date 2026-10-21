@@ -1,7 +1,7 @@
 import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import { loadConventionFor } from "../shared/loadConventions";
 import { mapWithConcurrency, withTimeout } from "./boundedCache";
-import { aggregateMuscleBenchmarkScores, betterScore, type BoundedScoreInput, type MappingRow, type MuscleRow } from "./muscleAggregation";
+import { aggregateMuscleBenchmarkScoresWithFloors, betterScore, type BoundedScoreInput, type MappingRow, type MuscleRow } from "./muscleAggregation";
 import {
   MUSCLE_CONFIDENCE_CALIBRATION_VERSION,
   MUSCLE_SCORE_KIND,
@@ -12,6 +12,7 @@ import {
   type ScoreBound,
 } from "../shared/capabilityRank";
 import { upstreamFetch } from "./_core/http";
+import { estimateAboveTopAnchor, type TailEstimate } from "../shared/strengthPercentile";
 
 /**
  * Per-muscle strength percentiles for Body Lab's Strength/Rank mode.
@@ -52,6 +53,8 @@ export type MuscleProfileLift = {
   bodyMassKg: number | null;
   /** Age on the day of this lift; absent when no birth year has been given. */
   ageYears?: number | null;
+  /** Stopped short of failure: a floor, which may raise a muscle's rank but never lower it (shared/setEffort.ts). */
+  notToFailure?: boolean;
 };
 
 export type MuscleProfileRequest = { sex: "male" | "female" | null; lifts: readonly MuscleProfileLift[] };
@@ -69,10 +72,14 @@ export type MuscleProfileRequest = { sex: "male" | "female" | null; lifts: reado
  */
 export const MUSCLE_EVIDENCE_SELECTION_RULE = "best_placed_per_exercise_v2" as const;
 
-/** One entry per exercise: the best placed (bounds read), then the more confident. */
-export function bestObservationPerExercise<T extends { exercise_id: string; percentile: number; confidence: number; bound?: PercentileBound; observed_value?: number | null }>(scores: readonly T[]): T[] {
+/**
+ * One entry per exercise: the best placed (bounds read), then a measured lift over a floor (one
+ * stopped short of failure), then the more confident. A floor that places highest still speaks for
+ * its exercise: the athlete can do at least that much, which the lower measured lift understates.
+ */
+export function bestObservationPerExercise<T extends { exercise_id: string; percentile: number; confidence: number; bound?: PercentileBound; observed_value?: number | null; notToFailure?: boolean }>(scores: readonly T[]): T[] {
   const best = new Map<string, T>();
-  const placed = (score: T) => ({ percentile: score.percentile, bound: score.bound ?? "exact", observed_value: score.observed_value ?? null, confidence: score.confidence });
+  const placed = (score: T) => ({ percentile: score.percentile, bound: score.bound ?? "exact", observed_value: score.observed_value ?? null, confidence: score.confidence, notToFailure: score.notToFailure });
   for (const score of scores) {
     const current = best.get(score.exercise_id);
     if (!current || betterScore(placed(score), placed(current))) best.set(score.exercise_id, score);
@@ -112,6 +119,28 @@ export function percentileBoundOf(placement: Record<string, unknown> | null | un
     return isFiniteIn(estimate, 0, 100) ? { bound: "exact", percentile: estimate, observedValue, benchmarkValue: null, unit } : null;
   }
   return null;
+}
+
+/**
+ * A lift the database held at the top anchor, placed on the curve's estimated tail instead.
+ *
+ * Past the top anchor `get_beta_strength_percentile_v1_core` answers `above_range` and enters the
+ * lift at that anchor (the 95th), so a lift far past it ranked exactly like one just reaching it.
+ * The answer carries everything the estimate needs - the placed value and the whole curve - so
+ * the same `estimateAboveTopAnchor` the single-lift card uses runs on it here, and one lift reads
+ * one number on the card and in the ranks. Anything else, including `below_range`, is left as the
+ * database scored it.
+ */
+export function tailEstimateForPlacement(placement: unknown): { percentile: number; tail: TailEstimate } | null {
+  if (!placement || typeof placement !== "object") return null;
+  const row = placement as Record<string, unknown>;
+  if (row.status !== "above_range") return null;
+  // A load's placement names its placed value; a rep count's (`bodyweight_reps`) names the reps,
+  // and a rep count read on a related exercise's curve names the reps it was placed as.
+  const observed = numberOf(row.observed_norm_value) ?? numberOf(row.equivalent_source_reps) ?? numberOf(row.reps);
+  const curve = Array.isArray(row.curve) ? row.curve as { percentile?: unknown; value?: unknown }[] : [];
+  if (observed === null || curve.length === 0) return null;
+  return estimateAboveTopAnchor(curve.map((point) => ({ percentile: point?.percentile, value: point?.value })), observed);
 }
 
 /** Mirrors `score_strength_profile_v1`'s own statuses; they stay visible rather than collapsing to ok. */
@@ -206,7 +235,7 @@ const numberOf = (value: unknown): number | null => {
  * The scale is checked, not assumed: a percentile outside 0-100 or a confidence outside 0-1
  * is refused rather than clamped, since either is a sign the contract moved underneath.
  */
-export function validateMuscle(raw: unknown, referenceByExerciseId: ReadonlyMap<string, ReferenceGroup>): MuscleScore | null {
+export function validateMuscle(raw: unknown, referenceByExerciseId: ReadonlyMap<string, ReferenceGroup>, tailByExerciseId: ReadonlyMap<string, TailEstimate> = new Map(), floorExerciseIds: ReadonlySet<string> = new Set()): MuscleScore | null {
   if (!raw || typeof raw !== "object") return null;
   const row = raw as Record<string, unknown>;
   const percentile = numberOf(row.strength_percentile);
@@ -223,21 +252,35 @@ export function validateMuscle(raw: unknown, referenceByExerciseId: ReadonlyMap<
   if (!isFiniteIn(lowerBound, 0, 100) || !isFiniteIn(upperBound, 0, 100) || lowerBound > upperBound || percentile !== lowerBound) return null;
   if (scoreBound === "exact" && lowerBound !== upperBound) return null;
   const evidenceRows = Array.isArray(row.evidence) ? row.evidence as Record<string, unknown>[] : [];
-  const evidence: MuscleEvidence[] = evidenceRows.map((item) => ({
-    exerciseName: typeof item.exercise_name === "string" ? item.exercise_name : "Logged lift",
-    role: typeof item.role === "string" ? item.role : null,
-    exercisePercentile: numberOf(item.exercise_percentile),
-    bound: item.bound === "above" || item.bound === "below" ? item.bound : "exact",
-    countedLow: numberOf(item.counted_low),
-    countedHigh: numberOf(item.counted_high),
-    observedValue: numberOf(item.observed_value),
-    benchmarkValue: numberOf(item.benchmark_value),
-    valueUnit: typeof item.value_unit === "string" ? item.value_unit : null,
-    ageScaled: item.age_scaled === true,
-    selectedLift: item.load_kg === undefined && item.repetitions === undefined ? null : { loadKg: numberOf(item.load_kg), repetitions: numberOf(item.repetitions) },
-    directness: numberOf(item.directness),
-    weightShare: numberOf(item.weight_share),
-  }));
+  const evidence: MuscleEvidence[] = evidenceRows.map((item) => {
+    const tail = typeof item.exercise_id === "string" ? tailByExerciseId.get(item.exercise_id) : undefined;
+    return {
+      exerciseName: typeof item.exercise_name === "string" ? item.exercise_name : "Logged lift",
+      role: typeof item.role === "string" ? item.role : null,
+      exercisePercentile: numberOf(item.exercise_percentile),
+      bound: item.bound === "above" || item.bound === "below" ? item.bound : "exact",
+      countedLow: numberOf(item.counted_low),
+      countedHigh: numberOf(item.counted_high),
+      observedValue: numberOf(item.observed_value),
+      benchmarkValue: numberOf(item.benchmark_value),
+      valueUnit: typeof item.value_unit === "string" ? item.value_unit : null,
+      ageScaled: item.age_scaled === true,
+      selectedLift: item.load_kg === undefined && item.repetitions === undefined ? null : { loadKg: numberOf(item.load_kg), repetitions: numberOf(item.repetitions) },
+      directness: numberOf(item.directness),
+      weightShare: numberOf(item.weight_share),
+      ...(tail ? { estimated: true } : {}),
+      ...(typeof item.exercise_id === "string" && floorExerciseIds.has(item.exercise_id) ? { notToFailure: true } : {}),
+    };
+  });
+  // Read from nothing but sets stopped short of failure: the muscle can do at least this much.
+  const atLeast = evidenceRows.length > 0 && evidenceRows.every((item) => typeof item.exercise_id === "string" && floorExerciseIds.has(item.exercise_id));
+  // A muscle can only pass the top anchor through a lift that did, and its percentile is then as
+  // much an estimate as that lift's: said so wherever it is shown.
+  const tails = evidenceRows.flatMap((item) => {
+    const tail = typeof item.exercise_id === "string" ? tailByExerciseId.get(item.exercise_id) : undefined;
+    return tail ? [tail] : [];
+  });
+  const estimated = tails.length > 0 && percentile > Math.min(...tails.map((tail) => tail.aboveAnchorPercentile));
   const groups = new Map<string, ReferenceGroup>();
   evidenceRows.forEach((item) => {
     const group = typeof item.exercise_id === "string" ? referenceByExerciseId.get(item.exercise_id) : undefined;
@@ -256,6 +299,8 @@ export function validateMuscle(raw: unknown, referenceByExerciseId: ReadonlyMap<
     movementPatternCount: numberOf(row.movement_pattern_count) ?? evidenceCount,
     evidence,
     referenceGroups: Array.from(groups.values()),
+    ...(estimated ? { estimated: true } : {}),
+    ...(atLeast ? { atLeast: true } : {}),
   };
 }
 
@@ -328,7 +373,8 @@ export async function scoreMuscleProfile(client: ProfileClient, catalog: Profile
   // Grouped by weight to the tenth of a kilogram, which is finer than any scale an athlete
   // reads, and by age at the lift, since one group is scored and adjusted as one.
   // A movement scored on reps goes as reps alone; everything else carries its load in kg.
-  type Observation = { exercise_id: string; load?: number; unit?: "kg"; reps: number; exercise_name: string };
+  // `not_to_failure` rides with the observation and comes back on its score (`input_observation`).
+  type Observation = { exercise_id: string; load?: number; unit?: "kg"; reps: number; exercise_name: string; not_to_failure?: true };
   const groups = new Map<string, { bodyweightKg: number; ageYears: number | null; observations: Observation[] }>();
   for (const lift of request.lifts) {
     const exercise = findProfileExercise(index, lift);
@@ -348,16 +394,17 @@ export async function scoreMuscleProfile(client: ProfileClient, catalog: Profile
     const ageYears = isFiniteIn(lift.ageYears, 0, 120) ? Math.round(lift.ageYears * 10) / 10 : null;
     const key = `${bodyweightKg}|${ageYears ?? "-"}`;
     const group = groups.get(key) ?? { bodyweightKg, ageYears, observations: [] };
+    const floor = lift.notToFailure ? { not_to_failure: true as const } : {};
     group.observations.push(repsOnly
-      ? { exercise_id: exercise.id, reps: lift.repetitions, exercise_name: exercise.name }
-      : { exercise_id: exercise.id, load: lift.loadKg, unit: "kg", reps: lift.repetitions, exercise_name: exercise.name });
+      ? { exercise_id: exercise.id, reps: lift.repetitions, exercise_name: exercise.name, ...floor }
+      : { exercise_id: exercise.id, load: lift.loadKg, unit: "kg", reps: lift.repetitions, exercise_name: exercise.name, ...floor });
     groups.set(key, group);
   }
 
   let scored = 0;
   let estimatedOnly = 0;
   let failed = failures.length;
-  const compact: (BoundedScoreInput & { confidence: number })[] = [];
+  const compact: (BoundedScoreInput & { confidence: number; tail?: TailEstimate; notToFailure?: boolean })[] = [];
   const scoringVersions = new Set<string>();
   const referenceByExerciseId = new Map<string, ReferenceGroup>();
   const ageAdjustment: AgeAdjustmentSummary = { applied: 0, outsideTable: 0, noAge: 0 };
@@ -383,6 +430,7 @@ export async function scoreMuscleProfile(client: ProfileClient, catalog: Profile
     }
     const scores = Array.isArray(body.exercise_scores) ? body.exercise_scores as Record<string, any>[] : [];
     for (const score of scores) {
+      // The placement after any age adjustment, which replaces it whole - curve and value included.
       const placement = percentileBoundOf(score?.percentile);
       const exerciseId = typeof score?.exercise_id === "string" ? score.exercise_id : score?.input_observation?.exercise_id;
       if (typeof exerciseId !== "string") continue;
@@ -393,10 +441,14 @@ export async function scoreMuscleProfile(client: ProfileClient, catalog: Profile
         failed += 1;
         continue;
       }
+      // Past the top anchor, the curve's estimated tail where the curve allows one (owner, 14 Oct
+      // 2026): a placement like any other, marked estimated. Only where it cannot be estimated is
+      // the lift entered as a bound, above the anchor.
+      const tail = placement.bound === "above" ? tailEstimateForPlacement(score?.percentile) : null;
       compact.push({
         exercise_id: exerciseId,
-        percentile: placement.percentile,
-        bound: placement.bound,
+        percentile: tail ? tail.percentile : placement.percentile,
+        bound: tail ? "exact" : placement.bound,
         confidence: numberOf(score?.overall_confidence) ?? 0.5,
         observed_value: placement.observedValue,
         benchmark_value: placement.benchmarkValue,
@@ -404,6 +456,8 @@ export async function scoreMuscleProfile(client: ProfileClient, catalog: Profile
         age_scaled: score?.age_adjustment?.applied === true,
         load_kg: numberOf(score?.input_observation?.load),
         repetitions: numberOf(score?.input_observation?.reps),
+        ...(tail ? { tail: tail.tail } : {}),
+        ...(score?.input_observation?.not_to_failure === true ? { notToFailure: true } : {}),
       });
       if (typeof score?.scoring_version === "string") scoringVersions.add(score.scoring_version);
       if (ageYears === null) ageAdjustment.noAge += 1;
@@ -428,8 +482,12 @@ export async function scoreMuscleProfile(client: ProfileClient, catalog: Profile
   // The mappings for the exercises with evidence, read once per request; the muscle list and
   // the exercise index come with the catalog. Then the aggregation runs here (D-016).
   const mappings = evidence.length ? await client.getMuscleMappings(evidence.map((item) => item.exercise_id)) : [];
-  const aggregate = aggregateMuscleBenchmarkScores(evidence, { mappings, muscles: catalog.muscles, exercises: index });
-  const muscles = aggregate.muscles.map((raw) => validateMuscle(raw, referenceByExerciseId)).filter((m): m is NonNullable<typeof m> => m !== null);
+  // A lift stopped short of failure is a floor: it may raise a muscle, never lower it.
+  const floors = evidence.filter((item) => item.notToFailure);
+  const aggregate = aggregateMuscleBenchmarkScoresWithFloors(evidence.filter((item) => !item.notToFailure), floors, { mappings, muscles: catalog.muscles, exercises: index });
+  const tailByExerciseId = new Map(evidence.flatMap((item) => item.tail ? [[item.exercise_id, item.tail] as const] : []));
+  const floorExerciseIds = new Set(floors.map((item) => item.exercise_id));
+  const muscles = aggregate.muscles.map((raw) => validateMuscle(raw, referenceByExerciseId, tailByExerciseId, floorExerciseIds)).filter((m): m is NonNullable<typeof m> => m !== null);
 
   return {
     status: profileStatus(scored, estimatedOnly, failed),

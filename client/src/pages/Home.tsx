@@ -64,6 +64,7 @@ import { TrainingPlanHeader } from "@/components/TrainingPlanHeader";
 import { SessionResumeBar } from "@/components/SessionResumeBar";
 import { exerciseProgressFor, useDayTrainingStates, useLiveSession, useWorkoutLogWrites } from "@/lib/liveSession";
 import type { NextWorkoutChoice } from "@/lib/nextWorkout";
+import { readWeekNames, storedWeekNames, weekLabel, withWeekName, type WeekNames } from "@/lib/weekNames";
 import { capacityProposalFor } from "@/lib/capacityTargets";
 import { revealWorkspaceAnchor } from "@/lib/workspaceAnchor";
 const AthleteAboutMePanel = lazy(() => import("@/components/AthleteAboutMePanel").then((module) => ({ default: module.AthleteAboutMePanel })));
@@ -82,7 +83,8 @@ import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { catalogPageSize, defaultCatalogFilters, muscleModeExercises, type CatalogFilters } from "@/lib/catalogDiscovery";
 import { allExercisesDiscovery, discoveryFromParams, discoveryKey, discoveryMovementProfile, discoveryTitle, validDiscovery, writeDiscoveryParams, type ExerciseDiscoveryContext } from "@/lib/exerciseDiscovery";
 import { getMovementSupport } from "@/lib/movementSupport";
-import { getExerciseSettings, getGoalPrescription, getWorkoutDiagnostics, isTrainingGoal, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
+import { getExerciseSettings, getGoalPrescription, getWorkoutDiagnostics, isTrainingGoal, prescriptionOf, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
+import { catalogIdOf } from "@/lib/workoutSwapRecord";
 import { createActionConnectionLookup, lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { getBodyLabRoleContext } from "@/lib/bodyLabRoleContext";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
@@ -108,8 +110,14 @@ import { isLaunchExperienceEnabled, launchExperiencePreferenceKey } from "@/lib/
 import { buildStampLabel } from "@/lib/buildStamp";
 import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
+import { clearSpecializationParams, defaultSpecializationState, specializationStateFromParams, writeSpecializationParams, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationViewState } from "@/lib/specialization/viewState";
+import { applyPlanChangeToRecord } from "@/lib/specialization/planChange";
+import { useSpecializationGoals } from "@/lib/specialization/stores";
+import { isGoalActiveAt } from "@shared/specialization/goals";
+import { catalogDoseOf } from "@shared/exerciseMeasurement";
+import { defaultSpecializationRegionId, regionForBodyMapKey, specializationRegionIndex } from "@shared/specialization/regionIndex";
 
-type Workspace = "command" | "profile" | "progress" | "recommended" | "review" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "strength";
+type Workspace = "command" | "profile" | "progress" | "recommended" | "review" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "strength" | "specialization";
 type Goal = TrainingGoal;
 type StoredAthleteProfile = { version: 1 | 2 | 3; sportId: string; sportContextMode?: SportContextMode; capacityFocus?: CapacityFocusState; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number; baseline?: AthleteBaseline };
 type StoredWorkoutEntry = { entryId: number; catalogExerciseId: number };
@@ -122,7 +130,7 @@ type WorkoutEntry = Exercise & { catalogExerciseId?: number };
  */
 type WeekSnapshot = { days: WeeklyDayStore; activeDayIndex: number };
 type StoredWeekSnapshot = { customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; customWorkoutEntries?: StoredWorkoutEntry[]; weeklyPlanEntries?: Record<string, StoredWorkoutEntry[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; weeklySettings?: Record<string, DaySettings>; importedPlanContext?: Record<string, ImportedRoutineContext[]>; activeDayIndex?: number };
-type StoredWorkoutPlan = StoredWeekSnapshot & { version: 1 | 2; weeks?: Record<string, StoredWeekSnapshot>; activeWeek?: number; nextWorkout?: NextWorkoutChoice; /** The athlete's own days, when they are not the split recommended for their length. */ split?: SplitDay[] };
+type StoredWorkoutPlan = StoredWeekSnapshot & { version: 1 | 2; weeks?: Record<string, StoredWeekSnapshot>; activeWeek?: number; nextWorkout?: NextWorkoutChoice; weekNames?: Record<string, string>; /** The athlete's own days, when they are not the split recommended for their length. */ split?: SplitDay[] };
 
 let duplicateEntrySequence = 0;
 const catalogExerciseIdFor = (exercise: WorkoutEntry) => exercise.catalogExerciseId || exercise.id;
@@ -158,6 +166,7 @@ const BodyLabNavigator = lazy(() => import("@/components/BodyLabNavigator").then
 const CatalogDiscoveryPanel = lazy(() => import("@/components/CatalogDiscoveryPanel").then((module) => ({ default: module.CatalogDiscoveryPanel })));
 const CatalogExerciseEvidenceCard = lazy(() => import("@/components/CatalogExerciseEvidenceCard").then((module) => ({ default: module.CatalogExerciseEvidenceCard })));
 const StrengthGenomePanel = lazy(() => import("@/components/StrengthGenomePanel").then((module) => ({ default: module.StrengthGenomePanel })));
+const SpecializationPanel = lazy(() => import("@/components/specialization/SpecializationPanel").then((module) => ({ default: module.SpecializationPanel })));
 const SelectedActionConnectionCard = lazy(() => import("@/components/SelectedActionConnectionCard").then((module) => ({ default: module.SelectedActionConnectionCard })));
 
 // FIXED DEFAULT per the Sports Genome philosophy's Mobile global navigation contract: four
@@ -192,12 +201,21 @@ export const contextualWorkspaces: Record<Exclude<PrimaryDestination, "secondary
     { id: "tracker", label: "Workout", workspace: "tracker" },
     { id: "recommended", label: "Matches", workspace: "recommended" },
   ],
-  // Body Lab is the reference library: look things up, understand them. Everything
-  // here is about exercises and anatomy in general, not about this athlete.
+  /**
+   * Body Lab is the reference library: look things up, understand them. Movements,
+   * Muscles and Exercises are about exercises and anatomy in general, not about this
+   * athlete.
+   *
+   * Specialize is the one exception, by decision (Oct 16 forearm brief: "Body Lab →
+   * Specialization → Forearms is the canonical workspace"). It reads the athlete's own
+   * plan and logged work against the same anatomy, muscle by muscle, so it sits beside
+   * the map it refines rather than under Progress, and the bottom dock stays at four.
+   */
   body: [
     { id: "movement", label: "Movements", workspace: "movement" },
     { id: "body", label: "Muscles", workspace: "body" },
     { id: "catalog", label: "Exercises", workspace: "catalog" },
+    { id: "specialization", label: "Specialize", workspace: "specialization" },
   ],
   /**
    * Progress is the athlete's own record, so logging a lift belongs here.
@@ -248,6 +266,7 @@ export const workspaceTitles: Record<Workspace, string> = {
   movement: "Movement explorer",
   body: "Muscle map",
   catalog: "Exercise catalog",
+  specialization: "Forearm specialization",
 };
 const workspaceIds = Object.keys(workspaceTitles) as Workspace[];
 
@@ -282,7 +301,24 @@ function replaceWithCanonicalAddress(workspace: Workspace) {
   if (workspace !== "review" || url.searchParams.get("scope") !== "day") url.searchParams.delete("scope");
   // A finished workout's id belongs to Progress's own entries.
   if (workspace !== "progress") url.searchParams.delete("session");
+  // The specialization page's muscle, arm, window and view ride on its own entries only,
+  // written back as validated so a hand-edited value never survives a reload.
+  if (workspace === "specialization") writeSpecializationParams(url.searchParams, specializationFromLocation(url.searchParams));
+  else clearSpecializationParams(url.searchParams);
   if (url.search !== window.location.search) window.history.replaceState(window.history.state, "", url);
+}
+
+/** The page the current history entry's specialization page was opened from, if it says so and that page exists. */
+function specializationOriginFromHistory(): Workspace | null {
+  if (typeof window === "undefined") return null;
+  const origin = (window.history.state as { specializationOrigin?: unknown } | null)?.specializationOrigin;
+  return typeof origin === "string" && origin !== "specialization" && (workspaceIds as string[]).includes(origin) ? origin as Workspace : null;
+}
+
+const specializationRegionIds: ReadonlySet<string> = new Set(specializationRegionIndex.map((region) => region.id));
+/** The specialization page's state as an address states it, validated field by field. */
+export function specializationFromLocation(params: URLSearchParams): SpecializationViewState {
+  return specializationStateFromParams(params, defaultSpecializationRegionId, specializationRegionIds);
 }
 
 /** The finished workout a Progress address opens, if any (Oct 7 brief N06): `?workspace=progress&session=<id>`. */
@@ -296,7 +332,7 @@ export function progressSessionFromLocation(params: URLSearchParams): string | n
  * that is not the catalog carries no discovery parameters; anything else in the query
  * is left as it is.
  */
-function urlForWorkspace(next: Workspace, discovery: ExerciseDiscoveryContext, scope?: ReviewScope, session?: string | null) {
+function urlForWorkspace(next: Workspace, discovery: ExerciseDiscoveryContext, scope?: ReviewScope, session?: string | null, specialization?: SpecializationViewState) {
   const url = new URL(window.location.href);
   url.searchParams.set("workspace", next);
   // One finished workout's detail in Progress; any other address carries no session.
@@ -305,6 +341,7 @@ function urlForWorkspace(next: Workspace, discovery: ExerciseDiscoveryContext, s
   // Review's scope rides on Review's own entries and on no other page's; the week is the
   // default, so only a day view says so and a plain Review address stays what it was.
   if (next === "review" && scope === "day") url.searchParams.set("scope", scope); else url.searchParams.delete("scope");
+  if (next === "specialization" && specialization) writeSpecializationParams(url.searchParams, specialization); else clearSpecializationParams(url.searchParams);
   return url;
 }
 
@@ -313,8 +350,19 @@ export function reviewScopeFromLocation(value: string | null): ReviewScope {
   return value === "day" ? "day" : "week";
 }
 
-function prescriptionFor(index: number, goal: Goal, exercise?: Exercise) {
-  return getGoalPrescription(goal, index, exercise);
+/**
+ * A plan entry's prescription as every screen shows it: the saved one, else the goal's default for
+ * its place in the day; on an exercise measured in seconds, a hold's ("4 × 30 sec", with the
+ * goal's set count), and a goal default pinned on a hold read as that (`prescriptionOf`). Train
+ * and the atlas read the plan through the same function, so the Plan editor, the picker, print,
+ * share and the review panels show what the workout will hold. The measure comes from the light
+ * list of holds and the catalog's own measurement (`catalogDoseOf`), not the atlas's region data,
+ * which this first screen must not load; a carry reads in distance, and an exercise with its own
+ * target ("20 sec" for a neck hold) uses it.
+ */
+function prescriptionFor(exercise: Exercise, index: number, goal: Goal, saved: string | undefined) {
+  const catalogId = catalogIdOf(exercise);
+  return prescriptionOf(saved, index, goal, catalogDoseOf(catalogId), catalogId);
 }
 
 export function shouldRenderMetric(detail: string) {
@@ -451,6 +499,8 @@ export default function Home() {
   const [dayStore, setDayStore] = useState<WeeklyDayStore>(emptyDayStore);
   const [planWeeks, setPlanWeeks] = useState<Record<number, WeekSnapshot>>({});
   const [activeWeek, setActiveWeek] = useState(1);
+  // What the athlete calls each week ("Heavy", "Deload"). A label only: the week is still keyed by its number.
+  const [weekNames, setWeekNames] = useState<WeekNames>({});
   /**
    * An explicit choice to train a day (the tracker's Change day, or opening a day's workout from
    * Plan or Review). It is the only thing besides the plan and this week's finished sessions that
@@ -527,6 +577,18 @@ export default function Home() {
   const [trackerDayPickerOpen, setTrackerDayPickerOpen] = useState(false);
   /** The finished workout open in Progress, from the address so a reload or a shared link reopens it. */
   const [progressSession, setProgressSession] = useState<string | null>(() => (typeof window === "undefined" ? null : progressSessionFromLocation(new URLSearchParams(window.location.search))));
+  /** The specialization page's muscle, arm, window and view; its own address states it (lib/specialization/viewState). */
+  const [specializationState, setSpecializationState] = useState<SpecializationViewState>(() => (typeof window === "undefined" ? defaultSpecializationState(defaultSpecializationRegionId) : specializationFromLocation(new URLSearchParams(window.location.search))));
+  /** Where the specialization page was opened from, so its in-page Back returns there (brief §6). */
+  // Read from the entry itself, so a reload (or iOS bringing the app back) keeps the Back.
+  const [specializationOrigin, setSpecializationOrigin] = useState<Workspace | null>(() => (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("workspace") === "specialization" ? specializationOriginFromHistory() : null));
+  /**
+   * The logger asks about straps only for an athlete who has set a specialization target
+   * (brief §6: "Keep this information out of the workout logger until relevant"); the
+   * tracker then asks only on exercises whose grip credit straps would change.
+   */
+  const { goals: specializationGoals } = useSpecializationGoals(accountId);
+  const askStraps = useMemo(() => { const now = new Date().toISOString(); return specializationGoals.some((item) => isGoalActiveAt(item, now)); }, [specializationGoals]);
   const [launchExperienceEnabled, setLaunchExperienceEnabled] = useState(true);
   const favoriteQuery = trpc.favorites.list.useQuery(undefined, { enabled: isAuthenticated, retry: false });
   // Selectable capacity targets. Sport-independent, and safe to fail: the quiz renders an
@@ -614,12 +676,17 @@ export default function Home() {
   const activeDayIndex = activeSlot.index;
   const activeDayKey = activeSlot.key;
   const activeDayLabel = `Week ${activeWeek} · ${activeSlot.ordinal} · ${activeSlot.day}`;
+  // For what the athlete reads. activeDayLabel stays "Week N · …": live sessions and logs match on it.
+  const activeWeekLabel = weekLabel(activeWeek, weekNames);
   /**
    * The day's prescriptions as every surface must read them: what the athlete set, else the
    * goal default for that exercise's place in the day - the one the Plan row already shows.
    * The tracker fell back to "3 × 8–12", the full analysis to 3 sets and the Plan to "4 × 3–6"
    * for the same unset exercise, so one day showed 14 planned sets and started a 12-set workout
    * (TR-05, B093, B114). Surfaces are handed this map, so their own fallbacks never fire here.
+   * The tracker is handed the saved map and reads it through the same `prescriptionOf`, because
+   * a swap with "Also update this day in my plan" must know what the slot holds as saved: a hold's
+   * pinned rep default reads as reps again for the rep exercise put in its place.
    */
   /** The day as it leaves the app, captured when Share is pressed (lib/workoutExport): the rows' own values, in their order. */
   const [sharePlan, setSharePlan] = useState<WorkoutExport | null>(null);
@@ -639,7 +706,7 @@ export default function Home() {
           exercises: record.workout.map((exercise, index) => {
             const set = record.prescriptions[exercise.id];
             const settings = getExerciseSettings(record.settings, exercise.id);
-            return { exercise, prescription: set || prescriptionFor(index, goal, exercise), prescriptionIsDefault: !set, rpe: settings.rpe, rest: settings.rest, notes: settings.notes };
+            return { exercise, prescription: prescriptionFor(exercise, index, goal, set), prescriptionIsDefault: !set, rpe: settings.rpe, rest: settings.rest, notes: settings.notes };
           }),
         };
       }),
@@ -653,12 +720,12 @@ export default function Home() {
     dayName: activeSlot.day,
     sport: hasSportContext ? selectedSport.label : sportContextMode === "general" ? "General strength and resilience" : "",
     goal,
-    prescriptionFor: (exercise, index) => prescriptions[exercise.id] || prescriptionFor(index, goal, exercise),
+    prescriptionFor: (exercise, index) => prescriptionFor(exercise, index, goal, prescriptions[exercise.id]),
     settingsFor: (exercise) => getExerciseSettings(exerciseSettings, exercise.id),
     muscleLabel: (key) => muscleLabels[key] || key,
   }));
   const dayPrescriptions = useMemo(
-    () => Object.fromEntries(customWorkout.map((exercise, index) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(index, goal, exercise)])),
+    () => Object.fromEntries(customWorkout.map((exercise, index) => [exercise.id, prescriptionFor(exercise, index, goal, prescriptions[exercise.id])])),
     [customWorkout, prescriptions, goal],
   );
   /** The day the working draft belongs to, so an edit can never be filed against another day. */
@@ -989,6 +1056,7 @@ export default function Home() {
         setSplitPreference(null);
         setPlanWeeks({});
         setActiveWeek(1);
+        setWeekNames({});
         setTrainChoice(null);
         setDayStore(emptyDayStore());
         adoptActiveDay(slot, emptyDayRecord());
@@ -1014,6 +1082,7 @@ export default function Home() {
         const slot = resolveActiveSlot(split, activeSnapshot.activeDayIndex, split[activeSnapshot.activeDayIndex] || split[0]);
         setPlanWeeks(restoredWeeks);
         setActiveWeek(nextActiveWeek);
+        setWeekNames(readWeekNames(plan.weekNames));
         setTrainChoice(plan.nextWorkout && Number.isFinite(plan.nextWorkout.week) && Number.isFinite(plan.nextWorkout.index) && typeof plan.nextWorkout.day === "string" ? plan.nextWorkout : null);
         setDayStore(activeSnapshot.days);
         adoptActiveDay(slot, loadDay(activeSnapshot.days, slot.key));
@@ -1089,11 +1158,13 @@ export default function Home() {
       ...(trainChoice ? { nextWorkout: trainChoice } : {}),
       // Only a chosen week is stored; the recommended one follows the frequency as before.
       ...(isRecommendedSplit(splitDays) ? {} : { split: splitDays }),
+      // Left out until a week has a name, so a plan without names is saved exactly as before.
+      ...(storedWeekNames(weekNames) ? { weekNames: storedWeekNames(weekNames) } : {}),
     };
     const serialized = JSON.stringify(plan);
     setSerializedPlan(serialized);
     try { window.localStorage.setItem(workoutPlanKey, serialized); } catch { /* Persistence is optional. */ }
-  }, [planHydrated, onboardingComplete, workoutPlanKey, customWorkout, prescriptions, exerciseSettings, dayStore, planWeeks, activeWeek, splitDays, trainChoice]);
+  }, [planHydrated, onboardingComplete, workoutPlanKey, customWorkout, prescriptions, exerciseSettings, dayStore, planWeeks, activeWeek, weekNames, splitDays, trainChoice]);
 
   // A new action is a new map; whatever was selected on the old one is not
   // selected on this one. It used to pick the action's first muscle here, which
@@ -1134,7 +1205,7 @@ export default function Home() {
     if (!id) return;
     const changed = Boolean(sportId) && sportId !== id;
     if (changed) {
-      const previous = { sportId, movementId, activeMuscle, dayStore, planWeeks, activeWeek, catalogFilters, activeDayIndex: activeSlot.index, sportModifierId: athleteBaseline.sportModifierId };
+      const previous = { sportId, movementId, activeMuscle, dayStore, planWeeks, activeWeek, weekNames, catalogFilters, activeDayIndex: activeSlot.index, sportModifierId: athleteBaseline.sportModifierId };
       const undoSwitch = () => {
         setSportId(previous.sportId);
         setMovementId(previous.movementId);
@@ -1143,6 +1214,7 @@ export default function Home() {
         setDayStore(previous.dayStore);
         setPlanWeeks(previous.planWeeks);
         setActiveWeek(previous.activeWeek);
+        setWeekNames(previous.weekNames);
         setCatalogFilters(previous.catalogFilters);
         const restored = resolveActiveSlot(splitDays, previous.activeDayIndex, splitDays[previous.activeDayIndex] || splitDays[0]);
         adoptActiveDay(restored, loadDay(previous.dayStore, restored.key));
@@ -1151,6 +1223,7 @@ export default function Home() {
       adoptActiveDay(daySlots[0], emptyDayRecord());
       setPlanWeeks({});
       setActiveWeek(1);
+      setWeekNames({});
       setTrainChoice(null);
       setCatalogFilters(defaultCatalogFilters);
       // A role or style belongs to the sport it was chosen in. Ids repeat across
@@ -1201,7 +1274,7 @@ export default function Home() {
    * mode is named) clears the refinements; a named mode without it gets back the
    * ones it was left with.
    */
-  const navigateWorkspace = (next: Workspace, { keepScroll = false, discovery: requested, fresh, reviewScope: requestedScope, session = null }: { keepScroll?: boolean; discovery?: ExerciseDiscoveryContext; fresh?: boolean; reviewScope?: ReviewScope; session?: string | null } = {}) => {
+  const navigateWorkspace = (next: Workspace, { keepScroll = false, discovery: requested, fresh, reviewScope: requestedScope, session = null, specialization: requestedSpecialization, specializationFrom }: { keepScroll?: boolean; discovery?: ExerciseDiscoveryContext; fresh?: boolean; reviewScope?: ReviewScope; session?: string | null; specialization?: SpecializationViewState; specializationFrom?: Workspace } = {}) => {
     // Any ordinary navigation supersedes the return context a search result left.
     setSearchReturn(null);
     /**
@@ -1224,16 +1297,51 @@ export default function Home() {
     // Review opened for a day (Plan's pointer) or for the week (Home) says which; the tab and
     // the dock say nothing and Review keeps the scope it was left on.
     if (next === "review" && requestedScope) { reviewScopeRef.current = requestedScope; setReviewScopeState(requestedScope); }
+    const specialization = requestedSpecialization ?? specializationState;
+    if (next === "specialization") setSpecializationState(specialization);
+    const url = typeof window === "undefined" ? null : urlForWorkspace(next, catalogDiscovery, reviewScopeRef.current, session, specialization);
+    const samePlace = url !== null && url.search === window.location.search;
+    // An entry point that names where it was pressed gets an in-page Back to there (brief §6).
+    // Arriving from the tab row, the dock or search is not "opened from" anywhere, except that
+    // staying on the same entry (the active tab tapped again) keeps the Back that entry has.
+    const origin = next !== "specialization" ? null
+      : specializationFrom && specializationFrom !== "specialization" ? specializationFrom
+      : samePlace ? specializationOriginFromHistory() : null;
+    setSpecializationOrigin(origin);
     setWorkspaceState(next);
     setProgressSession(next === "progress" ? session : null);
-    if (typeof window === "undefined") return;
+    if (url === null) return;
     // A new entry whenever the address changes: another page, the catalog in another mode, or one workout's detail.
-    const url = urlForWorkspace(next, catalogDiscovery, reviewScopeRef.current, session);
-    if (url.search !== window.location.search) {
-      window.history.pushState({ workspace: next }, "", url);
+    if (!samePlace) {
+      window.history.pushState(origin ? { workspace: next, specializationOrigin: origin } : { workspace: next }, "", url);
     }
     if (!keepScroll) window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
+  /**
+   * The specialization page opened from somewhere with a purpose: a region (and, when the
+   * entry point names one, a muscle) chosen there. The rest of the view starts from the
+   * defaults, and Back returns to the page it was opened from.
+   */
+  const openSpecialization = (partial: Partial<SpecializationViewState> = {}) => {
+    const next = { ...defaultSpecializationState(partial.regionId ?? defaultSpecializationRegionId), ...partial };
+    navigateWorkspace("specialization", { specialization: next, specializationFrom: workspace });
+  };
+  /** A change made on the page itself (muscle, arm, window, view): the same entry, its address rewritten. */
+  const updateSpecializationState = (next: SpecializationViewState) => {
+    setSpecializationState(next);
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    writeSpecializationParams(url.searchParams, next);
+    if (url.search !== window.location.search) window.history.replaceState(window.history.state, "", url);
+  };
+  /** The page a muscle key opens, if a specialization region refines it, labelled as the region names its entry. */
+  const specializationEntryFor = (muscleKey: string, context: Partial<SpecializationViewState> = {}) => {
+    const region = regionForBodyMapKey(muscleKey);
+    return region ? { label: region.entryLabel, open: () => openSpecialization({ ...context, regionId: region.id, nodeId: region.nodeForBodyMapKey?.[muscleKey] ?? null }) } : null;
+  };
+  // Body Lab offers the region for the muscle picked on the map, with that muscle selected
+  // only when the map's key names exactly one of the atlas's muscles.
+  const activeMuscleSpecialization = activeMuscle ? specializationEntryFor(activeMuscle) : null;
   /**
    * The one way into the catalog with a purpose: a movement ("Find exercises for
    * Bridge"), a muscle the athlete picked ("Browse Gluteal complex exercises"), or the
@@ -1314,6 +1422,11 @@ export default function Home() {
       }
       replaceWithCanonicalAddress(next);
       setProgressSession(next === "progress" ? progressSessionFromLocation(params) : null);
+      // The specialization entry brings back its muscle, arm, window and view, and its origin.
+      if (next === "specialization") {
+        setSpecializationState(specializationFromLocation(params));
+        setSpecializationOrigin(specializationOriginFromHistory());
+      }
       setWorkspaceState(next);
     };
     window.addEventListener("popstate", restoreWorkspace);
@@ -1355,10 +1468,11 @@ export default function Home() {
     // A refusal is said where the add was asked for: the exercise sheet says it in its footer.
     if (!planReadyForEdits({ quiet })) return "not-ready";
     if (customWorkout.some((item) => catalogExerciseIdFor(item) === exercise.id)) {
-      toast("Already in this workout", { id: "plan-add", description: `${exercise.name} is already in Week ${activeWeek} · ${activeSlot.day}.` });
+      // Named explicitly: sonner merges options by id, and an earlier toast's View workout or Undo must not carry over.
+      toast("Already in this workout", { id: "plan-add", description: `${exercise.name} is already in ${activeWeekLabel} · ${activeSlot.day}.`, action: undefined, cancel: undefined });
       return "duplicate";
     }
-    const destination = `Week ${activeWeek} · ${activeSlot.day}`;
+    const destination = `${activeWeekLabel} · ${activeSlot.day}`;
     const dayKey = draftDayKeyRef.current;
     setCustomWorkout((current) => current.some((item) => catalogExerciseIdFor(item) === exercise.id) ? current : [...current, exercise]);
     // One feedback surface per kind of action: a second add replaces the first
@@ -1374,6 +1488,59 @@ export default function Home() {
       cancel: { label: "Undo", onClick: () => editDay(dayKey, (record) => ({ ...record, workout: record.workout.filter((item) => item.id !== exercise.id) })) },
     });
     return "added";
+  };
+  /**
+   * An edit to one day of any plan week. The week being edited goes through editDay, so the
+   * open draft changes in place; another week's stored record changes in planWeeks. Undo
+   * reaches this through a ref, so it writes to wherever that day lives when it is pressed.
+   */
+  const editDayInWeek = (week: number, dayKey: string, edit: (record: DayRecord) => DayRecord) => {
+    if (week === activeWeek) { editDay(dayKey, edit); return; }
+    setPlanWeeks((current) => {
+      const snapshot = current[week];
+      if (!snapshot) return current;
+      return { ...current, [week]: { ...snapshot, days: commitDay(snapshot.days, dayKey, edit(loadDay(snapshot.days, dayKey))) } };
+    });
+  };
+  const editDayInWeekRef = useRef(editDayInWeek);
+  editDayInWeekRef.current = editDayInWeek;
+  /**
+   * An add or a swap asked for from the specialization page, into the exact week, day and slot
+   * it named (brief §7). The page has already shown the athlete what changes; this applies the
+   * same pure edit (lib/specialization/planChange), which pins no default prescription (an
+   * entry without its own reads as the goal's default for its position, as Plan's own add and
+   * swap leave it), and answers with a reason when it cannot. The toast's Undo takes back this
+   * one change, not whatever the day became since.
+   */
+  const applySpecializationChange = (change: SpecializationPlanChange): SpecializationPlanChangeResult => {
+    if (!planReadyForEdits({ quiet: true })) return { ok: false, reason: "Your plan is still loading, so nothing was changed. Try again in a moment." };
+    const incoming = exercises.find((exercise) => exercise.id === change.catalogExerciseId);
+    if (!incoming) return { ok: false, reason: "That exercise is not in the catalog any more." };
+    const slot = daySlots.find((item) => item.key === change.dayKey);
+    if (!slot) return { ok: false, reason: "That day is no longer in your week. Choose another day." };
+    const isActive = change.week === activeWeek;
+    if (!isActive && !planWeeks[change.week]) return { ok: false, reason: `Week ${change.week} is not built yet. Build it in Plan first.` };
+    const store = isActive ? commitDay(dayStore, draftDayKeyRef.current, activeDraft()) : planWeeks[change.week].days;
+    const before = loadDay(store, slot.key);
+    const outcome = applyPlanChangeToRecord(before, change, incoming);
+    if (!outcome.ok) return outcome;
+    const { record: after, revert } = outcome;
+    editDayInWeek(change.week, slot.key, () => after);
+    const outgoing = change.replaceEntryId === undefined ? null : before.workout.find((exercise) => exercise.id === change.replaceEntryId) ?? null;
+    // The inverse of this change only, on the day as it stands when Undo is pressed (planChange
+    // `revert`): an add comes back out from whatever slot it was given and the rest of the day
+    // closes up; a swap puts the outgoing exercise back where the incoming one stands, with its
+    // own prescription and settings, and never into a day that has it again already.
+    const undo = () => editDayInWeekRef.current(change.week, slot.key, revert);
+    // Sonner merges a notice into the one already showing with its id, so every option is named:
+    // an earlier add's description and its "View workout" would otherwise carry over to this one.
+    toast(`${outcome.summary} · Week ${change.week} · ${slot.label}`, {
+      id: "plan-add",
+      description: outgoing ? "Sets you already logged keep the exercise they were logged as." : `Now ${outcome.index + 1} of ${after.workout.length} in that day.`,
+      action: undefined,
+      cancel: { label: "Undo", onClick: undo },
+    });
+    return { ok: true, undo };
   };
   const toggleFavorite = (exercise: Exercise) => {
     const currentlyFavorite = favoriteIds.has(exercise.id);
@@ -1482,7 +1649,7 @@ export default function Home() {
     const committed = commitDay(dayStore, draftDayKeyRef.current, activeDraft());
     return weeks.map((week) => {
       const store = week === activeWeek ? committed : planWeeks[week]?.days;
-      return { week, exists: week === activeWeek || Boolean(planWeeks[week]), current: week === activeWeek, dayCounts: Object.fromEntries(daySlots.map((slot) => [slot.key, store ? dayExerciseCount(store, slot.key) : 0])) };
+      return { week, exists: week === activeWeek || Boolean(planWeeks[week]), current: week === activeWeek, dayCounts: Object.fromEntries(daySlots.map((slot) => [slot.key, store ? dayExerciseCount(store, slot.key) : 0])), name: weekNames[week] };
     });
   };
   /** A single day lands in this week; a week of days prefers a week with nothing planned, so the plan in use stays as it is. */
@@ -1528,7 +1695,7 @@ export default function Home() {
       // In Add Exercises it takes the place of that sheet's "Added to ..." notice, which would
       // otherwise still say the exercise is in the day and still offer to undo the add.
       // Sonner merges a notice into the one with its id, so the add's Undo is cleared by name.
-      toast(`Removed from Week ${activeWeek} · ${activeSlot.day}`, { id: "plan-add", description: `${removed.name} is out of that day now.`, action: { label: "Undo", onClick: undo }, cancel: undefined });
+      toast(`Removed from ${activeWeekLabel} · ${activeSlot.day}`, { id: "plan-add", description: `${removed.name} is out of that day now.`, action: { label: "Undo", onClick: undo }, cancel: undefined });
       return;
     }
     toast(`${removed.name} removed`, {
@@ -1638,7 +1805,7 @@ export default function Home() {
     const previous = { workout: customWorkout, prescriptions, settings: exerciseSettings };
     const dayKey = draftDayKeyRef.current;
     setCustomWorkout(stack);
-    setPrescriptions(Object.fromEntries(stack.map((exercise, index) => [exercise.id, prescriptionFor(index, goal, exercise)])));
+    setPrescriptions(Object.fromEntries(stack.map((exercise, index) => [exercise.id, getGoalPrescription(goal, index)])));
     setExerciseSettings({});
     const draftedIds = stack.map((exercise) => exercise.id).join(",");
     // Restores the day it replaced - that day, and only while it still holds the draft.
@@ -1811,6 +1978,24 @@ export default function Home() {
     navigateWorkspace("review", { reviewScope: "week" });
   };
   /** An explicit choice to train the day being shown, stamped so a later finish of it can end it. */
+  /**
+   * Names a week, or removes its name when it is blank. The pill and the line under the days
+   * show a new name at once, so naming says nothing more. Replacing or removing a name loses
+   * the old one, so that offers Undo instead of asking first.
+   */
+  const renameWeek = (week: number, raw: string) => {
+    const next = withWeekName(weekNames, week, raw);
+    if (next === weekNames) return;
+    setWeekNames(next);
+    const previous = weekNames[week];
+    if (!previous) return;
+    toast(next[week] ? `Week ${week} is now “${next[week]}”` : `Week ${week} has no name now`, {
+      id: "week-name",
+      description: `It was “${previous}”.`,
+      action: { label: "Undo", onClick: () => setWeekNames((current) => withWeekName(current, week, previous)) },
+      cancel: undefined,
+    });
+  };
   const chooseDayToTrain = (slot: DaySlot) => setTrainChoice({ week: activeWeek, index: slot.index, day: slot.day, madeAt: new Date().toISOString() });
   /**
    * The athlete's own week, from the day editor. The frequency follows its length, and the
@@ -1841,7 +2026,7 @@ export default function Home() {
       const source = filterStackForEquipment(getSplitExercisePool(exercises, slot.day, sportSeed), athleteBaseline.equipment);
       const offset = (nextWeek * 3) + (slot.index * 2);
       const rotated = [...source.slice(offset), ...source.slice(0, offset)].filter((exercise, index, values) => values.findIndex((item) => item.id === exercise.id) === index).slice(0, gymTimeBudget.recommendationLimit);
-      generatedDays = commitDay(generatedDays, slot.key, { workout: rotated, prescriptions: Object.fromEntries(rotated.map((exercise, index) => [exercise.id, prescriptionFor(index, goal, exercise)])), settings: {}, context: [] });
+      generatedDays = commitDay(generatedDays, slot.key, { workout: rotated, prescriptions: Object.fromEntries(rotated.map((exercise, index) => [exercise.id, getGoalPrescription(goal, index)])), settings: {}, context: [] });
     });
     const generated: WeekSnapshot = { days: generatedDays, activeDayIndex: 0 };
     setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot(), [nextWeek]: generated }));
@@ -1980,7 +2165,7 @@ export default function Home() {
   };
   // What the sheet says about the inspected exercise: where Add puts it, whether that day
   // already has it, and what the catalog records about it - once each, nothing guessed.
-  const inspectorDestination = `Week ${activeWeek} · ${activeSlot.day}`;
+  const inspectorDestination = `${activeWeekLabel} · ${activeSlot.day}`;
   const inspectorInDay = Boolean(inspectedExercise && customWorkout.some((item) => catalogExerciseIdFor(item) === inspectedExercise.id));
   const inspectorFavorite = Boolean(inspectedExercise && favoriteIds.has(inspectedExercise.id));
   const inspectorMeta = inspectedExercise ? Array.from(new Set([inspectedExercise.equipment, inspectedExercise.movement, inspectedExercise.category].filter((value): value is string => Boolean(value && value.trim())))) : [];
@@ -2135,6 +2320,7 @@ export default function Home() {
     setDayStore(emptyDayStore());
     setPlanWeeks({});
     setActiveWeek(1);
+    setWeekNames({});
     setTrainChoice(null);
     setOnboardingComplete(false);
   };
@@ -2249,7 +2435,7 @@ export default function Home() {
       />}
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace, { discovery: searchReturn.discovery })}><ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="workspace-skeleton" role="status" aria-label="Loading this screen"><span className="workspace-skeleton-title" /><span /><span /><span /></div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
-        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onReviewDay={() => navigateWorkspace("review", { reviewScope: "day" })} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} onOpenSession={(id) => navigateWorkspace("progress", { session: id })} onOpenHome={() => navigateWorkspace("command")} onReplaceInPlan={replaceInPlanFromWorkout} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
+        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onReviewDay={() => navigateWorkspace("review", { reviewScope: "day" })} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} onOpenSession={(id) => navigateWorkspace("progress", { session: id })} onOpenHome={() => navigateWorkspace("command")} onReplaceInPlan={replaceInPlanFromWorkout} askStraps={askStraps} perArmSets={askStraps} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
           {/* One line under the day the session names, not a panel above it.
               The tracker renders it only before a session starts; mid-workout
               the day cannot change under the sets being logged. */}
@@ -2332,7 +2518,7 @@ export default function Home() {
             <p>Exercises that share the most with {movementDisplayLabel(selectedMovement.label).toLowerCase()}, most shared first.</p>
           </div>
           {movementRecommendations.length
-            ? <div className="matches-list">{movementRecommendations.map((result, index) => <RecommendationRow destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} key={result.exercise.id} result={result} index={index} onAdd={() => addExercise(result.exercise)} onInspect={() => inspectExercise(result.exercise)} />)}</div>
+            ? <div className="matches-list">{movementRecommendations.map((result, index) => <RecommendationRow destinationLabel={`${activeWeekLabel} · ${activeSlot.day}`} key={result.exercise.id} result={result} index={index} onAdd={() => addExercise(result.exercise)} onInspect={() => inspectExercise(result.exercise)} />)}</div>
             : <p className="matches-empty">Nothing in the catalog matches {movementDisplayLabel(selectedMovement.label).toLowerCase()} closely enough to rank. Explore the movement to see what it asks of the body, or choose another action.</p>}
           <details className="matches-disclosure">
             <summary><BookOpen className="h-5 w-5" aria-hidden="true" /><span>Research context</span><ChevronDown className="h-5 w-5" aria-hidden="true" /></summary>
@@ -2351,9 +2537,10 @@ export default function Home() {
 
         {workspace === "day-plan" && <section className="day-design-workspace">
           <TrainingPlanHeader
-            weeks={[1, 2, 3].map((week) => ({ week, ready: visibleWeeks(Object.keys(planWeeks).map(Number), activeWeek).includes(week), savedDays: savedDayCount(week === activeWeek ? dayStore : planWeeks[week]?.days || emptyDayStore()) }))}
+            weeks={[1, 2, 3].map((week) => ({ week, ready: visibleWeeks(Object.keys(planWeeks).map(Number), activeWeek).includes(week), savedDays: savedDayCount(week === activeWeek ? dayStore : planWeeks[week]?.days || emptyDayStore()), name: weekNames[week] }))}
             activeWeek={activeWeek}
             onSelectWeek={selectWeek}
+            onRenameWeek={renameWeek}
             onGenerateWeek={generateWeek}
             nextWeekToGenerate={[1, 2, 3].find((week) => !visibleWeeks(Object.keys(planWeeks).map(Number), activeWeek).includes(week)) ?? null}
             slots={daySlots}
@@ -2373,7 +2560,7 @@ export default function Home() {
             </p>}
             <div className={`day-plan-list${reorderingDay ? " is-reordering" : ""}`}>
               {customWorkout.length
-                ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow onApplyRestToDay={applyRestToDay} dayRestMismatch={restMismatchFor(exercise.id)} exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal, exercise)} settings={getExerciseSettings(exerciseSettings, exercise.id)} progress={liveSession ? exerciseProgressFor(exercise.name, liveWorkoutLog) : null} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} /></div>)
+                ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow onApplyRestToDay={applyRestToDay} dayRestMismatch={restMismatchFor(exercise.id)} exercise={exercise} index={index} prescription={prescriptionFor(exercise, index, goal, prescriptions[exercise.id])} settings={getExerciseSettings(exerciseSettings, exercise.id)} progress={liveSession ? exerciseProgressFor(exercise.name, liveWorkoutLog) : null} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} />{/* Remove, on the row itself: it used to live only at the foot of the opened editor. Undo comes with it. */}<button type="button" className="day-row-remove" onClick={() => removeExercise(exercise.id)} aria-label={`Remove ${exercise.name} from ${activeSlot.day}`} title="Remove from this day"><X className="h-4 w-4" aria-hidden="true" /></button></div>)
                 /* An empty day has one thing to do, said once, with the day it is about. It had
                    two equal Add exercises buttons (this one and the action row's), a profile
                    prompt and a 0/100 gauge before anything was in it (Sep 28 regression brief §8). */
@@ -2399,7 +2586,7 @@ export default function Home() {
             {/* The optional profile prompt, as one quiet line after Add/Reorder/Open so it never
                 separates a workout from its actions, and only on a day with work in it (Sep 30 §8). */}
             {customWorkout.length > 0 && !capacityFocus.focus && <DayCapacityNote capacity={capacityFocus} catalog={resilienceCatalog} onOpenProfile={() => navigateWorkspace("profile")} />}
-            <DayExercisePicker equipmentProfile={athleteBaseline.equipment} sheetOpen={pickerSheetOpen} destination={`Week ${activeWeek} · ${activeSlot.day}`} dayLabel={activeDayLabel} onOpenSheet={() => setPickerSheetOpen(true)} onCloseSheet={() => setPickerSheetOpen(false)} exercises={exercises} activeWorkout={customWorkout} split={activeSplitDay} sportId={sportId} prescriptions={dayPrescriptions} onAdd={addExercise} onRemove={(entry) => removeExercise(entry.id, { fromSheet: true })} onReplace={replaceExercise} onInspect={inspectExercise} />
+            <DayExercisePicker equipmentProfile={athleteBaseline.equipment} sheetOpen={pickerSheetOpen} destination={`${activeWeekLabel} · ${activeSlot.day}`} dayLabel={activeDayLabel} onOpenSheet={() => setPickerSheetOpen(true)} onCloseSheet={() => setPickerSheetOpen(false)} exercises={exercises} activeWorkout={customWorkout} split={activeSplitDay} sportId={sportId} prescriptions={dayPrescriptions} onAdd={addExercise} onRemove={(entry) => removeExercise(entry.id, { fromSheet: true })} onReplace={replaceExercise} onInspect={inspectExercise} />
             {/* The generator is one row until it is wanted. Open, it is the panel
                 it always was; closed, it was 636px of controls for a thing you do
                 once a week at most. */}
@@ -2423,6 +2610,7 @@ export default function Home() {
             <span>Explore exercises that support this movement.</span>
             <button type="button" onClick={() => openDiscovery({ mode: "movement", sportId: referenceMovement.sportId, movementId: referenceMovement.id })}>Find exercises for {movementDisplayLabel(referenceMovement.label)} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
             {activeMuscle && activeMuscleBrowsable && <button type="button" className="body-lab-next-step-secondary" onClick={() => openDiscovery({ mode: "muscle", muscleId: activeMuscle })}>Browse {muscleLabels[activeMuscle] || activeMuscle} exercises <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
+            {activeMuscleSpecialization && <button type="button" className="body-lab-next-step-secondary" onClick={activeMuscleSpecialization.open}>{activeMuscleSpecialization.label} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
           </div>
           {capacityOfferForSelection && <div className="body-lab-capacity-step"><Target className="h-4 w-4" aria-hidden="true" /><div><p>Want {capacityOfferForSelection.name.toLowerCase()} to hold up better, or is something going on there?</p>{capacityOfferForSelection.relation === "region" && <small>{capacityOfferForSelection.name} is the area {(muscleLabels[activeMuscle!] || activeMuscle!).toLowerCase()} sits in — the closest target Sports Genome has for it.</small>}</div><button type="button" onClick={() => { adoptCapacityTarget(capacityOfferForSelection.targetKey); navigateWorkspace("profile", { keepScroll: true }); revealWorkspaceAnchor("targeted-capacity"); }}>Set it as a target <ArrowUpRight className="h-4 w-4" /></button></div>}
         </>} /></section>}
@@ -2434,7 +2622,7 @@ export default function Home() {
           {/* Before the plan and profile have been read, the head names no week and no numbers:
               "Week 1 · 3-day plan · 0 of 3 days built" is the defaults, not the athlete's plan. */}
           <ReviewHead
-            title={!reviewReady ? "Review" : reviewScope === "week" ? `Week ${activeWeek} · ${trainingDays}-day plan` : activeDayLabel}
+            title={!reviewReady ? "Review" : reviewScope === "week" ? `${activeWeekLabel} · ${trainingDays}-day plan` : activeDayLabel}
             detail={!reviewReady
               ? "Loading your plan"
               : reviewScope === "week"
@@ -2447,7 +2635,7 @@ export default function Home() {
               ? null
               : reviewScope === "week"
                 ? <>
-                  <ReviewWeekPills weeks={[1, 2, 3].map((week) => ({ week, ready: visibleWeeks(Object.keys(planWeeks).map(Number), activeWeek).includes(week), savedDays: savedDayCount(week === activeWeek ? dayStore : planWeeks[week]?.days || emptyDayStore()) }))} activeWeek={activeWeek} onSelect={(week) => selectWeek(week, { navigate: false })} />
+                  <ReviewWeekPills weeks={[1, 2, 3].map((week) => ({ week, ready: visibleWeeks(Object.keys(planWeeks).map(Number), activeWeek).includes(week), savedDays: savedDayCount(week === activeWeek ? dayStore : planWeeks[week]?.days || emptyDayStore()), name: weekNames[week] }))} activeWeek={activeWeek} onSelect={(week) => selectWeek(week, { navigate: false })} />
                   <button type="button" className="wr-button" onClick={() => navigateWorkspace("day-plan")}>Edit week <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
                 </>
                 : <button type="button" className="day-review-open" onClick={() => { if (!liveSession) chooseDayToTrain(activeSlot); navigateWorkspace("tracker"); }} disabled={!customWorkout.length}>{liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"} <ArrowUpRight className="h-4 w-4" /></button>}
@@ -2463,6 +2651,8 @@ export default function Home() {
               onEditDay={(dayKey, options) => { const index = daySlots.findIndex((slot) => slot.key === dayKey); if (index < 0) return; selectTrainingDay(index); navigateWorkspace("day-plan"); if (options?.addExercises) { window.scrollTo({ top: 0 }); setPickerSheetOpen(true); } }}
               onInspectExercise={inspectExercise}
               onFindExercises={(muscleId) => openDiscovery({ mode: "muscle", muscleId })}
+              // Review reads a plan week, so the page opens on the same week, as planned (design §7).
+              specializationEntryFor={(key) => specializationEntryFor(key, { mode: "planned", planWeek: activeWeek })}
             />
             : <>
               {/* The same strip as the Week board, as day tabs: a tap moves the inspected day. */}
@@ -2482,6 +2672,21 @@ export default function Home() {
             </>}
         </section>}
         {workspace === "progress" && <ProgressOverviewPanel sessionId={progressSession} onOpenSession={openProgressSession} onCloseSession={closeProgressSession} onRepeatSession={repeatSession} onOpenStrength={() => navigateWorkspace("strength")} onOpenTraining={() => navigateWorkspace("day-plan")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} birthYear={athleteBaseline.birthYear} directAccess={directWorkspaceAccess} />}
+        {workspace === "specialization" && <SpecializationPanel
+          state={specializationState}
+          onStateChange={updateSpecializationState}
+          plan={{ ready: homePlan.ready, slots: daySlots, weeks: homePlan.weeks, choice: trainChoice, activeWeek }}
+          catalog={exercises}
+          equipmentProfile={athleteBaseline.equipment}
+          accountId={accountId}
+          goal={goal}
+          weightUnit={athleteBaseline.weightUnit}
+          onApplyPlanChange={applySpecializationChange}
+          onInspectExercise={inspectExercise}
+          onOpenSession={(id) => navigateWorkspace("progress", { session: id })}
+          backLabel={specializationOrigin ? workspaceTitles[specializationOrigin] : null}
+          onBack={specializationOrigin ? () => window.history.back() : null}
+        />}
         {workspace === "strength" && <StrengthGenomePanel weightUnit={athleteBaseline.weightUnit} baselineBodyWeight={athleteBaseline.bodyWeight} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onRankProfile={(patch) => updateBaseline({ ...athleteBaseline, ...patch })} directAccess={directWorkspaceAccess} onOpenTraining={() => navigateWorkspace("day-plan")} />}
       </main></Suspense>
     </div>
@@ -2502,7 +2707,7 @@ export default function Home() {
         the close control returns to the origin. Add is the same operation the
         catalog's plus performs, on the same day the strip names. */}
     {introPreviewOpen && <Suspense fallback={null}><IntroPreview returnTo={introOpener} onClose={() => setIntroPreviewOpen(false)} /></Suspense>}
-    {comparePair && <Suspense fallback={null}><ExerciseCompareSheet pair={comparePair} destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} onAdd={addExercise} onClose={() => setComparePair(null)} onInspect={(exercise) => { setComparePair(null); inspectExercise(exercise); }} /></Suspense>}
+    {comparePair && <Suspense fallback={null}><ExerciseCompareSheet pair={comparePair} destinationLabel={`${activeWeekLabel} · ${activeSlot.day}`} onAdd={addExercise} onClose={() => setComparePair(null)} onInspect={(exercise) => { setComparePair(null); inspectExercise(exercise); }} /></Suspense>}
     {inspectedExercise && <div className="fixed inset-0 z-50 exercise-intelligence sg-surface-dark" ref={inspectorLayerRef} role="dialog" aria-modal="true" aria-labelledby="exercise-intelligence-title">
       <div className="exercise-intelligence-sheet" data-scrolled={inspectorScrolled || undefined}>
         {/* The exercise is the title, on every view and at every scroll position; the

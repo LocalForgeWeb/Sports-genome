@@ -358,6 +358,13 @@ export type MuscleEvidence = {
   directness: number | null;
   /** The share of the muscle's evidence weight this lift carried, 0-1: what it did for the rank. */
   weightShare: number | null;
+  /** The lift is past its curve's top anchor and `exercisePercentile` is the estimated tail. */
+  estimated?: boolean;
+  /**
+   * The lift was stopped short of failure, so it is a floor (shared/setEffort.ts). It is here
+   * because it raised this muscle; one that would have lowered it is left out.
+   */
+  notToFailure?: boolean;
 };
 
 /** One scored muscle, as the aggregation returned it, validated. */
@@ -386,6 +393,16 @@ export type MuscleScore = {
    * has to say, rather than naming one group for a number that blends several.
    */
   referenceGroups: { label: string; sex: "male" | "female" }[];
+  /**
+   * The percentile is above the top anchor the comparison data measures, reached only through an
+   * estimated lift: shown as "≈ … (estimated)" wherever it is printed, rank name included.
+   */
+  estimated?: boolean;
+  /**
+   * Read from nothing but sets stopped short of failure, so the muscle can do at least this much:
+   * shown as "At least …" wherever it is printed.
+   */
+  atLeast?: boolean;
 };
 
 export type RegionRank = {
@@ -430,15 +447,16 @@ export function muscleScoreBounds(muscle: Pick<MuscleScore, "percentile" | "scor
 
 /**
  * The rank a muscle's score supports: the band of its lower bound, and whether the upper bound
- * reaches a higher band (then the rank is a minimum). An exact score is one band, never a
- * minimum. Null when the score is not a rank at all.
+ * reaches a higher band (then the rank is a minimum). A score read from nothing but sets stopped
+ * short of failure is a minimum too: the muscle can do at least that much (`atLeast`). An exact
+ * score from measured lifts is one band, never a minimum. Null when the score is not a rank at all.
  */
-export function rankForMuscle(muscle: Pick<MuscleScore, "percentile" | "scoreBound" | "lowerBound" | "upperBound">): { rank: RankDefinition; isMinimum: boolean } | null {
+export function rankForMuscle(muscle: Pick<MuscleScore, "percentile" | "scoreBound" | "lowerBound" | "upperBound" | "atLeast">): { rank: RankDefinition; isMinimum: boolean } | null {
   const { lower, upper } = muscleScoreBounds(muscle);
   const rank = rankForPercentile(lower);
   if (!rank) return null;
   const top = rankForPercentile(Math.min(100, Math.max(lower, upper)));
-  return { rank, isMinimum: top !== null && top.id !== rank.id };
+  return { rank, isMinimum: (top !== null && top.id !== rank.id) || muscle.atLeast === true };
 }
 
 export function regionRanksFromMuscles(muscles: readonly MuscleScore[]): Map<string, RegionRank> {

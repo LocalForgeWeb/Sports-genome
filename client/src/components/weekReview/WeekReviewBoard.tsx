@@ -27,6 +27,11 @@ export type WeekReviewBoardProps = {
   onEditDay: (dayKey: string, options?: { addExercises?: boolean }) => void;
   onInspectExercise: (exercise: Exercise) => void;
   onFindExercises?: (muscleKey: string) => void;
+  /**
+   * A muscle the specialization page refines (the forearm, today) offers that page, labelled
+   * as the region names its own entry. Absent for every other muscle.
+   */
+  specializationEntryFor?: (muscleKey: string) => { label: string; open: () => void } | null;
 };
 
 type Selection = { kind: "muscle"; key: string } | { kind: "pair"; id: string } | null;
@@ -51,7 +56,7 @@ const SHOWN_FINDINGS = 3;
 const regionLabel = (key: string) => muscleLabels[key] || key;
 const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
 
-export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInspectExercise, onFindExercises }: WeekReviewBoardProps) {
+export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInspectExercise, onFindExercises, specializationEntryFor }: WeekReviewBoardProps) {
   const [metric, setMetric] = useState<ExposureMetric>("direct");
   const [side, setSide] = useState<"front" | "back">("front");
   const [selection, setSelection] = useState<Selection>(null);
@@ -190,7 +195,7 @@ export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInsp
           {ranked.length > FEATURED_ROWS && <button type="button" className="wr-link wr-viewall" aria-expanded={showAll} onClick={() => setShowAll((value) => !value)}>{showAll ? "Show the first six" : `View all muscles (${ranked.length})`} <ChevronDown className="h-4 w-4" aria-hidden="true" /></button>}
         </div>
       </div>
-      {selectedMuscle && <MuscleDetail muscle={selectedMuscle} metric={metric} builtCount={analysis.builtCount} highlighted={highlighted} nameOf={nameOf} onClose={() => closeDetail("wr-exposure-heading")} onEditDay={onEditDay} onInspectExercise={onInspectExercise} onFindExercises={onFindExercises} />}
+      {selectedMuscle && <MuscleDetail muscle={selectedMuscle} metric={metric} builtCount={analysis.builtCount} highlighted={highlighted} nameOf={nameOf} onClose={() => closeDetail("wr-exposure-heading")} onEditDay={onEditDay} onInspectExercise={onInspectExercise} onFindExercises={onFindExercises} specializationEntry={specializationEntryFor?.(selectedMuscle.key) ?? null} />}
       {analysis.dataNotes.map((note) => <p key={note} className="wr-note">{note}</p>)}
       <details className="wr-method">
         <summary>How these numbers are counted <ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
@@ -265,7 +270,7 @@ function MuscleRow({ muscle, metric, max, selected, session, onSelect }: { muscl
   </li>;
 }
 
-function MuscleDetail({ muscle, metric, builtCount, highlighted, nameOf, onClose, onEditDay, onInspectExercise, onFindExercises }: { muscle: WeekMuscle; metric: ExposureMetric; builtCount: number; highlighted: WeekReviewSession | null; nameOf: (sessionKey: string) => string; onClose: () => void; onEditDay: WeekReviewBoardProps["onEditDay"]; onInspectExercise: WeekReviewBoardProps["onInspectExercise"]; onFindExercises?: WeekReviewBoardProps["onFindExercises"] }) {
+function MuscleDetail({ muscle, metric, builtCount, highlighted, nameOf, onClose, onEditDay, onInspectExercise, onFindExercises, specializationEntry }: { muscle: WeekMuscle; metric: ExposureMetric; builtCount: number; highlighted: WeekReviewSession | null; nameOf: (sessionKey: string) => string; onClose: () => void; onEditDay: WeekReviewBoardProps["onEditDay"]; onInspectExercise: WeekReviewBoardProps["onInspectExercise"]; onFindExercises?: WeekReviewBoardProps["onFindExercises"]; specializationEntry: { label: string; open: () => void } | null }) {
   const scale = Math.max(1, muscle[metric]);
   const pct = (value: number) => `${Math.min(100, (value / scale) * 100)}%`;
   return <section className="wr-detail" aria-label={`${muscle.label} by session`}>
@@ -291,6 +296,7 @@ function MuscleDetail({ muscle, metric, builtCount, highlighted, nameOf, onClose
       </li>)}
     </ul>}
     {onFindExercises && <button type="button" className="wr-link" onClick={() => onFindExercises(muscle.key)}>Find exercises for {muscle.label.toLowerCase()} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
+    {specializationEntry && <button type="button" className="wr-link" onClick={specializationEntry.open}>{specializationEntry.label} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
   </section>;
 }
 

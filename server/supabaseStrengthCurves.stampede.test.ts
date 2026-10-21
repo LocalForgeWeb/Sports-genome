@@ -16,7 +16,7 @@ const anchor = (percentile: number, value: number) => ({
   value,
 });
 
-const requests = { index: 0, curve: 0 };
+const requests = { index: 0, curve: 0, catalog: 0, aliases: 0 };
 let indexStatus = 200;
 
 function json(body: unknown, status = 200) {
@@ -35,6 +35,15 @@ const fakeFetch = vi.fn(async (input: URL | string) => {
       { exercise_id: "bench-press", exercise_canonical_name: "barbell_bench_press__catalog_1", exercise_name: "Barbell Bench Press" },
     ]);
   }
+  // The whole catalog and the aliases are read only when the curve index has no answer.
+  if (url.pathname.endsWith("/exercises")) {
+    requests.catalog += 1;
+    return json([]);
+  }
+  if (url.pathname.includes("_curve_aliases")) {
+    requests.aliases += 1;
+    return json([]);
+  }
   requests.curve += 1;
   return json([anchor(25, 0.75), anchor(50, 1), anchor(75, 1.25)]);
 });
@@ -48,6 +57,8 @@ beforeEach(() => {
   vi.spyOn(console, "warn").mockImplementation(() => undefined);
   requests.index = 0;
   requests.curve = 0;
+  requests.catalog = 0;
+  requests.aliases = 0;
   indexStatus = 200;
 });
 
@@ -62,7 +73,7 @@ describe("Lifts placed together on a cold server", () => {
   it("share one index request and one curve request", async () => {
     const results = await getStrengthPercentiles(Array.from({ length: 24 }, () => benchLift));
 
-    expect(requests).toEqual({ index: 1, curve: 1 });
+    expect(requests).toEqual({ index: 1, curve: 1, catalog: 0, aliases: 0 });
     expect(results).toHaveLength(24);
     resetStrengthCurveCache();
     const alone = await getStrengthPercentile(benchLift);
@@ -76,7 +87,7 @@ describe("Lifts placed together on a cold server", () => {
     const results = await getStrengthPercentiles(Array.from({ length: 24 }, () => benchLift));
 
     expect(results).toEqual(Array.from({ length: 24 }, () => ({ status: "unavailable", reason: "no_curve_for_exercise" })));
-    expect(requests).toEqual({ index: 1, curve: 0 });
+    expect(requests).toEqual({ index: 1, curve: 0, catalog: 1, aliases: 0 });
 
     indexStatus = 200;
     const retried = await getStrengthPercentiles([benchLift]);

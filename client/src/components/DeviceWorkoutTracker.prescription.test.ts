@@ -30,10 +30,27 @@ describe("A workout started from an unset plan", () => {
 });
 
 describe("Every Training Day surface is handed the same prescriptions", () => {
-  it("passes the resolved map, not the raw one, to the tracker, the picker and the review panels", () => {
+  it("passes the resolved map to the picker and the review panels, and the saved map to the tracker, which reads it the same way", () => {
     const home = readFileSync(`${process.cwd()}/client/src/pages/Home.tsx`, "utf8");
-    expect(home).toContain("prescriptions[exercise.id] || prescriptionFor(index, goal, exercise)])),");
-    expect(home.match(/prescriptions=\{dayPrescriptions\}/g)).toHaveLength(5);
-    expect(home).not.toContain("prescriptions={prescriptions}");
+    expect(home).toContain("[exercise.id, prescriptionFor(exercise, index, goal, prescriptions[exercise.id])])),");
+    // Home's reading is the planner's one reading, with the exercise's measure.
+    expect(home).toContain("return prescriptionOf(saved, index, goal, catalogDoseOf(catalogId), catalogId);");
+    expect(home.match(/prescriptions=\{dayPrescriptions\}/g)).toHaveLength(4);
+    const tracker = home.split("\n").filter((line) => line.includes("<DeviceWorkoutTracker "));
+    expect(tracker).toHaveLength(1);
+    expect(tracker[0]).toContain("prescriptions={prescriptions}");
+    expect(home.match(/prescriptions=\{prescriptions\}/g)).toHaveLength(1);
+    // The tracker resolves every entry through that same function.
+    const source = readFileSync(`${process.cwd()}/client/src/components/DeviceWorkoutTracker.tsx`, "utf8");
+    expect(source).toContain("prescription: prescriptionOf(prescriptions[exercise.id], index, goal, doseFor(entry), entry.catalogId)");
+  });
+
+  it("gives the tracker the very sets the resolved map gives every other surface", () => {
+    const workout = [exercises.find((exercise) => exercise.id === 143)!, ...exercises.slice(0, 2)];
+    render(createElement(DeviceWorkoutTracker, { workout, prescriptions: {}, settings: {}, goal: "Max strength", dayLabel: "Day 01 · Pull" }));
+    fireEvent.click(screen.getByRole("button", { name: /start workout/i }));
+    const [session] = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey) || "[]") as DeviceWorkoutSession[];
+    // A hang in first place: the goal's 4 sets, as a hold's target; the rest as the goal says.
+    expect(session.exercises.map((exercise) => exercise.plannedPrescription)).toEqual(["4 × 30 sec", getGoalPrescription("Max strength", 1), getGoalPrescription("Max strength", 2)]);
   });
 });

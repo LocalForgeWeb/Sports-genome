@@ -73,11 +73,11 @@ const EXPANSION_V1: Readonly<Record<number, ExerciseMeasurement>> = {
   420: m("load_reps", "bilateral", true),
   421: m("setting_reps", "bilateral", false, { e1rmReason: setting, settingLabel: "Band" }),
   422: m("setting_reps", "bilateral", false, { e1rmReason: setting, settingLabel: "Band" }),
-  423: m("duration", "per_side", false, { e1rmReason: timed, defaultTarget: "20 s" }),
-  424: m("duration", "per_side", false, { e1rmReason: timed, defaultTarget: "20 s" }),
+  423: m("duration", "per_side", false, { e1rmReason: timed, defaultTarget: "20 sec" }),
+  424: m("duration", "per_side", false, { e1rmReason: timed, defaultTarget: "20 sec" }),
   425: m("load_reps", "bilateral", true),
   426: m("load_reps", "bilateral", true),
-  427: m("load_duration", "per_side", false, { e1rmReason: timed, settingLabel: "Hub", defaultTarget: "5 s" }),
+  427: m("load_duration", "per_side", false, { e1rmReason: timed, settingLabel: "Hub", defaultTarget: "5 sec" }),
   428: m("load_reps", "bilateral", true),
   429: m("assisted_reps", "bilateral", false, { e1rmReason: assisted }),
   430: m("assisted_reps", "bilateral", false, { e1rmReason: assisted }),
@@ -125,3 +125,30 @@ export function explicitMeasurementIds(): number[] {
 
 /** Modes whose sets carry a number of repetitions. */
 export const countsRepetitions = (mode: MeasurementMode) => mode !== "duration" && mode !== "load_duration" && mode !== "load_distance";
+
+import { catalogMeasureOf } from "./specialization/holdCatalogIds";
+
+/** What a set's last box records: reps, the seconds of a hold, or the distance of a carry. */
+export type DoseMeasure = "reps" | "seconds" | "distance";
+
+/** A timed mode: the set's dose is seconds held. */
+export const isTimedMode = (mode: MeasurementMode) => mode === "duration" || mode === "load_duration";
+
+/**
+ * The dose a set of this exercise is entered in. Seconds where the specialization atlas measures
+ * the exercise in seconds (its holds: dead hangs, farmer holds, pinches; `atlasMeasure`) or where
+ * this table gives it a timed mode (the neck holds, the hub hold); distance for a carry, drag or
+ * rope pull; reps for everything else. One answer for every screen that asks.
+ */
+export function doseMeasureFor(catalogExerciseId: number | null | undefined, atlasMeasure: "reps" | "seconds" = "reps"): DoseMeasure {
+  if (atlasMeasure === "seconds") return "seconds";
+  const mode = measurementFor(catalogExerciseId).mode;
+  return isTimedMode(mode) ? "seconds" : mode === "load_distance" ? "distance" : "reps";
+}
+
+/**
+ * The dose for a catalog exercise on screens that do not load the atlas's region data (Home's Plan,
+ * the history): the atlas's holds from its light list (shared/specialization/holdCatalogIds), then
+ * this table. The tracker, which loads the atlas, passes the atlas's own policy to `doseMeasureFor`.
+ */
+export const catalogDoseOf = (catalogExerciseId: number | null | undefined): DoseMeasure => doseMeasureFor(catalogExerciseId, catalogMeasureOf(catalogExerciseId));

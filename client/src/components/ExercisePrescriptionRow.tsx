@@ -39,7 +39,7 @@ import "../mobile-training-card.css";
  * top set followed by back-offs is just as ordinary, and used to be impossible
  * to write - so "Vary by set" turns the single field into one field per set.
  */
-export function ExercisePrescriptionRow({ exercise, index, prescription, settings, progress, onPrescription, onSettings, onInspect, onRemove, onApplyRestToDay, dayRestMismatch = 0 }: { exercise: Exercise; index: number; prescription: string; settings: ExerciseSettings; progress?: ExerciseProgress | null; onPrescription: (value: string) => void; onSettings: (patch: Partial<ExerciseSettings>) => void; onInspect: () => void; onRemove: () => void; /** Applies this row's rest to every other exercise in the day (brief 11C); the count says how many differ. */ onApplyRestToDay?: (rest: string) => void; dayRestMismatch?: number }) {
+export function ExercisePrescriptionRow({ exercise, index, prescription, settings, progress, onPrescription, onSettings, onInspect, onRemove, onApplyRestToDay, dayRestMismatch = 0 }: { exercise: Exercise; index: number; prescription: string; settings: ExerciseSettings; progress?: ExerciseProgress | null; onPrescription: (value: string) => void; onSettings: (patch: Partial<ExerciseSettings>) => void; onInspect: () => void; /** Shown in the editor only when the row has no Remove of its own (the plan puts one on the row). */ onRemove?: () => void; /** Applies this row's rest to every other exercise in the day (brief 11C); the count says how many differ. */ onApplyRestToDay?: (rest: string) => void; dayRestMismatch?: number }) {
   /**
    * The editor's model is the list of sets, not the string.
    *
@@ -209,7 +209,7 @@ export function ExercisePrescriptionRow({ exercise, index, prescription, setting
         <div className="prescription-action-icons">
           <button type="button" onClick={onInspect} className="inspect-prescription" aria-label={`View ${exercise.name} details`}><Info className="h-3.5 w-3.5" /> Details</button>
           <button type="button" onClick={() => { if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("duplicate-training-exercise", { detail: { exercise, prescription, settings } })); }} className="duplicate-prescription" aria-label={`Duplicate ${exercise.name} prescription`}><Copy className="h-3.5 w-3.5" /> Duplicate</button>
-          <button type="button" onClick={onRemove} className="remove-prescription" aria-label={`Remove ${exercise.name}`}><X className="h-4 w-4" /></button>
+          {onRemove && <button type="button" onClick={onRemove} className="remove-prescription" aria-label={`Remove ${exercise.name}`}><X className="h-4 w-4" /></button>}
         </div>
       </div>
     </div>

@@ -6,9 +6,11 @@ import { getSupabaseClient } from "@/lib/supabaseClient";
  * `athlete_strength_entries.exercise_id` references `public.exercises`, and
  * `sport_id` references `public.sports`, but the app catalog keys exercises by
  * integer and sports by slug. The bridge for exercises already exists in the
- * database — `app_exercise_source_mappings` holds all 400 catalog ids against
+ * database — `app_exercise_source_mappings` holds catalog ids 1–400 against
  * their uuids, marked approved — so this reads it rather than re-deriving a
- * mapping the project has already reviewed.
+ * mapping the project has already reviewed. The forearm rows added on 16 Oct
+ * (401–416) have no mapping yet: their lifts stay on the device, and the sync
+ * queue counts them as unmappable rather than sending a wrong id.
  *
  * Sports are matched by normalised name. Two of the app's twenty (skiing,
  * Olympic weightlifting) have no row in `public.sports` yet, and they resolve to

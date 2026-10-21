@@ -147,6 +147,16 @@ describe("The lifts sent to be ranked", () => {
     expect(lifts.map((lift) => [lift.exerciseName, lift.loadKg, lift.repetitions])).toEqual([["Pull-Up", 0, 12]]);
   });
 
+  // 14 Oct 2026: a rep count past the curve's top is estimated up to the 99.99th, so a long set is sent, not dropped.
+  it("sends a long set of reps, up to 1000, but not a loaded set past 100", () => {
+    const lifts = muscleRankLifts([
+      { exerciseName: "Standard Push-Up", loadKg: null, repetitions: 150, observedAt: "2026-06-01T10:00:00.000Z" },
+      { exerciseName: "Pull-Up", loadKg: null, repetitions: 1001, observedAt: "2026-06-01T10:00:00.000Z" },
+      { exerciseName: "Barbell Bench Press", loadKg: 20, repetitions: 120, observedAt: "2026-06-01T10:00:00.000Z" },
+    ], [], 80);
+    expect(lifts.map((lift) => [lift.exerciseName, lift.repetitions])).toEqual([["Standard Push-Up", 150]]);
+  });
+
   it("sends a loaded set of a bodyweight movement too, after every exercise's best, so the server can say it is not scored", () => {
     const lifts = muscleRankLifts([
       { exerciseName: "Pull-Up", loadKg: null, repetitions: 10, observedAt: "2026-06-01T10:00:00.000Z" },

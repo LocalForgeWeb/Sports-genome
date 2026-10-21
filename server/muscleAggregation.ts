@@ -120,9 +120,21 @@ const ROLE_WEIGHT = { primary: 1.0, secondary: 0.75, other: 0.35 } as const;
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
-/** `sg_percentile_to_latent_v1`: the logit of the percentile, clamped to [1, 99], over 1.702. */
-export function percentileToLatent(percentile: number): number {
-  const p = clamp(percentile, 1, 99) / 100;
+/**
+ * The range a lift's percentile enters the aggregation in. The database's `sg_percentile_to_latent_v1`
+ * clamps to [1, 99]; every measured placement lies in [5, 95], so neither bound ever bit until the
+ * estimated tail (shared/strengthPercentile.ts) reached past the 99th. The top is raised to that
+ * estimate's own cap, 99.99, so a lift estimated there keeps its place in the ranks (owner, 14 Oct 2026).
+ */
+export const LIFT_PERCENTILE_FLOOR = 1;
+export const LIFT_PERCENTILE_CEILING = 99.99;
+
+/**
+ * `sg_percentile_to_latent_v1`: the logit of the percentile, clamped to [1, ceiling], over 1.702.
+ * The database's ceiling is 99; the app's is `LIFT_PERCENTILE_CEILING`.
+ */
+export function percentileToLatent(percentile: number, ceiling: number = LIFT_PERCENTILE_CEILING): number {
+  const p = clamp(percentile, LIFT_PERCENTILE_FLOOR, ceiling) / 100;
   return Math.log(p / (1 - p)) / LATENT_SCALE;
 }
 
@@ -220,7 +232,7 @@ type WeighedMuscle = { muscleId: string; rows: WeighedRow[]; effectiveTotal: num
  * pattern. `best` holds one score per exercise; `latentOf` gives the latent a row carries
  * (only the database transcription combines latents).
  */
-function weighEvidence(best: ReadonlyMap<string, { percentile: number; confidence: number }>, tables: AggregationTables, directness: boolean): WeighedMuscle[] {
+function weighEvidence(best: ReadonlyMap<string, { percentile: number; confidence: number }>, tables: AggregationTables, directness: boolean, ceiling: number = LIFT_PERCENTILE_CEILING): WeighedMuscle[] {
   const muscleById = new Map(tables.muscles.map((muscle) => [muscle.id, muscle]));
   const exerciseById = new Map(tables.exercises.map((exercise) => [exercise.id, exercise]));
   const mappingsByExercise = new Map<string, MappingRow[]>();
@@ -242,7 +254,7 @@ function weighEvidence(best: ReadonlyMap<string, { percentile: number; confidenc
         muscle, exercise, key: movementKey(exercise), role: mapping.role,
         percentile: score.percentile, observationConfidence: score.confidence,
         contribution, mappingConfidence,
-        latent: percentileToLatent(score.percentile),
+        latent: percentileToLatent(score.percentile, ceiling),
         transfer: signalTransfer(mapping.contribution_weight, kind),
         baseWeight: mappingConfidence * score.confidence * Math.sqrt(Math.max(0.05, contribution)) * ROLE_WEIGHT[kind],
         directness: directness ? directnessOf(mapping, exerciseMappings) : 1,
@@ -305,21 +317,23 @@ const confidenceOf = (confidenceTotal: number) => Math.min(CONFIDENCE_CAP, 1 - M
  * the database's own rule applies (the more confident, then the better placed), so the
  * transcription is complete.
  */
-export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], tables: AggregationTables, options: { directness?: boolean } = {}): AggregationResult {
+export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], tables: AggregationTables, options: { directness?: boolean; liftPercentileCeiling?: number } = {}): AggregationResult {
   const directness = options.directness ?? true;
+  // 99 reproduces the database's own clamp exactly (the parity tests use it); the app's default lets an estimated lift past the 99th count as placed.
+  const ceiling = options.liftPercentileCeiling ?? LIFT_PERCENTILE_CEILING;
 
   // raw + dedup
   const best = new Map<string, { percentile: number; confidence: number }>();
   for (const score of scores) {
     const percentile = numberOf(score?.percentile);
     if (typeof score?.exercise_id !== "string" || percentile === null) continue;
-    const entry = { percentile: clamp(percentile, 1, 99), confidence: clamp(numberOf(score.confidence) ?? DEFAULT_OBSERVATION_CONFIDENCE, 0, 1) };
+    const entry = { percentile: clamp(percentile, LIFT_PERCENTILE_FLOOR, ceiling), confidence: clamp(numberOf(score.confidence) ?? DEFAULT_OBSERVATION_CONFIDENCE, 0, 1) };
     const current = best.get(score.exercise_id);
     if (!current || entry.confidence > current.confidence || (entry.confidence === current.confidence && entry.percentile > current.percentile)) best.set(score.exercise_id, entry);
   }
 
   const muscles: AggregatedMuscle[] = [];
-  for (const { rows, effectiveTotal, confidenceTotal } of weighEvidence(best, tables, directness)) {
+  for (const { rows, effectiveTotal, confidenceTotal } of weighEvidence(best, tables, directness, ceiling)) {
     const latentSum = rows.reduce((sum, { item, effective }) => sum + item.latent * item.transfer * effective, 0);
     const combinedLatent = latentSum / effectiveTotal;
     const first = rows[0].item;
@@ -376,7 +390,11 @@ export type PercentileBound = "exact" | "above" | "below";
 
 export type BoundedScoreInput = {
   exercise_id: string;
-  /** The interpolated percentile, or the anchor percentile the lift is beyond (`bound`). */
+  /**
+   * The interpolated percentile; past the top anchor, the curve's estimated tail where it can be
+   * estimated (shared/strengthPercentile.ts, owner, 14 Oct 2026), which is a placement like any
+   * other; else the anchor percentile the lift is beyond (`bound`).
+   */
   percentile: number;
   bound: PercentileBound;
   confidence?: number | null;
@@ -453,12 +471,14 @@ const BOUND_ORDER: Record<PercentileBound, number> = { below: -1, exact: 0, abov
  * anchor outranks an exact one at that anchor, and of two lifts both above it the one placed
  * further past it wins - they are not a tie at 95. Then the more confident, as before.
  */
-export function betterScore(a: Pick<BoundedScoreInput, "percentile" | "bound" | "observed_value" | "confidence">, b: Pick<BoundedScoreInput, "percentile" | "bound" | "observed_value" | "confidence">): boolean {
+export function betterScore(a: Pick<BoundedScoreInput, "percentile" | "bound" | "observed_value" | "confidence"> & { notToFailure?: boolean }, b: Pick<BoundedScoreInput, "percentile" | "bound" | "observed_value" | "confidence"> & { notToFailure?: boolean }): boolean {
   if (a.percentile !== b.percentile) return a.percentile > b.percentile;
   if (a.bound !== b.bound) return BOUND_ORDER[a.bound] > BOUND_ORDER[b.bound];
   const observedA = numberOf(a.observed_value) ?? -Infinity;
   const observedB = numberOf(b.observed_value) ?? -Infinity;
   if (observedA !== observedB) return observedA > observedB;
+  // Placed alike: a measured lift over a floor (one stopped short of failure), then the more confident.
+  if (Boolean(a.notToFailure) !== Boolean(b.notToFailure)) return !a.notToFailure;
   return (numberOf(a.confidence) ?? 0) > (numberOf(b.confidence) ?? 0);
 }
 
@@ -484,7 +504,9 @@ const transferred = (percentile: number, transfer: number) => transfer >= 1 ? pe
  * Bounds: a lift above its highest anchor counts as anywhere in (anchor, 100]; below its
  * lowest, in [0, anchor). The weights are fixed and non-negative, so the score's bounds are
  * the same weighted means of the ends - an exact score where every lift is exact, otherwise
- * `lower_bound`..`upper_bound`. Nothing is extrapolated past an anchor.
+ * `lower_bound`..`upper_bound`. Nothing is extrapolated here: a lift past its top anchor arrives
+ * already placed on its curve's estimated tail where the curve allows one (the route's
+ * `tailEstimateForPlacement`, owner, 14 Oct 2026), and as an `above` bound only where it does not.
  *
  * Confidence is v2's, from the undirected weights; it never moves the score.
  */
@@ -571,4 +593,69 @@ export function aggregateMuscleBenchmarkScores(scores: readonly BoundedScoreInpu
 
   muscles.sort((a, b) => b.strength_percentile - a.strength_percentile || a.muscle_canonical_name.localeCompare(b.muscle_canonical_name));
   return { status: muscles.length === 0 ? "no_evidence" : "ok", scoring_version: MUSCLE_BENCHMARK_VERSION, aggregation_method: MUSCLE_BENCHMARK_METHOD, muscles };
+}
+
+/**
+ * Lifts stopped short of failure are floors (shared/setEffort.ts; owner, 15 Oct 2026): each says
+ * the athlete can do at least that much, so it may raise a muscle's score but never lower it.
+ *
+ * The measured lifts are aggregated as always. Then, muscle by muscle, the floors that read it are
+ * tried strongest first and kept only where they raise that muscle - so a light set of good
+ * mornings leaves a lower back that heavier lifts rank as it was, and still counts where it is all
+ * there is. Each try is the full aggregation, so a kept floor weighs exactly as a measured lift
+ * would; only the decision to keep it differs.
+ */
+export function aggregateMuscleStrengthWithFloors(measured: readonly ExerciseScoreInput[], floors: readonly ExerciseScoreInput[], tables: AggregationTables, options: { directness?: boolean; liftPercentileCeiling?: number } = {}): AggregationResult {
+  const base = aggregateMuscleStrength(measured, tables, options);
+  if (floors.length === 0) return base;
+  const muscles = new Map(base.muscles.map((muscle) => [muscle.muscle_id, muscle]));
+  const reads = (exerciseId: string, muscleId: string) => tables.mappings.some((mapping) => mapping.exercise_id === exerciseId && mapping.muscle_id === muscleId);
+  const ordered = [...floors].sort((a, b) => (numberOf(b.percentile) ?? 0) - (numberOf(a.percentile) ?? 0) || a.exercise_id.localeCompare(b.exercise_id));
+  const touched = new Set(tables.mappings.filter((mapping) => floors.some((floor) => floor.exercise_id === mapping.exercise_id)).map((mapping) => mapping.muscle_id));
+  touched.forEach((muscleId) => {
+    const kept: ExerciseScoreInput[] = [];
+    let current = muscles.get(muscleId) ?? null;
+    for (const floor of ordered) {
+      if (!reads(floor.exercise_id, muscleId)) continue;
+      const trial = aggregateMuscleStrength([...measured, ...kept, floor], tables, options).muscles.find((muscle) => muscle.muscle_id === muscleId);
+      if (trial && (current === null || trial.strength_percentile > current.strength_percentile)) {
+        kept.push(floor);
+        current = trial;
+      }
+    }
+    if (current) muscles.set(muscleId, current);
+  });
+  const list = Array.from(muscles.values()).sort((a, b) => b.strength_percentile - a.strength_percentile || a.muscle_canonical_name.localeCompare(b.muscle_canonical_name));
+  return { ...base, status: list.length === 0 ? "no_evidence" : "ok", muscles: list };
+}
+
+/**
+ * The weighted benchmark score with floors, the way `aggregateMuscleStrengthWithFloors` treats
+ * them (owner, 15 Oct 2026): a lift stopped short of failure says the athlete can do at least that
+ * much, so it may raise a muscle's score but never lower it. Muscle by muscle, the floors that read
+ * it are tried strongest first and kept only where they raise the score (its lower bound, which is
+ * the score whenever the score is exact), each try being the full aggregation.
+ */
+export function aggregateMuscleBenchmarkScoresWithFloors(measured: readonly BoundedScoreInput[], floors: readonly BoundedScoreInput[], tables: AggregationTables, options: { directness?: boolean } = {}): BenchmarkResult {
+  const base = aggregateMuscleBenchmarkScores(measured, tables, options);
+  if (floors.length === 0) return base;
+  const muscles = new Map(base.muscles.map((muscle) => [muscle.muscle_id, muscle]));
+  const reads = (exerciseId: string, muscleId: string) => tables.mappings.some((mapping) => mapping.exercise_id === exerciseId && mapping.muscle_id === muscleId);
+  const ordered = [...floors].sort((a, b) => (numberOf(b.percentile) ?? 0) - (numberOf(a.percentile) ?? 0) || a.exercise_id.localeCompare(b.exercise_id));
+  const touched = new Set(tables.mappings.filter((mapping) => floors.some((floor) => floor.exercise_id === mapping.exercise_id)).map((mapping) => mapping.muscle_id));
+  touched.forEach((muscleId) => {
+    const kept: BoundedScoreInput[] = [];
+    let current = muscles.get(muscleId) ?? null;
+    for (const floor of ordered) {
+      if (!reads(floor.exercise_id, muscleId)) continue;
+      const trial = aggregateMuscleBenchmarkScores([...measured, ...kept, floor], tables, options).muscles.find((muscle) => muscle.muscle_id === muscleId);
+      if (trial && (current === null || trial.strength_percentile > current.strength_percentile)) {
+        kept.push(floor);
+        current = trial;
+      }
+    }
+    if (current) muscles.set(muscleId, current);
+  });
+  const list = Array.from(muscles.values()).sort((a, b) => b.strength_percentile - a.strength_percentile || a.muscle_canonical_name.localeCompare(b.muscle_canonical_name));
+  return { ...base, status: list.length === 0 ? "no_evidence" : "ok", muscles: list };
 }

@@ -1,7 +1,10 @@
 import type { Exercise } from "./exerciseCatalog";
 import type { DisplayWeightUnit } from "./weightUnits";
 import { loadConventionFor } from "@shared/loadConventions";
-import { measurementFor } from "@shared/exerciseMeasurement";
+import { doseMeasureFor, measurementFor, type DoseMeasure } from "@shared/exerciseMeasurement";
+
+/** Reps, the seconds of a hold, or the distance of a carry: what a set's last box records. */
+export type SetDoseMeasure = DoseMeasure;
 
 /**
  * Which boxes a set actually needs, and what each one measures.
@@ -16,8 +19,22 @@ import { measurementFor } from "@shared/exerciseMeasurement";
  * Classification reads only fields the catalog really carries, and anything not
  * clearly in one of the narrow cases keeps the plain weight box — no exercise
  * gets a unit invented for it.
+ *
+ * A hold (a dead hang, a farmer hold, a plate pinch, a neck hold) is measured in
+ * seconds, not reps, and a carry or sled in distance. The atlas's variant data
+ * says which of its exercises are holds (shared/specialization/loggingPolicy.ts)
+ * and the caller passes that measure in; the 50-exercise expansion's reviewed
+ * modes say the rest (shared/exerciseMeasurement.ts, `doseMeasureFor`). The
+ * Seconds or Distance box is the set's last box, where Reps would be: seconds are
+ * stored as the set's `holdSeconds`, distance as `distance`, and neither set has
+ * a reps box. This module does not read the atlas itself: it is imported by
+ * screens that load with the app (through sessionRecap and workoutSwap), and the
+ * atlas's region data should load only with the screens that use it.
+ *
+ * The expansion also brings boxes that are not a load: an assisted machine's
+ * assistance, and a setting (a band colour, a hub) that is a label, never kilograms.
  */
-export type SetEntryMeasure = "weight" | "height" | "setting";
+export type SetEntryMeasure = "weight" | "height" | "setting" | "seconds" | "distance";
 
 export type SetEntryField = {
   measure: SetEntryMeasure;
@@ -32,20 +49,20 @@ export type SetEntryField = {
 };
 
 /**
- * The box that says how much was done: reps for most exercises, seconds for a hold, distance for
- * a carry or sled (50-exercise brief §8). A hold's seconds never go in the reps box.
+ * The box that says how much was done, on its own: reps for most exercises, seconds for a hold,
+ * distance for a carry or sled (50-exercise brief §8). The same answer as the last box of
+ * `setEntryFieldsFor`, for readers that want only the count.
  */
 export type SetCountMeasure = "reps" | "seconds" | "distance";
 export type SetCountField = { measure: SetCountMeasure; label: string; unit: string; inputMode: "numeric" | "decimal" };
 
 const REPS: SetCountField = { measure: "reps", label: "Reps", unit: "", inputMode: "numeric" };
-const HOLD: SetCountField = { measure: "seconds", label: "Hold", unit: "s", inputMode: "numeric" };
-const DISTANCE: SetCountField = { measure: "distance", label: "Distance", unit: "m", inputMode: "decimal" };
+const HOLD: SetCountField = { measure: "seconds", label: "Seconds", unit: "sec", inputMode: "numeric" };
+const COVERED: SetCountField = { measure: "distance", label: "Distance", unit: "m", inputMode: "decimal" };
 
-/** What a set of this exercise counts. */
-export function setCountFieldFor(exercise: { id?: number } | undefined): SetCountField {
-  const mode = measurementFor(exercise?.id).mode;
-  return mode === "duration" || mode === "load_duration" ? HOLD : mode === "load_distance" ? DISTANCE : REPS;
+/** What a set of this exercise counts; `measure` is the atlas's, where the caller has it. */
+export function setCountFieldFor(exercise: { id?: number } | undefined, measure: SetDoseMeasure = doseMeasureFor(exercise?.id)): SetCountField {
+  return measure === "seconds" ? HOLD : measure === "distance" ? COVERED : REPS;
 }
 
 const WEIGHT: SetEntryField = { measure: "weight", label: "Weight", unit: "lb", optional: false };
@@ -60,6 +77,10 @@ const settingField = (label: string, optional: boolean): SetEntryField => ({
   placeholder: label === "Gripper" ? "model or rating" : label === "Hub" ? "which hub" : "colour or rating",
 });
 const BOX_HEIGHT: SetEntryField = { measure: "height", label: "Box height", unit: "in", optional: true };
+/** How long the hold lasted. It takes the reps box's place: a hold is never also counted in reps. */
+const SECONDS: SetEntryField = { measure: "seconds", label: "Seconds", unit: "sec", optional: false };
+/** How far a carry or sled went, in metres. It takes the reps box's place too. */
+const DISTANCE: SetEntryField = { measure: "distance", label: "Distance", unit: "m", optional: false };
 
 /** Jumps onto or off a box: the box's height is the progression variable. */
 const BOX_EXERCISES = /\b(box jump|depth jump|step-up)\b/i;
@@ -78,11 +99,30 @@ export function setEntryFieldsFor(
   exercise: (Pick<Exercise, "name" | "category" | "equipment"> & { id?: number }) | undefined,
   /** The unit the weight box records in: the session's, which is the profile's when it started. */
   weightUnit: DisplayWeightUnit = "lb",
+  /**
+   * What the set's dose is entered in: the atlas's logging policy for the exercise where the caller
+   * has it (`doseMeasureFor(id, policy.measure)`), else the catalog's own reviewed measurement.
+   */
+  measure: SetDoseMeasure = doseMeasureFor(exercise?.id),
 ): SetEntryField[] {
   // The box used to say "lb" whatever the profile said, while every screen read the
   // number in the profile's unit: a kg athlete typed next to "lb" and was scored in kg.
-  return fieldsFor(exercise).map((field) => field.measure === "weight" ? { ...field, unit: weightUnit } : field);
+  const fields = fieldsFor(exercise).map((field) => field.measure === "weight" ? { ...field, unit: weightUnit } : field);
+  return measure === "seconds" ? [...fields, SECONDS] : measure === "distance" ? [...fields, DISTANCE] : fields;
 }
+
+/** Whether the set's dose is seconds: the entry ends in a Seconds box and has no reps box. */
+export function isHoldEntry(fields: readonly SetEntryField[]): boolean {
+  return fields.some((field) => field.measure === "seconds");
+}
+
+/** Whether the set's dose is a distance: the entry ends in a Distance box and has no reps box. */
+export function isDistanceEntry(fields: readonly SetEntryField[]): boolean {
+  return fields.some((field) => field.measure === "distance");
+}
+
+/** The boxes before the dose box: the load, a setting and, on a box jump, the height. */
+export const loadFieldsOf = (fields: readonly SetEntryField[]) => fields.filter((field) => field.measure !== "seconds" && field.measure !== "distance");
 
 function fieldsFor(exercise: (Pick<Exercise, "name" | "category" | "equipment"> & { id?: number }) | undefined): SetEntryField[] {
   if (!exercise) return [WEIGHT];

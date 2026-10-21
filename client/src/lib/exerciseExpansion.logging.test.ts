@@ -6,6 +6,8 @@ import { dropSetSummary, performedSetLine, setVolume, totalReps, volumeText } fr
 import { setCountFieldFor, setEntryFieldsFor } from "./setEntryFields";
 import { workoutStrengthObservations } from "./workoutStrengthRecord";
 import { applySwap, swapMeasurementNotes } from "./workoutSwap";
+import { sessionRecap } from "./sessionRecap";
+import { catalogDoseOf } from "@shared/exerciseMeasurement";
 import { loadConventionFor } from "@shared/loadConventions";
 import { parseRoutine } from "@/components/StackImportPanel";
 import { buildShareSnapshot } from "./shareSnapshot";
@@ -13,10 +15,11 @@ import { shareSnapshotText } from "@shared/workoutShareFormat";
 
 const byName = (name: string) => { const found = exercises.find((exercise) => exercise.name === name); if (!found) throw new Error(`no exercise ${name}`); return found; };
 const neckHold = byName("Isometric Neck Lateral Flexion");
-const suitcase = byName("Suitcase Carry");
+// The Suitcase Carry is the forearm catalog's row (409), measured in seconds; this file's carry is the expansion's.
+const carry = byName("Single-Arm Kettlebell Overhead Carry");
 const assistedPullUp = byName("Assisted Pull-Up Machine");
 const sideBend = byName("Dumbbell Side Bend");
-const gripper = byName("Hand Gripper Close");
+const band = byName("Band-Resisted Neck Flexion");
 const zercher = byName("Zercher Deadlift");
 const backSquat = byName("Back Squat");
 const safetyBar = byName("Safety-Bar Squat");
@@ -33,42 +36,46 @@ beforeEach(() => window.localStorage.clear());
 
 describe("what each new exercise asks for at entry time (brief §8)", () => {
   it("asks a hold for seconds, a carry for distance, everything else for reps", () => {
-    expect(setCountFieldFor(neckHold)).toMatchObject({ measure: "seconds", label: "Hold", unit: "s" });
-    expect(setCountFieldFor(suitcase)).toMatchObject({ measure: "distance", label: "Distance", unit: "m" });
+    // The same Seconds box the atlas's holds use (a dead hang), and a Distance box for a carry.
+    expect(setCountFieldFor(neckHold)).toMatchObject({ measure: "seconds", label: "Seconds", unit: "sec" });
+    expect(setCountFieldFor(byName("Dead Hang"), catalogDoseOf(byName("Dead Hang").id))).toMatchObject({ measure: "seconds", label: "Seconds", unit: "sec" });
+    expect(setCountFieldFor(carry)).toMatchObject({ measure: "distance", label: "Distance", unit: "m" });
     expect(setCountFieldFor(zercher)).toMatchObject({ measure: "reps" });
   });
 
-  it("names the load as what it is: nothing for a hold, assistance, one dumbbell, a setting", () => {
-    expect(setEntryFieldsFor(neckHold)).toEqual([]);
+  it("names the load as what it is: nothing for a hold but its seconds, assistance, one dumbbell, a setting", () => {
+    expect(setEntryFieldsFor(neckHold)).toEqual([expect.objectContaining({ measure: "seconds", label: "Seconds" })]);
     expect(setEntryFieldsFor(assistedPullUp, "kg")).toEqual([expect.objectContaining({ measure: "weight", label: "Assistance", unit: "kg", optional: false })]);
     expect(setEntryFieldsFor(sideBend)).toEqual([expect.objectContaining({ label: "Weight per dumbbell" })]);
-    expect(setEntryFieldsFor(suitcase)).toEqual([expect.objectContaining({ label: "Weight per hand" })]);
-    expect(setEntryFieldsFor(gripper)).toEqual([expect.objectContaining({ measure: "setting", label: "Gripper", optional: false })]);
-    expect(setEntryFieldsFor(byName("Band-Resisted Neck Flexion"))).toEqual([expect.objectContaining({ measure: "setting", label: "Band", optional: true })]);
-    expect(setEntryFieldsFor(byName("Hub Grip Lift")).map((field) => field.measure)).toEqual(["weight", "setting"]);
+    expect(setEntryFieldsFor(carry)).toEqual([expect.objectContaining({ label: "Weight per hand" }), expect.objectContaining({ measure: "distance", label: "Distance", unit: "m" })]);
+    expect(setEntryFieldsFor(band)).toEqual([expect.objectContaining({ measure: "setting", label: "Band", optional: true })]);
+    expect(setEntryFieldsFor(byName("Hub Grip Lift")).map((field) => field.measure)).toEqual(["weight", "setting", "seconds"]);
   });
 });
 
 describe("timed, distance, assisted and setting sets survive the record (brief §12 session fixtures)", () => {
   it("keeps a timed set timed through save and reload, and never turns seconds into reps", () => {
-    const hold: DeviceSetLog = { weight: "", reps: "", seconds: "20", side: "left", completed: true };
-    saveDeviceWorkoutSessions([session([{ exercise: neckHold, sets: [hold, { ...hold, side: "right" }], prescription: "2 × 20 s" }])]);
+    const hold: DeviceSetLog = { weight: "", reps: "", holdSeconds: "20", side: "left", completed: true };
+    saveDeviceWorkoutSessions([session([{ exercise: neckHold, sets: [hold, { ...hold, side: "right" }], prescription: "2 × 20 sec" }])]);
     const [loaded] = loadDeviceWorkoutSessions();
-    expect(loaded.exercises[0].sets).toEqual([{ weight: "", reps: "", height: "", seconds: "20", side: "left", completed: true, skipped: false }, { weight: "", reps: "", height: "", seconds: "20", side: "right", completed: true, skipped: false }]);
-    expect(performedSetLine(loaded.exercises[0].sets[0], "lb", loadConventionFor(neckHold.id))).toBe("20 s hold · left");
+    expect(loaded.exercises[0].sets).toEqual([{ weight: "", reps: "", height: "", holdSeconds: "20", side: "left", completed: true, skipped: false }, { weight: "", reps: "", height: "", holdSeconds: "20", side: "right", completed: true, skipped: false }]);
+    expect(performedSetLine(loaded.exercises[0].sets[0], "lb", loadConventionFor(neckHold.id))).toBe("20 s");
+    // The history line adds the side, as it does for every set that recorded one.
+    expect(sessionRecap(loaded, "lb").exercises[0].sets.map((set) => set.line)).toEqual(["20 s · Left", "20 s · Right"]);
     expect(workoutStrengthObservations([loaded])).toEqual([]);
-    expect(isDraftSet({ weight: "", reps: "", seconds: "15", completed: false })).toBe(true);
+    expect(isDraftSet({ weight: "", reps: "", holdSeconds: "15", completed: false })).toBe(true);
   });
 
   it("keeps a carry as load over distance, per hand, with its side", () => {
-    const carry: DeviceSetLog = { weight: "24", unit: "kg", reps: "", distance: "30", distanceUnit: "m", side: "left", completed: true };
-    saveDeviceWorkoutSessions([session([{ exercise: suitcase, sets: [carry], prescription: "1 × 30 m" }], { weightUnit: "kg" })]);
+    const carried: DeviceSetLog = { weight: "24", unit: "kg", reps: "", distance: "30", distanceUnit: "m", side: "left", completed: true };
+    saveDeviceWorkoutSessions([session([{ exercise: carry, sets: [carried], prescription: "1 × 30 m" }], { weightUnit: "kg" })]);
     const [loaded] = loadDeviceWorkoutSessions();
     expect(loaded.exercises[0].sets[0]).toMatchObject({ weight: "24", unit: "kg", distance: "30", distanceUnit: "m", side: "left" });
-    expect(performedSetLine(loaded.exercises[0].sets[0], "kg", loadConventionFor(suitcase.id))).toBe("24 kg per hand · 30 m · left");
+    expect(performedSetLine(loaded.exercises[0].sets[0], "kg", loadConventionFor(carry.id))).toBe("24 kg per hand · 30 m");
+    expect(sessionRecap(loaded, "kg").exercises[0].sets[0].line).toBe("24 kg per hand · 30 m · Left");
     // In pounds, the physical load is converted exactly and the stored number is untouched.
-    expect(performedSetLine(loaded.exercises[0].sets[0], "lb", loadConventionFor(suitcase.id))).toBe("52.91 lb per hand · 30 m · left");
-    expect(setVolume(loaded.exercises[0].sets[0], "kg", loadConventionFor(suitcase.id))).toBeNull();
+    expect(performedSetLine(loaded.exercises[0].sets[0], "lb", loadConventionFor(carry.id))).toBe("52.91 lb per hand · 30 m");
+    expect(setVolume(loaded.exercises[0].sets[0], "kg", loadConventionFor(carry.id))).toBeNull();
     expect(workoutStrengthObservations([loaded])).toEqual([]);
   });
 
@@ -80,8 +87,8 @@ describe("timed, distance, assisted and setting sets survive the record (brief �
     expect(workoutStrengthObservations([recorded])).toEqual([]);
   });
 
-  it("reads a gripper set by its setting, never as a weight", () => {
-    expect(performedSetLine({ weight: "", reps: "5", setting: "CoC #1", side: "right", completed: true }, "lb", loadConventionFor(gripper.id))).toBe("CoC #1 × 5 · right");
+  it("reads a band set by its setting, never as a weight", () => {
+    expect(performedSetLine({ weight: "", reps: "12", setting: "Red", completed: true }, "lb", loadConventionFor(band.id))).toBe("Red × 12");
   });
 
   it("keeps one dumbbell as one dumbbell in the strength record", () => {
@@ -90,7 +97,7 @@ describe("timed, distance, assisted and setting sets survive the record (brief �
   });
 
   it("offers the last hold's seconds for the next set, but not its side", () => {
-    const current = session([{ exercise: neckHold, sets: [{ weight: "", reps: "", seconds: "25", side: "left", completed: true }, { weight: "", reps: "", completed: false }] }], { status: "active" });
+    const current = session([{ exercise: neckHold, sets: [{ weight: "", reps: "", holdSeconds: "25", side: "left", completed: true }, { weight: "", reps: "", completed: false }] }], { status: "active" });
     const carried = carriedEntryFor(current.exercises[0], 1, []);
     expect(carried).toMatchObject({ seconds: "25", source: "session" });
     expect(carried).not.toHaveProperty("side");
@@ -128,11 +135,14 @@ describe("drop sets and swaps on a new exercise (brief §8)", () => {
   });
 
   it("says when a swap changes what a set counts", () => {
-    expect(swapMeasurementNotes(backSquat, suitcase, "4 × 5")).toEqual(expect.arrayContaining([
-      "Suitcase Carry is logged in distance covered, not reps.",
-      "The plan's target (4 × 5) is reps; Suitcase Carry is logged in distance covered, so set them as you go.",
+    const dose = (exercise: { id: number } | undefined) => catalogDoseOf(exercise?.id);
+    expect(swapMeasurementNotes(backSquat, carry, "4 × 5", dose)).toEqual(expect.arrayContaining([
+      `${carry.name} is logged in distance covered, not reps.`,
+      `The plan's target (4 × 5) is reps; ${carry.name} is logged in distance covered, so set them as you go.`,
     ]));
-    expect(swapMeasurementNotes(byName("Isometric Neck Rotation"), neckHold, "3 × 20 s")).toEqual([]);
+    expect(swapMeasurementNotes(byName("Isometric Neck Rotation"), neckHold, "3 × 20 sec", dose)).toEqual([]);
+    // An atlas hold and an expansion hold are logged alike.
+    expect(swapMeasurementNotes(byName("Dead Hang"), neckHold, "3 × 30 sec", dose).some((note) => note.includes("logged in"))).toBe(false);
   });
 });
 
@@ -140,8 +150,8 @@ describe("sharing a plan that holds new exercises (brief §12 session fixtures)"
   const snapshot = buildShareSnapshot({
     week: 1, sport: "Wrestling", goal: "Athleticism", activeIndex: 0,
     days: [{ key: "3-Upper", index: 3, ordinal: "Day 04", label: "Upper", exercises: [
-      { exercise: neckHold, prescription: "4 × 20 s", prescriptionIsDefault: false },
-      { exercise: suitcase, prescription: "3 × 30 m", prescriptionIsDefault: false },
+      { exercise: neckHold, prescription: "4 × 20 sec", prescriptionIsDefault: false },
+      { exercise: carry, prescription: "3 × 20 m", prescriptionIsDefault: false },
       { exercise: assistedPullUp, prescription: "3 × 8", prescriptionIsDefault: false },
     ] }],
   }, { scope: "day", title: "Upper", includeNotes: false })!;
@@ -150,13 +160,13 @@ describe("sharing a plan that holds new exercises (brief §12 session fixtures)"
   it("reads back the same catalog ids with their time and distance prescriptions", () => {
     const routine = parseRoutine(text, {});
     expect(routine.unmatched).toEqual([]);
-    expect(routine.days[0].items.map((item) => [item.exercise.id, item.prescription])).toEqual([[neckHold.id, "4 × 20 s"], [suitcase.id, "3 × 30 m"], [assistedPullUp.id, "3 × 8"]]);
+    expect(routine.days[0].items.map((item) => [item.exercise.id, item.prescription])).toEqual([[neckHold.id, "4 × 20 sec"], [carry.id, "3 × 20 m"], [assistedPullUp.id, "3 × 8"]]);
     // The measurement belongs to the catalog id, so the imported rows log as a hold, a carry and an assisted set.
-    expect(routine.days[0].items.map((item) => setCountFieldFor(item.exercise).label)).toEqual(["Hold", "Distance", "Reps"]);
+    expect(routine.days[0].items.map((item) => setCountFieldFor(item.exercise).label)).toEqual(["Seconds", "Distance", "Reps"]);
   });
 
   it("keeps a new exercise by name and prescription where the catalog does not hold it, as an older app would", () => {
-    const routine = parseRoutine(text.replace(suitcase.name, "One-Hand Farmer Carry Variant"), {});
-    expect(routine.days[0].unmatched).toEqual([expect.objectContaining({ name: "One-Hand Farmer Carry Variant", prescription: "3 × 30 m" })]);
+    const routine = parseRoutine(text.replace(carry.name, "One-Hand Farmer Carry Variant"), {});
+    expect(routine.days[0].unmatched).toEqual([expect.objectContaining({ name: "One-Hand Farmer Carry Variant", prescription: "3 × 20 m" })]);
   });
 });

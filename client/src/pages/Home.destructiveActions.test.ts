@@ -42,7 +42,7 @@ describe("Reversible-action and destructive-confirmation contract", () => {
     expect(source).toContain("onRemove={(entry) => removeExercise(entry.id, { fromSheet: true })}");
     // Same notice id as the add, so "Added to ..." does not linger after the exercise is gone,
     // and the add's own Undo is cleared rather than merged into the removal's notice.
-    expect(source).toContain("toast(`Removed from Week ${activeWeek} · ${activeSlot.day}`, { id: \"plan-add\", description: `${removed.name} is out of that day now.`, action: { label: \"Undo\", onClick: undo }, cancel: undefined });");
+    expect(source).toContain("toast(`Removed from ${activeWeekLabel} · ${activeSlot.day}`, { id: \"plan-add\", description: `${removed.name} is out of that day now.`, action: { label: \"Undo\", onClick: undo }, cancel: undefined });");
   });
 
   it("never lets a paste or a saved share overwrite saved training days without naming them first (Tier B)", () => {

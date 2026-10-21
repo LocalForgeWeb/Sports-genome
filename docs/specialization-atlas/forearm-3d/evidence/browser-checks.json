@@ -1,0 +1,70 @@
+{
+  "browser": "Chromium 141.0.7390.37 (headless, SwiftShader WebGL), iPhone emulation 390x844 @3x, touch",
+  "results": [
+    {
+      "name": "model and decoder load from the app's own origin",
+      "pass": true,
+      "detail": "200 /assets/anatomy/upper-limb-open3dmodel.glb, 200 /draco/draco_wasm_wrapper.js, 200 /draco/draco_decoder.wasm"
+    },
+    {
+      "name": "the canvas draws nothing while nothing moves",
+      "pass": true,
+      "detail": "0 frames requested in 2 s idle"
+    },
+    {
+      "name": "a tap on the model selects the muscle under it",
+      "pass": true,
+      "detail": "4 different muscles from 6 taps: Brachioradialis | Flexor carpi radialis | Whole forearms | Flexor carpi radialis | Flexor carpi ulnaris | Palmaris longus"
+    },
+    {
+      "name": "mirrored picking: the mirrored point on the left arm selects the same muscle",
+      "pass": true,
+      "detail": "right Brachioradialis | Flexor carpi radialis | Whole forearms | Flexor carpi radialis | Flexor carpi ulnaris | Palmaris longus · left Brachioradialis | Flexor carpi radialis | Whole forearms | Flexor carpi radialis | Flexor carpi ulnaris | Palmaris longus"
+    },
+    {
+      "name": "changing the window and mode keeps the camera where the athlete left it",
+      "pass": true,
+      "detail": "stage pixels identical"
+    },
+    {
+      "name": "changing the window and mode does not reload the model",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "revisiting the 3D view leaves exactly one canvas",
+      "pass": true,
+      "detail": "1 canvas"
+    },
+    {
+      "name": "no WebGL or page errors over the session",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "reduced motion: the camera jumps to the final pose (no eased travel)",
+      "pass": true,
+      "detail": "3 frame(s) with reduced motion, 8 without"
+    },
+    {
+      "name": "a missing model says so, and Choose muscle still works",
+      "pass": true,
+      "detail": "The 3D model did not load.Choose muscle and the list below still have every muscle and its numbers.Try againShow the drawing"
+    },
+    {
+      "name": "Try again loads the model once it is there",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "a missing Draco decoder is a model error with a retry",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "recording saved",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

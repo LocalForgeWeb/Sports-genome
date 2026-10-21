@@ -1,7 +1,8 @@
 import { trpc } from "@/lib/trpc";
 import { dismissBootSplash } from "@/lib/bootSplash";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { installSessionNotice, isUnauthorized, sessionNotice } from "@/lib/sessionNotice";
+import { installSessionNotice, sessionNotice } from "@/lib/sessionNotice";
+import { shouldRetryQuery } from "@/lib/queryRetry";
 import { httpBatchLink } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
@@ -14,16 +15,12 @@ import "./surfaces.css";
  * source of that notice. Every other failure is handled where it happens, beside the control.
  */
 const onError = (error: unknown) => sessionNotice()?.onError(error);
-const isThrottled = (error: unknown) => {
-  const data = (error as { data?: { code?: string; httpStatus?: number } } | null)?.data;
-  return data?.code === "TOO_MANY_REQUESTS" || data?.httpStatus === 429;
-};
 const queryClient = new QueryClient({
   queryCache: new QueryCache({ onError }),
   mutationCache: new MutationCache({ onError }),
-  // A lapsed sign-in does not get better on the third try; say so at once. A throttled call
-  // (429) is the server asking for less traffic, so it is not retried either (Infrastructure V2, RL07).
-  defaultOptions: { queries: { retry: (count, error) => !isUnauthorized(error) && !isThrottled(error) && count < 3 } },
+  // Network and server failures are retried; a 4xx answer (a lapsed sign-in, bad input, not
+  // found, throttled) does not get better on the third try (lib/queryRetry.ts).
+  defaultOptions: { queries: { retry: shouldRetryQuery } },
 });
 installSessionNotice(queryClient);
 

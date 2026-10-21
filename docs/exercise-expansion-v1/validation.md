@@ -10,7 +10,7 @@ Brief: *Sports Genome — 50-exercise data and engine integration* (6 October 20
 |---|---|
 | App catalog, engines, planner, logger, history, search, media | **Integrated.** Ids 417-458 ship with the app; every check below passed on this branch |
 | Database rows (exercise identity, muscle mappings, scoring policy) | **Prepared, not applied, not staging-verified.** Applying needs owner authorization (repository rule B009). Until then the server finds no row for 417-458, and a new exercise gets no curve rather than another exercise's (tested) |
-| Research inputs | **Not complete.** 107 of the 161 muscle tags on the new records are authored estimates (32 records carry at least one), and 41 resistance curves are not established. The app uses them like any catalog tag; each is labelled per field in `evidence.json` and listed per record in `exercise-matrix.csv`. |
+| Research inputs | **Not complete.** 106 of the 147 muscle tags on the 42 records are authored estimates (31 records carry at least one), and 34 resistance curves are not established. The app uses them like any catalog tag; each is labelled per field in `evidence.json` and listed per record in `exercise-matrix.csv`. |
 | Normative strength references | **Unavailable for all 42.** Routed to the explicit unsupported scoring policy; personal logging works normally |
 | Photos | 11 of 42 have an exact-variation photo; 31 show the equipment placeholder (26: the source has no such photo; 5: a same-named photo shows a different setup). The 8 retired candidates show whatever the forearm catalog decided for its row |
 

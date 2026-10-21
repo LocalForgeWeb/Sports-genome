@@ -1,0 +1,134 @@
+[
+  {
+    "width": 390,
+    "height": 844,
+    "firstScreen": {
+      "nav": {
+        "top": 775,
+        "bottom": 844
+      },
+      "strip": {
+        "top": 600,
+        "bottom": 704
+      },
+      "action": {
+        "top": 658,
+        "bottom": 702
+      },
+      "drawing": {
+        "top": 716,
+        "bottom": 1394
+      },
+      "overflow": 0
+    },
+    "scrolledStripUnderTabs": {
+      "tabs": {
+        "top": 0,
+        "bottom": 49
+      },
+      "nav": {
+        "top": 775,
+        "bottom": 844
+      },
+      "strip": {
+        "top": 57,
+        "bottom": 161
+      },
+      "drawing": {
+        "top": 173,
+        "bottom": 851
+      },
+      "drawingVisibleShare": 0.89,
+      "belliesOnScreen": {
+        "total": 6,
+        "whollyVisible": 6,
+        "partlyVisible": 6
+      }
+    },
+    "stripAfterTappingFcr": "Flexor carpi radialis"
+  },
+  {
+    "width": 390,
+    "whyOpen": true,
+    "overflowInSheet": 0
+  },
+  {
+    "width": 390,
+    "movementOverflow": 0,
+    "movementButtons": 8
+  },
+  {
+    "width": 390,
+    "regionOnlyTitle": "3 sets for the forearms as a whole",
+    "regionOnlyOpenButtons": 3,
+    "overflow": 0
+  },
+  {
+    "width": 375,
+    "height": 667,
+    "firstScreen": {
+      "nav": {
+        "top": 598,
+        "bottom": 667
+      },
+      "strip": {
+        "top": 600,
+        "bottom": 704
+      },
+      "action": {
+        "top": 658,
+        "bottom": 702
+      },
+      "drawing": {
+        "top": 716,
+        "bottom": 1365
+      },
+      "overflow": 0
+    },
+    "scrolledStripUnderTabs": {
+      "tabs": {
+        "top": 0,
+        "bottom": 49
+      },
+      "nav": {
+        "top": 598,
+        "bottom": 667
+      },
+      "strip": {
+        "top": 57,
+        "bottom": 161
+      },
+      "drawing": {
+        "top": 173,
+        "bottom": 822
+      },
+      "drawingVisibleShare": 0.65,
+      "belliesOnScreen": {
+        "total": 6,
+        "whollyVisible": 5,
+        "partlyVisible": 6
+      }
+    },
+    "stripAfterTappingFcr": "Flexor carpi radialis"
+  },
+  {
+    "width": 375,
+    "whyOpen": true,
+    "overflowInSheet": 0
+  },
+  {
+    "width": 375,
+    "movementOverflow": 0,
+    "movementButtons": 8
+  },
+  {
+    "width": 375,
+    "regionOnlyTitle": "3 sets for the forearms as a whole",
+    "regionOnlyOpenButtons": 3,
+    "overflow": 0
+  },
+  {
+    "width": 320,
+    "overflow": 0
+  }
+]

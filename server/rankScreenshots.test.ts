@@ -94,3 +94,43 @@ describe("What the route sends survives the wire", () => {
     expect(muscle.evidence.find((e) => e.exerciseName === "Machine Low Row")?.selectedLift).toEqual({ loadKg: 147.418, repetitions: 8 });
   });
 });
+
+describe("With the curve the database sends: past the 95th is the estimated tail, not a bound", () => {
+  /**
+   * The fixtures were recorded with the curve arrays left out, which is the case the bounds above
+   * keep: nothing to estimate from. The database's answer carries the curve, and with it a lift
+   * past the top anchor is placed on the curve's estimated tail (owner, 14 Oct 2026) - a point,
+   * marked estimated, as the lift's own card shows it.
+   */
+  const pulldownCurve = [{ percentile: 5, value: 0.5 }, { percentile: 20, value: 0.75 }, { percentile: 50, value: 1 }, { percentile: 80, value: 1.5 }, { percentile: 95, value: 1.75 }];
+  const withCurve = {
+    ...client,
+    scoreProfile: async (_bw: number, _sex: string, observations: { load?: number; reps: number }[]) => ({ status: "ok", exercise_scores: observations.map((o) => {
+      const recorded = fx.scores[key(o)];
+      return recorded.exercise_id === fx.ids.LAT_PULLDOWN ? { ...recorded, percentile: { ...recorded.percentile, curve: pulldownCurve } } : recorded;
+    }), estimated_only: [], failures: [] }),
+  };
+
+  it("places Lat Pulldown 350 × 1 on the tail, exact and estimated, and says the muscle is estimated", async () => {
+    const result = await scoreMuscleProfile(withCurve as never, catalog, { sex: "male", lifts: [at145lb(L.latPulldown350x1)] });
+    if (result.status === "unavailable") throw new Error("expected a profile");
+    const lats = result.muscles.find((m) => m.canonicalName === "latissimus_dorsi")!;
+    const pulldown = lats.evidence.find((e) => e.exerciseName === "Lat Pulldown")!;
+    expect(pulldown).toMatchObject({ bound: "exact", estimated: true });
+    expect(pulldown.exercisePercentile).toBeGreaterThan(95);
+    expect(lats).toMatchObject({ scoreBound: "exact", estimated: true });
+    expect(lats.percentile).toBeCloseTo(pulldown.exercisePercentile!, 6);
+  });
+
+  it("keeps a lift on a curve it cannot estimate from as the bound beside an estimated one", async () => {
+    const { muscle } = await (async () => {
+      const result = await scoreMuscleProfile(withCurve as never, catalog, { sex: "male", lifts: [L.latPulldown350x1, L.machineLowRow325x8].map(at145lb) });
+      if (result.status === "unavailable") throw new Error("expected a profile");
+      return { muscle: result.muscles.find((m) => m.canonicalName === "latissimus_dorsi")! };
+    })();
+    expect(muscle.evidence.find((e) => e.exerciseName === "Lat Pulldown")).toMatchObject({ bound: "exact", estimated: true });
+    expect(muscle.evidence.find((e) => e.exerciseName === "Machine Low Row")).toMatchObject({ bound: "above", exercisePercentile: 95 });
+    expect(muscle.scoreBound).toBe("range");
+    expect(muscle.lowerBound).toBeGreaterThan(95);
+  });
+});

@@ -1,0 +1,57 @@
+rows {"goals":16017,"measurements":300300,"users":2002} loaded in 425374 ms
+
+-- a user's goals (what a sync reads; RLS adds user_id = auth.uid())
+select * from specialization.goals
+   Bitmap Heap Scan on goals (actual time=0.384..0.411 rows=9 loops=1)
+     Recheck Cond: ((InitPlan 1).col1 = user_id)
+     Heap Blocks: exact=9
+     InitPlan 1
+       ->  Result (actual time=0.063..0.073 rows=1 loops=1)
+     ->  Bitmap Index Scan on goals_no_overlap (actual time=0.325..0.326 rows=9 loops=1)
+           Index Cond: (user_id = (InitPlan 1).col1)
+   Planning Time: 0.856 ms
+   Execution Time: 0.551 ms
+
+-- a user's goals active on a date
+select * from specialization.goals where starts_on <= date '2026-10-17' and (ends_on is null or ends_on >= date '2026-10-17')
+   Bitmap Heap Scan on goals (actual time=0.099..0.163 rows=9 loops=1)
+     Recheck Cond: ((InitPlan 1).col1 = user_id)
+     Filter: ((starts_on <= '2026-10-17'::date) AND ((ends_on IS NULL) OR (ends_on >= '2026-10-17'::date)))
+     Heap Blocks: exact=9
+     InitPlan 1
+       ->  Result (actual time=0.009..0.011 rows=1 loops=1)
+     ->  Bitmap Index Scan on goals_no_overlap (actual time=0.083..0.084 rows=9 loops=1)
+           Index Cond: (user_id = (InitPlan 1).col1)
+   Planning Time: 0.621 ms
+   Execution Time: 0.222 ms
+
+-- a user's measurements in a window, in date order
+select * from specialization.measurements where region_id = 'forearm' and measured_at >= timestamptz '2026-01-01' and measured_at < timestamptz '2026-04-01' order by measured_at
+   Sort (actual time=0.287..0.331 rows=59 loops=1)
+     Sort Key: measurements.measured_at
+     Sort Method: quicksort  Memory: 33kB
+     InitPlan 1
+       ->  Result (actual time=0.007..0.009 rows=1 loops=1)
+     ->  Bitmap Heap Scan on measurements (actual time=0.062..0.222 rows=59 loops=1)
+           Recheck Cond: (((InitPlan 1).col1 = user_id) AND (measured_at >= '2026-01-01 00:00:00+00'::timestamp with time zone) AND (measured_at < '2026-04-01 00:00:00+00'::timestamp with time zone))
+           Filter: (region_id = 'forearm'::text)
+           Heap Blocks: exact=59
+           ->  Bitmap Index Scan on measurements_user_date (actual time=0.041..0.041 rows=59 loops=1)
+                 Index Cond: ((user_id = (InitPlan 1).col1) AND (measured_at >= '2026-01-01 00:00:00+00'::timestamp with time zone) AND (measured_at < '2026-04-01 00:00:00+00'::timestamp with time zone))
+   Planning Time: 0.484 ms
+   Execution Time: 0.405 ms
+
+-- a user's measurements, all
+select * from specialization.measurements order by measured_at
+   Sort (actual time=0.657..0.741 rows=150 loops=1)
+     Sort Key: measurements.measured_at
+     Sort Method: quicksort  Memory: 59kB
+     InitPlan 1
+       ->  Result (actual time=0.007..0.009 rows=1 loops=1)
+     ->  Bitmap Heap Scan on measurements (actual time=0.082..0.503 rows=150 loops=1)
+           Recheck Cond: ((InitPlan 1).col1 = user_id)
+           Heap Blocks: exact=150
+           ->  Bitmap Index Scan on measurements_user_date (actual time=0.053..0.054 rows=150 loops=1)
+                 Index Cond: (user_id = (InitPlan 1).col1)
+   Planning Time: 0.220 ms
+   Execution Time: 0.853 ms

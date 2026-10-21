@@ -220,7 +220,7 @@ describe("numerical fixtures (brief §12)", () => {
   });
 
   it("starts a hold or a carry with a time or a distance, keeping the goal's set count", () => {
-    expect(getGoalPrescription("Muscle growth", 0, byName("Isometric Neck Lateral Flexion"))).toBe("3 × 20 s");
+    expect(getGoalPrescription("Muscle growth", 0, byName("Isometric Neck Lateral Flexion"))).toBe("3 × 20 sec");
     expect(getGoalPrescription("Max strength", 0, byName("Front-Rack Kettlebell Carry"))).toBe("4 × 30 m");
     expect(getGoalPrescription("Max strength", 0, byName("Zercher Deadlift"))).toBe("4 × 3–5");
     expect(measurementFor(byName("Zercher Deadlift").id)).toMatchObject({ mode: "load_reps", e1rmEligible: true, explicit: true });

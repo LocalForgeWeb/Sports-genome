@@ -21,6 +21,15 @@
  *
  * `server/loadConventions.test.ts` pins every id to the client catalog. If the policy table
  * changes, regenerate this list from it.
+ *
+ * The forearm rows from id 401 (16 Oct 2026) are not in the database, so their entries are
+ * the app's own, chosen the way the policy classifies its nearest rows, and kept apart in
+ * `APP_ONLY` so a regeneration from the policy table does not drop them:
+ * - one-arm dumbbell wrist curls (410, 411): one dumbbell, as Concentration Curl (131);
+ * - Suitcase Carry (409): the implement in the hand, as Farmer's Walk (299);
+ * - the grippers (402, 403): the rating printed on the gripper, a number read off the
+ *   implement like a stack, not a mass the hand lifts.
+ * Every other new row (a barbell, a lever handle or hammer, a band) is the default total load.
  */
 export type LoadConvention = "total_external_load" | "per_implement" | "machine_displayed_load" | "bodyweight_reps" | "per_hand" | "assistance" | "resistance_setting" | "no_external_load";
 
@@ -33,9 +42,22 @@ const BY_CONVENTION: Record<Exclude<LoadConvention, "total_external_load" | "ass
   per_hand: ids("299"),
 };
 
+/**
+ * App-only entries for the forearm catalog's rows, which the database does not have yet (401-416).
+ * The 50-exercise expansion's (417-458) are in `EXPANSION_V1` below.
+ */
+const APP_ONLY: Record<Exclude<LoadConvention, "total_external_load" | "assistance" | "resistance_setting" | "no_external_load">, readonly number[]> = {
+  per_implement: ids("410,411"),
+  bodyweight_reps: [],
+  machine_displayed_load: ids("402,403"),
+  per_hand: ids("409"),
+};
+
 const conventionById = new Map<number, LoadConvention>();
-for (const [convention, list] of Object.entries(BY_CONVENTION) as [LoadConvention, readonly number[]][]) {
-  for (const id of list) conventionById.set(id, convention);
+for (const table of [BY_CONVENTION, APP_ONLY]) {
+  for (const [convention, list] of Object.entries(table) as [LoadConvention, readonly number[]][]) {
+    for (const id of list) conventionById.set(id, convention);
+  }
 }
 
 /**

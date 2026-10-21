@@ -126,3 +126,93 @@ describe("the days are the athlete's to choose", () => {
     expect(screen.queryByRole("button", { name: "Edit days" })).toBeNull();
   });
 });
+
+/**
+ * "Make it so you can name the weeks" (owner, 21 Oct 2026). The open week is named in place:
+ * "Name week" ends the week row and opens a one-line field under it, with no dialog. A named
+ * week's pill leads with the name and keeps its number; the line under the days says both.
+ */
+describe("naming the open week", () => {
+  afterEach(() => { cleanup(); });
+
+  const props = {
+    weeks: [{ week: 1, ready: true, savedDays: 2 }, { week: 2, ready: true, savedDays: 1, name: "Deload" }, { week: 3, ready: false, savedDays: 0 }],
+    activeWeek: 1,
+    onSelectWeek: () => undefined,
+    onGenerateWeek: () => undefined,
+    nextWeekToGenerate: 3,
+    slots,
+    activeIndex: 0,
+    exerciseCountFor: () => 2,
+    onChooseDay: () => undefined,
+  };
+  const field = () => screen.queryByRole("textbox", { name: "Name for Week 1" }) as HTMLInputElement | null;
+
+  it("shows a named week by its name, with its number kept under it", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    render(React.createElement(TrainingPlanHeader, { ...props, activeWeek: 2, onRenameWeek: vi.fn() }));
+    const weeks = within(screen.getByRole("group", { name: "Training week" }));
+    expect(weeks.getByRole("button", { name: /^Deload\s*Week 2 · 1 saved$/ }).getAttribute("aria-current")).toBe("true");
+    expect(weeks.getByRole("button", { name: /^Week 1\s*2 saved$/ })).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toBe("Week 2: Deload · Day 01");
+    // The control says what it does to which week, and its visible words are in its name.
+    expect(screen.getByRole("button", { name: "Rename Week 2, Deload" }).textContent).toBe("Rename");
+  });
+
+  it("opens a field in place, saves what was typed, and gives focus back to the button", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    const onRenameWeek = vi.fn();
+    render(React.createElement(TrainingPlanHeader, { ...props, onRenameWeek }));
+    const button = screen.getByRole("button", { name: "Name Week 1" });
+    expect(button.textContent).toBe("Name week");
+    expect(button.getAttribute("aria-expanded")).toBe("false");
+    expect(field()).toBeNull();
+    // Not a dialog: the field is part of the page.
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    fireEvent.click(button);
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    const input = field()!;
+    expect(document.activeElement).toBe(input);
+    expect(input.value).toBe("");
+    expect(input.maxLength).toBe(24);
+
+    fireEvent.change(input, { target: { value: "Heavy" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    expect(onRenameWeek).toHaveBeenCalledWith(1, "Heavy");
+    expect(field()).toBeNull();
+    expect(document.activeElement).toBe(button);
+  });
+
+  it("starts from the current name, and Escape or Cancel leave it as it was", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    const onRenameWeek = vi.fn();
+    render(React.createElement(TrainingPlanHeader, { ...props, activeWeek: 2, onRenameWeek }));
+    fireEvent.click(screen.getByRole("button", { name: "Rename Week 2, Deload" }));
+    const input = screen.getByRole("textbox", { name: "Name for Week 2" }) as HTMLInputElement;
+    expect(input.value).toBe("Deload");
+    fireEvent.change(input, { target: { value: "Peak" } });
+    fireEvent.keyDown(input, { key: "Escape" });
+    expect(screen.queryByRole("textbox")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Rename Week 2, Deload" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("textbox")).toBeNull();
+    expect(onRenameWeek).not.toHaveBeenCalled();
+  });
+
+  it("closes the field when another week opens, so it never renames a week it did not name", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    const view = render(React.createElement(TrainingPlanHeader, { ...props, onRenameWeek: vi.fn() }));
+    fireEvent.click(screen.getByRole("button", { name: "Name Week 1" }));
+    expect(field()).toBeTruthy();
+    view.rerender(React.createElement(TrainingPlanHeader, { ...props, activeWeek: 2, onRenameWeek: vi.fn() }));
+    expect(screen.queryByRole("textbox")).toBeNull();
+  });
+
+  it("offers no naming where nothing saves it", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    render(React.createElement(TrainingPlanHeader, props));
+    expect(screen.queryByRole("button", { name: /Name Week|Rename Week/ })).toBeNull();
+  });
+});

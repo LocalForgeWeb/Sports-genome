@@ -34,6 +34,9 @@ check('GET /api/health is the backend, in JSON', health.status === 200 && health
 check('readiness is hidden without its token', (await get('/api/health/ready')).status === 404);
 const ready = await get('/api/health/ready', { headers: { 'x-health-token': 'ci-smoke-token' } });
 check('readiness without Supabase config says degraded (503), not ready', ready.status === 503);
+// The platform hands deeper /api paths to the function through a rewrite (vercel.json).
+const carried = await get('/api/%5B...path%5D?__api=health/ready', { headers: { 'x-health-token': 'ci-smoke-token' } });
+check('a deeper /api path arriving through the rewrite reaches its route', carried.status === 503 && (await carried.json())?.status === 'degraded');
 const unknownApi = await get('/api/no-such-route?x=1');
 check('unknown /api path: JSON 404 without the query echoed', unknownApi.status === 404 && JSON.stringify(await unknownApi.json()) === JSON.stringify({ error: 'Not found', path: '/api/no-such-route' }));
 const unknownProc = await get('/api/trpc/no.such.procedure');

@@ -17,8 +17,8 @@ vi.mock("@/lib/trpc", () => ({
     useUtils: () => ({ strengthGenome: { overview: { invalidate: mocks.invalidate }, observations: { invalidate: mocks.invalidate }, priorities: { invalidate: mocks.invalidate } } }),
     strengthPercentile: {
       forLift: {
-        useQuery: (input: unknown) => {
-          mocks.percentileInput(input);
+        useQuery: (input: unknown, options?: unknown) => {
+          mocks.percentileInput(input, options);
           return { data: mocks.percentile() };
         },
       },
@@ -119,6 +119,27 @@ describe("a logged lift gets a percentile from the community curves", () => {
     expect(asked.measuredOneRmKg).toBeNull();
   });
 
+  /**
+   * 14 Oct 2026: a movement scored on reps gets a percentile too. A pull-up with no added load is
+   * asked as its rep count, as the ranks score it, and a count far past the curve reads as an
+   * estimate with the decimals that tell the top end apart.
+   */
+  it("asks for a rep count when a rep-scored movement was done without load", () => {
+    localStorage.setItem(deviceStrengthObservationKey, JSON.stringify([{ id: "device-pull-up", exerciseName: "Pull-Up", observedAt: "2026-09-12T12:00:00.000Z", measurementType: "MULTI_REP", loadKg: null, repetitions: 45, bodyMassKgAtTest: 80 }]));
+    mocks.percentile.mockReturnValue({
+      ...placed, percentile: 99.53, observedValue: 45, unit: "reps", normalizationMethod: "direct_community_rep_percentile",
+      estimate: { valueKg: null, basis: "measured", confidence: 1, effectiveReps: 45, method: "bodyweight_reps", estimator: "measured", repsInReserve: null },
+      ageAdjustment: { status: "not_applied", reason: "rep_count", ageYears: null },
+      tailEstimate: { version: "lognormal_upper_tail_v1", aboveAnchorPercentile: 95, capped: false },
+    });
+    openBiceps({ sexForReference: "male", baselineBodyWeight: 176 });
+    const [asked, options] = mocks.percentileInput.mock.calls.at(-1) as [Record<string, unknown>, Record<string, unknown>];
+    expect(asked).toMatchObject({ exerciseName: "Pull-Up", loadKg: null, repetitions: 45, measuredOneRmKg: null });
+    expect(options.enabled).toBe(true);
+    expect(screen.getByText("≈ 99.5th percentile (estimated)")).toBeTruthy();
+    expect(screen.getByText(/45 reps · among men who lift this lift/)).toBeTruthy();
+  });
+
   it("reads the lift against the weight saved with it", () => {
     openBiceps({ sexForReference: "male", baselineBodyWeight: 176 });
     const asked = mocks.percentileInput.mock.calls.at(-1)?.[0] as Record<string, unknown>;
@@ -148,14 +169,26 @@ describe("a logged lift gets a percentile from the community curves", () => {
   });
 
   /**
-   * EN-16: the scale lists National and World Stage, but a muscle score tops out near 94.9
-   * (anchors stop at the 95th percentile, and no lift passes its whole signal to a muscle).
-   * The legend says so rather than offering bands a muscle cannot reach.
+   * EN-16, revised twice on 14 Oct 2026: anchors stop at the 95th, and past it a lift - a load or
+   * a rep count - is estimated up to the 99.99th. A muscle can therefore reach National and World
+   * Stage, but only on an estimate, and World Stage only on a lift far past the data, since no
+   * lift passes its whole signal to a muscle (the strongest transfer in the mappings is 0.994).
    */
-  it("says muscle groups cannot reach the top two bands yet", () => {
+  it("says National and World Stage are reached only on an estimate", () => {
     render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
     const note = document.querySelector("[data-muscle-rank-ceiling]");
-    expect(note?.textContent).toMatch(/no muscle group can reach National or World Stage/);
+    expect(note?.textContent).toMatch(/up to the 99\.99th/);
+    expect(note?.textContent).toMatch(/reaches National or World Stage only on an estimate/);
     expect(note?.textContent).toMatch(/only steady are not ranked/);
+  });
+});
+
+describe("How ranks work, on sets not taken to failure", () => {
+  it("says such a set can raise a rank, never lower it, and that a 1RM always counts", () => {
+    render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
+    const note = document.querySelector("[data-rank-effort]");
+    expect(note?.textContent).toMatch(/counts only where it raises a rank and never pulls one down/);
+    expect(note?.textContent).toMatch(/like good mornings/);
+    expect(note?.textContent).toMatch(/one-rep max always counts in full/);
   });
 });

@@ -154,9 +154,9 @@ changed here), with references in `glossary-evidence.json`:
 - **D3:** "Working sets" in the recap counts every completed set, unlike Log a lift and the planner.
 - **D4:** a comment calls the logged lift the heaviest set; the code picks the highest e1RM.
 - **D5:** `evidenceTraceability.ts` lists RPE as a recorded observation, but the live tracker records none.
-- **D6:** percentile rounding differs: the lift card rounds and rank text floors (19.6 shows as 20th and 19th).
+- **D6:** percentile rounding differs: the lift card rounds and rank text floors (19.6 shows as 20th and 19th). *21 Oct:* resolved on main ("Print a lift's percentile the same on its card and in the ranks"): rank text now uses the card's rule, `percentileFigure`.
 - **D7:** Week Review says the 6/12-set landmarks have no recorded source and doesn't show them; the training day's Workload uses them.
-- **D8:** holds and carries before catalog id 401 still log reps and can produce an e1RM.
+- **D8:** holds and carries before catalog id 401 still log reps and can produce an e1RM. *21 Oct, after the merge with main:* the specialization atlas's holds now log seconds (Plate Pinch, Dead Hang, Towel Dead Hang, Farmer Hold, Farmer's Walk, Zercher Carry, Battle Rope Waves, and the forearm rows Gripper Hold and Suitcase Carry) through the same Seconds box as the expansion's neck and hub holds; RKC Plank (246) and Side Plank (247) still log reps.
 - **D9:** Log a lift's optional details are said to help comparison; the progress line ignores them.
 - **D10:** lifts carried over from workouts have no side recorded.
 - **D11:** "week" is the calendar week on Home and plan week 1–3 in Review.
