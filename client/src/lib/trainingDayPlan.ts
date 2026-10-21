@@ -142,6 +142,16 @@ export function moveWithin<T extends { id: number }>(workout: readonly T[], exer
   return next;
 }
 
+/** Takes one exercise out and puts it back at `to` in the new order; the others keep theirs. */
+export function moveTo<T extends { id: number }>(workout: readonly T[], exerciseId: number, to: number): T[] {
+  const from = workout.findIndex((exercise) => exercise.id === exerciseId);
+  if (from < 0) return [...workout];
+  const next = [...workout];
+  const [moved] = next.splice(from, 1);
+  next.splice(Math.max(0, Math.min(next.length, to)), 0, moved);
+  return next;
+}
+
 export function clearDay(store: WeeklyDayStore, key: string): WeeklyDayStore {
   return commitDay(store, key, emptyDayRecord());
 }

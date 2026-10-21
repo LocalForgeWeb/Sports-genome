@@ -11,7 +11,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { directWorkspaceAccess } from "@/lib/accountAccess";
 import { sessionNotice, useSessionLapsed } from "@/lib/sessionNotice";
 import { feedbackSurfaceRef } from "@/lib/feedbackClearance";
-import { Activity, ArrowLeft, ArrowRight, ArrowUpDown, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, Check, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, Share, ShieldCheck, SlidersHorizontal, Target, Trophy, UserRound, X, Zap } from "lucide-react";
+import { Activity, ArrowLeft, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, Check, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Hand, Heart, Layers3, Move3d, Plus, Search, Settings2, Share, ShieldCheck, SlidersHorizontal, Target, Trophy, UserRound, X, Zap } from "lucide-react";
 import { AddDestinationStrip } from "@/components/AddDestinationStrip";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
 import { UniversalSearch } from "@/components/UniversalSearch";
@@ -58,6 +58,7 @@ import { SessionResumeBar } from "@/components/SessionResumeBar";
 import { exerciseProgressFor, useDayTrainingStates, useLiveSession, useWorkoutLogWrites } from "@/lib/liveSession";
 import type { NextWorkoutChoice } from "@/lib/nextWorkout";
 import { readWeekNames, storedWeekNames, weekLabel, withWeekName, type WeekNames } from "@/lib/weekNames";
+import { useHoldToArrange } from "@/lib/useHoldToArrange";
 import { capacityProposalFor } from "@/lib/capacityTargets";
 import { revealWorkspaceAnchor } from "@/lib/workspaceAnchor";
 const AthleteAboutMePanel = lazy(() => import("@/components/AthleteAboutMePanel").then((module) => ({ default: module.AthleteAboutMePanel })));
@@ -89,7 +90,7 @@ import { getSplitExercisePool } from "@/lib/splitAssignment";
 import { browseAction, browseMovement, browseSport, followProfileSport, isBrowsingOtherSport, referenceMovementId, referenceSportId, type SportBrowseState } from "@/lib/sportBrowsing";
 import { buildVariedLoadout } from "@/lib/loadoutTemplates";
 import { cycleSplitIndex, splitDaysForFrequency } from "@/lib/splitCycle";
-import { buildDaySlots, commitDay, dayExerciseCount, emptyDayRecord, emptyDayStore, loadDay, moveWithin, remapDaysForFrequency, resolveActiveSlot, sameSplit, slotForKey, visibleDayPlan, type DayRecord, type DaySettings, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
+import { buildDaySlots, commitDay, dayExerciseCount, emptyDayRecord, emptyDayStore, loadDay, moveTo, moveWithin, remapDaysForFrequency, resolveActiveSlot, sameSplit, slotForKey, visibleDayPlan, type DayRecord, type DaySettings, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import { toast } from "sonner";
 import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";
 import { EmailAuthScreen } from "@/components/EmailAuthScreen";
@@ -541,8 +542,6 @@ export default function Home() {
   /** Home's schematic and week strip, bound to the selected day and the plan's own days. */
   // "Add exercises" opens a sheet over the day rather than scrolling the page to a panel.
   const [pickerSheetOpen, setPickerSheetOpen] = useState(false);
-  // Reorder is a mode for the whole list, not twelve arrow boxes beside six rows.
-  const [reorderingDay, setReorderingDay] = useState(false);
   const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);
   /** The page a search result was opened from; for the catalog, with the mode it was in, so the return lands on that mode. */
   const [searchReturn, setSearchReturn] = useState<{ workspace: Workspace; label: string; discovery?: ExerciseDiscoveryContext } | null>(null);
@@ -1715,6 +1714,26 @@ export default function Home() {
     toast(`Moved ${customWorkout[from].name} ${direction < 0 ? "earlier" : "later"}`, { id: "plan-reorder", description: `Now ${to + 1} of ${customWorkout.length} in ${activeSlot.day}.`, cancel: { label: "Undo", onClick: () => editDay(dayKey, (record) => ({ ...record, workout: moveWithin(record.workout, exerciseId, direction < 0 ? 1 : -1) })) } });
   };
   /**
+   * A row held and dragged to a new place (owner, 21 Oct 2026: "like moving apps around on the
+   * home screen"). The same one message as the arrows, kept up to date across moves, with Undo
+   * putting that exercise back where it was. Undo reaches the day it was moved in, even after
+   * another day has been opened.
+   */
+  const arrangeExercise = (exerciseId: number, to: number) => {
+    if (!planReadyForEdits()) return;
+    const dayKey = draftDayKeyRef.current;
+    const from = customWorkout.findIndex((exercise) => exercise.id === exerciseId);
+    if (from < 0 || from === to) return;
+    setCustomWorkout((current) => moveTo(current, exerciseId, to));
+    toast(`Moved ${customWorkout[from].name}`, { id: "plan-reorder", description: `Now ${to + 1} of ${customWorkout.length} in ${activeSlot.day}.`, cancel: { label: "Undo", onClick: () => editDay(dayKey, (record) => ({ ...record, workout: moveTo(record.workout, exerciseId, from) })) } });
+  };
+  const arrange = useHoldToArrange({
+    ids: customWorkout.map((exercise) => exercise.id),
+    onMove: arrangeExercise,
+    enabled: planHydrated,
+    resetKey: `${workspace}|${activeWeek}|${activeSlot.key}`,
+  });
+  /**
    * A draft replaces the open day, and only the open day. Clearing the loose prescription
    * and settings maps used to clear them for every day at once, because they were shared.
    */
@@ -2456,14 +2475,24 @@ export default function Home() {
               <span>Editing <b>{activeDayLabel}</b>{liveSession.dayLabel === activeDayLabel ? " · this day's workout is under way; it keeps the exercises it started with" : ""}</span>
               <button type="button" onClick={() => navigateWorkspace("tracker")}>{liveSession.dayLabel.split(" · ").pop()} workout in progress · Resume <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
             </p>}
-            <div className={`day-plan-list${reorderingDay ? " is-reordering" : ""}`}>
+            {/* Hold an exercise to lift it, then drag it into place, as on the iPhone home screen
+                (useHoldToArrange). How is said once, above the rows, where it is seen before the first
+                hold. The arrows stay for a keyboard or a screen reader, shown when focused. */}
+            {customWorkout.length > 1 && !arrange.arranging && <p className="day-arrange-hint"><Hand className="h-4 w-4" aria-hidden="true" />Hold an exercise to move it.</p>}
+            <div ref={arrange.listRef} className={`day-plan-list${arrange.arranging ? " is-arranging" : ""}`} onClickCapture={arrange.onListClickCapture} onContextMenu={arrange.onListContextMenu}>
               {customWorkout.length
-                ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow onApplyRestToDay={applyRestToDay} dayRestMismatch={restMismatchFor(exercise.id)} exercise={exercise} index={index} prescription={prescriptionFor(exercise, index, goal, prescriptions[exercise.id])} settings={getExerciseSettings(exerciseSettings, exercise.id)} progress={liveSession ? exerciseProgressFor(exercise.name, liveWorkoutLog) : null} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} />{/* Remove, on the row itself: it used to live only at the foot of the opened editor. Undo comes with it. */}<button type="button" className="day-row-remove" onClick={() => removeExercise(exercise.id)} aria-label={`Remove ${exercise.name} from ${activeSlot.day}`} title="Remove from this day"><X className="h-4 w-4" aria-hidden="true" /></button></div>)
+                ? customWorkout.map((exercise, index) => <div key={exercise.id} ref={arrange.rowRef(exercise.id)} className="day-orderable-exercise" onPointerDown={arrange.onRowPointerDown(exercise.id)} onDragStart={(event) => event.preventDefault()}><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow onApplyRestToDay={applyRestToDay} dayRestMismatch={restMismatchFor(exercise.id)} exercise={exercise} index={index} prescription={prescriptionFor(exercise, index, goal, prescriptions[exercise.id])} settings={getExerciseSettings(exerciseSettings, exercise.id)} progress={liveSession ? exerciseProgressFor(exercise.name, liveWorkoutLog) : null} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} />{/* Remove, on the row itself: it used to live only at the foot of the opened editor. Undo comes with it. */}<button type="button" className="day-row-remove" onClick={() => removeExercise(exercise.id)} aria-label={`Remove ${exercise.name} from ${activeSlot.day}`} title="Remove from this day"><X className="h-4 w-4" aria-hidden="true" /></button></div>)
                 /* An empty day has one thing to do, said once, with the day it is about. It had
                    two equal Add exercises buttons (this one and the action row's), a profile
                    prompt and a 0/100 gauge before anything was in it (Sep 28 regression brief §8). */
                 : <div className="day-plan-empty"><Dumbbell className="h-6 w-6" aria-hidden="true" /><strong>{activeSlot.day} is empty</strong><p>Week {activeWeek} · {activeSlot.ordinal}. Add the exercises you want on this day; its coverage against the {activeSplitDay.toLowerCase()} targets appears once one is in.</p><button type="button" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" /> Add exercises</button><button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" aria-hidden="true" /> Or import a plan</button></div>}
             </div>
+            {/* While arranging, the way out: pinned above the navigation so Done is in reach however
+                long the day is. It follows the list, which is what lets it stick to the bottom. */}
+            {customWorkout.length > 1 && arrange.arranging && <div className="day-arrange-bar" ref={feedbackSurfaceRef} data-arrange-keep="">
+              <p role="status"><b>Moving exercises</b><span>Hold one, then drag it into place.</span></p>
+              <button type="button" onClick={arrange.stopArranging}>Done</button>
+            </div>}
             {/* A declared focus is what the athlete said about their body, so it stays with the
                 day's rows, even on an empty day. The generic "name it in your profile" prompt is
                 not about this day: it sits after the day's actions (below). */}
@@ -2475,12 +2504,11 @@ export default function Home() {
                 disabled buttons. */}
             {customWorkout.length > 0 && <div className="day-plan-actions">
               <button type="button" className="day-action-add" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" /> Add exercises</button>
-              {customWorkout.length > 1 && <button type="button" className="day-action-reorder" aria-pressed={reorderingDay} onClick={() => setReorderingDay((value) => !value)}><ArrowUpDown className="h-4 w-4" aria-hidden="true" /> {reorderingDay ? "Done reordering" : "Reorder"}</button>}
               <button type="button" className="day-action-share" onClick={openShare}><Share className="h-4 w-4" aria-hidden="true" /> Share</button>
               <button type="button" className="day-action-session" onClick={() => { if (!liveSession) chooseDayToTrain(activeSlot); navigateWorkspace("tracker"); }} disabled={!customWorkout.length}><Activity className="h-4 w-4" /> {liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"}</button>
               <button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" /> Import plan</button>
             </div>}
-            {/* The optional profile prompt, as one quiet line after Add/Reorder/Open so it never
+            {/* The optional profile prompt, as one quiet line after Add/Share/Open so it never
                 separates a workout from its actions, and only on a day with work in it (Sep 30 §8). */}
             {customWorkout.length > 0 && !capacityFocus.focus && <DayCapacityNote capacity={capacityFocus} catalog={resilienceCatalog} onOpenProfile={() => navigateWorkspace("profile")} />}
             <DayExercisePicker equipmentProfile={athleteBaseline.equipment} sheetOpen={pickerSheetOpen} destination={`${activeWeekLabel} · ${activeSlot.day}`} dayLabel={activeDayLabel} onOpenSheet={() => setPickerSheetOpen(true)} onCloseSheet={() => setPickerSheetOpen(false)} exercises={exercises} activeWorkout={customWorkout} split={activeSplitDay} sportId={sportId} prescriptions={dayPrescriptions} onAdd={addExercise} onRemove={(entry) => removeExercise(entry.id, { fromSheet: true })} onReplace={replaceExercise} onInspect={inspectExercise} />
