@@ -4,7 +4,6 @@ import type { StoreWrite } from "@/lib/specialization/stores";
 import { claimKeyOf } from "@shared/specialization/compose";
 import type { SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummarySide } from "@shared/specialization/types";
 import { selectableNodes } from "./model";
-import { sideWordsFor } from "./sideWords";
 import { EndedTargets, READ_ONLY_TARGET_NOTE, TargetEditStatus, TargetForm, TargetRows, savedMessage, splitTargets, subjectKeyOf, useReturnFocus, useTargetEdits, type TargetSubject } from "./TargetsEditor";
 
 /**
@@ -29,9 +28,9 @@ export function targetSubjectsFor(data: SpecializationRegionData): { muscles: Ta
 
 export type TargetsOverviewProps = {
   data: SpecializationRegionData;
-  /** The summary for the side on screen; null while it is calculated (rows then show no progress). */
+  /** The summary on screen (both sides as one); null while it is calculated (rows then show no progress). */
   summary: SpecializationSummary | null;
-  /** The region's targets, both sides, ended ones included. */
+  /** The region's targets, whatever side an earlier version stored, ended ones included. */
   goals: readonly SpecializationGoal[];
   side: SummarySide;
   timeZone: string;
@@ -51,13 +50,12 @@ type Group = { key: string; subject: TargetSubject; goals: SpecializationGoal[] 
 
 /**
  * The page's Targets disclosure: every target of the region, grouped by what it is for — a
- * muscle or a movement — with this side's progress ("8 of your 20") or "Not targeted on the
- * right arm", Change / End / Remove in place, Open for a muscle or a movement, and "Add a target" with the
- * subject chosen here. Nothing is suggested or filled in: every target is one the athlete set. A
+ * muscle or a movement — with its progress ("8 of your 20"), Change / End / Remove in place, Open
+ * for a muscle or a movement, and "Add a target" with the subject chosen here. Targets have no
+ * side: both sides are counted as one (owner, 20 Oct 2026). Nothing is suggested or filled in: every target is one the athlete set. A
  * target saved earlier on a muscle that is not a target here can be ended or removed only.
  */
 export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey, onSave, onRestore, onRemove, onOpenMuscle, onOpenMovement }: TargetsOverviewProps) {
-  const words = sideWordsFor(data.region);
   const subjects = useMemo(() => targetSubjectsFor(data), [data]);
   const targetMuscles = useMemo(() => new Set(subjects.muscles.map((subject) => subject.id)), [subjects]);
   const readOnly = (goal: SpecializationGoal) => goal.nodeId !== null && !targetMuscles.has(goal.nodeId);
@@ -75,7 +73,7 @@ export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey
 
   const [open, setOpen] = useState(false);
   const addRef = useReturnFocus(open);
-  const edits = useTargetEdits({ region: data.region, onSave, onRestore, onRemove, todayKey, subjectName });
+  const edits = useTargetEdits({ onSave, onRestore, onRemove, todayKey, subjectName });
 
   const regionGoals = goals.filter((goal) => goal.regionId === data.region.id);
   const { active, ended } = splitTargets(regionGoals, todayKey);
@@ -88,7 +86,7 @@ export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey
     return byKey.set(key, group);
   }, new Map<string, Group>()).values())
     .sort((a, b) => (order.get(a.key) ?? Number.MAX_SAFE_INTEGER) - (order.get(b.key) ?? Number.MAX_SAFE_INTEGER) || a.subject.name.localeCompare(b.subject.name));
-  // Only a summary of this side speaks for this side.
+  // Only a summary of the page's side (`both`, or `midline`) speaks for these targets.
   const summaryHere = summary && summary.side === side ? summary : null;
   const progress = summaryHere ? summaryHere.goals : [];
   // A muscle with no reviewed mapping: nothing can be counted for its targets, so none reads as a zero.
@@ -106,16 +104,15 @@ export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey
           {group.subject.kind === "movement" && onOpenMovement && <button type="button" className="spz-button" onClick={() => onOpenMovement(group.subject.id)} aria-label={`Open ${group.subject.name}`}>Open</button>}
         </div>
         {group.goals.some(readOnly) && <p className="spz-note">{READ_ONLY_TARGET_NOTE}</p>}
-        {side !== "midline" && !group.goals.some((goal) => goal.side === side) && <p className="spz-note"><b>Not targeted on the {words.of(side)}.</b></p>}
-        <TargetRows region={data.region} goals={group.goals} side={side} progress={progress} edits={edits} subjectName={subjectName} readOnly={readOnly} uncounted={uncounted} todayKey={todayKey} progressReady={summaryHere !== null} />
+        <TargetRows goals={group.goals} side={side} progress={progress} edits={edits} subjectName={subjectName} readOnly={readOnly} uncounted={uncounted} todayKey={todayKey} progressReady={summaryHere !== null} />
       </li>)}
     </ul> : <p className="spz-note"><b>No targets.</b> A muscle or movement without a target is not behind on anything.</p>}
     <TargetEditStatus edits={edits} />
     {open
-      ? <TargetForm region={data.region} side={side} timeZone={timeZone} todayKey={todayKey} subjectGroups={subjectGroups} onSave={onSave}
-        onSaved={(saved, subject) => { edits.settle(savedMessage(data.region, saved, subject.name)); setOpen(false); }}
+      ? <TargetForm region={data.region} timeZone={timeZone} todayKey={todayKey} subjectGroups={subjectGroups} onSave={onSave}
+        onSaved={(_saved, subject) => { edits.settle(savedMessage(subject.name)); setOpen(false); }}
         onCancel={() => setOpen(false)} />
       : <button ref={addRef} type="button" className="spz-link" onClick={() => setOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" />Add a target</button>}
-    <EndedTargets region={data.region} goals={ended} subjectName={subjectName} showSubject />
+    <EndedTargets goals={ended} subjectName={subjectName} showSubject />
   </div>;
 }

@@ -21,6 +21,11 @@ import { exercise, finished, workSet, type AtlasSet } from "./__fixtures__/synth
  * on the test regions of __fixtures__/multiRegion.ts and on the forearm's real data. Every summary
  * here also holds §2.2, each target's value equals its row (`goalsEqualRows`), and its region
  * totals and completeness are the ones its rows give (`expectCompletenessFromRows`).
+ *
+ * Since the owner's decision of 20 Oct 2026 (both sides as one, 10-multi-region.md, appendix "Both
+ * sides as one") the page reads one summary per paired region, side `both`; the per-side rules
+ * below stay as dormant, tested capability of the calculator, and every target check also runs on
+ * `both`. "Planned equals logged as built" is the page's: one row per planned set, no side asked.
  */
 
 const TZ = "Europe/London";
@@ -30,6 +35,8 @@ const WEEK = calendarWeekInterval(NOW, TZ);
 const catalogMusclesFor = catalogMusclesLookup(exercises);
 const PAIRED: SummarySide[] = ["left", "right"];
 const sidesOf = (region: SpecializationRegionData): SummarySide[] => (region.region.sides.model === "midline" ? ["midline"] : PAIRED);
+/** The side the page reads: `both` on a paired region (both sides as one), `midline` on a midline one. */
+const pageSideOf = (region: SpecializationRegionData): SummarySide => (region.region.sides.model === "midline" ? "midline" : "both");
 
 function summarize(region: SpecializationRegionData, bouts: readonly ExposureBout[], side: SummarySide, mode: "completed" | "planned" = "completed", goals: SpecializationGoal[] = []): SpecializationSummary {
   const summary = getSpecializationSummary({ region, bouts, interval: mode === "completed" ? WEEK : planWeekInterval(1, TZ), side, mode, goals, catalogMusclesFor, sourceRevision: "s", planRevision: mode === "planned" ? "p" : null, now: NOW });
@@ -105,9 +112,10 @@ const wantedCategory: Record<GoalMetric, string> = { direct_dynamic_bouts: "dire
  */
 function goalsEqualRows(region: SpecializationRegionData, bouts: readonly ExposureBout[], mode: "completed" | "planned"): void {
   const own = indexRegion(region).regionNodeIds;
-  for (const side of sidesOf(region)) {
+  for (const side of Array.from(new Set([...sidesOf(region), pageSideOf(region)]))) {
     const goals: SpecializationGoal[] = [];
-    const base = { regionId: region.region.id, side, target: 1, period: "calendar_week" as const, startsOn: "2026-01-01", endsOn: null, timezone: TZ, createdAt: "", updatedAt: "" };
+    // A target is stored with a side of the region (`right` as the page's placeholder on a paired one); `both` reads every side.
+    const base = { regionId: region.region.id, side: side === "both" ? ("right" as const) : side, target: 1, period: "calendar_week" as const, startsOn: "2026-01-01", endsOn: null, timezone: TZ, createdAt: "", updatedAt: "" };
     for (const metric of goalMetrics) {
       for (const node of region.nodes) goals.push({ ...base, id: `n:${node.id}:${metric}`, nodeId: node.id, actionId: null, metric });
       for (const action of region.actions) goals.push({ ...base, id: `a:${action.id}:${metric}`, nodeId: null, actionId: action.id, metric });
@@ -137,12 +145,18 @@ function goalsEqualRows(region: SpecializationRegionData, bouts: readonly Exposu
   }
 }
 
-/** Per side, each node's counts and the region's distinct bouts: what "planned equals logged as built" compares. */
+/** Per side, each node's counts and the region's distinct bouts. */
 const perSide = (region: SpecializationRegionData, bouts: readonly ExposureBout[], mode: "completed" | "planned") =>
   sidesOf(region).map((side) => {
     const summary = summarize(region, bouts, side, mode);
     return { side, region: summary.regionDistinctBouts, unknown: summary.regionUnknownSideBouts, nodes: summary.nodes.map((node) => [node.nodeId, node.directDynamicBouts, node.contributingDynamicBouts, node.deliberateHoldBouts, node.deliberateHoldSeconds, node.incidentalBouts, node.unknownSide.bouts]) };
   });
+/** The page's summary (`both` or `midline`), each node's counts and the region's distinct bouts: what "planned equals logged as built" compares. */
+const onPage = (region: SpecializationRegionData, bouts: readonly ExposureBout[], mode: "completed" | "planned") => {
+  const side = pageSideOf(region);
+  const summary = summarize(region, bouts, side, mode);
+  return { side, region: summary.regionDistinctBouts, unknown: summary.regionUnknownSideBouts, nodes: summary.nodes.map((node) => [node.nodeId, node.directDynamicBouts, node.contributingDynamicBouts, node.deliberateHoldBouts, node.deliberateHoldSeconds, node.incidentalBouts, node.unknownSide.bouts]) };
+};
 
 describe("a page paired by the leg", () => {
   it("counts a back squat once on each leg, logged with no side and planned", () => {
@@ -286,18 +300,18 @@ describe("a midline page", () => {
 
   it("refuses a side for a midline region, and a midline side for a paired one", () => {
     expect(() => summarize(fxCore, [], "left")).toThrow(/midline/);
-    expect(() => summarize(fxBack, [], "midline")).toThrow(/per side/);
+    expect(() => summarize(fxBack, [], "midline")).toThrow(/for its two sides/);
+    // And `both`, the page's side for a paired region, fits only a paired one.
+    expect(() => summarize(fxCore, [], "both")).toThrow(/midline/);
+    expect(() => summarize(fxBack, [], "both")).not.toThrow();
   });
 });
 
-describe("planned equals logged as built (§2.1)", () => {
-  // The tracker lays a planned set of a one-sided exercise out as two rows, Right then Left on its
-  // limb, and an either-way one as one row starting on Both (07-logger.md, §6.4).
+describe("planned equals logged as built (§2.1), on the page: both sides as one", () => {
+  // The tracker lays every planned set out as one row and asks no side (owner, 20 Oct 2026;
+  // 07-logger.md, §6.4); the plan counts a planned set as one bout, assumed on both sides.
   const asBuilt = (variant: ExerciseVariant, sets: number, hold?: string) => {
-    const limb = variant.sidedBy === "leg" ? "legSide" : "side";
-    const laterality = variant.sidedBy === "leg" ? variant.legLaterality : variant.laterality;
-    const rows: Partial<AtlasSet>[] = Array.from({ length: sets }).flatMap(() =>
-      laterality === "unilateral" ? [{ [limb]: "right" }, { [limb]: "left" }] : laterality === "either" ? [{ [limb]: "both" }] : [{}]);
+    const rows: Partial<AtlasSet>[] = Array.from({ length: sets }, () => ({}));
     return logged(variant.catalogExerciseId, rows, hold);
   };
   const cases: [string, SpecializationRegionData, ExerciseVariant, string, string | undefined][] = [
@@ -312,19 +326,20 @@ describe("planned equals logged as built (§2.1)", () => {
     it(label, () => {
       const plan = planned(variant.catalogExerciseId, prescription, region.variants);
       const built = asBuilt(variant, 3, hold);
-      expect(perSide(region, plan, "planned")).toEqual(perSide(region, built, "completed"));
-      expect(perSide(region, plan, "planned").every((entry) => entry.region > 0)).toBe(true);
+      expect(onPage(region, plan, "planned")).toEqual(onPage(region, built, "completed"));
+      expect(onPage(region, plan, "planned").region).toBe(3);
       goalsEqualRows(region, plan, "planned");
       goalsEqualRows(region, built, "completed");
     });
   }
 
   for (const catalogId of [409, 46]) {
-    it(`the forearm, ${catalogId}, on its real data: each arm still gets 3 for "3 × 12"`, () => {
+    it(`the forearm, ${catalogId}, on its real data: 3 for "3 × 12", planned and logged (and, per arm, dormant, still 3 planned on each arm)`, () => {
       const variant = forearmRegionData.variants.find((item) => item.catalogExerciseId === catalogId)!;
       const plan = planned(catalogId, variant.measure === "seconds" ? "3 × 30 sec" : "3 × 12", forearmRegionData.variants);
       const built = asBuilt(variant, 3, variant.measure === "seconds" ? "30" : undefined);
-      expect(perSide(forearmRegionData, plan, "planned")).toEqual(perSide(forearmRegionData, built, "completed"));
+      expect(onPage(forearmRegionData, plan, "planned")).toEqual(onPage(forearmRegionData, built, "completed"));
+      expect(onPage(forearmRegionData, plan, "planned").region).toBe(3);
       expect(perSide(forearmRegionData, plan, "planned").map((entry) => entry.region)).toEqual([3, 3]);
       goalsEqualRows(forearmRegionData, plan, "planned");
       goalsEqualRows(forearmRegionData, built, "completed");

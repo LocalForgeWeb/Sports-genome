@@ -609,8 +609,9 @@ export interface RecordedSide extends LimbSideRecord {
 }
 
 /**
- * The side a summary counts a row on (`nodeSideFor`, exposure.ts): the summary's own side, `midline`
- * in a midline region, or `unknown` for a row kept apart and counted on neither side.
+ * The side a summary counts a row on (`nodeSideFor`, exposure.ts): the summary's own side (`both`
+ * on the page for a paired region), `midline` in a midline region, or `unknown` for a row kept apart
+ * and counted on neither side, which only a per-side summary does.
  */
 export type CountedSide = SummarySide | "unknown";
 
@@ -661,8 +662,21 @@ export type GoalMetric = "direct_dynamic_bouts" | "deliberate_hold_bouts" | "del
 export type GoalPeriod = "calendar_week" | "rolling_7d";
 /** A side of a paired region (10-multi-region.md §2.1). */
 export type BodySide = "left" | "right";
-/** The side a summary, a goal or a measurement is for: a side of a paired region, or `midline`. */
-export type SummarySide = BodySide | "midline";
+/**
+ * A side as a record holds it, and as one mapping's work is read on (`nodeSideFor`): a side of a
+ * paired region, or `midline`. Goals and measurements store one; since both sides are counted as
+ * one (owner, 20 Oct 2026) a paired region's new goal or measurement stores `right` as a
+ * placeholder that nothing reads (10-multi-region.md, appendix "Both sides as one").
+ */
+export type StoredSide = BodySide | "midline";
+/**
+ * The side a summary counts. `both` is what the page shows for a paired region (owner, 20 Oct
+ * 2026: "there's no reason for a left and right arm"): each set counts once per muscle whichever
+ * side did it, a set with no side recorded included, and nothing is kept apart for want of a side.
+ * `midline` is a midline region's. `left` / `right` are the per-side counts the atlas was built
+ * with, kept as dormant, tested capability; the product shows no per-side number.
+ */
+export type SummarySide = StoredSide | "both";
 /** The name this type had when every region was an arm; kept while code still uses it. */
 export type ArmSide = BodySide;
 
@@ -672,7 +686,7 @@ export interface SpecializationGoal {
   /** Exactly one of nodeId and actionId is set. */
   nodeId: NodeId | null;
   actionId: ActionId | null;
-  side: SummarySide;
+  side: StoredSide;
   metric: GoalMetric;
   target: number;
   period: GoalPeriod;
@@ -706,7 +720,7 @@ export interface MeasurementProtocol {
 export interface SpecializationMeasurement {
   id: string;
   regionId: RegionId;
-  side: SummarySide;
+  side: StoredSide;
   measuredAt: string;
   metric: MeasurementMetric;
   value: number;
@@ -916,7 +930,7 @@ export interface SummaryRequest {
   region: SpecializationRegionData;
   bouts: readonly ExposureBout[];
   interval: SummaryInterval;
-  /** `left` or `right` for a paired region, `midline` for a midline one. */
+  /** `both` (what the page shows), or `left` / `right` (per side, dormant) for a paired region; `midline` for a midline one. */
   side: SummarySide;
   mode: SummaryMode;
   /** The published rule the summary applies; the region's current rule (`exposureRuleFor`) when absent. */

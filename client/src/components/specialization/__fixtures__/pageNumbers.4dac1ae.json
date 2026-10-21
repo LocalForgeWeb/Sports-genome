@@ -1,0 +1,993 @@
+{
+ "week": {
+  "rows": [
+   [
+    "Extensor carpi radialis longus",
+    "8 direct · 5 grip"
+   ],
+   [
+    "Extensor carpi radialis brevis",
+    "8 direct · 5 grip"
+   ],
+   [
+    "Extensor carpi ulnaris",
+    "8 direct · 5 grip"
+   ],
+   [
+    "Flexor carpi radialis",
+    "8 direct"
+   ],
+   [
+    "Flexor carpi ulnaris",
+    "8 direct"
+   ],
+   [
+    "Brachioradialis",
+    "4 direct · 4 other"
+   ],
+   [
+    "Flexor digitorum superficialis",
+    "2 holds · 1 min 20 s · 22 grip"
+   ],
+   [
+    "Flexor digitorum profundus",
+    "2 holds · 1 min 20 s · 22 grip"
+   ],
+   [
+    "Palmaris longus",
+    "8 other"
+   ],
+   [
+    "Extensor digitorum",
+    "8 other"
+   ],
+   [
+    "Flexor pollicis longus",
+    "No work"
+   ],
+   [
+    "Pronator teres",
+    "No work"
+   ],
+   [
+    "Pronator quadratus",
+    "No work"
+   ],
+   [
+    "Extensor digiti minimi",
+    "No work"
+   ],
+   [
+    "Extensor indicis",
+    "No work"
+   ],
+   [
+    "Abductor pollicis longus",
+    "No work"
+   ],
+   [
+    "Extensor pollicis brevis",
+    "No work"
+   ],
+   [
+    "Extensor pollicis longus",
+    "No work"
+   ],
+   [
+    "Supinator",
+    "No work"
+   ],
+   [
+    "Anconeus",
+    "Mapping not reviewed"
+   ],
+   [
+    "Brachialis",
+    "4 direct"
+   ],
+   [
+    "Biceps brachii",
+    "4 other"
+   ]
+  ],
+  "region": [
+   "28"
+  ],
+  "window": [
+   "12",
+   "18",
+   "28",
+   "12",
+   "1"
+  ],
+  "findings": [
+   [
+    "0",
+    "3"
+   ],
+   [
+    "4",
+    "6"
+   ],
+   [
+    "80",
+    "300"
+   ],
+   [
+    "0",
+    "5"
+   ],
+   [
+    "3"
+   ],
+   [],
+   [
+    "4"
+   ]
+  ],
+  "exercises": [
+   [
+    "One-Arm Dumbbell Wrist Curl",
+    [
+     "6"
+    ]
+   ],
+   [
+    "Reverse Wrist Curl",
+    [
+     "5"
+    ]
+   ],
+   [
+    "Cable Wrist Extension",
+    [
+     "3"
+    ]
+   ],
+   [
+    "Hammer Curl",
+    [
+     "3"
+    ]
+   ],
+   [
+    "Barbell Bent-Over Row",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Dumbbell Row",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Farmer Hold",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Suitcase Carry",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Wrist Curl",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Reverse Curl",
+    [
+     "1"
+    ]
+   ],
+   [
+    "ECRB",
+    [
+     "1",
+     "02",
+     "14"
+    ]
+   ],
+   [
+    "ECRL",
+    [
+     "1",
+     "02",
+     "14"
+    ]
+   ],
+   [
+    "ECU",
+    [
+     "1",
+     "02",
+     "14"
+    ]
+   ]
+  ],
+  "days": [
+   "3",
+   "5",
+   "16",
+   "4",
+   "0",
+   "0",
+   "0"
+  ],
+  "completeness": [
+   "31",
+   "28",
+   "0",
+   "3",
+   "2",
+   "2",
+   "1"
+  ],
+  "sheets": {
+   "Brachioradialis": [
+    [
+     "4",
+     "46"
+    ],
+    [
+     "4",
+     "48"
+    ],
+    [
+     "0"
+    ],
+    [
+     "0"
+    ]
+   ],
+   "Flexor digitorum superficialis": [
+    [
+     "0"
+    ],
+    [
+     "0"
+    ],
+    [
+     "2",
+     "1",
+     "20"
+    ],
+    [
+     "22"
+    ]
+   ]
+  }
+ },
+ "7d": {
+  "rows": [
+   [
+    "Extensor carpi radialis longus",
+    "8 direct · 5 grip"
+   ],
+   [
+    "Extensor carpi radialis brevis",
+    "8 direct · 5 grip"
+   ],
+   [
+    "Extensor carpi ulnaris",
+    "8 direct · 5 grip"
+   ],
+   [
+    "Flexor carpi radialis",
+    "8 direct"
+   ],
+   [
+    "Flexor carpi ulnaris",
+    "8 direct"
+   ],
+   [
+    "Brachioradialis",
+    "4 direct · 4 other"
+   ],
+   [
+    "Flexor digitorum superficialis",
+    "2 holds · 1 min 20 s · 22 grip"
+   ],
+   [
+    "Flexor digitorum profundus",
+    "2 holds · 1 min 20 s · 22 grip"
+   ],
+   [
+    "Palmaris longus",
+    "8 other"
+   ],
+   [
+    "Extensor digitorum",
+    "8 other"
+   ],
+   [
+    "Flexor pollicis longus",
+    "No work"
+   ],
+   [
+    "Pronator teres",
+    "No work"
+   ],
+   [
+    "Pronator quadratus",
+    "No work"
+   ],
+   [
+    "Extensor digiti minimi",
+    "No work"
+   ],
+   [
+    "Extensor indicis",
+    "No work"
+   ],
+   [
+    "Abductor pollicis longus",
+    "No work"
+   ],
+   [
+    "Extensor pollicis brevis",
+    "No work"
+   ],
+   [
+    "Extensor pollicis longus",
+    "No work"
+   ],
+   [
+    "Supinator",
+    "No work"
+   ],
+   [
+    "Anconeus",
+    "Mapping not reviewed"
+   ],
+   [
+    "Brachialis",
+    "4 direct"
+   ],
+   [
+    "Biceps brachii",
+    "4 other"
+   ]
+  ],
+  "region": [
+   "28"
+  ],
+  "window": [
+   "7"
+  ],
+  "findings": [
+   [
+    "0",
+    "3"
+   ],
+   [
+    "4",
+    "6"
+   ],
+   [
+    "80",
+    "300"
+   ],
+   [
+    "0",
+    "5"
+   ],
+   [
+    "3"
+   ],
+   [],
+   [
+    "4"
+   ]
+  ],
+  "exercises": [
+   [
+    "One-Arm Dumbbell Wrist Curl",
+    [
+     "6"
+    ]
+   ],
+   [
+    "Reverse Wrist Curl",
+    [
+     "5"
+    ]
+   ],
+   [
+    "Cable Wrist Extension",
+    [
+     "3"
+    ]
+   ],
+   [
+    "Hammer Curl",
+    [
+     "3"
+    ]
+   ],
+   [
+    "Barbell Bent-Over Row",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Dumbbell Row",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Farmer Hold",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Suitcase Carry",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Wrist Curl",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Reverse Curl",
+    [
+     "1"
+    ]
+   ],
+   [
+    "ECRB",
+    [
+     "1",
+     "02",
+     "14"
+    ]
+   ],
+   [
+    "ECRL",
+    [
+     "1",
+     "02",
+     "14"
+    ]
+   ],
+   [
+    "ECU",
+    [
+     "1",
+     "02",
+     "14"
+    ]
+   ]
+  ],
+  "days": [
+   "0",
+   "0",
+   "0",
+   "3",
+   "5",
+   "16",
+   "4",
+   "0"
+  ],
+  "completeness": [
+   "31",
+   "28",
+   "0",
+   "3",
+   "2",
+   "2",
+   "1"
+  ],
+  "sheets": {
+   "Brachioradialis": [
+    [
+     "4",
+     "46"
+    ],
+    [
+     "4",
+     "48"
+    ],
+    [
+     "0"
+    ],
+    [
+     "0"
+    ]
+   ],
+   "Flexor digitorum superficialis": [
+    [
+     "0"
+    ],
+    [
+     "0"
+    ],
+    [
+     "2",
+     "1",
+     "20"
+    ],
+    [
+     "22"
+    ]
+   ]
+  }
+ },
+ "custom": {
+  "rows": [
+   [
+    "Flexor carpi radialis",
+    "11 direct"
+   ],
+   [
+    "Flexor carpi ulnaris",
+    "11 direct"
+   ],
+   [
+    "Extensor carpi radialis longus",
+    "8 direct · 5 grip"
+   ],
+   [
+    "Extensor carpi radialis brevis",
+    "8 direct · 5 grip"
+   ],
+   [
+    "Extensor carpi ulnaris",
+    "8 direct · 5 grip"
+   ],
+   [
+    "Flexor digitorum superficialis",
+    "4 holds · 2 min 35 s · 25 grip"
+   ],
+   [
+    "Flexor digitorum profundus",
+    "4 holds · 2 min 35 s · 25 grip"
+   ],
+   [
+    "Brachioradialis",
+    "4 direct · 4 other"
+   ],
+   [
+    "Palmaris longus",
+    "11 other"
+   ],
+   [
+    "Extensor digitorum",
+    "8 other"
+   ],
+   [
+    "Flexor pollicis longus",
+    "No work"
+   ],
+   [
+    "Pronator teres",
+    "No work"
+   ],
+   [
+    "Pronator quadratus",
+    "No work"
+   ],
+   [
+    "Extensor digiti minimi",
+    "No work"
+   ],
+   [
+    "Extensor indicis",
+    "No work"
+   ],
+   [
+    "Abductor pollicis longus",
+    "No work"
+   ],
+   [
+    "Extensor pollicis brevis",
+    "No work"
+   ],
+   [
+    "Extensor pollicis longus",
+    "No work"
+   ],
+   [
+    "Supinator",
+    "No work"
+   ],
+   [
+    "Anconeus",
+    "Mapping not reviewed"
+   ],
+   [
+    "Brachialis",
+    "4 direct"
+   ],
+   [
+    "Biceps brachii",
+    "4 other"
+   ]
+  ],
+  "region": [
+   "33"
+  ],
+  "window": [
+   "5",
+   "16"
+  ],
+  "findings": [
+   [
+    "0",
+    "3"
+   ],
+   [
+    "4",
+    "6"
+   ],
+   [
+    "80",
+    "300"
+   ],
+   [
+    "0",
+    "5"
+   ],
+   [
+    "3"
+   ],
+   [],
+   [
+    "4"
+   ]
+  ],
+  "exercises": [
+   [
+    "One-Arm Dumbbell Wrist Curl",
+    [
+     "6"
+    ]
+   ],
+   [
+    "Reverse Wrist Curl",
+    [
+     "5"
+    ]
+   ],
+   [
+    "Wrist Curl",
+    [
+     "5"
+    ]
+   ],
+   [
+    "Cable Wrist Extension",
+    [
+     "3"
+    ]
+   ],
+   [
+    "Hammer Curl",
+    [
+     "3"
+    ]
+   ],
+   [
+    "Barbell Bent-Over Row",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Dead Hang",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Dumbbell Row",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Farmer Hold",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Suitcase Carry",
+    [
+     "2"
+    ]
+   ],
+   [
+    "Reverse Curl",
+    [
+     "1"
+    ]
+   ],
+   [
+    "ECRB",
+    [
+     "1",
+     "02",
+     "14"
+    ]
+   ],
+   [
+    "ECRL",
+    [
+     "1",
+     "02",
+     "14"
+    ]
+   ],
+   [
+    "ECU",
+    [
+     "1",
+     "02",
+     "14"
+    ]
+   ]
+  ],
+  "days": [
+   "0",
+   "0",
+   "0",
+   "5",
+   "0",
+   "0",
+   "0",
+   "3",
+   "5",
+   "16",
+   "4",
+   "0"
+  ],
+  "completeness": [
+   "36",
+   "33",
+   "0",
+   "3",
+   "2",
+   "2",
+   "1"
+  ],
+  "sheets": {
+   "Brachioradialis": [
+    [
+     "4",
+     "46"
+    ],
+    [
+     "4",
+     "48"
+    ],
+    [
+     "0"
+    ],
+    [
+     "0"
+    ]
+   ],
+   "Flexor digitorum superficialis": [
+    [
+     "0"
+    ],
+    [
+     "0"
+    ],
+    [
+     "4",
+     "2",
+     "35"
+    ],
+    [
+     "25"
+    ]
+   ]
+  }
+ },
+ "planned": {
+  "rows": [
+   [
+    "Brachioradialis",
+    "3 direct · 3 other"
+   ],
+   [
+    "Flexor carpi radialis",
+    "3 direct"
+   ],
+   [
+    "Flexor carpi ulnaris",
+    "3 direct"
+   ],
+   [
+    "Extensor carpi radialis longus",
+    "3 direct"
+   ],
+   [
+    "Extensor carpi radialis brevis",
+    "3 direct"
+   ],
+   [
+    "Extensor carpi ulnaris",
+    "3 direct"
+   ],
+   [
+    "Flexor digitorum superficialis",
+    "12 grip"
+   ],
+   [
+    "Flexor digitorum profundus",
+    "12 grip"
+   ],
+   [
+    "Palmaris longus",
+    "3 other"
+   ],
+   [
+    "Extensor digitorum",
+    "3 other"
+   ],
+   [
+    "Flexor pollicis longus",
+    "No work"
+   ],
+   [
+    "Pronator teres",
+    "No work"
+   ],
+   [
+    "Pronator quadratus",
+    "No work"
+   ],
+   [
+    "Extensor digiti minimi",
+    "No work"
+   ],
+   [
+    "Extensor indicis",
+    "No work"
+   ],
+   [
+    "Abductor pollicis longus",
+    "No work"
+   ],
+   [
+    "Extensor pollicis brevis",
+    "No work"
+   ],
+   [
+    "Extensor pollicis longus",
+    "No work"
+   ],
+   [
+    "Supinator",
+    "No work"
+   ],
+   [
+    "Anconeus",
+    "Mapping not reviewed"
+   ],
+   [
+    "Brachialis",
+    "3 direct"
+   ],
+   [
+    "Biceps brachii",
+    "3 other"
+   ]
+  ],
+  "region": [
+   "12",
+   "1"
+  ],
+  "window": [
+   "1",
+   "12",
+   "28"
+  ],
+  "findings": [
+   [
+    "0",
+    "3"
+   ],
+   [
+    "3",
+    "6"
+   ],
+   [
+    "0",
+    "300"
+   ],
+   [
+    "3",
+    "8"
+   ],
+   [
+    "0",
+    "5"
+   ]
+  ],
+  "exercises": [
+   [
+    "Hammer Curl",
+    [
+     "3"
+    ]
+   ],
+   [
+    "Reverse Wrist Curl",
+    [
+     "3"
+    ]
+   ],
+   [
+    "Underhand Barbell Row",
+    [
+     "3"
+    ]
+   ],
+   [
+    "Wrist Curl",
+    [
+     "3"
+    ]
+   ]
+  ],
+  "days": [],
+  "completeness": [
+   "12",
+   "12",
+   "0",
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "sheets": {
+   "Brachioradialis": [
+    [
+     "3",
+     "18"
+    ],
+    [
+     "3",
+     "18"
+    ],
+    [
+     "0"
+    ],
+    [
+     "0"
+    ]
+   ],
+   "Flexor digitorum superficialis": [
+    [
+     "0"
+    ],
+    [
+     "0"
+    ],
+    [
+     "0"
+    ],
+    [
+     "12"
+    ]
+   ]
+  }
+ }
+}

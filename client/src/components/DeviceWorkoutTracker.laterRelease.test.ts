@@ -22,8 +22,10 @@ import { DeviceWorkoutTracker } from "./DeviceWorkoutTracker";
  * A workout left open across a release (10-multi-region.md §2.1, §9.4): a second tab on a newer
  * deploy, or a rollback to the previous wave's, leaves rows this release did not write. What it
  * does not understand stays as stored when a set is logged, and rows built per leg on an exercise
- * it does not know (173 in wave 0) keep their sides on the leg, also through a swap. On the real
- * wave-0 logging table, where no leg region is in production.
+ * it does not know (173 in wave 0) keep their sides on the leg, as main keeps an open workout's rows
+ * built per arm before 20 Oct. A swap lays the planned sets out again one row each, with no side:
+ * both sides are counted as one (owner, 20 Oct 2026). On the real wave-0 logging table, where no
+ * leg region is in production.
  */
 const byId = (id: number) => exercises.find((exercise) => exercise.id === id)!;
 const bench = byId(1); // Barbell Bench Press: two-handed, nothing asked
@@ -89,23 +91,22 @@ describe("Rows built per leg on an exercise this release does not know", () => {
     expect(sidesOf(0)[0]).toEqual([null, "right"]);
   });
 
-  it("swapped to a one-arm exercise laid out per arm, give it Right and Left on the arm, and none on the leg", () => {
-    expect(loggingPolicyFor(row.id).oneSide).toBe(true);
+  it("swapped to a one-arm exercise, give it one row per planned set with no side, and ask no arm", () => {
+    expect(loggingPolicyFor(row.id).oneSide).toBe(false);
     resume(split, legRows(), { perArm: true }, ["forearm"]);
     fireEvent.click(within(card()).getByRole("button", { name: "Swap exercise" }));
     const dialog = screen.getByRole("dialog", { name: /^Replace / });
     fireEvent.change(within(dialog).getByRole("searchbox"), { target: { value: "dumbbell row" } });
     fireEvent.click(within(dialog).getAllByRole("button", { name: new RegExp(`^${row.name}`) })[0]);
-    expect(dialog.querySelector("#swap-what")!.textContent).toBe(`Nothing is logged for ${split.name} yet, so ${row.name} takes its place with the same 1 planned set, done once with each arm: 2 sets.`);
+    expect(dialog.querySelector("#swap-what")!.textContent).toBe(`Nothing is logged for ${split.name} yet, so ${row.name} takes its place with the same 1 planned set, not one per leg.`);
     fireEvent.click(within(dialog).getByRole("button", { name: `Use ${row.name}` }));
-    expect(stored()[0].exercises[0]).toMatchObject({ exerciseName: row.name, perArm: true });
-    expect(sidesOf(0)).toEqual([["right", null], ["left", null]]);
-    // The card asks the arm, preset from the row, and logs it there.
-    const arm = within(card()).getByRole("group", { name: /^Arm for set 1 of/ });
-    expect(within(arm).getAllByRole("button").filter((button) => button.getAttribute("aria-pressed") === "true").map((button) => button.textContent)).toEqual(["Right"]);
+    expect(stored()[0].exercises[0].exerciseName).toBe(row.name);
+    expect(stored()[0].exercises[0]).not.toHaveProperty("perArm");
+    expect(sidesOf(0)).toEqual([[null, null]]);
+    expect(within(card()).queryByRole("group", { name: /^Arm for set/ })).toBeNull();
     type(/^Weight/, "30"); type("Reps", "10");
     log();
-    expect(sidesOf(0)[0]).toEqual(["right", null]);
+    expect(sidesOf(0)[0]).toEqual([null, null]);
   });
 
   it("are named as one-leg sets in the swap sheet", () => {

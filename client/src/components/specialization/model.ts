@@ -1,10 +1,8 @@
 import { formatDisplayWeight, type DisplayWeightUnit } from "@/lib/weightUnits";
-import { diagramSidesOf } from "@shared/specialization/compose";
 import { creditedMappingsFor, mappingsByKey } from "@shared/specialization/exposure";
 import { categoryFor, currentExposureRule, exposureCategoryLabelsFor } from "@shared/specialization/rules";
-import type { AnatomyNode, BodySide, Contribution, ContributionSegment, DiagramAsset, ExposureCategory, GoalMetric, GoalProgress, JointAction, MappingEvidenceBasis, MuscleMode, NodeExposure, NodeId, RegionBoutRow, RegionWording, Relationship, SideRelation, SpecializationRegion, SpecializationRegionData, SpecializationSummary, VariantMapping } from "@shared/specialization/types";
+import type { AnatomyNode, Contribution, ContributionSegment, ExposureCategory, GoalMetric, GoalProgress, JointAction, MappingEvidenceBasis, MuscleMode, NodeExposure, NodeId, RegionBoutRow, RegionWording, Relationship, SideRelation, SpecializationRegion, SpecializationRegionData, SpecializationSummary, VariantMapping } from "@shared/specialization/types";
 import { drawableNodeIds } from "./diagramGeometry";
-import { sideWordsFor, type SideWords } from "./sideWords";
 
 /**
  * What the specialization page shows, worked out from one summary (design §7). Pure, so
@@ -52,7 +50,9 @@ export function isDirectWork(contribution: Contribution): boolean {
  * helps with or steadies stays in the list and the ledger, off the map.
  */
 export function directWorkBouts(node: NodeExposure): number {
-  return new Set(node.contributions.filter((item) => item.side !== "unknown" && isDirectWork(item)).map((item) => item.boutId)).size;
+  // A row kept apart for want of a side (only a per-side summary keeps one) is never on the map;
+  // in the page's summary, both sides as one, a set with no side recorded counts like any other.
+  return new Set(node.contributions.filter((item) => item.countedSide !== "unknown" && isDirectWork(item)).map((item) => item.boutId)).size;
 }
 
 export function goalsForNode(summary: SpecializationSummary | null, nodeId: string): GoalProgress[] {
@@ -120,22 +120,19 @@ export function exposureParts(node: NodeExposure, incidentalWork: string): strin
 }
 
 /**
- * One line for a muscle: what it got, or why there is nothing to count. The sets kept apart for
- * want of a side name the limb the logger asks about (`sides`); a midline region keeps none apart.
+ * One line for a muscle: what it got, or why there is nothing to count. The page's summary counts
+ * both sides as one (owner, 20 Oct 2026), so nothing is kept apart for want of a side and no side
+ * is named.
  */
-export function exposureSentence(node: NodeExposure | null, incidentalWork: string, sides: SideWords): string {
+export function exposureSentence(node: NodeExposure | null, incidentalWork: string): string {
   if (!node || node.mappingCoverage === "none") return "No exercise is mapped to this muscle yet, so nothing can be counted for it.";
   const parts = exposureParts(node, incidentalWork);
   const pending = node.pendingReviewBouts ? `${plural(node.pendingReviewBouts, "set")} matched a mapping still under review and ${node.pendingReviewBouts === 1 ? "is" : "are"} not counted.` : "";
-  const unsidedPending = sides.paired ? node.unknownSide.pendingReviewBouts ?? 0 : 0;
-  const pendingUnsided = unsidedPending ? `${plural(unsidedPending, "set")} with ${sides.noneRecorded} matched a mapping still under review and ${unsidedPending === 1 ? "is" : "are"} not counted.` : "";
-  const unsided = sides.paired ? node.unknownSide.bouts : 0;
-  const unknownSide = unsided ? `${plural(unsided, "set")} with ${sides.noneRecorded} ${unsided === 1 ? "is" : "are"} kept apart.` : "";
   const head = parts.length ? `${parts.join(" · ")}.` : node.mappingCoverage === "pending_review" ? "Its exercise mapping is still under review." : "No work for it in this window.";
-  return [head, pending, pendingUnsided, unknownSide].filter(Boolean).join(" ");
+  return [head, pending].filter(Boolean).join(" ");
 }
 
-/** Every bout counted in the list's bar, by kind, on this arm. */
+/** Every bout counted in the list's bar, by kind. */
 export function barParts(node: NodeExposure) {
   return {
     direct: node.directDynamicBouts,
@@ -157,15 +154,6 @@ export const BAR_SCALE = 20;
 export function selectableNodes(data: SpecializationRegionData): AnatomyNode[] {
   const drawable = drawableNodeIds(data.nodes);
   return data.nodes.filter((node) => drawable.has(node.id));
-}
-
-/**
- * Whether the drawing is shown mirrored (10-multi-region.md §7.3): a drawing of one side shows the
- * subject's right and is mirrored for the left; a drawing of both sides (a midline region's) is
- * never mirrored, and neither is any drawing of a region with no sides.
- */
-export function drawingMirrored(region: Pick<SpecializationRegion, "sides">, asset: Pick<DiagramAsset, "sides">, side: BodySide): boolean {
-  return region.sides.model === "paired" && diagramSidesOf(asset) !== "both_sides" && side === "left";
 }
 
 export const layerLabels: Record<AnatomyNode["layer"], string> = { surface: "Surface", intermediate: "Middle layer", deep: "Deep", mixed: "Mixed layers" };
@@ -236,11 +224,12 @@ export function ledgerByExercise<T extends LedgerRow>(rows: readonly T[]): Ledge
 // ---------------------------------------------------------------- findings
 
 /**
- * Which region-level list of bouts a total opens: the region's distinct bouts, the ones with no
- * side recorded, work mapped to no muscle, or the sets whose exercise tags the region but which it
- * does not count (10-multi-region.md §8).
+ * Which region-level list of bouts a total opens: the region's distinct bouts, work mapped to no
+ * muscle, or the sets whose exercise tags the region but which it does not count
+ * (10-multi-region.md §8). There is no list of sets kept apart for want of a side: the page counts
+ * both sides as one (owner, 20 Oct 2026).
  */
-export type RegionBoutList = "region" | "unknown-side" | "region-only" | "listed-unmapped";
+export type RegionBoutList = "region" | "region-only" | "listed-unmapped";
 export type FindingAction =
   | { kind: "inspect"; nodeId: string }
   | { kind: "add"; nodeId: string }
@@ -265,10 +254,11 @@ export function targetProgressText(progress: Pick<GoalProgress, "goal" | "label"
 /**
  * "Coverage to review" (design §7, item 6): facts about the records and the mapping, in
  * neutral words, most useful first. A target behind leads, because the athlete set it;
- * after it what the numbers cannot see (no side recorded, no mapping, a mapping under review);
- * then a difference between the sides, and credit a strapped set did not earn. Nothing here is a
- * score, and nothing suggests training only to fill a muscle (brief §10). The sides are said in
- * the region's words (`sideWordsFor`); a midline region has no side, so nothing here names one.
+ * after it what the numbers cannot see (no mapping, a mapping under review), then credit a
+ * strapped set did not earn. Nothing here is a score, and nothing suggests training only to fill
+ * a muscle (brief §10). Both sides are counted as one (owner, 20 Oct 2026), so nothing here names
+ * a side: there is no finding for sets with no side recorded and none for a difference between
+ * the sides.
  *
  * Only a target on a muscle that is a target here, and that can be counted, is "behind" with
  * exercises for it. A target saved earlier on a muscle that is not a target here (an external or
@@ -278,12 +268,8 @@ export function targetProgressText(progress: Pick<GoalProgress, "goal" | "label"
 export function findingsFor(input: {
   data: SpecializationRegionData;
   summary: SpecializationSummary;
-  otherSide: SpecializationSummary | null;
 }): Finding[] {
   const { data, summary } = input;
-  const sides = sideWordsFor(data.region);
-  const side = summary.side === "midline" ? null : summary.side;
-  const otherSide = side ? input.otherSide : null;
   const findings: Finding[] = [];
   const nodeById = new Map(data.nodes.map((node) => [node.id, node] as const));
   const nameOf = (id: string) => nodeById.get(id)?.name ?? id;
@@ -306,20 +292,10 @@ export function findingsFor(input: {
       id: `goal:${progress.goal.id}`,
       title: `${subject}: ${progress.label}`,
       // Planned mode reads the plan week on screen; completed mode reads the target's own period.
-      detail: `${[goalMetricLabels[progress.goal.metric], side ? sides.of(side) : null, summary.mode === "planned" ? `${summary.interval.label}` : progress.goal.period === "calendar_week" ? "this calendar week" : "the last 7 days"].filter(Boolean).join(", ")}. The target is yours, not a prescription.`,
+      detail: `${goalMetricLabels[progress.goal.metric]}, ${summary.mode === "planned" ? `${summary.interval.label}` : progress.goal.period === "calendar_week" ? "this calendar week" : "the last 7 days"}. The target is yours, not a prescription.`,
       // A muscle target opens the muscle's exercises; a movement target opens the movement: its sets and its exercises.
       action: progress.goal.nodeId ? { kind: "add", nodeId: progress.goal.nodeId } : progress.goal.actionId ? { kind: "movement", actionId: progress.goal.actionId } : null,
       actionLabel: progress.goal.nodeId ? "See exercises for it" : progress.goal.actionId ? "See its sets and exercises" : null,
-    });
-  }
-
-  if (sides.paired && summary.regionUnknownSideBouts > 0) {
-    findings.push({
-      id: "unknown-side",
-      title: `${plural(summary.regionUnknownSideBouts, "set")} with ${sides.noneRecorded}`,
-      detail: `They are kept apart and ${sides.neither}. ${sides.asksWhich}`,
-      action: { kind: "bouts", list: "unknown-side" },
-      actionLabel: "See these sets",
     });
   }
 
@@ -334,16 +310,13 @@ export function findingsFor(input: {
     });
   }
 
-  // Sets with no side recorded are in neither side's count (unknownSide), and are named as such.
-  const unsidedPendingOf = (node: NodeExposure) => (sides.paired ? node.unknownSide.pendingReviewBouts ?? 0 : 0);
-  const pending = summary.nodes.filter((node) => node.pendingReviewBouts > 0 || unsidedPendingOf(node) > 0);
+  const pending = summary.nodes.filter((node) => node.pendingReviewBouts > 0);
   if (pending.length) {
-    const onSide = pending.reduce((sum, node) => sum + node.pendingReviewBouts, 0);
-    const unsided = pending.reduce((sum, node) => sum + unsidedPendingOf(node), 0);
+    const sets = pending.reduce((sum, node) => sum + node.pendingReviewBouts, 0);
     findings.push({
       id: "pending-review",
       title: `Mapping under review for ${pending.slice(0, 2).map((node) => nameOf(node.nodeId)).join(" and ")}${pending.length > 2 ? ` and ${pending.length - 2} more` : ""}`,
-      detail: `${plural(onSide + unsided, "set")} ${window} matched a mapping that is not reviewed yet${unsided ? `, ${unsided} of them with ${sides.noneRecorded}` : ""}. ${onSide + unsided === 1 ? "It is" : "They are"} shown in the ledger and not counted.`,
+      detail: `${plural(sets, "set")} ${window} matched a mapping that is not reviewed yet. ${sets === 1 ? "It is" : "They are"} shown in the ledger and not counted.`,
       action: { kind: "inspect", nodeId: pending[0].nodeId },
       actionLabel: "Inspect coverage",
     });
@@ -358,26 +331,6 @@ export function findingsFor(input: {
       action: { kind: "inspect", nodeId: unmapped[0].id },
       actionLabel: "Inspect coverage",
     });
-  }
-
-  if (side && otherSide) {
-    const gaps = summary.nodes
-      .map((node) => {
-        const other = otherSide.nodes.find((item) => item.nodeId === node.nodeId);
-        return other && node.mappingCoverage === "reviewed" ? { node, here: directWorkBouts(node), there: directWorkBouts(other) } : null;
-      })
-      .filter((item): item is { node: NodeExposure; here: number; there: number } => item !== null && Math.abs(item.here - item.there) >= 2)
-      .sort((left, right) => Math.abs(right.here - right.there) - Math.abs(left.here - left.there));
-    if (gaps.length) {
-      const top = gaps[0];
-      findings.push({
-        id: `sides:${top.node.nodeId}`,
-        title: `${nameOf(top.node.nodeId)}: ${top.here} direct bouts on the ${sides.of(side)}, ${top.there} on the ${side === "left" ? "right" : "left"}`,
-        detail: `${gaps.length > 1 ? `${gaps.length - 1} more muscle${gaps.length === 2 ? "" : "s"} differ by two or more bouts. ` : ""}${sides.differ}`,
-        action: { kind: "inspect", nodeId: top.node.nodeId },
-        actionLabel: "Inspect coverage",
-      });
-    }
   }
 
   // Credit withheld from a strapped set, in the calculator's note and the published rule's words
@@ -416,7 +369,8 @@ export function exercisesInWindow(summary: SpecializationSummary, data: Speciali
   for (const node of summary.nodes) {
     if (!regionNodes.has(node.nodeId)) continue;
     for (const row of node.contributions) {
-      if (row.side === "unknown") continue;
+      // A row kept apart for want of a side (only a per-side summary keeps one) is in no total.
+      if (row.countedSide === "unknown") continue;
       const key = row.catalogExerciseId !== null ? `id:${row.catalogExerciseId}` : `name:${row.exerciseName}`;
       const entry = byExercise.get(key) ?? { name: row.exerciseName, catalogExerciseId: row.catalogExerciseId, bouts: new Set<string>(), directFor: new Set<string>() };
       entry.bouts.add(row.boutId);
@@ -436,7 +390,7 @@ export function boutsByDay(summary: SpecializationSummary, data: SpecializationR
   for (const node of summary.nodes) {
     if (!regionNodes.has(node.nodeId)) continue;
     for (const row of node.contributions) {
-      if (row.side === "unknown" || !row.performedAt) continue;
+      if (row.countedSide === "unknown" || !row.performedAt) continue;
       const key = dayKeyOf(row.performedAt);
       const set = byDay.get(key) ?? new Set<string>();
       set.add(row.boutId);
@@ -460,7 +414,7 @@ export function overlapsInWindow(summary: SpecializationSummary, data: Specializ
     const meta = regionNodes.get(node.nodeId);
     if (!meta) continue;
     for (const row of node.contributions) {
-      if (row.side === "unknown" || !isDirectWork(row)) continue;
+      if (row.countedSide === "unknown" || !isDirectWork(row)) continue;
       const session = row.sessionId ?? row.sessionLabel;
       const key = `${session}|${node.nodeId}`;
       const entry = bySessionNode.get(key) ?? { key, sessionLabel: row.sessionLabel, performedAt: row.performedAt, nodeId: node.nodeId, nodeShortName: meta.shortName, exercises: [], names: new Set<string>() };
@@ -484,7 +438,6 @@ export function overlapsInWindow(summary: SpecializationSummary, data: Specializ
  */
 export function regionBoutRows(summary: SpecializationSummary, list: RegionBoutList): RegionBoutRow[] {
   if (list === "region") return summary.regionBoutRows ?? [];
-  if (list === "unknown-side") return summary.regionUnknownSideRows ?? [];
   if (list === "listed-unmapped") return summary.listedUnmappedRows ?? [];
   return summary.regionUnclassifiedRows ?? [];
 }
@@ -663,8 +616,9 @@ export type MovementBout = RegionBoutRow & {
 /**
  * A movement's numbers, counted the way a movement target is (exposure.ts goalProgressFor):
  * distinct bouts in which a credited mapping for that movement on one of the region's own
- * muscles is that kind of work; hold seconds once per bout; a bout with no arm recorded is
- * listed apart and counted for neither arm.
+ * muscles is that kind of work; hold seconds once per bout. In a per-side summary (dormant) a bout
+ * kept apart for want of a side is counted apart (`unknownSideBouts`); the page's summary counts
+ * both sides as one, so it keeps none apart.
  */
 export type MovementTotals = { directDynamicBouts: number; deliberateHoldBouts: number; deliberateHoldSeconds: number; otherBouts: number; unknownSideBouts: number };
 
@@ -690,7 +644,7 @@ export function movementLedger(summary: SpecializationSummary, data: Specializat
     for (const row of node.contributions) {
       const parts = row.parts.filter((part) => part.actionId === actionId);
       if (!parts.length) continue;
-      const counted = row.side !== "unknown";
+      const counted = row.countedSide !== "unknown";
       const sideOf = { side: row.side, sideSource: row.sideSource, countedSide: row.countedSide, recordedSide: row.recordedSide, sideRelation: row.sideRelation };
       const found = byBout.get(row.boutId);
       const entry = found ?? {
@@ -700,7 +654,7 @@ export function movementLedger(summary: SpecializationSummary, data: Specializat
         categories: [], nodeIds: [], mappingIds: [], holdSeconds: row.holdSeconds, notes: [],
       };
       // Counted by this muscle where an earlier one kept it apart: the bout takes this row's side.
-      if (found && counted && found.side === "unknown") Object.assign(entry, sideOf);
+      if (found && counted && found.countedSide === "unknown") Object.assign(entry, sideOf);
       const bucket = kinds.get(row.boutId) ?? { counted: [], apart: [] };
       for (const part of parts) {
         const list = counted ? bucket.counted : bucket.apart;
@@ -720,7 +674,7 @@ export function movementLedger(summary: SpecializationSummary, data: Specializat
   const bouts = Array.from(byBout.values()).map((bout) => ({ ...bout, categories: categoriesOf(bout.boutId) }));
   const totals: MovementTotals = { directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, otherBouts: 0, unknownSideBouts: 0 };
   for (const bout of bouts) {
-    if (bout.side === "unknown") { totals.unknownSideBouts += 1; continue; }
+    if (bout.countedSide === "unknown") { totals.unknownSideBouts += 1; continue; }
     const direct = bout.categories.includes("direct_dynamic");
     const held = bout.categories.includes("deliberate_isometric");
     if (direct) totals.directDynamicBouts += 1;

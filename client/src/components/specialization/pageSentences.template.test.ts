@@ -9,26 +9,29 @@ import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { buildDaySlots, emptyDayStore } from "@/lib/trainingDayPlan";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
-import type { BodySide, Contribution, NodeExposure, SpecializationRegionData, SpecializationSummary, SummarySide } from "@shared/specialization/types";
+import type { Contribution, NodeExposure, SpecializationRegionData, SpecializationSummary, SummarySide } from "@shared/specialization/types";
 import { pageFixtures } from "./__fixtures__/pageRegions";
 import { exposureSentence, findingsFor } from "./model";
-import { sideWordsFor } from "./sideWords";
 import { SpecializationPanel } from "./SpecializationPanel";
 
 /**
- * Every page sentence that names a region or a side, for every region shape
- * (docs/specialization-atlas/10-multi-region.md §1.1, §6.2): the forearm, and test regions paired
- * by the arm (the deltoid fixture), by the leg with the side word "leg" (a thigh), by the arm with
- * the side word "side" (a back), and a midline core; each side of a paired region, and none for
- * the midline. The page is rendered with work that reaches the sentences (sets with no side
- * recorded, region-only work, a plan), its sheets and disclosures opened, and every piece of text
- * and every accessible name is held to three rules:
+ * Every page sentence that names a region, for every region shape (docs/specialization-atlas/
+ * 10-multi-region.md §1.1, §6.2 and the appendix "Both sides as one"): the forearm, and test regions
+ * paired by the arm (the deltoid fixture), by the leg with the side word "leg" (a thigh), by the arm
+ * with the side word "side" (a back), and a midline core. Since the owner's decision of 20 Oct 2026
+ * ("there's no reason for a left and right arm", extended to every paired region) each page counts
+ * both sides as one, so there is one page per region and mode, and no side to say. The page is
+ * rendered with work that reaches the sentences (sets with a side recorded and none, region-only
+ * work, a plan), its sheets and disclosures opened, and every piece of text and every accessible
+ * name is held to these rules:
  *
  * - no noun said twice in a row ("arm arm"), and the region's own noun at most once a sentence
  *   ("the forearms on your right forearm");
- * - never "{label} on the" ("the thighs on the right thigh": a side is said as the region says it);
- * - no limb word that is not the region's ("leg" on the back's page, "arm" on the thigh's), and no
- *   side at all on the midline region;
+ * - never "{label} on the" ("the thighs on the right thigh");
+ * - no left or right side on any region, and no limb word that is not the region's ("leg" on the
+ *   back's page, "arm" on the thigh's; none on the midline region): the region's own limb word is
+ *   said only where the page says both sides count together;
+ * - nothing kept apart for want of a side ("kept apart", "counted for neither arm");
  * - no named week said twice in one text ("Plan Week 1, as written: … planned … in Plan Week 1").
  *
  * Left out, because they are not the page's sentences: the published rule's text (`.spz-rule-text`,
@@ -89,7 +92,10 @@ function Harness({ initial }: { initial: SpecializationViewState }) {
 }
 
 const regions: SpecializationRegionData[] = [forearmRegionData, pageFixtures.deltoid, pageFixtures.fx_thigh, pageFixtures.fx_back, pageFixtures.fx_core];
-const sidesOf = (data: SpecializationRegionData): SummarySide[] => (data.region.sides.model === "midline" ? ["midline"] : ["left", "right"]);
+/** The page's one summary of a region: both sides as one on a paired region, the midline on a midline one. */
+const pageSideOf = (data: SpecializationRegionData): SummarySide => (data.region.sides.model === "midline" ? "midline" : "both");
+/** The region's line, as the page says it: "touched the forearms", "planned for the forearms". */
+const regionLineOf = (data: SpecializationRegionData, mode: "completed" | "planned") => `${mode === "planned" ? "planned for" : "touched"} the ${data.region.label.toLowerCase()}`;
 
 const BLOCKS = "p, li, h1, h2, h3, dt, dd, summary, legend, figcaption, label > span, button, option, small, strong, b";
 /** Region content the page shows but does not write: anatomy, claims and sources, rationales, method notes, and the published rule. */
@@ -109,13 +115,14 @@ const sentences = (text: string) => text.split(/(?<=[.!?:])\s+/);
 const exerciseNames = exercises.map((exercise) => exercise.name).filter(Boolean).sort((a, b) => b.length - a.length);
 const withoutNames = (sentence: string, names: readonly string[]) => names.reduce((text, name) => (text.includes(name) ? text.split(name).join("·") : text), sentence);
 
-/** What the three rules find wrong in these texts for this region, as readable lines. */
+/** What the rules find wrong in these texts for this region, as readable lines. */
 function problems(data: SpecializationRegionData, texts: readonly string[]): string[] {
   const { region } = data;
   const label = region.label.toLowerCase();
   const noun = label.split(" ").pop()!.replace(/s$/, "");
   const limb = region.sides.model === "paired" ? region.sides.limb : null;
-  const foreign = limb === "arm" ? /\blegs?\b/i : limb === "leg" ? /\barms?\b/i : /\barms?\b|\blegs?\b|\b(left|right)\b(?! out\b| unmapped\b)/i;
+  const side = /\b(left|right)\b(?! out\b| unmapped\b)/i;
+  const foreign = limb === "arm" ? /\blegs?\b/i : limb === "leg" ? /\barms?\b/i : /\barms?\b|\blegs?\b/i;
   const names = [...data.nodes.map((node) => node.name), ...exerciseNames].sort((a, b) => b.length - a.length);
   const out: string[] = [];
   for (const text of texts) {
@@ -127,7 +134,9 @@ function problems(data: SpecializationRegionData, texts: readonly string[]): str
       const said = withoutNames(sentence, names);
       if ((said.match(new RegExp(`\\b${noun}s?\\b`, "gi")) ?? []).length > 1) out.push(`"${noun}" twice: ${sentence}`);
       if (sentence.toLowerCase().includes(`${label} on the`)) out.push(`"${label} on the": ${sentence}`);
-      if (foreign.test(said)) out.push(`limb or side not the region's: ${sentence}`);
+      if (side.test(said)) out.push(`a side named: ${sentence}`);
+      if (foreign.test(said)) out.push(`limb not the region's: ${sentence}`);
+      if (/kept apart|counted for neither/i.test(said)) out.push(`a side kept apart: ${sentence}`);
     }
   }
   return out;
@@ -135,19 +144,19 @@ function problems(data: SpecializationRegionData, texts: readonly string[]): str
 
 const click = async (element: HTMLElement) => { await act(async () => { fireEvent.click(element); }); };
 const openDisclosure = async (name: string) => {
-  const details = screen.getByText(name).closest("details")!;
+  // The disclosure's own heading: the 3D model's panel also has a "How this is counted" link.
+  const details = screen.getAllByText(name).find((element) => element.closest("summary"))!.closest("details")!;
   await act(async () => { details.open = true; fireEvent(details, new Event("toggle")); });
   return details;
 };
 const closeSheet = async () => { const close = screen.queryByRole("button", { name: "Close" }); if (close) await click(close); };
 
-/** The page for one region and side, with its sheets and disclosures opened in turn; every text seen along the way. */
-async function readEverything(data: SpecializationRegionData, side: SummarySide, mode: "completed" | "planned"): Promise<string[]> {
-  const limb: BodySide = side === "midline" ? "right" : side;
-  render(createElement(Harness, { initial: { ...defaultSpecializationState(data.region.id), limb, mode } }));
+/** The page for one region, with its sheets and disclosures opened in turn; every text seen along the way. */
+async function readEverything(data: SpecializationRegionData, mode: "completed" | "planned"): Promise<string[]> {
+  render(createElement(Harness, { initial: { ...defaultSpecializationState(data.region.id), mode } }));
   await act(async () => {});
   const seen = [...pageTexts()];
-  // The region's sets, and the sets with no side recorded where there are any.
+  // The region's sets, and every other list of sets the page offers.
   const strip = screen.getByRole("group", { name: "Selected muscle" });
   const seeSets = within(strip).queryByRole("button", { name: /See these sets/ });
   if (seeSets) { await click(seeSets); seen.push(...pageTexts()); await closeSheet(); }
@@ -188,39 +197,39 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
-describe("every page sentence that names a region or a side, for every region shape", () => {
+describe("every page sentence that names a region, for every region shape", () => {
   for (const data of regions) {
-    for (const side of sidesOf(data)) {
-      for (const mode of ["completed", "planned"] as const) {
-        it(`${data.region.id}, ${side}, ${mode}`, async () => {
-          const texts = await readEverything(data, side, mode);
-          const words = sideWordsFor(data.region);
-          // The page reached its sentences: the region's line names the region and the side as the region says them.
-          expect(texts.some((text) => text.includes(words.onSide(side))), words.onSide(side)).toBe(true);
-          expect(problems(data, texts)).toEqual([]);
-        }, 60000);
-      }
+    for (const mode of ["completed", "planned"] as const) {
+      it(`${data.region.id}, ${mode}`, async () => {
+        const texts = await readEverything(data, mode);
+        // The page reached its sentences: the region's line names the region, and no side.
+        expect(texts.some((text) => text.includes(regionLineOf(data, mode))), regionLineOf(data, mode)).toBe(true);
+        expect(problems(data, texts)).toEqual([]);
+      }, 60000);
     }
   }
 
   it("finds what it is looking for: each rule catches the sentence it is there for", () => {
     const thigh = pageFixtures.fx_thigh;
-    expect(problems(thigh, ["12 distinct bouts touched the fixture thighs on the right thigh."])).toHaveLength(2);
+    expect(problems(thigh, ["12 distinct bouts touched the fixture thighs on the right thigh."])).toHaveLength(3);
     expect(problems(pageFixtures.deltoid, ["Mapping under review for Anterior deltoid and Lateral deltoid and 2 more"])).toEqual([]);
     expect(problems(forearmRegionData, ["About Single-Leg Romanian Deadlift"])).toEqual([]);
     expect(problems(pageFixtures.fx_core, ["Nothing left out"])).toEqual([]);
-    expect(problems(thigh, ["Kept apart and counted for neither arm."])).toEqual(["limb or side not the region's: Kept apart and counted for neither arm."]);
+    expect(problems(thigh, ["Kept apart and counted for neither arm."])).toEqual(["limb not the region's: Kept apart and counted for neither arm.", "a side kept apart: Kept apart and counted for neither arm."]);
     expect(problems(pageFixtures.fx_core, ["This week · right side"])).toHaveLength(1);
-    expect(problems(forearmRegionData, ["Logged on the right arm arm: 3 bouts"])).toHaveLength(1);
-    expect(problems(forearmRegionData, ["12 distinct bouts touched your right forearm."])).toEqual([]);
-    expect(problems(forearmRegionData, ["Plan Week 1, as written: 18 distinct bouts are planned for your left forearm in Plan\u00a0Week 1."])).toHaveLength(1);
-    expect(problems(forearmRegionData, ["Plan Week 2, as written: 18 distinct bouts are planned for your left forearm in Plan Week 1."])).toEqual([]);
+    expect(problems(forearmRegionData, ["Logged on the right arm arm: 3 bouts"])).toHaveLength(2);
+    // The words the page said per arm before 20 Oct are a side named; the words it says now are not.
+    expect(problems(forearmRegionData, ["12 distinct bouts touched your right forearm."])).toEqual(["a side named: 12 distinct bouts touched your right forearm."]);
+    expect(problems(thigh, ["Right leg"])).toHaveLength(1);
+    expect(problems(forearmRegionData, ["12 distinct bouts touched the forearms."])).toEqual([]);
+    expect(problems(forearmRegionData, ["Both arms count together: a set counts once, whichever arm or arms did it, and a set with no arm recorded counts like any other."])).toEqual([]);
+    expect(problems(forearmRegionData, ["Plan Week 1, as written: 18 distinct bouts are planned for the forearms in Plan\u00a0Week 1."])).toHaveLength(1);
+    expect(problems(forearmRegionData, ["Plan Week 2, as written: 18 distinct bouts are planned for the forearms in Plan Week 1."])).toEqual([]);
   });
 
   /** What the page's live region says once Planned is chosen. */
-  const announcedOnPlanned = async (data: SpecializationRegionData, side: SummarySide): Promise<string> => {
-    const limb: BodySide = side === "midline" ? "right" : side;
-    render(createElement(Harness, { initial: { ...defaultSpecializationState(data.region.id), limb } }));
+  const announcedOnPlanned = async (data: SpecializationRegionData): Promise<string> => {
+    render(createElement(Harness, { initial: defaultSpecializationState(data.region.id) }));
     await act(async () => {});
     await click(within(screen.getByRole("group", { name: "Planned or completed" })).getByRole("button", { name: "Planned" }));
     await act(async () => {});
@@ -228,44 +237,38 @@ describe("every page sentence that names a region or a side, for every region sh
   };
   for (const data of regions) {
     it(`${data.region.id}: says the plan week once when Planned is chosen`, async () => {
-      const side = sidesOf(data)[0];
-      const said = await announcedOnPlanned(data, side);
-      const words = sideWordsFor(data.region);
+      const said = await announcedOnPlanned(data);
       expect(said.startsWith("Plan Week 1, as written: ")).toBe(true);
-      expect(said).toContain(`planned for ${words.onSide(side)}`);
+      expect(said).toContain(`for the ${data.region.label.toLowerCase()}.`);
       expect(said).not.toMatch(/in Plan\sWeek/);
       expect(problems(data, [said])).toEqual([]);
     }, 60000);
   }
 });
 
-describe("what the page model says, for every region shape and side", () => {
+describe("what the page model says, for every region shape", () => {
   const node = (nodeId: string, over: Partial<NodeExposure> = {}): NodeExposure => ({
     nodeId, directDynamicBouts: 0, contributingDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, incidentalBouts: 2, mixedBouts: 0, unknownBouts: 0, directDynamicReps: 0, contributingDynamicReps: 0,
-    unknownSide: { bouts: 1, directDynamicBouts: 1, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 1 }, pendingReviewBouts: 1, mappingCoverage: "reviewed", contributions: [], ...over,
+    unknownSide: { bouts: 0, directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 0 }, pendingReviewBouts: 1, mappingCoverage: "reviewed", contributions: [], ...over,
   });
   const strapped = { notes: ["Strapped: grip not counted"], boutId: "b1" } as unknown as Contribution;
   const summary = (data: SpecializationRegionData, side: SummarySide, direct: number): SpecializationSummary => ({
     regionId: data.region.id, interval: { kind: "calendar_week", startAt: null, endAtExclusive: null, timezone: "UTC", planWeek: null, label: "This week" }, side, mode: "completed",
     mappingVersion: data.mappingVersion.key, ruleVersion: "x", sourceRevision: "", planRevision: null,
     nodes: data.nodes.map((item) => node(item.id, { directDynamicBouts: direct, contributions: Array.from({ length: direct }, (_, index) => ({ boutId: `${side}${index}`, nodeId: item.id, category: "direct_dynamic", parts: [], side: "bilateral", countedSide: side, recordedSide: null } as unknown as Contribution)), notCounted: [strapped] })),
-    regionDistinctBouts: 4, regionUnknownSideBouts: 2, regionUnclassified: { bouts: 1, exercises: [{ name: "Dumbbell Pullover", catalogExerciseId: 24, bouts: 1 }] },
+    regionDistinctBouts: 4, regionUnknownSideBouts: 0, regionUnclassified: { bouts: 1, exercises: [{ name: "Dumbbell Pullover", catalogExerciseId: 24, bouts: 1 }] },
     goals: [{ goal: { id: "g", regionId: data.region.id, nodeId: data.nodes[0].id, actionId: null, side, metric: "direct_dynamic_bouts", target: 9, period: "calendar_week", startsOn: "2026-01-01", endsOn: null, timezone: "UTC", createdAt: "", updatedAt: "" }, value: 1, fraction: 1 / 9, label: "1 of your 9" }],
-    completeness: { boutsConsidered: 9, boutsWithReviewedMapping: 4, boutsPendingReview: 1, boutsRegionOnly: 1, boutsNameMatched: 0, boutsUnknownSide: 2, boutsExcluded: { notCompleted: 0, warmup: 0 }, boutsListedUnmapped: 0 },
+    completeness: { boutsConsidered: 9, boutsWithReviewedMapping: 4, boutsPendingReview: 1, boutsRegionOnly: 1, boutsNameMatched: 0, boutsUnknownSide: 0, boutsExcluded: { notCompleted: 0, warmup: 0 }, boutsListedUnmapped: 0 },
     calculatedAt: "",
   });
   for (const data of regions) {
-    for (const side of sidesOf(data)) {
-      it(`${data.region.id}, ${side}`, () => {
-        const words = sideWordsFor(data.region);
-        const other = side === "left" ? "right" : side === "right" ? "left" : "midline";
-        const findings = findingsFor({ data, summary: summary(data, side, 5), otherSide: summary(data, other, 1) });
-        const texts = [...findings.flatMap((finding) => [finding.title, finding.detail]), exposureSentence(node(data.nodes[0].id), data.region.wording.incidentalWork, words)];
-        // A midline region keeps nothing apart for want of a side and compares no sides.
-        expect(findings.some((finding) => finding.id === "unknown-side")).toBe(words.paired);
-        expect(findings.some((finding) => finding.id.startsWith("sides:"))).toBe(words.paired);
-        expect(problems(data, texts)).toEqual([]);
-      });
-    }
+    it(`${data.region.id}, ${pageSideOf(data)}`, () => {
+      const findings = findingsFor({ data, summary: summary(data, pageSideOf(data), 5) });
+      const texts = [...findings.flatMap((finding) => [finding.title, finding.detail]), exposureSentence(node(data.nodes[0].id), data.region.wording.incidentalWork)];
+      // No region keeps anything apart for want of a side, or compares sides.
+      expect(findings.some((finding) => finding.id === "unknown-side" || finding.id.startsWith("sides:"))).toBe(false);
+      expect(findings.length).toBeGreaterThan(2);
+      expect(problems(data, texts)).toEqual([]);
+    });
   }
 });

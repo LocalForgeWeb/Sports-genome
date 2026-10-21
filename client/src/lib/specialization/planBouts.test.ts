@@ -28,7 +28,7 @@ const day = (entries: { id: number; prescription?: string }[]): WeeklyDayStore =
   prescriptions: { [slots[0].key]: Object.fromEntries(entries.filter((entry) => entry.prescription).map((entry) => [entry.id, entry.prescription!])) },
 });
 const plan = (store: WeeklyDayStore) => boutsFromPlan({ week: 1, slots, store, variants: forearmRegionData.variants, goal: "Muscle growth" });
-const plannedSummary = (store: WeeklyDayStore, side: "left" | "right") => getSpecializationSummary({
+const plannedSummary = (store: WeeklyDayStore, side: "left" | "right" | "both") => getSpecializationSummary({
   region: forearmRegionData, bouts: plan(store), interval: planWeekInterval(1, "UTC"), side, mode: "planned", goals: [],
   catalogMusclesFor: catalogMusclesLookup(exercises), sourceRevision: "s", planRevision: "p", now: "2026-10-16T12:00:00.000Z",
 });
@@ -105,16 +105,17 @@ describe("a hold never gets a rep default", () => {
     expect(plannedSummary(day([{ id: deadHang.id }]), "left").nodes.find((node) => node.nodeId === forearmMuscleIds.flexorDigitorumSuperficialis)!.deliberateHoldSeconds).toBe(90);
   });
 
-  it("still plans a one-arm exercise's sets once for each arm: two bouts per planned set, Right then Left", () => {
+  it("plans a one-arm exercise's set as one bout, assumed on both arms: planned equals logged, one row per set (both arms as one, owner 20 Oct 2026)", () => {
     const bouts = plan(day([{ id: oneArmCurl.id, prescription: "3 × 12" }]));
-    expect(bouts.map((bout) => bout.id)).toEqual([1, 2, 3].flatMap((n) => [`plan/1/${slots[0].key}/410/${n}#right`, `plan/1/${slots[0].key}/410/${n}#left`]));
-    expect(bouts.map((bout) => bout.armSide?.side)).toEqual(["right", "left", "right", "left", "right", "left"]);
-    expect(bouts.every((bout) => bout.armSide?.source === "plan_assumption" && bout.legSide === null && bout.segments[0].reps === 12 && bout.segments[0].id === bout.id)).toBe(true);
-    // Each arm still gets 3 for "3 × 12" (10-multi-region.md §2.1).
+    expect(bouts.map((bout) => bout.id)).toEqual([1, 2, 3].map((n) => `plan/1/${slots[0].key}/410/${n}`));
+    expect(bouts.every((bout) => bout.armSide?.side === "both" && bout.armSide.source === "plan_assumption" && bout.legSide === null && bout.segments[0].reps === 12 && bout.segments[0].id === bout.id)).toBe(true);
+    // The page's summary, both arms as one: 3 for "3 × 12", as three rows logged give.
+    expect(plannedSummary(day([{ id: oneArmCurl.id, prescription: "3 × 12" }]), "both").regionDistinctBouts).toBe(3);
+    // A per-arm summary (dormant) still gives each arm 3, as the forearm first shipped it (6738eeb).
     for (const side of ["left", "right"] as const) {
       const summary = plannedSummary(day([{ id: oneArmCurl.id, prescription: "3 × 12" }]), side);
       expect(summary.regionDistinctBouts, side).toBe(3);
-      expect(summary.regionBoutRows!.every((row) => row.boutId.endsWith(`#${side}`) && row.countedSide === side), side).toBe(true);
+      expect(summary.regionBoutRows!.every((row) => row.countedSide === side), side).toBe(true);
     }
   });
 });
@@ -131,8 +132,8 @@ describe("the variants a region's page lays the plan out by (planningVariantsFor
     expect(planningVariantsFor(forearmRegionData).map((variant) => variant.id)).toEqual(forearmRegionData.variants.map((variant) => variant.id));
   });
 
-  it("so the thigh's page plans a single-leg RDL once per leg, as the tracker lays it out", () => {
+  it("so the thigh's page plans a single-leg RDL by its own variant: one bout per planned set, assumed on both legs, as the tracker lays it out", () => {
     const bouts = boutsFromPlan({ week: 1, slots, store: day([{ id: 188, prescription: "3 × 10" }]), variants: planningVariantsFor(fxThigh) });
-    expect(bouts.map((bout) => [bout.legSide?.side, bout.armSide])).toEqual([1, 2, 3].flatMap(() => [["right", null], ["left", null]]));
+    expect(bouts.map((bout) => [bout.legSide, bout.armSide])).toEqual([1, 2, 3].map(() => [{ side: "both", source: "plan_assumption" }, null]));
   });
 });

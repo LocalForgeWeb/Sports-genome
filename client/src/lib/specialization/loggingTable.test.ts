@@ -12,8 +12,8 @@ import forearmAt6738eeb from "./__fixtures__/forearmRegionData.6738eeb.json";
 /**
  * The workout logger reads one generated table instead of every region's variants and mappings
  * (10-multi-region.md §6.4). These keep the table and the light hold list equal to the registry and
- * the variant library, prove the forearm logs exactly as it did before the table, and keep what
- * the logger imports light for every region.
+ * the variant library, prove the forearm logs exactly as main does (4dac1ae: no arm asked, one row
+ * per planned set; owner, 20 Oct 2026), and keep what the logger imports light for every region.
  */
 describe("the generated files", () => {
   it("are what the emitter writes from the registry today (npx tsx scripts/specialization/emit-logging-table.ts)", () => {
@@ -49,16 +49,17 @@ describe("the generated files", () => {
   });
 });
 
-describe("the forearm, in wave 0, logs exactly as it did before the table", () => {
-  // The policy as shipped (6738eeb loggingPolicy.ts), over the forearm's variants and mappings as they were.
+describe("the forearm logs exactly as main does (4dac1ae), through the table", () => {
+  // The policy on main (4dac1ae loggingPolicy.ts: both arms as one, so no arm asked and no row per
+  // arm), over the forearm's variants and mappings as they shipped (6738eeb, unchanged since).
   const before = forearmAt6738eeb as unknown as { variants: ExerciseVariant[]; mappings: VariantMapping[] };
   const shippedPolicy = (catalogId: number) => {
     const variant = before.variants.find((item) => item.catalogExerciseId === catalogId);
     if (!variant) return { measure: "reps", askSide: false, oneArm: false, sideDefault: null, strapsSensitive: false };
     return {
       measure: variant.measure === "seconds" ? "seconds" : "reps",
-      askSide: variant.laterality === "unilateral" || variant.laterality === "either",
-      oneArm: variant.laterality === "unilateral",
+      askSide: false,
+      oneArm: false,
       sideDefault: variant.laterality === "either" ? "both" : null,
       strapsSensitive: before.mappings.some((mapping) => mapping.variantId === variant.id && mapping.requiresNoStraps && mapping.reviewStatus !== "rejected"),
     };
@@ -73,10 +74,12 @@ describe("the forearm, in wave 0, logs exactly as it did before the table", () =
     }
   });
 
-  it("asks every side it asks of the arm", () => {
+  it("asks no side of any exercise, of an arm or a leg, and lays no planned set out per side", () => {
     for (const id of loggingTable.keys()) {
       const policy = loggingPolicyFor(id);
-      if (policy.askSide || policy.oneSide) expect(policy.sideLimb, `catalog ${id}`).toBe("arm");
+      expect([policy.askSide, policy.oneSide, policy.oneArm], `catalog ${id}`).toEqual([false, false, false]);
+      // The limb a side would be recorded on is still the variant's, for a decision that asks again.
+      if (policy.sideLimb !== null) expect(policy.sideLimb, `catalog ${id}`).toBe("arm");
     }
   });
 });

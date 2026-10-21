@@ -113,7 +113,7 @@ describe("the specialization page on the deltoid fixture", () => {
     // Three two-handed lateral raises: three direct bouts on this arm, never six.
     expect(screen.getByRole("button", { name: /^Lateral deltoid, Surface\. 3 direct dynamic bouts/ })).not.toBeNull();
     expect(screen.getByRole("button", { name: /^Anterior deltoid, Surface\. 2 direct dynamic bouts/ })).not.toBeNull();
-    expect(within(mapCard()).getByRole("group", { name: /^Deltoids, right arm, front view, surface layer\. 2 muscles to choose from\.$/ })).not.toBeNull();
+    expect(within(mapCard()).getByRole("group", { name: /^Deltoids, front view, surface layer\. 2 muscles to choose from\.$/ })).not.toBeNull();
   });
 
   it("says nothing of the forearm: no forearm, grip, palm or thumb side anywhere on the page", () => {
@@ -129,7 +129,7 @@ describe("the specialization page on the deltoid fixture", () => {
     expect(lastState?.view).toBe("side");
     expect(viewButtons().map((button) => button.getAttribute("aria-pressed"))).toEqual(["false", "true", "false"]);
     expect(mapCard().querySelector(".spz-diagram")!.getAttribute("data-view")).toBe("side");
-    expect(within(mapCard()).getByRole("group", { name: /^Deltoids, right arm, side view, surface layer\. 3 muscles/ })).not.toBeNull();
+    expect(within(mapCard()).getByRole("group", { name: /^Deltoids, side view, surface layer\. 3 muscles/ })).not.toBeNull();
     await act(async () => { fireEvent.click(viewButtons()[0]); });
     expect(lastState?.view).toBeNull();
     expect(mapCard().querySelector(".spz-diagram")!.getAttribute("data-view")).toBe("front");
@@ -196,7 +196,7 @@ describe("the same page on the forearm, for contrast", () => {
     expect(screen.getByText("Progress").closest("summary")!.textContent).toBe("ProgressCircumference and grip, by arm");
     await act(async () => { fireEvent.click(viewButtons()[2]); });
     expect(lastState?.view).toBe("thumb");
-    expect(within(mapCard()).getByRole("group", { name: /^Forearms, right arm, thumb side view, surface layer\./ })).not.toBeNull();
+    expect(within(mapCard()).getByRole("group", { name: /^Forearms, thumb side view, surface layer\./ })).not.toBeNull();
     await act(async () => { fireEvent.click(viewButtons()[0]); });
     expect(lastState?.view).toBeNull();
   });

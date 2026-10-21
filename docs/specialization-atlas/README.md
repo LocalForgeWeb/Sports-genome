@@ -1,5 +1,7 @@
 # Muscle Specialization Atlas, forearms first: completion report
 
+> **20 Oct 2026:** the map on Specialize is now the supplied 3D forearm by default, with this drawing one tap away (**3D model | Drawing**). See [`forearm-3d/`](forearm-3d/README.md) and its ledger [`SG-FOREARM-INTEGRATION-20261019.md`](forearm-3d/SG-FOREARM-INTEGRATION-20261019.md). Everything below still describes the drawing and the calculator, which are unchanged. **The same day, both arms were made one** (owner: "there's no reason for a left and right arm"). The page counts each set once per muscle whichever arm did it, with no arm switch, no per-arm targets or readings, and no arm question in the logger. Where this report speaks of a left or right arm, it describes the release before that: see [`forearm-3d/README.md`](forearm-3d/README.md#both-arms-as-one-20-oct-2026).
+
 Owner's brief: [`brief-2026-10-16.md`](brief-2026-10-16.md). This page is the brief's §12 completion report: what exists, where, how it was tested, and what is still owed. Details live in the numbered notes. Counts, names and timings below were read from the code at `1cb619a` (18 Oct 2026) with scripts, not written from memory, except where a section says it describes wave 0 of the multi-region atlas (20 Oct 2026, [10-multi-region.md](10-multi-region.md)), whose own release is at the end ("Wave 0: the platform for several regions").
 
 | Note | What it covers |

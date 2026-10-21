@@ -18,8 +18,9 @@ import { SpecializationPanel, type SpecializationPanelProps } from "./Specializa
  * The page with several regions (docs/specialization-atlas/10-multi-region.md §6.1–§6.3), before a
  * second region ships: the test regions reach the page through the light index and the loader,
  * mocked here to hand them out as production regions (never registered, no prop for them). The
- * heading becomes the region picker; each region loads on its own; a midline region names no
- * side; another region's muscle links to its home's page when that page exists.
+ * heading becomes the region picker; each region loads on its own; no region names a side (both
+ * sides are one count, owner 20 Oct 2026, every paired region; a midline region has none);
+ * another region's muscle links to its home's page when that page exists.
  */
 
 /** A region the test holds back while it loads, or makes fail. */
@@ -137,7 +138,8 @@ describe("the heading row with more than one region", () => {
   });
 
   it("opens a grid of the production regions in body order, the current one pressed, each with its active targets", async () => {
-    storeGoals([goal({ id: "a", side: "left" }), goal({ id: "b", side: "right" }), goal({ id: "c", regionId: "fx_thigh", nodeId: "fx_thigh.quads", side: "left" }), goal({ id: "ended", regionId: "fx_core", nodeId: "fx_core.rectus", side: "midline", endsOn: "2026-10-10" })]);
+    // The forearm's "a" and "b" are an old pair, one per arm, read as one target (both arms as one); "d" is another.
+    storeGoals([goal({ id: "a", side: "left" }), goal({ id: "b", side: "right" }), goal({ id: "d", nodeId: "forearm.br" }), goal({ id: "c", regionId: "fx_thigh", nodeId: "fx_thigh.quads", side: "left" }), goal({ id: "ended", regionId: "fx_core", nodeId: "fx_core.rectus", side: "midline", endsOn: "2026-10-10" })]);
     await show();
     await click(toggle());
     expect(toggle().getAttribute("aria-expanded")).toBe("true");
@@ -156,15 +158,16 @@ describe("the heading row with more than one region", () => {
   });
 
   it("picks a region: the page is replaced, the grid closes, focus stays on the toggle, and the count is said", async () => {
-    await show({ nodeId: "forearm.fcr", limb: "right" });
+    await show({ nodeId: "forearm.fcr" });
     await click(toggle());
     await click(within(grid()).getByRole("button", { name: /Fixture thighs/ }));
-    expect(lastState).toMatchObject({ regionId: "fx_thigh", nodeId: null, view: null, layer: "surface", limb: "right" });
+    expect(lastState).toMatchObject({ regionId: "fx_thigh", nodeId: null, view: null, layer: "surface" });
+    expect(lastState).not.toHaveProperty("limb");
     expect(toggle().textContent).toBe("Fixture thighs");
     expect(toggle().getAttribute("aria-expanded")).toBe("false");
     expect(grid().hidden).toBe(true);
     expect(document.activeElement).toBe(toggle());
-    expect(live()).toMatch(/^Fixture thighs: \d+ distinct bouts? touched your right fixture thigh\.$/);
+    expect(live()).toMatch(/^Fixture thighs: \d+ distinct bouts? touched the fixture thighs\.$/);
     // The page below is the thigh's: its muscles, nothing the forearm's page had open.
     expect(screen.getByRole("button", { name: /^Fixture quadriceps/ })).toBeTruthy();
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -257,12 +260,12 @@ describe("a region's data, loaded on its own", () => {
 
 describe("a midline region", () => {
   it("has no side switch, no side in its sentences, nothing kept apart for want of a side, and no side in a target", async () => {
-    await show({ regionId: "fx_core", limb: "left" });
+    await show({ regionId: "fx_core" });
     for (const name of ["Arm", "Side", "Leg"]) expect(screen.queryByRole("group", { name })).toBeNull();
     // The page's own words; the published rule's text under How this is counted is the same on every region.
     const page = document.body.cloneNode(true) as HTMLElement;
     page.querySelector("#spz-method")?.remove();
-    expect(page.textContent).toMatch(/touched your fixture core\./);
+    expect(page.textContent).toMatch(/touched the fixture core\./);
     expect(page.textContent).not.toMatch(/recorded|\bleft\b|\bright\b|\barms?\b|\blegs?\b/i);
     const targets = screen.getByText("Targets").closest("details")!;
     await act(async () => { targets.open = true; fireEvent(targets, new Event("toggle")); });
@@ -274,13 +277,13 @@ describe("a midline region", () => {
 
 describe("another region's muscle", () => {
   it("is grouped under its home's own heading, and its sheet links to its home's page when that page exists", async () => {
-    await show({ regionId: "fx_back", limb: "right" });
+    await show({ regionId: "fx_back" });
     expect(screen.getByText("Fixture shoulders muscles credited here")).toBeTruthy();
     const sheet = await openSheetOf(/^Fixture rear deltoid/);
     expect(within(sheet).getByText("Targets for this muscle are set on the fixture shoulders page.")).toBeTruthy();
     expect(within(sheet).queryByRole("button", { name: /Set a target/ })).toBeNull();
     await click(within(sheet).getByRole("button", { name: "Open the fixture shoulders page" }));
-    expect(lastState).toMatchObject({ regionId: "fx_shoulder", nodeId: "fx_shoulder.rear_delt", limb: "right" });
+    expect(lastState).toMatchObject({ regionId: "fx_shoulder", nodeId: "fx_shoulder.rear_delt" });
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(toggle().textContent).toBe("Fixture shoulders");
     expect(document.activeElement).toBe(toggle());
@@ -289,7 +292,7 @@ describe("another region's muscle", () => {
 
   it("on the forearm, says its home's page is not available yet, and keeps an existing target read-only", async () => {
     storeGoals([goal({ id: "biceps", nodeId: "upper_arm.biceps", side: "right" })]);
-    await show({ limb: "right" });
+    await show();
     expect(screen.getByText("Upper-arm muscles credited here")).toBeTruthy();
     const sheet = await openSheetOf(/^Biceps brachii/);
     expect(within(sheet).getByText("Targets for this muscle are set on the upper arm page, which is not available yet.")).toBeTruthy();
@@ -308,20 +311,22 @@ describe("another region's muscle", () => {
   });
 });
 
-describe("a ledger row's side", () => {
+describe("a ledger row", () => {
+  // Both sides are one count (owner, 20 Oct 2026): a row says what was done, never which side, hand or leg.
   const ledgerText = (sheet: HTMLElement) => sheet.textContent ?? "";
-  it("is the side it is counted on, with the hand that held the load where that differs", async () => {
-    await show({ regionId: "fx_back", limb: "right" });
+  it("names no side or hand for a one-hand carry on a region paired by the arm", async () => {
+    await show({ regionId: "fx_back" });
     const sheet = await openSheetOf(/^Fixture quadratus lumborum/);
-    expect(ledgerText(sheet)).toContain("Right side");
-    expect(ledgerText(sheet)).toContain("Left hand: opposite side");
+    expect(ledgerText(sheet)).toContain(byId(409).name);
+    // "Nothing left out" is the suggestions' heading, not a side.
+    expect(ledgerText(sheet)).not.toMatch(/\b(left(?! out)|right)\b|\bhand\b|opposite side|Both sides/i);
   });
 
-  it("names the standing leg of a single-leg exercise on a region paired by the leg", async () => {
-    await show({ regionId: "fx_thigh", limb: "left" });
+  it("names no leg for a single-leg exercise on a region paired by the leg", async () => {
+    await show({ regionId: "fx_thigh" });
     const sheet = await openSheetOf(/^Fixture hamstrings/);
-    expect(ledgerText(sheet)).toContain("Left leg");
-    expect(ledgerText(sheet)).toContain("Standing leg: left");
+    expect(ledgerText(sheet)).toContain(byId(188).name);
+    expect(ledgerText(sheet)).not.toMatch(/\b(left(?! out)|right)\b|Standing leg|Both legs/i);
   });
 });
 

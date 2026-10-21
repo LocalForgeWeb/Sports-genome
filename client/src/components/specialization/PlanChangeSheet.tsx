@@ -12,7 +12,6 @@ import { catalogIdOf } from "@/lib/workoutSwap";
 import { creditedMappingsFor, variantForCatalogId } from "@shared/specialization/exposure";
 import type { SpecializationRegionData, SummarySide } from "@shared/specialization/types";
 import { holdTime } from "./model";
-import { sideWordsFor } from "./sideWords";
 import { SpecializationSheet } from "./SpecializationSheet";
 
 /** Where an add goes in the day: first, after one of its exercises (that entry's id), or at the end. */
@@ -33,7 +32,7 @@ type Placement = "first" | "end" | number;
  */
 export function PlanChangeSheet({ data, side, nodeId, candidates, initialExerciseId, catalog, plan, goal, onApply, onClose }: {
   data: SpecializationRegionData;
-  /** The side on screen: left or right on a paired region, `midline` on a midline one. */
+  /** The summary's side: `both` on a paired region (both sides as one), `midline` on a midline one. */
   side: SummarySide;
   /** The muscle the change is for; its row leads the preview. */
   nodeId: string;
@@ -63,7 +62,6 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
   const dayRecord = useMemo(() => (slot ? loadDay(store, slot.key) : null), [store, slot]);
   const dayExercises = dayRecord?.workout ?? [];
   const nodeName = data.nodes.find((node) => node.id === nodeId)?.name ?? "this muscle";
-  const onSide = side === "midline" ? null : sideWordsFor(data.region).of(side);
   // A day with nothing in it has nothing to swap: the change is an add there.
   const swapping = mode === "swap" && dayExercises.length > 0;
   const replaced = swapping && replaceEntryId !== null ? dayExercises.find((entry) => entry.id === replaceEntryId) ?? null : null;
@@ -168,7 +166,7 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
 
   return <SpecializationSheet
     id="spz-change"
-    eyebrow={onSide ? `For ${nodeName} · ${onSide}` : `For ${nodeName}`}
+    eyebrow={`For ${nodeName}`}
     title={swapping ? "Swap into your plan" : "Add to your plan"}
     // The muscle is the subject; rewording the title for a swap keeps focus where it was.
     focusKey={nodeId}
@@ -252,7 +250,7 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
     </fieldset>}
 
     <section className="spz-preview" aria-live="polite" aria-labelledby="spz-preview-title">
-      <h3 id="spz-preview-title">Planned totals, Week {week}{onSide ? `, ${onSide}` : ""}</h3>
+      <h3 id="spz-preview-title">Planned totals, Week {week}</h3>
       {!slot && <p className="spz-note">Choose a day to see what changes.</p>}
       {outcome && !outcome.ok && <p className="spz-error">{outcome.reason}</p>}
       {slot && swapping && replaceEntryId === null && <p className="spz-note">Choose the exercise to swap out to see the change.</p>}

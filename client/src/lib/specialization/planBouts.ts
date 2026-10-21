@@ -15,8 +15,8 @@ import { variantLookup } from "./bouts";
  *
  * A plan has no dates, no loads and no sides, so a planned bout says only what the plan
  * says: reps or seconds from the written target (the low end of a range: what the plan
- * commits to), no load, and, for an exercise done one side at a time, the side the plan
- * assumes (`plannedSides`).
+ * commits to), no load, and, for an exercise done one side at a time, the sides the plan
+ * assumes (`plannedSides`): both, one bout per planned set.
  */
 
 export type PlanBoutInput = {
@@ -70,34 +70,27 @@ export function plannedTarget(target: string, measure?: PlannedMeasure): { reps:
   return { reps: null, holdSeconds: null };
 }
 
-type PlannedSides = { suffix: string } & Pick<ExposureBout, "armSide" | "legSide">;
+type PlannedSides = Pick<ExposureBout, "armSide" | "legSide">;
 
 /**
- * The bouts one planned set stands for, with the sides the plan assumes, on the limb whose side
- * the logger records for the exercise (its variant's `sidedBy`, 10-multi-region.md §2.1):
- * - done one side at a time on that limb (`unilateral`): one bout per side, `…/n#right` then
- *   `…/n#left`, each on its side. A planned set count is per side: "3 × 12" is three sets for
- *   each side (02-design.md §3, "each side"). The tracker lays the same set out as two rows,
- *   Right then Left (DeviceWorkoutTracker, `loggerGates.of(policy).perSideRows`), so the plan logged as built gives every
- *   region's page exactly the bouts planned here, a page that counts the plan once included;
- * - done either way (`either`): one bout recorded on both sides, as the tracker logs it, one row
- *   starting on Both;
- * - anything else: one bout with no side; the calculator reads a two-sided exercise's sides from
- *   the exercise itself.
- * An assumed side is labelled as one (`plan_assumption`).
+ * The sides one planned set's bout assumes, on the limb whose side the logger would record for the
+ * exercise (its variant's `sidedBy`, 10-multi-region.md §2.1). A planned set is ONE bout, whatever
+ * the exercise: both sides are counted as one (owner, 20 Oct 2026), and the tracker lays a planned
+ * one-side set out as one row per planned set, so the plan logged as built is the plan on every
+ * region's page (planned equals logged), paired and midline alike.
+ * - done one side at a time on that limb (`unilateral`), or either way (`either`): the bout is
+ *   assumed on both sides (`plan_assumption`), as the calculator first shipped it ("3 × 12" is
+ *   three sets for each arm in a per-side summary, which is dormant; once in the page's `both`);
+ * - anything else: no side; the calculator reads a two-sided exercise's sides from the exercise.
  */
-function plannedSides(variant: ExerciseVariant | null): PlannedSides[] {
-  const none: PlannedSides = { suffix: "", armSide: null, legSide: null };
+function plannedSides(variant: ExerciseVariant | null): PlannedSides {
+  const none: PlannedSides = { armSide: null, legSide: null };
   const limb = variant?.sidedBy;
-  if (!variant || (limb !== "arm" && limb !== "leg")) return [none];
+  if (!variant || (limb !== "arm" && limb !== "leg")) return none;
   const laterality = limb === "arm" ? variant.laterality : variant.legLaterality;
-  const on = (side: LimbSideRecord["side"], suffix: string): PlannedSides => {
-    const record: LimbSideRecord = { side, source: "plan_assumption" };
-    return { suffix, armSide: limb === "arm" ? record : null, legSide: limb === "leg" ? record : null };
-  };
-  if (laterality === "unilateral") return [on("right", "#right"), on("left", "#left")];
-  if (laterality === "either") return [on("both", "")];
-  return [none];
+  if (laterality !== "unilateral" && laterality !== "either") return none;
+  const record: LimbSideRecord = { side: "both", source: "plan_assumption" };
+  return { armSide: limb === "arm" ? record : null, legSide: limb === "leg" ? record : null };
 }
 
 export function boutsFromPlan(input: PlanBoutInput): ExposureBout[] {
@@ -113,32 +106,30 @@ export function boutsFromPlan(input: PlanBoutInput): ExposureBout[] {
       const count = parseSetCount(prescription);
       const targets = parsePrescription(prescription).sets;
       const straps: ExposureBout["straps"] = variant?.straps === "yes" || variant?.straps === "no" ? variant.straps : "unknown";
-      const sides = plannedSides(variant);
+      const { armSide, legSide } = plannedSides(variant);
       for (let n = 1; n <= count; n += 1) {
         const target = plannedTarget(targets[n - 1]?.reps ?? targets[targets.length - 1]?.reps ?? "", variant?.measure);
-        for (const { suffix, armSide, legSide } of sides) {
-          const id = `plan/${input.week}/${slot.key}/${entry.id}/${n}${suffix}`;
-          bouts.push({
-            id,
-            mode: "planned",
-            performedAt: null,
-            sessionId: null,
-            sessionLabel: `Week ${input.week} · ${slot.label}`,
-            planWeek: input.week,
-            dayKey: slot.key,
-            exerciseEntryId: String(entry.id),
-            catalogExerciseId,
-            exerciseName: entry.name,
-            matchedBy: "id",
-            armSide,
-            legSide,
-            straps,
-            warmup: false,
-            effort: null,
-            kind: "standard",
-            segments: [{ id, reps: target.reps, loadKg: null, holdSeconds: target.holdSeconds }],
-          });
-        }
+        const id = `plan/${input.week}/${slot.key}/${entry.id}/${n}`;
+        bouts.push({
+          id,
+          mode: "planned",
+          performedAt: null,
+          sessionId: null,
+          sessionLabel: `Week ${input.week} · ${slot.label}`,
+          planWeek: input.week,
+          dayKey: slot.key,
+          exerciseEntryId: String(entry.id),
+          catalogExerciseId,
+          exerciseName: entry.name,
+          matchedBy: "id",
+          armSide,
+          legSide,
+          straps,
+          warmup: false,
+          effort: null,
+          kind: "standard",
+          segments: [{ id, reps: target.reps, loadKg: null, holdSeconds: target.holdSeconds }],
+        });
       }
     });
   }

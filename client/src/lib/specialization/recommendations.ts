@@ -183,17 +183,21 @@ function targetMatches(region: SpecializationRegionData, target: RecommendationT
 
 function goalsFor(summary: SpecializationSummary | null | undefined, target: RecommendationTarget, side: SummarySide): GoalProgress[] {
   if (!summary) return [];
-  return summary.goals.filter((progress) => progress.goal.side === side && (target.nodeId !== undefined ? progress.goal.nodeId === target.nodeId : progress.goal.actionId === target.actionId));
+  return summary.goals.filter((progress) => (side === "both" || progress.goal.side === side) && (target.nodeId !== undefined ? progress.goal.nodeId === target.nodeId : progress.goal.actionId === target.actionId));
 }
 
 function nodeRow(summary: SpecializationSummary | null | undefined, nodeId: NodeId): NodeExposure | null {
   return summary?.nodes.find((node) => node.nodeId === nodeId) ?? null;
 }
 
-/** Whether the selected side is behind the other on what the athlete measures (their goal's metric, else direct bouts). A midline region has no other side. */
+/**
+ * Whether the selected side is behind the other on what the athlete measures (their goal's metric,
+ * else direct bouts). Per-side capability, dormant: a midline region has no other side, and both
+ * sides counted as one (the page's `both`, owner 20 Oct 2026) have no other side to trail.
+ */
 function sideTrails(request: RecommendationRequest): boolean {
   const other = request.otherSideSummary;
-  if (!other || request.side === "midline") return false;
+  if (!other || request.side === "midline" || request.side === "both") return false;
   const mine = goalsFor(request.summary, request.target, request.side)[0];
   const theirs = goalsFor(other, request.target, request.side === "left" ? "right" : "left").find((progress) => !mine || progress.goal.metric === mine.goal.metric);
   if (mine && theirs) return mine.value < theirs.value;

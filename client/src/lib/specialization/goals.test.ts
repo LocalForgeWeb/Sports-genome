@@ -62,7 +62,7 @@ describe("validateGoal", () => {
     const existing = [goal({ id: "existing", target: 12 })];
     const result = validateGoal(goal({ id: "new", startsOn: "2026-11-02" }), existing);
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.reason).toBe("You already have a left-arm target of 12 direct dynamic bouts per calendar week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts.");
+    if (!result.ok) expect(result.reason).toBe("You already have a target of 12 direct dynamic bouts per calendar week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts.");
   });
 
   it("allows what does not overlap: another arm, measure, period, muscle, or dates that do not meet", () => {
@@ -118,13 +118,14 @@ describe("goals in every region's words and sides (10-multi-region.md §2.2)", (
   const core = goalScopeOf(fxCore);
   const legGoal = (over: Partial<SpecializationGoal> = {}) => goal({ regionId: "fx_thigh", nodeId: fx.quads, ...over });
 
-  it("asks for a side in the region's own word, and says a clash in it", () => {
-    const refused = validateGoal(legGoal({ side: "midline" }), [], thigh);
-    expect(refused).toEqual({ ok: false, reason: "Choose the left or the right leg. A target for both legs is saved as two." });
-    // The forearm's words, from the registered index when no scope is given.
-    expect(validateGoal(goal({ side: "midline" }), [])).toEqual({ ok: false, reason: "Choose the left or the right arm. A target for both arms is saved as two." });
+  it("stores a paired region's target as left or right, and names no side in what it says (both sides as one, owner 20 Oct 2026)", () => {
+    const sideless = "This target's side does not fit the region: a target here is stored as left or right, and work on either side counts toward it.";
+    expect(validateGoal(legGoal({ side: "midline" }), [], thigh)).toEqual({ ok: false, reason: sideless });
+    // The forearm, from the registered index when no scope is given.
+    expect(validateGoal(goal({ side: "midline" }), [])).toEqual({ ok: false, reason: sideless });
     const clash = validateGoal(legGoal({ id: "new", side: "right" }), [legGoal({ id: "old", side: "right", target: 9 })], thigh);
-    expect(clash.ok === false && clash.reason).toBe("You already have a right-leg target of 9 direct dynamic bouts per calendar week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts.");
+    expect(clash.ok === false && clash.reason).toBe("You already have a target of 9 direct dynamic bouts per calendar week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts.");
+    for (const reason of [sideless, clash.ok === false ? clash.reason : ""]) expect(reason).not.toMatch(/\b(arms?|legs?)\b|right-|left-/);
   });
 
   it("gives a midline region's target the side midline, and no other", () => {
@@ -135,7 +136,7 @@ describe("goals in every region's words and sides (10-multi-region.md §2.2)", (
     expect(clash.ok === false && clash.reason).toMatch(/^You already have a target of 20 direct dynamic bouts/);
   });
 
-  it("splits both sides into two targets, as both arms always were", () => {
+  it("still splits both sides into two targets for the old \"Both arms\" pairs it reads (dormant: the page saves one)", () => {
     const { side: _side, ...draft } = legGoal({ id: "pair" });
     expect(goalsForBothSides(draft).map((item) => [item.id, item.side])).toEqual([["pair:left", "left"], ["pair:right", "right"]]);
     expect(goalsForBothArms).toBe(goalsForBothSides);

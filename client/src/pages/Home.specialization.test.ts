@@ -75,7 +75,8 @@ describe("The specialization page", () => {
     render(createElement(Home));
     await screen.findByRole("heading", { level: 1, name: "Forearm specialization" }, { timeout: 15000 });
     await tick();
-    expect(window.location.search).toBe("?workspace=specialization&region=forearm&node=forearm.br&limb=left");
+    // An old address's arm is dropped too: both arms are counted as one (20 Oct 2026).
+    expect(window.location.search).toBe("?workspace=specialization&region=forearm&node=forearm.br");
   });
 
   it("carries none of its parameters onto another page", async () => {
@@ -86,7 +87,7 @@ describe("The specialization page", () => {
     expect(window.location.search).toBe("?workspace=body");
   });
 
-  it("comes back with its muscle and arm on Back", async () => {
+  it("comes back with its muscle on Back", async () => {
     window.history.replaceState({}, "", "/?workspace=specialization&region=forearm&node=forearm.fds&limb=left");
     render(createElement(Home));
     const tabs = await screen.findByRole("navigation", { name: "Body Lab workspace pages" }, { timeout: 15000 });
@@ -95,7 +96,7 @@ describe("The specialization page", () => {
     expect(window.location.search).toBe("?workspace=body");
     await act(async () => { window.history.back(); });
     await tick();
-    expect(window.location.search).toBe("?workspace=specialization&region=forearm&node=forearm.fds&limb=left");
+    expect(window.location.search).toBe("?workspace=specialization&region=forearm&node=forearm.fds");
   });
   it("writes an add from the page into the exact day it names, and Undo takes back that one change", async () => {
     window.history.replaceState({}, "", "/?workspace=specialization&region=forearm&node=forearm.br");

@@ -17,6 +17,7 @@ import type {
   RegionBoutRow,
   SideRelation,
   SideSource,
+  StoredSide,
   SpecializationGoal,
   SpecializationRegion,
   SpecializationRegionData,
@@ -55,7 +56,7 @@ type Part = Contribution["parts"][number];
 /** How one mapping reads a bout's sides (`nodeSideFor`). */
 export interface NodeSideReading {
   /** The sides the work is counted on: both, one, `midline`, or none (unknown: kept apart, never counted). */
-  sides: readonly SummarySide[];
+  sides: readonly StoredSide[];
   /** The clause of the rule that decided it (rules.ts `ruleClauses`). */
   branch: RuleBranch;
   /** The side recorded for the limb that decided it; where none did, the side recorded for another limb; null when none was. */
@@ -65,8 +66,8 @@ export interface NodeSideReading {
   source: SideSource;
 }
 
-const BOTH: readonly SummarySide[] = ["left", "right"];
-const NONE: readonly SummarySide[] = [];
+const BOTH: readonly StoredSide[] = ["left", "right"];
+const NONE: readonly StoredSide[] = [];
 const otherSide = (side: "left" | "right") => (side === "left" ? "right" : "left");
 
 function recordedFor(bout: Pick<ExposureBout, "armSide" | "legSide">, limb: Limb): RecordedSide | null {
@@ -347,8 +348,16 @@ function segmentsOf(bout: ExposureBout): ContributionSegment[] {
   return bout.segments.map((segment) => ({ id: segment.id, reps: segment.reps, loadKg: segment.loadKg, holdSeconds: segment.holdSeconds }));
 }
 
-const onSide = (effects: readonly MappingEffect[], side: SummarySide) => effects.filter((effect) => effect.reading.sides.includes(side));
-const sideless = (effects: readonly MappingEffect[]) => effects.filter((effect) => !effect.reading.sides.length);
+/**
+ * Whether one reading counts on the summary's side. A `both` summary (what the page shows for a
+ * paired region, owner 20 Oct 2026) counts every reading once, whichever side it is on, and one
+ * with no side too: nothing is kept apart for want of a side. A per-side summary (`left`, `right`:
+ * dormant capability) or a midline one counts a reading on its own side only.
+ */
+const countsOn = (reading: NodeSideReading, side: SummarySide) => side === "both" || reading.sides.includes(side);
+const onSide = (effects: readonly MappingEffect[], side: SummarySide) => effects.filter((effect) => countsOn(effect.reading, side));
+/** Effects kept apart with no side: only a per-side summary has any (a `both` summary counts them). */
+const sideless = (effects: readonly MappingEffect[], side: SummarySide) => (side === "both" ? [] : effects.filter((effect) => !effect.reading.sides.length));
 
 /**
  * What one node shows for one bout on one side: work counted on that side; else work kept apart
@@ -363,12 +372,12 @@ type NodeOnSide =
 function nodeOnSide(effect: NodeEffect, side: SummarySide): NodeOnSide | null {
   const counted = onSide(effect.credited, side);
   if (counted.length) return { kind: "counted", effects: counted };
-  const unknown = sideless(effect.credited);
+  const unknown = sideless(effect.credited, side);
   if (unknown.length) return { kind: "unknown", effects: unknown };
   for (const kind of ["strapped", "pending"] as const) {
     const here = onSide(effect[kind], side);
     if (here.length) return { kind, effects: here, unknown: false };
-    const apart = sideless(effect[kind]);
+    const apart = sideless(effect[kind], side);
     if (apart.length) return { kind, effects: apart, unknown: true };
   }
   return null;
@@ -547,8 +556,8 @@ function inWindow(bout: ExposureBout, request: Pick<SummaryRequest, "mode" | "in
 type Standing = "on" | "unknown" | "elsewhere";
 
 function standingOf(readings: readonly NodeSideReading[], side: SummarySide): Standing {
-  if (readings.some((reading) => reading.sides.includes(side))) return "on";
-  return readings.some((reading) => !reading.sides.length) ? "unknown" : "elsewhere";
+  if (readings.some((reading) => countsOn(reading, side))) return "on";
+  return side !== "both" && readings.some((reading) => !reading.sides.length) ? "unknown" : "elsewhere";
 }
 
 /**
@@ -572,10 +581,13 @@ function ownStanding(found: BoutClass, index: RegionIndex, side: SummarySide): {
   return { standing: "elsewhere", reviewed: false };
 }
 
-/** The request's side fits the region: `left` or `right` for a paired region, `midline` for a midline one. */
+/**
+ * The request's side fits the region: `both` (the page's) or `left` / `right` (per side, dormant)
+ * for a paired region, `midline` for a midline one.
+ */
 function checkSide(region: SpecializationRegion, side: SummarySide): void {
   const midline = region.sides.model === "midline";
-  if (midline !== (side === "midline")) throw new Error(`Region ${region.id} is counted ${midline ? "on the midline" : "per side"}; a summary for side ${side} does not fit it`);
+  if (midline !== (side === "midline")) throw new Error(`Region ${region.id} is counted ${midline ? "on the midline" : "for its two sides"}; a summary for side ${side} does not fit it`);
 }
 
 export function getSpecializationSummary(request: SummaryRequest): SpecializationSummary {
@@ -650,7 +662,7 @@ export function getSpecializationSummary(request: SummaryRequest): Specializatio
       const here = nodeOnSide(effect, side);
       if (!here) continue;
       const own = index.regionNodeIds.has(nodeId);
-      const strappedHere = here.kind === "strapped" ? here.effects : [...onSide(effect.strapped, side), ...sideless(effect.strapped)];
+      const strappedHere = here.kind === "strapped" ? here.effects : [...onSide(effect.strapped, side), ...sideless(effect.strapped, side)];
       const notes = notesFor(bout, here.effects, strappedHere);
       if (here.kind === "strapped") {
         node.notCounted!.push(contributionOf(bout, nodeId, here.effects, here.unknown ? "unknown" : side, notes, []));
@@ -751,6 +763,10 @@ const metricCategory: Record<SpecializationGoal["metric"], ExposureCategory> = {
  * - a movement goal counts distinct bouts with a contribution of one of the region's own muscles
  *   on this side whose part is that movement and the goal's kind of work; seconds once per bout.
  * Work kept apart with no side never counts toward a side's goal.
+ *
+ * A `both` summary (the page's, owner 20 Oct 2026) reads every target of the region whatever side
+ * it was saved for, counts work from either side and work with no side recorded, and reads a target
+ * saved once per side (the old "Both arms" choice, two copies differing only in side) as one.
  */
 function goalProgressFor(
   request: SummaryRequest,
@@ -759,8 +775,16 @@ function goalProgressFor(
   classOf: (bout: ExposureBout) => BoutClass,
 ): GoalProgress[] {
   const out: GoalProgress[] = [];
+  const both = request.side === "both";
+  // Both sides as one: a target saved once per side is one target.
+  const seen = new Set<string>();
   for (const goal of request.goals) {
-    if (goal.regionId !== request.region.region.id || goal.side !== request.side) continue;
+    if (goal.regionId !== request.region.region.id || (!both && goal.side !== request.side)) continue;
+    if (both) {
+      const key = [goal.nodeId, goal.actionId, goal.metric, goal.period, goal.target, goal.startsOn, goal.endsOn].join("|");
+      if (seen.has(key)) continue;
+      seen.add(key);
+    }
     if (!isGoalActiveAt(goal, request.now)) continue;
     const period = request.mode === "completed" ? goalPeriodInterval(goal, request.now) : request.interval;
     const wanted = metricCategory[goal.metric];
@@ -772,7 +796,7 @@ function goalProgressFor(
       let counts = false;
       for (const [nodeId, effect] of Array.from(found.effects)) {
         if (goal.nodeId !== null ? nodeId !== goal.nodeId : !index.regionNodeIds.has(nodeId)) continue;
-        const counted = onSide(effect.credited, goal.side);
+        const counted = onSide(effect.credited, both ? "both" : goal.side);
         if (!counted.length) continue;
         const parts = counted.map((item) => item.part);
         if (goal.nodeId !== null ? categoryOfParts(parts) === wanted : parts.some((part) => part.actionId === goal.actionId && part.category === wanted)) counts = true;

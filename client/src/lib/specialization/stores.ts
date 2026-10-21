@@ -3,7 +3,7 @@ import { readScopedRecord, scopedKey } from "@/lib/deviceStorageScope";
 import { goalMetrics, goalPeriods, isGoalActiveAt, rehomedGoal, validateGoal, type GoalScope, type GoalValidation } from "@shared/specialization/goals";
 import { regionIndexEntry } from "@shared/specialization/regionIndex";
 import { isDateKey, isValidTimeZone } from "@shared/specialization/time";
-import type { MeasurementProtocol, SpecializationGoal, SpecializationMeasurement, SummarySide } from "@shared/specialization/types";
+import type { MeasurementProtocol, SpecializationGoal, SpecializationMeasurement, StoredSide } from "@shared/specialization/types";
 
 /**
  * Specialization targets and measurements, on the device (design §5, 01-reconciliation.md).
@@ -33,7 +33,7 @@ const REFUSED: StoreWrite = { ok: false, reason: "This device did not save it. S
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 const nonEmpty = (value: unknown): value is string => typeof value === "string" && value.trim() !== "";
 const optionalString = (value: unknown): string | null | undefined => (value === undefined || value === null ? null : typeof value === "string" ? value : undefined);
-const isSummarySide = (value: unknown): value is SummarySide => value === "left" || value === "right" || value === "midline";
+const isStoredSide = (value: unknown): value is StoredSide => value === "left" || value === "right" || value === "midline";
 
 function readList(base: string, accountId: AccountScope): unknown[] {
   if (typeof window === "undefined") return [];
@@ -72,7 +72,7 @@ export function parseStoredGoal(value: unknown): SpecializationGoal | null {
   if (!nonEmpty(value.id) || !nonEmpty(value.regionId)) return null;
   if (!(nodeId === null || nonEmpty(nodeId)) || !(actionId === null || nonEmpty(actionId))) return null;
   if ((nodeId === null) === (actionId === null)) return null;
-  if (!isSummarySide(value.side)) return null;
+  if (!isStoredSide(value.side)) return null;
   if (!goalMetrics.includes(value.metric as SpecializationGoal["metric"]) || !goalPeriods.includes(value.period as SpecializationGoal["period"])) return null;
   if (typeof value.target !== "number" || !Number.isFinite(value.target) || value.target <= 0) return null;
   if (!isDateKey(value.startsOn) || !(endsOn === null || isDateKey(endsOn))) return null;
@@ -96,13 +96,28 @@ export function parseStoredGoal(value: unknown): SpecializationGoal | null {
 
 /**
  * The account's targets as they are read now: each stored target this version can read, re-homed
- * where its muscle's home has a page (the registered index's status and sides, `rehomedGoal`).
+ * where its muscle's home has a page (the registered index's status and sides, `rehomedGoal`),
+ * and a target saved once per side read as one (`collapseArmPairs`).
  */
 export function loadSpecializationGoals(accountId?: AccountScope): SpecializationGoal[] {
-  return readList(specializationGoalsKeyBase, accountId)
-    .map(parseStoredGoal)
-    .filter((goal): goal is SpecializationGoal => goal !== null)
-    .map((goal) => rehomedGoal(goal, regionIndexEntry));
+  return collapseArmPairs(
+    readList(specializationGoalsKeyBase, accountId)
+      .map(parseStoredGoal)
+      .filter((goal): goal is SpecializationGoal => goal !== null)
+      .map((goal) => rehomedGoal(goal, regionIndexEntry)),
+  );
+}
+
+/**
+ * Both sides are counted as one (owner, 20 Oct 2026). A target saved for "Both arms" was stored
+ * as two, one per side, identical but for the side: they read as one target (the right side's
+ * copy kept). The next write saves the list as read, so the extra copy leaves the device then. A
+ * one-side target stays, and counts work from either side. A midline target has no pair.
+ */
+export function collapseArmPairs(goals: readonly SpecializationGoal[]): SpecializationGoal[] {
+  const keyOf = (goal: SpecializationGoal) => [goal.regionId, goal.nodeId, goal.actionId, goal.metric, goal.period, goal.target, goal.startsOn, goal.endsOn, goal.timezone].join("|");
+  const rights = new Set(goals.filter((goal) => goal.side === "right").map(keyOf));
+  return goals.filter((goal) => !(goal.side === "left" && rights.has(keyOf(goal))));
 }
 
 /** Returns whether the write reached the device. Stored entries this version cannot read are written back after the targets, untouched. */
@@ -167,7 +182,7 @@ function parseProtocol(value: unknown): MeasurementProtocol | null {
  */
 export function parseStoredMeasurement(value: unknown): SpecializationMeasurement | null {
   if (!isRecord(value) || !nonEmpty(value.id) || !nonEmpty(value.regionId)) return null;
-  if (!isSummarySide(value.side)) return null;
+  if (!isStoredSide(value.side)) return null;
   if (typeof value.measuredAt !== "string" || !Number.isFinite(Date.parse(value.measuredAt))) return null;
   if (!METRICS.includes(value.metric as SpecializationMeasurement["metric"])) return null;
   if ((value.metric === "girth_cm") !== (value.side === "midline")) return null;

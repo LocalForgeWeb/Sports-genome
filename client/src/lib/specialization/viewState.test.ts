@@ -5,11 +5,19 @@ const regions = new Set(["forearm", "deltoid"]);
 
 describe("specialization view state in the URL (brief §6: persist region, muscle, side, window, mode and view)", () => {
   it("round-trips every field it owns", () => {
-    const state = { ...defaultSpecializationState("forearm"), nodeId: "forearm.fcu", limb: "left" as const, window: "custom" as const, from: "2026-10-05", to: "2026-10-18", mode: "planned" as const, view: "back" as const, layer: "deep" as const, map: "target" as const, planWeek: 2 };
+    const state = { ...defaultSpecializationState("forearm"), nodeId: "forearm.fcu", window: "custom" as const, from: "2026-10-05", to: "2026-10-18", mode: "planned" as const, view: "back" as const, layer: "deep" as const, map: "target" as const, figure: "drawing" as const, planWeek: 2 };
     const params = new URLSearchParams("workspace=specialization");
     writeSpecializationParams(params, state);
     expect(params.get("workspace")).toBe("specialization");
     expect(specializationStateFromParams(params, "forearm", regions)).toEqual(state);
+  });
+
+  it("drops an old address's arm: both arms are counted as one (20 Oct 2026)", () => {
+    const params = new URLSearchParams("region=forearm&node=forearm.fcu&limb=left");
+    const state = specializationStateFromParams(params, "forearm", regions);
+    expect(state).not.toHaveProperty("limb");
+    writeSpecializationParams(params, state);
+    expect(params.toString()).toBe("region=forearm&node=forearm.fcu");
   });
 
   it("keeps the URL short by leaving defaults out", () => {

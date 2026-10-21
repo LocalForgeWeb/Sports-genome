@@ -1,0 +1,1 @@
+9a8b824935a399aef750c7b78bacdccfb54ae7104c3065147de0f37f69d82dfe  public/assets/anatomy/upper-limb-open3dmodel.glb

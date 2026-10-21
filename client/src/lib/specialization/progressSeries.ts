@@ -247,7 +247,9 @@ function better(measure: SetMeasure, a: Candidate, b: Candidate): boolean {
  * longest hold for an exercise measured in seconds. Completed sets only. Sides are read as the
  * region reads them (`nodeSideFor`): a set counted only on the other side is left out; one counted
  * on both counts for either; one with no side is kept and marked, never guessed onto a side. A
- * midline region's series reads every set (side `midline`). Exercises are matched by catalog id only.
+ * midline region's series reads every set (side `midline`), and so does `both`, the page's side for
+ * a paired region since both sides are counted as one, where a set with no side recorded is just a
+ * set (not marked). Exercises are matched by catalog id only.
  */
 export function performanceSeries(sessions: readonly DeviceWorkoutSession[], input: { data: SpecializationRegionData; side: SummarySide; weightUnit: DisplayWeightUnit; timeZone: string; catalog?: readonly Pick<Exercise, "id" | "name">[] }): PerformanceSeries[] {
   const { data, side, weightUnit, timeZone } = input;
@@ -269,8 +271,9 @@ export function performanceSeries(sessions: readonly DeviceWorkoutSession[], inp
         // Completed work only: a skipped, unlogged or warm-up set is not a top set.
         if (!isCompletedSet(set) || set.warmup === true) continue;
         const { sides } = nodeSideFor(data.region, variant, null, recordedSidesOf(set));
-        if (sides.length && !sides.includes(side)) continue;
-        const candidate: Candidate = { loadKg: setWeightKg(set, session, weightUnit) ?? null, reps: null, seconds: null, sideUnrecorded: !sides.length };
+        // Both sides as one (the page's): every set counts, a set with no side recorded is just a set.
+        if (side !== "both" && sides.length && !sides.includes(side)) continue;
+        const candidate: Candidate = { loadKg: setWeightKg(set, session, weightUnit) ?? null, reps: null, seconds: null, sideUnrecorded: side !== "both" && !sides.length };
         if (measure === "seconds") {
           candidate.seconds = holdSecondsOf(set);
           if (candidate.seconds === null) continue;
@@ -368,9 +371,13 @@ export function readingsInOrder(readings: readonly SpecializationMeasurement[]):
   return [...readings].sort((a, b) => Date.parse(a.measuredAt) - Date.parse(b.measuredAt) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
 
-/** The latest reading of one measure on one side of a region (or around it, `midline`): where the next one starts from. Null when there is none. */
+/**
+ * The latest reading of one measure of a region: where the next one starts from. Null when there
+ * is none. `both` (the page's: measurements have no side since 20 Oct 2026) reads every reading of
+ * the measure, whatever side it was stored with; a side (dormant) or `midline` reads its own.
+ */
 export function latestReading(readings: readonly SpecializationMeasurement[], match: { regionId: string; side: SummarySide; metric: MeasurementMetric }): SpecializationMeasurement | null {
-  const same = readings.filter((entry) => entry.regionId === match.regionId && entry.side === match.side && entry.metric === match.metric);
+  const same = readings.filter((entry) => entry.regionId === match.regionId && (match.side === "both" || entry.side === match.side) && entry.metric === match.metric);
   const ordered = readingsInOrder(same);
   return ordered[ordered.length - 1] ?? null;
 }

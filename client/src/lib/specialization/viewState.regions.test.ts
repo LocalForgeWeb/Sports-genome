@@ -4,8 +4,8 @@ import { defaultSpecializationState, readRememberedRegion, rememberRegion, speci
 
 /**
  * The view state across regions (docs/specialization-atlas/10-multi-region.md §6.1): picking a
- * region replaces the region's own choices and keeps the athlete's; a midline region's address
- * names no side; the last region opened is remembered on the device, per account, and a device
+ * region replaces the region's own choices and keeps the athlete's; no address names a side (both
+ * sides are counted as one, owner 20 Oct 2026); the last region opened is remembered on the device, per account, and a device
  * that will not remember it costs nothing but the memory. The test regions reach the index as
  * production regions through the mocked light index.
  */
@@ -21,25 +21,23 @@ beforeEach(() => window.localStorage.clear());
 afterEach(() => vi.restoreAllMocks());
 
 describe("picking a region", () => {
-  it("replaces the region, its muscle, its view and its layer, and keeps the side, window, mode and colouring", () => {
-    const on = { ...defaultSpecializationState("forearm"), nodeId: "forearm.fcr", view: "posterior", layer: "deep" as const, limb: "left" as const, window: "custom" as const, from: "2026-10-01", to: "2026-10-07", mode: "planned" as const, map: "target" as const, planWeek: 3 };
+  it("replaces the region, its muscle, its view and its layer, and keeps the window, mode, colouring and figure", () => {
+    const on = { ...defaultSpecializationState("forearm"), nodeId: "forearm.fcr", view: "posterior", layer: "deep" as const, figure: "drawing" as const, window: "custom" as const, from: "2026-10-01", to: "2026-10-07", mode: "planned" as const, map: "target" as const, planWeek: 3 };
     expect(withRegion(on, "fx_thigh")).toEqual({ ...on, regionId: "fx_thigh", nodeId: null, view: null, layer: "surface" });
     // Opened on one of the region's muscles (an external muscle's home).
     expect(withRegion(on, "fx_thigh", "fx_thigh.quads")).toMatchObject({ regionId: "fx_thigh", nodeId: "fx_thigh.quads", view: null, layer: "surface" });
   });
 });
 
-describe("a midline region's address", () => {
-  it("names no side, and the side is kept for the next paired region", () => {
-    const params = new URLSearchParams();
-    const core = { ...defaultSpecializationState("fx_core"), limb: "left" as const };
-    writeSpecializationParams(params, core);
-    expect(params.get("region")).toBe("fx_core");
-    expect(params.has("limb")).toBe(false);
-    const thigh = new URLSearchParams();
-    writeSpecializationParams(thigh, withRegion(core, "fx_thigh"));
-    expect(thigh.get("limb")).toBe("left");
-    expect(specializationStateFromParams(thigh, "forearm", known).limb).toBe("left");
+describe("no region's address names a side (both sides as one)", () => {
+  it("drops an old limb on a paired or a midline region, and keeps none in the state", () => {
+    for (const regionId of ["fx_thigh", "fx_core", "forearm"]) {
+      const params = new URLSearchParams(`region=${regionId}&limb=left`);
+      const state = specializationStateFromParams(params, "forearm", known);
+      expect(state, regionId).not.toHaveProperty("limb");
+      writeSpecializationParams(params, withRegion(state, regionId === "fx_core" ? "fx_thigh" : "fx_core"));
+      expect(params.has("limb"), regionId).toBe(false);
+    }
   });
 });
 

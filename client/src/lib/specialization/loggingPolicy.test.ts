@@ -43,24 +43,24 @@ describe("the logging policy for one exercise", () => {
     expect(policy(1).measure).toBe("reps");
   });
 
-  it("asks the arm only of one-arm or either-arm variants, never of a two-handed one", () => {
-    expect(policy(1)).toMatchObject({ askSide: false, sideLimb: null, oneSide: false, oneArm: false, sideDefault: null });
-    // One arm at a time: which arm goes first is the athlete's, so nothing is preselected.
-    expect(policy(2)).toMatchObject({ askSide: true, sideLimb: "arm", sideAnchor: null, oneSide: true, oneArm: true, sideDefault: null });
-    // Usually two arms at once, sometimes one: it starts on Both, and a planned set of it is not split.
-    expect(policy(3)).toMatchObject({ askSide: true, sideLimb: "arm", oneSide: false, oneArm: false, sideDefault: "both" });
+  it("asks no side and splits no planned set by side, one-side exercises included: both sides count as one (owner, 20 Oct 2026)", () => {
+    // Main's rule (d8d95f4), read from the generated table's shape: no arm is asked, and a planned one-arm set is one row.
+    for (const id of [1, 2, 3]) expect(policy(id), `catalog ${id}`).toMatchObject({ askSide: false, oneSide: false, oneArm: false });
+    // The limb a side would be recorded on, and the side a set would start on, are still read from the variant, for a decision that asks again.
+    expect(policy(2)).toMatchObject({ sideLimb: "arm", sideDefault: null });
+    expect(policy(3)).toMatchObject({ sideLimb: "arm", sideDefault: "both" });
+    expect(policy(1)).toMatchObject({ sideLimb: null, sideDefault: null });
   });
 
-  it("asks the leg of a one-leg variant, by its anchor, reading the legs' laterality and not the arms'", () => {
-    expect(policy(173)).toMatchObject({ askSide: true, sideLimb: "leg", sideAnchor: "front_leg", oneSide: true, oneArm: true, sideDefault: null });
-    expect(policy(5)).toMatchObject({ askSide: true, sideLimb: "leg", sideAnchor: "working_leg", oneSide: false, sideDefault: "both" });
+  it("asks no leg either, of a one-leg variant or one done either way, reading the legs' laterality for the side a set would start on", () => {
+    expect(policy(173)).toMatchObject({ askSide: false, sideLimb: "leg", oneSide: false, oneArm: false, sideDefault: null });
+    expect(policy(5)).toMatchObject({ askSide: false, sideLimb: "leg", oneSide: false, sideDefault: "both" });
   });
 
-  it("asks nothing where no region paired by the limb maps it, and still says the variant is one-sided", () => {
-    expect(policy(247)).toMatchObject({ askSide: false, sideLimb: "leg", sideAnchor: "bottom_leg", oneSide: true, measure: "seconds" });
-    expect(policy(6)).toMatchObject({ askSide: false, sideLimb: "arm", oneSide: true });
-    // Mapped by the forearm too, the carry asks the arm.
-    expect(policy(409)).toMatchObject({ askSide: true, sideLimb: "arm", oneSide: true, mappedBy: ["forearm", "core"] });
+  it("asks nothing whichever regions map a one-side exercise, paired or midline", () => {
+    expect(policy(247)).toMatchObject({ askSide: false, sideLimb: "leg", oneSide: false, measure: "seconds" });
+    expect(policy(6)).toMatchObject({ askSide: false, sideLimb: "arm", oneSide: false });
+    expect(policy(409)).toMatchObject({ askSide: false, sideLimb: "arm", oneSide: false, mappedBy: ["forearm", "core"] });
   });
 
   it("is straps-sensitive only where a region has a mapping a strapped set does not earn, and names those regions", () => {
@@ -82,11 +82,12 @@ describe("the side question's words", () => {
 });
 
 describe("the policy's default data, the generated table", () => {
-  it("reads the forearm's exercises as it always has: a one-arm wrist curl, a hang in seconds, an either-arm curl", () => {
-    // One-Arm Dumbbell Wrist Curl (410), Dead Hang (143), Machine Preacher Curl (127).
-    expect(loggingPolicyFor(410)).toMatchObject({ measure: "reps", askSide: true, sideLimb: "arm", oneSide: true, oneArm: true, sideDefault: null });
+  it("reads the forearm's exercises with no arm asked: a one-arm wrist curl, a hang in seconds, an either-arm curl", () => {
+    // One-Arm Dumbbell Wrist Curl (410) and Dead Hang (143), as main's loggingRegions.test.ts (d8d95f4) reads them; Machine Preacher Curl (127).
+    expect(loggingPolicyFor(410)).toMatchObject({ measure: "reps", askSide: false, oneArm: false, sideDefault: null });
+    expect(loggingPolicyFor(410)).toMatchObject({ sideLimb: "arm", oneSide: false });
     expect(loggingPolicyFor(143)).toMatchObject({ measure: "seconds", askSide: false, oneSide: false, oneArm: false });
-    expect(loggingPolicyFor(127)).toMatchObject({ askSide: true, sideLimb: "arm", oneSide: false, sideDefault: "both" });
+    expect(loggingPolicyFor(127)).toMatchObject({ askSide: false, sideLimb: "arm", oneSide: false, sideDefault: "both" });
     // An exercise no production region maps: the Barbell Bench Press.
     expect(loggingPolicyFor(1)).toBe(defaultLoggingPolicy);
   });

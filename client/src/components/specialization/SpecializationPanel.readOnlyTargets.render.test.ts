@@ -29,7 +29,7 @@ const READ_ONLY = "Targets are for this region's target muscles. You can end or 
 const slots = buildDaySlots(["Pull"]);
 
 function Harness() {
-  const [state, setState] = useState<SpecializationViewState>({ ...defaultSpecializationState("forearm"), limb: "right" });
+  const [state, setState] = useState<SpecializationViewState>(defaultSpecializationState("forearm"));
   return createElement(SpecializationPanel, {
     state, onStateChange: setState,
     plan: { ready: true, slots, weeks: { 1: emptyDayStore() }, choice: null, activeWeek: 1 },
@@ -80,7 +80,7 @@ describe("a target on a muscle that is not a target here, in its muscle sheet", 
       const sheet = await sheetOf(row);
       expect(within(sheet).getByText(READ_ONLY)).toBeTruthy();
       expect(within(sheet).queryByRole("button", { name: /^Change/ })).toBeNull();
-      await click(within(sheet).getByRole("button", { name: /^End the right-arm target/ }));
+      await click(within(sheet).getByRole("button", { name: /^End the target/ }));
       expect(storedOf(saved.id)?.endsOn).toBe("2026-10-15");
       const undo = within(sheet).getByRole("button", { name: "Undo" });
       expect(document.activeElement).toBe(undo);
@@ -88,16 +88,16 @@ describe("a target on a muscle that is not a target here, in its muscle sheet", 
       expect(alerts()).toEqual([]);
       expect(stored()).toEqual([saved]);
       expect(within(sheet).getByRole("status").textContent).toBe("Target restored.");
-      expect(within(sheet).getByRole("button", { name: /^End the right-arm target/ })).toBeTruthy();
+      expect(within(sheet).getByRole("button", { name: /^End the target/ })).toBeTruthy();
     });
 
     it(`${label}: Remove keeps the message and its Undo in the sheet, with focus on Undo, and Undo puts it back`, async () => {
       saveSpecializationGoals([saved], null);
       render(createElement(Harness));
       const sheet = await sheetOf(row);
-      await click(within(sheet).getByRole("button", { name: /^Remove the right-arm target/ }));
+      await click(within(sheet).getByRole("button", { name: /^Remove the target/ }));
       expect(stored()).toEqual([]);
-      expect(within(sheet).getByRole("status").textContent).toMatch(/^Right-arm target for .+ removed\.$/);
+      expect(within(sheet).getByRole("status").textContent).toMatch(/^Target for .+ removed\.$/);
       const undo = within(sheet).getByRole("button", { name: "Undo" });
       expect(document.activeElement).toBe(undo);
       // Still no way to set a new one here.
@@ -114,7 +114,7 @@ describe("a target on a muscle that is not a target here, in its muscle sheet", 
     saveSpecializationGoals([today], null);
     render(createElement(Harness));
     const sheet = await sheetOf(/^Anconeus,/);
-    await click(within(sheet).getByRole("button", { name: /^End the right-arm target/ }));
+    await click(within(sheet).getByRole("button", { name: /^End the target/ }));
     expect(stored()).toEqual([]);
     expect(within(sheet).getByRole("status").textContent).toContain("It started today, so it is removed rather than kept as ended.");
     await click(within(sheet).getByRole("button", { name: "Undo" }));
@@ -126,7 +126,7 @@ describe("a target on a muscle that is not a target here, in its muscle sheet", 
     saveSpecializationGoals([biceps], null);
     render(createElement(Harness));
     const sheet = await sheetOf(/^Biceps brachii,/);
-    await click(within(sheet).getByRole("button", { name: /^Remove the right-arm target/ }));
+    await click(within(sheet).getByRole("button", { name: /^Remove the target/ }));
     await click(within(sheet).getByRole("button", { name: "Undo" }));
     expect(stored().map((item) => item.id)).toEqual(["bic"]);
     expect(within(sheet).queryByRole("button", { name: /Set a target/ })).toBeNull();
@@ -140,8 +140,8 @@ describe("a target on a muscle that is not a target here, in the Targets overvie
       render(createElement(Harness));
       const targets = await overview();
       expect(within(targets).getAllByText(READ_ONLY).length).toBe(2);
-      await click(within(targets).getByRole("button", { name: new RegExp(`^${action} the right-arm target of 4 direct dynamic bouts per calendar week for Biceps brachii`) }));
-      await click(within(targets).getByRole("button", { name: new RegExp(`^${action} the right-arm target of 4 direct dynamic bouts per calendar week for Anconeus`) }));
+      await click(within(targets).getByRole("button", { name: new RegExp(`^${action} the target of 4 direct dynamic bouts per calendar week for Biceps brachii`) }));
+      await click(within(targets).getByRole("button", { name: new RegExp(`^${action} the target of 4 direct dynamic bouts per calendar week for Anconeus`) }));
       expect(within(targets).getByRole("status").textContent).toBe(action === "End" ? "2 targets ended." : "2 targets removed.");
       await click(within(targets).getByRole("button", { name: "Undo" }));
       expect(alerts()).toEqual([]);
@@ -152,12 +152,17 @@ describe("a target on a muscle that is not a target here, in the Targets overvie
 });
 
 describe("a target on a muscle that is not a target here, in Coverage to review", () => {
-  /** This week: a wrist curl, and a one-arm wrist curl logged with no arm, so the page has a finding about the records. */
+  /**
+   * This week: a wrist curl; a one-arm wrist curl logged with no arm, counted like any other set
+   * (both arms as one, 20 Oct 2026); and a pullover, which counts for the forearms as a whole only,
+   * so the page has a finding about the records.
+   */
   const week = [{
     id: "w", title: "Pull", dayLabel: "Week 1 · Day 01 · Pull", startedAt: "2026-10-14T17:00:00.000Z", completedAt: "2026-10-14T18:00:00.000Z", status: "completed",
     exercises: [
       { id: "e1", exerciseName: exercises.find((exercise) => exercise.id === 139)!.name, catalogId: 139, plannedPrescription: "3 × 12", sets: [1, 2, 3].map(() => ({ weight: "20", reps: "12", unit: "kg", completed: true })) },
       { id: "e2", exerciseName: exercises.find((exercise) => exercise.id === 410)!.name, catalogId: 410, plannedPrescription: "1 × 12", sets: [{ weight: "8", reps: "12", unit: "kg", completed: true }] },
+      { id: "e3", exerciseName: exercises.find((exercise) => exercise.id === 24)!.name, catalogId: 24, plannedPrescription: "1 × 10", sets: [{ weight: "20", reps: "10", unit: "kg", completed: true }] },
     ],
   }];
   const findingTitles = () => Array.from(document.querySelectorAll(".spz-finding strong")).map((item) => item.textContent);
@@ -172,8 +177,8 @@ describe("a target on a muscle that is not a target here, in Coverage to review"
     if (more) await click(more);
     // A target on a target muscle leads; the records' findings follow; the targets saved earlier come last, once per muscle.
     expect(findingTitles()).toEqual([
-      "Flexor carpi radialis: 3 of your 6",
-      "1 set with no arm recorded",
+      "Flexor carpi radialis: 4 of your 6",
+      "1 set count for the forearms as a whole only",
       "Biceps brachii: a target saved earlier",
       "Anconeus: a target saved earlier",
     ]);
@@ -186,7 +191,7 @@ describe("a target on a muscle that is not a target here, in Coverage to review"
     await click(within(findingOf("Anconeus: a target saved earlier")).getByRole("button"));
     const sheet = screen.getByRole("dialog", { name: "Anconeus" });
     expect(within(sheet).getByText(READ_ONLY)).toBeTruthy();
-    expect(within(sheet).getAllByRole("button", { name: /^End the right-arm target/ })).toHaveLength(2);
+    expect(within(sheet).getAllByRole("button", { name: /^End the target/ })).toHaveLength(2);
   });
 
   it("says nothing can be counted for a muscle with no mapping, never 0 of the target: in the strip, the sheet and the Targets overview", async () => {

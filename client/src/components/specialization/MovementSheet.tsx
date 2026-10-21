@@ -4,14 +4,13 @@ import type { SpecializationRegionData, SpecializationSummary, SummaryMode, Summ
 import { ActionGlyph } from "./ActionGlyph";
 import { BoutItem } from "./BoutItem";
 import { categoryLabel, goalMetricLabels, holdTime, ledgerByExercise, movementLedger, otherWorkWords } from "./model";
-import { rowSideTextFor, sideWordsFor } from "./sideWords";
 import { SpecializationSheet } from "./SpecializationSheet";
 import { Suggestions, type SuggestionsProps } from "./Suggestions";
 import { WhyThisCounts } from "./WhyThisCounts";
 
 /**
  * One movement (brief §7, "Targets attach to muscle or action"): what it is and which of the
- * region's muscles do it; its numbers for the window and arm, counted as a movement target
+ * region's muscles do it; its numbers for the window, counted as a movement target
  * counts them; the bouts behind those numbers, exercise → bout → segment, each logged one
  * with "Open this workout" and each exercise with "Why this counts"; its targets; and
  * exercises for it (`recommendFor({ actionId })`) with Add or swap. A movement target's
@@ -20,7 +19,7 @@ import { WhyThisCounts } from "./WhyThisCounts";
 export function MovementSheet({ data, actionId, summary, loading, side, mode, intervalLabel, weightUnit, onOpenSession, onOpenMuscle, onOpenMethod, onClose, ...suggestions }: {
   data: SpecializationRegionData;
   actionId: string;
-  /** The summary on screen for this side; null while it is worked out or the plan loads. */
+  /** The summary on screen (both sides as one); null while it is worked out or the plan loads. */
   summary: SpecializationSummary | null;
   /** Planned mode while the plan is still loading: no numbers yet, and none shown as zero. */
   loading: boolean;
@@ -35,9 +34,6 @@ export function MovementSheet({ data, actionId, summary, loading, side, mode, in
 } & SuggestionsProps) {
   const action = data.actions.find((item) => item.id === actionId);
   const name = action?.label ?? actionId;
-  const words = sideWordsFor(data.region);
-  const sideText = rowSideTextFor(data);
-  const onSide = side === "midline" ? null : words.of(side);
   const regionNodeIds = new Set(data.nodes.filter((node) => node.regionId === data.region.id).map((node) => node.id));
   const doers = data.nodeActions
     .filter((item) => item.actionId === actionId && regionNodeIds.has(item.nodeId))
@@ -47,13 +43,13 @@ export function MovementSheet({ data, actionId, summary, loading, side, mode, in
   const shortName = (id: string) => data.nodes.find((node) => node.id === id)?.shortName ?? id;
   const ledger = summary ? movementLedger(summary, data, actionId) : null;
   const groups = ledger ? ledgerByExercise(ledger.bouts) : [];
-  const progress = summary ? summary.goals.filter((item) => item.goal.actionId === actionId && item.goal.side === side) : [];
+  const progress = summary ? summary.goals.filter((item) => item.goal.actionId === actionId && (side === "both" || item.goal.side === side)) : [];
   const waiting = loading ? "Loading your plan…" : "Working out the totals…";
 
   return <SpecializationSheet
     id="spz-movement"
     focusKey={actionId}
-    eyebrow={onSide ? `Movement · ${onSide}` : "Movement"}
+    eyebrow="Movement"
     title={name}
     subtitle={action ? <p>{action.plainDescription}</p> : undefined}
     onClose={onClose}
@@ -70,13 +66,12 @@ export function MovementSheet({ data, actionId, summary, loading, side, mode, in
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-move-numbers">
-      <h3 id="spz-move-numbers">{[mode === "planned" ? "Planned" : "Completed", intervalLabel, onSide].filter(Boolean).join(" · ")}</h3>
+      <h3 id="spz-move-numbers">{mode === "planned" ? "Planned" : "Completed"} · {intervalLabel}</h3>
       {!ledger ? <p className="spz-note">{waiting}</p> : <>
         <dl className="spz-numbers">
           <div><dt>Direct dynamic bouts</dt><dd>{ledger.totals.directDynamicBouts}</dd></div>
           <div><dt>Deliberate holds</dt><dd>{ledger.totals.deliberateHoldBouts}{ledger.totals.deliberateHoldBouts ? <small> · {holdTime(ledger.totals.deliberateHoldSeconds)}</small> : null}</dd></div>
           <div><dt>Other work for it</dt><dd>{ledger.totals.otherBouts}<small> · {otherWorkWords}</small></dd></div>
-          {words.paired && ledger.totals.unknownSideBouts > 0 && <div><dt>{words.noneRecordedTitle}</dt><dd>{ledger.totals.unknownSideBouts}<small> · {words.neither}</small></dd></div>}
         </dl>
         {/* A plan has done nothing yet: its sets are planned for the movement, not sets muscles did. */}
         <p className="spz-note">{mode === "planned" ? "Each planned set counts once for the movement, however many muscles it is planned for." : "Each set counts once for the movement, however many muscles did it."}</p>
@@ -90,7 +85,7 @@ export function MovementSheet({ data, actionId, summary, loading, side, mode, in
         {groups.map((group) => <details key={group.key} className="spz-disclosure">
           <summary><span><b>{group.name}</b><small>{group.rows.length} bout{group.rows.length === 1 ? "" : "s"}{group.matchedBy === "name" ? " · matched by name" : ""}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
           <ol className="spz-bouts">
-            {group.rows.map((row) => <BoutItem key={row.boutId} row={row} title={row.categories.map((category, index) => (index ? categoryLabel(category, data.region.wording).toLowerCase() : categoryLabel(category, data.region.wording))).join(" and ")} sideText={sideText} weightUnit={weightUnit} onOpenSession={onOpenSession}>
+            {group.rows.map((row) => <BoutItem key={row.boutId} row={row} title={row.categories.map((category, index) => (index ? categoryLabel(category, data.region.wording).toLowerCase() : categoryLabel(category, data.region.wording))).join(" and ")} weightUnit={weightUnit} onOpenSession={onOpenSession}>
               <p className="spz-note">By {row.nodeIds.map(shortName).join(", ")}.{row.notes.length ? ` ${row.notes.join(" · ")}.` : ""}</p>
             </BoutItem>)}
           </ol>

@@ -14,26 +14,29 @@ import { defaultSpecializationState, type SpecializationViewState } from "@/lib/
 import { NOW, goals, sessions, slots, store } from "./__fixtures__/forearmWeek";
 
 /**
- * The forearm page says what it said when it shipped (3986178), apart from the changes wave 0
- * states (docs/specialization-atlas/09-page.md, "What wave 0 changes on the forearm page";
- * 10-multi-region.md §9.1 and §11 decision 11(a)). The week of __fixtures__/forearmWeek.ts is
- * rendered for both arms, three windows and the plan week; the page is read with every disclosure
- * open and every finding shown, and so are five muscles' sheets with their ledgers open (one target
- * muscle with two-handed, one-arm and no-arm rows; one with holds and strapped sets; the adjacent
- * anconeus and the external biceps, each with a target on one arm and none on the other; the
- * external brachialis, with none), the sets behind every total (the region's, the window line's
- * pair, each exercise's, each day's, those with no arm recorded, those for the forearms only, those
- * not counted here), and the wrist flexion movement.
+ * The forearm page says what main says (4dac1ae: both arms counted as one, owner 20 Oct 2026; the
+ * athlete's current reality), apart from the changes wave 0 states (docs/specialization-atlas/
+ * 09-page.md, "What wave 0 changes on the forearm page"; 10-multi-region.md §9.1, §11 decision 11(a)
+ * and the appendix "Both sides as one"). The week of __fixtures__/forearmWeek.ts is rendered, both
+ * arms as one, for three windows and the plan week; the page is read with every disclosure open and
+ * every finding shown, and so are five muscles' sheets with their ledgers open (one target muscle
+ * with two-handed, one-arm and no-arm rows; one with holds and strapped sets; the adjacent anconeus
+ * and the external biceps, each with a target saved earlier for one arm, now read for both; the
+ * external brachialis, with none), the sets behind every total (the region's, the window line's pair,
+ * each exercise's, each day's, those for the forearms only, those not counted here), and the wrist
+ * flexion movement.
  *
  * Each of those readings is a list of lines in the order the page shows them, kept apart per state
- * and per sheet, and compared in order with the same reading taken at 3986178
- * (__fixtures__/pageText.3986178.json) once the stated changes are applied to it: a line rewritten
+ * and per sheet, and compared in order with the same reading taken on main at 4dac1ae
+ * (__fixtures__/pageText.4dac1ae.json) once the stated changes are applied to it: a line rewritten
  * (`stated`), runs of lines gone (`gone`) or new (`added`), each in the sheets it names. Anything
  * else that is new, gone or moved, in any sheet, fails, and every stated change must still be one
  * the page makes. The drawing's own labels (data) and the live region's announcements are not read.
+ * (Wave 0 first held these lines against 3986178 per arm; the reconciliation of 21 Oct 2026
+ * re-baselined them on main for both arms, and its stated changes are those wave 0 still makes.)
  *
  * To read the reference again: copy this file and __fixtures__/forearmWeek.ts into a tree at
- * 3986178, leave out the region loader (that tree has none) and the rule import (the stated changes
+ * 4dac1ae, leave out the region loader (that tree has none) and the rule import (the stated changes
  * are not read there), and run it with READ_PAGE_TEXT=<path>.
  */
 
@@ -111,7 +114,6 @@ async function readPage(state: SpecializationViewState): Promise<Reading> {
   for (let index = 0; index < all(exerciseLinks).length; index += 1) await readSheet(`sets: exercise ${index + 1}`, all(exerciseLinks)[index], seen);
   for (let index = 0; index < all("button.spz-day").length; index += 1) await readSheet(`sets: day ${index + 1}`, all("button.spz-day")[index], seen);
   for (const name of ["Brachioradialis", "Flexor digitorum superficialis", "Anconeus", "Biceps brachii", "Brachialis"]) await readSheet(`muscle: ${name}`, pageButton(new RegExp(`^${name}, `)), seen);
-  await readSheet("sets: with no arm recorded", pageButton(/^See the \d+ sets? with no arm recorded/), seen);
   await readSheet("sets: for the forearms only", pageButton(/^See the \d+ sets? for the forearms only/), seen);
   await readSheet("sets: not counted here", pageButton(/^See (this set|these sets) and why/), seen);
   await readSheet("movement: Wrist flexion", pageButton(/^Open Wrist flexion$/), seen);
@@ -122,14 +124,13 @@ async function readPage(state: SpecializationViewState): Promise<Reading> {
 /** The targets of the fixture but those saved earlier on the biceps and the anconeus: each muscle that is not a target here then has none. */
 const onTargetMusclesOnly = goals.filter((goal) => goal.nodeId !== "upper_arm.biceps" && goal.nodeId !== "forearm.anconeus");
 
-/** Both arms, this week, the rolling 7 days, a custom window and the plan week; and this week with no target saved earlier on a muscle that is not a target here. */
+/** Both arms as one: this week, the rolling 7 days, a custom window and the plan week; and this week with no target saved earlier on a muscle that is not a target here. */
 const states: [string, Partial<SpecializationViewState>, unknown[]][] = [
-  ["left/week", { limb: "left" }, goals],
-  ["right/week", { limb: "right" }, goals],
-  ["right/7d", { limb: "right", window: "7d" }, goals],
-  ["left/custom", { limb: "left", window: "custom", from: "2026-10-05", to: "2026-10-16" }, goals],
-  ["right/planned", { limb: "right", mode: "planned" }, goals],
-  ["right/week, targets on target muscles only", { limb: "right" }, onTargetMusclesOnly],
+  ["week", {}, goals],
+  ["7d", { window: "7d" }, goals],
+  ["custom", { window: "custom", from: "2026-10-05", to: "2026-10-16" }, goals],
+  ["planned", { mode: "planned" }, goals],
+  ["week, targets on target muscles only", {}, onTargetMusclesOnly],
 ];
 
 beforeAll(async () => { await loadRegionData("forearm"); });
@@ -168,11 +169,7 @@ const MUSCLES_NOT_TARGETS: Where = /^muscle: (Anconeus|Biceps brachii|Brachialis
 
 /** A line of the reference rewritten wherever it is: `was` → `now`. */
 const stated: { why: string; was: RegExp; now: string }[] = [
-  { why: "09 item 1; §9.1, §11 decision 11(a): sentences read 'your right forearm' (the region's onSide)", was: /\b(touched|is planned for|are planned for) the forearms on the (left|right) arm\b/, now: "$1 your $2 forearm" },
-  { why: "09 item 1; §9.1: the same, for the sets behind a total", was: /\bloaded a muscle of the forearms on the (left|right) arm\b/, now: "touched your $1 forearm" },
-  { why: "09 item 1; §9.1: the same, planned", was: /\bplanned for a muscle of the forearms on the (left|right) arm\b/, now: "planned for your $1 forearm" },
-  { why: "09 item 1; §9.1: the window pair's logged list", was: /^(\[name\] )?Logged on the (left|right) arm: /, now: "$1Logged for your $2 forearm: " },
-  { why: "09 item 1; §9.1: the region's sets, headed by its side", was: /^(\[name\] )?On the (left|right) arm$/, now: "$1Your $2 forearm" },
+  { why: "appendix 'Both sides as one'; §9.1: both arms are one count, so a set is not said to count once per arm (main's lede kept it)", was: /^Each set counts once per muscle and once per arm, from /, now: "Each set counts once per muscle, from " },
   { why: "09 item 4; §4.3: the strapped finding's words come from the published rule and the calculator's note", was: /^(\d+ strapped sets?) earned no grip credit$/, now: "$1: grip not counted" },
   { why: "09 item 4; §4.3: the strapped finding's detail is the published rule's straps clause", was: /^Straps hold the bar for the hand, so the finger flexors are not credited for those sets\. The rest of each set still counts\.$/, now: `${currentExposureRule.specification.straps} The rest of each set still counts.` },
   // The anconeus's target of 3 is the fixture's only one of 3; the biceps' target of 5 is counted, and its row keeps "0 of your 5".
@@ -180,11 +177,10 @@ const stated: { why: string; was: RegExp; now: string }[] = [
 ];
 /** Runs of the reference's lines, one after another, gone from the sheets `in` names. */
 const gone: { why: string; in: Where; lines: RegExp[] }[] = [
-  { why: "09 item 5; §2.2: a target saved earlier on a muscle that is not a target here is no target behind, with exercises for it", in: /^page$/, lines: [/^(Biceps brachii|Anconeus): 0 of your \d+$/, /^Direct dynamic bouts, (left|right) arm, .+\. The target is yours, not a prescription\.$/, /^See exercises for it$/] },
-  { why: "09 item 2; §2.2, §9.1: a target saved earlier on a muscle that is not a target here can be ended or removed, not changed", in: ANYWHERE, lines: [/^\[name\] Change the (left|right)-arm target of .+ for (Anconeus|Biceps brachii|Brachialis)$/, /^Change$/] },
+  { why: "09 item 5; §2.2: a target saved earlier on a muscle that is not a target here is no target behind, with exercises for it", in: /^page$/, lines: [/^(Biceps brachii|Anconeus): 0 of your \d+$/, /^Direct dynamic bouts, .+\. The target is yours, not a prescription\.$/, /^See exercises for it$/] },
+  { why: "09 item 2; §2.2, §9.1: a target saved earlier on a muscle that is not a target here can be ended or removed, not changed", in: ANYWHERE, lines: [/^\[name\] Change the target of .+ for (Anconeus|Biceps brachii|Brachialis)$/, /^Change$/] },
   { why: "09 item 2: no target is offered on a muscle that is not a target here", in: MUSCLES_NOT_TARGETS, lines: [/^Set a target$/] },
   { why: "09 item 2: nor is it said to be untargeted, as if it could take one", in: MUSCLES_NOT_TARGETS, lines: [/^Not targeted\. Nothing here is behind: a muscle without a target has no gap to show\.$/] },
-  { why: "09 item 2: nor untargeted on this arm, as if this arm could take one", in: MUSCLES_NOT_TARGETS, lines: [/^Not targeted on the (left|right) arm\. Only the other arm has a target for this muscle\.$/] },
 ];
 /** Runs of lines new in the sheets `in` names (each run may stand anywhere in them). */
 const added: { why: string; in: Where; lines: RegExp[] }[] = [
@@ -215,9 +211,9 @@ function withoutRuns(lines: string[], rules: { why: string; lines: RegExp[] }[],
   return result;
 }
 
-describe.skipIf(out)("the forearm page says what it said at 3986178, apart from wave 0's stated changes", () => {
+describe.skipIf(out)("the forearm page says what main says (4dac1ae, both arms as one), apart from wave 0's stated changes", () => {
   it("reads the same lines, in the same order, in every state and every sheet", async () => {
-    const reference = JSON.parse(readFileSync(join(process.cwd(), "client/src/components/specialization/__fixtures__/pageText.3986178.json"), "utf8")) as Record<string, Reading>;
+    const reference = JSON.parse(readFileSync(join(process.cwd(), "client/src/components/specialization/__fixtures__/pageText.4dac1ae.json"), "utf8")) as Record<string, Reading>;
     const read = await readAll();
     expect(Object.keys(read)).toEqual(Object.keys(reference));
     const used = new Set<string>();

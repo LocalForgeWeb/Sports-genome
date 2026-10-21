@@ -9,11 +9,10 @@ import { countingDimensions } from "./variants/dimensions";
  * The brief wants this information "out of the workout logger until relevant" and every
  * set entry kept from turning into a questionnaire (§6, "Muscle detail sheet"). So the
  * logger asks for nothing the atlas has not said matters for that exact exercise: a
- * Seconds box only where the variant is measured in seconds, a side only where the
- * variant can be done one arm or one leg at a time and a region that counts that limb's
- * sides maps it, a straps question only where a grip mapping depends on a bare hand. An
- * exercise no production region maps gets the default policy, which is exactly the logger
- * as it was before the atlas existed.
+ * Seconds box only where the variant is measured in seconds, and a straps question only
+ * where a grip mapping depends on a bare hand. No side is asked, of an arm or a leg: both
+ * sides are counted as one (owner, 20 Oct 2026). An exercise no production region maps gets
+ * the default policy, which is exactly the logger as it was before the atlas existed.
  *
  * Region-agnostic on purpose: the table (`loggingTable.generated.ts`) is written from every
  * production region by scripts/specialization/emit-logging-table.ts, so a region added to the
@@ -21,7 +20,7 @@ import { countingDimensions } from "./variants/dimensions";
  * module, and the table holds a few facts per exercise, never a region's mappings, drawing,
  * claims or sources.
  *
- * What the athlete's targets decide (the straps question, rows per side) is not here: that is
+ * What the athlete's targets decide (the straps question) is not here: that is
  * `loggerGatesFor` in client/src/lib/specialization/loggerGates.ts, read from this policy.
  */
 export type LoggedSide = "left" | "right" | "both";
@@ -30,10 +29,10 @@ export interface LoggingPolicy {
   /** What the set's dose is entered in: reps, or the seconds of a hold. */
   measure: "reps" | "seconds";
   /**
-   * Ask which side: the variant can be (or must be) done one arm, or one leg, at a time (its
-   * laterality on the limb it is sided by is `unilateral` or `either`), and a production region
-   * paired by that limb maps it, so the side is counted. A side plank mapped only by the core
-   * asks nothing.
+   * Ask which side. Always false: both sides are counted as one (owner, 20 Oct 2026, "there's no
+   * reason for a left and right arm", extended to every limb), so the side a set was done with
+   * changes no number, and no arm or leg is asked. Kept so a later decision can ask again; a set
+   * logged with a side before keeps it.
    */
   askSide: boolean;
   /** The limb the side is recorded on (the variant's `sidedBy`): a set's `side` for the arm, `legSide` for the leg; null where no side is. */
@@ -41,9 +40,9 @@ export interface LoggingPolicy {
   /** On the leg, which leg a side names (the front leg of a split squat); null on the arm. */
   sideAnchor: SideAnchor | null;
   /**
-   * The variant is one side at a time by definition (laterality `unilateral` on its limb, not
-   * `either`): a planned set of it is done once with each side. The tracker reads this, with the
-   * athlete's gates, to lay a planned set out as two rows, one per side.
+   * Lay a planned set out as one row per side. Always false: with both sides counted as one, a
+   * planned one-side set is one row per planned set, so the logged week matches the planned week
+   * (the plan counts it as one bout, planBouts.ts).
    */
   oneSide: boolean;
   /** `oneSide`, under the name it had when only arms were asked. */
@@ -86,16 +85,16 @@ export function loggingPolicyFor(catalogExerciseId: number | null | undefined, t
   const sideLimb = row.sidedBy === "none" ? null : row.sidedBy;
   // How the limb the side is recorded on works: the arms' laterality, or the legs'.
   const laterality = sideLimb === "arm" ? row.laterality : sideLimb === "leg" ? row.legLaterality : undefined;
-  const oneSide = laterality === "unilateral";
   return {
     measure: row.measure === "seconds" ? "seconds" : "reps",
-    askSide: (oneSide || laterality === "either") && row.sideCounted,
+    // No side is asked, of an arm or a leg: both sides are counted as one (owner, 20 Oct 2026).
+    askSide: false,
     sideLimb,
     sideAnchor: sideLimb === "leg" ? row.sideAnchor ?? null : null,
-    oneSide,
-    oneArm: oneSide,
-    // A two-handed implement never asks. "Either" is usually both at once (a pair of dumbbells),
-    // so it starts on Both; a one-side exercise starts unset.
+    // Nor is a planned one-side set laid out as a row per side: a set is a set.
+    oneSide: false,
+    oneArm: false,
+    // The side a set would start on, read from the variant, for a decision that asks again.
     sideDefault: laterality === "either" ? "both" : null,
     strapsSensitive: row.strapsBy.length > 0,
     strapsBy: row.strapsBy,

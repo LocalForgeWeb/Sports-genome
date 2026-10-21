@@ -308,11 +308,12 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     ["diagram_labels", "anchor", () => property("DiagramLabel", "anchor")],
     // Schema v2: one side drawn and mirrored, or both drawn (null reads as one side).
     ["diagram_assets", "sides", () => union("DiagramSides")],
-    // A goal's or measurement's side: left or right in a paired region, midline in a midline region or for a girth.
-    ["goals", "side", () => union("SummarySide")],
+    // A goal's or measurement's stored side (`StoredSide`): left or right in a paired region, midline in a midline region or for a girth.
+    // Never `both`: that is a summary's side (`SummarySide`), counting both sides as one (owner, 20 Oct 2026); nothing stores it.
+    ["goals", "side", () => union("StoredSide")],
     ["goals", "metric", () => union("GoalMetric")],
     ["goals", "period", () => union("GoalPeriod")],
-    ["measurements", "side", () => union("SummarySide")],
+    ["measurements", "side", () => union("StoredSide")],
     ["measurements", "metric", () => union("MeasurementMetric")],
     // `reference`: a region that only holds other regions' external members.
     ["regions", "status", () => union("RegionStatus")],

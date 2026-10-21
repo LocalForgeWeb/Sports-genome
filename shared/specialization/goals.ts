@@ -1,4 +1,4 @@
-import type { BodySide, GoalMetric, GoalPeriod, NodeId, RegionId, SpecializationGoal, SpecializationRegion, SpecializationRegionData, SummaryInterval, SummarySide } from "./types";
+import type { BodySide, GoalMetric, GoalPeriod, NodeId, RegionId, SpecializationGoal, SpecializationRegion, SpecializationRegionData, StoredSide, SummaryInterval } from "./types";
 import { regionIndexEntry } from "./regionIndex";
 import { calendarWeekInterval, isDateKey, isValidTimeZone, localDateKey, rolling7dInterval } from "./time";
 
@@ -70,22 +70,14 @@ export function sameGoalTarget(a: SpecializationGoal, b: SpecializationGoal): bo
 
 type SideWording = Pick<SpecializationRegion, "sides" | "wording">;
 
-/** The region's word for one side and for both ("leg", "legs"); "side" where a region does not say. */
-function sideWordsOf(region: SideWording | null): { one: string; both: string } {
-  return { one: region?.wording.sideWord ?? "side", both: region?.wording.sideWordPlural ?? "sides" };
-}
-
-/** "right-leg", "left-side": the side and the region's side word; nothing for a midline target, which has no side. */
-function sideTargetWords(side: SummarySide, region: SideWording | null): string {
-  return side === "midline" ? "" : `${side}-${sideWordsOf(region).one}`;
-}
-
 /**
  * Whether a goal may be saved beside the ones that exist. Editing a goal passes its own id, so it
  * is never compared with its earlier self. The database refuses the same overlap with an exclusion
  * constraint; this says why before anything is written.
  *
- * The side must fit the region: left or right in a paired region, `midline` in a midline one.
+ * The side must fit the region: left or right in a paired region, `midline` in a midline one. Since
+ * both sides are counted as one (owner, 20 Oct 2026) a paired region's new target stores `right` as
+ * a placeholder nothing reads, and no message names a side.
  * With the page's scope it also checks the muscle: a new muscle target names one of the region's
  * target muscles, and a target already saved on any other muscle (an external or adjacent one,
  * from before targets were limited) may only be ended, or removed (10-multi-region.md §2.2).
@@ -101,8 +93,7 @@ export function validateGoal(goal: SpecializationGoal, existing: readonly Specia
   if (region?.sides.model === "midline") {
     if (goal.side !== "midline") return { ok: false, reason: "This region is counted as a whole, with no left or right. Save the target without a side." };
   } else if (goal.side !== "left" && goal.side !== "right") {
-    const words = sideWordsOf(region);
-    return { ok: false, reason: `Choose the left or the right ${words.one}. A target for both ${words.both} is saved as two.` };
+    return { ok: false, reason: "This target's side does not fit the region: a target here is stored as left or right, and work on either side counts toward it." };
   }
   if (!goalMetrics.includes(goal.metric)) return { ok: false, reason: "Choose what the target counts: direct dynamic bouts, deliberate hold bouts or hold seconds." };
   if (!goalPeriods.includes(goal.period)) return { ok: false, reason: "Choose whether the target is per calendar week or per rolling 7 days." };
@@ -122,10 +113,10 @@ export function validateGoal(goal: SpecializationGoal, existing: readonly Specia
   if (clash) {
     const from = shortDate(clash.startsOn);
     const until = clash.endsOn === null ? "with no end date" : `until ${shortDate(clash.endsOn)}`;
-    const which = sideTargetWords(clash.side, region);
     return {
       ok: false,
-      reason: `You already have a ${which ? `${which} ` : ""}target of ${clash.target} ${metricWords[clash.metric]} ${periodWords[clash.period]} for this, from ${from} ${until}. Change that one, or end it before this one starts.`,
+      // No side is named: both sides are counted as one (owner, 20 Oct 2026).
+      reason: `You already have a target of ${clash.target} ${metricWords[clash.metric]} ${periodWords[clash.period]} for this, from ${from} ${until}. Change that one, or end it before this one starts.`,
     };
   }
   return { ok: true };
@@ -140,9 +131,11 @@ function onlyEnds(before: SpecializationGoal, after: SpecializationGoal): boolea
 }
 
 /**
- * "Both sides" is not a side: the entry becomes two explicit goals, one per side, so left and
- * right can be compared and changed separately (brief §7). A midline region's target has one side,
- * `midline`, and never comes through here.
+ * The old "Both arms" choice: two explicit goals, one per side (brief §7, as first built). Since
+ * both sides are counted as one (owner, 20 Oct 2026) the page saves a new target once and reads a
+ * pair saved before as one (`collapseArmPairs`, stores.ts; the summary reads a `both` side the same
+ * way); this stays for the pairs already on devices and their tests. A midline region's target has
+ * one side, `midline`, and never comes through here.
  */
 export function goalsForBothSides(draft: Omit<SpecializationGoal, "side">): [SpecializationGoal, SpecializationGoal] {
   const sides: BodySide[] = ["left", "right"];
@@ -160,7 +153,7 @@ export function nodeHomeRegionId(nodeId: NodeId): RegionId | null {
 }
 
 /** The side fits the region: left or right in a paired region, `midline` in a midline one. */
-export function sideFitsRegion(region: Pick<SpecializationRegion, "sides">, side: SummarySide): boolean {
+export function sideFitsRegion(region: Pick<SpecializationRegion, "sides">, side: StoredSide): boolean {
   return (region.sides.model === "midline") === (side === "midline");
 }
 

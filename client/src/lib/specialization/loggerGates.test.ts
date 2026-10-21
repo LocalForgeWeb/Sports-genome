@@ -6,8 +6,9 @@ import type { SpecializationGoal } from "@shared/specialization/types";
 
 /**
  * What the athlete's targets switch on in the logger, per exercise (10-multi-region.md §6.4):
- * straps only with a target in a region whose straps-sensitive mappings include the exercise, and
- * rows per side for a one-side exercise with a target in any production region that maps it.
+ * straps only with a target in a region whose straps-sensitive mappings include the exercise. No
+ * planned set is laid out per side: both sides are counted as one (owner, 20 Oct 2026), so a
+ * planned set is one row for everyone, as main (4dac1ae) builds it.
  */
 const NOW = "2026-10-20T12:00:00.000Z";
 const goal = (regionId: string, fields: Partial<SpecializationGoal> = {}): SpecializationGoal => ({
@@ -15,21 +16,21 @@ const goal = (regionId: string, fields: Partial<SpecializationGoal> = {}): Speci
   startsOn: "2026-10-01", endsOn: null, timezone: "UTC", createdAt: "2026-10-01T00:00:00.000Z", updatedAt: "2026-10-01T00:00:00.000Z", ...fields,
 });
 
-describe("for the forearm in wave 0, nothing changes", () => {
-  // Today's rule (Home before 20 Oct): any active target turned on straps where the exercise is
-  // straps-sensitive, and rows per arm where it is one arm at a time.
+describe("for the forearm, as main builds it (4dac1ae)", () => {
+  // Main's rule: any active target turns on straps where the exercise is straps-sensitive, and no
+  // planned set is laid out per arm (both arms as one, 20 Oct 2026).
   const ids = [...loggingTable.keys(), 1, 167, 173, 217, 247];
   const today = (anyActiveTarget: boolean, id: number) => {
     const policy = loggingPolicyFor(id);
-    return { askStraps: anyActiveTarget && policy.strapsSensitive, perSideRows: anyActiveTarget && policy.oneArm };
+    return { askStraps: anyActiveTarget && policy.strapsSensitive, perSideRows: false };
   };
 
-  it("asks straps and lays rows out per arm exactly as before, for an athlete with a forearm target", () => {
+  it("asks straps as before, and lays no row out per arm, for an athlete with a forearm target", () => {
     const gates = loggerGatesFor([goal("forearm", { nodeId: "forearm.fcr" }), goal("forearm", { id: "g2", nodeId: null, actionId: "wrist.flexion" })], NOW);
     for (const id of ids) expect(gates.of(loggingPolicyFor(id)), `catalog ${id}`).toEqual(today(true, id));
     // Some of each, so the comparison is not of nothing.
     expect(ids.filter((id) => gates.of(loggingPolicyFor(id)).askStraps).length).toBe(72);
-    expect(ids.filter((id) => gates.of(loggingPolicyFor(id)).perSideRows).length).toBe(26);
+    expect(ids.filter((id) => gates.of(loggingPolicyFor(id)).perSideRows).length).toBe(0);
   });
 
   it("asks neither of an athlete without a target, or whose targets have ended or not begun", () => {
@@ -66,17 +67,12 @@ describe("with several regions, each exercise is gated by the regions that map i
     expect(gatesOf(["core"], 409).askStraps).toBe(false);
   });
 
-  it("lays a one-side exercise out per side with a target in any production region that maps it, paired or midline", () => {
-    expect(gatesOf(["core"], 409).perSideRows).toBe(true);
-    expect(gatesOf(["forearm"], 409).perSideRows).toBe(true);
-    expect(gatesOf(["thigh"], 409).perSideRows).toBe(false);
-    expect(gatesOf(["thigh"], 173).perSideRows).toBe(true);
-    expect(gatesOf(["forearm"], 173).perSideRows).toBe(false);
-    // The side question is not shown on a side plank, and its rows still carry a side for the core's count.
-    expect(loggingPolicyFor(247, table).askSide).toBe(false);
-    expect(gatesOf(["core"], 247).perSideRows).toBe(true);
-    // A two-sided exercise is never split.
-    expect(gatesOf(["forearm", "thigh"], 41).perSideRows).toBe(false);
+  it("lays no one-side exercise out per side, whichever regions the athlete has a target in, paired or midline", () => {
+    for (const [regions, id] of [[["core"], 409], [["forearm"], 409], [["thigh"], 173], [["core"], 247], [["forearm", "thigh"], 41]] as const) {
+      expect(gatesOf([...regions], id).perSideRows, `${regions.join("+")} ${id}`).toBe(false);
+    }
+    // No side is asked either, of an arm or a leg.
+    for (const id of [409, 173, 247]) expect(loggingPolicyFor(id, table).askSide, `catalog ${id}`).toBe(false);
   });
 
   it("gates an exercise no production region maps not at all", () => {

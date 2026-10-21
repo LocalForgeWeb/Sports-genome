@@ -13,20 +13,22 @@ import { defaultSpecializationState, type SpecializationViewState } from "@/lib/
 import { NOW, goals, sessions, slots, store } from "./__fixtures__/forearmWeek";
 
 /**
- * The forearm page's numbers are the base's (docs/specialization-atlas/10-multi-region.md §9.1,
- * wave 0: "numbers unchanged"). The page is rendered on one week of forearm work that reaches
- * every kind of row (two-handed, one-arm, either-way with Both, one and no arm, holds, straps,
- * region-only work, a set matched by name, a warm-up, an unfinished workout) and on a plan, for
- * both arms, three windows and the plan week, and every number it shows is read off the screen:
- * each muscle row's value, the region's line, the window line, the findings, the exercises in
- * the window and each day's bar, the completeness counts, and two muscle sheets' numbers. The
- * words around the numbers changed with wave 0 (the region's own sentences); the numbers did not.
+ * The forearm page's numbers are main's (4dac1ae: both arms counted as one, owner 20 Oct 2026),
+ * which are the athlete's current reality; wave 0 changes no number (docs/specialization-atlas/
+ * 10-multi-region.md §9.1, "numbers unchanged"; appendix "Both sides as one"). The page is rendered
+ * on one week of forearm work that reaches every kind of row (two-handed, one-arm, either-way with
+ * Both, one and no arm, holds, straps, region-only work, a set matched by name, a warm-up, an
+ * unfinished workout) and on a plan, both arms as one, for three windows and the plan week, and
+ * every number it shows is read off the screen: each muscle row's value, the region's line, the
+ * window line, the findings, the exercises in the window and each day's bar, the completeness
+ * counts, and two muscle sheets' numbers.
  *
- * The reference was read the same way off the page as it shipped, at 3986178, by a copy of this
- * file run in that tree: __fixtures__/pageNumbers.3986178.json. To read it again, copy this file
- * and __fixtures__/forearmWeek.ts into a tree at 3986178 and run it there with
- * READ_PAGE_NUMBERS=<path> and without the region loader (that tree has none). The week and the
- * plan are __fixtures__/forearmWeek.ts.
+ * The reference was read the same way off main's page, at 4dac1ae, by a copy of this file run in
+ * that tree: __fixtures__/pageNumbers.4dac1ae.json. (Wave 0 first held these numbers against
+ * 3986178 per arm; the reconciliation of 21 Oct 2026 re-baselined them on main for both arms.) To
+ * read it again, copy this file and __fixtures__/forearmWeek.ts into a tree at 4dac1ae and run it
+ * there with READ_PAGE_NUMBERS=<path> and without the region loader (that tree has none). The week
+ * and the plan are __fixtures__/forearmWeek.ts.
  */
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
@@ -59,6 +61,9 @@ const textOf = (selector: string) => document.querySelector(selector)?.textConte
 async function readPage(state: SpecializationViewState) {
   render(createElement(Harness, { initial: state }));
   await act(async () => {});
+  // Every finding, not only the first few the page shows at rest.
+  const more = Array.from(document.querySelectorAll<HTMLElement>(".spz-page button")).find((button) => /^Show \d+ more$/.test(button.textContent ?? ""));
+  if (more) await act(async () => { fireEvent.click(more); });
   const rows = Array.from(document.querySelectorAll(".spz-row")).map((row) => [row.querySelector(".spz-row-name")?.childNodes[0]?.textContent ?? "", row.querySelector(".spz-row-value")?.textContent ?? ""]);
   const findings = Array.from(document.querySelectorAll(".spz-finding strong")).map((item) => numbers(item.textContent));
   const exercisesShown = Array.from(document.querySelectorAll(".spz-exercise-list li")).map((item) => [item.querySelector("b")?.textContent ?? "", numbers(item.querySelector("small")?.textContent)]);
@@ -80,13 +85,13 @@ async function readPage(state: SpecializationViewState) {
   return read;
 }
 
-/** Every state the reference reads: both arms, this week, the rolling 7 days, a custom window and the plan week. */
-const states: [string, Partial<SpecializationViewState>][] = (["left", "right"] as const).flatMap((limb) => [
-  [`${limb}/week`, { limb }],
-  [`${limb}/7d`, { limb, window: "7d" }],
-  [`${limb}/custom`, { limb, window: "custom", from: "2026-10-05", to: "2026-10-16" }],
-  [`${limb}/planned`, { limb, mode: "planned" }],
-] as [string, Partial<SpecializationViewState>][]);
+/** Every state the reference reads, both arms as one: this week, the rolling 7 days, a custom window and the plan week. */
+const states: [string, Partial<SpecializationViewState>][] = [
+  ["week", {}],
+  ["7d", { window: "7d" }],
+  ["custom", { window: "custom", from: "2026-10-05", to: "2026-10-16" }],
+  ["planned", { mode: "planned" }],
+];
 
 beforeAll(async () => { await loadRegionData("forearm"); });
 beforeEach(() => {
@@ -108,8 +113,22 @@ describe.runIf(out)("reading the page's numbers", () => {
   }, 300000);
 });
 
-describe.skipIf(out)("the forearm page shows the base's numbers", () => {
-  const reference = (out ? {} : JSON.parse(readFileSync(join(process.cwd(), "client/src/components/specialization/__fixtures__/pageNumbers.3986178.json"), "utf8"))) as Record<string, unknown>;
+/**
+ * The one place wave 0 moves a number main shows (09-page.md item 5; 10-multi-region.md §2.2): a
+ * target saved earlier on a muscle that is not a target here (the fixture's anconeus target of 3
+ * and biceps target of 5, which main reads "0 of your 3" and "0 of your 5") is no target behind. Its
+ * finding leaves its place and is said last, as one to end or remove, with no number.
+ */
+const SAVED_EARLIER = [["0", "3"], ["0", "5"]];
+function withWaveZero(reading: { findings: string[][] }) {
+  const same = (one: string[], other: string[]) => JSON.stringify(one) === JSON.stringify(other);
+  const kept = reading.findings.filter((finding) => !SAVED_EARLIER.some((saved) => same(saved, finding)));
+  expect(reading.findings.length - kept.length, "both targets saved earlier are among main's findings").toBe(SAVED_EARLIER.length);
+  return { ...reading, findings: [...kept, ...SAVED_EARLIER.map(() => [])] };
+}
+
+describe.skipIf(out)("the forearm page shows main's numbers (4dac1ae), both arms as one", () => {
+  const reference = (out ? {} : JSON.parse(readFileSync(join(process.cwd(), "client/src/components/specialization/__fixtures__/pageNumbers.4dac1ae.json"), "utf8"))) as Record<string, { findings: string[][] }>;
 
   it("reads every state the reference read", () => {
     expect(Object.keys(reference).sort()).toEqual(states.map(([id]) => id).sort());
@@ -121,7 +140,7 @@ describe.skipIf(out)("the forearm page shows the base's numbers", () => {
       // The reading reaches the page's numbers at all: rows with work, and the completeness counts.
       expect(read.rows.length).toBeGreaterThan(20);
       expect(read.completeness.length).toBeGreaterThan(5);
-      expect(read).toEqual(reference[id]);
+      expect(read).toEqual(withWaveZero(reference[id]));
     }, 30000);
   }
 });
