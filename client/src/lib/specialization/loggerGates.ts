@@ -10,13 +10,10 @@ import type { RegionId, SpecializationGoal } from "@shared/specialization/types"
  *
  * - **Straps**, only when the athlete has an active target in a region whose straps-sensitive
  *   mappings include the exercise.
- * - **Rows per side**: a planned set of a one-side exercise laid out as two rows, Right then Left,
- *   each with its side preset on the limb the exercise is sided by, when the athlete has an active
- *   target in any production region that maps the exercise. That is how every page counts the
- *   plan (`planBouts`), so the plan logged as built is the plan, on paired and midline pages
- *   alike. The rows carry their side even where the side question is not shown.
  *
- * The side question itself is not gated (§11, decision 3): the policy asks it of everyone.
+ * Nothing about sides is gated, or asked: both sides are counted as one (owner, 20 Oct 2026,
+ * every paired region), so a planned set is one row for everyone and no arm or leg is asked
+ * (10-multi-region.md, appendix "Both sides as one"). The rows per side wave 0 gated here are gone.
  *
  * Home builds the gates on the first screen, so this module reads no atlas data: an exercise's
  * regions come from its logging policy (`loggingPolicyFor` in shared/specialization/
@@ -25,12 +22,10 @@ import type { RegionId, SpecializationGoal } from "@shared/specialization/types"
 export type ExerciseGates = {
   /** Ask "Straps · Used / Not used" on this exercise. */
   askStraps: boolean;
-  /** Lay a planned set of this exercise out as two rows, Right then Left. */
-  perSideRows: boolean;
 };
 
 /** What the gates read of an exercise: its logging policy. */
-export type GatedExercise = Pick<LoggingPolicy, "oneSide" | "strapsBy" | "mappedBy">;
+export type GatedExercise = Pick<LoggingPolicy, "strapsBy" | "mappedBy">;
 
 export interface LoggerGates {
   /** The regions where the athlete has an active target. */
@@ -45,11 +40,11 @@ export function loggerGatesForRegions(regionIds: Iterable<RegionId>): LoggerGate
   const targeted = (regions: readonly RegionId[]) => regions.some((id) => targetRegionIds.has(id));
   return {
     targetRegionIds,
-    of: (exercise) => ({ askStraps: targeted(exercise.strapsBy), perSideRows: exercise.oneSide && targeted(exercise.mappedBy) }),
+    of: (exercise) => ({ askStraps: targeted(exercise.strapsBy) }),
   };
 }
 
-/** No target anywhere: no straps question and one row per planned set, the logger as it was. */
+/** No target anywhere: no straps question, the logger as it was. */
 export const noLoggerGates: LoggerGates = loggerGatesForRegions([]);
 
 /** The gates for an athlete's goals: the regions of the goals active at `now`. */

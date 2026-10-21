@@ -9,12 +9,12 @@ import { exercisePhotoSet } from "@/lib/exercisePhotos";
 import {
   activePosition, carriedEntryFor, countCompletedSets, countPlannedSets, finalizeSession, freshId, newSetId,
   deviceWorkoutHistoryKey, isCompletedSet, isCompletedWorkout, isDraftSet, isDropInProgress, isExerciseSkipped, lastCompletedSetFor, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, skipExercise,
-  sideFieldOf, unknownSetFields, unskipExercise, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession, type SetSide, type StrapsUsed,
+  unknownSetFields, unskipExercise, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession, type StrapsUsed,
 } from "@/lib/deviceWorkoutLog";
-import { loggingPolicyFor, sideQuestionLabel, type LoggingPolicy } from "@shared/specialization/loggingPolicy";
+import { loggingPolicyFor } from "@shared/specialization/loggingPolicy";
 import type { Limb } from "@shared/specialization/types";
 import { noLoggerGates, type LoggerGates } from "@/lib/specialization/loggerGates";
-import { addAfter, addSets, applySwap, assessSwap, canUndoSwap, catalogIdOf, perArmRowSides, rowSidesOn, rowsLimbOf, swapNote, undoSwap, type SwapReceipt, type SwapTarget } from "@/lib/workoutSwap";
+import { addAfter, applySwap, assessSwap, canUndoSwap, catalogIdOf, rowsLimbOf, swapNote, undoSwap, type SwapReceipt, type SwapTarget } from "@/lib/workoutSwap";
 import { dropSetLine, dropSetSummary, newStageId, performedSetLine, setVolume, stageLoadText, stageNote, stageProblem, volumeText } from "@/lib/dropSets";
 import { loadConventionFor } from "@shared/loadConventions";
 import { SetEffortChoice } from "@/components/SetEffortChoice";
@@ -90,21 +90,17 @@ function plannedRestSeconds(workout: Exercise[], settings: Record<number, Exerci
 }
 
 /**
- * One plan entry as the workout reads it: its prescription, whether its sets are laid out per
- * side, and the limb a side is recorded on (the arm when the exercise records none).
+ * One plan entry as the workout reads it: its prescription. A planned set is one row, whatever the
+ * exercise: both sides are counted as one (owner, 20 Oct 2026), so a one-side set is not laid out
+ * per side, and the logged week matches the planned week (planBouts.ts counts it as one bout).
  */
-type PlannedEntry = { prescription: string; perArm: boolean; limb: Limb };
+type PlannedEntry = { prescription: string };
 
 /**
- * A planned one-side set as two rows, Right then Left: "3 × 12" on an exercise done one arm (or
- * one leg) at a time is three sets for each side (02-design.md §3), so logging the rows as built
- * gives each side the sets the plan counts for it. Each row's side is set from the start, on the
- * limb the exercise is sided by, and can still be changed on the card.
+ * "Left", "Right", "Both arms" or "Both legs": the side a set already holds, on the limb its
+ * exercise is sided by. Only a set logged before 20 Oct 2026, or a row of a workout left open from
+ * then (built per side), holds one; nothing asks for one now.
  */
-const perArmRows = (plannedSets: number, limb: Limb): DeviceSetLog[] =>
-  perArmRowSides(plannedSets).map((side) => ({ id: newSetId(), weight: "", reps: "", completed: false, ...rowSidesOn(side, limb) }));
-
-/** "Left", "Right", "Both arms" or "Both legs": a set's side on the limb its exercise is sided by. */
 function sideWordsOf(set: DeviceSetLog, limb: Limb): string | null {
   return limb === "arm" ? sideLabel(set.side) : legSideLabel(set.legSide);
 }
@@ -122,7 +118,7 @@ function makeSession(workout: Exercise[], plannedFor: (exercise: Exercise, index
     exercises: workout.map((exercise, index) => {
       // The saved prescription, else the default for this place in the day, the same one the Plan
       // shows (TR-05): the goal's for a rep exercise, a hold's for one measured in seconds.
-      const { prescription: plannedPrescription, perArm, limb } = plannedFor(exercise, index);
+      const { prescription: plannedPrescription } = plannedFor(exercise, index);
       const plannedSets = renderableSetCount(plannedPrescription);
       return {
         id: `${exercise.id}-${index}`,
@@ -131,29 +127,11 @@ function makeSession(workout: Exercise[], plannedFor: (exercise: Exercise, index
         // duplicated plan entry has an id of its own and names its catalog exercise separately.
         catalogId: catalogIdOf(exercise),
         plannedPrescription,
-        ...(perArm ? { perArm: true } : {}),
         // Each set has its id from the start, so it can be referred to as itself, not by position.
-        sets: perArm ? perArmRows(plannedSets, limb) : Array.from({ length: plannedSets }, () => ({ id: newSetId(), weight: "", reps: "", completed: false })),
+        sets: Array.from({ length: plannedSets }, () => ({ id: newSetId(), weight: "", reps: "", completed: false })),
       };
     }),
   };
-}
-
-/**
- * The side picked for one row, on the limb the exercise is sided by. On an exercise laid out per
- * side, the rows still to do after it take the sides that follow, alternating from the one picked:
- * an athlete who starts on Left is offered Right next, as the rows were built. "Both" changes only
- * its own row.
- */
-function withSideFrom(exercise: DeviceWorkoutExercise, setIndex: number, side: SetSide, limb: Limb): DeviceSetLog[] {
-  let next: SetSide = side === "left" ? "right" : "left";
-  return exercise.sets.map((set, index) => {
-    if (index === setIndex) return { ...set, ...rowSidesOn(side, limb) };
-    if (!exercise.perArm || side === "both" || index < setIndex || set.completed || set.skipped) return set;
-    const assigned: DeviceSetLog = { ...set, ...rowSidesOn(next, limb) };
-    next = next === "left" ? "right" : "left";
-    return assigned;
-  });
 }
 
 /** Whole seconds, at least 1: what a hold needs before it can be logged. */
@@ -176,25 +154,6 @@ function sanitiseEntry(field: EntryField, value: string) {
   if (field === "reps" || field === "seconds") return value.replace(/[^0-9]/g, "").slice(0, 4);
   return decimalEntryText(value).slice(0, 7);
 }
-
-/**
- * The side the set card offers before the athlete picks one (02-design.md §6): the side of the
- * last set logged on this exercise in this workout, on the limb it asks about - the other side
- * after a one-side set, the same after a set done with both - else the policy's default, else
- * none. Null where side is not asked.
- */
-function defaultSideFor(exercise: DeviceWorkoutExercise, setIndex: number, policy: LoggingPolicy): SetSide | null {
-  if (!policy.askSide) return null;
-  const field = sideFieldOf(policy.sideLimb ?? "arm");
-  const earlier = exercise.sets.slice(0, setIndex).filter((set) => set.completed && !set.skipped && set[field]);
-  const last = earlier[earlier.length - 1]?.[field];
-  if (last === "left") return "right";
-  if (last === "right") return "left";
-  if (last === "both") return "both";
-  return policy.sideDefault;
-}
-
-const sideChoices: { side: SetSide; label: string }[] = [{ side: "left", label: "Left" }, { side: "right", label: "Right" }, { side: "both", label: "Both" }];
 
 /** True when a target is a bare count or range, so the word "reps" belongs after it. */
 function bareCount(target: string) {
@@ -354,12 +313,11 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   /**
    * A plan entry as the workout is built from it, read once for the prestart counts, the rows and
    * the session: its saved prescription, else the default for its place (a hold's default on an
-   * exercise measured in seconds, through the same `prescriptionOf` the atlas reads the plan with),
-   * and whether its sets are laid out per side, on which limb.
+   * exercise measured in seconds, through the same `prescriptionOf` the atlas reads the plan with).
    */
   const plannedFor = (exercise: Exercise, index: number): PlannedEntry => {
     const policy = policyFor({ catalogId: catalogIdOf(exercise), exerciseName: exercise.name });
-    return { prescription: prescriptionOf(prescriptions[exercise.id], index, goal, policy.measure), perArm: loggerGates.of(policy).perSideRows, limb: policy.sideLimb ?? "arm" };
+    return { prescription: prescriptionOf(prescriptions[exercise.id], index, goal, policy.measure) };
   };
   /** The limb a session exercise's sides are recorded on: the arm when it records none. */
   const limbOf = (exercise: Pick<DeviceWorkoutExercise, "catalogId" | "exerciseName">): Limb => policyFor(exercise).sideLimb ?? "arm";
@@ -385,8 +343,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   };
   /**
    * An exercise swapped in or added mid-workout is built the way a planned one is (lib/workoutSwap):
-   * laid out per side under the same gate, and starting from the sets and reps it takes over, read
-   * by its own measure. Both ways round, so the incoming exercise reads what the plan entry says
+   * one row per planned set, starting from the sets and reps it takes over, read by its own measure. Both ways round, so the incoming exercise reads what the plan entry says
    * as `planOptionFor` reads it: a goal's rep default pinned on the plan entry (or none) is a
    * hold's "4 × 30 sec" for a hold coming in, and, where `from` still holds what its plan entry
    * gave it, a hold's default is the goal's reps again ("4 × 3–6") for a rep exercise coming in,
@@ -397,7 +354,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const slot = planSlotOf(from);
     const saved = slot >= 0 ? prescriptions[workout[slot].id] : undefined;
     const fromPlan = slot >= 0 && prescriptionOf(saved, slot, goal, policyFor(from).measure) === from.plannedPrescription;
-    return { perArm: loggerGates.of(policy).perSideRows, limb: policy.sideLimb ?? "arm", prescription: fromPlan ? prescriptionOf(saved, slot, goal, policy.measure) : prescriptionOf(from.plannedPrescription, 0, goal, policy.measure) };
+    return { prescription: fromPlan ? prescriptionOf(saved, slot, goal, policy.measure) : prescriptionOf(from.plannedPrescription, 0, goal, policy.measure) };
   };
   const completed = useMemo(() => (activeSession ? countCompletedSets(activeSession) : 0), [activeSession]);
   const planned = useMemo(() => (activeSession ? countPlannedSets(activeSession) : 0), [activeSession]);
@@ -576,13 +533,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       restEndsAt: new Date(Date.now() + (session.restSeconds || DEFAULT_REST_SECONDS) * 1000).toISOString(),
       exercises: session.exercises.map((item, exerciseIndex) => {
         if (exerciseIndex !== position.exerciseIndex) return item;
-        const policy = policyFor(item);
-        const limb = policy.sideLimb ?? "arm";
         return { ...item, sets: item.sets.map((set, setIndex) => {
           if (setIndex !== position.setIndex) return set;
-          // The side shown selected is the side recorded: picked, or offered and left as it was.
-          // The other limb's side, where the set holds one, is kept as it is.
-          const side = policy.askSide ? set[sideFieldOf(limb)] ?? defaultSideFor(item, setIndex, policy) : set[sideFieldOf(limb)];
           return {
             // What this release does not understand stays as stored (a later release's field).
             ...unknownSetFields(set),
@@ -599,9 +551,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             completed: true,
             // How hard it was taken, when said before logging (shared/setEffort.ts).
             ...(set.effort ? { effort: set.effort } : {}),
+            // No side is asked (both sides as one, 20 Oct 2026); a side the row already holds is kept.
             ...(set.side ? { side: set.side } : {}),
             ...(set.legSide ? { legSide: set.legSide } : {}),
-            ...(side ? rowSidesOn(side, limb) : {}),
             ...(set.warmup ? { warmup: true } : {}),
           };
         }) };
@@ -609,19 +561,6 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     }));
   };
 
-  /**
-   * The side for the set on the card, as the athlete picks it. Picking is not logging. On an
-   * exercise laid out per side, the rows still to do follow the pick, alternating from it.
-   */
-  const chooseSide = (side: SetSide) => {
-    if (!activeSession || !position) return;
-    const exerciseId = activeSession.exercises[position.exerciseIndex].id;
-    const setIndex = position.setIndex;
-    commit((session) => ({
-      ...session,
-      exercises: session.exercises.map((item) => item.id !== exerciseId ? item : { ...item, sets: withSideFrom(item, setIndex, side, limbOf(item)) }),
-    }));
-  };
 
   /**
    * Straps on this exercise in this workout. Tapping the choice already made takes it back to
@@ -757,7 +696,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
           swapId, newExerciseId: freshId(String(choice.target.id)), at: new Date().toISOString(), draft: choice.draft, partialDrop: choice.partialDrop, newSetId,
           measureOf: (item) => policyFor({ catalogId: item.id, exerciseName: item.name }).measure,
           sideLimbOf: (item) => policyFor({ catalogId: item.id, exerciseName: item.name }).sideLimb,
-          ...(incoming ? { perArm: incoming.perArm, prescription: incoming.prescription } : {}),
+          ...(incoming ? { prescription: incoming.prescription } : {}),
         }, exerciseCatalog);
         out.receipt = result.receipt;
         return result.session;
@@ -777,9 +716,10 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         } else planLine = " Your plan couldn't be changed just now, so it is as it was.";
       }
       const kept = receipt.original ? receipt.original.sets.filter(isCompletedSet).length : 0;
-      // Where rows per side come into it, the count the new exercise got, as the sheet said it.
+      // Where the rows it replaced were laid out per side (a workout left open from before 20 Oct
+      // 2026), the count the new exercise got, one row per planned set, as the sheet said it.
       const rows = receipt.replacement.sets.length;
-      const count = receipt.before.perArm || receipt.replacement.perArm ? `${rows} ${rows === 1 ? "set" : "sets"}${receipt.replacement.perArm ? `, one ${rowLimbOf(receipt.replacement)} at a time` : ""}` : "";
+      const count = receipt.before.perArm ? `${rows} ${rows === 1 ? "set" : "sets"}` : "";
       toast(`Swapped to ${choice.target.name}`, {
         id: `swap-${swapId}`,
         description: `${kept ? `Your ${kept} logged ${kept === 1 ? "set stays" : "sets stay"} with ${fromName}.${count ? ` ${choice.target.name} has ${count}.` : ""}` : `${choice.target.name} takes ${fromName}'s place${count ? ` with ${count}` : ""}.`}${planLine}`,
@@ -794,14 +734,13 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const anchor = activeSessionRef.current?.exercises.find((exercise) => exercise.id === exerciseId);
     const newExerciseId = freshId(String(target.id));
     const incoming = anchor ? incomingFor({ name: target.name, id: target.id }, anchor) : null;
-    commit((session) => addAfter(session, exerciseId, { name: target.name, id: target.id }, { newExerciseId, at: new Date().toISOString(), newSetId, ...(incoming ? { perArm: incoming.perArm, prescription: incoming.prescription, sideLimb: incoming.limb } : {}) }));
+    commit((session) => addAfter(session, exerciseId, { name: target.name, id: target.id }, { newExerciseId, at: new Date().toISOString(), newSetId, ...(incoming ? { prescription: incoming.prescription } : {}) }));
     setSwapForId(null);
     setAddAfterId(null);
     focusNextLogAction();
-    const perArm = incoming?.perArm ? addSets(incoming.prescription, true) : null;
     toast(`Added ${target.name}`, {
       id: `add-${newExerciseId}`,
-      description: `After ${anchor?.exerciseName ?? "the last exercise"}, starting from ${incoming && anchor && incoming.prescription !== anchor.plannedPrescription ? incoming.prescription : "the same sets and reps"}${perArm && incoming ? `, done once with each ${incoming.limb}: ${perArm.sets} sets` : ""}.`,
+      description: `After ${anchor?.exerciseName ?? "the last exercise"}, starting from ${incoming && anchor && incoming.prescription !== anchor.plannedPrescription ? incoming.prescription : "the same sets and reps"}.`,
       // Taken back while nothing is logged or typed on it; after that, Remove in the full workout.
       action: { label: "Undo", onClick: () => commit((session) => {
         const added = session.exercises.find((exercise) => exercise.id === newExerciseId);
@@ -886,16 +825,13 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       ...(finish ? { restEndsAt: new Date(Date.now() + (session.restSeconds || DEFAULT_REST_SECONDS) * 1000).toISOString() } : {}),
       exercises: session.exercises.map((item) => {
         if (item.id !== exercise.id) return item;
-        const policy = policyFor(item);
-        const limb = policy.sideLimb ?? "arm";
         return {
           ...item,
           sets: item.sets.map((entry, index): DeviceSetLog => {
             if (index !== position.setIndex) return entry;
             if (!finish) return { ...entry, id: setId, type: "drop", stages: next, weight: "", reps: "", unit: sessionUnit };
-            // A one-side drop set is that side's, recorded as a standard set's side is.
-            const side = policy.askSide ? entry[sideFieldOf(limb)] ?? defaultSideFor(item, index, policy) : entry[sideFieldOf(limb)];
-            return { ...entry, id: setId, type: "drop", stages: next, weight: next[0].weight, reps: next[0].reps, unit: next[0].unit ?? sessionUnit, height: entry.height || "", completed: true, ...(side ? rowSidesOn(side, limb) : {}) };
+            // A side the row already holds is kept with it, as on a standard set.
+            return { ...entry, id: setId, type: "drop", stages: next, weight: next[0].weight, reps: next[0].reps, unit: next[0].unit ?? sessionUnit, height: entry.height || "", completed: true };
           }),
         };
       }),
@@ -1169,10 +1105,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
 
   if (!activeSession) {
     const entries = workout.map(plannedFor);
-    // The sets the workout will hold, row for row: a planned set laid out per side is two.
-    const plannedSets = entries.reduce((total, entry) => total + renderableSetCount(entry.prescription) * (entry.perArm ? 2 : 1), 0);
-    /** "3 × 12 · each arm" (or "each leg") where a planned set is done once with each side, so 6 sets add up. */
-    const plannedText = (entry: PlannedEntry) => `${entry.prescription}${entry.perArm ? ` · each ${entry.limb}` : ""}`;
+    // The sets the workout will hold, row for row: one row per planned set.
+    const plannedSets = entries.reduce((total, entry) => total + renderableSetCount(entry.prescription), 0);
+    const plannedText = (entry: PlannedEntry) => entry.prescription;
     /**
      * "Week 2 · Day 02 · Pull": the day's name is the title of this screen and
      * its position in the plan is the line under it. The label is kept whole on
@@ -1284,17 +1219,12 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   /** Drop sets are about load and reps: offered wherever the set has a weight box, never on a hold. */
   const canDropActive = !activeHold && activeEntryFields.some((field) => field.measure === "weight");
   /**
-   * The atlas's questions for this set, asked only where they matter (02-design.md §6): which arm,
-   * or which leg, on an exercise done one at a time, and straps where a grip mapping depends on a
-   * bare hand and the athlete has a target in a region with that mapping. Every other set card is
-   * exactly as it was.
+   * The atlas's question for this set, asked only where it matters (02-design.md §6): straps where
+   * a grip mapping depends on a bare hand and the athlete has a target in a region with that
+   * mapping. No arm or leg is asked: both sides are counted as one (owner, 20 Oct 2026). Every
+   * other set card is exactly as it was.
    */
   const activePolicy = activeExercise ? policyFor(activeExercise) : null;
-  const activeSide = activeExercise && activeSet && position && activePolicy?.askSide
-    ? activeSet[sideFieldOf(activePolicy.sideLimb ?? "arm")] ?? defaultSideFor(activeExercise, position.setIndex, activePolicy)
-    : null;
-  /** "Arm", or the leg the exercise's side anchor names ("Front leg"). */
-  const activeSideLabel = activePolicy ? sideQuestionLabel(activePolicy) : "";
   const askStrapsHere = Boolean(activePolicy && loggerGates.of(activePolicy).askStraps);
   /** The last hold's seconds; reps only for a set logged in reps, which are never passed off as seconds. */
   const carriedDose = carried?.seconds ? `${carried.seconds} sec` : carried?.reps.trim() ? `${carried.reps} reps` : "— sec";
@@ -1405,12 +1335,6 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
           </li>)}
         </ol>}
         <p className="live-drop-next">Stage {activeStages.length + 1}{activeStages.length ? ` · lighter than ${stageLoadText(activeStages[activeStages.length - 1], sessionUnit, activeConvention)}` : ""} · no rest between stages</p>
-      </div>}
-      {/* Which arm, or which leg, on an exercise done one at a time: visible at rest, one tap,
-          preselected with the side that comes next, so a set done as offered needs no tap at all. */}
-      {activePolicy?.askSide && <div className="live-set-side" role="group" aria-label={`${activeSideLabel} for set ${position.setIndex + 1} of ${activeExercise.exerciseName}`}>
-        <span className="live-set-side-label" aria-hidden="true">{activeSideLabel}</span>
-        {sideChoices.map((choice) => <button key={choice.side} type="button" aria-pressed={activeSide === choice.side} onClick={() => chooseSide(choice.side)}>{choice.label}</button>)}
       </div>}
       <div className="live-set-entry" data-fields={activeLoadFields.length + 1}>
         {/* A value carried from the last set is an offer until the athlete touches

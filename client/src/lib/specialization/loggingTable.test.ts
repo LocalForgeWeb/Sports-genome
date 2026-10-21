@@ -77,7 +77,7 @@ describe("the forearm logs exactly as main does (4dac1ae), through the table", (
   it("asks no side of any exercise, of an arm or a leg, and lays no planned set out per side", () => {
     for (const id of loggingTable.keys()) {
       const policy = loggingPolicyFor(id);
-      expect([policy.askSide, policy.oneSide, policy.oneArm], `catalog ${id}`).toEqual([false, false, false]);
+      expect([policy.askSide, policy.oneArm], `catalog ${id}`).toEqual([false, false]);
       // The limb a side would be recorded on is still the variant's, for a decision that asks again.
       if (policy.sideLimb !== null) expect(policy.sideLimb, `catalog ${id}`).toBe("arm");
     }

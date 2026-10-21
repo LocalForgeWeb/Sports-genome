@@ -104,11 +104,12 @@ export type DeviceWorkoutExercise = {
   sets: DeviceSetLog[];
   /**
    * The rows were built per side: an exercise done one arm (or one leg) at a time, planned for an
-   * athlete with a specialization target in a region that maps it, where "3 × 12" is three sets
-   * for each side, so each planned set is two rows, Right then Left, each with its side on that
-   * limb (components/DeviceWorkoutTracker.tsx, `perSideRows` in lib/specialization/loggerGates.ts).
-   * Row `n` follows planned set `floor(n / 2)`. Absent on every other exercise, and on workouts
-   * from before it existed. The name is the one stored since 17 Oct, when only arms were split.
+   * athlete with a specialization target, where "3 × 12" was three sets for each side, so each
+   * planned set is two rows, Right then Left, each with its side on that limb. Row `n` follows
+   * planned set `floor(n / 2)`. Nothing builds such rows since both sides were counted as one
+   * (owner, 20 Oct 2026); a workout left open from before then, or written by another release,
+   * still holds them, and they are read and logged as stored. Absent on every other exercise. The
+   * name is the one stored since 17 Oct, when only arms were split.
    */
   perArm?: boolean;
   /** This exercise took over the rest of another one's work mid-workout. */

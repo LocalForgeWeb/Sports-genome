@@ -112,9 +112,10 @@ const emptySet = (): DeviceSetLog => ({ weight: "", reps: "", completed: false }
 const newSetWith = (newSetId: (() => string) | undefined) => (): DeviceSetLog => (newSetId ? { id: newSetId(), ...emptySet() } : emptySet());
 
 /**
- * Planned sets as rows per side: Right then Left for each, as the tracker lays out a planned
- * one-side exercise for an athlete tracking per-side totals (`perSideRows`,
- * lib/specialization/loggerGates.ts).
+ * Planned sets as rows per side: Right then Left for each, as the tracker laid out a planned
+ * one-side exercise for an athlete tracking per-side totals before both sides were counted as one
+ * (owner, 20 Oct 2026). The tracker builds no such rows now; main keeps this, and the swap's
+ * `perArm` option, for the rows a workout left open from before then still holds.
  */
 export function perArmRowSides(plannedSets: number): SetSide[] {
   return Array.from({ length: Math.max(0, plannedSets) * 2 }, (_, row) => (row % 2 === 0 ? "right" : "left"));

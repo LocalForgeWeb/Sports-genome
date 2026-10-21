@@ -92,7 +92,7 @@ describe("Rows built per leg on an exercise this release does not know", () => {
   });
 
   it("swapped to a one-arm exercise, give it one row per planned set with no side, and ask no arm", () => {
-    expect(loggingPolicyFor(row.id).oneSide).toBe(false);
+    expect(loggingPolicyFor(row.id)).toMatchObject({ askSide: false, oneArm: false });
     resume(split, legRows(), { perArm: true }, ["forearm"]);
     fireEvent.click(within(card()).getByRole("button", { name: "Swap exercise" }));
     const dialog = screen.getByRole("dialog", { name: /^Replace / });

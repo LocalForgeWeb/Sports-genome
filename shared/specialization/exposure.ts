@@ -834,7 +834,7 @@ export function ruleBranchesOf(region: SpecializationRegionData): Set<RuleBranch
   const variants = new Map(region.variants.map((variant) => [variant.id, variant] as const));
   for (const [variantId, mappings] of Array.from(index.mappingsByVariant)) {
     const variant = variants.get(variantId) ?? null;
-    if (variant && (variant.sidedBy === "arm" || variant.sidedBy === "leg") && lateralityFor(variant, variant.sidedBy) === "unilateral") branches.add(`plan.${variant.sidedBy}.per_side`);
+    if (variant && (variant.sidedBy === "arm" || variant.sidedBy === "leg") && lateralityFor(variant, variant.sidedBy) === "unilateral") branches.add(`plan.${variant.sidedBy}.one_bout`);
     if (!mappings.some((mapping) => index.regionNodeIds.has(mapping.nodeId))) {
       branches.add("class.region_only_external");
       branches.add("class.external_only");

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { defaultLoggingPolicy, loggingEntryFor, loggingPolicyFor, sideQuestionLabel } from "@shared/specialization/loggingPolicy";
+import { defaultLoggingPolicy, loggingEntryFor, loggingPolicyFor } from "@shared/specialization/loggingPolicy";
 import type { LoggingTableRow } from "@shared/specialization/loggingTable.generated";
 
 /**
@@ -33,7 +33,7 @@ describe("the logging policy for one exercise", () => {
     expect(policy(undefined)).toBe(defaultLoggingPolicy);
     expect(policy(null)).toBe(defaultLoggingPolicy);
     expect(policy(Number.NaN)).toBe(defaultLoggingPolicy);
-    expect(defaultLoggingPolicy).toEqual({ measure: "reps", askSide: false, sideLimb: null, sideAnchor: null, oneSide: false, oneArm: false, sideDefault: null, strapsSensitive: false, strapsBy: [], mappedBy: [] });
+    expect(defaultLoggingPolicy).toEqual({ measure: "reps", askSide: false, sideLimb: null, oneArm: false, sideDefault: null, strapsSensitive: false, strapsBy: [], mappedBy: [] });
     expect(loggingEntryFor(999, table)).toBeNull();
     expect(loggingEntryFor(173, table)).toBe(table.get(173));
   });
@@ -45,7 +45,7 @@ describe("the logging policy for one exercise", () => {
 
   it("asks no side and splits no planned set by side, one-side exercises included: both sides count as one (owner, 20 Oct 2026)", () => {
     // Main's rule (d8d95f4), read from the generated table's shape: no arm is asked, and a planned one-arm set is one row.
-    for (const id of [1, 2, 3]) expect(policy(id), `catalog ${id}`).toMatchObject({ askSide: false, oneSide: false, oneArm: false });
+    for (const id of [1, 2, 3]) expect(policy(id), `catalog ${id}`).toMatchObject({ askSide: false, oneArm: false });
     // The limb a side would be recorded on, and the side a set would start on, are still read from the variant, for a decision that asks again.
     expect(policy(2)).toMatchObject({ sideLimb: "arm", sideDefault: null });
     expect(policy(3)).toMatchObject({ sideLimb: "arm", sideDefault: "both" });
@@ -53,14 +53,14 @@ describe("the logging policy for one exercise", () => {
   });
 
   it("asks no leg either, of a one-leg variant or one done either way, reading the legs' laterality for the side a set would start on", () => {
-    expect(policy(173)).toMatchObject({ askSide: false, sideLimb: "leg", oneSide: false, oneArm: false, sideDefault: null });
-    expect(policy(5)).toMatchObject({ askSide: false, sideLimb: "leg", oneSide: false, sideDefault: "both" });
+    expect(policy(173)).toMatchObject({ askSide: false, sideLimb: "leg", oneArm: false, sideDefault: null });
+    expect(policy(5)).toMatchObject({ askSide: false, sideLimb: "leg", sideDefault: "both" });
   });
 
   it("asks nothing whichever regions map a one-side exercise, paired or midline", () => {
-    expect(policy(247)).toMatchObject({ askSide: false, sideLimb: "leg", oneSide: false, measure: "seconds" });
-    expect(policy(6)).toMatchObject({ askSide: false, sideLimb: "arm", oneSide: false });
-    expect(policy(409)).toMatchObject({ askSide: false, sideLimb: "arm", oneSide: false, mappedBy: ["forearm", "core"] });
+    expect(policy(247)).toMatchObject({ askSide: false, sideLimb: "leg", measure: "seconds" });
+    expect(policy(6)).toMatchObject({ askSide: false, sideLimb: "arm" });
+    expect(policy(409)).toMatchObject({ askSide: false, sideLimb: "arm", mappedBy: ["forearm", "core"] });
   });
 
   it("is straps-sensitive only where a region has a mapping a strapped set does not earn, and names those regions", () => {
@@ -69,15 +69,12 @@ describe("the logging policy for one exercise", () => {
   });
 });
 
-describe("the side question's words", () => {
-  it("is Arm on the arm and the anchor's leg on the leg, in the vocabulary's words", () => {
-    expect(sideQuestionLabel(policy(2))).toBe("Arm");
-    expect(sideQuestionLabel(policy(173))).toBe("Front leg");
-    expect(sideQuestionLabel(policy(5))).toBe("Working leg");
-    expect(sideQuestionLabel(policy(247))).toBe("Bottom leg");
-    expect(sideQuestionLabel({ sideLimb: "leg", sideAnchor: "stance_leg" })).toBe("Standing leg");
-    expect(sideQuestionLabel({ sideLimb: "leg", sideAnchor: "top_leg" })).toBe("Top leg");
-    expect(sideQuestionLabel({ sideLimb: "leg", sideAnchor: null })).toBe("Leg");
+describe("the side question", () => {
+  it("is gone from the policy: no field names the leg a side question would ask about", () => {
+    // The side anchor stays the variant's data (it names a one-leg exercise's leg for a decision
+    // that asks again); the logger has no question to label with it (both sides as one, 20 Oct 2026).
+    for (const id of [2, 173, 5, 247]) expect(policy(id), `catalog ${id}`).not.toHaveProperty("sideAnchor");
+    expect(table.get(173)!.sideAnchor).toBe("front_leg");
   });
 });
 
@@ -85,9 +82,9 @@ describe("the policy's default data, the generated table", () => {
   it("reads the forearm's exercises with no arm asked: a one-arm wrist curl, a hang in seconds, an either-arm curl", () => {
     // One-Arm Dumbbell Wrist Curl (410) and Dead Hang (143), as main's loggingRegions.test.ts (d8d95f4) reads them; Machine Preacher Curl (127).
     expect(loggingPolicyFor(410)).toMatchObject({ measure: "reps", askSide: false, oneArm: false, sideDefault: null });
-    expect(loggingPolicyFor(410)).toMatchObject({ sideLimb: "arm", oneSide: false });
-    expect(loggingPolicyFor(143)).toMatchObject({ measure: "seconds", askSide: false, oneSide: false, oneArm: false });
-    expect(loggingPolicyFor(127)).toMatchObject({ askSide: false, sideLimb: "arm", oneSide: false, sideDefault: "both" });
+    expect(loggingPolicyFor(410)).toMatchObject({ sideLimb: "arm" });
+    expect(loggingPolicyFor(143)).toMatchObject({ measure: "seconds", askSide: false, oneArm: false });
+    expect(loggingPolicyFor(127)).toMatchObject({ askSide: false, sideLimb: "arm", sideDefault: "both" });
     // An exercise no production region maps: the Barbell Bench Press.
     expect(loggingPolicyFor(1)).toBe(defaultLoggingPolicy);
   });

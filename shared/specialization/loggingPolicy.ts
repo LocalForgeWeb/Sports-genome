@@ -1,6 +1,5 @@
-import type { Limb, RegionId, SideAnchor } from "./types";
+import type { Limb, RegionId } from "./types";
 import { loggingTable, type LoggingTableRow } from "./loggingTable.generated";
-import { countingDimensions } from "./variants/dimensions";
 
 /**
  * What the workout logger asks of one exercise, read from the atlas's logging table
@@ -35,17 +34,17 @@ export interface LoggingPolicy {
    * logged with a side before keeps it.
    */
   askSide: boolean;
-  /** The limb the side is recorded on (the variant's `sidedBy`): a set's `side` for the arm, `legSide` for the leg; null where no side is. */
-  sideLimb: Limb | null;
-  /** On the leg, which leg a side names (the front leg of a split squat); null on the arm. */
-  sideAnchor: SideAnchor | null;
   /**
-   * Lay a planned set out as one row per side. Always false: with both sides counted as one, a
-   * planned one-side set is one row per planned set, so the logged week matches the planned week
-   * (the plan counts it as one bout, planBouts.ts).
+   * The limb a side is recorded on (the variant's `sidedBy`): a set's `side` for the arm, `legSide`
+   * for the leg; null where no side is. Nothing asks for one; a swap reads it to name the rows of a
+   * workout left open from before 20 Oct 2026, built per side.
    */
-  oneSide: boolean;
-  /** `oneSide`, under the name it had when only arms were asked. */
+  sideLimb: Limb | null;
+  /**
+   * Lay a planned set out as one row per arm. Always false: with both sides counted as one, a
+   * planned one-side set is one row per planned set, so the logged week matches the planned week
+   * (the plan counts it as one bout, planBouts.ts). Main's name, kept for its tests.
+   */
   oneArm: boolean;
   /**
    * The side shown selected before the athlete has logged a set of this exercise in the
@@ -62,7 +61,7 @@ export interface LoggingPolicy {
 }
 
 /** The logger as it always was: reps, no side, no straps. */
-export const defaultLoggingPolicy: LoggingPolicy = Object.freeze({ measure: "reps", askSide: false, sideLimb: null, sideAnchor: null, oneSide: false, oneArm: false, sideDefault: null, strapsSensitive: false, strapsBy: [], mappedBy: [] });
+export const defaultLoggingPolicy: LoggingPolicy = Object.freeze({ measure: "reps", askSide: false, sideLimb: null, oneArm: false, sideDefault: null, strapsSensitive: false, strapsBy: [], mappedBy: [] });
 
 /** An exercise's row of the logging table, or null when no production region maps it. */
 export function loggingEntryFor(catalogExerciseId: number | null | undefined, table: ReadonlyMap<number, LoggingTableRow> = loggingTable): LoggingTableRow | null {
@@ -90,9 +89,7 @@ export function loggingPolicyFor(catalogExerciseId: number | null | undefined, t
     // No side is asked, of an arm or a leg: both sides are counted as one (owner, 20 Oct 2026).
     askSide: false,
     sideLimb,
-    sideAnchor: sideLimb === "leg" ? row.sideAnchor ?? null : null,
     // Nor is a planned one-side set laid out as a row per side: a set is a set.
-    oneSide: false,
     oneArm: false,
     // The side a set would start on, read from the variant, for a decision that asks again.
     sideDefault: laterality === "either" ? "both" : null,
@@ -100,13 +97,4 @@ export function loggingPolicyFor(catalogExerciseId: number | null | undefined, t
     strapsBy: row.strapsBy,
     mappedBy: row.mappedBy,
   };
-}
-
-/**
- * The side question's label: "Arm", or on the leg the leg the variant's side anchor names
- * ("Front leg", "Standing leg"; the words of `variants/dimensions.ts`), "Leg" when it names none.
- */
-export function sideQuestionLabel(policy: Pick<LoggingPolicy, "sideLimb" | "sideAnchor">): string {
-  if (policy.sideLimb !== "leg") return "Arm";
-  return policy.sideAnchor ? countingDimensions.side_anchor.values[policy.sideAnchor] : "Leg";
 }

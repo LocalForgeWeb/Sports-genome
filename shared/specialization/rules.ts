@@ -116,7 +116,9 @@ export type PairedSideBranch = "relation_both" | "structural" | "recorded" | "re
  * Every branch of the calculator that decides what is counted, each answered by one clause of a
  * rule (`ruleClauses`):
  * - `side.*`: `nodeSideFor`'s rules, per limb (`side.midline` is its rule 1);
- * - `plan.*`: a planned one-sided set counted once per side of its limb (`boutsFromPlan`);
+ * - `plan.*`: a planned one-sided set, on its limb: one bout per planned set, read as done with
+ *   both sides (`boutsFromPlan`; both sides are counted as one, owner 20 Oct 2026, so the plan
+ *   counts what the logger builds, one row per planned set);
  * - `version.*`: the version `indexRegion` credits a node by: the region's own, the node's home
  *   region's, or the listing region's own rows where the home has published none;
  * - `class.*`: how a bout is classified by the region's own muscles (10-multi-region.md §4.2);
@@ -125,7 +127,7 @@ export type PairedSideBranch = "relation_both" | "structural" | "recorded" | "re
 export type RuleBranch =
   | "side.midline"
   | `side.${Limb}.${PairedSideBranch}`
-  | `plan.${Limb}.per_side`
+  | `plan.${Limb}.one_bout`
   | "version.own"
   | "version.home"
   | "version.listing_fallback"
@@ -147,7 +149,7 @@ const v1 = (clause: keyof ExposureRuleSpec): RuleClause => ({ rule: exposureRule
 const draft = (rule: string, clause: string): RuleClause => ({ rule, clause });
 const RELATIONS = "side relations: a mapping's muscle is loaded on the recorded side, the opposite side, or both";
 const MIDLINE = "midline: a midline region counts every bout once and has no sides";
-const LIMB = "the leg limb: a leg's side is the anchor leg's; a limb the exercise does not use gives no side; planned one-sided sets count once per side on that limb";
+const LIMB = "the leg limb: a leg's side is the anchor leg's; a limb the exercise does not use gives no side; a planned one-sided set counts once, as done with both sides";
 const BY_HOME = "a muscle of another region is credited as its home region's current mapping version credits it";
 const OWN_MUSCLES = "a bout is classified by the page's own muscles";
 
@@ -171,8 +173,8 @@ export const ruleClauses: Record<RuleBranch, RuleClause> = {
   "side.leg.recorded_opposite": draft(exposureRuleIds.v5, LIMB),
   "side.leg.not_applicable": draft(exposureRuleIds.v5, LIMB),
   "side.leg.unknown": draft(exposureRuleIds.v5, LIMB),
-  "plan.arm.per_side": v1("sides"),
-  "plan.leg.per_side": draft(exposureRuleIds.v5, LIMB),
+  "plan.arm.one_bout": v1("sides"),
+  "plan.leg.one_bout": draft(exposureRuleIds.v5, LIMB),
   "version.own": v1("categories"),
   "version.listing_fallback": v1("categories"),
   "version.home": draft(exposureRuleIds.v2, BY_HOME),
