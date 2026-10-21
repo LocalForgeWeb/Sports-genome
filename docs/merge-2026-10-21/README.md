@@ -63,7 +63,7 @@ Main's "Name week" and this branch's "Edit days" both sit in the plan header. Th
 
 ## Checks
 
-- **tsc:** clean. **vitest:** 459 files, 4264 tests. **Build:** passes.
+- **tsc:** clean. **vitest:** 461 files, 4281 tests, including main's hold-to-arrange commit, merged after. **Build:** passes.
 - **`probes/logger.mjs`:** production build, headless Chromium, 390 px; 12/12. It covers:
   - the plan's defaults in each measure;
   - a neck hold logged as `holdSeconds` with its side;

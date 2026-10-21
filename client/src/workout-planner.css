@@ -1129,9 +1129,6 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .day-review-stack .workout-health-disclosure > summary h3 { font-family: inherit; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); }
 
 /* -- Next update: Review summaries and Reorder mode ---------------------------- */
-.day-plan-actions .day-action-reorder { display: inline-flex; align-items: center; gap: .45rem; min-height: 2.9rem; border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); padding: 0 .95rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
-.day-plan-actions .day-action-reorder[aria-pressed="true"] { border-color: var(--sg-focus-on-dark); color: var(--sg-focus-on-dark); }
-.day-plan-actions .day-action-reorder:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 /* The planning guide summary: title, what the count counts, one action - not a
    display-size "0 WORK SETS" competing with the goal. */
 .programming-guide-disclosure > summary p strong { font-weight: 700; }
