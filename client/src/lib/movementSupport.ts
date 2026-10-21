@@ -137,9 +137,9 @@ export const NOT_THE_SAME_EXERCISE: readonly { phrase: string; catalogId: number
   { phrase: "cable press", catalogId: 310, why: "A cable press-out is an anti-rotation press for the trunk, like the Pallof press, not a cable chest or shoulder press." },
   { phrase: "plank", catalogId: 397, why: "A side plank with hip adduction works the adductors from a side plank, in the manner of a Copenhagen plank; it is not the plank named." },
   // The 50-exercise expansion (brief §5, §12): names that contain a record's phrase without being it.
-  { phrase: "pull-up", catalogId: 421, why: "An assisted pull-up machine takes part of the body weight on a counterweight; it is a regression of the pull-up, not the unassisted pull-up named." },
-  { phrase: "sled drag", catalogId: 446, why: "The overhead backward sled drag holds the arms overhead the whole way; it is a specific variation, not the sled drag named." },
-  { phrase: "back extension", catalogId: 428, why: "A seated back-extension machine extends the trunk with the hips held; the back extension named is the bench version, which is mostly hip extension." },
+  { phrase: "pull-up", catalogId: 430, why: "An assisted pull-up machine takes part of the body weight on a counterweight; it is a regression of the pull-up, not the unassisted pull-up named." },
+  { phrase: "sled drag", catalogId: 454, why: "The overhead backward sled drag holds the arms overhead the whole way; it is a specific variation, not the sled drag named." },
+  { phrase: "back extension", catalogId: 437, why: "A seated back-extension machine extends the trunk with the hips held; the back extension named is the bench version, which is mostly hip extension." },
 ];
 
 /** True when the catalog exercise is listed in NOT_THE_SAME_EXERCISE for this record phrase. */

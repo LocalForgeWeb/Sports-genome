@@ -43,7 +43,7 @@ Each row is a field an expansion record supplies, the modules that read it, and 
 
 | Field | Consumers |
 |---|---|
-| `id` | catalog assembly, plan entries (`catalogId`), device sessions, swap lineage, `exercisePhotos.json`, `loadConventions.ts`, `exerciseMeasurement.ts`, database `__catalog_<id>`; ids 401-450 are explicit, never positional |
+| `id` | catalog assembly, plan entries (`catalogId`), device sessions, swap lineage, `exercisePhotos.json`, `loadConventions.ts`, `exerciseMeasurement.ts`, database `__catalog_<id>`; ids 417-458 are explicit (the forearm catalog holds 401-416), never positional |
 | `name` | search (`exerciseSearch.ts`), movement support phrase matching, share/import, strength-route aliases, session identity |
 | `sourceGroup`, `category` | catalog grouping, split pools (`splitAssignment.ts` — the new `Neck` category reaches Upper and Full Body only) |
 | `equipment` | access filter (`equipmentProfile.ts`, seven new options), study fallback, set entry wording, practicality |

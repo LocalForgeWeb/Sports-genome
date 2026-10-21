@@ -7,20 +7,23 @@
  * PREPARED, NOT APPLIED. Applying it needs the owner's authorization (repository rule B009).
  *
  * What it writes, all idempotent (`on conflict ... do nothing`), so a re-run inserts nothing twice:
- * - 11 muscles the database lacks: the neck flexors and extensors, and the forearm's pronators and
- *   supinator. Without them no neck or forearm-rotation mapping could name a real muscle.
- * - 50 exercises, each canonical name ending `__catalog_<id>` so the server joins it by catalog id.
- * - 50 identity mappings in app_exercise_source_mappings ("identity-only, never norm eligibility").
+ * - 8 muscles the database lacks: the neck flexors and extensors. Without them no neck mapping could
+ *   name a real muscle. (The pronators and supinator went with the forearm-rotation candidates,
+ *   which are the forearm catalog's rows 405-408 and not part of this migration.)
+ * - 42 exercises, catalog ids 417-458, each canonical name ending `__catalog_<id>` so the server
+ *   joins it by catalog id.
+ * - 42 identity mappings in app_exercise_source_mappings ("identity-only, never norm eligibility").
  * - Muscle mappings: each catalog key expanded to the database muscles it stands for, with the role
  *   from the record. `contribution_weight` is the ordinal role default written explicitly (primary
  *   0.75, secondary 0.40, stabilizer 0.20) and `confidence_score` 60 marks an authored estimate on
  *   the table's 0-100 scale; neither is a measured share or derived from a targeting score. They
  *   are inert until a norm exists for the exercise, because only scored lifts are aggregated.
- * - 50 scoring-policy rows: `scoring_mode 'unsupported'`, `is_beta_enabled false`, load semantics
+ * - 42 scoring-policy rows: `scoring_mode 'unsupported'`, `is_beta_enabled false`, load semantics
  *   mirroring the app's convention. This is the explicit unsupported route: no normative reference
  *   exists for these exact exercises and protocols, so none is attached by name.
  */
 import { exercises, type Exercise } from "../../client/src/lib/exerciseCatalog";
+import { addedExercises } from "../../client/src/lib/exerciseCatalogAdditions";
 import { descriptorFor } from "../../client/src/lib/exerciseDescriptors";
 import { loadConventionFor, type LoadConvention } from "../../shared/loadConventions";
 import { measurementFor } from "../../shared/exerciseMeasurement";
@@ -36,9 +39,6 @@ export const NEW_MUSCLES: readonly { name: string; canonical: string; region: st
   { name: "Splenius cervicis", canonical: "splenius_cervicis", region: "neck", group: "neck extensors" },
   { name: "Semispinalis capitis", canonical: "semispinalis_capitis", region: "neck", group: "neck extensors" },
   { name: "Semispinalis cervicis", canonical: "semispinalis_cervicis", region: "neck", group: "neck extensors" },
-  { name: "Pronator teres", canonical: "pronator_teres", region: "forearm", group: "forearm pronators" },
-  { name: "Pronator quadratus", canonical: "pronator_quadratus", region: "forearm", group: "forearm pronators" },
-  { name: "Supinator", canonical: "supinator", region: "forearm", group: "forearm supinators" },
 ];
 
 /** The database muscles a catalog key stands for, unless an exercise says otherwise below. */
@@ -62,19 +62,13 @@ const DEFAULT_MUSCLES: Record<string, readonly string[]> = {
 
 /** Where an exercise's named muscles differ from the key's default (from its descriptor anatomy). */
 const OVERRIDES: Record<number, Record<string, readonly string[]>> = {
-  409: { forearms: ["pronator_teres", "pronator_quadratus"] },
-  410: { forearms: ["supinator"] },
-  411: { forearms: ["forearm_flexors", "forearm_extensors"] },
-  412: { forearms: ["forearm_flexors", "forearm_extensors"] },
-  417: { forearms: ["forearm_extensors"] },
-  437: { adductors: ["adductor_magnus", "adductor_longus"] },
-  438: { hamstrings: ["biceps_femoris_long_head", "biceps_femoris_short_head", "semimembranosus", "semitendinosus"] },
-  439: { hamstrings: ["biceps_femoris_long_head", "biceps_femoris_short_head", "semimembranosus", "semitendinosus"] },
-  441: { lowerBack: ["quadratus_lumborum", "erector_spinae"] },
-  443: { traps: ["upper_trapezius", "lower_trapezius"] },
-  446: { calves: ["gastrocnemius", "soleus"] },
-  448: { lowerBack: ["quadratus_lumborum"] },
-  449: { lowerBack: ["quadratus_lumborum"] },
+  446: { adductors: ["adductor_magnus", "adductor_longus"] },
+  447: { hamstrings: ["biceps_femoris_long_head", "biceps_femoris_short_head", "semimembranosus", "semitendinosus"] },
+  448: { hamstrings: ["biceps_femoris_long_head", "biceps_femoris_short_head", "semimembranosus", "semitendinosus"] },
+  451: { traps: ["upper_trapezius", "lower_trapezius"] },
+  454: { calves: ["gastrocnemius", "soleus"] },
+  456: { lowerBack: ["quadratus_lumborum"] },
+  457: { lowerBack: ["quadratus_lumborum"] },
 };
 
 const ROLE_WEIGHT = { primary: 0.75, secondary: 0.4, stabilizer: 0.2 } as const;
@@ -105,9 +99,14 @@ export function plannedMappings(list: readonly Exercise[] = expansionExercises()
   });
 }
 
+/** The expansion's own records. The forearm catalog's 401-416 are not in this migration. */
 export function expansionExercises(): Exercise[] {
-  return exercises.filter((exercise) => exercise.id >= 401 && exercise.id <= 450);
+  const ids = new Set(addedExercises.map((exercise) => exercise.id));
+  return exercises.filter((exercise) => ids.has(exercise.id));
 }
+
+/** The ids written, as SQL: the rollback deletes these and nothing else in the 400s. */
+const idList = (list: readonly Exercise[]) => list.map((exercise) => exercise.id).join(", ");
 
 /** Every catalog key the expansion uses has a database expansion, and every one names a known muscle. */
 export function unmappedKeys(list: readonly Exercise[] = expansionExercises()): string[] {
@@ -122,7 +121,7 @@ export function buildExpansionMigration(): { up: string; down: string } {
 -- Rollback: ${MIGRATION_NAME}.rollback.sql.
 `;
   const muscles = `
--- 1. Muscles the database does not have yet: cervical flexors and extensors, forearm pronators and supinator.
+-- 1. Muscles the database does not have yet: the cervical flexors and extensors.
 insert into public.muscles (name, canonical_name, region, muscle_group) values
 ${NEW_MUSCLES.map((muscle) => `  (${sql(muscle.name)}, ${sql(muscle.canonical)}, ${sql(muscle.region)}, ${sql(muscle.group)})`).join(",\n")}
 on conflict (canonical_name) do nothing;
@@ -134,7 +133,7 @@ on conflict (canonical_name) do nothing;
     return `  (${sql(exercise.name)}, ${sql(canonicalNameFor(exercise))}, ${sql(descriptor.setup)}, ${sql(exercise.equipment)}, ${sql(exercise.movement)}, ${sql(sides)}, ${exercise.id}, ${sql(exercise.sourceGroup)}, ${sql(exercise.category)}, 'LocalForgeWeb/Sports-genome', 'client/src/lib/exerciseCatalogAdditions.ts')`;
   });
   const exercisesSql = `
--- 2. One exercise per catalog id 401-450; the canonical name carries the id, so the server joins by it.
+-- 2. One exercise per expansion catalog id (417-458); the canonical name carries the id, so the server joins by it.
 insert into public.exercises (name, canonical_name, description, equipment, movement_pattern, unilateral_or_bilateral, source_catalog_id, source_group, source_category, source_repository, source_path) values
 ${exerciseRows.join(",\n")}
 on conflict (canonical_name) do nothing;
@@ -146,7 +145,7 @@ select e.source_catalog_id, e.id, 'approved', 'created_for_catalog_id', 'expansi
   'Created for this catalog id by exercise expansion v1; no existing row is the same exercise (docs/exercise-expansion-v1/exercise-matrix.csv).',
   'exercise_expansion_v1', now()
 from public.exercises e
-where e.source_repository = 'LocalForgeWeb/Sports-genome' and e.source_catalog_id between 401 and 450 and e.canonical_name like '%\\_\\_catalog\\_%'
+where e.source_repository = 'LocalForgeWeb/Sports-genome' and e.source_catalog_id in (${idList(list)}) and e.canonical_name like '%\\_\\_catalog\\_%'
 on conflict (supabase_exercise_id) do nothing;
 `;
   const mappingRows = plannedMappings(list).map((row) => `  (${sql(row.canonicalName)}, ${sql(row.muscle)}, ${sql(row.role)}, ${ROLE_WEIGHT[row.role].toFixed(2)})`);
@@ -180,16 +179,16 @@ join public.exercises e on e.canonical_name = v.canonical_name
 on conflict (exercise_id) do nothing;
 `;
   const down = `-- Rollback for ${MIGRATION_NAME}. PREPARED, NOT APPLIED.
--- Removes only what the migration added: rows keyed to catalog ids 401-450 and the 11 muscles, the
--- muscles only when nothing else maps to them.
+-- Removes only what the migration added: rows keyed to its own catalog ids (417-458, listed, so a
+-- forearm row 401-416 is never touched) and the ${NEW_MUSCLES.length} muscles, the muscles only when nothing else maps to them.
 delete from public.strength_exercise_scoring_policy p using public.exercises e
-  where p.exercise_id = e.id and e.source_repository = 'LocalForgeWeb/Sports-genome' and e.source_catalog_id between 401 and 450;
+  where p.exercise_id = e.id and e.source_repository = 'LocalForgeWeb/Sports-genome' and e.source_catalog_id in (${idList(list)});
 delete from public.exercise_muscle_mappings mm using public.exercises e
-  where mm.exercise_id = e.id and e.source_repository = 'LocalForgeWeb/Sports-genome' and e.source_catalog_id between 401 and 450;
+  where mm.exercise_id = e.id and e.source_repository = 'LocalForgeWeb/Sports-genome' and e.source_catalog_id in (${idList(list)});
 delete from public.app_exercise_source_mappings a using public.exercises e
-  where a.supabase_exercise_id = e.id and e.source_repository = 'LocalForgeWeb/Sports-genome' and e.source_catalog_id between 401 and 450;
+  where a.supabase_exercise_id = e.id and e.source_repository = 'LocalForgeWeb/Sports-genome' and e.source_catalog_id in (${idList(list)});
 delete from public.exercises e
-  where e.source_repository = 'LocalForgeWeb/Sports-genome' and e.source_catalog_id between 401 and 450 and e.canonical_name like '%\\_\\_catalog\\_%';
+  where e.source_repository = 'LocalForgeWeb/Sports-genome' and e.source_catalog_id in (${idList(list)}) and e.canonical_name like '%\\_\\_catalog\\_%';
 delete from public.muscles m
   where m.canonical_name in (${NEW_MUSCLES.map((muscle) => sql(muscle.canonical)).join(", ")})
     and not exists (select 1 from public.exercise_muscle_mappings mm where mm.muscle_id = m.id);

@@ -11,7 +11,7 @@
  ],
  "candidates": {
   "E01": {
-   "catalogId": 401,
+   "catalogId": 417,
    "name": "Neck Flexion Machine",
    "requestedName": "Neck Flexion Machine",
    "extractedOn": "2026-10-07",
@@ -146,7 +146,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E02": {
-   "catalogId": 402,
+   "catalogId": 418,
    "name": "Neck Extension Machine",
    "requestedName": "Neck Extension Machine",
    "extractedOn": "2026-10-07",
@@ -254,7 +254,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E03": {
-   "catalogId": 403,
+   "catalogId": 419,
    "name": "Neck Lateral Flexion Machine",
    "requestedName": "Neck Lateral Flexion Machine",
    "extractedOn": "2026-10-07",
@@ -358,7 +358,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E04": {
-   "catalogId": 404,
+   "catalogId": 420,
    "name": "Harness Neck Extension",
    "requestedName": "Harness Neck Extension",
    "extractedOn": "2026-10-07",
@@ -478,7 +478,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E05": {
-   "catalogId": 405,
+   "catalogId": 421,
    "name": "Band-Resisted Neck Flexion",
    "requestedName": "Band-Resisted Neck Flexion",
    "extractedOn": "2026-10-07",
@@ -577,7 +577,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E06": {
-   "catalogId": 406,
+   "catalogId": 422,
    "name": "Band-Resisted Neck Extension",
    "requestedName": "Band-Resisted Neck Extension",
    "extractedOn": "2026-10-07",
@@ -684,7 +684,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E07": {
-   "catalogId": 407,
+   "catalogId": 423,
    "name": "Isometric Neck Lateral Flexion",
    "requestedName": "Isometric Neck Lateral Flexion",
    "extractedOn": "2026-10-07",
@@ -801,7 +801,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E08": {
-   "catalogId": 408,
+   "catalogId": 424,
    "name": "Isometric Neck Rotation",
    "requestedName": "Isometric Neck Rotation",
    "extractedOn": "2026-10-07",
@@ -921,7 +921,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E09": {
-   "catalogId": 409,
+   "catalogId": 405,
    "name": "Dumbbell Forearm Pronation",
    "requestedName": "Dumbbell Forearm Pronation",
    "extractedOn": "2026-10-07",
@@ -1078,10 +1078,14 @@
      "opened": false
     }
    ],
-   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
+   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json.",
+   "retiredOnto": {
+    "catalogId": 405,
+    "why": "Covered by the forearm catalog row of 16 Oct 2026 with the same setup (client/src/lib/exerciseCatalogForearm.ts); this candidate adds no second record."
+   }
   },
   "E10": {
-   "catalogId": 410,
+   "catalogId": 406,
    "name": "Dumbbell Forearm Supination",
    "requestedName": "Dumbbell Forearm Supination",
    "extractedOn": "2026-10-07",
@@ -1235,10 +1239,14 @@
      "opened": false
     }
    ],
-   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
+   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json.",
+   "retiredOnto": {
+    "catalogId": 406,
+    "why": "Covered by the forearm catalog row of 16 Oct 2026 with the same setup (client/src/lib/exerciseCatalogForearm.ts); this candidate adds no second record."
+   }
   },
   "E11": {
-   "catalogId": 411,
+   "catalogId": 407,
    "name": "Dumbbell Wrist Radial Deviation",
    "requestedName": "Dumbbell Wrist Radial Deviation",
    "extractedOn": "2026-10-07",
@@ -1372,10 +1380,14 @@
      "opened": false
     }
    ],
-   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
+   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json.",
+   "retiredOnto": {
+    "catalogId": 407,
+    "why": "Covered by the forearm catalog row of 16 Oct 2026 with the same setup (client/src/lib/exerciseCatalogForearm.ts); this candidate adds no second record."
+   }
   },
   "E12": {
-   "catalogId": 412,
+   "catalogId": 408,
    "name": "Dumbbell Wrist Ulnar Deviation",
    "requestedName": "Dumbbell Wrist Ulnar Deviation",
    "extractedOn": "2026-10-07",
@@ -1497,10 +1509,14 @@
      "opened": false
     }
    ],
-   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
+   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json.",
+   "retiredOnto": {
+    "catalogId": 408,
+    "why": "Covered by the forearm catalog row of 16 Oct 2026 with the same setup (client/src/lib/exerciseCatalogForearm.ts); this candidate adds no second record."
+   }
   },
   "E13": {
-   "catalogId": 413,
+   "catalogId": 425,
    "name": "Cable Wrist Flexion",
    "requestedName": "Cable Wrist Flexion",
    "extractedOn": "2026-10-07",
@@ -1589,7 +1605,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E14": {
-   "catalogId": 414,
+   "catalogId": 426,
    "name": "Behind-the-Back Barbell Wrist Curl",
    "requestedName": "Behind-the-Back Barbell Wrist Curl",
    "extractedOn": "2026-10-07",
@@ -1688,7 +1704,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E15": {
-   "catalogId": 415,
+   "catalogId": 401,
    "name": "Barbell Finger Curl",
    "requestedName": "Finger Curl",
    "extractedOn": "2026-10-07",
@@ -1786,10 +1802,14 @@
      "opened": true
     }
    ],
-   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
+   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json.",
+   "retiredOnto": {
+    "catalogId": 401,
+    "why": "Covered by the forearm catalog row of 16 Oct 2026 with the same setup (client/src/lib/exerciseCatalogForearm.ts); this candidate adds no second record."
+   }
   },
   "E16": {
-   "catalogId": 416,
+   "catalogId": 402,
    "name": "Hand Gripper Close",
    "requestedName": "Hand Gripper Close",
    "extractedOn": "2026-10-07",
@@ -1926,10 +1946,14 @@
      "opened": false
     }
    ],
-   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
+   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json.",
+   "retiredOnto": {
+    "catalogId": 402,
+    "why": "Covered by the forearm catalog row of 16 Oct 2026 with the same setup (client/src/lib/exerciseCatalogForearm.ts); this candidate adds no second record."
+   }
   },
   "E17": {
-   "catalogId": 417,
+   "catalogId": 404,
    "name": "Rubber-Band Finger Extension",
    "requestedName": "Rubber-Band Finger Extension",
    "extractedOn": "2026-10-07",
@@ -2039,10 +2063,14 @@
      "opened": true
     }
    ],
-   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
+   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json.",
+   "retiredOnto": {
+    "catalogId": 404,
+    "why": "Covered by the forearm catalog row of 16 Oct 2026 with the same setup (client/src/lib/exerciseCatalogForearm.ts); this candidate adds no second record."
+   }
   },
   "E18": {
-   "catalogId": 418,
+   "catalogId": 427,
    "name": "Hub Grip Lift",
    "requestedName": "Hub Grip Lift",
    "extractedOn": "2026-10-07",
@@ -2177,7 +2205,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E19": {
-   "catalogId": 419,
+   "catalogId": 428,
    "name": "Seated Dip Machine",
    "requestedName": "Seated Dip Machine",
    "extractedOn": "2026-10-07",
@@ -2293,7 +2321,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E20": {
-   "catalogId": 420,
+   "catalogId": 429,
    "name": "Assisted Dip Machine",
    "requestedName": "Assisted Dip Machine",
    "extractedOn": "2026-10-07",
@@ -2431,7 +2459,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E21": {
-   "catalogId": 421,
+   "catalogId": 430,
    "name": "Assisted Pull-Up Machine",
    "requestedName": "Assisted Pull-Up Machine",
    "extractedOn": "2026-10-07",
@@ -2565,7 +2593,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E22": {
-   "catalogId": 422,
+   "catalogId": 431,
    "name": "Belt Squat Machine",
    "requestedName": "Belt Squat Machine",
    "extractedOn": "2026-10-07",
@@ -2671,7 +2699,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E23": {
-   "catalogId": 423,
+   "catalogId": 432,
    "name": "Horizontal Seated Leg Press",
    "requestedName": "Horizontal Seated Leg Press",
    "extractedOn": "2026-10-07",
@@ -2786,7 +2814,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E24": {
-   "catalogId": 424,
+   "catalogId": 433,
    "name": "Smith Machine Bulgarian Split Squat",
    "requestedName": "Smith Machine Bulgarian Split Squat",
    "extractedOn": "2026-10-07",
@@ -2923,7 +2951,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E25": {
-   "catalogId": 425,
+   "catalogId": 434,
    "name": "Smith Machine Romanian Deadlift",
    "requestedName": "Smith Machine Romanian Deadlift",
    "extractedOn": "2026-10-07",
@@ -3036,7 +3064,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E26": {
-   "catalogId": 426,
+   "catalogId": 435,
    "name": "Smith Machine Reverse Lunge",
    "requestedName": "Smith Machine Reverse Lunge",
    "extractedOn": "2026-10-07",
@@ -3138,7 +3166,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E27": {
-   "catalogId": 427,
+   "catalogId": 436,
    "name": "Unilateral Machine Lateral Raise",
    "requestedName": "Machine Lateral Raise — Unilateral",
    "extractedOn": "2026-10-07",
@@ -3224,7 +3252,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E28": {
-   "catalogId": 428,
+   "catalogId": 437,
    "name": "Seated Back Extension Machine",
    "requestedName": "Seated Back Extension Machine",
    "extractedOn": "2026-10-07",
@@ -3390,7 +3418,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E29": {
-   "catalogId": 429,
+   "catalogId": 438,
    "name": "Rotary Torso Machine",
    "requestedName": "Rotary Torso Machine",
    "extractedOn": "2026-10-07",
@@ -3502,7 +3530,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E30": {
-   "catalogId": 430,
+   "catalogId": 439,
    "name": "Hip Thrust Machine",
    "requestedName": "Hip Thrust Machine / Glute Drive",
    "extractedOn": "2026-10-07",
@@ -3608,7 +3636,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E31": {
-   "catalogId": 431,
+   "catalogId": 440,
    "name": "Zercher Deadlift",
    "requestedName": "Zercher Deadlift",
    "extractedOn": "2026-10-07",
@@ -3751,7 +3779,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E32": {
-   "catalogId": 432,
+   "catalogId": 441,
    "name": "Trap-Bar Deadlift",
    "requestedName": "Trap-Bar Deadlift",
    "extractedOn": "2026-10-07",
@@ -3926,7 +3954,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E33": {
-   "catalogId": 433,
+   "catalogId": 442,
    "name": "Sumo Deadlift",
    "requestedName": "Sumo Deadlift",
    "extractedOn": "2026-10-07",
@@ -4094,7 +4122,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E34": {
-   "catalogId": 434,
+   "catalogId": 443,
    "name": "Safety-Bar Squat",
    "requestedName": "Safety-Bar Squat",
    "extractedOn": "2026-10-07",
@@ -4240,7 +4268,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E35": {
-   "catalogId": 435,
+   "catalogId": 444,
    "name": "Loading-Pin Belt Squat",
    "requestedName": "Belt Squat — Loading Pin",
    "extractedOn": "2026-10-07",
@@ -4349,7 +4377,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E36": {
-   "catalogId": 436,
+   "catalogId": 445,
    "name": "Reverse Nordic Curl",
    "requestedName": "Reverse Nordic Curl",
    "extractedOn": "2026-10-07",
@@ -4469,7 +4497,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E37": {
-   "catalogId": 437,
+   "catalogId": 446,
    "name": "Dumbbell Lateral Lunge",
    "requestedName": "Dumbbell Lateral Lunge",
    "extractedOn": "2026-10-07",
@@ -4603,7 +4631,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E38": {
-   "catalogId": 438,
+   "catalogId": 447,
    "name": "Single-Leg Seated Leg Curl",
    "requestedName": "Single-Leg Seated Leg Curl",
    "extractedOn": "2026-10-07",
@@ -4715,7 +4743,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E39": {
-   "catalogId": 439,
+   "catalogId": 448,
    "name": "Single-Leg Lying Leg Curl",
    "requestedName": "Single-Leg Lying Leg Curl",
    "extractedOn": "2026-10-07",
@@ -4815,7 +4843,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E40": {
-   "catalogId": 440,
+   "catalogId": 449,
    "name": "Seated Dumbbell Hip Flexion",
    "requestedName": "Seated Dumbbell Hip Flexion",
    "extractedOn": "2026-10-07",
@@ -4937,7 +4965,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E41": {
-   "catalogId": 441,
+   "catalogId": 409,
    "name": "Suitcase Carry",
    "requestedName": "Suitcase Carry",
    "extractedOn": "2026-10-07",
@@ -5125,10 +5153,14 @@
      "opened": true
     }
    ],
-   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
+   "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json.",
+   "retiredOnto": {
+    "catalogId": 409,
+    "why": "Covered by the forearm catalog row of 16 Oct 2026 with the same setup (client/src/lib/exerciseCatalogForearm.ts); this candidate adds no second record."
+   }
   },
   "E42": {
-   "catalogId": 442,
+   "catalogId": 450,
    "name": "Front-Rack Kettlebell Carry",
    "requestedName": "Front-Rack Kettlebell Carry",
    "extractedOn": "2026-10-07",
@@ -5278,7 +5310,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E43": {
-   "catalogId": 443,
+   "catalogId": 451,
    "name": "Single-Arm Kettlebell Overhead Carry",
    "requestedName": "Single-Arm Overhead Carry",
    "extractedOn": "2026-10-07",
@@ -5425,7 +5457,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E44": {
-   "catalogId": 444,
+   "catalogId": 452,
    "name": "Sandbag Bear-Hug Carry",
    "requestedName": "Sandbag Bear-Hug Carry",
    "extractedOn": "2026-10-07",
@@ -5553,7 +5585,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E45": {
-   "catalogId": 445,
+   "catalogId": 453,
    "name": "Sandbag Ground-to-Shoulder",
    "requestedName": "Sandbag Ground-to-Shoulder",
    "extractedOn": "2026-10-07",
@@ -5756,7 +5788,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E46": {
-   "catalogId": 446,
+   "catalogId": 454,
    "name": "Backward Overhead Sled Drag",
    "requestedName": "Backward Overhead Sled Drag",
    "extractedOn": "2026-10-07",
@@ -5943,7 +5975,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E47": {
-   "catalogId": 447,
+   "catalogId": 455,
    "name": "Sled Rope Pull",
    "requestedName": "Sled Rope Pull",
    "extractedOn": "2026-10-07",
@@ -6083,7 +6115,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E48": {
-   "catalogId": 448,
+   "catalogId": 456,
    "name": "Cable Side Bend",
    "requestedName": "Cable Side Bend",
    "extractedOn": "2026-10-07",
@@ -6198,7 +6230,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E49": {
-   "catalogId": 449,
+   "catalogId": 457,
    "name": "Dumbbell Side Bend",
    "requestedName": "Dumbbell Side Bend",
    "extractedOn": "2026-10-07",
@@ -6302,7 +6334,7 @@
    "reviewerNote": "Origins are categorical, never a numeric confidence. \"verified-source\" means an opened source supports the value for this task (anatomy reference, exercise-database definition or study); a source marked opened:false is a lead, not evidence. \"authored-estimate\" is a reviewed assignment with no exercise-specific source. Computed values cite their model in diagnostics.json."
   },
   "E50": {
-   "catalogId": 450,
+   "catalogId": 458,
    "name": "Half-Kneeling Cable Lift",
    "requestedName": "Half-Kneeling Cable Lift",
    "extractedOn": "2026-10-07",

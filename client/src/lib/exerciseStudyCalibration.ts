@@ -234,7 +234,7 @@ const byKey = (key: string) => calibrationRecords.find((record) => record.key ==
 /**
  * The study context an exercise may carry.
  *
- * Expansion records (ids 401 on) state theirs in their descriptor, deliberately, with what the
+ * Expansion records (ids 417-458) state theirs in their descriptor, deliberately, with what the
  * study did not test appended to its planning boundary; nothing is attached to them by name. The
  * original records keep the name rules below, with two corrections (50-exercise brief §5):
  * - "Reverse Nordic" is a lengthened quadriceps exercise, so it no longer takes the Nordic

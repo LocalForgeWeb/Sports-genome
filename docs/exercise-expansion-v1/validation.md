@@ -2,15 +2,17 @@
 
 Brief: *Sports Genome — 50-exercise data and engine integration* (6 October 2026). Checked 7 October 2026 on branch `claude/training-day-navigation-workouts-83ro2c`.
 
+**Renumbered 21 October 2026, when the branch took in main.** Main shipped a forearm catalog first (ids 401-416, 16 October, referenced in production by the specialization atlas). Eight candidates were the same exercise as one of its rows, with the same setup — E09-E12 (lever pronation, supination, radial and ulnar deviation → 405-408), E15 Finger Curl (→ 401), E16 gripper close (→ 402), E17 band finger extension (→ 404) and E41 Suitcase Carry (→ 409) — and are retired onto that row, keeping only their search aliases (`RETIRED_CANDIDATES` in `exerciseCatalogAdditions.ts`). The other 42 are ids 417-458 in candidate order. The expansion had never shipped, so no saved plan, workout or database row held its earlier ids. The counts below are the 42 records; the checks were re-run after the renumbering.
+
 ## Release status
 
 | Part | Status |
 |---|---|
-| App catalog, engines, planner, logger, history, search, media | **Integrated.** Ids 401-450 ship with the app; every check below passed on this branch |
-| Database rows (exercise identity, muscle mappings, scoring policy) | **Prepared, not applied, not staging-verified.** Applying needs owner authorization (repository rule B009). Until then the server finds no row for 401-450, and a new exercise gets no curve rather than another exercise's (tested) |
+| App catalog, engines, planner, logger, history, search, media | **Integrated.** Ids 417-458 ship with the app; every check below passed on this branch |
+| Database rows (exercise identity, muscle mappings, scoring policy) | **Prepared, not applied, not staging-verified.** Applying needs owner authorization (repository rule B009). Until then the server finds no row for 417-458, and a new exercise gets no curve rather than another exercise's (tested) |
 | Research inputs | **Not complete.** 107 of the 161 muscle tags on the new records are authored estimates (32 records carry at least one), and 41 resistance curves are not established. The app uses them like any catalog tag; each is labelled per field in `evidence.json` and listed per record in `exercise-matrix.csv`. |
-| Normative strength references | **Unavailable for all 50.** Routed to the explicit unsupported scoring policy; personal logging works normally |
-| Photos | 12 of 50 have an exact-variation photo; 38 show the equipment placeholder (31: the source has no such photo; 7: a same-named photo shows a different setup) |
+| Normative strength references | **Unavailable for all 42.** Routed to the explicit unsupported scoring policy; personal logging works normally |
+| Photos | 11 of 42 have an exact-variation photo; 31 show the equipment placeholder (26: the source has no such photo; 5: a same-named photo shows a different setup). The 8 retired candidates show whatever the forearm catalog decided for its row |
 
 This is not a declaration of full completion: the authored-estimate muscle tags and unestablished curves are open research inputs, and the database rows are not applied.
 
@@ -18,7 +20,8 @@ This is not a declaration of full completion: the authored-estimate muscle tags 
 
 | Disposition | Count |
 |---|---|
-| New record (ids 401-450, id = 400 + candidate number) | **50** |
+| New record (ids 417-458, in candidate order) | **42** |
+| Existing record: the forearm catalog's row (401-409), retired onto it with its aliases | **8** |
 | Alias of an existing record | 0 |
 | Improvement to an existing record | 0 |
 | Blocked | 0 |
@@ -45,7 +48,7 @@ Source and data checks (no browser):
 | `pnpm check` (tsc) | exit 0 |
 | `pnpm test` (vitest) | 374 files passed, 4 skipped; **3067 tests passed**, 6 skipped |
 | `pnpm build` | exit 0 |
-| `npx tsx scripts/exercise-expansion/diagnostics.ts` | 50 exercises, **0 validator errors** → `diagnostics.json` |
+| `npx tsx scripts/exercise-expansion/diagnostics.ts` | 42 exercises, **0 validator errors** → `diagnostics.json` |
 | `npx tsx scripts/exercise-expansion/migration.ts` | regenerates the prepared SQL; the parity test confirms the committed file matches the generator's output |
 
 Expansion test files: `exerciseExpansion.validator.test.ts` (5), `exerciseExpansion.hazards.test.ts` (21), `exerciseExpansion.logging.test.ts` (14), `exerciseExpansion.migration.test.ts` (5). The full suite has no failing or newly skipped tests.
@@ -69,12 +72,12 @@ Screenshots (scaled JPEGs) are in `screenshots/`. Exercise detail: `detail-zerch
 
 | Gate | Status across E01-E50 | Notes |
 |---|---|---|
-| G1 Identity | verified 50 | stable explicit ids, aliases, equipment, category and movement, `distinctFrom` |
+| G1 Identity | verified 42 | stable explicit ids, aliases, equipment, category and movement, `distinctFrom` |
 | G2 Anatomy and evidence | verified 18, estimated-reviewed 32 | 54 muscle tags trace to a source and 107 are authored estimates; per-field origins are in `evidence.json` |
-| G3 Numeric output | derived-tested 50 | eight fingerprint values, ten targeting factors per muscle, fatigue, practicality and similarity, all generated by the app's functions in `diagnostics.json`. Curves: 8 Isometric, 1 Lengthened, 41 not established (shown as unavailable) |
-| G4 Analysis integration | derived-tested 50 | split coverage, week exposure, pattern board, movement-support tier, quality coverage |
-| G5 Recording and references | **pending** 50 | the app side passes (measurement mode, load convention, sides, prescriptions, tracker, swaps, drop sets, history, e1RM eligibility). It stays pending because the database identity, mappings and policy are prepared but not applied |
-| G6 Presentation and release | derived-tested 50 | search by canonical and requested name; a photo or a placeholder recorded in `media.json`; no unknown labels |
+| G3 Numeric output | derived-tested 42 | eight fingerprint values, ten targeting factors per muscle, fatigue, practicality and similarity, all generated by the app's functions in `diagnostics.json`. Curves: 8 Isometric, 1 Lengthened, 41 not established (shown as unavailable) |
+| G4 Analysis integration | derived-tested 42 | split coverage, week exposure, pattern board, movement-support tier, quality coverage |
+| G5 Recording and references | **pending** 42 | the app side passes (measurement mode, load convention, sides, prescriptions, tracker, swaps, drop sets, history, e1RM eligibility). It stays pending because the database identity, mappings and policy are prepared but not applied |
+| G6 Presentation and release | derived-tested 42 | search by canonical and requested name; a photo or a placeholder recorded in `media.json`; no unknown labels |
 
 Missing-data exceptions and their tested behaviour:
 
@@ -89,7 +92,7 @@ Missing-data exceptions and their tested behaviour:
 Contract and data:
 
 - [x] Every E01-E50 has a disposition and a matrix row (`exercise-matrix.csv`, 50 rows).
-- [x] Unique stable ids; 401-450 are explicit, never positional (validator test: "holds exactly ids 401-450 ... after the untouched 400").
+- [x] Unique stable ids; 417-458 are explicit, never positional (validator test: "holds exactly ids 417-458 ... after the untouched 400 and the forearm catalog's 401-416"), and every candidate is a record or retired onto a forearm row, once.
 - [x] sportFit keys and grade enums; no empty names, unknown labels, unrecognised qualities, non-finite outputs or dangling joins (`validateExpansion`, 0 errors).
 - [x] Every record has an explicit descriptor; inference applies only to the original 400.
 - [x] Provenance per authored field (`evidence.json` fieldOrigins); derived values carry model revisions (`diagnostics.json`).
@@ -172,16 +175,16 @@ Model revisions: `exercise_genome_v1 → v2`, `muscle_targeting_v1 → v2`. Unch
 `supabase/prepared/exercise_expansion_v1/20261007120000_exercise_expansion_v1.sql` and its `.rollback.sql`: **prepared, not applied, not staging-verified.** Generated from the catalog by `scripts/exercise-expansion/migration.ts` and pinned by a parity test. It contains:
 
 - 11 muscles the database lacks;
-- 50 exercises named `<snake_name>__catalog_<id>`;
+- 42 exercises named `<snake_name>__catalog_<id>`;
 - identity mappings;
 - muscle mappings with explicit role weights (0.75 primary, 0.40 secondary, 0.20 stabilizer; confidence 60);
-- 50 `unsupported` scoring-policy rows.
+- 42 `unsupported` scoring-policy rows. The rollback deletes those 42 ids by list, never a range a forearm row could fall in.
 
 It is idempotent. No database write was made. Reads were `select`s on reference tables only, and no athlete table was read.
 
 ## Remaining work
 
-1. **Apply the migration** after owner authorization (B009). Then check that the server resolves 401-450 by catalog id and that a cache refresh surfaces the new rows.
+1. **Apply the migration** after owner authorization (B009). Then check that the server resolves 417-458 by catalog id and that a cache refresh surfaces the new rows.
 2. **Exercise-specific muscle evidence** for the 107 authored-estimate tags (32 records; listed per record in the matrix `blockers` column). Part of this research was blocked: the session's network policy denied `pubmed.ncbi.nlm.nih.gov` and other scholarly hosts. Allowing them in the environment's network settings would let it continue.
 3. **Resistance curves** for the 41 records marked *Not established*. Each needs a source that measured that setup.
 4. **Photos** for the 38 records on the placeholder. The Free Exercise DB has no exact-variation pair for them (`media.json` lists the nearest candidates considered and why each was refused). This needs new photography or another licensed source.

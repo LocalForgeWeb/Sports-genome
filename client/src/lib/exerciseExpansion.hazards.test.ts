@@ -141,13 +141,16 @@ describe("hazard: the neck has a region everywhere a muscle is drawn or ranked",
 });
 
 describe("hazard: every new id has an explicit load convention", () => {
-  it("classifies all fifty, none by falling through to total external load", () => {
+  it("classifies all forty-two records, none by falling through to total external load", () => {
     const conventions = expansionLoadConventions();
-    expect(conventions.size).toBe(50);
-    for (let id = 401; id <= 450; id++) expect(conventions.get(id), String(id)).toBe(loadConventionFor(id));
+    expect(conventions.size).toBe(42);
+    for (let id = 417; id <= 458; id++) expect(conventions.get(id), String(id)).toBe(loadConventionFor(id));
     expect(loadConventionFor(byName("Assisted Pull-Up Machine").id)).toBe("assistance");
+    expect(loadConventionFor(byName("Front-Rack Kettlebell Carry").id)).toBe("per_hand");
+    expect(loadConventionFor(byName("Band-Resisted Neck Flexion").id)).toBe("resistance_setting");
+    // The retired candidates are forearm catalog rows and keep that catalog's conventions.
     expect(loadConventionFor(byName("Suitcase Carry").id)).toBe("per_hand");
-    expect(loadConventionFor(byName("Hand Gripper Close").id)).toBe("resistance_setting");
+    expect(loadConventionFor(byName("Gripper Close").id)).toBe("machine_displayed_load");
   });
 });
 
@@ -157,11 +160,11 @@ describe("hazard: the server never borrows another catalog exercise's curve by n
     { exerciseId: "uuid-398", canonicalName: "sled_march", displayName: "Sled March" },
   ];
   it("refuses a name match onto a row that belongs to another id, and keeps the unsuffixed fallback", () => {
-    expect(findCurveExercise(index, { catalogExerciseId: 425, exerciseName: "Romanian Deadlift" })).toBeNull();
+    expect(findCurveExercise(index, { catalogExerciseId: 434, exerciseName: "Romanian Deadlift" })).toBeNull();
     expect(findCurveExercise(index, { catalogExerciseId: 42, exerciseName: "Romanian Deadlift" })?.exerciseId).toBe("uuid-42");
     expect(findCurveExercise(index, { catalogExerciseId: 398, exerciseName: "Sled March" })?.exerciseId).toBe("uuid-398");
     const profileIndex = [{ id: "uuid-42", name: "Romanian Deadlift", canonical_name: "romanian_deadlift__catalog_42" }];
-    expect(findProfileExercise(profileIndex, { catalogExerciseId: 425, exerciseName: "Romanian Deadlift" })).toBeNull();
+    expect(findProfileExercise(profileIndex, { catalogExerciseId: 434, exerciseName: "Romanian Deadlift" })).toBeNull();
     expect(findProfileExercise(profileIndex, { catalogExerciseId: 42, exerciseName: "Romanian Deadlift" })?.id).toBe("uuid-42");
   });
 });
@@ -177,7 +180,7 @@ describe("hazard: aliases do not distort movement support", () => {
     const neckIds = new Set(exercises.filter((exercise) => exercise.category === "Neck").map((exercise) => exercise.id));
     expect([...handFighting.specific, ...handFighting.related].some((row) => neckIds.has(row.exercise.id))).toBe(false);
     // Forearm work reaches hand fighting as muscle support only: it shares the prime movers.
-    const pronation = handFighting.muscle.find((row) => row.exercise.name === "Dumbbell Forearm Pronation");
+    const pronation = handFighting.muscle.find((row) => row.exercise.name === "Lever Pronation");
     expect(pronation?.tier).toBe("muscle");
   });
 });
@@ -213,12 +216,12 @@ describe("numerical fixtures (brief §12)", () => {
   });
 
   it("does not change which movement categories the week board checks", () => {
-    expect([...commonMovements(exercises)].sort()).toEqual([...commonMovements(exercises.filter((exercise) => exercise.id <= 400))].sort());
+    expect([...commonMovements(exercises)].sort()).toEqual([...commonMovements(exercises.filter((exercise) => exercise.id < 417))].sort());
   });
 
   it("starts a hold or a carry with a time or a distance, keeping the goal's set count", () => {
     expect(getGoalPrescription("Muscle growth", 0, byName("Isometric Neck Lateral Flexion"))).toBe("3 × 20 s");
-    expect(getGoalPrescription("Max strength", 0, byName("Suitcase Carry"))).toBe("4 × 30 m");
+    expect(getGoalPrescription("Max strength", 0, byName("Front-Rack Kettlebell Carry"))).toBe("4 × 30 m");
     expect(getGoalPrescription("Max strength", 0, byName("Zercher Deadlift"))).toBe("4 × 3–5");
     expect(measurementFor(byName("Zercher Deadlift").id)).toMatchObject({ mode: "load_reps", e1rmEligible: true, explicit: true });
   });

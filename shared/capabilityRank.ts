@@ -272,13 +272,14 @@ export const muscleCanonicalNameToRegionId: Readonly<Record<string, string | nul
 };
 
 /**
- * Neck and forearm-rotation muscles the 50-exercise expansion's prepared migration adds
- * (docs/exercise-expansion-v1/migrations). Until it is applied the database has none of them, and
- * the neck region shows as unscored - hatched, "no data" - rather than as an untrained zero.
+ * Neck muscles the 50-exercise expansion's prepared migration adds (docs/exercise-expansion-v1/
+ * migrations). Until it is applied the database has none of them, and the neck region shows as
+ * unscored - hatched, "no data" - rather than as an untrained zero. The pronators and supinator left
+ * the migration with the forearm-rotation candidates, which are the forearm catalog's rows.
  */
 export const preparedMigrationMuscles: readonly string[] = [
   "sternocleidomastoid", "scalenes", "longus_colli", "longus_capitis", "splenius_capitis", "splenius_cervicis",
-  "semispinalis_capitis", "semispinalis_cervicis", "pronator_teres", "pronator_quadratus", "supinator",
+  "semispinalis_capitis", "semispinalis_cervicis",
 ];
 
 function preparedMuscleRegionIds(): Record<string, string> {
@@ -291,9 +292,6 @@ function preparedMuscleRegionIds(): Record<string, string> {
   splenius_cervicis: "neck",
   semispinalis_capitis: "neck",
   semispinalis_cervicis: "neck",
-  pronator_teres: "forearms_grip",
-  pronator_quadratus: "forearms_grip",
-  supinator: "forearms_grip",
   };
 }
 

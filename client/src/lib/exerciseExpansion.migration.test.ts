@@ -13,6 +13,9 @@ describe("the prepared expansion migration (brief §7)", () => {
     expect(readFileSync(resolve(dir, `${MIGRATION_NAME}.sql`), "utf8")).toBe(up);
     expect(readFileSync(resolve(dir, `${MIGRATION_NAME}.rollback.sql`), "utf8")).toBe(down);
     expect(up).toMatch(/PREPARED, NOT APPLIED/);
+    // The rollback deletes the ids it wrote, listed, never a range a forearm row (401-416) falls in.
+    expect(down).not.toMatch(/between/);
+    expect(down.match(/source_catalog_id in \(([^)]*)\)/g)?.every((list) => !/\b(40[1-9]|41[0-6])\b/.test(list))).toBe(true);
   });
 
   it("is idempotent: every insert stops on conflict", () => {
@@ -25,7 +28,8 @@ describe("the prepared expansion migration (brief §7)", () => {
 
   it("gives every record one canonical name that resolves back to its own catalog id", () => {
     const names = expansionExercises().map(canonicalNameFor);
-    expect(new Set(names).size).toBe(50);
+    expect(new Set(names).size).toBe(42);
+    expect(expansionExercises().map((exercise) => exercise.id)).toEqual(Array.from({ length: 42 }, (_, index) => 417 + index));
     expansionExercises().forEach((exercise) => expect(catalogIdFromCanonicalName(canonicalNameFor(exercise))).toBe(exercise.id));
   });
 
@@ -37,9 +41,10 @@ describe("the prepared expansion migration (brief §7)", () => {
     // Every muscle named is one the database already has or the migration adds, and the region map decides it.
     expect(rows.every((row) => row.muscle in muscleCanonicalNameToRegionId)).toBe(true);
     expect(NEW_MUSCLES.map((muscle) => muscle.canonical).sort()).toEqual([...preparedMigrationMuscles].sort());
-    // The forearm-rotation records name their own muscles, not the generic flexor group.
-    expect(rows.filter((row) => row.catalogId === 409).map((row) => row.muscle)).toEqual(["pronator_teres", "pronator_quadratus"]);
-    expect(rows.filter((row) => row.catalogId === 410).map((row) => row.muscle)).toEqual(["supinator", "biceps_brachii"]);
+    // The neck records name the neck muscles the migration adds, not a generic group.
+    expect(rows.filter((row) => row.catalogId === 417).map((row) => row.muscle)).toEqual(["sternocleidomastoid", "scalenes", "longus_colli", "longus_capitis"]);
+    // The forearm catalog's rows (401-416) are not this migration's: none is written.
+    expect(rows.some((row) => row.catalogId < 417)).toBe(false);
   });
 
   it("routes every record to the explicit unsupported scoring policy", () => {
@@ -47,7 +52,7 @@ describe("the prepared expansion migration (brief §7)", () => {
     expect(up).toMatch(/'unsupported', v\.load_semantics, null/);
     expect(up).not.toMatch(/'loaded_e1rm'/);
     // The database vocabulary has no assistance or setting value: those read not_applicable.
-    expect(up).toMatch(/\('assisted_pull_up_machine__catalog_421', 'not_applicable'\)/);
-    expect(up).toMatch(/\('suitcase_carry__catalog_441', 'per_hand'\)/);
+    expect(up).toMatch(/\('assisted_pull_up_machine__catalog_430', 'not_applicable'\)/);
+    expect(up).toMatch(/\('front_rack_kettlebell_carry__catalog_450', 'per_hand'\)/);
   });
 });

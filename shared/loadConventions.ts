@@ -39,30 +39,27 @@ for (const [convention, list] of Object.entries(BY_CONVENTION) as [LoadConventio
 }
 
 /**
- * Catalog ids 401-450, the 50-exercise expansion, every one classified on purpose - including the
+ * Catalog ids 417-458, the 50-exercise expansion's 42 records, every one classified on purpose - including the
  * ones whose answer is the default - so no new exercise reaches `total_external_load` by falling
  * through (brief §5). The prepared migration writes the same semantics into the database policy
  * (docs/exercise-expansion-v1/migrations), and `shared/exerciseMeasurement.ts` says how each one is
  * logged.
  */
 const EXPANSION_V1: Readonly<Record<number, LoadConvention>> = {
-  401: "machine_displayed_load", 402: "machine_displayed_load", 403: "machine_displayed_load",
-  404: "total_external_load", 405: "resistance_setting", 406: "resistance_setting",
-  407: "no_external_load", 408: "no_external_load",
-  409: "per_implement", 410: "per_implement", 411: "per_implement", 412: "per_implement",
-  413: "machine_displayed_load", 414: "total_external_load", 415: "total_external_load",
-  416: "resistance_setting", 417: "resistance_setting", 418: "total_external_load",
-  419: "machine_displayed_load", 420: "assistance", 421: "assistance",
-  422: "machine_displayed_load", 423: "machine_displayed_load", 424: "machine_displayed_load",
-  425: "machine_displayed_load", 426: "machine_displayed_load", 427: "machine_displayed_load",
-  428: "machine_displayed_load", 429: "machine_displayed_load", 430: "machine_displayed_load",
-  431: "total_external_load", 432: "total_external_load", 433: "total_external_load",
-  434: "total_external_load", 435: "total_external_load", 436: "bodyweight_reps",
-  437: "per_implement", 438: "machine_displayed_load", 439: "machine_displayed_load",
-  440: "per_implement", 441: "per_hand", 442: "per_hand", 443: "per_hand",
-  444: "total_external_load", 445: "total_external_load", 446: "total_external_load",
-  447: "total_external_load", 448: "machine_displayed_load", 449: "per_implement",
-  450: "machine_displayed_load",
+  417: "machine_displayed_load", 418: "machine_displayed_load", 419: "machine_displayed_load",
+  420: "total_external_load", 421: "resistance_setting", 422: "resistance_setting",
+  423: "no_external_load", 424: "no_external_load", 425: "machine_displayed_load",
+  426: "total_external_load", 427: "total_external_load", 428: "machine_displayed_load",
+  429: "assistance", 430: "assistance", 431: "machine_displayed_load",
+  432: "machine_displayed_load", 433: "machine_displayed_load", 434: "machine_displayed_load",
+  435: "machine_displayed_load", 436: "machine_displayed_load", 437: "machine_displayed_load",
+  438: "machine_displayed_load", 439: "machine_displayed_load", 440: "total_external_load",
+  441: "total_external_load", 442: "total_external_load", 443: "total_external_load",
+  444: "total_external_load", 445: "bodyweight_reps", 446: "per_implement",
+  447: "machine_displayed_load", 448: "machine_displayed_load", 449: "per_implement",
+  450: "per_hand", 451: "per_hand", 452: "total_external_load",
+  453: "total_external_load", 454: "total_external_load", 455: "total_external_load",
+  456: "machine_displayed_load", 457: "per_implement", 458: "machine_displayed_load",
 };
 
 /** The convention for a catalog exercise; total external load when the policy names none. */

@@ -937,7 +937,7 @@ No enriched record:
 | Eccentric squat | 1 | lacrosse-14 |  |
 | fly sprint | 1 | american-football-2 |  |
 | front lever tuck hold | 1 | gymnastics-4 |  |
-| front-rack carry | 1 | basketball-17 | Front-Rack Kettlebell Carry (442) |
+| front-rack carry | 1 | basketball-17 | Front-Rack Kettlebell Carry (450) |
 | front-rack hold | 1 | mma-16 |  |
 | Half-kneeling cable hold | 1 | golf-9 |  |
 | half-kneeling cable row | 1 | wrestling-16 |  |
@@ -971,7 +971,7 @@ No enriched record:
 | reaction-step drill | 1 | baseball-8 |  |
 | rotational sandbag lift | 1 | mma-11 |  |
 | Rower steady-state | 1 | rowing-19 |  |
-| sandbag carry | 1 | brazilian-jiu-jitsu-16 | Sandbag Bear-Hug Carry (444) |
+| sandbag carry | 1 | brazilian-jiu-jitsu-16 | Sandbag Bear-Hug Carry (452) |
 | Sandbag clean | 1 | golf-17 |  |
 | sandbag lift | 1 | rugby-11 |  |
 | sandbag shouldering | 1 | mma-12 |  |
@@ -1010,7 +1010,7 @@ No enriched record:
 
 | Record phrase | Catalog name | Why it is the same exercise | Catalog exercises it reaches |
 |---|---|---|---|
-| rear-foot-elevated split squat | Bulgarian split squat | A Bulgarian split squat is the split squat with the rear foot raised on a bench; the two names describe one exercise. | Bulgarian Split Squat (173); Smith Machine Bulgarian Split Squat (424) |
+| rear-foot-elevated split squat | Bulgarian split squat | A Bulgarian split squat is the split squat with the rear foot raised on a bench; the two names describe one exercise. | Bulgarian Split Squat (173); Smith Machine Bulgarian Split Squat (433) |
 | farmer carry | farmer's walk | Farmer's carry and farmer's walk are two names for one exercise: a heavy weight in each hand, walked for distance. | Farmer’s Walk (299) |
 | one-arm cable row | single-arm cable row | One-arm and single-arm mean the same thing; it is one unilateral cable row. | Single-Arm Cable Row (56) |
 | single-leg RDL | single-leg Romanian deadlift | RDL is the standard abbreviation of Romanian deadlift. | Single-Leg Romanian Deadlift (188); Landmine Single-Leg Romanian Deadlift (264) |
@@ -1030,9 +1030,9 @@ Catalog exercises whose name contains a phrase a record names but which are a di
 | split squat | Split-Squat Jump (294) | A split-squat jump is a plyometric jump from the split stance, not the loaded split squat. | 100 |
 | cable press | Cable Press-Out (310) | A cable press-out is an anti-rotation press for the trunk, like the Pallof press, not a cable chest or shoulder press. | 7 |
 | plank | Side Plank Hip Adduction (397) | A side plank with hip adduction works the adductors from a side plank, in the manner of a Copenhagen plank; it is not the plank named. | 1 |
-| pull-up | Assisted Pull-Up Machine (421) | An assisted pull-up machine takes part of the body weight on a counterweight; it is a regression of the pull-up, not the unassisted pull-up named. | 3 |
-| sled drag | Backward Overhead Sled Drag (446) | The overhead backward sled drag holds the arms overhead the whole way; it is a specific variation, not the sled drag named. | 5 |
-| back extension | Seated Back Extension Machine (428) | A seated back-extension machine extends the trunk with the hips held; the back extension named is the bench version, which is mostly hip extension. | 3 |
+| pull-up | Assisted Pull-Up Machine (430) | An assisted pull-up machine takes part of the body weight on a counterweight; it is a regression of the pull-up, not the unassisted pull-up named. | 3 |
+| sled drag | Backward Overhead Sled Drag (454) | The overhead backward sled drag holds the arms overhead the whole way; it is a specific variation, not the sled drag named. | 5 |
+| back extension | Seated Back Extension Machine (437) | A seated back-extension machine extends the trunk with the hips held; the back extension named is the bench version, which is mostly hip extension. | 3 |
 
 ### Broad patterns
 

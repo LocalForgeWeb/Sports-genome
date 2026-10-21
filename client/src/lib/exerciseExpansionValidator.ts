@@ -18,9 +18,13 @@ import { displayNames } from "./weeklyVolume";
 import { catalogMuscleRegionIds } from "@shared/strengthGenomeDefinitions";
 import { expansionLoadConventions, type LoadConvention } from "@shared/loadConventions";
 import { explicitMeasurementIds, measurementFor, type MeasurementMode } from "@shared/exerciseMeasurement";
+import { EXPANSION_CANDIDATE_IDS, RETIRED_CANDIDATES } from "./exerciseCatalogAdditions";
 
-export const EXPANSION_FIRST_ID = 401;
-export const EXPANSION_LAST_ID = 450;
+/** The expansion's 42 records, after the forearm catalog's 401-416 (exerciseCatalogAdditions.ts). */
+export const EXPANSION_FIRST_ID = 417;
+export const EXPANSION_LAST_ID = 458;
+const CANDIDATES = Array.from({ length: 50 }, (_, index) => `E${String(index + 1).padStart(2, "0")}`);
+const candidateFor = (id: number) => Object.entries(EXPANSION_CANDIDATE_IDS).find(([, value]) => value === id)?.[0] ?? `id ${id}`;
 
 export type ExpansionError = { id: number; candidate: string; field: string; problem: string };
 
@@ -124,17 +128,27 @@ export function validateExpansion(catalog: readonly Exercise[] = exercises): Exp
   const errors: ExpansionError[] = [];
   const expected = Array.from({ length: EXPANSION_LAST_ID - EXPANSION_FIRST_ID + 1 }, (_, index) => EXPANSION_FIRST_ID + index);
   const present = catalog.filter((exercise) => exercise.id >= EXPANSION_FIRST_ID);
-  expected.filter((id) => !present.some((exercise) => exercise.id === id)).forEach((id) => errors.push({ id, candidate: `E${String(id - 400).padStart(2, "0")}`, field: "id", problem: "missing from the catalog" }));
+  expected.filter((id) => !present.some((exercise) => exercise.id === id)).forEach((id) => errors.push({ id, candidate: candidateFor(id), field: "id", problem: "missing from the catalog" }));
   present.filter((exercise) => exercise.id > EXPANSION_LAST_ID).forEach((exercise) => errors.push({ id: exercise.id, candidate: "-", field: "id", problem: "outside the expansion range" }));
   if (new Set(catalog.map((exercise) => exercise.id)).size !== catalog.length) errors.push({ id: 0, candidate: "-", field: "id", problem: "catalog ids are not unique" });
   const described = new Set(describedExerciseIds());
-  expected.filter((id) => !described.has(id)).forEach((id) => errors.push({ id, candidate: `E${String(id - 400).padStart(2, "0")}`, field: "descriptor", problem: "missing" }));
+  expected.filter((id) => !described.has(id)).forEach((id) => errors.push({ id, candidate: candidateFor(id), field: "descriptor", problem: "missing" }));
   const measured = new Set(explicitMeasurementIds());
-  expected.filter((id) => !measured.has(id)).forEach((id) => errors.push({ id, candidate: `E${String(id - 400).padStart(2, "0")}`, field: "measurement", problem: "missing" }));
-  // Candidate numbers and ids agree, so the ledger can be read either way.
+  expected.filter((id) => !measured.has(id)).forEach((id) => errors.push({ id, candidate: candidateFor(id), field: "measurement", problem: "missing" }));
+  // Every candidate is accounted for once: its own record, or retired onto the forearm row that is
+  // the same exercise. Records keep candidate order, so the ledger can be read either way.
+  CANDIDATES.forEach((candidate) => {
+    const own = EXPANSION_CANDIDATE_IDS[candidate];
+    const retired = RETIRED_CANDIDATES[candidate];
+    if (own === undefined && !retired) errors.push({ id: 0, candidate, field: "candidate", problem: "neither a record nor retired" });
+    if (own !== undefined && retired) errors.push({ id: own, candidate, field: "candidate", problem: "both a record and retired" });
+    if (retired && !catalog.some((exercise) => exercise.id === retired.catalogId && exercise.name === retired.name)) errors.push({ id: retired.catalogId, candidate, field: "candidate", problem: `retired onto ${retired.name} (${retired.catalogId}), which the catalog does not have` });
+  });
+  const inOrder = CANDIDATES.flatMap((candidate) => EXPANSION_CANDIDATE_IDS[candidate] ?? []);
+  if (inOrder.some((id, index) => id !== EXPANSION_FIRST_ID + index)) errors.push({ id: 0, candidate: "-", field: "id", problem: "records are not numbered in candidate order" });
   present.forEach((exercise) => {
     const descriptor = descriptorFor(exercise.id);
-    if (descriptor && descriptor.candidate !== `E${String(exercise.id - 400).padStart(2, "0")}`) errors.push({ id: exercise.id, candidate: descriptor.candidate, field: "candidate", problem: "does not match the id" });
+    if (descriptor && descriptor.id !== exercise.id) errors.push({ id: exercise.id, candidate: descriptor.candidate, field: "candidate", problem: "descriptor id does not match the record" });
   });
   present.forEach((exercise) => errors.push(...validateExpansionRecord(exercise, catalog)));
   return errors;

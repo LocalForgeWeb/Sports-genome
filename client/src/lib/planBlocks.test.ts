@@ -6,7 +6,7 @@ import { activeBlocks, archivedBlocks, blockFromDay, blockPreviewLine, duplicate
 const byName = (name: string) => { const found = exercises.find((exercise) => exercise.name === name); if (!found) throw new Error(name); return found; };
 const wristCurl = byName("Wrist Curl");
 const reverseCurl = byName("Reverse Wrist Curl");
-const pronation = byName("Dumbbell Forearm Pronation");
+const pronation = byName("Lever Pronation");
 const bench = byName("Barbell Bench Press");
 const row = byName("Seated Cable Row");
 const settings = (rest: string, notes = "") => ({ rpe: "RPE 8", rest, notes, completed: true });

@@ -190,7 +190,7 @@ Run on the final build of this branch (main merged at `b74c9d3`, every utility c
 | `docs/rank-suggestions/probes/rank-suggestions.mjs` | 14/14 | |
 | Week-review journeys (Oct 5 brief) | no errors | selected week, finding → edit → updated week, Day scope, Home's link |
 | `docs/exercise-media-audit/probes/media.mjs` | 19/20 | The failure expects Bulgarian Split Squat to show the placeholder. Main restored its photo in `b74c9d3` but did not update this probe, so it fails on main too. Owner: the other workstream. |
-| `docs/ux-oct1/probes/oct1.mjs` | 26/34 | Seven failures are the known ones listed under O05 in the other workstream's status. The eighth, M9, expects "400 exercises"; the catalog has 450 since this branch's 50-exercise work. Stale count, not a utility regression. |
+| `docs/ux-oct1/probes/oct1.mjs` | 26/34 | Seven failures are the known ones listed under O05 in the other workstream's status. The eighth, M9, expects "400 exercises"; the catalog has 458 (400 + the forearm catalog's 16 + this branch's 42) since this branch's 50-exercise work. Stale count, not a utility regression. |
 
 ## Tests and checks
 

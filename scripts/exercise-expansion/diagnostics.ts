@@ -4,7 +4,7 @@
  *
  *   npx tsx scripts/exercise-expansion/diagnostics.ts
  *
- * For every expansion record (ids 401-450) it exports the catalog fields, the stated descriptor
+ * For every expansion record (ids 417-458) it exports the catalog fields, the stated descriptor
  * inputs, the eight fingerprint values with the predicates behind them, every genome mechanics
  * field, each muscle's ten targeting factors and derived profile, similarity to its closest and to
  * deliberately unrelated records, context scores, the three coverage numbers, movement-support
@@ -15,6 +15,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { exercises, type Exercise } from "../../client/src/lib/exerciseCatalog";
+import { addedExercises } from "../../client/src/lib/exerciseCatalogAdditions";
 import { analyzeExerciseContext, buildExerciseGenome, exerciseSimilarity, fingerprintPredicatesFor, genomeTaskPredicatesFor, EXERCISE_GENOME_REVISION } from "../../client/src/lib/exerciseGenome";
 import { MUSCLE_TARGETING_REVISION, targetingPredicatesFor } from "../../client/src/lib/muscleTargetingModel";
 import { descriptorFor } from "../../client/src/lib/exerciseDescriptors";
@@ -43,8 +44,10 @@ const evidencePath = resolve(root, "docs/exercise-expansion-v1/evidence.json");
 const evidence = existsSync(evidencePath) ? JSON.parse(readFileSync(evidencePath, "utf8")) as { candidates?: Record<string, { fieldOrigins?: Record<string, string> }> } : {};
 
 const byId = new Map(exercises.map((exercise) => [exercise.id, exercise]));
-const added = exercises.filter((exercise) => exercise.id >= 401);
-const legacy = exercises.filter((exercise) => exercise.id <= 400);
+// The expansion's own records; everything else, the forearm catalog's 401-416 included, is existing.
+const addedIds = new Set(addedExercises.map((exercise) => exercise.id));
+const added = exercises.filter((exercise) => addedIds.has(exercise.id));
+const legacy = exercises.filter((exercise) => !addedIds.has(exercise.id));
 const splits: TrainingSplit[] = ["Push", "Pull", "Legs", "Upper", "Lower", "Full Body", "Sport Transfer"];
 const slots = buildDaySlots(splitDaysForFrequency(5));
 const upperSlot = slots.find((slot) => slot.day === "Upper") ?? slots[0];
@@ -57,13 +60,13 @@ const supportCounts = new Map<number, { specific: string[]; related: string[]; m
 for (const record of enrichedSportMovements) {
   const support = getMovementSupport(record.sportId, record.id);
   for (const tier of ["specific", "related"] as const) for (const row of support[tier]) {
-    if (row.exercise.id < 401) continue;
+    if (!addedIds.has(row.exercise.id)) continue;
     const entry = supportCounts.get(row.exercise.id) ?? { specific: [], related: [], muscle: 0 };
     entry[tier].push(`${record.sportId}/${record.id}`);
     supportCounts.set(row.exercise.id, entry);
   }
   for (const row of support.muscle) {
-    if (row.exercise.id < 401) continue;
+    if (!addedIds.has(row.exercise.id)) continue;
     const entry = supportCounts.get(row.exercise.id) ?? { specific: [], related: [], muscle: 0 };
     entry.muscle += 1;
     supportCounts.set(row.exercise.id, entry);

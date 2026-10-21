@@ -7,13 +7,13 @@
  },
  "rule": "A pair is mapped only when both frames show the record's stated setup (equipment, stance, sides, range). A same-named pair that shows a different setup is rejected; a record with no such pair keeps the equipment placeholder. Never another exercise's photo.",
  "counts": {
-  "photographed": 12,
-  "rejected-different-setup": 7,
-  "no-source-photo": 31
+  "photographed": 11,
+  "rejected-different-setup": 5,
+  "no-source-photo": 26
  },
  "records": [
   {
-   "id": 401,
+   "id": 417,
    "candidate": "E01",
    "name": "Neck Flexion Machine",
    "disposition": "no-source-photo",
@@ -23,7 +23,7 @@
    "reason": "the source has no neck machine; its plate version is lying on a bench with a plate on the forehead"
   },
   {
-   "id": 402,
+   "id": 418,
    "candidate": "E02",
    "name": "Neck Extension Machine",
    "disposition": "no-source-photo",
@@ -31,10 +31,10 @@
     "Lying Face Down Plate Neck Resistance",
     "Seated Head Harness Neck Resistance"
    ],
-   "reason": "no neck machine in the source; the plate and harness versions are different setups (the harness pair illustrates 404)"
+   "reason": "no neck machine in the source; the plate and harness versions are different setups (the harness pair illustrates 420)"
   },
   {
-   "id": 403,
+   "id": 419,
    "candidate": "E03",
    "name": "Neck Lateral Flexion Machine",
    "disposition": "no-source-photo",
@@ -44,7 +44,7 @@
    "reason": "no neck machine in the source; the isometric side press illustrates 407"
   },
   {
-   "id": 404,
+   "id": 420,
    "candidate": "E04",
    "name": "Harness Neck Extension",
    "disposition": "photographed",
@@ -54,7 +54,7 @@
    "viewed": "frame 0 head down with the plates hanging (flexion, the start); frame 1 head up at neutral. Viewed 7 Oct 2026 for the 50-exercise expansion."
   },
   {
-   "id": 405,
+   "id": 421,
    "candidate": "E05",
    "name": "Band-Resisted Neck Flexion",
    "disposition": "no-source-photo",
@@ -62,7 +62,7 @@
    "reason": "the source has no band neck exercise"
   },
   {
-   "id": 406,
+   "id": 422,
    "candidate": "E06",
    "name": "Band-Resisted Neck Extension",
    "disposition": "no-source-photo",
@@ -70,7 +70,7 @@
    "reason": "the source has no band neck exercise"
   },
   {
-   "id": 407,
+   "id": 423,
    "candidate": "E07",
    "name": "Isometric Neck Lateral Flexion",
    "disposition": "photographed",
@@ -80,7 +80,7 @@
    "viewed": "a hold, not a movement: frame 0 the left hand on the head, frame 1 the right; captioned as sides (sideBySidePhotoSources). Viewed 7 Oct 2026."
   },
   {
-   "id": 408,
+   "id": 424,
    "candidate": "E08",
    "name": "Isometric Neck Rotation",
    "disposition": "no-source-photo",
@@ -91,41 +91,7 @@
    "reason": "the source holds the neck against side and front/back presses, not against rotation"
   },
   {
-   "id": 409,
-   "candidate": "E09",
-   "name": "Dumbbell Forearm Pronation",
-   "disposition": "rejected-different-setup",
-   "reason": "seated forearm pronation with a lever; the source photographs a lying setup whose own instructions describe rotating the upper arm"
-  },
-  {
-   "id": 410,
-   "candidate": "E10",
-   "name": "Dumbbell Forearm Supination",
-   "disposition": "rejected-different-setup",
-   "reason": "seated forearm supination with a lever; the source photographs a side-lying setup"
-  },
-  {
-   "id": 411,
-   "candidate": "E11",
-   "name": "Dumbbell Wrist Radial Deviation",
-   "disposition": "no-source-photo",
-   "nearestConsidered": [
-    "Wrist Rotations with Straight Bar"
-   ],
-   "reason": "the source has no radial deviation exercise; the straight-bar wrist roll is flexion and extension"
-  },
-  {
-   "id": 412,
-   "candidate": "E12",
-   "name": "Dumbbell Wrist Ulnar Deviation",
-   "disposition": "no-source-photo",
-   "nearestConsidered": [
-    "Wrist Rotations with Straight Bar"
-   ],
-   "reason": "the source has no ulnar deviation exercise"
-  },
-  {
-   "id": 413,
+   "id": 425,
    "candidate": "E13",
    "name": "Cable Wrist Flexion",
    "disposition": "photographed",
@@ -135,7 +101,7 @@
    "viewed": "frame 0 wrists extended down toward the pulley; frame 1 curled up. Viewed 7 Oct 2026."
   },
   {
-   "id": 414,
+   "id": 426,
    "candidate": "E14",
    "name": "Behind-the-Back Barbell Wrist Curl",
    "disposition": "photographed",
@@ -145,35 +111,7 @@
    "viewed": "frame 0 the bar hanging behind the hips; frame 1 the wrists curled with the bar raised. Viewed 7 Oct 2026."
   },
   {
-   "id": 415,
-   "candidate": "E15",
-   "name": "Barbell Finger Curl",
-   "disposition": "photographed",
-   "source": "Finger_Curls",
-   "frames": 2,
-   "frameOrder": "in order",
-   "viewed": "frame 0 fingers open with the bar at the fingertips; frame 1 the hands closed around it. Viewed 7 Oct 2026."
-  },
-  {
-   "id": 416,
-   "candidate": "E16",
-   "name": "Hand Gripper Close",
-   "disposition": "no-source-photo",
-   "nearestConsidered": [
-    "Standing Olympic Plate Hand Squeeze"
-   ],
-   "reason": "the source has no hand gripper; the plate squeeze is a pinch-to-close with a plate"
-  },
-  {
-   "id": 417,
-   "candidate": "E17",
-   "name": "Rubber-Band Finger Extension",
-   "disposition": "no-source-photo",
-   "nearestConsidered": [],
-   "reason": "the source has no finger extension exercise"
-  },
-  {
-   "id": 418,
+   "id": 427,
    "candidate": "E18",
    "name": "Hub Grip Lift",
    "disposition": "no-source-photo",
@@ -181,7 +119,7 @@
    "reason": "the source has no grip hub or block lift"
   },
   {
-   "id": 419,
+   "id": 428,
    "candidate": "E19",
    "name": "Seated Dip Machine",
    "disposition": "photographed",
@@ -191,7 +129,7 @@
    "viewed": "frame 0 elbows bent with the handles at chest height; frame 1 arms pressed down. Viewed 7 Oct 2026."
   },
   {
-   "id": 420,
+   "id": 429,
    "candidate": "E20",
    "name": "Assisted Dip Machine",
    "disposition": "no-source-photo",
@@ -199,10 +137,10 @@
     "Dip Machine",
     "Band Assisted Pull-Up"
    ],
-   "reason": "the source dip machine is the seated press-down (it illustrates 419); there is no counterweight-assisted dip"
+   "reason": "the source dip machine is the seated press-down (it illustrates 428); there is no counterweight-assisted dip"
   },
   {
-   "id": 421,
+   "id": 430,
    "candidate": "E21",
    "name": "Assisted Pull-Up Machine",
    "disposition": "no-source-photo",
@@ -212,7 +150,7 @@
    "reason": "the source assists the pull-up with a band, not a counterweight machine"
   },
   {
-   "id": 422,
+   "id": 431,
    "candidate": "E22",
    "name": "Belt Squat Machine",
    "disposition": "no-source-photo",
@@ -220,7 +158,7 @@
    "reason": "the source has no belt squat"
   },
   {
-   "id": 423,
+   "id": 432,
    "candidate": "E23",
    "name": "Horizontal Seated Leg Press",
    "disposition": "no-source-photo",
@@ -231,7 +169,7 @@
    "reason": "the source leg press is the 45-degree sled; the horizontal seated press moves the seat, not a sled"
   },
   {
-   "id": 424,
+   "id": 433,
    "candidate": "E24",
    "name": "Smith Machine Bulgarian Split Squat",
    "disposition": "photographed",
@@ -241,7 +179,7 @@
    "viewed": "frame 0 standing tall with the rear foot on the bench; frame 1 lowered. Viewed 7 Oct 2026."
   },
   {
-   "id": 425,
+   "id": 434,
    "candidate": "E25",
    "name": "Smith Machine Romanian Deadlift",
    "disposition": "photographed",
@@ -251,7 +189,7 @@
    "viewed": "frame 0 bar just below the knees, knees soft, hips back; frame 1 standing tall. The record starts standing, so frame 1 is shown first. Viewed 7 Oct 2026."
   },
   {
-   "id": 426,
+   "id": 435,
    "candidate": "E26",
    "name": "Smith Machine Reverse Lunge",
    "disposition": "no-source-photo",
@@ -259,10 +197,10 @@
     "Smith Single-Leg Split Squat",
     "Dumbbell Rear Lunge"
    ],
-   "reason": "the Smith pair is a static split squat (it illustrates 424); the reverse lunge in the source is with dumbbells"
+   "reason": "the Smith pair is a static split squat (it illustrates 433); the reverse lunge in the source is with dumbbells"
   },
   {
-   "id": 427,
+   "id": 436,
    "candidate": "E27",
    "name": "Unilateral Machine Lateral Raise",
    "disposition": "no-source-photo",
@@ -273,7 +211,7 @@
    "reason": "the source has no lateral raise machine; its versions are cable and dumbbell"
   },
   {
-   "id": 428,
+   "id": 437,
    "candidate": "E28",
    "name": "Seated Back Extension Machine",
    "disposition": "no-source-photo",
@@ -283,7 +221,7 @@
    "reason": "the source back extension is the bench (hip extension) version, which this record is kept apart from"
   },
   {
-   "id": 429,
+   "id": 438,
    "candidate": "E29",
    "name": "Rotary Torso Machine",
    "disposition": "no-source-photo",
@@ -293,7 +231,7 @@
    "reason": "the source torso rotation is standing with an exercise ball, not the seated rotary machine"
   },
   {
-   "id": 430,
+   "id": 439,
    "candidate": "E30",
    "name": "Hip Thrust Machine",
    "disposition": "no-source-photo",
@@ -303,7 +241,7 @@
    "reason": "the source hip thrust is with a barbell on a bench, not the machine"
   },
   {
-   "id": 431,
+   "id": 440,
    "candidate": "E31",
    "name": "Zercher Deadlift",
    "disposition": "no-source-photo",
@@ -313,7 +251,7 @@
    "reason": "the source Zercher pair is the squat from a rack; this record starts on the floor"
   },
   {
-   "id": 432,
+   "id": 441,
    "candidate": "E32",
    "name": "Trap-Bar Deadlift",
    "disposition": "photographed",
@@ -323,7 +261,7 @@
    "viewed": "frame 0 at the bottom holding the handles; frame 1 standing. Viewed 7 Oct 2026."
   },
   {
-   "id": 433,
+   "id": 442,
    "candidate": "E33",
    "name": "Sumo Deadlift",
    "disposition": "photographed",
@@ -333,7 +271,7 @@
    "viewed": "frame 0 wide stance with the bar on the floor; frame 1 standing. Viewed 7 Oct 2026."
   },
   {
-   "id": 434,
+   "id": 443,
    "candidate": "E34",
    "name": "Safety-Bar Squat",
    "disposition": "no-source-photo",
@@ -341,7 +279,7 @@
    "reason": "the source has no safety squat bar"
   },
   {
-   "id": 435,
+   "id": 444,
    "candidate": "E35",
    "name": "Loading-Pin Belt Squat",
    "disposition": "no-source-photo",
@@ -349,7 +287,7 @@
    "reason": "the source has no belt squat or loading pin"
   },
   {
-   "id": 436,
+   "id": 445,
    "candidate": "E36",
    "name": "Reverse Nordic Curl",
    "disposition": "no-source-photo",
@@ -357,7 +295,7 @@
    "reason": "the source has no reverse Nordic curl"
   },
   {
-   "id": 437,
+   "id": 446,
    "candidate": "E37",
    "name": "Dumbbell Lateral Lunge",
    "disposition": "no-source-photo",
@@ -368,21 +306,21 @@
    "reason": "the source dumbbell lunges step forward and back, not to the side"
   },
   {
-   "id": 438,
+   "id": 447,
    "candidate": "E38",
    "name": "Single-Leg Seated Leg Curl",
    "disposition": "rejected-different-setup",
    "reason": "single-leg seated curl; the source photographs both legs"
   },
   {
-   "id": 439,
+   "id": 448,
    "candidate": "E39",
    "name": "Single-Leg Lying Leg Curl",
    "disposition": "rejected-different-setup",
    "reason": "single-leg lying curl; the source photographs both legs"
   },
   {
-   "id": 440,
+   "id": 449,
    "candidate": "E40",
    "name": "Seated Dumbbell Hip Flexion",
    "disposition": "no-source-photo",
@@ -392,18 +330,7 @@
    "reason": "the source hip flexion is standing with a band; this record is seated with a dumbbell on the thigh"
   },
   {
-   "id": 441,
-   "candidate": "E41",
-   "name": "Suitcase Carry",
-   "disposition": "no-source-photo",
-   "nearestConsidered": [
-    "Farmer's Walk",
-    "Rickshaw Carry"
-   ],
-   "reason": "the source carries are two-handed (farmer's walk, rickshaw); the suitcase carry holds one weight on one side"
-  },
-  {
-   "id": 442,
+   "id": 450,
    "candidate": "E42",
    "name": "Front-Rack Kettlebell Carry",
    "disposition": "no-source-photo",
@@ -411,17 +338,17 @@
    "reason": "the source has no front-rack carry"
   },
   {
-   "id": 443,
+   "id": 451,
    "candidate": "E43",
    "name": "Single-Arm Kettlebell Overhead Carry",
    "disposition": "no-source-photo",
    "nearestConsidered": [
     "Sled Overhead Backward Walk"
    ],
-   "reason": "the source has no overhead kettlebell carry; its overhead walk is the sled drag (it illustrates 446)"
+   "reason": "the source has no overhead kettlebell carry; its overhead walk is the sled drag (it illustrates 454)"
   },
   {
-   "id": 444,
+   "id": 452,
    "candidate": "E44",
    "name": "Sandbag Bear-Hug Carry",
    "disposition": "no-source-photo",
@@ -431,7 +358,7 @@
    "reason": "the source sandbag event loads bags onto a platform, not a bear-hug carry"
   },
   {
-   "id": 445,
+   "id": 453,
    "candidate": "E45",
    "name": "Sandbag Ground-to-Shoulder",
    "disposition": "no-source-photo",
@@ -441,7 +368,7 @@
    "reason": "the source loads the bag onto a platform and says shouldering is usually not allowed; this record takes it to the shoulder"
   },
   {
-   "id": 446,
+   "id": 454,
    "candidate": "E46",
    "name": "Backward Overhead Sled Drag",
    "disposition": "photographed",
@@ -451,21 +378,21 @@
    "viewed": "both frames walking backward with the arms overhead; frame 0 the earlier step. Viewed 7 Oct 2026."
   },
   {
-   "id": 447,
+   "id": 455,
    "candidate": "E47",
    "name": "Sled Rope Pull",
    "disposition": "rejected-different-setup",
    "reason": "sled rope pull is hand over hand on a rope from a fixed stance; the source sled row pulls two handles in a row and steps back"
   },
   {
-   "id": 448,
+   "id": 456,
    "candidate": "E48",
    "name": "Cable Side Bend",
    "disposition": "rejected-different-setup",
    "reason": "low-pulley side bend away from the stack; the source is a high-pulley side crunch"
   },
   {
-   "id": 449,
+   "id": 457,
    "candidate": "E49",
    "name": "Dumbbell Side Bend",
    "disposition": "photographed",
@@ -475,11 +402,12 @@
    "viewed": "frame 0 bent toward the dumbbell; frame 1 bent away from it. Viewed 7 Oct 2026."
   },
   {
-   "id": 450,
+   "id": 458,
    "candidate": "E50",
    "name": "Half-Kneeling Cable Lift",
    "disposition": "rejected-different-setup",
    "reason": "half-kneeling cable lift; the source cable lift is standing (it illustrates the Cable Reverse Chop, 377)"
   }
- ]
+ ],
+ "retired": "E09-E12, E15-E17 and E41 are forearm catalog rows (401-409, 16 Oct 2026) and have no record here; their photos are the forearm catalog's decisions (scripts/exercise-photos/curate.mjs)."
 }
