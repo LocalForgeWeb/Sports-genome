@@ -1,0 +1,33 @@
+where	state	exact copy (draft)	rule it answers
+disclosure summary	always	Tendon exposure · Sets by area, not a risk score	START-HERE §6.2 title; never "Tendonitis predictor"
+lede	always	Sets that loaded muscles attached in each area, {window}, {arm}. Each set counts once per area, however many of its muscles it loaded. Only exercises the atlas maps are counted. This does not measure tendon load or strain, and it is not a risk score.	§6.2 "explain that mapped exposure is incomplete and does not measure tissue strain"; §3.2 never sum muscles
+area buttons	always	Inner elbow {n} · Outer elbow {n} · Wrist & thumb {n} · Fingers {n}	§6.2 four views; 10-multi-region §8 anatomical directions (inner/outer), no screen left/right
+area description	inner_elbow	Muscles that start at the bony point on the pinky side of the elbow: PT, FCR, PL, FCU, FDS.	attachment claims (new, sourced)
+area description	outer_elbow	Muscles that start on the thumb side of the elbow: the shared extensor tendon (ECRB, ED, EDM, ECU), the ridge just above it (ECRL, BR), and the supinator.	package groups lateral-extensor-origin, radial-wrist-extensors, br-attachments, proximal-supinator-attachments shown as sub-rows
+area description	wrist_thumb	Tendons that end at the wrist or the thumb: FCR, FCU, PL, ECRL, ECRB, ECU, FPL, APL, EPB, EPL, and PQ just above the wrist.	design B, distal ends
+area description	fingers	Tendons that run into the fingers: FDS, FDP, ED, EDM, EI. Each muscle is counted as a whole; no finger is told apart.	§6.1 FDS/FDP aggregate digital tendons
+day key	always	Target · Holds · Other  (bar full at 12 sets)	§6.2 separate counts; seconds never stacked
+day column	future day of the window	– (not yet)	never a measured zero
+hold time	known	Holds: {s} s recorded	§6.2 seconds kept apart
+hold time	some missing	Holds: {s} s recorded · {n} hold(s) with no time recorded	§7.3 missing duration
+change heading	completed mode	Last week ({dates}) beside the 4 weeks before	calendar weeks; latest complete window
+change row	comparison	{label}: {current} · median {m} · +{d} (or −{d}, or no change)	absolute change first; no percentage (copy guard regionContent.test.ts:533-534 forbids %)
+change row	baseline zero, current > 0	{label}: {current} · New: none in the 4 weeks before	§6.2 "New exposure"; never divide by zero
+change row	both zero	{label}: none last week or in the 4 weeks before	not "±0", not "safe"
+change row	fewer than 3 known weeks	Building your baseline: {k} of the 3 earlier weeks needed have a finished workout.	§6.2 at least three prior complete windows
+change note	unknown week present	Weeks with no finished workout are left out, not counted as zero.	§6.2 complete means known, not absence of entries
+prompt	New, or above every earlier known week	New in this area compared with the 4 weeks before. / More than in any of the 4 weeks before. [See these sets] [Change a planned exercise]	§6.2 neutral prompt; inspect sources; reduce, replace or defer
+planned mode	planned	{n} sets planned by area, Plan Week {w}, as written. Planned work has no dates, so there is no comparison here.	§6.2 planned only in its own mode; 02-design §4
+kept apart	no arm	{n} set(s) with no arm recorded: kept apart, in neither arm.	02-design §3 sides
+kept apart	strapped	{n} strapped set(s): grip not counted here.	02-design §3 straps; package "unknown grip contribution"
+kept apart	pending	{n} set(s) pending review: not counted.	02-design §3 drafts
+kept apart	region only	{n} forearm set(s) with no muscle mapping are in no area.	02-design §3 region-level only
+kept apart	warm-ups marked	Warm-ups: {n} set(s) marked as warm-ups, not in the counts above.	§6.2 step 8; 02-design §3 excluded from totals
+kept apart	none marked	Warm-ups are not marked in the logger, so any you logged are counted as work.	01-reconciliation.md:16 (no logger control)
+scope	always	Biceps, brachialis and anconeus are in no area.	package scope is the 19 forearm muscles
+empty area	no sets	No mapped sets in this area {window}.	never "safe", never "rested"
+notes heading	always	Your notes · Private to this device. Never shared, never in share cards, never in any count.	§7.2 symptom entry; §6.2 keep symptoms apart
+notes add	inline	When (date) · Arm (this arm / both) · Area (this area) · During / After / Next morning · How it felt, 0 to 10 (optional) · Note (optional) [Save]	§6.1 fields; inline, not a popup; 16 px inputs
+notes rating	empty	(no rating)	missing is not zero
+notes remove	removed	Note removed. [Undo]	CLAUDE.md undo over confirm
+banned anywhere in the section	—	risk, safe, unsafe, danger, injury, injure, tendonitis, tendinitis, tendinopathy, overuse, overload, strain (of tissue), damage, warning, alert, limit, budget, threshold, spike, ACWR, acute:chronic, too much, push through, %, red/orange/green state colours	§2.3, §6.2, §8; rules.ts:41

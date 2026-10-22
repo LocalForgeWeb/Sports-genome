@@ -1,0 +1,18 @@
+## P1 (Muscle growth, 60 min)
+Day 01 · Push: exercises 4→8; Plan sets 12→16 (band 12–24); Plan minutes 31→41 (+10); stack says about 13.3 min
+Day 02 · Pull: exercises 4→8; Plan sets 12→16 (band 12–24); Plan minutes 31→41 (+10); stack says about 13.3 min
+Day 03 · Legs: exercises 4→8; Plan sets 12→16 (band 12–24); Plan minutes 31→41 (+10); stack says about 12.3 min
+## P2 (Max strength, 75 min)
+Day 01 · Upper: exercises 6→8; Plan sets 20→24 (band 11–20); Plan minutes 51→61 (+10); stack says about 14.4 min
+   NEW Plan prompt: 24 planned work sets is above this goal’s current 11–20 planning band. Confirm that the added volume has a clear purpose and remains recoverable.
+Day 02 · Lower: exercises 5→8; Plan sets 17→22 (band 11–20); Plan minutes 43→56 (+13); stack says about 14.8 min
+   NEW Plan prompt: 22 planned work sets is above this goal’s current 11–20 planning band. Confirm that the added volume has a clear purpose and remains recoverable.
+Day 03 · Upper: exercises 6→6; Plan sets 20→20 (band 11–20); Plan minutes 51→51 (+0); stack says about 0.0 min
+Day 04 · Lower: exercises 5→8; Plan sets 17→22 (band 11–20); Plan minutes 43→56 (+13); stack says about 14.8 min
+   NEW Plan prompt: 22 planned work sets is above this goal’s current 11–20 planning band. Confirm that the added volume has a clear purpose and remains recoverable.
+## P3 (Athleticism, 60 min)
+Day 01 · Push: exercises 5→7; Plan sets 17→20 (band 10–20); Plan minutes 43→51 (+8); stack says about 8.7 min
+Day 02 · Pull: exercises 6→6; Plan sets 20→20 (band 10–20); Plan minutes 51→51 (+0); stack says about 0.0 min
+Day 03 · Legs: exercises 5→8; Plan sets 17→20 (band 10–20); Plan minutes 43→51 (+8); stack says about 10.8 min
+Day 04 · Upper: exercises 5→7; Plan sets 17→19 (band 10–20); Plan minutes 43→48 (+5); stack says about 7.2 min
+Day 05 · Sport Transfer: exercises 4→7; Plan sets 14→17 (band 10–20); Plan minutes 36→43 (+7); stack says about 9.8 min

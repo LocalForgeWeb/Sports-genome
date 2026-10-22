@@ -1,0 +1,58 @@
+fa_id	candidate	package_status	catalog_id	catalog_name	setup_note	package_direct(dynamic|hold)	app_direct(dynamic|hold)	agree_on_direct	other_differences
+fa-01	1	draft_mapping	139	Wrist Curl	catalog 139 is kneeling, forearms on a bench (variant notes); package is seated: same action, different support	fcr:dyn fcu:dyn	fcr:dyn fcu:dyn	yes	fds: package supporting_dynamic g2, app incidental/incidental_isometric; fdp: package supporting_dynamic g2, app incidental/incidental_isometric; fpl: package incidental_grip g2, app no mapping
+fa-02	2	draft_mapping	140	Reverse Wrist Curl	kneeling vs seated, same action	ecrb:dyn ecrl:dyn ecu:dyn	ecrb:dyn ecrl:dyn ecu:dyn	yes	fpl: package incidental_grip g2, app no mapping
+fa-03	3	draft_mapping			no behind-the-back row	fcr:dyn fcu:dyn			
+fa-04	4	draft_mapping	135	Reverse Curl	same	br:dyn	br:dyn	yes	fcr: package supporting_isometric g2, app no mapping; fcu: package supporting_isometric g2, app no mapping; fpl: package incidental_grip g2, app no mapping
+fa-05	5	draft_mapping			no reverse preacher row	br:dyn			
+fa-06	6	draft_mapping			no barbell static hold row (145 Farmer Hold is an implement in each hand)	fdp:hold fds:hold			
+fa-07	7	blocked_protocol			blocked in package; app splits the roller by direction: 141 (direction not recorded), 415, 416				
+fa-08	8	draft_mapping			no thick-handle variant; app has no grip-diameter dimension	br:dyn			
+fa-09	9	draft_mapping			no thick-handle variant				
+fa-10	10	blocked_protocol			blocked in package				
+fa-11	11	draft_mapping	410	One-Arm Dumbbell Wrist Curl	410 is one-arm, forearm on the thigh; package does not say one or two dumbbells	fcr:dyn fcu:dyn	fcr:dyn fcu:dyn	yes	fds: package supporting_dynamic g2, app incidental/incidental_isometric; fdp: package supporting_dynamic g2, app incidental/incidental_isometric; fpl: package incidental_grip g2, app no mapping
+fa-12	12	draft_mapping	411	One-Arm Dumbbell Reverse Wrist Curl	as fa-11	ecrb:dyn ecrl:dyn ecu:dyn	ecrb:dyn ecrl:dyn ecu:dyn	yes	fpl: package incidental_grip g2, app no mapping
+fa-13	13	blocked_protocol			blocked in package				
+fa-14	14	draft_mapping	132	Hammer Curl	same	br:dyn	br:dyn	yes	fcr: package supporting_isometric g2, app no mapping; fcu: package supporting_isometric g2, app no mapping; fpl: package incidental_grip g2, app no mapping; ecrl: package supporting_isometric g2, app no mapping; ecrb: package supporting_isometric g2, app no mapping; ecu: package supporting_isometric g2, app no mapping
+fa-15	15	draft_mapping			no preacher hammer row	br:dyn			
+fa-16	16	draft_mapping	136	Zottman Curl	same; both refuse rotation credit for the turn	br:dyn	br:dyn	yes	fcr: package supporting_isometric g2, app no mapping; fcu: package supporting_isometric g2, app no mapping; fpl: package incidental_grip g2, app no mapping
+fa-17	17	draft_mapping	405	Lever Pronation	same set-up (offset lever, elbow 90)	pq:dyn pt:dyn	pq:dyn pt:dyn	yes	fcr: package supporting_isometric g2, app no mapping; fcu: package supporting_isometric g2, app no mapping; fpl: package incidental_grip g2, app no mapping; ecrl: package supporting_isometric g2, app no mapping; ecrb: package supporting_isometric g2, app no mapping; ecu: package supporting_isometric g2, app no mapping
+fa-18	18	draft_mapping	406	Lever Supination	same	supinator:dyn	supinator:dyn	yes	fcr: package supporting_isometric g2, app no mapping; fcu: package supporting_isometric g2, app no mapping; fpl: package incidental_grip g2, app no mapping; pq: package supporting_isometric g2, app no mapping; ecrl: package supporting_isometric g2, app no mapping; ecrb: package supporting_isometric g2, app no mapping; ecu: package supporting_isometric g2, app no mapping
+fa-19	19	draft_mapping	407	Lever Radial Deviation	same	ecrb:dyn ecrl:dyn fcr:dyn	ecrb:dyn ecrl:dyn fcr:dyn	yes	fpl: package incidental_grip g2, app no mapping
+fa-20	20	draft_mapping	408	Lever Ulnar Deviation	same	ecu:dyn fcu:dyn	ecu:dyn fcu:dyn	yes	fpl: package incidental_grip g2, app no mapping
+fa-21	21	draft_mapping			no thick-handle carry; 299 Farmer's Walk is the plain-handle row	fdp:hold fds:hold			
+fa-22	22	alias	411	One-Arm Dumbbell Reverse Wrist Curl	package alias of fa-12	ecrb:dyn ecrl:dyn ecu:dyn	ecrb:dyn ecrl:dyn ecu:dyn	yes	fpl: package incidental_grip g2, app no mapping
+fa-23	23	draft_mapping			no cable wrist curl (flexion) row	fcr:dyn fcu:dyn			
+fa-24	24	draft_mapping	350	Cable Wrist Extension	350 Cable Wrist Extension: bar or handle not recorded	ecrb:dyn ecrl:dyn ecu:dyn	ecrb:dyn ecrl:dyn ecu:dyn	yes	fpl: package incidental_grip g2, app no mapping
+fa-25	25	draft_mapping			no cable reverse curl row	br:dyn			
+fa-26	26	draft_mapping	337	Rope Hammer Cable Curl	two catalog rows read as this: 134 Rope Hammer Curl and 337 Rope Hammer Cable Curl	br:dyn	br:dyn	yes	fcr: package supporting_isometric g2, app no mapping; fcu: package supporting_isometric g2, app no mapping; fpl: package incidental_grip g2, app no mapping; ecrl: package supporting_isometric g2, app no mapping; ecrb: package supporting_isometric g2, app no mapping; ecu: package supporting_isometric g2, app no mapping
+fa-27	27	blocked_protocol			blocked in package				
+fa-28	28	draft_mapping			no rope-attachment row (54 is Seated Cable Row, handle not recorded)				
+fa-29	29	draft_mapping			no towel cable row				
+fa-30	30	draft_mapping			machine; 405 is a loaded handle	pq:dyn pt:dyn			
+fa-31	31	draft_mapping			machine; 406 is a loaded handle	supinator:dyn			
+fa-32-flexion	32	draft_mapping			no wrist machine row	fcr:dyn fcu:dyn			
+fa-32-extension	32	draft_mapping			no wrist machine row	ecrb:dyn ecrl:dyn ecu:dyn			
+fa-33	33	draft_mapping	409	Suitcase Carry	409 Suitcase Carry, dumbbell or kettlebell, walking	fdp:hold fds:hold	fdp:hold fds:hold	yes	fcr: package supporting_isometric g2, app no mapping; fcu: package supporting_isometric g2, app no mapping; fpl: package supporting_isometric g2, app no mapping
+fa-34	34	draft_mapping			no bottoms-up press row				
+fa-35	35	draft_mapping			no bottoms-up clean row (387 is a standard kettlebell clean)				
+fa-36	36	draft_mapping			no kettlebell hammer curl row	br:dyn			
+fa-37-flexion	37	draft_mapping			no kettlebell wrist curl row	fcr:dyn fcu:dyn			
+fa-37-extension	37	draft_mapping			no kettlebell reverse wrist curl row	ecrb:dyn ecrl:dyn ecu:dyn			
+fa-38	38	draft_mapping	142	Plate Pinch	same	fdp:hold fds:hold fpl:hold	fdp:hold fds:hold fpl:hold	yes	fcr: package supporting_isometric g2, app no mapping; fcu: package supporting_isometric g2, app no mapping; ecrl: package supporting_isometric g2, app no mapping; ecrb: package supporting_isometric g2, app no mapping; ecu: package supporting_isometric g2, app no mapping
+fa-39	39	blocked_protocol			blocked in package				
+fa-40	40	blocked_protocol			blocked in package				
+fa-41	41	draft_mapping	143	Dead Hang	same	fdp:hold fds:hold	fdp:hold fds:hold	yes	fcr: package supporting_isometric g2, app no mapping; fcu: package supporting_isometric g2, app no mapping; fpl: package supporting_isometric g2, app no mapping; ecrl: package supporting_isometric g2, app no mapping; ecrb: package supporting_isometric g2, app no mapping; ecu: package supporting_isometric g2, app no mapping
+fa-42	42	draft_mapping	78	Towel Pull-Up	same			yes	fcr: package supporting_isometric g2, app no mapping; fcu: package supporting_isometric g2, app no mapping; fpl: package incidental_grip g2, app no mapping; ecrl: package supporting_isometric g2, app no mapping; ecrb: package supporting_isometric g2, app no mapping; ecu: package supporting_isometric g2, app no mapping
+fa-43	43	draft_mapping	144	Towel Dead Hang	same	fdp:hold fds:hold	fdp:hold fds:hold	yes	fcr: package supporting_isometric g2, app no mapping; fcu: package supporting_isometric g2, app no mapping; fpl: package supporting_isometric g2, app no mapping; ecrl: package supporting_isometric g2, app no mapping; ecrb: package supporting_isometric g2, app no mapping; ecu: package supporting_isometric g2, app no mapping
+fa-44	44	draft_mapping			no thick-bar hang row	fdp:hold fds:hold			
+fa-45	45	draft_mapping			no fingertip push-up row	fdp:hold fds:hold			
+fa-46	46	draft_mapping			no fingertip plank row	fdp:hold fds:hold			
+fa-47	47	draft_mapping	402	Gripper Close	same	fdp:dyn fds:dyn	fdp:dyn fds:dyn	yes	fcr: package supporting_isometric g2, app no mapping; fcu: package supporting_isometric g2, app no mapping; fpl: package supporting_dynamic g2, app no mapping; ecrl: package supporting_isometric g2, app no mapping; ecrb: package supporting_isometric g2, app no mapping; ecu: package supporting_isometric g2, app no mapping
+fa-48	48	draft_mapping			no ball-squeeze row	fdp:dyn fds:dyn			
+fa-49	49	draft_mapping			no crab walk row				
+fa-50-finger-close	50	draft_mapping			no rice-bucket rows	fdp:dyn fds:dyn			
+fa-50-finger-open	50	draft_mapping			no rice-bucket rows	ed:dyn			
+fa-50-pronation	50	draft_mapping			no rice-bucket rows	pq:dyn pt:dyn			
+fa-50-supination	50	draft_mapping			no rice-bucket rows	supinator:dyn			
+fa-50-wrist-flexion	50	draft_mapping			no rice-bucket rows	fcr:dyn fcu:dyn			
+fa-50-wrist-extension	50	draft_mapping			no rice-bucket rows	ecrb:dyn ecrl:dyn ecu:dyn			

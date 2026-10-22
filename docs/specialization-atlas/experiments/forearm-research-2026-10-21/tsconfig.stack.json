@@ -1,0 +1,1 @@
+{ "extends": "/home/user/Sports-genome/tsconfig.json", "compilerOptions": { "incremental": false, "noEmit": true, "types": ["node"], "typeRoots": ["/home/user/Sports-genome/node_modules/@types", "/home/user/Sports-genome/node_modules"] }, "include": ["stackDesigner.ts", "runStack.ts", "/home/user/Sports-genome/node_modules/vite/client.d.ts"] }

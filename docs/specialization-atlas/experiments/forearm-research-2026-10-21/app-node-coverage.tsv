@@ -1,0 +1,20 @@
+node	reviewed	draft	direct_dynamic(variants)	deliberate_hold(direct)	contributing_dyn	incidental_iso	prime actions without a reviewed direct mapping
+forearm.br	68	1	7 [132,133,134,337,342,135,136]	0 []	60	0	-
+forearm.fcr	6	0	4 [139,410,416,407]	0 []	2	0	-
+forearm.fcu	6	0	4 [139,410,416,408]	0 []	2	0	-
+forearm.pl	2	0	0 []	0 []	2	0	hand.palmar_aponeurosis_tension
+forearm.fds	114	0	2 [401,402]	7 [403,142,143,144,145,299,409]	0	105	-
+forearm.fdp	114	0	2 [401,402]	7 [403,142,143,144,145,299,409]	0	105	-
+forearm.fpl	2	4	1 [412]	1 [142]	0	0	-
+forearm.pt	1	0	1 [405]	0 []	0	0	-
+forearm.pq	1	0	1 [405]	0 []	0	0	-
+forearm.ecrl	12	0	5 [140,411,350,415,407]	0 []	2	5	-
+forearm.ecrb	12	0	5 [140,411,350,415,407]	0 []	2	5	-
+forearm.ecu	12	0	5 [140,411,350,415,408]	0 []	2	5	-
+forearm.ed	4	0	1 [404]	0 []	3	0	-
+forearm.edm	1	0	0 []	0 []	1	0	little_finger.extension
+forearm.ei	1	0	0 []	0 []	1	0	index_finger.extension
+forearm.apl	1	0	1 [414]	0 []	0	0	-
+forearm.epb	1	0	1 [413]	0 []	0	0	-
+forearm.epl	1	0	1 [413]	0 []	0	0	-
+forearm.supinator	1	0	1 [406]	0 []	0	0	-

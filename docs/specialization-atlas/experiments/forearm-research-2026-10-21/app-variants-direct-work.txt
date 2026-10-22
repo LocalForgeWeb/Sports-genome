@@ -1,0 +1,133 @@
+cat-121 | Barbell Curl | Barbell | bilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-122 | EZ-Bar Curl | Free weights | bilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-123 | Dumbbell Curl | Dumbbells | bilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-124 | Alternating Dumbbell Curl | Dumbbells | bilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-125 | Incline Dumbbell Curl | Dumbbells | bilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-126 | Preacher Curl | Free weights | bilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-127 | Machine Preacher Curl | Machine | either | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-128 | Cable Curl | Cable | bilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-129 | Bayesian Cable Curl | Cable | unilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-130 | Spider Curl | Free weights | bilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-131 | Concentration Curl | Free weights | unilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-132 | Hammer Curl | Free weights | bilateral | reps |  | D[br:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[UA.biceps] | I[2] | Elbow flexion | 
+cat-133 | Cross-Body Hammer Curl | Free weights | bilateral | reps |  | D[br:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[UA.biceps] | I[2] | Elbow flexion | 
+cat-134 | Rope Hammer Curl | Free weights | bilateral | reps |  | D[br:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[UA.biceps] | I[2] | Elbow flexion | 
+cat-135 | Reverse Curl | Free weights | bilateral | reps |  | D[br:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[UA.biceps] | I[5] | Elbow flexion | 
+cat-136 | Zottman Curl | Free weights | bilateral | reps |  | D[br:elbow.flexion UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[] | I[5] | Elbow flexion | 
+cat-137 | Drag Curl | Free weights | bilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-138 | Chin-Up Curl | Free weights | bilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-336 | Cable Biceps Curl | Cable | bilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-337 | Rope Hammer Cable Curl | Cable | bilateral | reps |  | D[br:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[UA.biceps] | I[2] | Elbow flexion | 
+cat-338 | Incline Cable Curl | Cable | either | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-339 | High Cable Curl | Cable | bilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-340 | Cable Concentration Curl | Cable | unilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-341 | Cable Spider Curl | Cable | bilateral | reps |  | D[UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[br] | I[2] | Elbow flexion | 
+cat-342 | Cross-Body Cable Curl | Cable | unilateral | reps |  | D[br:elbow.flexion UA.brachialis:elbow.flexion] | H[] | C[UA.biceps] | I[2] | Elbow flexion | 
+cat-139 | Wrist Curl | Free weights | bilateral | reps |  | D[fcr:wrist.flexion fcu:wrist.flexion] | H[] | C[pl] | I[2] | Wrist flexion | 
+cat-140 | Reverse Wrist Curl | Free weights | bilateral | reps |  | D[ecrl:wrist.extension ecrb:wrist.extension ecu:wrist.extension] | H[] | C[ed] | I[2] | Wrist extension | 
+cat-141 | Wrist Roller | Free weights | bilateral | reps |  | D[] | H[] | C[fcr fcu ecrl ecrb ecu] | I[2] | Wrist flexion and extension | 
+cat-415 | Wrist Roller, Extension Wind | Free weights | bilateral | reps |  | D[ecrl:wrist.extension ecrb:wrist.extension ecu:wrist.extension] | H[] | C[fcr fcu] | I[2] | Wrist extension | 
+cat-416 | Wrist Roller, Flexion Wind | Free weights | bilateral | reps |  | D[fcr:wrist.flexion fcu:wrist.flexion] | H[] | C[ecrl ecrb ecu] | I[2] | Wrist flexion | 
+cat-350 | Cable Wrist Extension | Cable | either | reps |  | D[ecrl:wrist.extension ecrb:wrist.extension ecu:wrist.extension] | H[] | C[ed] | I[2] | Wrist extension | 
+cat-410 | One-Arm Dumbbell Wrist Curl | Dumbbells | unilateral | reps |  | D[fcr:wrist.flexion fcu:wrist.flexion] | H[] | C[pl] | I[2] | Wrist flexion | 
+cat-411 | One-Arm Dumbbell Reverse Wrist Curl | Dumbbells | unilateral | reps |  | D[ecrl:wrist.extension ecrb:wrist.extension ecu:wrist.extension] | H[] | C[ed] | I[2] | Wrist extension | 
+cat-407 | Lever Radial Deviation | Dumbbells | unilateral | reps |  | D[fcr:wrist.radial_deviation(sh) ecrl:wrist.radial_deviation(sh) ecrb:wrist.radial_deviation(sh)] | H[] | C[] | I[2] | Wrist radial deviation | 
+cat-408 | Lever Ulnar Deviation | Dumbbells | unilateral | reps |  | D[fcu:wrist.ulnar_deviation(sh) ecu:wrist.ulnar_deviation(sh)] | H[] | C[] | I[2] | Wrist ulnar deviation | 
+cat-405 | Lever Pronation | Dumbbells | unilateral | reps |  | D[pt:forearm.pronation(sh) pq:forearm.pronation(sh)] | H[] | C[] | I[2] | Forearm pronation | 
+cat-406 | Lever Supination | Dumbbells | unilateral | reps |  | D[supinator:forearm.supination(sh)] | H[] | C[UA.biceps] | I[2] | Forearm supination | 
+cat-401 | Finger Curl | Barbell | bilateral | reps |  | D[fds:fingers.pip_flexion(sh) fdp:fingers.dip_flexion(sh)] | H[] | C[] | I[0] | Finger flexion | 
+cat-402 | Gripper Close | Free weights | unilateral | reps |  | D[fds:fingers.pip_flexion(sh) fdp:fingers.dip_flexion(sh)] | H[] | C[] | I[0] | Finger flexion | 
+cat-403 | Gripper Hold | Free weights | unilateral | seconds | hold | D[] | H[fds:fingers.pip_flexion(sh) fdp:fingers.dip_flexion(sh)] | C[] | I[0] | Grip isometric | 
+cat-404 | Band Finger Extension | Band | unilateral | reps |  | D[ed:fingers.extension(sh)] | H[] | C[edm ei] | I[0] | Finger extension | 
+cat-412 | Band Thumb Flexion | Band | unilateral | reps |  | D[fpl:thumb.ip_flexion] | H[] | C[] | I[0] | Thumb flexion | 
+cat-413 | Band Thumb Extension | Band | unilateral | reps |  | D[epl:thumb.ip_extension(sh) epb:thumb.mcp_extension(sh)] | H[] | C[] | I[0] | Thumb extension | 
+cat-414 | Band Thumb Abduction | Band | unilateral | reps |  | D[apl:thumb.cmc_abduction] | H[] | C[] | I[0] | Thumb abduction | 
+cat-142 | Plate Pinch | Free weights | unilateral | seconds | hold | D[] | H[fds:fingers.pip_flexion(sh) fdp:fingers.dip_flexion(sh) fpl:thumb.ip_flexion] | C[] | I[0] | Grip isometric | 
+cat-143 | Dead Hang | Bodyweight | bilateral | seconds | hold | D[] | H[fds:fingers.pip_flexion(sh) fdp:fingers.dip_flexion(sh)] | C[] | I[0] | Grip isometric | 
+cat-144 | Towel Dead Hang | Bodyweight | bilateral | seconds | hold | D[] | H[fds:fingers.pip_flexion(sh) fdp:fingers.dip_flexion(sh)] | C[] | I[0] | Grip isometric | 
+cat-145 | Farmer Hold | Free weights | bilateral | seconds | hold | D[] | H[fds:fingers.pip_flexion(sh) fdp:fingers.dip_flexion(sh)] | C[] | I[3] | Grip isometric | 
+cat-299 | Farmer’s Walk | Free weights | bilateral | seconds | hold | D[] | H[fds:fingers.pip_flexion(sh) fdp:fingers.dip_flexion(sh)] | C[] | I[3] | Loaded carry | 
+cat-409 | Suitcase Carry | Free weights | unilateral | seconds | hold | D[] | H[fds:fingers.pip_flexion(sh) fdp:fingers.dip_flexion(sh)] | C[] | I[3] | Loaded carry | 
+cat-300 | Zercher Carry | Barbell | bilateral | seconds | hold | D[] | H[br:elbow.flexion UA.biceps:elbow.flexion UA.brachialis:elbow.flexion] | C[] | I[0] | Loaded carry | 
+cat-231 | Hanging Leg Raise | Free weights | bilateral | reps |  | D[] | H[] | C[] | I[2] | Trunk flexion / anti-extension | 
+cat-232 | Hanging Knee Raise | Free weights | bilateral | reps |  | D[] | H[] | C[] | I[2] | Trunk flexion / anti-extension | 
+cat-234 | Toes-to-Bar | Free weights | bilateral | reps |  | D[] | H[] | C[] | I[2] | Trunk flexion, rotation or anti-rotation | 
+cat-43 | Barbell Bent-Over Row | Barbell | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-44 | Pendlay Row | Barbell | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-45 | Underhand Barbell Row | Barbell | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-46 | Dumbbell Row | Dumbbells | unilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-47 | Chest-Supported Dumbbell Row | Dumbbells | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-48 | Seal Row | Free weights | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-49 | Meadows Row | Free weights | unilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-50 | T-Bar Row | Free weights | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-51 | Chest-Supported T-Bar Row | Free weights | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-52 | Machine High Row | Machine | either | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-53 | Machine Low Row | Machine | either | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-54 | Seated Cable Row | Cable | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-55 | Wide-Grip Cable Row | Cable | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-56 | Single-Arm Cable Row | Cable | unilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-75 | Inverted Row | Bodyweight | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-76 | Feet-Elevated Inverted Row | Bodyweight | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-77 | Ring Row | Bodyweight | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-256 | Landmine Row | Landmine | unilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-257 | Meadows Landmine Row | Landmine | unilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-258 | Landmine T-Bar Row | Landmine | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-317 | Cable Upright Row | Cable | bilateral | reps |  | D[] | H[] | C[] | I[2] | Vertical pull | 
+cat-331 | Low Cable Row | Cable | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-332 | Rope Cable Row | Cable | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-379 | Cable Rotational Row | Cable | unilateral | reps |  | D[] | H[] | C[br] | I[2] | Rotation | 
+cat-383 | Chest-Supported Landmine Row | Landmine | either | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-384 | Offset Landmine Row | Landmine | unilateral | reps |  | D[] | H[] | C[br] | I[2] | Horizontal pull | 
+cat-57 | Lat Pulldown | Free weights | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-58 | Wide-Grip Lat Pulldown | Free weights | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-59 | Neutral-Grip Lat Pulldown | Free weights | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-60 | Underhand Lat Pulldown | Free weights | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-61 | Single-Arm Lat Pulldown | Free weights | unilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-62 | Straight-Arm Cable Pulldown | Cable | bilateral | reps |  | D[] | H[] | C[] | I[2] | Vertical pull | 
+cat-327 | Wide-Grip Cable Lat Pulldown | Cable | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-66 | Pull-Up | Bodyweight | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-67 | Chin-Up | Free weights | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-68 | Neutral-Grip Pull-Up | Bodyweight | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-69 | Wide-Grip Pull-Up | Bodyweight | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-70 | Weighted Pull-Up | Bodyweight | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-71 | Weighted Chin-Up | Free weights | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-72 | Commando Pull-Up | Bodyweight | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-73 | Archer Pull-Up | Bodyweight | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-74 | L-Sit Pull-Up | Bodyweight | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Trunk flexion / anti-extension | 
+cat-78 | Towel Pull-Up | Bodyweight | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-79 | Scapular Pull-Up | Bodyweight | bilateral | reps |  | D[] | H[] | C[] | I[2] | Vertical pull | 
+cat-80 | Rope Climb | Bodyweight | bilateral | reps |  | D[] | H[] | C[br] | I[2] | Vertical pull | 
+cat-41 | Conventional Deadlift | Free weights | bilateral | reps |  | D[] | H[] | C[] | I[2] | Hip hinge | 
+cat-42 | Romanian Deadlift | Free weights | bilateral | reps |  | D[] | H[] | C[] | I[2] | Hip hinge | 
+cat-186 | Romanian Deadlift | Free weights | bilateral | reps |  | D[] | H[] | C[] | I[2] | Hip hinge | 
+cat-187 | Stiff-Leg Deadlift | Free weights | bilateral | reps |  | D[] | H[] | C[] | I[2] | Hip hinge | 
+cat-188 | Single-Leg Romanian Deadlift | Free weights | either | reps |  | D[] | H[] | C[] | I[2] | Hip hinge | 
+cat-189 | Dumbbell Romanian Deadlift | Dumbbells | bilateral | reps |  | D[] | H[] | C[] | I[2] | Hip hinge | 
+cat-202 | Cable Pull-Through | Cable | bilateral | reps |  | D[] | H[] | C[] | I[2] | Hip hinge | 
+cat-203 | Kettlebell Swing | Kettlebell | bilateral | reps |  | D[] | H[] | C[] | I[2] | Hip hinge | 
+cat-204 | Barbell Hip Hinge | Barbell | bilateral | reps |  | D[] | H[] | C[] | I[2] | Hip hinge or knee flexion | 
+cat-205 | B-Stance Romanian Deadlift | Free weights | bilateral | reps |  | D[] | H[] | C[] | I[2] | Hip hinge | 
+cat-263 | Landmine Romanian Deadlift | Landmine | bilateral | reps |  | D[] | H[] | C[] | I[2] | Hip hinge | 
+cat-264 | Landmine Single-Leg Romanian Deadlift | Landmine | either | reps |  | D[] | H[] | C[] | I[2] | Hip hinge | 
+cat-81 | Barbell Shrug | Barbell | bilateral | reps |  | D[] | H[] | C[] | I[2] | Scapular elevation | 
+cat-82 | Dumbbell Shrug | Dumbbells | bilateral | reps |  | D[] | H[] | C[] | I[2] | Scapular elevation | 
+cat-83 | Trap-Bar Shrug | Free weights | bilateral | reps |  | D[] | H[] | C[] | I[2] | Scapular elevation | 
+cat-84 | Cable Shrug | Cable | bilateral | reps |  | D[] | H[] | C[] | I[2] | Scapular elevation | 
+cat-85 | Machine Shrug | Machine | bilateral | reps |  | D[] | H[] | C[] | I[2] | Scapular elevation | 
+cat-86 | Incline Dumbbell Shrug | Dumbbells | bilateral | reps |  | D[] | H[] | C[] | I[2] | Scapular elevation | 
+cat-399 | Battle Rope Slams | Battle ropes | bilateral | reps |  | D[] | H[] | C[] | I[2] | Overhead slam | 
+cat-400 | Battle Rope Alternating Waves | Battle ropes | bilateral | seconds |  | D[] | H[] | C[] | I[2] | Alternating arm drive | 
+[
+  'id',
+  'name',
+  'sourceGroup',
+  'category',
+  'equipment',
+  'movement',
+  'primaryMuscles',
+  'secondaryMuscles',
+  'qualities',
+  'muscleGrade',
+  'sportFit',
+  'evidenceContext'
+]

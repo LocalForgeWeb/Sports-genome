@@ -1,0 +1,756 @@
+# Specialization atlas: the owner's forearm research, the stack designer and tendon exposure (21 Oct 2026)
+
+What will be built to bring the owner's research package into the forearm atlas, and to let an athlete choose a total of direct forearm work that the app turns into a stack of exercises spread over the plan's days. The owner's ask (20 Oct), verbatim: "integrate this into the forearm section also allow people to adjust the amount of total forearm volume in a section where it designs a stack to target everything and distribute the workouts to do that based on the needs of the muscles". "This" is the package at `docs/specialization-atlas/forearm-research-v1/` (commit `b69212c`, "as received"; 13 files, `SHA256SUMS.txt` matches all of them).
+
+**What binds this note.** `02-design.md` binds everything here unless this note names the line it changes. `10-multi-region.md`, with both appendices, binds every release order, freeze, lane and the evidence standard (§8); where this note needs a change to it, the change is listed in §8.2 under Integration F and lands in `10-multi-region.md` itself before any lane starts. The package's rules bind wherever they do not conflict with `02-design.md`; §1.8 lists each conflict and the decision. One instruction outranks both: **the owner's of 20 Oct, "there's no reason for a left and right arm"**, built on `main` as "Both arms as one" (`d8d95f4`) and carried into wave 0 by the reconcile (`reconcile-main-both-arms`, head `87b5f9a`; `10-multi-region.md`, appendix "Both sides as one"): the forearm page reads one summary with side `both`, counts each set once per muscle whichever arm did it, asks no arm in the logger, names no arm in targets or measurements, and a planned one-arm set is one bout and one row per planned set (`planBouts` writes `…/n`). `main` also carries the supplied 3D forearm (`11ee5aa`) and its numbered muscle row (`4dac1ae`). **Everything in this note is for both arms together**: no per-side view, total, target, stack number or tendon column exists anywhere in it, and every page element fits the reconciled page, beside the 3D model or the drawing.
+
+**What was read.** The repository at `95f4cdf` on `claude/vigilant-galileo-u91fr3` (it contains `b69212c`), `origin/main`'s three commits, and the reconcile worktree at `87b5f9a`. Four scouts mapped the package, the shipped forearm content, the planner and tendon exposure. The architect re-ran the stack prototype with this note's final rules on the real catalog, the real forearm data and **the reconcile's calculator with side `both`** (`architect-v3/`), and ported the package's §9 examples through `boutsFromSessions` and `getSpecializationSummary`. Three critics attacked the draft (evidence and counting; the athlete on a phone, with headless iPhone emulation of `main`; data, release and size); Appendix B lists each of their 36 issues and what was done. Owner decisions are in §10; everything else is decided here. Experiments move to `docs/specialization-atlas/experiments/forearm-research-2026-10-21/` with this note (Appendix A).
+
+## 0. What this note decides, in one list
+
+1. **The package is reconciled into the app's catalog, never imported as a second one.** Each of its 57 records is: an exercise the app already has and maps (28, the alias included), a new catalog row (3), referred to the region that owns the exercise's main work (4), deferred with a reason (16), or blocked (6). Its 1,083 cells are read through the app's vocabulary as reviewer prompts; its grades, indices, bands and tissue grades are imported nowhere a person or a calculator can read them (§1, §2).
+2. **`forearm_mappings_v1` stays published and frozen. `forearm_mappings_v2`** carries v1's 361 unchanged rows on forearm muscles, reviews the four thumb-flexor drafts as incidental grip (or keeps them draft), adds FPL to the dead hang, adds the wrist extensors steadying the wrist in the grip tasks (and the wrist flexors only if a source names them), and maps the three new rows: 394 to 411 rows, all on forearm muscles (rule 12). It is written as published in the content from its first commit and published in wave A's seed beside `upper_arm_mappings_v1`, never before it; 188 and 264 keep their pinned `sided_by: arm` (§1.7, §6, §10 decision 4).
+3. **The stack designer** is a card of its own directly under the 3D model (or the drawing), **Design a stack**, with a way in from the model's own panel. The athlete sets one number, **direct forearm sets a week**: distinct planned sets with direct *moving* work on a forearm muscle, both arms as one, the plan's own included, counted by one shared function the page also shows. Holds are a separate line and never enter the total. The app fills the athlete's unmet targets first, gives every movement the plan does not train directly one set, and spreads the rest evenly over the stack's exercises (the thumb drills stay at one set unless the athlete raises them); it chooses the fewest reviewed exercises that do this, places them on the plan's days, shows the change in planned totals right under the number with the Add button, and adds them in one tap with one Undo (§3).
+4. **The total is the athlete's choice, never a target.** It starts at the plan's own direct moving sets plus one set for each movement the plan does not train directly (14 on plan A: 3 + 11), said as exactly that. It writes no goal, gives no muscle a number of its own, never rises by itself, and no week is built higher than the athlete chose (§3.3).
+5. **Rep guidance** comes from the package's rep profiles, held as region data per task family and assigned per variant (never to a carry or a multi-joint lift), shown in the stack's prescriptions, as the add sheet's editable default and beside each suggested exercise, each time called the app's starting ranges, not tested ones (§5).
+6. **Tendon exposure** is a closed section of the page that counts distinct sets by attachment area (inner elbow, outer elbow, wrist and thumb, fingers), with a change line against the athlete's own recent weeks, no percentage, ratio or cut-off, and planned entries the athlete can trim, move, take out or swap in place. Its areas are reviewed region data held on the device; nothing about it reaches the database (§4).
+7. **No schema change.** Rep profiles, tendon areas and stack records live on the device; `forearm_mappings_v2`, three catalog rows with their variants, and their mapping sources go in wave A's seed (§6).
+8. **Three releases, each on its own:** F1, the stack designer, rep guidance and three honesty fixes (client only); F2, tendon exposure (client only); F3, `forearm_mappings_v2` and the new rows, inside wave A. F1 and F2 merge to `main` only after wave 0's pin commit and outside wave A's steps 2–6 (§8).
+9. **Region-agnostic and lazy.** Every new calculator, adapter and page file is held by the region-word scan and run on the deltoid fixture; a later region gets the stack by adding a rep-profile file and tendon exposure by adding a tendon-area file, no code. Both sections and their data are fetched only when opened, so the closed page downloads what it does today (§3.10, §4.6, §7.5).
+
+## 1. What the package changes in the forearm content
+
+### 1.1 What was checked
+
+- **Integrity.** All 13 files match `SHA256SUMS.txt`. `exercises.json`, `exercise-muscle-matrix.csv` (1,083 rows) and `Exercise-review-ledger.md` agree on every cell, status and source; the coverage table's counts recompute (scout 1).
+- **The package's tests.** All 16 pass from a scratch copy, run as `python3 -I -m unittest discover -v -s <copy> -t <copy> -p test_model.py`. The literal command in its §10 fails under `python3 -I` (isolated mode drops the current folder from `sys.path`). Python is never run inside the committed folder; its `__pycache__/` is ignored by git (`.gitignore:123`) and is never loaded.
+- **What the cells hold.** 393 mapped cells, all confidence "low", in six combinations: grade 4 direct dynamic (65), 4 deliberate isometric (19), 3 supporting dynamic (3, brachioradialis in fa-28, fa-29, fa-42), 2 supporting dynamic (33), 2 supporting isometric (186), 2 incidental grip (87); 690 null/unmodeled. Grades 0 and 1 are never used. Grades 3 and 2 of supporting dynamic both read as `contributing` in the app; the difference between them is kept only in the import report, beside each cell.
+- **Status.** All 50 non-alias records are `draft_mapping` (44) or `blocked_protocol` (6); `model-manifest.json` sets `production_import_default: false`.
+- **Muscle ids** are the 3D mesh ids and map one to one, by code, onto `forearm.<abbr>` (`regions/forearm/ids.ts:13-33`), the same table `main`'s identity adapter holds (`anatomy3d/modelIdentity.ts`). The import adapter (lane R0) writes it once and never matches by name.
+- **The package's stated coverage gap** (START-HERE §4.1: no direct drill for APL, EPB, EPL; extensor digitorum only in a rice bucket) describes its candidate list, not the app: Band Thumb Flexion, Extension and Abduction (412–414) and Band Finger Extension (404) are reviewed direct rows (`mappings.ts:290-296`), reviewed as "small-muscle coverage, not high-volume defaults" for the thumb (`05-mappings.md:91`), which matches the package's own caution about such drills (its §4.1). What the app still lacks is a direct exercise for extensor indicis, extensor digiti minimi and palmaris longus (`app-node-coverage.tsv`); the package has none either (§10, decision 2).
+- **Agreement where both map.** On the 24 matched, non-blocked, non-alias records (456 cells): 87 agree, 2 agree in category, 5 disagree, 3 disagree with one of our drafts, 94 are mapped by the package only, 0 by us only (scout 1). Every forearm muscle we credit on a matched exercise, the package credits too; it adds a steadying and thumb layer we do not have. The package's direct roles equal v1's reviewed direct rows on every matched record except fa-08, where it calls the brachioradialis direct and v1 contributing (decided in §1.3).
+
+### 1.2 Every record, decided
+
+"Existing" means the catalog row and its reviewed v1 mappings already cover the record; nothing is added. "Set-up not recorded" means the same task for the forearm with a set-up detail no attribute records: a thick handle (the package's own S07 found it changes forearm EMG in some lifts and not in the curl it tested, so no multiplier and no separate credit), seated against kneeling, a preacher bench, or a cable in place of a bar. The import report (lane R0) carries this table with each record's candidate number, its package status and all 19 cells.
+
+| Package record | Disposition | Catalog row(s) |
+|---|---|---|
+| fa-01 Seated barbell wrist curl | existing, set-up not recorded | 139 Wrist Curl |
+| fa-02 Seated barbell reverse wrist curl | existing, set-up not recorded | 140 Reverse Wrist Curl |
+| fa-03 Behind-the-back barbell wrist curl | **new row** | 418 Behind-the-Back Wrist Curl |
+| fa-04 Barbell reverse curl | existing | 135 Reverse Curl |
+| fa-05 Barbell reverse preacher curl | existing, set-up not recorded (preacher bench) | 135 Reverse Curl |
+| fa-06 Barbell static hold | **new row** (seconds, deliberate hold) | 419 Barbell Hold |
+| fa-07 Barbell rollout / wrist roll | blocked; every reading already has a row | 238 (the abdominal rollout), 415 or 416 (the roller by direction), 141 (direction not recorded) |
+| fa-08 Thick-grip barbell curl | existing, set-up not recorded | 121 Barbell Curl |
+| fa-09 Thick-grip Romanian deadlift | existing, set-up not recorded | 42 and 186 (the catalog lists the name twice; both mapped alike) |
+| fa-10 Barbell pronated wrist roll | blocked; its readings have rows | 140, 415, 401 |
+| fa-11 Dumbbell wrist curl | existing | 410 One-Arm Dumbbell Wrist Curl |
+| fa-12 Dumbbell reverse wrist curl | existing | 411 One-Arm Dumbbell Reverse Wrist Curl |
+| fa-13 Dumbbell neutral-grip wrist curl | blocked; the radial-deviation reading has a row | 407 Lever Radial Deviation |
+| fa-14 Dumbbell hammer curl | existing | 132 Hammer Curl |
+| fa-15 Dumbbell preacher hammer curl | existing, set-up not recorded (preacher bench) | 132 Hammer Curl |
+| fa-16 Dumbbell Zottman curl | existing (rotation already withheld, as the package asks: no full pronator and supinator credit for the turn between phases) | 136 Zottman Curl |
+| fa-17 Levered dumbbell pronation | existing (405 turns toward palm-down against an offset load: the package's correction and its offset-lever rule) | 405 Lever Pronation |
+| fa-18 Levered dumbbell supination | existing | 406 Lever Supination |
+| fa-19 Dumbbell radial deviation | existing (gravity opposes the movement, as the package asks) | 407 Lever Radial Deviation |
+| fa-20 Dumbbell ulnar deviation | existing | 408 Lever Ulnar Deviation |
+| fa-21 Thick-grip dumbbell farmer carry | existing, set-up not recorded | 299 Farmer's Walk |
+| fa-22 One-arm dumbbell reverse wrist extension | **alias** of fa-12: no second row, no second dose | 411 |
+| fa-23 Cable wrist curl | **new row** | 417 Cable Wrist Curl |
+| fa-24 Cable reverse wrist curl | existing | 350 Cable Wrist Extension |
+| fa-25 Cable reverse curl | existing, set-up not recorded (a cable in place of a bar) | 135 Reverse Curl |
+| fa-26 Rope cable hammer curl | existing (the catalog holds it twice; both frozen, both mapped alike) | 337 Rope Hammer Cable Curl; 134 Rope Hammer Curl |
+| fa-27 Behind-the-back cable curl | blocked; the elbow reading has a row | 129 Bayesian Cable Curl |
+| fa-28 Rope seated cable row | existing | 332 Rope Cable Row |
+| fa-29 Towel cable row | referred to the back (wave B): a row whose main work the back maps; the forearm's credit would be grip | — |
+| fa-30, fa-31 Pronation and supination machines | deferred: "Machine" in the equipment profile cannot say which machine a gym has, so the stack would offer a rare machine to every gym athlete (§10, decision 3) | — |
+| fa-32 flexion, fa-32 extension Wrist machines | deferred, as fa-30 | — |
+| fa-33 Single-arm kettlebell farmer carry | existing | 409 Suitcase Carry |
+| fa-34 Bottoms-up kettlebell press | referred to the shoulders (wave B): a press with a grip challenge | — |
+| fa-35 Bottoms-up kettlebell clean | deferred: ballistic, as 387 Kettlebell Clean, which v1 lists unmapped (`unmapped.ts:34`) | — |
+| fa-36 Kettlebell hammer curl | deferred: no source shows the bell changes which muscles do the work; logged as 132, which a kettlebell profile already reaches ("Free weights", `equipmentProfile.ts:25-29`) | 132 |
+| fa-37 flexion, fa-37 extension Kettlebell wrist curls | deferred, as fa-36 | 410, 411 |
+| fa-38 Plate pinch hold | existing | 142 Plate Pinch |
+| fa-39 Plate flips | blocked (ballistic, no protocol) | — |
+| fa-40 Plate wrist flexor curl, fingers extended | blocked | — |
+| fa-41 Straight-bar dead hang | existing | 143 Dead Hang |
+| fa-42 Towel pull-up | existing | 78 Towel Pull-Up |
+| fa-43 Towel dead hang | existing | 144 Towel Dead Hang |
+| fa-44 Thick-bar dead hang | existing, set-up not recorded | 143 |
+| fa-45 Fingertip push-up, fa-46 Fingertip plank | referred to the chest and core waves (B, C): closed-chain support whose finger credit the package makes a deliberate hold inside a compound, against its own §4 | — |
+| fa-47 Spring gripper squeeze | existing | 402 Gripper Close (403 Gripper Hold is the sustained squeeze the package's §4 asks to tell apart) |
+| fa-48 Ball squeeze | deferred: no equipment value for a grip ball, uncalibrated resistance (§10, decision 3) | — |
+| fa-49 Crab walk | deferred: whole-body, flat palms; the package credits finger-flexor steadying no source measured | — |
+| fa-50 Rice bucket ×6 (finger close, finger open, pronation, supination, wrist flexion, wrist extension) | deferred: no equipment value for a rice bucket, uncalibrated resistance (§10, decision 3); the app trains every one of these movements with a reviewed exercise | — |
+
+**Totals:** 28 existing (18 the same task, 9 set-up not recorded, the alias), 3 new rows, 4 referred to the region that owns the main work (the towel row to the back, the bottoms-up press to the shoulders, the two fingertip supports to the chest and core), 16 deferred, 6 blocked: 57. All 50 original candidates stay traceable through the report.
+
+**The three curls are decided here, not referred.** In fa-05, fa-15 and fa-25 the package's only direct cell is the brachioradialis, whose home is the forearm, so rule 12 lets only a forearm version credit it; an upper-arm lane could not decide them. For the forearm they are the reverse curl and the hammer curl with a set-up no attribute records, logged as 135 and 132 with v1's reviewed rows. If the upper arm later wants a preacher or cable row of its own, that row takes the next id after the reservation below and must be mapped by the forearm's current version or listed in `regions/forearm/unmapped.ts` with its reason (the coverage test, `regionContent.test.ts:719-733`, holds every row tagged `forearms`). The same applies to the referred records: the wave that adds such a row lists it in the forearm's `unmapped.ts` (a one-line hand-off to the forearm's owner of the day) until a forearm version maps its grip.
+
+**The six blocked records stay blocked**, as the package asks: the catalog already offers every unambiguous reading, so an athlete logs the one they do and nothing is guessed. The owner may say which reading he meant (§10, input A); nothing waits on it.
+
+**The three new rows** each follow a mapping family v1 already reviewed, so their mappings rest on the same node actions, claims and sources:
+- **417 Cable Wrist Curl** (equipment Cable; a low pulley, forearms on the thighs, palms up): the wrist-curl family (`mappings.ts:170-177`): FCR and FCU direct dynamic wrist flexion, PL contributing, FDS and FDP incidental grip, shared. 5 rows.
+- **418 Behind-the-Back Wrist Curl** (equipment Barbell; standing, the bar behind the thighs, palms back): the same family. 5 rows.
+- **419 Barbell Hold** (equipment Barbell; measured in seconds, a deliberate hold, double overhand at arm's length): FDS and FDP direct isometric finger flexion, shared, `requiresNoStraps`; ECRL, ECRB, ECU steadying (stabilizer, isometric, M2, §1.4); FPL incidental (§1.3). 6 rows.
+
+None of the three loads an upper-arm muscle, so they need nothing from the upper arm's version and the upper arm's coverage test never sees them. **Ids are reserved:** 417–419 for the three rows and 420 for decision 2's finger drill if the owner takes it. The reservation is written into the header of `client/src/lib/exerciseCatalogForearm.ts` (lane C1) and into `10-multi-region.md` §3 (Integration F, before any wave A lane starts), so a wave lane adding a catalog row starts at 421; a row is never added in a release that does not map or list it (`exerciseCatalogForearm.ts:7-10`).
+
+### 1.3 Where the package and the app disagree, decided
+
+The evidence standard is `03-anatomy-evidence.md` with `10-multi-region.md` §8: a mapping is reviewed only with an action, a relationship, a rationale and a source with a locator and a limitation; otherwise it stays draft or stays out. "Keep ours" means v2 carries the v1 row unchanged. The builder's own convention binds every new row: basis `anatomy` where the row rests on what the muscle does, `inference` where it rests on a judgement about its role (every grip called incidental is `inference`, `mappings.ts:17-19, 98-104`), `emg` only where an EMG source is the row's ground.
+
+| Cell | Package | App (v1) | Decision | Why |
+|---|---|---|---|---|
+| FDS, FDP in wrist curls (139, 410; fa-01, fa-11) | supporting dynamic | incidental grip | **Keep ours** | No source measured FDS's or FDP's part in a wrist curl. (Adopting the package's reading would change the existing row `cat-139:forearm.fds` to contributing dynamic; mapping ids are `cat-<id>:<nodeId>`, `mappings.ts:96`, so no second row would be added.) 05-mappings.md already says finger motion as the bar rolls is not credited. |
+| FDS, FDP in the towel pull-up (78; fa-42) | incidental grip | contributing isometric | **Keep ours** | Same category (`incidental_isometric`: the variant is not a deliberate hold), so no number differs; ours says why the towel makes the grip limit the set. |
+| FPL in the towel hang, farmer hold, farmer's walk, suitcase carry (144, 145, 299, 409; fa-43, fa-21, fa-33) | supporting isometric | draft contributing isometric (pending review) | **Review as incidental, basis `inference`**: relationship `incidental`, isometric, `requiresNoStraps`, action thumb IP flexion, sources FPL's action row (`S4`, its limitation "gives the muscle's action, not how much this exercise loads it") and **Hamrick, Churchill, Schmitt and Hylander 1998** (`pmid.9503091`; J Hum Evol 34(2):123-136, DOI 10.1006/jhev.1997.0177; found by search on 21 Oct, abstract level), locator "Abstract", limitation "Forceful stone-tool use and tool making, not a gym handle; abstract only". **Reviewed only if V1 confirms that record with its locator; otherwise all five FPL rows (these four and §1.4's) stay draft, with no fallback to anatomy alone.** | v1's reviewers left these as drafts because how much FPL is loaded in a handle grip is not established (`mappings.ts:305`); that remains true, and the incidental relationship claims less: the thumb closes over the handle while the fingers do the hold, and Hamrick found FPL recruited in forceful tool use whatever the grip (power or precision). Written as drafted ("contributing" on a deliberate-hold variant), every carry and towel hang would credit FPL hold seconds (`rules.ts:60`; scout 2: 26 of 34 golden summaries would gain FPL hold seconds). The package's bucket for these cells is supporting isometric, which §2.1 maps to `stabilizer`; `incidental` is used because FPL here holds the implement (the app's meaning of incidental, `mappings.ts:10-13`) rather than steadying a joint, and both give the same category (`incidental_isometric`), so no number depends on the choice. The four drafts lack `requiresNoStraps`, which FDS and FDP on the same variants have; the reviewed rows have it. |
+| BR in a supinated, thick-grip curl (121; fa-08) | direct (grade 4) | contributing | **Keep ours** | M1 found the brachioradialis's contribution differed only with the hand pronated, so it does not support a larger share in a palms-up curl; S07 found no forearm EMG difference with a thick grip in the concentration curl it tested. |
+| BR in the cable upright row (317) | not in the package | draft | **Keep draft** | Nothing in the package or the searches measures the brachioradialis in an upright row. |
+| The deviation and pronation rows (405, 407, 408) | direct | direct, shared | **Agree** | The package's S04 (Forman 2020, deviation with a wrist robot) and S03 (Gordon 2004, fine-wire pronation and supination) are added to those rows as second sources only where their excerpts name the credited muscle (§1.5). |
+
+### 1.4 Cells only the package has, decided by family
+
+The package maps 94 cells on matched records that v1 leaves unmapped: the wrist muscles steadying the wrist, and FPL in every gripped handle. In the app they could only ever add incidental bouts, which never drive a suggestion or the stack (02-design.md §8). **One test for every family:** a steadying or grip row is adopted where a source's excerpt names that muscle, or its functional group, as active in that kind of task; the row's limitation says when the source names the group and not the muscle. The decision is recorded once, in 05-mappings.md's v2 section.
+
+| Family | Decision | Rows in v2 |
+|---|---|---|
+| Wrist extensors (ECRL, ECRB, ECU) steadying in the grip tasks: 143 Dead Hang, 144 Towel Dead Hang, 402 Gripper Close, 403 Gripper Hold, and the new 419 | **Adopt**: relationship `stabilizer`, isometric, action wrist extension, basis emg, citing M2 (Mogk and Keir 2003), whose recorded note names the group: "Wrist-extensor activity accompanied gripping" (`sources/forearmMappings.ts:28`); limitation "Names the wrist extensors as a group, not each muscle; a dynamometer, not a barbell". S05 (Mannella 2022, `pmid.35646483`) is added where its excerpt names the muscles (search on 21 Oct confirmed eight muscles and activity rising with grip, not the list). `requiresNoStraps` on the hangs. v1's reviewers already applied M2 this way to the carries (`mappings.ts:306`). | 12 (+3 on 419, counted with the new rows) |
+| Wrist flexors (FCR, FCU) steadying in the same tasks and the carries (143, 144, 145, 299, 402, 403, 409, 419) | **Adopt only if** S05's or M2's excerpt names FCR, FCU or the wrist flexors as a group among the muscles active in the grip. M2's recorded note says only "flexor activity", which in a gripping study may be the finger flexors, so it does not pass the test as recorded; V1 reads both excerpts first. The tendon section says what this leaves out (§4.4). | 0 to 16 |
+| Any wrist muscle steadying in curls, rows, pulldowns, deadlifts, levers and the pinch | **Not adopted** in v2. M2 measured a hand gripping a dynamometer; v1's reviewers applied it to holds and carries, where the grip is the task, and not to lifts where the grip is incidental. Extending it to every gripped lift would add about 300 rows on one analog source. A later version may, with a source on gym grips. | 0 |
+| FPL in deliberate full-hand holds: 143 (and the four drafts, §1.3; and 419) | **Adopt** as §1.3: incidental, basis inference, Hamrick, bare hand only; draft if Hamrick's record is not confirmed | 1 (+1 on 419) |
+| FPL in every other gripped handle (curls, rows, deadlifts, shrugs) | **Not reviewed in this version.** Hamrick's finding (FPL recruited in forceful power grips) makes these candidates for a later version, which would review them family by family with the same limitation. | 0 |
+| PQ steadying in lever supination (406; fa-18) | **Adopt only if** S03's abstract is found and says the pronator quadratus is active in supination, with a locator; action `forearm.distal_radioulnar_stabilization` (`nodeActions.ts:55`) | 0 or 1 |
+| PL, EDM, EI as helpers in more exercises | Not adopted: nothing new in the package | 0 |
+
+### 1.5 Sources
+
+The package's keys look like the app's and mean other papers (its A01 is not our A1; its S03 is not our S3), so no package key is used. Five are already in the library under another key; the rest are re-keyed `pmid.<n>` where the PubMed record is confirmed, else `<publisher>.<topic>` (10-multi-region.md §1.3). Each note says what the search showed and what it could not confirm (`reconciliation-sources.json`, searched 20–21 Oct; page fetches are refused here, so every check is abstract-level or less).
+
+| Package | Library key | What search confirmed | Used for |
+|---|---|---|---|
+| A01 UAMS upper-limb table | A36 (same URL) | — | nothing new |
+| A02 Loyola upper-extremity table | not added | the PDF was not found | — |
+| S02 Ikeda 2025 | S2 (same DOI) | — | nothing new |
+| S03 Gordon 2004, pronation/supination fine wire | `pmid.14656682` once its abstract is seen | citation only (J Orthop Res 22:208-213) | PQ steadying (§1.4), conditional |
+| S04 Forman 2020, deviation with a wrist robot | `pmid.32636008` | title, journal, abstract | a second source on 407 and 408 where it names the muscle; limitation: a robot task |
+| S05 Mannella 2022, grip force under perturbation | `pmid.35646483` | title, journal, abstract (PeerJ 10:e13495; eight muscles; activity rose with grip force); the muscle list not confirmed | wrist steadying in the grip tasks (§1.4), where its excerpt names the muscle |
+| S06 Kleiber 2015 | M1 (A4 is the same paper; that shipped pair is frozen and is the one allowed duplicate) | — | nothing new |
+| S07 Krings 2021, fat-grip attachments | `pmid.30694963` | title, journal, abstract | the import report's reason for "set-up not recorded"; cited by no row |
+| S08 Butler 2005 | S3 (same DOI) | — | nothing new |
+| S09 Morton 2016 | `pmid.27174923` | title, journal, abstract (trained men, whole-body lifts to failure; load did not decide hypertrophy) | rep guidance's general sentence only (§5.3) |
+| S10 Lasevicius 2018 | not added yet | bibliographic details only | — until its abstract is seen |
+| S11 handgrip frequency (2017) | not added yet | title only | — |
+| S12 Pelland, dose–response | S1 (same DOI); its date is Dec 2025 in the record found, not Feb 2026 as the package says | — | nothing new |
+| S13 proximity to failure (2024) | `pmid.38970765` | the PubMed record (also in `trainingEvidence.ts`) | rep guidance's effort sentence only |
+| S14 Oranchuk 2019 | `pmid.30580468` | title, journal, abstract | only "isometric results depend on hold length, intensity and intent" (§5.3); not the 10–30 s range |
+| S15 Lazarczuk 2022 | `pmid.35657492` | objectives only | the tendon section's method note only |
+| S16 lateral epicondylitis in workers (2014) | `cdc.lateral_epicondylitis_hand_force_2014` | title and record only | the tendon section's method note only |
+| S17 Seidel 2019 | `pmid.30621312` | title, journal, abstract | the tendon section's method note only |
+| S18 Schoenfeld 2017 | `pmid.28834797` | the PubMed record (also in `trainingEvidence.ts`) | rep guidance's general sentence only (§5.3) |
+| S19 wrist tendon forces, cadaver simulator | not added | no record found | — |
+| (new) Hamrick et al. 1998, FPL in forceful tool use | `pmid.9503091` | the record (J Hum Evol 34(2):123-136; DOI 10.1006/jhev.1997.0177; PubMed id from Duke's publication listing) and the abstract's finding | FPL incidental in holds (§1.3, §1.4), once V1 confirms the PubMed id with its locator |
+| (new) Radiopaedia, common flexor origin and common extensor origin | `radiopaedia.common_flexor_origin`, `radiopaedia.common_extensor_origin` | search summaries | tendon areas (§4.1) |
+| (new) Impellizzeri et al. 2020 on the acute:chronic workload ratio | `pmid.<n>` (PMC7534938) | title and abstract | the tendon section's method note: why it shows no ratio |
+
+- **The rep ranges cite no study.** They are the package's practical defaults (`rep-profiles.json`; its §2.2 "implementation defaults, not research-derived optima", §5.1 "Operational ranges; not validated optimal durations"), recorded as such in the profile data; S09, S13, S14 and S18 support only the sentences §5.3 attributes to them.
+- **Three homes for sources.** Mapping sources (S03, S04, S05, Hamrick) go in a new `sources/forearmResearch.ts` that the forearm's `content.sources` lists, so the wave A seed writes them with v2. Sources cited only by rep guidance, tendon areas and the tendon method note go in `sources/training.ts` and `sources/forearmTendon.ts`, which no region lists in `content.sources`: the seed reads only those lists (`emit-seed.ts:410`), so F1 and F2 leave the seed byte-identical. They reach the page through `referenceSources`, loaded with the section data (§3.10).
+- **A test the library lacks.** The URL test cannot see these duplicates: PubMed, PMC and doi.org URLs differ for one paper. `sourceIdentity.test.ts` refuses two library sources with one DOI or one PubMed id (read from a `pmid.` key or a PubMed or PMC URL), with A4/M1 the one listed exception. It lands in F1 with lane S2, before any new source key joins the library.
+
+### 1.6 Claims
+
+**No new claim in the database.** Every v2 row rests on a node action and a reviewed function claim v1 already has. The attachment statements the tendon section needs are not claims: a claim's kind is function, appearance, selectivity or variation (`types.ts:224`, enforced by schema v1:156), and a fifth kind would need a schema change. They are reviewed region records held on the device (§4.1). A selectivity claim on PQ from S03 is possible later and is not needed for the conditional row, which cites S03 itself.
+
+### 1.7 `forearm_mappings_v2`
+
+**Contents.** A new key replaces `FOREARM_MAPPING_VERSION` (`regions/forearm/ids.ts:57`), built by the forearm's mapping builder (`mappings.ts`, which becomes v2's). Before the builder changes, v1's exact rows and their sources are generated into a frozen fixture the client and server tests can both import, `shared/specialization/__fixtures__/forearmMappingsV1.ts`, so tests can require that v2 differs from v1 only as listed and that the database's v1 still equals it.
+
+| Part | Rows |
+|---|---|
+| v1's rows on forearm muscles, unchanged (360 reviewed, and the cat-317 brachioradialis draft) | 361 |
+| The four FPL drafts, reviewed as incidental with `requiresNoStraps` (§1.3); kept as drafts if Hamrick's record is not confirmed | 4 |
+| FPL incidental on 143 Dead Hang (§1.4) | 1 |
+| Wrist-extensor steadying on 143, 144, 402, 403 (§1.4) | 12 |
+| Wrist-flexor steadying, conditional (§1.4) | 0–16 |
+| PQ steadying on 406, conditional (§1.4) | 0–1 |
+| The three new rows (§1.2) | 16 |
+| v1's 53 rows on the biceps and brachialis | 0: rule 12 refuses them; from wave A the upper arm's own version credits those muscles (10-multi-region.md §4.2) |
+
+394 rows without the conditional ones, at most 411 (414 with decision 2's drill: EI and EDM direct, ED contributing); the release reads the count from the code. `methodNotes` are v1's, plus: "Version 2 reviews the thumb flexor's role in hangs and carries as incidental grip, adds the wrist extensors steadying the wrist in grip holds and the gripper, and maps three new exercises. It adopts none of the research package's grades or percentages. It credits no upper-arm muscle: the upper arm's own version does." (over 200 characters, as `regionContent.test.ts:715-717` requires).
+
+**Review and publication.** Written by hand in the builder, row by row, by lane V1 against the import report's decisions (§8.2); never generated from the package. The package's "import into staging first" is met in the only form this project has (02-design.md §9: there is no staging database): the import report is the staging report (inserted, updated, skipped and blocked counts in the package's sense), and PGlite rehearses the publication over schema v1, seed v1, schema v2, seed v2 and the seed v3 candidate. **A region's content holds one mapping version and the client counts with it whatever its state** (`emit-seed.ts:394`; no client code reads the state), so v2 is written in the content as `published`, with its planned date, from its first commit; staging is the rehearsal and the report, never a content state. A content test requires every production region's own version to be published, as external versions already must be (`regionContent.test.ts:398`). Seed v3 inserts v2 as a draft, fills it, then publishes it by its state alone (10-multi-region.md decision 4), so `mapping_version_problems` runs on its real rows. v1 stays published and is not retired; rolling the app back to the previous wave's deploy restores the v1 key with every raw log untouched.
+
+**The server suites.** Three server suites assume the forearm's content version is v1 (`server/specializationSeed.test.ts`, 51 references, among them `:476-484` "every cat-* attribute unfrozen" and `:486-506` "the database's forearm_mappings_v1 rows equal `forearmContent.mappings`"; `specializationSchema.test.ts`, 17; `specializationSchemaV2.test.ts`, 10). Once the content is v2 they would either fail or be pointed at v2, and nothing would check v1. V1 rewrites their forearm-version assertions (§8.2): after schema v1, seed v1, schema v2, seed v2 and seed v3, `forearm_mappings_v1`'s 418 rows and their sources equal the frozen fixture field for field, v1 is still published and `mapping_version_problems()` is null for it; v2 is published with the code's count; every attribute of a variant v2 maps is frozen; 188 and 264 carry `sided_by: arm` (decision 4); the attributes of variants no published version maps stay unfrozen.
+
+**What athletes see change** when F3 ships, all recomputed live from the device records (no ledger is stored, 02-design.md §1; the summary cache key includes the mapping version, `useSpecializationSummary.ts:154`), with no set re-entered and no backfill:
+- the thumb flexor (FPL) shows hangs and carries as incidental grip instead of "pending review", and dead hangs gain FPL incidental;
+- dead hangs, towel hangs, the gripper and the barbell hold add incidental steadying to the three wrist extensors (and the wrist flexors, if adopted);
+- three new exercises appear in Plan's picker, on the page and in the stack's choices;
+- "How this is counted" names `forearm_mappings_v2` and its method notes;
+- targets and the stack re-read under v2; region totals and completeness do not move (FPL and the wrist muscles appear only in sets the finger flexors already put in the region).
+
+**The list of moved numbers is generated, never written by hand.** A v1 → v2 differential test runs both golden sets, `golden.both.test.ts` (17 summaries, side `both`, the page's reading, against `main`'s calculator at 4dac1ae) and `golden.test.ts` (34 per-arm summaries, the dormant per-side calculator, against 6738eeb), prints every moved number per summary and field, and requires region totals and completeness not to move. The both-arms list is the one athletes see; the per-arm list may show changes in the dormant unknown-side fields (scout 2's simulation moved FPL's `unknownSide` from 0 to 1 in 6 per-arm summaries), which no page shows. Both lists go to wave A's integration lane for its allowed differences.
+
+**188 and 264** (the single-leg Romanian deadlifts) are mapped by v1 and so by v2, and publishing v2 freezes their counting attributes (`variant_attributes.frozen_at`, 10-multi-region.md §3). They keep their pinned `sided_by: arm` (`variants/forearm.ts:48`; `regionContent.test.ts:868` allows arm or leg for the two). Writing them as the standing leg would make the forearm, a production region, reach the leg planning clause that only rule v5 publishes, and `ruleClauses.test.ts:90-96` ("every production region's data reaches only branches of a published rule") would fail in wave A and wave B (critic-data `clause188.ts`: with leg attributes the reconcile head reaches `plan.leg.one_bout → specialization_exposure_v5`; with the pinned arm it reaches nothing unpublished); leg-only attributes would also be frozen before any leg lane had looked (10-multi-region.md §3, "Each wave writes only the attributes its regions read"). Since the logger asks no side of any limb (reconcile `a850eef`), the choice changes no count and nothing the athlete sees. Publishing v2 makes it permanent: §3's exception for 188 and 264 closes, and any later change needs `cat-188.v2` and new versions of every region that maps it (§10, decision 4).
+
+### 1.8 Where the package conflicts with `02-design.md` (or the owner's later word), decided
+
+| # | Package | 02-design / shipped rule | Decision |
+|---|---|---|---|
+| 1 | Import into staging first | There is no staging database (§9) | The import report and the PGlite rehearsal are the staging step; the content's version state is never used as staging (§1.7). |
+| 2 | Publish reviewed mappings only | Draft rows may stay in a published version, hidden, never counted (§9) | Ours: the package's intended outcome holds (no draft is counted or shown as work). |
+| 3 | 0–4 grades and 0–100 indices as the numeric model | Categorical relationships; no fractional accounting (§3) | Ours. Grades are not imported (§2.3). |
+| 4 | A strapped bout loses all its credit (`reference_engine.py:91-93`) | Only grip mappings marked `requiresNoStraps` withhold credit (§3) | Ours: it is closer to the package's own §7.3 ("a reviewed assisted variant or unknown grip contribution"). |
+| 5 | Per-side counts; an unknown side raises an error | Since 20 Oct, the owner's both arms as one | The owner's rule: the forearm counts each set once, whichever arm; "How this is counted" says so (`sideWordsFor(region).countedTogether`), which meets the package's "do not add left and right silently". The per-side paths stay dormant in the calculator, tested, used by no page (reconcile appendix). |
+| 6 | A conflicting duplicate segment is rejected | First record wins (`exposure.ts:529-534`) | Read once, and listed: from F1, "How this is counted" names any set id that arrived twice with different values (§7.1). Device data writes one record per set id, so only an import can produce one. |
+| 7 | Warm-ups kept as tendon exposure | Warm-ups excluded from totals (§3) | v1's rule and every v1 number unchanged; the tendon section shows marked warm-ups on their own line and says that the logger does not mark warm-ups, so logged ones are counted as work (§4.2, §4.4). |
+| 8 | Five buckets (supporting isometric and incidental grip apart) | Six categories; both are `incidental_isometric` | Ours. Each contribution's `parts` keep the relationship ("steadying", "grip"); the tendon section needs only target, hold and other. |
+| 9 | Optional symptom entries | "Notes: the session note that already exists … No new questionnaire" (§5) | Owner decision 1 (§10); recommended: no new store in this work. |
+| 10 | Tissue grade: the maximum mapped grade per bout per group | No such number | One count per area per bout, with one kind by priority (target, then hold, then other) (§4.2). |
+| 11 | Optional "+60 %" with its base numbers | — | No percentage anywhere (§4.4); the page's copy guard already forbids "%". |
+| 12 | Rep and hold ranges as configurable defaults | The page's edits write no prescription (`planChange.ts:26-33`) | Adopted as region data; the stack and the add sheet write them, shown and editable before saving (§5). The shipped rule, "Neither edit writes a prescription the athlete did not set" (`planChange.ts`) and "Nothing pins a default prescription" (09-page.md, Add or swap), becomes "… the athlete has not seen before saving". |
+| 13 | Weekly targets unset unless the user sets them; no 15+ default; no automatic 19-muscle escalation | The same (§5) | Agreed, and held by the stack: it adds sets only up to the athlete's number, spreads them by exercise and never by muscle count, and keeps the thumb drills at one set unless the athlete raises them (§3.3, §3.4). |
+| 14 | "Medial elbow", "lateral elbow" | Direction words: inner and outer (10-multi-region.md §8) | "Inner elbow", "Outer elbow" on the page; the package's words stay in the records' traceability fields. |
+| 15 | A deliberate hold is not repetitions or equal to dynamic sets (§3.2); a carry is a time-based stabilization record that does not become wrist-curl sets (§2.2) | Holds are their own category (§3) | Held by the stack: its total counts direct moving sets only; holds are a separate line, never added in, never cover a moving movement, and a carry gets no rep profile (§3.3, §5.1). |
+
+### 1.9 Defects in the package, for the owner
+
+- fa-45 and fa-46 make FDS and FDP deliberate holds inside compound exercises, against the package's own §4; fa-49 credits finger-flexor steadying with flat palms.
+- fa-45, fa-46 and fa-49 list A02 twice among their sources; there is no S01.
+- All seven rep profiles cite the same five sources, whatever the task family; none of them gives the ranges.
+- `reference_engine.py:153` takes the median of the last four prior weeks; START-HERE §6.2 says the preceding complete windows. The app follows the engine and says what "known" means (§4.2).
+- §10's test command fails as written under `python3 -I` (§1.1); §4.1's coverage gap describes the package, not the app (§1.1).
+
+## 2. Vocabulary: the package's words in the app's
+
+### 2.1 Cells
+
+| Package (grade · bucket · contraction) | App mapping (relationship · mode) | Category (`categoryFor`, `rules.ts:50-62`) |
+|---|---|---|
+| 4 · direct_dynamic · dynamic | direct · dynamic | `direct_dynamic` |
+| 4 · deliberate_isometric · isometric | direct · isometric, on a variant with `deliberateHold` | `deliberate_isometric` (on a variant that is not a deliberate hold it would be `incidental_isometric`, which is why fa-45/46 are referred, §1.2) |
+| 3 or 2 · supporting_dynamic · dynamic | contributing · dynamic (the grade is kept only in the import report) | `contributing_dynamic` |
+| 2 · supporting_isometric · isometric | **stabilizer** · isometric where the muscle steadies a joint; incidental where it holds the implement (FPL, §1.3); never contributing (contributing isometric on a deliberate-hold variant is a deliberate hold, `rules.ts:60`) | `incidental_isometric` |
+| 2 · incidental_grip · isometric | incidental · isometric, `requiresNoStraps` where a strap takes the grip | `incidental_isometric` |
+| null · unmodeled | no row (a node with no reviewed row in the version is drawn hatched; "unmodeled" is not our `unknown`, which is a row whose relationship or mode is unknown) | — |
+| (none) | any · mixed | `mixed` |
+
+- **Allocation.** The package grades FDS and FDP each 4 in a grip and PT and PQ each 4 in pronation. The app writes such rows `allocation: "shared"`: the work cannot be split between them, and the page says so. Nothing in the package changes that.
+- **Action, basis, sources.** The package names no joint action per cell and cites sources per record without locators; every app row names one node action, a basis (anatomy, inference or emg, by the builder's convention, §1.3) and sources with a locator and a limitation. Lane V1 writes them per row.
+- **Contraction.** `dynamic_concentric_eccentric` is mode `dynamic`; `phase_dependent` (Zottman) is v1's withheld rotation; the package's `required_context` (straps, parent bout, reps or seconds, effort) is the set's `straps`, stages, `reps` or `holdSeconds`, and `effort`. Its `side` is read as both arms as one.
+- **Context flags** (thick handle, towel, lever arm, device-specific or unquantified resistance, ballistic, closed chain) are not attributes: the lever arm is in 405–408's definitions, the rest describe set-ups no variant here has.
+- **Labels.** The package's default labels Target, Contributor, Stabilizer are the app's direct, contributing and stabilizer; the page's words stay as shipped.
+
+### 2.2 Muscles, tissue and groups
+
+| Package | App |
+|---|---|
+| muscle (mesh id, `flexor-carpi-radialis`) | node `forearm.fcr`, by the R0 table; `main`'s 3D identity adapter already holds the same twenty rows |
+| `tissue_units`: `<muscle>-musculotendinous-unit` | the node itself; no new record |
+| `regional_groups` (11, one per muscle, by origin) | a traceability field (`packageGroups`) on each node's tendon-area membership; the areas the page shows are the app's, by every attachment of each muscle (§4.1) |
+| `attachments_summary` | the reviewed membership records of §4.1, with their own sources |
+| `applicability` (PL may be absent) | PL's existing caveat; no deficit wording anywhere (§3.11, §4.4) |
+| function and appearance text | the app's reviewed claims; the package's text is not imported |
+| anconeus (outside its 19) | `forearm.anconeus`, adjacent, unmapped, hatched, as shipped; in no tendon area |
+| `prescription_profile_id` | a variant's rep profile, region data (§5) |
+| `publication_status`, `canonical_alias_of`, `original_candidate_number` | the import report only |
+| Manus `MuscleData` fields | `main`'s `viewerData.ts` adapter already maps them from the page's one summary (directDynamicSets, supportingExerciseExposure from contributing bouts, holds and seconds with `null` for unrecorded time, incidental, `dataStatus` so a zero is never shown for unknown); the stabilizer and incidental parts stay apart in the ledger, never summed into one dose |
+
+### 2.3 Not imported, and why
+
+- **The 0–100 targeting index, as a displayed number or a colour input.** An editorial rubric with low confidence (the package's §3.1); any number beside a muscle reads as a magnitude, which 02-design.md §3 rules out ("The raw categories are the published model"). The import report shows each cell's grade beside the app's decision for traceability; no screen, store, table or calculator holds it.
+- **`plausible_grade_band`.** Not a confidence interval, by the package's own words; shown, it would read as one.
+- **Any percentage**: `measured_activation_percent`, `validated_tendon_risk_percent`, `tissue_force_newtons`, `tendon_injury_susceptibility_score` (all null in the package), the workload change as a percentage, and any percentage of growth (the shipped "40 % of your target" stays, 02-design.md §5).
+- **`tissue_exposure_grade_0_4`.** Replaced by one count per area per bout (§4.2).
+- **RIR as a number.** The package asks to store reported RIR; the logger's effort field is "failure / not to failure / not said" (`types.ts:649`). Adding RIR is a logger change outside this ask; the rep guidance says "Stopping 1 to 3 reps short of failure is a common starting point, not a rule" as words, not as a field (§5.3).
+- **The engine's behaviours that contradict ours** (§1.8, rows 4–6).
+
+## 3. The stack designer
+
+### 3.1 What it does, and the rules it keeps
+
+The athlete chooses one number: how many direct forearm sets a week they want, both arms as one. The app shows what the plan week already trains directly, designs a stack that reaches every main action of every forearm muscle the reviewed catalog can train directly, places it on the plan's days, shows the change in planned totals right under the number, and adds it to the plan in one tap with one Undo. It keeps every rule of the page: reviewed mappings only, read through `categoryFor`; distinct sets, never summed muscle sets; planned and completed apart (it reads and writes the plan week only); targets the athlete's own; no growth promise; nothing written before Add.
+
+What it means by "the needs of the muscles", and nothing else: (1) the athlete's own unmet targets; (2) the main actions the plan week gives no direct work. Beyond those, no muscle needs more sets than another as far as any source shows, so the rest of the athlete's number is spread evenly over the stack's exercises, never by muscle count. No per-muscle set number, no "small muscles need more", no flexor-to-extensor ratio, no grade, no tendon budget: none has a source (the package's §5.1).
+
+### 3.2 Where it sits on the phone
+
+Designed at 390 × 844; checked at 375 × 667, 430 × 932 and 320 wide (no sideways scroll). Every control is visible at rest, outlined or filled, at least 44 × 44 px, nothing hover-only or faint; text inputs are 16 px.
+
+- **Its own card, directly under the map.** A `<details>` card (`.spz-card`) right after the map card (`spz-map`, the 3D model or the drawing) and before "Muscles, most direct work first", in both modes. The map card ends below the first screen at all three sizes (`mapBottom` 1,066, 956 and 1,116 px at 390, 375 and 430 on `main` at 4dac1ae, critic-phone-v2 `measure.json`), so the first screen does not change. Closed, its summary is two lines: "**Design a stack**" and "Plan Week 1 · 3 direct moving sets now" (after Add: "Your stack: 14 direct moving sets in Week 1").
+- **Ways in from where the athlete is.**
+  - The 3D model's panel with nothing selected (`ModelMusclePanel`'s Overview state) and the drawing's no-selection strip gain an outlined 44 px **Design a stack** button beside **See these sets**. It opens the card and brings it into view clear of the dock and the sticky row (`reveal.ts`).
+  - In Planned mode only, "Coverage to review" gains "11 movements have no direct moving work in Plan Week 1" with **Design a stack**. It is not shown in Completed mode, where it would put a planned item at the head of a list about logged sets.
+- **Which plan week.** In Planned mode, the page's plan week; in Completed mode, the week being trained (`trainingWeekFor`), with "Built from your plan as written; sets you logged are not counted here." A week that is not built: "Build Plan Week 2 in Plan first." and no controls.
+- **Open, in this order.** The number, its effect and Add come first and fit on one screen; the detail follows.
+  1. **Lede, one line:** "Pick a weekly number; the app chooses the exercises and puts them on your plan days."
+  2. **The total.** The label "Direct forearm sets a week"; − and + as the page's `.spz-icon-button` (2.75 rem, 44 × 44, `specialization.css:157`) around a 16 px number field (`inputmode="numeric"`, `enterkeyhint="done"`). Under it, one line in the control's own unit: "From 3 (your plan's own) to 30 · about 28 fit your gym time". On first open, the starting sentence (§3.3) under that.
+  3. **What changes**, directly under the control: "Direct moving sets 3 → 14 · muscles with direct work 1 → 16 of 19"; when holds are in, "Holds: + 2 (60 s), not part of the total"; when a day goes past its gym window, "1 day over your gym time" (said, no colour).
+  4. **Add**, the one primary button, full width, 48 px: "**Add 11 sets (11 exercises, 3 days) to Week 1**". Under it: "Your own exercises and their sets stay as they are." Nothing is pinned to an edge, so no safe-area padding is needed; if a review ever makes it sticky, it pads with `env(safe-area-inset-bottom)` above the dock.
+  5. **The days**, one line each for every day the stack changes: "Day 01 · Push: +4 · 5 → 9 exercises · about 48 of your 60 min, plus about 2 min for the second arm on one-arm sets" (§3.4, Time). A day the stack pushes past its planning band or its gym window then quotes the Plan's prompt, prefixed with its day: Plan, about Day 02 · Pull: "The current estimate is about 64 minutes, above your 60 min gym window." (§3.5).
+  6. **The stack, by day.** A heading per day, then one row per exercise, each a full-width button at least 44 px tall: "Wrist Curl · 1 × 10–25" ("· each arm" on a one-arm exercise). A tap opens the row in place (`aria-expanded`), one row open at a time:
+     - the muscles it gives direct work, by the page's names: "Direct work for flexor carpi radialis and flexor carpi ulnaris"; where the work cannot be split, "Direct work for pronator teres and pronator quadratus (shared; the evidence does not split it)";
+     - why it is here, in plain words: "None in your plan this week"; "Toward your target: 3 of 8"; "More sets: the rest of your number, spread evenly over the stack's exercises"; on a thumb drill, "One set: these drills are for coverage, not volume. Raise it here if you want more.";
+     - three controls on one line from 307 px of content width: **Sets** (− n +, 44 × 44 each, 1 to 3 a session), **Change** (§3.6), **Leave out** (labelled "Leave out wrist flexion (2 days)" when the movement has rows on more than one day).
+  7. **Settings**, a closed row whose summary shows the current values: "Settings · 3 days · 4 forearm exercises a day · holds off". Open: **Days** (a chip per plan day, `aria-pressed`, all on by default); **Forearm exercises a day** (− 4 +, 1 to 6, the plan's own forearm exercises with direct work included); **Holds** (Off · On; on by itself, and said, when a hold target exists). Each states its effect as it changes.
+  8. **See each muscle** (closed): before → after for every forearm muscle, from `previewPlannedChange`, as PlanChangeSheet renders it, and the athlete's targets after.
+  9. **Not in this stack**, one sentence per reason (§3.11), each left-out movement with **Bring back**.
+  10. When About me's area question for the forearm (`capacityTargetForMuscle.forearms`, `areaQuestion.ts:91`) says anything but "Feels fine": "You told the app your forearms are bothering you now (About me). You can start lower or leave movements out." Nothing in the design changes because of it, and it gives no medical advice.
+  11. **How the stack is built** (closed): the rules of §3.4 in plain words, §5.3's sentences, and "A set here is what the rest of this page calls a bout: one set, and a drop set counts once."
+- **Acceptance (lane S4):** at 375 × 667 and 390 × 844, with the total control scrolled to just under the sticky row, the control, the What changes line and the Add button are all on one screen above the dock, for plan A (3 days) and plan C (5 days); measured and screenshotted. Rows are one line closed (11 rows of plan A about 11 × 52 px, against 2,256 px for the draft's open rows, critic-phone-v2).
+- **After Add:** the card shows "Added 11 sets to Plan Week 1 · **Undo**" with focus on Undo, and the toast says the same with its Undo. From then its summary reads "Your stack: 14 direct moving sets in Week 1". Open, it offers **Change the total** (designs again; adding replaces the stack's own entries that are still as it wrote them, one batch, one Undo) and **Take it out** (acts at once, Undo). For any other built plan week without a stack, the card says "Your stack is in Week 1, not Week 2 · **Design for Week 2**", which opens the full design for Week 2 (its rows, its What changes line, its own Add and Undo), starting at the athlete's last total for the region; never a one-line add.
+- **Plan says so too.** When Plan generates a week ("Week N generated", `Home.tsx:1999`) and an earlier week holds a stack, the toast's description adds "Your forearm stack from Week 1 is not in it; design one on Specialize." with an action that opens the card for the new week. Plan builds each week fresh from the split pool (`Home.tsx:1985-1999`) and never copies a stack.
+- **Announcements** through the page's polite live region: "14 direct moving sets a week: 11 exercises over 3 days", and the added and undone messages.
+
+### 3.3 The total
+
+- **Unit: direct moving sets a week.** One shared, region-agnostic function, `directWorkCount(region, summary)` (`shared/specialization/directWork.ts`), counts it for the stack, the page's window line and the 3D panel alike: the distinct bout ids in the summary with a part that is a reviewed `relationship: direct` mapping read as `direct_dynamic` on one of the region's own target muscles, including a `mixed` contribution with such a part. Each bout counts once however many muscles it credits. On the forearm, both arms count as one: a set of a two-handed exercise counts once, and a set of a one-arm exercise counts once and is done with each arm (its row says "each arm"). Nothing in the total or the preview names a side, on any region.
+- **Holds are a second number, never added in.** The same function returns `holds`: distinct bouts with a reviewed `relationship: direct` part read as `deliberate_isometric` and no moving part, with their recorded seconds and the count with no time recorded. A contributing hold (the Zercher carry's brachioradialis, `categoryFor(contributing, isometric, true)` = `deliberate_isometric`, `rules.ts:60`) is neither direct moving work nor a direct hold; it stays on the muscle as the page already shows it. Grip, steadying and helper work are shown apart and never counted in either number.
+- **The page shows the same number in the same words.** In Planned mode the window line becomes "Plan Week 1, as written: 21 bouts planned · 3 direct moving sets", and the 3D panel's Overview line "21 distinct bouts are planned for the forearms in Plan Week 1; 3 are direct moving sets." After Add, the Add confirmation names the number the page will now show ("The page now shows 14 direct moving sets for Plan Week 1").
+- **Range:** from the plan's own direct moving sets (the stack adds; it never removes or edits the athlete's entries) to the most the settings can place (§3.4, "Rules"), at most 60, a guard against typing errors. Said under the control: "From 3 (your plan's own) to 30 · about 28 fit your gym time". Raising a setting raises the top.
+- **Typing.** − and + commit at once. The field commits only on blur, Enter or the keyboard's Done, and clamps then; while the athlete types, the design stays as it was. A value out of range is said in place ("The lowest is 3: your plan's own."; "These settings place at most 30.") and is never replaced mid-typing.
+- **Starting value**, when no stack exists for the week: the plan's own direct moving sets, plus what the athlete's unmet moving targets take, plus one set for each movement the plan does not train directly and the athlete's equipment can reach, but never above what fits the days' gym windows. Said every time, built from its two numbers: "It starts at 14: your plan's 3, and one set for each of the 11 movements your plan does not train directly yet. No number suits everyone; change it any time." When not every movement fits the settings, it says how many do ("… for 10 of the 11 movements; one does not fit at 4 forearm exercises a day"). With a stack already added, it starts at that stack's total; for another week, at the athlete's last total for the region.
+- **What the total never is:** a goal (it writes none), a muscle's number, a recommendation, an optimum, or a step in a progression. It never rises by itself. The Plan's general cue "Approximately 10 weekly hard sets per muscle" (`workoutPlanner.ts`, Muscle growth's `weeklyVolumeCue`) is not read by the stack and never shown beside it.
+
+### 3.4 The algorithm
+
+All of it is pure, deterministic and region-agnostic (`client/src/lib/specialization/stack.ts`), ported from the prototype, which ran with these rules on the real catalog, the real forearm data and the reconcile's calculator (`architect-v3/`).
+
+**Model, from region data, cached per region and mapping version:**
+- **Slots:** each own target muscle's prime node actions, in two modes: *moving* and *hold*. The forearm has 24 prime node actions.
+- **Coverage, per mode:** a variant covers a moving slot when a reviewed mapping in the region's current version, on that node and action, has `relationship: direct` and reads as `direct_dynamic` through `categoryFor`; it covers a hold slot when such a mapping has `relationship: direct` and reads as `deliberate_isometric`. A hold never covers or serves a moving slot, and a moving set never serves a hold slot. Draft rows are never read.
+- **Movements:** slots of one mode covered by exactly the same variants form one movement, so shared rows stay together (FDS and FDP; PT and PQ; EPB and EPL; the radial and ulnar deviation groups). Each is named by its action's label, with "(hold)" for a hold movement. The forearm has 12 moving movements and 2 hold movements (finger flexion and thumb flexion).
+- **Gaps:** moving slots no reviewed exercise covers. The forearm's three: palmaris longus's palmar fascia tension, extensor digiti minimi's little-finger extension, extensor indicis's index-finger extension, each with the reviewed exercises that credit the muscle as a helper.
+- **Candidates:** the variants that cover at least one slot, filtered as `recommendFor` filters them (`recommendations.ts`: reviewed rows through `categoryFor`, the athlete's exclusions under "What is suggested", the equipment profile through `equipmentMatchesProfile`), so the stack and "Add targeted exercise" can never disagree about what counts. Hold candidates join only while Holds is on.
+- **Coverage-only variants:** a variant whose reviewed family says it is for coverage, not volume, carries `coverageOnly` in its rep-profile assignment (region data, §5.1). On the forearm: 412, 413 and 414, the thumb drills (`05-mappings.md:91`, "Small-muscle coverage, not high-volume defaults"; the package's §4.1 calls such drills "not automatically imported prescriptions"). 404 Band Finger Extension is not flagged: its reviewed family says nothing of the kind.
+
+**Inputs:** the plan week (slots, entries, prescriptions, the training goal and gym time), its planned summary as the page reads it (side `both`), the athlete's active targets for the region, the equipment profile and exclusions, the settings, and the athlete's row edits.
+
+**Needs, in this order**, each read from the plan week as the calculator counts it:
+1. **The athlete's unmet targets** for the region in the plan week, in their own units. A direct-dynamic-bouts target takes direct moving sets of a movement crediting that muscle or movement, from the total. A hold-bouts or hold-seconds target takes hold sets, outside the total (holds turn on, and the section says so). A seconds target is filled in holds of 30 s whatever the training goal, at most 3 sets a session and 2 sessions a week (a 120 s target is 4 × 30 s, 2 + 2); what that cannot reach is said once ("Toward your 300 s target: these settings place 180 s; 120 s short."). A target no reviewed exercise can fill is said once, as `targetNote` says it today, never as a shortfall.
+2. **Every reachable movement with no direct work of its mode** gets one set: every moving movement the plan week does not train with a direct moving set, and, while Holds is on, every hold movement it does not train with a direct hold. A plan's own carry or hang never removes a moving movement from the design. Order: the movement that gives direct work to the most muscles still without any first, then the region's action order.
+3. **The rest of the total, spread by exercise:** each further set goes to the kept moving exercise with the fewest sets in the stack, ties to the one earlier in need order. A coverage-only exercise stays at its one set unless the athlete raises its row or a target asks for it. An exercise whose every direct muscle has already met the athlete's target of that kind gets no further set (02-design.md §8: nothing is suggested only to raise a number). Nothing is weighted by how many muscles a movement reaches.
+4. **The athlete's row edits** are kept: + on a row raises the total by one, and a changed total re-spreads only the rows the athlete did not set.
+
+**Exercise for each movement:** the fewest candidates that cover every movement in play, found exactly over the candidates' distinct cover patterns (2,047 to 16,382 subsets in the prototype's scenarios; greedy above 20 distinct patterns). Ties go, in order, to: direct moving work before holds; an exercise not already in the week; not a whole-body task (a carry, `movement: "Loaded carry"`); two-handed or either-arm before one-arm (a one-arm set is done with each arm in the time the plan counts as one); the lower catalog id. The chosen exercises are ranked by need, so a small total keeps the most needed ones. One exercise per movement for the week, so the athlete repeats it and can compare sets.
+
+**Rules**, named scheduling choices, not doses:
+
+| Rule | Value | Why |
+|---|---|---|
+| Smallest entry | 1 set | So the starting total reaches every movement; a week can hold one set of a thumb drill. |
+| Sets of one exercise in a session | at most 3 | The Plan's own default for an accessory (`getGoalPrescription`: 3 sets after the first two exercises). |
+| Sessions of one exercise a week | at most 2 | Beyond that the athlete raises the per-day setting or adds days. |
+| Forearm exercises a day | 4 by default, 1 to 6, the plan's own forearm exercises with direct work (moving or hold) included | The athlete's setting. At 4 a 3-day plan has room for the 11 exercises plan A needs; a plan's own carry takes one of the places (§3.13, A with a carry). |
+| Never the same exercise twice in a day | hard | The Plan refuses a duplicate (`planChange.ts:37-39`). |
+| Time | the Plan's own estimate: sets × (1.05 + rest ÷ 60), 90 s rest (`getWorkoutDiagnostics`), against the athlete's gym time (`gymTimeBudget.ts`); plus, said beside it, 1.05 min for the second arm of each one-arm set | So the stack and Plan show the same minutes, and the second arm's work is not hidden: Plan counts a one-arm set once. The stack prefers two-handed work in ties for the same reason. |
+
+**Days.** An exercise's weekly sets are split into sessions of at most 3. Hard: an allowed day, the per-day cap, never a day that already holds that exercise. Then, in this order: keep each day within the athlete's gym window; keep one muscle's direct work off neighbouring days of the plan's cycle where the days allow (the plan carries no dates, 02-design.md §4; neighbouring plan days are the likeliest to be close in time, and in a 3-day plan every pair is neighbours, so this only breaks ties); even out the minutes the stack adds per day. Placement is greedy (most-muscle sessions first), then moves and swaps until none helps, then a branch-and-bound search seeded with that placement's cost and stopped at 5,000 nodes, which keeps any better placement it finds. In the prototype the local search alone missed the best placement in 5 of 20 runs (one or two muscles left on neighbouring days); with the seeded search the result equalled the full search's best in every run where the full search finished, and in the one run where neither finished (B at 20) it left one more same-muscle pair than the longer search, at about 15 ms more on the sandbox (`architect-v3/seeded-output.json`). Within a day, the stack's entries go after the plan's own, in the order elbow, wrist, rotation, fingers, thumb, holds last (a tired grip limits the rest).
+
+**Prescriptions** (§5): the session's sets × the variant's rep profile: the strength range when the training goal is Max strength and the profile has one (not band drills, not the thumb), the growth range otherwise. A hold is written as one number because the plan counts a range by its low end (`planBouts.ts:62-71`): 30 s when it serves a seconds target, whatever the goal; otherwise the profile's written number for the goal (30 s, or 10 s under Max strength). A variant with no rep profile takes the goal's default for its position, as every plan entry does.
+
+**The count it promises** is the shared function's: after applying, the page's planned direct moving count equals the total. On the reconciled branch `planBouts` writes one bout per planned set (`…/n`, recorded `both` by plan assumption), so a one-arm set counts once, as the total does; `stack.test.ts` asserts it for a one-arm and a two-handed exercise.
+
+### 3.5 Preview
+
+Recomputed after each committed change (a − or +, a typed value committed, a setting, a row edit), in planned totals only:
+- the region's direct moving sets before → after; target muscles with direct moving work before → after; holds and their seconds as their own line; each changed day's exercise count before → after and its minutes, with the second arm's minutes beside them;
+- every forearm muscle's direct, hold, helper and incidental counts before → after, under **See each muscle**; the athlete's targets after ("Flexor carpi ulnaris: 8 of your 8");
+- for each day the stack changes, the Plan's own day reading from `getWorkoutDiagnostics` before and after, and any prompt the Plan will newly show, quoted in its own words and prefixed with its day, since Plan calls a day's list a "stack" (`workoutPlanner.ts:137, 143`): Plan, about Day 01 · Push: "24 planned work sets is above this goal's current 11–20 planning band. Confirm that the added volume has a clear purpose and remains recoverable." The stack never hides what Plan will say, and never colours it.
+
+### 3.6 Adjust
+
+- **Sets** on a row: − and + (1 to 3 per session), `.spz-icon-button`, never the Plan's `.set-stepper` (its buttons are 42 px wide and fade to 35 % at a limit, `mobile-training-card.css:116, 147`). At a limit the button keeps full contrast, is `aria-disabled`, and says why in place ("1 is the fewest; use Leave out."). The total follows.
+- **Change** opens the row's choices in place, never a sheet: **Day** chips (the allowed days with room, the current one pressed) and **Exercise** chips (the other reviewed candidates for this movement that the athlete's equipment allows, each with its equipment, "Cable Wrist Curl · Cable"). Picking one changes the design, not the plan, and the preview updates. A movement with one candidate says so.
+- **Leave out**: the movement leaves this design at once, every row of it, and **the total drops by its sets**; nothing is re-spread, so no other row changes. The Undo line says both: "Thumb abduction left out · total 14 → 13 · Undo" (focus on Undo). Left-out movements are listed under "Not in this stack" with **Bring back**.
+- **Settings**: Days, Forearm exercises a day, Holds (§3.2).
+- Nothing is written to the plan by any of these.
+
+### 3.7 Add, Undo, and changing it later
+
+- **Add** is one batch. A new pure function, `applyPlanBatch` (`planChange.ts`), builds every touched day from `applyPlanChangeToRecord` and three new change kinds: `remove` (for **Change the total**, **Take it out** and the tendon section's **Take out**), `sets` (an entry's set count, for the tendon section's **−1 set**) and `move` (one entry to another day, as a remove and an add in one batch). It either returns every day's record and its revert, or refuses the whole batch with the first reason; nothing is written on a refusal. The batch type `SpecializationPlanBatch` goes beside `SpecializationPlanChange` (`viewState.ts:150-170`), each change carrying its `prescription`, which the shipped type already has and `applyPlanChangeToRecord` already honours.
+- **Home** gains `applySpecializationChanges(batch)` beside `applySpecializationChange` (`Home.tsx:1544`): refused with a reason if the plan is still loading, the week is not built, or any change fails; otherwise it writes each touched day once through `editDayInWeek` (`Home.tsx:1526`) and shows one toast (id `plan-add`): "Added 11 sets: 11 exercises on Day 01, Day 02, Day 03 of Week 1", description "Your own exercises are unchanged.", with Undo. Undo runs every day's revert, in reverse order, on the days as they stand then, through the ref, as today's Undo does. The page receives it as `onApplyPlanChanges`.
+- **No confirm dialog anywhere**: Add, Leave out, Take it out and Change the total act at once and offer Undo (CLAUDE.md).
+
+### 3.8 Existing plan entries, targets and "Add targeted exercise"
+
+- **The athlete's entries** are counted, never edited, moved or removed by the stack. An exercise already in a day is never added to it. An entry the athlete added with "Add targeted exercise", or changed after the stack added it, is the athlete's from then on, and the stack counts it as the plan's own. (The tendon section edits a planned entry only when the athlete taps one of its actions on that entry, §4.3.)
+- **Targets** come first (§3.4); the stack never writes, raises or ends one. A target already met takes no target-driven set.
+- **"Add targeted exercise"** and the add sheet keep working as shipped, with one change: their default prescription comes from the rep profile (§5.2). The stack's candidates are the recommender's, so a movement the muscle sheet would suggest is the movement the stack fills.
+
+### 3.9 The stack record
+
+A device record per account, `scopedKey("sports-genome-specialization-stacks-v1")`, in `stackStore.ts` on the `stores.ts` pattern (validated on load, entries it cannot read kept and written back untouched, tolerant of corrupt or refused storage, a refused write said). Two parts:
+- **Per region:** `{ regionId, total, settings, updatedAt }`, the athlete's last chosen total and settings, used to start a design for another week.
+- **Per stack:** `{ id, regionId, planWeek, mappingVersion, total, createdAt, settings, entries: [{ dayKey, catalogExerciseId, prescription }] }`. It lets **Take it out** and **Change the total** remove exactly the entries the stack wrote that are still as it wrote them (same exercise, day and prescription), listing any the athlete changed as theirs. An entry no longer found (a day removed from the split) is skipped.
+
+It holds no side. It is never synced and never in a share card; on another device the stack's entries are simply plan entries, and the card says "Added on another device or edited: counted as your plan's own." If storage refuses, Add still works and the card says it cannot take the stack out later.
+
+### 3.10 Region-agnostic, and fetched when opened
+
+- **Reads only region data:** target nodes, prime node actions, the current version's reviewed mappings, variants, rep profiles and their assignments (with `coverageOnly`), wording, `bodyMapKeys` (for About me's area answer).
+- **Opt-in by data, loaded lazily.** A region's content carries one small flag, `sections: { stack?: true; tendonExposure?: true }`. The page renders the closed card for a region whose flag is set; the code (`StackDesigner.tsx`, `stack.ts`, `stackStore.ts`, the batch code) and the region's rep profiles and `referenceSources` are fetched when the card is first opened, as `ForearmModelView` is today. A region-agnostic loader, `client/src/lib/specialization/regionExtras.ts`, finds `regions/<id>/repProfiles.ts` and `regions/<id>/tendonAreas.ts` with `import.meta.glob`, so adding a region's file is all a later wave does; a content test requires the flag exactly where the file exists. The add sheet and a muscle sheet's suggestions fetch the same small profile chunk when they first open, showing "Loading starting ranges…" until it arrives, never a default presented as the profile's.
+- **New optional fields** on `RegionContent` and `SpecializationRegionData`, passed through `compose.ts`: `sections`; and on the lazily loaded extras, `repProfiles`, `repProfileAssignments`, `tendonAreas` (F2) and `referenceSources` (sources cited only by them, which the seed never writes).
+- `directWork.ts`, `stack.ts`, `stackStore.ts`, `regionExtras.ts`, `StackDesigner.tsx` and the batch code are in the region-word scan (`regionAgnostic.test.ts`); task-family names ("wrist", "rotation") are region data, never code. `stack.test.ts` runs on the forearm and on the deltoid fixture, which gains two rep profiles; `SpecializationPanel.deltoid.render.test.ts` renders the card with no deltoid code; no fixture region's total, preview or announcement contains a side word.
+
+### 3.11 What it says when it cannot
+
+| Case | What the card says (forearm, prototype numbers) |
+|---|---|
+| Total below what reaches every movement | "Left out at this total: supination, thumb abduction, …. Raise the total by 4 to reach them." The kept movements are the most needed. |
+| More than the settings can place | "These settings place at most 30. Allow another day or more forearm exercises a day to place more." The + stops at the top, at full contrast, with that sentence. |
+| Too few days or a low per-day setting | "With 3 days and 4 forearm exercises a day, 1 movement does not fit (ulnar deviation). Allow 5 a day to reach it." (A with a carry, where the plan's Farmer's Walk takes a place on Day 02.) |
+| Holds on, no room | "Holds: no room at 4 forearm exercises a day. Allow 5 a day to add Plate Pinch." (A with holds on.) |
+| Days over the gym window | Each such day says "about 64 of your 60 min" and quotes the Plan's prompt with its day (§3.5); "1 day over your gym time" in What changes; no alarm colour. The total is allowed. |
+| No equipment for a movement | One sentence per movement: "Lever Pronation needs dumbbells (not in your equipment)"; "Gripper Close: you chose Not for me". |
+| Bodyweight only | "No moving forearm exercise fits your equipment. Turn on Holds to add a hang." With Holds on: Dead Hang 1 × 10 sec under Max strength, as a hold, the total staying 0. |
+| Main actions no reviewed exercise trains directly | "No reviewed exercise trains these directly, so the stack cannot give them direct sets: palmaris longus (tensing the palm), extensor digiti minimi and extensor indicis (straightening the little and index finger on their own). Band Finger Extension and the wrist curls work them as helpers." PL adds "Palmaris longus is missing in some people." Never "untrained", "weak", "deficient" or a warning. |
+| A target no exercise can fill | `targetNote`'s sentence, once, never as a shortfall. |
+| A seconds target beyond the caps | "Toward your 300 s target: these settings place 180 s; 120 s short." |
+| A total below the plan's own | "Your plan already has 6. The stack never removes your own exercises." Nothing is added. |
+| The plan is loading, or the week not built | "Your plan is still loading." / "Build Plan Week 2 in Plan first.", with no controls enabled. |
+| A gripper filed as "Free weights" | The row's open text says "Needs a hand gripper", from the exercise's own definition. |
+
+### 3.12 Cost
+
+On the sandbox's 2.1 GHz Xeon under Node (not a phone), with this note's rules on the reconcile's calculator: 1.6–31 ms per design across the prototype's scenarios, most of it the planned summaries before and after, plus up to about 15 ms for the seeded placement search (`architect-v3/`). Coverage depends only on the plan and is cached per plan revision. Gate: on the page, a − or + to the updated What changes line under 100 ms in headless iPhone emulation at 390 with a heavy plan (7 days × 8 exercises × 4 sets), reported as emulation.
+
+### 3.13 What the prototype found with these rules
+
+The real catalog and forearm data, the reconcile's calculator at `87b5f9a` with side `both`, plans seeded as Home stores them, targets saved once with no arm (`architect-v3/run.ts`, output `architect-v3/stack-prototype-output.md`). Muscles counted are the 19 own target muscles with direct moving work.
+
+| Plan | Start (own + added) | Adds | Days after (Plan's estimate, of the gym window; second arm beside) | Muscles with direct moving work |
+|---|---|---|---|---|
+| A: 3 days, 60 min, Muscle growth, commercial gym, Hammer Curl on Day 03 | 14 (3 + 11) | 11 exercises, 1 set each: 4, 4, 3 a day; exercises a day 5 → 9, 9, 8 | 48, 48, 46 of 60 (+2, +3, +3 min) | 1 → 16 of 19 |
+| A at 8 | 8 (3 + 5) | the 5 most needed: Lever Pronation, Finger Curl, Wrist Curl, Band Thumb Extension, Reverse Wrist Curl; 6 exercises listed as left out, each with what it would reach | 43, 43, 41 | 1 → 12 |
+| A at 30 (the top: "about 28 fit") | 30 (3 + 27) | every non-thumb exercise 3 sets, the three thumb drills 1 each | 58, 64, 61 of 60: two days over, said and quoted | 1 → 16 |
+| A at 40 | the + stops at 30 | as at 30, with "These settings place at most 30" | — | — |
+| A, holds on | 14 | as A; Plate Pinch does not fit at 4 a day, said | as A | 1 → 16 |
+| A plus a Farmer's Walk on Day 02, holds off | 13 (3 + 10) | Finger Curl is still added (the carry's hold covers no moving movement); Lever Ulnar Deviation does not fit (the carry takes a place on Day 02), said | 48, 54, 46 | 1 → 16; holds 3 → 3, apart |
+| A with the Hammer Curl replaced by a Zercher Carry | 12 (0 + 12) | Hammer Curl among them: the carry's brachioradialis credit is a contributing hold, never direct; 4 a day | 48, 48, 48 | 0 → 16 |
+| B: 4 days, 75 min, targets FCU 8 direct, FDS 120 s of holds, supination 6 | 23 (0 + 23), holds + 4 apart | 13 exercises: Wrist Curl 3 + 2 and Lever Ulnar Deviation 3 (FCU 8), Lever Supination 3 + 3, Plate Pinch 2 + 2 × 30 sec (FDS 120 s), Hammer Curl 1 (the plan's Barbell Curl credits BR only as a helper), the rest 1 each | 53–66 of 75 | 0 → 16; every target met |
+| B under Max strength | 23, holds + 4 | the same exercises at strength ranges; Plate Pinch still 2 + 2 × 30 sec for the seconds target; thumb drills keep 12–25 | 58–71 of 75 | 0 → 16; every target met |
+| C: 5 days, 45 min, Athleticism, at home | 14 (3 + 11) | 11 exercises over all 5 days, 2–3 a day; among them the barbell Wrist Curl and Reverse Wrist Curl, because the catalog files 139 and 140 as "Free weights" (§10, decision 5) | 33–44 of 45 | 1 → 16 |
+| D: 2 days, 30 min, Max strength, bodyweight only, holds on | 0 | Dead Hang 1 × 10 sec as a hold; every moving movement "needs equipment" | 23 of 30 | 0 → 0 moving; 2 with a direct hold |
+| E: 1 day, the plan has 6 direct moving sets, total set to 4 | 6 | nothing: "Your plan already has 6" | — | — |
+| F: targets no reviewed exercise can fill (PL, FCR seconds, EDM), thumb and finger groups left out | 9 (3 + 6) | the six wrist and rotation exercises; each impossible target said once | 43, 43, 43 | 1 → 9 |
+
+With the draft's rule (sets evened out muscle by muscle) plan A at 30 gave the three thumb drills 3 sets each, 9 of the 27 added (critic-evidence-v2 `evening_sim.py`); with this note's rule they keep 1 each and the 24 others go to the eight other exercises evenly.
+
+## 4. Tendon exposure
+
+### 4.1 Data
+
+**Areas, by every attachment of each muscle.** A muscle belongs to the area of each place it attaches: where it starts and where it ends. So a wrist curl counts at the inner elbow (where FCR and FCU start) and at the wrist (where they end), and a hammer curl counts at the outer elbow (where the brachioradialis starts, on the ridge above the outer epicondyle) and at the wrist (where it ends, at the radial styloid). The package's eleven groups are by origin only; used as the areas, they would put no wrist curl in a wrist view (scout 4's prototype: 0 in "wrist and thumb" after six wrist-curl sets). Each muscle keeps its package group id as a traceability field.
+
+| Area | Groups (rows inside the area) | Members |
+|---|---|---|
+| Inner elbow | Common flexor origin | PT, FCR, PL, FCU, FDS |
+| Outer elbow | Common extensor origin · Ridge above the outer elbow · Supinator | ECRB, ED, EDM, and ECU (member draft) · ECRL, BR · supinator (draft) |
+| Wrist and thumb | Front of the wrist · Back of the wrist · Thumb side of the wrist · Thumb · Radial styloid · Above the wrist, deep | FCR, FCU, PL · ECRL, ECRB, ECU · APL, EPB · FPL, EPL · BR · PQ (draft) |
+| Fingers | Finger flexors · Finger extensors | FDS, FDP · ED, EDM, EI |
+
+- **Records.** `regions/forearm/tendonAreas.ts`: `TendonArea { id, label, description, groups: TendonGroup[] }`, `TendonGroup { id, label, members: TendonMember[], caveat }`, `TendonMember { nodeId, citations: {sourceId, locator, qualification}[], packageGroups, reviewStatus, reviewNote, singleSource }`. **Review status sits on each (group, member) pair**, so a draft membership keeps that one muscle out of that one group ("Not placed yet" for that group only) while the group's reviewed members count. Region-agnostic types in `shared/specialization/types.ts`.
+- **Evidence.** Each membership is reviewed under the standard by lane T2: every sentence against its excerpt; single-source memberships named in `regions/forearm/tendon-areas.md`. Found by search on 20–21 Oct:
+  - the common flexor origin at the inner epicondyle (A53, Radiopaedia);
+  - the common extensor origin at the outer epicondyle (A54, Radiopaedia; A54's recorded note says only that the group arises "mostly from the common extensor origin");
+  - **ECRL on the lateral supracondylar ridge**, cited to A27 (Kenhub ECRL, locator "Origin": the distal third of the ridge and the lateral intermuscular septum) and A28 (Elsevier Complete Anatomy, "inferior one third of the lateral supracondylar ridge"), both search summaries; Imaios reports a small contribution from the common extensor origin, which the group's caveat says. ECRL is never placed in the common extensor origin (the package's §6.1);
+  - **BR on the ridge and at the radial styloid**, A1 (StatPearls, NBK526110: origin on the proximal two-thirds of the lateral supracondylar ridge, insertion at the base of the radial styloid process), named single-source unless A3's excerpt agrees;
+  - FDP from the ulna and interosseous membrane; FPL from the front of the radius; APL and EPB sharing the first dorsal compartment; EPL around the dorsal tubercle of the radius (A55 and the library's Kenhub records).
+  - **Drafts until a second source agrees:** ECU's membership of the common extensor origin (sources differ on its ulnar head; ECU still counts at the back of the wrist), the supinator's ligament and crest attachments (only study aids so far), and PQ's place above the wrist (both its attachments are on the distal radius and ulna, A23; a second source is wanted).
+- **Why region data, not claims or tables:** §1.6. The page is the only reader; README's Limitations say the areas live only in the app's code. If a server ever counts tendon exposure, a later schema adds them.
+- **Content tests** (`forearmTendonAreas.test.ts`): every own target node is a reviewed member of at least one group or listed as not placed with a reason; the anconeus and the external members are in none; every node's `packageGroups` equals `muscles.json`'s `regional_groups` by code; ECRL is never in the common extensor origin, FDP and FPL never in the common flexor origin (the package's §6.1); every citation resolves with a locator; every single-source membership is named; no text uses a word from §4.4's list.
+
+### 4.2 Calculation
+
+A pure, region-agnostic `shared/specialization/tendonAreas.ts` over the shipped calculator's output; `getSpecializationSummary`, rule v1 and the golden summaries are unchanged.
+- **Per area and per group, over one summary** (the page's: side `both`, in its window and mode): the distinct bouts with a counted contribution on any reviewed member, each bout once per area and once per group, however many members it touched. One kind per bout: **target** if any member's parts include `direct_dynamic`; else **hold** if any include `deliberate_isometric`; else **other** (contributing, steadying, incidental, mixed or unknown). Areas overlap, so their counts are never added together, and the page says so.
+- **Hold time:** seconds once per hold bout from its segments, never per member; a hold with no seconds is counted as "no time recorded", never 0 s or an assumed time.
+- **Kept apart, never in a column or the change line:** strapped grip that was withheld (`notCounted`), when the set did nothing else counted in that area; pending-review rows; region-only sets (said once, at the section level); marked warm-ups.
+- **Warm-ups:** a second pass over the window's bouts marked as warm-ups with the flag cleared, summarized the same way and shown only as "Warm-ups: n sets, kept out of the counts above". The logger does not mark warm-ups (`deviceWorkoutLog.ts:63-64`), so the line appears only for imported ones, and the method note says that warm-ups logged as ordinary sets are counted as work.
+- **Weeks:** one summary per calendar week (the region's zone, DST-safe, `time.ts`) for the last complete week and the four before, plus the warm-up pass: six summaries, mounted on first open. Each week also carries its count of finished workouts.
+- **Change line**, per area and group, on the counted sets: the last complete calendar week against the median of the known weeks among the four before it, at least three known. A week is known when it has ended and at least one finished workout is logged in it; a week with none is left out, never counted as zero (the app cannot tell a rest week from an unlogged one, and says so). A week with one of four planned sessions logged is still known, so a partly logged week can lower the median; the method note says so, and the line shows each baseline week's finished workouts beside the median. States:
+  - **No finished workout last week:** "No finished workout logged last week; nothing to compare." and no numbers.
+  - **Fewer than three known earlier weeks:** "Building your baseline: 2 of the 3 earlier weeks needed have a finished workout."
+  - **Median 0 with sets last week:** "New".
+  - **Both zero:** "None last week or in the 4 weeks before".
+  - **Otherwise** the absolute change with both numbers, and "more than in any of those weeks" when last week exceeds every known week. No percentage, no ratio, no cut-off, no colour state.
+- **Planned mode:** plan-week totals per area only; no dates, no change line, no warm-ups.
+- Output carries the method id `tendon_areas_v1`, the mapping version and the rule version, shown in the section's own "How this is counted". The method is a TypeScript constant, not a rule version, and is not in the database.
+
+### 4.3 Display, on the phone
+
+- **Placement:** a closed disclosure, **Tendon exposure**, after "Exercises in this window" and before Targets; its code and data are fetched on first open and kept mounted, as Progress is. Summary: "Sets by attachment area" ("…, Plan Week 2, as written" in Planned mode).
+- **Open**, in this order:
+  1. The lede (§4.4).
+  2. A 2 × 2 grid of area buttons, each at least 44 px tall, outlined at rest, `aria-pressed`, with the window's count ("Inner elbow · 25"); under it, once: "A set can count in two areas, so these are not added together."
+  3. The selected area's groups, full-width rows at least 44 px: "Common extensor origin · 9 sets", small "2 target · 0 holds · 7 other".
+  4. Seven day columns reusing `.spz-days` and `.spz-day` (seven to a row from 370 px, four below), each a stacked target · holds · other bar in the existing key colours (`spz-key-direct`, `-holds`, `-other`), full at 12, with the day's number; days still to come show "–", never 0. A day with sets is a button that opens `BoutListSheet` with that area's sets in lists Target · Holds · Other · Strapped · Pending.
+  5. Holds and their seconds as text, never stacked on the counts.
+  6. In Completed mode, "Last week (12–18 Oct) beside the 4 weeks before", a row per kind and hold seconds, each with its change words (§4.2). When the change is New or above every earlier week, a neutral prompt (§4.4) with **See these sets** and, below it in place, **Planned in Week 3 at the outer elbow**: the trained plan week's entries that load the selected area, one row each ("Reverse Wrist Curl · Day 02 · 3 × 10–25"). Each row has, inline and at least 44 px:
+     - **−1 set** (acts at once, Undo);
+     - **Move to another day**, day chips in place (acts on pick, Undo);
+     - **Take out** (acts at once, Undo: "Reverse Wrist Curl taken out of Day 02 · Undo");
+     - **Swap**, which opens the existing PlanChangeSheet in swap mode (a flow, so a sheet).
+     
+     All are built on S3's `applyPlanBatch` with the `sets`, `move` and `remove` changes (§3.7). An entry the stack wrote also links to its row in the stack card. This is how the package's "Allow users to reduce, replace or defer a planned exercise from this screen" is met, in place, without leaving the section or switching the page's mode.
+  7. The kept-apart lines, each opening its sets.
+  8. "How this is counted" for the section.
+- The muscle sheet and the 3D model's selected-muscle panel each gain one line: "Attaches at: inner elbow (common flexor origin), wrist (front). See tendon exposure", which opens the section as "How this is counted" is opened today.
+- No warning icon, no green, amber or red, no new colour: the existing `--sg-exposure` ramp and key colours only.
+
+### 4.4 Copy
+
+| Place | Text |
+|---|---|
+| Summary | "Sets by attachment area" |
+| Lede | "How many sets loaded the muscles that attach at each area. A set counts once per area, however many of its muscles worked. It counts sets. It does not measure what the tendon carries, and the exercise mappings do not cover everything you do." |
+| "Other" key | "Other: helping or steadying work." |
+| What the counts cover | "Rows and pulls count for the brachioradialis as an elbow flexor, at the outer elbow and at the wrist, where it attaches. Grip in rows, pulls and deadlifts counts for the finger flexors. The wrist muscles that steady the wrist while you grip are counted only in holds, hangs, carries and the gripper, so the outer elbow shows less of your gripping than your grip may do." (If the wrist flexors' steadying rows are not adopted, §1.4, it adds: "The wrist flexors' steadying is not counted yet.") |
+| Change | "Last week: 25 sets · median of the 4 weeks before: 16 (weeks with 4, 3, 1 and 4 finished workouts) · +9 sets." / "New: 3 sets last week; none in the 4 weeks before." / "Building your baseline: 2 of the 3 earlier weeks needed have a finished workout." / "No finished workout logged last week; nothing to compare." / "Weeks with no finished workout are left out, not counted as zero." |
+| Prompt | "More than in any of the 4 weeks before. You can look at the sets behind it, or change a planned exercise below." |
+| Holds | "Holds: 7 sets, 3 min 10 s recorded; 1 with no time recorded." |
+| Kept apart | "Not counted here: 5 strapped sets (grip not counted) · 1 pending review." |
+| Not placed | "Not placed in an area yet: the supinator, whose attachments are not reviewed yet. 2 Kettlebell Clean sets count for the forearm as a whole and are in no area." |
+| Quiet area | "No mapped sets in this area this week." Never "safe", "rested" or "untrained". |
+| About me (when the area answer is anything but "Feels fine") | "You told the app your forearms are bothering you now (About me). These counts are not a diagnosis." |
+| Method note (its "How this is counted") | "Counts distinct sets per area from the reviewed exercise mappings. Loading can help tendons adapt. Logged weight is not tendon force, and no study found ties a set count to how a tendon will respond, so the page shows no ratio or cut-off. A week counts once one workout in it is finished, so a partly logged week can lower the median. Warm-ups are not marked in the logger, so any you logged are counted here as work." Sources: S15, S16, S17, Impellizzeri 2020. |
+| Never in the section (a render test scans every string the section can render, case-insensitive, and for "%"; no exception) | risk, safe, unsafe, danger, injury, injure, tendonitis, tendinitis, tendinopathy, overuse, overload, strain, damage, warning, alert, limit, budget, threshold, zone, spike, red flag, ACWR, acute:chronic, push through. |
+
+### 4.5 Symptoms
+
+Not built in this work unless the owner chooses otherwise (§10, decision 1). The section reuses what exists instead of a second concept: the athlete's About me answer for the forearm (§4.4) and the session notes the page already lists. If the owner chooses the package's dated notes, they are built as scout 4 drew them: inside this section only, never prompted at logging or at the end of a workout, `scopedKey("sports-genome-specialization-symptom-notes-v1")`, fields when, area, during/after/next morning, discomfort 0–10 (blank stays null, never 0) and a note, with no side field (both arms as one); Remove with Undo; never in share cards, exports, suggestions, sync or any count; "kept only on this device"; and 02-design.md §5's "No new questionnaire" amended to say so.
+
+### 4.6 Region-agnostic
+
+The section renders for any region whose content sets `sections.tendonExposure` and whose `regions/<id>/tendonAreas.ts` exists; nothing names a region. `tendonAreas.ts` and `TendonExposure.tsx` are in the region-word scan; the deltoid fixture gains two areas and a render test shows them with no deltoid code; no side word appears in any area, group, count or sentence.
+
+## 5. Rep guidance
+
+### 5.1 Data
+
+`shared/specialization/repProfiles.ts` holds the types and the resolver; `regions/forearm/repProfiles.ts` holds the forearm's profiles (the package's task families, its numbers marked as the package's practical defaults) and one assignment per variant, each saying whether the strength range applies and whether the variant is `coverageOnly` (§3.4).
+
+| Family | Growth practice | Strength practice | Forearm variants |
+|---|---|---|---|
+| Wrist | 10–25 reps | 6–12 | 139, 140, 350, 407, 408, 410, 411, 415, 416, and 417, 418 at F3 |
+| Rotation | 10–20 | 6–12 | 405, 406 |
+| Elbow (brachioradialis curls) | 6–20 | 3–6 | 132, 133, 134, 135, 136, 337, 342 |
+| Finger | 10–25 | 5–10 (not band drills) | 401, 402; 404 growth only |
+| Thumb | 12–25 | none | 412, 413, 414 (each `coverageOnly`) |
+| Deliberate grip hold (stationary) | 10–30 s (written 30 s) | 3–10 s (written 10 s) | 142, 143, 144, 145, 403, and 419 at F3 |
+| Ballistic or mixed | none | none | none mapped |
+
+- **A profile goes only on a variant whose own work is a movement or a stationary hold of the region**: one with a reviewed direct mapping on an own target muscle, not a multi-joint lift and not a carry. Rows, pull-ups, presses, deadlifts, RDLs and the carries (299 Farmer's Walk, 300 Zercher Carry, 409 Suitcase Carry) keep their whole-exercise prescriptions (the package's §10 and §2.2: a carry's forearm role is a time-based stabilization record that does not become forearm sets). A content test holds this: no profile on a variant whose catalog movement is "Loaded carry" or that is a multi-joint lift, and every variant with a direct moving or hold mapping on an own muscle has one profile or a listed reason.
+- The brachioradialis curls keep the package's Elbow family although the upper arm tags them primary: the package names that family (its §5.1), and v1 maps the brachioradialis direct in them. A variant another region also profiles (a curl the upper arm may profile at wave A) shows each region's profile on that region's page; the stack writes its own region's.
+- Nothing here is per muscle: `validated_muscle_specific_rep_optimum`, a weekly set target and a maximum are absent by design.
+- **Sources** (§1.5): the ranges cite none; they are recorded as the package's practical defaults. S09 and S18 support the general sentence, S13 the effort sentence and S14 the hold sentence of §5.3, as library records in `sources/training.ts`, never seeded. S10 and S11 join only once their abstracts are seen.
+
+### 5.2 Where it appears
+
+- **Stack prescriptions** (§3.4).
+- **The add sheet's default.** Adding (not swapping) a variant with a profile shows "Sets and reps: 3 × 10–25" (the goal's set count for that position × the profile's range for the goal) in a 16 px field the athlete can change, with the sentence of §5.3 below; Add writes what the field holds. A hold shows "3 × 30 sec" with "Holds of 10–30 s are the app's starting range, not a tested one; the plan counts the number written." A swap keeps the replaced entry's own prescription, as shipped. A variant without a profile (a carry, a row) shows the plan's default and writes none, as shipped.
+- **The muscle sheet:** each suggested exercise shows its range ("10–25 reps", "10–30 s holds"); the sentence of §5.3 is said once above the suggestions.
+
+### 5.3 The evidence status, said plainly
+
+Once wherever ranges appear: "Starting ranges the app uses for this kind of movement. They are practical defaults, not measured for this muscle. General training studies found growth across a wide range of reps when sets are hard, and heavier sets suit maximal strength. Change them any time." (S09, S18.) Where a hold range appears: "Holds of 10–30 s are the app's starting range, not a tested one. Results from holds depend on their length, how hard they are and the intent (S14); the plan counts the number written." Under the stack's "How the stack is built" and the add sheet's About: "Stopping 1 to 3 reps short of failure is a common starting point, not a rule." (S13.) Never "optimal", "best", "ideal" or a promise of growth; the render tests scan for them.
+
+## 6. Database
+
+- **No schema change.** Schema v2 (`20261019120000`) is applied as its release review leaves it; this note asks nothing of it. The three new rows use existing catalog, variant, attribute and mapping shapes; everything new that is not reference content the database already holds (rep profiles, tendon areas, their sources, stack records) stays on the device.
+- **F1 and F2 change no seed.** `emit-seed.ts --check` and the drift guard stay green with no regeneration: their sources are in no `content.sources` list (§1.5), and the catalog equipment fix (decision 5) writes no equipment to the seed.
+- **Wave A's seed (v3) adds, for the forearm (F3):**
+  - `forearm_mappings_v2`, inserted as a draft, filled, then published by its state alone; rules 10–13 pass (every mapped node is a forearm member whose home is the forearm; none is the upper arm's; the forearm has a page);
+  - its mapping sources and their library records (`sources/forearmResearch.ts`);
+  - catalog exercises 417–419 (and 420 with decision 2) and their variants `cat-417` …, with their counting attributes written explicitly (`sided_by: none` for the two-handed 418 and 419; 417 as lane C1 defines its set-up, `none` if two-handed, `arm` if one-arm), frozen by v2's publish;
+  - 188 and 264 unchanged: their pinned `sided_by: arm`, frozen by v2's publish (decision 4); no leg attribute is written for any forearm-mapped variant;
+  - no claim, node, node action or region change. `supabase_exercise_id` stays null for the new rows, as for 401–416, until `public.exercises` has them; until then those rows stay on the device (`supabaseReferenceMap.ts:12`).
+- **v1** stays published and is not retired; the server suites hold its 418 rows equal to the frozen fixture after seed v3 (§1.7).
+- **Apply order:** schema v2 and seed v2 (wave 0), then seed v3 (wave A: rule v2, the upper arm promoted with `upper_arm_mappings_v1`, and `forearm_mappings_v2` with its rows), one file per `execute_sql` call, from the merged SHA, as 10-multi-region.md §5.3 and §9.4 say. Read-only checks after: `mapping_version_problems()` null for `forearm_mappings_v1`, `forearm_mappings_v2` and `upper_arm_mappings_v1`; v1 and v2 both published; the counts read from the code; every attribute of v2's variants frozen, 188 and 264 at `arm`. If F3 misses its cut-off (§8.1), wave A ships without it and F3 takes seed v4. Forward-only, as every seed after v2.
+
+## 7. Tests and acceptance
+
+### 7.1 Three honesty fixes in F1
+
+- **Holds with no time.** `model.ts:81-84` says "time not recorded" only when a node's seconds total 0. It becomes "45 s recorded; 1 hold with no time recorded", counted from the node's contributions. No calculator change.
+- **Sets the app cannot identify.** A set with no catalog id and no exact name match is invisible today (`exposure.ts`: unrelated). The adapter (`bouts.ts`) counts them, and "How this is counted" lists them once on every region's page: "1 set of an exercise the app could not identify (Barbell wrist roll). It is not counted on any page." Not in the summary, so the golden tests are unchanged. This is the package's Example C.
+- **Conflicting duplicates.** A set id that arrives twice with different values is read once, as today, and listed under "How this is counted": "1 set arrived twice with different values; the first is counted." From the adapter, not the summary.
+
+### 7.2 The package's §9 examples, ported (`forearmResearch.examples.test.ts`, through `boutsFromSessions` and `getSpecializationSummary`, side `both`)
+
+Each test asserts the app's numbers and lists beside them the package's numbers that differ, with the decision that explains each (§1.3, §1.4). Measured on 21 Oct under v1 (critic-evidence-v2 re-ran A–D at `95f4cdf` and found the same; B gives 21 reps once the set has type "drop").
+
+- **A. Two sets of 410 One-Arm Dumbbell Wrist Curl and one 20 s set of 409 Suitcase Carry, completed.** Under v1: FCR and FCU 2 direct dynamic each; PL 2 contributing; FDS and FDP 1 deliberate hold (20 s) and 2 incidental; ECRL, ECRB and ECU 1 incidental (steadying in the carry); FPL 1 pending review; BR, EPL, EPB, APL nothing (reviewed elsewhere, so drawn empty, never hatched); region 3 distinct bouts; direct moving sets 2, holds 1. Under v2: FPL 1 incidental, none pending; FCR and FCU 1 incidental each if the wrist-flexor rows are adopted. Tendon (F2): inner elbow 3 sets (2 target, 1 hold, 20 s), the package's `medial-flexor-origin` of 3; wrist and thumb 3 (2 target, 1 other); fingers 3 (1 hold, 2 other); outer elbow 1 other. Differences, decided: FDS and FDP helping the wrist curl (package supporting dynamic, app incidental, §1.3); FPL in the wrist curls (package incidental, app none, §1.4); FCR and FCU steadying in the carry (package 1, app 0 unless adopted, §1.4).
+- **B. One 410 set of type "drop" with three stages (5, 6 and 10 reps).** FCR 1 direct dynamic bout, 21 direct reps, 3 segments, shown "Drop 1 · Drop 2 · Drop 3"; the same set delivered twice changes nothing; a corrected set replaces the old one (revision); a copy with different values is read once and listed (§7.1).
+- **C. A set logged as "Barbell wrist roll" with no catalog id.** No muscle and no region total (measured: `boutsConsidered` 0), and from F1 one line under How this is counted. Never read as the abdominal rollout, a wrist extension or a finger flexion.
+- **D. A week of 121 Barbell Curl, 132 Hammer Curl, 299 Farmer's Walk, 409 Suitcase Carry and 139 Wrist Curl.** EPL, EPB and APL 0 in every bucket (measured), drawn empty; the page's line names the missing main action and the exercise that trains it with no "untrained", "weak", "deficient" or warning word (scanned); the stack offers Band Thumb Extension and Abduction as ordinary one-set rows the athlete can leave out, and the carries' holds cover no moving movement.
+
+### 7.3 The package's §10 gates that apply
+
+| Gate | How it is met |
+|---|---|
+| Run the package's tests | Each release runs them from a copy with `python3 -I -m unittest discover` and reports 16/16; never inside the committed folder. |
+| Port the behavioural cases | §7.2, plus the existing `brief11.test.ts`, `exposure.test.ts`, `exposure.bothArms.test.ts` and `bouts.test.ts` cases for drop sets, swaps, straps and planned apart. |
+| Whole-exercise prescriptions kept | §5.1's content test (no profile on a carry or a multi-joint lift); the stack never edits an entry it did not add (`stack.test.ts`). |
+| All 50 candidates traceable; 57 records with 19 cells; alias and blocked | `forearmResearchImport.test.ts` over the package files and the import report: 50 candidates, 57 records, 1,083 cells, every record one disposition, fa-22 → 411, the six blocked with their readings' rows, no grade or index in any app file outside the report. |
+| Unknown never a measured zero | The existing coverage tests; the 3D panel's `dataStatus`; the tendon section's "no time recorded", "–" for days to come, weeks with no workout left out, and no comparison when last week is not known. |
+| Reps, seconds and loads independent | The existing logger and planner tests; the stack writes a hold in seconds, keeps holds out of its total and never converts. |
+| Left, right and bilateral | Since 20 Oct every set counts once for both arms (owner); `golden.both.test.ts` and `exposure.bothArms.test.ts` hold it; the dormant per-side paths keep their tests (`golden.test.ts`). |
+| Drop sets, duplicates, edits and deletes, straps | Existing tests plus §7.2 B and §7.1. |
+| Shared tendon-area deduplication; warm-up against work | `tendonAreas.test.ts`: one set touching five muscles of the common flexor origin counts 1; a marked warm-up shows only on the warm-up line. |
+| History recomputation and cache invalidation | The golden tests at F3 with their generated differences; the cache key's mapping version (`useSpecializationSummary.test.ts`). |
+| Baseline zero, sparse history, incomplete weeks | `tendonAreas.test.ts`, every change-line state including "no finished workout last week" and a partly logged baseline week. |
+| Estimates labelled after import | Not applicable: no grade is imported (§2.3). |
+| No ranking or percentile change | The full suite; the stack adds plan entries, which Plan already handles; holds stay out of strength records (`holdSetReaders.test.ts`). |
+| Reduced motion, keyboard and list access, small screens | Render tests and §7.5's screenshots. |
+| Symptom isolation and share-card exclusion | Only if decision 1 builds the notes (§4.5). |
+| Reviewers resolve the six blocked candidates | They stay blocked, each with the rows that cover its readings (§1.2). |
+| Final approved / draft / blocked matrix | The import report at F3, with the tests run and the screenshots. |
+
+### 7.4 New tests
+
+- `directWork.test.ts` (shared): one set crediting three muscles counts 1; a mixed bout with a direct dynamic part counts as moving; a cat-300 Zercher set counts in neither number; a deliberate hold counts in `holds` only; the deltoid fixture.
+- `stack.test.ts` (forearm and deltoid): the plan's own entries, their order and prescriptions untouched; after applying, `directWorkCount` equals the total, for a one-arm and a two-handed exercise; holds never in the total; a plan's own carry or hang never removes a moving movement from the design; a seconds target filled at 30 s whatever the goal, at most 6 sets, the rest said; one Undo restores the week exactly; designing again on the applied week at the same total adds nothing; the same inputs give the same stack; caps and gym windows kept or said; targets met or said; drafts, helper and incidental rows, exclusions and missing equipment never chosen and never counted as covering a need; band drills keep the growth range under Max strength; every reachable movement gets a set at the starting total; further sets go by exercise; the thumb drills never exceed one set without a row edit or a target; no further set on work whose every target is met; leaving out a movement changes no other row and lowers the total by its sets; no muscle is given a number of its own anywhere in the output; no side word in any total, preview or announcement for any fixture region.
+- `planChange.test.ts`: the batch refuses whole on any refusal; reverts run in reverse order on days edited since; `remove` takes out only entries still as written; `sets` and `move` act on the named entry only.
+- `Home.specializationStack.test.ts`, seeded as `Home.specializationJourney.test.ts`: nothing is written before Add; one Add writes every day of the stack into the exact week (the active week and a stored one); one Undo removes them all; Take it out removes only unchanged entries; generating a week after a stack shows the toast's sentence; the journey continues to a logged set and the updated map.
+- `StackDesigner.render.test.ts`: every control at least 44 × 44, opacity 1 at its limits with the reason said; the number field 16 px; typing "2", "0" gives one design, at 20, and nothing in between; no confirm dialog; the live region's messages; the words scan (optimal, ideal, best, should, need to, enough, too much, too little, risk, safe, "%").
+- `stackStore.test.ts` (two accounts on one device; corrupt and refused storage; the per-region total), `repProfiles.test.ts` (no profile on a carry or multi-joint lift; `coverageOnly` only where a reviewed family says so), `sourceIdentity.test.ts` (S2), `regionExtras.test.ts` (the section flag exactly where the file exists), `forearmTendonAreas.test.ts`, `tendonAreas.test.ts`, `TendonExposure.render.test.ts` (the inline planned-entry actions, the words scan with no exception), `forearmMappingsV2.test.ts` (v2 against the v1 fixture equals the listed changes; every changed or new row reviewed with an action, a basis by the builder's convention, a rationale and a source with a locator and a limitation, or draft with its reason; no upper-arm node), and the server suites' v1 and v2 assertions (§1.7).
+- The page's text and number fixtures (`pageText.render.test.ts`, `pageNumbers.render.test.ts`, against 4dac1ae since the reconcile) gain each release's stated changes and nothing else.
+- **The golden tests:** identical through F1 and F2. At F3 their allowed differences add, beside wave A's own, the generated v1 → v2 lists for both sets (§1.7), with region totals and completeness unmoved.
+
+### 7.5 Phone checks and download
+
+Headless Chromium emulating an iPhone (viewport, `isMobile`, `hasTouch`, device scale 3), production build, `dist/public` served and `localStorage` seeded as `scripts/perf/measure-client.cjs` does, opened at `?workspace=specialization&region=forearm` (and `&mode=planned`); reported as emulation, never as an iPhone or Safari test. Each looked at, at 390 × 844 and 375 × 667, with 430 × 932 and 320 where stated:
+- **F1:** the first screen unchanged with the 3D model and with the drawing (the 09-page.md table as the reconcile re-measures it); the card closed under the map; the 3D panel's Design a stack button and the drawing strip's; the card open with plan A and plan C, the total control, What changes and Add on one screen (the §3.2 acceptance, measured); a row closed and open, with its Change choices; Leave out with its Undo and the total's change; after Add with its Undo clear of the dock; the added state and "Design for Week 2"; the add sheet's prescription field focused (no zoom: 16 px); the muscle sheet's ranges; at 320 no horizontal overflow; the 44 px sweep with the card open, at 375 and 390.
+- **F2:** the section closed and open, each area, a day's sets, the change line's states, the planned-entry actions in place, Planned mode, the muscle sheet's and the 3D panel's "Attaches at" line; 320 and the sweep.
+- **F3:** FPL's sheet and ledger; a new exercise in the stack and in Plan's picker.
+- **Download (every release):** counted as 09-page.md counts it (open Muscles, tap Specialize, every `.js` file until the map is drawn), against the baseline the reconcile restates with the 3D chunk. Gate: the closed page's download does not grow beyond the `sections` flag's few bytes; the stack chunk (the prototype alone minifies to 18,531 B raw, 7,308 B gzip, critic-data) and the tendon chunk are reported on their own, with the profile chunk.
+
+## 8. Work plan
+
+### 8.1 Releases
+
+| Release | Content | Database | When |
+|---|---|---|---|
+| F1 Stack and reps | R0 (the import report), S1–S4 (the stack designer), rep guidance, §7.1's three fixes, the catalog equipment fix for 139 and 140; the forearm opts in | none; seed unchanged | after wave 0 (with the reconcile of `main`) is deployed and its pin commit is on `main` (10-multi-region.md §9.4 steps 6 and 5's pin); never merged while wave A is between its steps 2 and 6 |
+| F2 Tendon exposure | T1–T3; symptoms only per decision 1 | none; seed unchanged | after F1; may share F1's release if both are through review together |
+| F3 Forearm v2 | V1 (`forearm_mappings_v2`), C1 (the new rows and their variants) | seed v3, with wave A | inside wave A's release, never before it |
+
+Order against the multi-region plan: wave 0 (with the reconcile) → F1 → F2 → wave A with F3 → wave B …. F1 and F2 lanes may be built on branches cut from the wave 0 release head once the reconcile lands on it, rebased when it merges; nothing from this note merges into the wave 0 branch, and nothing merges to `main` while a wave is between its steps 2 and 6, so no F change reaches a wave unreviewed. A region's content holds one mapping version (`emit-seed.ts`), so v2 is not kept as a parallel draft: V1 writes `forearm_mappings_v2` into the forearm's content as published, on wave A's branch, from its first commit, after `__fixtures__/forearmMappingsV1.ts` has frozen v1's rows for the seed test; it reaches the database only in wave A's seed, beside `upper_arm_mappings_v1`. If F3's review is not finished when wave A's lanes are, wave A ships without it and F3 takes the next seed.
+
+**Why v2 cannot ship before wave A.** Rule 12 refuses v2 the biceps and brachialis rows, and until the upper arm publishes its own version the forearm page credits those two muscles from the forearm's own current version (10-multi-region.md §4.2). With v2 current and no upper-arm version, the forearm page would hatch both muscles and read a biceps target as 0 in 20 of the 34 golden summaries (scout 2's simulation, `golden-diff-v2-incidental.txt`): a deficit the athlete did not have. The stack needs no v2: it reads whatever version is current, and v2 adds choices, not coverage (on all 20 records that match a catalog row, the package's direct roles equal v1's reviewed direct rows, scout 3).
+
+### 8.2 Lanes and the files each owns
+
+None of these files is owned by a wave A lane. Wave A's lanes own: integration, `registry.ts`, `regionIndex.ts`, `regions/upper_arm/{ids,index}.ts`, the generated view plan, logging table and seed, `README.md`; variants, `variants/**` for its rows, catalog fixes on rows it maps, `variants.test.ts`, `regions/variants.md`; the upper arm's anatomy, mappings and drawing, `regions/upper_arm/*`, `regions/forearm/members.ts`'s membership caveats, `sources/upper_arm*.ts`, `design/specialization/upper_arm/**`. Where an F lane needs one of those, it hands the change to the owning lane, named below. Two boundaries are agreed here so the globs cannot collide: wave A's variants lane does not edit `exerciseCatalogForearm.ts` or `variants/forearmResearch.ts`, and F lanes do not edit any other variants file.
+
+| Lane | Release | Files | Hands to |
+|---|---|---|---|
+| R0 Import report | F1 | `scripts/specialization/research/forearm-v1/import.ts`, `docs/specialization-atlas/forearm-research-v1-import/report.{md,json}` (a sibling folder; the package's 13 files are never edited), `client/src/lib/specialization/forearmResearchImport.test.ts` | — |
+| S1 Stack core | F1 | `client/src/lib/specialization/{stack,stackStore}.ts` and tests; `shared/specialization/repProfiles.ts` and `repProfiles.test.ts`; additive optional fields in `shared/specialization/{types,compose}.ts` (`repProfiles`, `repProfileAssignments`, `referenceSources`); `client/src/lib/specialization/bouts.ts` (§7.1's two lists) and its tests; `regionAgnostic.test.ts` (scan list); the deltoid fixture's profiles | — |
+| S2 Rep data and catalog fix | F1 | `shared/specialization/regions/forearm/repProfiles.ts`, its hunk in `regions/forearm/content.ts`, `shared/specialization/sources/training.ts` and its line in `sources/index.ts`; `client/src/lib/exerciseCatalog.ts` rows 139 and 140 (equipment "Free weights" → "Barbell", as their variants and photos define them, under 10-multi-region.md decision 6, listed in the pull request) | the `sources/index.ts` line to the integration lane if a wave is open |
+| S3 Batch apply | F1 | `client/src/lib/specialization/{planChange,viewState}.ts` and tests; `client/src/pages/Home.tsx` (`applySpecializationChanges`, About me's area answer passed to the page); `client/src/pages/Home.specializationStack.test.ts` | — |
+| S4 Stack page | F1 | `client/src/components/specialization/{StackDesigner.tsx,stack.css}` and tests; `SpecializationPanel.tsx` (the section, the finding, `onApplyPlanChanges`); `PlanChangeSheet.tsx` (the prescription field); `MuscleSheet.tsx` and `Suggestions.tsx` (ranges); `model.ts` (§7.1, holds); the page fixtures; `docs/specialization-atlas/evidence/stack-2026-10/` and its capture script | — |
+| T1 Tendon calculation | F2 | `shared/specialization/tendonAreas.ts`, `client/src/lib/specialization/tendonAreas.test.ts`; the `tendonAreas` field in `types.ts` and `compose.ts` (after S1) | — |
+| T2 Tendon content | F2 | `shared/specialization/regions/forearm/tendonAreas.ts`, its hunk in `regions/forearm/content.ts` (after S2), `shared/specialization/sources/forearmTendon.ts` and its library line, `forearmTendonAreas.test.ts`, `docs/specialization-atlas/regions/forearm/tendon-areas.md`, the deltoid fixture's two areas (after S1) | as S2 |
+| T3 Tendon page | F2 | `client/src/components/specialization/{TendonExposure.tsx,tendon.css}` and tests; `SpecializationPanel.tsx` and `MuscleSheet.tsx` hunks (after S4); symptoms per decision 1; `docs/specialization-atlas/evidence/tendon-2026-10/` | — |
+| V1 Forearm v2 | F3 | `shared/specialization/regions/forearm/{mappings,ids,unmapped}.ts`, its `sources` hunk in `content.ts`, `client/src/lib/specialization/__fixtures__/forearmMappingsV1.ts` (written first, from v1), `shared/specialization/sources/forearmResearch.ts` and its library line, `forearmMappings.test.ts`, `forearmMappingsV2.test.ts`, `sourceIdentity.test.ts`, the v2 section of `docs/specialization-atlas/05-mappings.md`, the import report's final matrix | to wave A's integration lane: the golden test's allowed differences, the release counts, the regenerated logging table and hold list |
+| C1 New rows | F3 | `client/src/lib/exerciseCatalogForearm.ts` (417–419, and 420 with decision 2) with every engine field, their photos or placeholders, `loadConventions.ts` entries, `exerciseCatalogExpansion.test.ts` counts, `shared/specialization/variants/forearmResearch.ts` (the new variants and their counting attributes) | to wave A's variants lane: the one line in `variants/index.ts`, and decision 4's attributes on 188 and 264; to V1: the row list for `forearmMappings.test.ts` |
+| Integration F | each | this note as `docs/specialization-atlas/11-forearm-research-and-stack.md`; amendments to `02-design.md` §5 (only with decision 1), §7 (the stack and tendon sections, the add sheet's prescription) and §8 (the stack uses `recommendFor`'s candidates); `06-calculation.md`, `09-page.md` (its "Nothing pins a default prescription") and README sections; the experiments folder; the release reports | — |
+
+**Shared files and their order:** `types.ts` and `compose.ts` (S1, then T1; additive optional fields only, so a wave lane rebases cleanly); `regions/forearm/content.ts` (S2, then T2, then V1's sources hunk); `SpecializationPanel.tsx` and `MuscleSheet.tsx` (S4, then T3); `sources/index.ts` (one line per lane). Every F1 lane starts after the reconcile of `main` has landed on the wave 0 release head, because S1, S3 and S4 read its `side: "both"` summary, its page and its Home.
+
+### 8.3 What ships when, and how
+
+Each F release follows 10-multi-region.md §9.4 where it applies: every lane merged into the release branch; the full suite (`npx vitest run`), `npx tsc --noEmit -p .`, and the seed's, drawings' and logging table's `--check` clean (F1 and F2 must leave all three untouched); the release review and its fix round finished; `main` merged in; CI green on that SHA; squash merge; the production deploy READY and `/?workspace=specialization&region=forearm` serving; the report with counts read from the code. F1 and F2 have no production apply. F3 ships only as part of wave A's steps 1–7.
+
+### 8.4 Adversarial review
+
+A separate agent, given the diff, this note, the package and the evidence standard, reviews each lane before it merges, with one fix round each (two for S4, the largest phone surface), plus a review of this draft before any lane starts and each release's review.
+- **This draft:** every §1.2 disposition against the catalog and the package's ledger; every conflict in §1.8; the stack's rules against the package's §5 checklist and 02-design.md §8; the tendon copy against the package's §6.2; the both-arms dependency (§3.4).
+- **R0:** the 57 dispositions and 1,083 cells recomputed independently; the muscle and source key tables; no grade anywhere in app code.
+- **S2:** every rep range against the package's rep-profiles.json and its evidence status, said as the app's starting ranges and never as a tested optimum; the new library sources' records; the assignment per variant (never a carry or a multi-joint lift); the 139 and 140 equipment fix.
+- **S1:** the total equals the page's planned direct count in every scenario, one-arm included; no per-muscle number; determinism; the deltoid and midline fixtures; the region-word scan.
+- **S3:** batch atomicity; Undo on days edited since; the active week against a stored week.
+- **S4:** the 44 px sweep, 16 px inputs, no hover-only or faint control, the first screen unchanged, 320 without overflow, the screenshots looked at; copy against the words scan.
+- **T2:** every group sentence against its excerpt; ECU, the supinator and PQ kept draft until a second source agrees; ECRL kept out of the common extensor origin; direction words.
+- **T1, T3:** deduplication per area and group; the change line's rules; no percentage, threshold or risk word; Planned mode.
+- **V1, C1:** every changed or new row against §1.3–§1.4 and its source's excerpt; `requiresNoStraps` on grip rows; rule 12; the v1 fixture diff; the new rows' definitions against their set-ups and photos; counting attributes explicit.
+
+## 9. What does not change
+
+- `forearm_mappings_v1` (418 rows), its variants, claims and sources; `specialization_exposure_v1`; schema v1, seed v1 and schema v2 as reviewed.
+- Every forearm id, node, action and node action; the drawing, byte for byte; the 3D model and its identity table as `main` ships them; the counting categories, intervals, the no-ledger decision and the device-first architecture; the owner's both arms as one.
+- The athlete's stored workouts, plans, targets, measurements and exclusions; no history migration. A plan entry changes only when the athlete adds a stack or uses the add sheet.
+- The package's files, as received.
+
+## 10. Owner decisions
+
+Each with the recommendation the plan follows unless the owner says otherwise.
+
+1. **Symptom notes.** The package asks for optional, private, dated symptom entries; `02-design.md` §5 says "No new questionnaire", and the ask of 20 Oct does not mention symptoms. Recommended: **no new store in this work**; the tendon section shows the athlete's existing About me answer for the forearm and the session notes the page already lists (§4.5). The alternative is the package's notes, inside the section only, device-only, never prompted, with 02-design.md §5 amended.
+2. **A drill for the two finger extensors nothing trains directly.** The owner asked to "target everything"; extensor indicis and extensor digiti minimi have no reviewed direct exercise in the app or the package (§1.1), so the stack can reach 16 of 19 muscles at most. Recommended: **add one row in F3, 420 Band Index and Little Finger Extension** (index and little fingers straightened against a band while the middle and ring fingers stay bent; EI and EDM direct, shared; ED contributing; reviewed on anatomy from their reviewed function claims, with the package's caveat that hand muscles also work and isolation is imperfect). That brings the stack to 18 of 19; palmaris longus, which only tenses the palm and is missing in some people, stays without one. The alternative leaves the two as "no reviewed exercise trains these directly".
+3. **Rice bucket, grip ball and forearm machines.** Eleven package records need equipment the profile cannot express: "Rice bucket" and "Grip ball" are not equipment values (`equipmentProfile.ts:3`), and "Machine" cannot say which machine a gym has. Recommended: **leave them out of this work**; the app already trains every one of their movements with a reviewed exercise. The alternative adds equipment values to the profile, onboarding and every equipment screen, with reps-only rows for uncalibrated resistance, as a later release.
+4. **The single-leg Romanian deadlifts (188, 264) when `forearm_mappings_v2` is published.** Publishing v2 freezes their counting attributes. Recommended: **keep their pinned `sided_by: arm`**, as v1 has them. With both sides counted as one (the owner, 20 Oct), the logger asks no side of either limb, so a leg side would record nothing; writing them as the standing leg would also make rule 11 require `leg_laterality` and `side_anchor` on both before any leg lane has reviewed them, which wave A's gate refuses. 10-multi-region.md decision 9 is answered for now as "no side asked"; the leg waves decide again only if the owner brings sides back.
+
+**Input, optional.** A. The six blocked records (candidates 7, 10, 13, 27, 39, 40): if the owner says which exercise he meant, R0 records it; each already has a catalog row for every unambiguous reading except plate flips and the open-fingered plate curl, which stay blocked.
+
+## Appendix A: the evidence behind this note
+
+In the session scratchpad (`forearm-v2/`), to be copied to `docs/specialization-atlas/experiments/forearm-research-2026-10-21/` at integration with the session's absolute paths left in them:
+- **The package against the shipped atlas, record by record** (scout 1): `reconciliation.json`, `reconciliation-cells.tsv`, `reconciliation-sources.json`, `reconciliation-checklist.json` (all 86 checklist items of START-HERE §4, §5.1, §6.2, §7.1, §7.2 and §10), `recon/`.
+- **The shipped content and counting** (scout 2): `package-vs-app-exercises.md`, `model-comparison.md`, `app-node-coverage.tsv`, `app-mappings-by-variant.tsv`, `app-mappings.json`, `v2-sim.ts`, `sim-v1.json`, `sim-v2-contributing.json`, `sim-v2-incidental.json`, `golden-diff-v2-*.txt`.
+- **The stack prototype** (scout 3): `stack-designer/` (`stackDesigner.ts`, `run.ts`, `stack-prototype-output.md`, `reviewed-direct-candidates.tsv`, `package-to-catalog.tsv`, `apply-undo-check.ts`, `met-target-check.ts`); and the architect's re-run with this note's rules: `architect-v2/` (the same files, with a 1-set minimum, 3 sets a session, 4 forearm exercises a day, no free day, and the Plan's own minute estimate).
+- **Tendon exposure** (scout 4): `tendon-prototype.ts` and its output, `tendon-area-membership.tsv`, `tendon-copy.tsv`, `forearm-v1-mappings-by-exercise.tsv`, `reference-engine-output.txt`, `pkg-copy/`.
+- **The package's §9 examples through the shipped calculator** at `95f4cdf`: `architect/examples.ts` (its drop-set case lacks `type: "drop"`; the ported test in §7.2 sets it).
+- **An earlier attempt** (20 Oct, at `963715b`): the previous draft of this note and its critics' experiments (`critic-phone/planReview-output.txt`: the Plan's own day reading after a stack, which §3.5 now quotes; `critic-evidence/`: the FPL variants). This note replaces that draft.
+- **Web searches** on 20–21 Oct (search summaries only; page fetches are refused): the package's sources as `reconciliation-sources.json` records them; Hamrick et al. 1998; Radiopaedia's common flexor and common extensor origin pages; Impellizzeri et al. 2020 (PMC7534938).
+- **`main`'s three commits**, read from git: `11ee5aa` (the 3D forearm), `d8d95f4` (both arms as one), `4dac1ae` (the muscle rail), with `docs/specialization-atlas/forearm-3d/README.md`.
+
+## Appendix B: critique resolution
+
+Three critics attacked the draft (the athlete on a phone, with headless iPhone emulation of `main`; evidence and counting; data, release and the size of the work) and raised 36 issues. The finalizing pass rewrote §0–§7 with them in hand and was cut off by a session limit before it wrote §8–§10 and this appendix; §8–§10 were then taken from the draft and brought into line with §0 by hand (the release window and how v2 is held, §8.1; S2's review, §8.4; decision 4, §10). Where each issue lands:
+
+| # | Lens | Severity | Issue (short) | Where resolved |
+|---|---|---|---|---|
+| 1 | The athlete on a phone | high | The volume control and its effect are several screens apart. Item 3 (the total) comes first, then 11 exercise rows of 186-246 px each, then item 6 (what changes) and item 8 (Add).… | §3.2 items 1-8 (open section order) and §3.5 Preview (as rewritten) |
+| 2 | The athlete on a phone | high | The owner's headline feature is far from the 3D model, which is where the athlete is. The section is the first disclosure, below the 19-row muscle list and 'Coverage to review'.… | §3.2 'A section of the page' and 'A way in from the findings'; §8.2 lane S4 files (as rewritten) |
+| 3 | The athlete on a phone | high | The number the athlete chooses appears nowhere else on the page, and it is in a different unit. The page reads in 'bouts': the window line, the 3D Overview and the 3D panel's lead… | §3.3 The total (unit) and §3.2 item 2 (as rewritten) |
+| 4 | The athlete on a phone | medium | The chosen volume lives in one plan week, and the next week drops it without saying so. Plan generates Week 2 and Week 3 fresh from the split pool (up to recommendationLimit… | §3.2 'After Add' (Also add to Week 2) and §3.9; interaction with Plan (as rewritten) |
+| 5 | The athlete on a phone | medium | The tendon prompt's way to act sends the athlete to a mode switch and then a sheet that has no plan controls. The draft says Planned mode's day sheet offers 'Open in Plan' and… | §4.3 item 6 (Change a planned exercise) and §1.8/§7.3 claim that the package's 'reduce, re (as rewritten) |
+| 6 | The athlete on a phone | medium | The tendon section's own copy uses words its render-test scan forbids, and that the owner's bar rules out ('no risk'). The summary 'not a risk score', the lede 'it is not a risk… | §4.3 summary, §4.4 Lede and Method note, vs §4.4's own 'Never in the section' list (as rewritten) |
+| 7 | The athlete on a phone | medium | 'Leave out' is a button on one exercise row on one day, but it removes the whole movement, so rows on other days disappear too. The draft also never says what happens to the… | §3.2 item 5 and §3.6 'Leave out'; §3.4 needs item 4 (as rewritten) |
+| 8 | The athlete on a phone | medium | A row does not say what the exercise covers, so the athlete cannot connect it to the muscles on the 3D model or in the list. Muscles are named only when the work is shared, or in… | §3.2 item 5 (row content) and §3.4 'Exercise for each movement' (as rewritten) |
+| 9 | The athlete on a phone | medium | Typing a total re-designs on partial input. Typing '20' on plan A goes through '2'. That is below the plan's own 3, so the design jumps to the 'Your plan already has 3…' state,… | §3.2 item 3 (number field) and §3.5 (debounce 150 ms) (as rewritten) |
+| 10 | The athlete on a phone | low | The pattern the draft names breaks two of its own claims. Its buttons are 42 px wide, not 44, and at a limit they fade to 35% opacity. On plan A's starting design, every row sits… | §3.2 item 3 ('the set-stepper pattern of ExercisePrescriptionRow.tsx') and the per-row set (as rewritten) |
+| 11 | The athlete on a phone | low | The minutes shown understate the time a day takes, because 8 of plan A's 11 added exercises are one-arm drills and Plan counts each set once. The draft admits the estimate… | §3.4 'Time' rule and §3.2 day headings (as rewritten) |
+| 12 | The athlete on a phone | low | A few words and counts will not match what the athlete sees in Plan. - Plan's prompts call one day's list a 'stack' ('This stack has a higher fatigue cost…'). Quoted inside… | §3.5 (quoting Plan's prompts) and §3.7 (Add label and toast) (as rewritten) |
+| 13 | Evidence and counting | high | The rule "evened out muscle by muscle" assumes every forearm muscle needs the same number of direct sets. No source supports that, and it is the opposite of the app's own reviewed… | §3.4 Needs step 3 (draft line 311), §0 item 3 (line 13), the lede (line 276), §3.13 (as rewritten) |
+| 14 | Evidence and counting | high | Holds count as direct sets and stand in for moving work. The unit "direct forearm sets" includes deliberate holds. Needs (2) and (3) read "direct sets" from the plan week as the… | §3.3 the unit (line 290), §3.4 Coverage and Needs (lines 301, 308-311), §3.2 item 2 (line  (as rewritten) |
+| 15 | Evidence and counting | medium | The unit is defined by category ("direct dynamic or deliberate-hold credit"), but coverage is defined by relationship = direct. These disagree on cat-300 Zercher Carry. That… | §3.3 the unit and §3.4 "The count it promises" (lines 290, 331) (as rewritten) |
+| 16 | Evidence and counting | medium | The baseline treats unknown as zero. The change line has no state for a last week that is not known. If the athlete finished no workout last week, the line compares 0 against the… | §4.2 Change line and Weeks (line 431), §4.4 Change copy (line 457) (as rewritten) |
+| 17 | Evidence and counting | medium | The only test that published v1 in the database equals the content that published it is lost when mappings.ts becomes v2's builder. server/specializationSeed.test.ts:486-506… | §1.7 Review and publication (lines 165, 180), §8.2 lane V1 (line 603) (as rewritten) |
+| 18 | Evidence and counting | medium | The evidence test for the new wrist-steadying rows differs by muscle group. The wrist extensors (12 rows) are adopted on M2, but the wrist flexors are adopted "only if M2's or… | §1.4 wrist steadying rows (lines 118-119) (as rewritten) |
+| 19 | Evidence and counting | medium | The FPL adoption breaks the app's own evidence conventions and draws a line its new source does not support. (a) Basis "anatomy" is wrong for an incidental grip. The builder… | §1.3 FPL row (line 107), §1.4 FPL rows (lines 121-122) (as rewritten) |
+| 20 | Evidence and counting | medium | The grip-hold profile is assigned to the carries 299 Farmer's Walk and 409 Suitcase Carry. The add sheet would then pre-fill "3 × 30 sec", and under Max strength "3 × 10 sec": a… | §5.1 rep profiles, Deliberate grip hold row (lines 488, 491) (as rewritten) |
+| 21 | Evidence and counting | medium | Three problems with area membership. (1) The stated rule is that "A muscle belongs to the area where its tendon starts and the area where it ends". Yet BR is placed only at the… | §4.1 tendon areas (lines 409-419) (as rewritten) |
+| 22 | Evidence and counting | low | The copy calls brachioradialis credit grip. "Grip in rows, pulls and deadlifts is counted for the finger flexors and, in pulls, the brachioradialis" is anatomically wrong. BR's… | §4.4 copy, "Other" and "What grip covers" (lines 455-456) (as rewritten) |
+| 23 | Evidence and counting | low | The copy credits the package's editorial defaults to studies. "Starting ranges for this kind of movement, from general training studies" and "Holds of 10–30 s are a common… | §5.1-§5.3 rep guidance sources and copy (lines 146, 494, 499, 504) (as rewritten) |
+| 24 | Evidence and counting | low | M1 is misquoted in a binding decision. The draft says "M1 (Kleiber 2015) finds the brachioradialis contributes most with the hand pronated or neutral". M1's library note says BR's… | §1.3 BR in the thick-grip curl (line 108) (as rewritten) |
+| 25 | Evidence and counting | low | The F3 list of allowed golden differences is incomplete. The draft says "nothing else moves for FPL" beyond pending → incidental on 26 summaries, but the simulation it cites also… | §1.7 What athletes see change (line 183), §7.4 golden test (line 566) (as rewritten) |
+| 26 | Evidence and counting | low | The draft keeps per-side totals that the owner removed. "A region whose page reads a side per arm or leg shows the same number 'each arm' or 'each leg' (sideWordsFor)" builds a… | §3.3 the unit (line 290), §1.8 row 5 (line 199) (as rewritten) |
+| 27 | Evidence and counting | low | The starting sentence gets its own count wrong. "It starts at 14: one set for each movement your plan does not train directly yet" says 14 movements. On plan A it is 3 of the… | §3.3 starting sentence (line 292) (as rewritten) |
+| 28 | Evidence and counting | low | Three reasons in the reconciliation are factually wrong. The decisions survive, but lanes will copy the reasons. (1) "The grade carries nothing the bucket does not" is false:… | §1.1 (line 27), §1.3 FDS/FDP wrist-curl row (line 105), §8.1 (line 587) (as rewritten) |
+| 29 | Data, release and the size of the work | high | The recommended answer for 188 and 264 breaks a wave-A gate. The draft says to write 188 and 264 as the standing leg (sided_by leg) when v2 is published in seed v3. Rule 11 then… | §10 decision 4, §1.7 (line 189), §6 (line 514) (as rewritten) |
+| 30 | Data, release and the size of the work | high | Sending the three curl records to wave A ('so the region that credits most of their work decides them') cannot work with the data. In each record the package's only direct cell is… | §1.2 (fa-05, fa-15, fa-25; lines 43, 53, 63, 97), §8.2 (as rewritten) |
+| 31 | Data, release and the size of the work | medium | The plan has no download budget. 10-multi-region.md:440 caps the forearm page's download at 10 % over its baseline. 09-page.md:130 measures 438,690 B against 405,247 B (+8.3 %),… | §3.10, §5.1, §4, §7.5, §8.3 (as rewritten) |
+| 32 | Data, release and the size of the work | medium | The draft settles lane boundaries by itself. 10-multi-region.md binds lanes (draft line 5) and gives wave A's variants lane `shared/specialization/variants/**` and the catalog… | §8.2 (lines 591, 597, 604, 605), §1.2 S2 catalog fix (as rewritten) |
+| 33 | Data, release and the size of the work | medium | 'V1 may write v2 on its own branch at any time' and 'v2 lives as a draft version on its lane's branch' do not fit the code. (1) A region's content holds one mapping version… | §1.7 'Review and publication' (line 180), §8.1 (line 585), §8.2 V1 (line 603) (as rewritten) |
+| 34 | Data, release and the size of the work | medium | The window 'merged before wave A's step 3' lets F1 or F2 reach wave A unreviewed. In 10-multi-region §9.4, step 2 (the wave review finished, nothing open) comes before step 3… | §8.1 (lines 581, 585), §8.3 (as rewritten) |
+| 35 | Data, release and the size of the work | low | F3's allowed golden differences are given only for the per-arm golden set (34 summaries: 'FPL pending → incidental on the 26 listed', with unknownSide moving in 6). On the… | §7.4 golden test (line 566), §8.2 V1 hand-off (as rewritten) |
+| 36 | Data, release and the size of the work | low | Two review gaps. (1) §8.4 gives every lane a review focus except S2. S2 adds library sources (S09, S13, S14, S18) and per-variant rep ranges shown in three places (stack… | §8.4 (lines 613-623), §1.5 (line 157), §8.2 V1 (as rewritten) |
+
+The critics' full findings, with their evidence and proposed fixes, are kept with the experiments (`critiques.json`).

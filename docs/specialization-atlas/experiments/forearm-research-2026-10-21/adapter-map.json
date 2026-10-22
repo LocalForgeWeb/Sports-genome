@@ -1,0 +1,80 @@
+{
+  "about": "Package fields (exercises.json, muscles.json) to the shipped schema (shared/specialization/types.ts; supabase/migrations/20261016120000_specialization_atlas_schema.sql). 'none' = we have no equivalent.",
+  "muscle_ids": {
+    "rule": "One to one by anatomical name, all 19 (regions/forearm/ids.ts:13-33). Package ids are the kebab-case mesh ids of the owner's 3D viewer (02-design.md:207), which 02-design.md:208 already plans as node aliases.",
+    "map": {"brachioradialis": "forearm.br", "flexor-carpi-radialis": "forearm.fcr", "flexor-carpi-ulnaris": "forearm.fcu", "palmaris-longus": "forearm.pl", "flexor-digitorum-superficialis": "forearm.fds", "flexor-digitorum-profundus": "forearm.fdp", "flexor-pollicis-longus": "forearm.fpl", "pronator-teres": "forearm.pt", "pronator-quadratus": "forearm.pq", "extensor-carpi-radialis-longus": "forearm.ecrl", "extensor-carpi-radialis-brevis": "forearm.ecrb", "extensor-carpi-ulnaris": "forearm.ecu", "extensor-digitorum": "forearm.ed", "extensor-digiti-minimi": "forearm.edm", "extensor-indicis": "forearm.ei", "abductor-pollicis-longus": "forearm.apl", "extensor-pollicis-brevis": "forearm.epb", "extensor-pollicis-longus": "forearm.epl", "supinator": "forearm.supinator"},
+    "ours_only": ["forearm.anconeus (adjacent, nodes.ts:258; package: outside scope, START-HERE §4.1)", "upper_arm.biceps, upper_arm.brachialis (external contributors with real mappings, ids.ts:52-55; package lists them as free text in external_contributors)", "forearm.anterior, forearm.posterior (groups)"]
+  },
+  "bucket_to_category": {
+    "rule": "rules.ts:50-62 (categoryFor) and 02-design.md:36-46",
+    "direct_dynamic": "relationship direct + mode dynamic -> direct_dynamic. Same.",
+    "supporting_dynamic": "relationship contributing + mode dynamic -> contributing_dynamic ('Other dynamic', rules.ts:75). Same meaning.",
+    "deliberate_isometric": "relationship direct (or contributing) + mode isometric + variant.deliberateHold -> deliberate_isometric. Same. Ours requires the variant to be a hold (types.ts:325); the package marks it per muscle.",
+    "supporting_isometric": "relationship stabilizer + mode isometric -> incidental_isometric. Our CATEGORY merges it with incidental grip ('Incidental grip / stabilization', rules.ts:77); the RELATIONSHIP keeps them apart. The package keeps two buckets and START-HERE §8 maps supporting_dynamic+supporting_isometric to one 'supportingExerciseExposure' union.",
+    "incidental_grip": "relationship incidental + mode isometric -> incidental_isometric.",
+    "unmodeled": "no mapping row. Our 'unknown' category is different: a mapping that exists whose relationship or mode is unknown (rules.ts:29). A muscle with no reviewed mapping anywhere is hatched (02-design.md:62); one with mappings but none in this exercise is simply not touched.",
+    "ours_without_package_equivalent": ["mixed: one bout loads a node two ways, counted once (rules.ts:28, 31). The package's engine allows one bucket per muscle per exercise, so a Zottman-like two-way load has no home there.", "contributing isometric in a non-hold variant (78, 80 towel pull-up/rope climb grip) -> incidental_isometric with relationship contributing"]
+  },
+  "grade_to_relationship": {
+    "4 + direct_dynamic or deliberate_isometric": "direct",
+    "3 + supporting_dynamic": "contributing (only BR in rows and the towel pull-up, fa-28, fa-29, fa-42)",
+    "2 + supporting_dynamic": "contributing",
+    "2 + supporting_isometric": "stabilizer",
+    "2 + incidental_grip": "incidental",
+    "1": "unused in this seed",
+    "0": "unused (reserved for a reviewed exclusion)",
+    "null": "no mapping",
+    "where_vocabularies_do_not_line_up": [
+      "The grade is an ordinal magnitude; we have none. Grade 3 vs 2 (BR in rows vs PL in wrist curls) has no counterpart: both are 'contributing'. In this seed the grade adds no information beyond the bucket: 7 (grade, bucket, contraction) combinations cover all 1083 cells (4/DD/dyn 65, 4/DI/iso 19, 3/SD/dyn 3, 2/SD/dyn 33, 2/SI/iso 186, 2/IG/iso 87, null 690).",
+      "The package has no 'allocation'. Ours marks FDS+FDP (and other cooperating pairs) 'shared': the work is real but not split (types.ts:370-371); the package scores each muscle independently ('multiple muscles may each score 100'), which is our 'individual' by default.",
+      "The package's contraction 'isometric' on an incidental grip and ours agree; but the package also gives FDS/FDP 'dynamic' supporting work in wrist curls (fingers assist wrist flexion) where ours gives an isometric incidental grip (mappings.ts:175).",
+      "plausible_grade_band, tissue_exposure_grade_0_4, targeting_index_0_100: no equivalent and none should be added (the package forbids presenting them as statistics or medical scores)."
+    ]
+  },
+  "exercise_fields": {
+    "id (fa-*)": "none; provenance only. Our identity is the catalog id -> variant cat-<id> (02-design.md:24).",
+    "original_candidate_number": "none; provenance only.",
+    "name": "catalog_exercises name (exerciseCatalog*.ts); checked against variant.catalogName by test (variants/forearm.ts:35).",
+    "profile_id": "roughly variant.organization + catalog movement (wrist_flex -> single_joint 'Wrist flexion', grip_hold -> task, grip_compound/row -> multi_joint). No 1:1 field.",
+    "publication_status (draft_mapping / blocked_protocol / alias)": "mapping reviewStatus draft|reviewed|rejected (types.ts:22) per mapping, not per exercise; blocked_protocol ~ an unmapped catalog row with a reason (regions/forearm/unmapped.ts); alias ~ no field (same catalog id) or variant.replaces (types.ts:307-311).",
+    "canonical_alias_of": "none needed for fa-22 (resolves to catalog 411).",
+    "setup_definition": "variant.notes plus its dimensions (organization, forearmOrientation, wristPosition, gripType, straps, laterality, phase, measure, deliberateHold, elbowAngleDeg) (types.ts:306-335).",
+    "notes": "variant.notes / mapping.rationale.",
+    "evidence_basis (exercise level)": "per mapping evidenceBasis anatomy|biomechanics|emg|longitudinal|inference|unknown (types.ts:344). Package value 'anatomy_inference_with_analog_studies' -> ours 'anatomy' or 'inference' per cell; every package cell says 'heuristic_anatomical_mapping_not_measured_percentage'.",
+    "source_ids": "mapping.sources[] = {sourceId, locator, limitation} (types.ts:346-351). The package gives no locator or limitation per cell; our publication rule needs them (02-design.md:152).",
+    "external_contributors": "external node mappings (upper_arm.biceps/brachialis) where real; 'intrinsic hand muscles' is never credited by either (mappings.ts:24-26).",
+    "context_flags": "thick_handle, towel_handle, lever_arm_required, phase_dependent, unstable_object, ballistic, catch, pinch, surface_friction, closed_chain, finger_support, extended_wrist, device_specific_resistance, unquantified_resistance: partly gripType (crush/pinch), elbowAngleDeg, phase; thick handle, friction, ballistic, closed chain have no dimension. Descriptive dimensions can be added by the variants lane (variants/dimensions.ts header).",
+    "phases (fa-16 only)": "none; phase is concentric_eccentric|eccentric_only|concentric_only|unspecified (types.ts:298).",
+    "required_context": "side (logger, sidedBy), grip_orientation (variant), straps (logger), parent_bout_id (bout id; drop set stages are segments), actual_reps_or_seconds (reps or holdSeconds), effort (SetEffort). All exist (02-design.md:84-89; deviceWorkoutLog.ts:193).",
+    "prescription_profile_id / prescription_application": "none in the atlas. App-wide rep anchors are client/src/lib/trainingEvidence.ts.",
+    "measured_activation_percent, validated_tendon_risk_percent, force_or_strain_estimation_supported, requires_review_before_publication, model_version": "none; model_version ~ mapping versionKey forearm_mappings_v1 (ids.ts:57)."
+  },
+  "mapping_cell_fields": {
+    "muscle_id": "nodeId (above)",
+    "targeting_grade_0_4 / targeting_index_0_100": "relationship (above); no number stored",
+    "contraction": "muscleMode dynamic|isometric|mixed|unknown (types.ts:343); dynamic_concentric_eccentric -> dynamic; unmodeled -> no row",
+    "exposure_bucket": "category via categoryFor (above)",
+    "confidence (low/unresolved)": "none; reviewStatus + evidenceBasis + rationale carry it",
+    "missing on the package side": ["actionId (which joint action the muscle performs in this exercise; required, every mapping names one of its node's actions, 05-mappings.md:278)", "rationale (required)", "requiresNoStraps (the package withholds the WHOLE bout when grip_assisted; ours withholds only the bare-hand grip mappings, 02-design.md:58)", "allocation"]
+  },
+  "muscle_fields": {
+    "physical_function": "function claims (regions/forearm/claims.ts) + node actions (nodeActions.ts). Agree for 15 muscles; the package adds assist actions we do not list: BR 'assists return toward neutral rotation', APL 'assists extension at CMC', EPB 'assists CMC extension', EPL 'assists MCP/CMC extension' (we have EPL MCP assist, nodeActions.ts; no thumb CMC extension action id, actions/ids.ts:24-27).",
+    "visible_shape_contribution": "appearance claims (claims.ts, 'look'); both qualitative.",
+    "rep_profile_id": "none.",
+    "anatomy_sources": "claim sources.",
+    "tissue_units, regional_groups, attachments_summary": "none (no tissue model). New data with new anatomy claims to review if Tendon exposure is built.",
+    "tendon_injury_susceptibility_score, tendon_force_newtons, validated_muscle_specific_rep_optimum": "none, and none to add."
+  },
+  "event_fields (reference_engine.aggregate)": {
+    "segment_id": "segment id (drop-set stage; standard set = one segment)",
+    "session_id": "session id",
+    "parent_bout_id": "bout id (02-design.md:30)",
+    "exercise_id": "catalogExerciseId (name match fallback for old sessions, 02-design.md:34)",
+    "side left/right/bilateral": "left/right/bilateral/unknown; unknown kept apart, never an error (02-design.md:52)",
+    "state completed/planned": "completed session vs plan week (02-design.md:70-72)",
+    "is_warmup": "set.warmup; excluded and counted as excluded (exposure.ts:616); package keeps warm-ups as tendon-context exposure",
+    "reps, hold_seconds, load, unit": "reps, holdSeconds, weight+unit (kg in segments)",
+    "load_convention": "per catalog id (shared/loadConventions.ts:28, 55), not per set",
+    "grip_assisted": "straps yes/no/unknown"
+  }
+}

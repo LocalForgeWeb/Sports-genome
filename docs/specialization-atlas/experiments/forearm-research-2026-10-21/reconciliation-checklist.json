@@ -1,0 +1,649 @@
+{
+ "about": "Every checkbox of START-HERE-Claude.md sections 4, 5, 6, 7 and 10 (86 items), and whether it is already true of the shipped forearm atlas (branch claude/vigilant-galileo-u91fr3, head 95f4cdf). TRUE: already true. PARTLY: true in part, the rest said. NOT-YET: not built. PACKAGE-TASK: work on the package or its import, nothing for the shipped atlas to be. CONFLICT: the item conflicts with 02-design.md or a later binding note; the decision is given.",
+ "counts": {
+  "total": 86,
+  "PARTLY": 16,
+  "TRUE": 45,
+  "PACKAGE-TASK": 9,
+  "NOT-YET": 13,
+  "CONFLICT": 3
+ },
+ "items": [
+  {
+   "s": "4",
+   "line": 126,
+   "item": "Resolve all existing catalog IDs through a mapping table; preserve historical IDs.",
+   "status": "PARTLY",
+   "evidence": "Catalog ids are literal and never renumbered (client/src/lib/exerciseCatalog.ts:13441-13443; exerciseCatalogForearm.ts:7-10); mappings are keyed by catalog id with no name matching (regions/forearm/mappings.ts:6-7; 02-design.md:36). The fa-* to catalog table did not exist: reconciliation.json is its first draft (19 match, 9 ambiguous, 1 alias, 28 none)."
+  },
+  {
+   "s": "4",
+   "line": 127,
+   "item": "Treat fa-* IDs as external seed IDs.",
+   "status": "TRUE",
+   "evidence": "No fa-* id appears in shared/, client/src or server/ (searched); nothing has been imported."
+  },
+  {
+   "s": "4",
+   "line": 128,
+   "item": "Preserve original candidate numbers.",
+   "status": "PACKAGE-TASK",
+   "evidence": "Kept in reconciliation.json (originalCandidate); the app has no field for them and needs none outside the import report."
+  },
+  {
+   "s": "4",
+   "line": 129,
+   "item": "Alias candidate 22 to 12.",
+   "status": "TRUE",
+   "evidence": "Both resolve to one catalog row, 411 One-Arm Dumbbell Reverse Wrist Curl (variants/forearm.ts:131); no second record exists to dose twice."
+  },
+  {
+   "s": "4",
+   "line": 130,
+   "item": "Split candidate 32 into wrist flexion and extension machines.",
+   "status": "NOT-YET",
+   "evidence": "The catalog has no wrist machine (catalog search: wrist rows are 139, 140, 141, 350, 410, 411, 415, 416). Would be two new catalog rows from 417."
+  },
+  {
+   "s": "4",
+   "line": 131,
+   "item": "Split candidate 37 into kettlebell wrist flexion and extension.",
+   "status": "NOT-YET",
+   "evidence": "No kettlebell wrist curl in the catalog."
+  },
+  {
+   "s": "4",
+   "line": 132,
+   "item": "Split candidate 50 into individually logged rice-bucket actions.",
+   "status": "NOT-YET",
+   "evidence": "No rice-bucket row. The principle (one action per row, a mixed routine is not several credited sets) is already the catalog's: the wrist roller has a row per wind (exerciseCatalogForearm.ts:18-21; 05-mappings.md:67)."
+  },
+  {
+   "s": "4",
+   "line": 133,
+   "item": "Resolve 7, 10, 13, 27, 39, 40 before scoring; block future ambiguous protocols.",
+   "status": "PARTLY",
+   "evidence": "The atlas never guesses: an exercise with no reviewed mapping counts region-level only (rules.ts:35; 02-design.md:64), and deliberately unmapped rows carry a reason (regions/forearm/unmapped.ts:145-170). The six are not resolved; reconciliation.json lists their candidates (fa-07: 238/141/401; fa-10: 140/401/141/415; fa-13: 407; fa-27: 129; fa-39, fa-40: none)."
+  },
+  {
+   "s": "4",
+   "line": 134,
+   "item": "Correct candidate 17: pronation is toward palm-down.",
+   "status": "TRUE",
+   "evidence": "405 Lever Pronation turns palm-down; 406 palm-up (variants/forearm.ts:136-137); actions say 'palm down'/'palm up' (03-anatomy-evidence.md:158)."
+  },
+  {
+   "s": "4",
+   "line": 135,
+   "item": "Require an offset lever for dumbbell rotation.",
+   "status": "TRUE",
+   "evidence": "405/406 hold 'a handle loaded at one end' (variants/forearm.ts:136-137); the Zottman turn earns no rotator credit (mappings.ts:259-264; 05-mappings.md:36)."
+  },
+  {
+   "s": "4",
+   "line": 136,
+   "item": "For deviation, confirm the resistance vector.",
+   "status": "TRUE",
+   "evidence": "407/408: arm straight at the side, weight in front / behind (variants/forearm.ts:132-133), elbowAngleDeg 0."
+  },
+  {
+   "s": "4",
+   "line": 137,
+   "item": "Candidate 23: rope variant separately if its action differs.",
+   "status": "PACKAGE-TASK",
+   "evidence": "No cable wrist curl (flexion) in the catalog. The extension, 350, leaves bar or handle unknown (variants/forearm.ts:129)."
+  },
+  {
+   "s": "4",
+   "line": 138,
+   "item": "Candidate 16: retain phase information; no full rotator credit.",
+   "status": "TRUE",
+   "evidence": "136 forearmOrientation 'changing', notes the grip change (variants/forearm.ts:111); turn not credited (mappings.ts:259-264)."
+  },
+  {
+   "s": "4",
+   "line": 139,
+   "item": "Candidate 48: distinguish repeated squeezing from a sustained squeeze.",
+   "status": "PARTLY",
+   "evidence": "No ball squeeze; the gripper is split the same way: 402 Gripper Close (reps) and 403 Gripper Hold (seconds, deliberate hold) (variants/forearm.ts:141-142)."
+  },
+  {
+   "s": "4",
+   "line": 140,
+   "item": "Fingertip support: keep hand/finger context; do not divide body mass among fingers.",
+   "status": "PACKAGE-TASK",
+   "evidence": "No fingertip exercise in the catalog; no load is ever divided among fingers or muscles (mappings.ts:24-26)."
+  },
+  {
+   "s": "4",
+   "line": 141,
+   "item": "Grip-target holds deliberate; ordinary compounds incidental.",
+   "status": "TRUE",
+   "evidence": "Holds: deliberateHold true, seconds (variants/forearm.ts:88-92); pulls, hinges, shrugs, hangs: incidental grip (mappings.ts:105-111, 313-330); categoryFor (rules.ts:50-62)."
+  },
+  {
+   "s": "4",
+   "line": 142,
+   "item": "Record machine identity, grip attachment, straps, assistance, laterality, load convention.",
+   "status": "PARTLY",
+   "evidence": "Straps per exercise, side per set (07-logger.md:46-62); laterality and sidedBy per variant (variants/forearm.ts:18-22, 47-60); load conventions (05-mappings.md:69). Not recorded: machine identity, grip attachment or diameter (no value in types.ts:278-280 or variants/dimensions.ts:86-95), assistance."
+  },
+  {
+   "s": "4",
+   "line": 143,
+   "item": "Complete every ledger checkbox or document a blocker.",
+   "status": "PACKAGE-TASK",
+   "evidence": "None of the 285 ledger checkboxes (57 x 5) is ticked; reconciliation.json covers box 1 (catalog match) for every record and box 2 (19 cells) for the 24 records with a mapped catalog exercise."
+  },
+  {
+   "s": "5.1",
+   "line": 173,
+   "item": "No rep optima from guessed fibre-type percentages.",
+   "status": "TRUE",
+   "evidence": "The atlas holds no rep ranges at all; no fibre-type field in shared/specialization."
+  },
+  {
+   "s": "5.1",
+   "line": 174,
+   "item": "Do not equate anatomical function with training response.",
+   "status": "TRUE",
+   "evidence": "03-anatomy-evidence.md:26; rules.ts:41 ('No number here predicts growth'); 09-page.md:90 (sources speak to what a muscle does, not how much it grows)."
+  },
+  {
+   "s": "5.1",
+   "line": 175,
+   "item": "Keep validated_muscle_specific_rep_optimum null.",
+   "status": "TRUE",
+   "evidence": "No such field exists."
+  },
+  {
+   "s": "5.1",
+   "line": 176,
+   "item": "Weekly targets unset unless user or reviewed program supplies them.",
+   "status": "TRUE",
+   "evidence": "'There is no default target and no automatic increase' (02-design.md:78); 'Goal unset -> no fake deficit' (client/src/lib/specialization/brief11.test.ts:271)."
+  },
+  {
+   "s": "5.1",
+   "line": 177,
+   "item": "No universal 15+ sets target or automatic 19-muscle escalation.",
+   "status": "TRUE",
+   "evidence": "02-design.md:78; the target editor says a target is intent and numbers above 15 are fine (09-page.md:97). The owner's 20 Oct stack designer must keep this: total volume is the user's number, never escalated."
+  },
+  {
+   "s": "5.1",
+   "line": 178,
+   "item": "User-directed progression, not compulsory weekly increases.",
+   "status": "TRUE",
+   "evidence": "The atlas has no progression; goals change only when the athlete edits them (09-page.md:97)."
+  },
+  {
+   "s": "5.1",
+   "line": 179,
+   "item": "Keep planned and completed work separate.",
+   "status": "TRUE",
+   "evidence": "02-design.md:72-74; separate cache keys (06-calculation.md:74); 'Add exercise preview -> planned summary changes; completed summary does not' (06-calculation.md:131)."
+  },
+  {
+   "s": "5.1",
+   "line": 180,
+   "item": "Store actual ROM/technique qualifiers; do not invent ROM from the name.",
+   "status": "PARTLY",
+   "evidence": "A descriptive `range` dimension exists (variants/dimensions.ts:94) but no forearm variant sets it and no set records ROM. The catalog's evidenceContext.rangeOfMotion comes from study calibration per exercise (exerciseCatalog.ts:13444-13456), not from the set."
+  },
+  {
+   "s": "5.1",
+   "line": 181,
+   "item": "Store effort independently of targeting scores.",
+   "status": "TRUE",
+   "evidence": "Effort passes through, absent stays null (06-calculation.md:42; rules.ts:39); there is no targeting score."
+  },
+  {
+   "s": "5.1",
+   "line": 182,
+   "item": "Show load/rep improvements only for comparable exercises.",
+   "status": "TRUE",
+   "evidence": "Exercise performance is one exercise at a time by catalog id and says a different grip, implement or range is a different line (09-page.md:99)."
+  },
+  {
+   "s": "5.1",
+   "line": 183,
+   "item": "Do not compare machine stacks, gripper ratings, cables and free weights as equal forces.",
+   "status": "TRUE",
+   "evidence": "Same per-exercise charts (09-page.md:99); grippers log 'number on the implement' (05-mappings.md:51-52); load x reps is labelled external volume-load (rules.ts:38)."
+  },
+  {
+   "s": "5.1",
+   "line": 184,
+   "item": "Preserve historical values when the default recommendation changes.",
+   "status": "TRUE",
+   "evidence": "Summaries are computed from the stored sets every time (06-calculation.md:74); published versions are immutable (02-design.md:153; rules.ts:4-8)."
+  },
+  {
+   "s": "5.1",
+   "line": 185,
+   "item": "Never alter strength percentiles or rankings.",
+   "status": "TRUE",
+   "evidence": "Strength estimates, volume and percentiles skip hold sets (02-design.md:91); ranking lifts read the database snapshot, not catalog tags (05-mappings.md:44)."
+  },
+  {
+   "s": "6.2",
+   "line": 223,
+   "item": "Title the section 'Tendon exposure'.",
+   "status": "NOT-YET",
+   "evidence": "No tendon section exists (no 'tendon' outside the drawing code in client/src/components/specialization: diagramGeometry.ts:193-261 draws tendons only)."
+  },
+  {
+   "s": "6.2",
+   "line": 224,
+   "item": "Explain mapped exposure is incomplete and does not measure strain.",
+   "status": "NOT-YET",
+   "evidence": "The equivalent statement for muscles exists (rules.ts:41; 10-multi-region.md:533-534 method notes)."
+  },
+  {
+   "s": "6.2",
+   "line": 225,
+   "item": "Separate medial elbow, lateral elbow, wrist/thumb and digital views.",
+   "status": "NOT-YET",
+   "evidence": "No tissue unit or regional group in the model (types.ts has none)."
+  },
+  {
+   "s": "6.2",
+   "line": 226,
+   "item": "Deduplicate shared-region bouts; no summed muscle-grade heatmaps.",
+   "status": "PARTLY",
+   "evidence": "The region total is distinct bouts, not a sum of rows (rules.ts:36; 02-design.md:66); the map paints bins of direct bouts, never a sum (09-page.md:82-83). No tissue regions to dedupe."
+  },
+  {
+   "s": "6.2",
+   "line": 227,
+   "item": "Keep actual symptoms separate from inferred exposure.",
+   "status": "NOT-YET",
+   "evidence": "No symptom data is stored anywhere."
+  },
+  {
+   "s": "6.2",
+   "line": 228,
+   "item": "Display 'Not enough information' when tracking is incomplete.",
+   "status": "PARTLY",
+   "evidence": "Completeness counts and 'time not recorded' (09-page.md:88, 96; 06-calculation.md:62); no baseline logic."
+  },
+  {
+   "s": "6.2",
+   "line": 229,
+   "item": "Let users inspect source workouts behind a workload change.",
+   "status": "PARTLY",
+   "evidence": "Every total opens its sets (09-page.md:85-86), including Progress's weekly bars; there is no workload-change line."
+  },
+  {
+   "s": "6.2",
+   "line": 230,
+   "item": "Neutral prompt to review a new or rapidly changed workload.",
+   "status": "NOT-YET",
+   "evidence": "None."
+  },
+  {
+   "s": "6.2",
+   "line": 231,
+   "item": "Do not label no symptoms/no work as safe.",
+   "status": "TRUE",
+   "evidence": "Nothing on the page says safe; no green safety colour (exposure ramp only, 02-design.md:102)."
+  },
+  {
+   "s": "6.2",
+   "line": 232,
+   "item": "Do not encourage pushing through pain to meet a target.",
+   "status": "TRUE",
+   "evidence": "No pain or symptom prompts; targets are intent (09-page.md:97); nothing is suggested only to raise a number (02-design.md:133)."
+  },
+  {
+   "s": "6.2",
+   "line": 233,
+   "item": "Allow reduce, replace or defer a planned exercise from this screen.",
+   "status": "PARTLY",
+   "evidence": "Add or Swap with Undo (09-page.md:98; PlanChangeSheet.tsx); no remove, reduce or defer from the page."
+  },
+  {
+   "s": "6.2",
+   "line": 234,
+   "item": "No individualized injury-prevention or rehab prescriptions.",
+   "status": "TRUE",
+   "evidence": "rules.ts:41."
+  },
+  {
+   "s": "7.1",
+   "line": 240,
+   "item": "Locate catalog tables, muscle ids, logger events, calculation owners.",
+   "status": "TRUE",
+   "evidence": "02-design.md:7-19 (layers), 185-196 (owners); regions/forearm/ids.ts:13-33; 07-logger.md:46-62."
+  },
+  {
+   "s": "7.1",
+   "line": 241,
+   "item": "Find existing direct/supporting/isometric/incidental definitions before adding new ones.",
+   "status": "TRUE",
+   "evidence": "rules.ts:23-30 and 50-62 (categoryFor); types.ts:342-343. The crosswalk is in reconciliation.json vocabulary."
+  },
+  {
+   "s": "7.1",
+   "line": 242,
+   "item": "Read the existing atlas and 3D integration briefs.",
+   "status": "TRUE",
+   "evidence": "02-design.md:198-218 (renderer contract, 3D viewer); this review read them."
+  },
+  {
+   "s": "7.1",
+   "line": 243,
+   "item": "Field-by-field adapter map.",
+   "status": "NOT-YET",
+   "evidence": "Not in the repository; the vocabulary section of reconciliation.json is the crosswalk it would start from."
+  },
+  {
+   "s": "7.1",
+   "line": 244,
+   "item": "Live or cached historical results?",
+   "status": "TRUE",
+   "evidence": "Live from device logs with a memo LRU keyed by revisions (06-calculation.md:74); no ledger table (02-design.md:148)."
+  },
+  {
+   "s": "7.1",
+   "line": 245,
+   "item": "Ownership/RLS and migration conventions.",
+   "status": "TRUE",
+   "evidence": "02-design.md:157-170; 04-database.md sections 5 and 9."
+  },
+  {
+   "s": "7.1",
+   "line": 246,
+   "item": "Do not duplicate an existing concept under a new table name.",
+   "status": "TRUE",
+   "evidence": "Shared libraries for actions, sources, variants (10-multi-region.md:276-296); grades, tissue units and tendon exposure would be new concepts, the rest maps onto existing ones."
+  },
+  {
+   "s": "7.1",
+   "line": 247,
+   "item": "Import into staging first; no production enablement of draft mappings.",
+   "status": "CONFLICT",
+   "evidence": "There is no staging database; PGlite is the only rehearsal (02-design.md:170). Decision: the staging is a draft mapping version in TypeScript (MappingVersion.state 'draft', types.ts:380-386) loaded into PGlite, never emitted to production until reviewed. Drafts never count (02-design.md:64), which meets the package's intent."
+  },
+  {
+   "s": "7.2",
+   "line": 268,
+   "item": "Unique constraints for model/protocol/muscle.",
+   "status": "TRUE",
+   "evidence": "variant_mappings unique (version_id, mapping_key) (supabase/migrations/20261016120000_specialization_atlas_schema.sql:309); one mapping per variant and muscle (05-mappings.md:27)."
+  },
+  {
+   "s": "7.2",
+   "line": 269,
+   "item": "Grades null or 0-4; index = grade x 25.",
+   "status": "CONFLICT",
+   "evidence": "The atlas stores no numeric weight: raw categories only, no fractional accounting, no percentage split (02-design.md:68; mappings.ts:24). Decision: do not import grades or indices as data the calculator or page reads; keep them in the import report as the package's editorial hypothesis behind each reviewed relationship."
+  },
+  {
+   "s": "7.2",
+   "line": 270,
+   "item": "Reject unknown muscle ids; no display-name matching.",
+   "status": "TRUE",
+   "evidence": "Real foreign keys (02-design.md:147); no fuzzy matching (02-design.md:36). The package's 19 ids map one to one onto regions/forearm/ids.ts:13-33 (reconciliation.json vocabulary.muscleIdCrosswalk)."
+  },
+  {
+   "s": "7.2",
+   "line": 271,
+   "item": "Alias chains cycle-free.",
+   "status": "PARTLY",
+   "evidence": "Variants are replaced only through `replaces` with one current per catalog id (variants/index.ts:21-43); parent cycles refused (02-design.md:151). No exercise alias concept: duplicate catalog names (42/186, 134/337) are mapped identically instead (05-mappings.md:272)."
+  },
+  {
+   "s": "7.2",
+   "line": 272,
+   "item": "Preserve nulls through every adapter.",
+   "status": "TRUE",
+   "evidence": "Unknown never reads as zero (02-design.md:64); effort null (06-calculation.md:42); elbowAngleDeg null unless defined (types.ts:326-327)."
+  },
+  {
+   "s": "7.2",
+   "line": 273,
+   "item": "Provenance and mapping version in derived output.",
+   "status": "TRUE",
+   "evidence": "Summary carries mappingVersion and ruleVersion (shared/specialization/exposure.ts:696-697); Why this counts shows basis, rationale and sources (09-page.md:90)."
+  },
+  {
+   "s": "7.2",
+   "line": 274,
+   "item": "Idempotent import reporting inserted/updated/skipped/blocked.",
+   "status": "PARTLY",
+   "evidence": "The seed is generated and drift-guarded (02-design.md:166); no per-run count report."
+  },
+  {
+   "s": "7.2",
+   "line": 275,
+   "item": "Publish reviewed mappings only; unresolved records searchable with an honest unavailable state.",
+   "status": "CONFLICT",
+   "evidence": "A published version may hold draft rows, hidden from users, labelled pending review, never counted (02-design.md:154; 05-mappings.md:277). Decision: keep 02-design's rule; it gives the package's outcome (nothing unreviewed is counted). Unmapped exercises stay in the catalog and count region-level only (rules.ts:35)."
+  },
+  {
+   "s": "7.2",
+   "line": 276,
+   "item": "Cross-user isolation with two distinct users.",
+   "status": "TRUE",
+   "evidence": "server/specializationSchema.test.ts: anon, user A, user B, service role (06-calculation.md:140; 02-design.md:168)."
+  },
+  {
+   "s": "7.2",
+   "line": 277,
+   "item": "Symptom data out of analytics and share cards.",
+   "status": "PACKAGE-TASK",
+   "evidence": "No symptom data exists."
+  },
+  {
+   "s": "7.2",
+   "line": 278,
+   "item": "Plan rollback to the previous mapping version without losing raw logs.",
+   "status": "PARTLY",
+   "evidence": "The database is forward-only: a correction is a new version (10-multi-region.md:422-425); raw logs live on the device and are never rewritten by a version change. Rolling back means the page reading the earlier key again, which only a release can do."
+  },
+  {
+   "s": "7.2",
+   "line": 279,
+   "item": "Recompute historical projections on activation.",
+   "status": "TRUE",
+   "evidence": "No stored projections; every summary is recomputed (06-calculation.md:74; golden test 06-calculation.md:204-212)."
+  },
+  {
+   "s": "7.2",
+   "line": 280,
+   "item": "Backfill in resumable batches.",
+   "status": "PACKAGE-TASK",
+   "evidence": "Nothing to backfill: no server-side projection table (02-design.md:148)."
+  },
+  {
+   "s": "7.2",
+   "line": 281,
+   "item": "Invalidate caches after edits, deletes, swaps and version changes.",
+   "status": "TRUE",
+   "evidence": "Cache key holds source and plan revisions, rule and mapping versions (06-calculation.md:74); 'recalculates when a set is edited or a workout removed' (06-calculation.md:136)."
+  },
+  {
+   "s": "10",
+   "line": 365,
+   "item": "Run `python3 -m unittest -v test_model.py` from the package directory.",
+   "status": "TRUE",
+   "evidence": "16 tests OK on a copy in forearm-v2/pkg. Under `python3 -I -m unittest -v test_model` the import fails (isolated mode drops the working directory from sys.path); `python3 -I -m unittest discover -v -s <pkg> -t <pkg> -p test_model.py` runs all 16, OK."
+  },
+  {
+   "s": "10",
+   "line": 366,
+   "item": "Port the behavioural cases to the app's calculator tests.",
+   "status": "PARTLY",
+   "evidence": "Already held: drop set (brief11.test.ts:112), bilateral (58), left-only (69), unknown side (77), straps (156, 167), warm-up/skipped (183), swap (204), edit/delete (240), planned vs completed (06-calculation.md:131). Missing: blocked protocol, conflicting duplicate rejected, tissue-region dedupe, missing hold seconds counted per segment, workload change."
+  },
+  {
+   "s": "10",
+   "line": 367,
+   "item": "Retain whole-exercise prescriptions for rows, pull-ups, presses, RDLs.",
+   "status": "TRUE",
+   "evidence": "The atlas never writes a prescription; planned bouts read the plan's own (planBouts.ts via prescriptionOf, 06-calculation.md:30, 108)."
+  },
+  {
+   "s": "10",
+   "line": 368,
+   "item": "All 50 original candidates traceable.",
+   "status": "TRUE",
+   "evidence": "Package test test_all_candidates_and_cells; reconciliation.json keeps every record with its candidate number."
+  },
+  {
+   "s": "10",
+   "line": 369,
+   "item": "57 records, 19 cells each.",
+   "status": "TRUE",
+   "evidence": "Package test passes; the CSV matches exercises.json cell for cell (1,083 rows, 0 mismatches) and the ledger matches too (57 sections, 0 mismatches)."
+  },
+  {
+   "s": "10",
+   "line": 370,
+   "item": "Alias resolution and blocked protocols.",
+   "status": "PACKAGE-TASK",
+   "evidence": "Package tests test_alias, test_blocked_protocols pass; nothing to resolve in the app (one catalog row, 411)."
+  },
+  {
+   "s": "10",
+   "line": 371,
+   "item": "UI never renders unknown as a measured zero.",
+   "status": "TRUE",
+   "evidence": "02-design.md:64; hatching for no reviewed mapping (09-page.md:83); 'time not recorded' (09-page.md:96); no zeros while loading (09-page.md:91, 109)."
+  },
+  {
+   "s": "10",
+   "line": 372,
+   "item": "Reps, seconds and loads independent.",
+   "status": "TRUE",
+   "evidence": "06-calculation.md:56; swap never carries seconds into reps (07-logger.md, 'Swap and add')."
+  },
+  {
+   "s": "10",
+   "line": 373,
+   "item": "Left-only, right-only, bilateral.",
+   "status": "TRUE",
+   "evidence": "brief11.test.ts:58, 69, 77."
+  },
+  {
+   "s": "10",
+   "line": 374,
+   "item": "Drop sets, duplicate delivery, edited/deleted logs.",
+   "status": "PARTLY",
+   "evidence": "Drop set one bout (brief11.test.ts:112); duplicate id read once, first record kept, no conflict check (shared/specialization/exposure.ts:529-534); edit/delete (brief11.test.ts:240). The package rejects conflicting duplicates (reference_engine.py:61-64)."
+  },
+  {
+   "s": "10",
+   "line": 375,
+   "item": "Straps/assistance uncertainty.",
+   "status": "PARTLY",
+   "evidence": "Straps yes/no/unknown (06-calculation.md:54; brief11.test.ts:156, 167). Assistance is not recorded. The package engine marks a whole grip-assisted bout unresolved (reference_engine.py:91-93); ours withholds only the no-straps grip mappings (02-design.md:60), closer to the package's own text (START-HERE:291)."
+  },
+  {
+   "s": "10",
+   "line": 376,
+   "item": "Shared tendon-region deduplication.",
+   "status": "NOT-YET",
+   "evidence": "No tissue regions."
+  },
+  {
+   "s": "10",
+   "line": 377,
+   "item": "Warm-up versus working exposure.",
+   "status": "PARTLY",
+   "evidence": "Warm-ups are left out of totals and counted in completeness (exposure.ts:627; rules.ts:19), but the logger never writes `warmup` (07-logger.md:55, 197), so no warm-up exposure exists to show in a tendon view."
+  },
+  {
+   "s": "10",
+   "line": 378,
+   "item": "Old-history recomputation and cache invalidation.",
+   "status": "TRUE",
+   "evidence": "06-calculation.md:74, 136, 204-212."
+  },
+  {
+   "s": "10",
+   "line": 379,
+   "item": "Baseline-zero, sparse history, incomplete weeks.",
+   "status": "NOT-YET",
+   "evidence": "No workload-change comparison; the package's workload_change uses the median of the last four prior weeks (reference_engine.py:153) while its text says the preceding complete windows (START-HERE:219)."
+  },
+  {
+   "s": "10",
+   "line": 380,
+   "item": "Low-confidence scores stay labelled as estimates.",
+   "status": "PACKAGE-TASK",
+   "evidence": "No scores in the app; under the decision at line 269 none are imported as data."
+  },
+  {
+   "s": "10",
+   "line": 381,
+   "item": "No ranking/percentile side effects.",
+   "status": "TRUE",
+   "evidence": "05-mappings.md:44; 02-design.md:91."
+  },
+  {
+   "s": "10",
+   "line": 382,
+   "item": "Reduced motion, keyboard/list access, small screens.",
+   "status": "TRUE",
+   "evidence": "02-design.md:112; 09-page.md:44-67, 102; the muscle list is the list alternative to the drawing (09-page.md:50)."
+  },
+  {
+   "s": "10",
+   "line": 383,
+   "item": "Symptom-row isolation and share-card exclusions.",
+   "status": "PACKAGE-TASK",
+   "evidence": "No symptom rows."
+  },
+  {
+   "s": "10",
+   "line": 384,
+   "item": "Human reviewers resolve the six blocked candidates and numeric assumptions.",
+   "status": "NOT-YET",
+   "evidence": "The atlas's own review is automated, not a clinician or anatomist (03-anatomy-evidence.md:25; 10-multi-region.md:530-531)."
+  },
+  {
+   "s": "10",
+   "line": 385,
+   "item": "Final approved/draft/blocked matrix, tests, screenshots, migration/backfill status.",
+   "status": "NOT-YET",
+   "evidence": "This reconciliation is the matrix's input; nothing is approved."
+  }
+ ],
+ "countsBySection": {
+  "4": {
+   "PARTLY": 4,
+   "TRUE": 7,
+   "PACKAGE-TASK": 4,
+   "NOT-YET": 3
+  },
+  "5.1": {
+   "TRUE": 12,
+   "PARTLY": 1
+  },
+  "6.2": {
+   "NOT-YET": 5,
+   "PARTLY": 4,
+   "TRUE": 3
+  },
+  "7.1": {
+   "TRUE": 6,
+   "NOT-YET": 1,
+   "CONFLICT": 1
+  },
+  "7.2": {
+   "TRUE": 7,
+   "CONFLICT": 2,
+   "PARTLY": 3,
+   "PACKAGE-TASK": 2
+  },
+  "10": {
+   "TRUE": 10,
+   "PARTLY": 4,
+   "PACKAGE-TASK": 3,
+   "NOT-YET": 4
+  }
+ }
+}

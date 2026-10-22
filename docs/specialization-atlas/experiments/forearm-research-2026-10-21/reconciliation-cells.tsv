@@ -1,0 +1,261 @@
+package_id	candidate	catalog_id	catalog_name	muscle	pkg_grade	pkg_contraction	pkg_bucket	our_relationship	our_mode	our_allocation	our_category	our_status	our_action	result	how
+fa-01	match	139	Wrist Curl	FCR	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.flexion	AGREE	
+fa-01	match	139	Wrist Curl	FCU	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.flexion	AGREE	
+fa-01	match	139	Wrist Curl	PL	2	dynamic_concentric_eccentric	supporting_dynamic	contributing	dynamic	individual	contributing_dynamic	reviewed	wrist.flexion	AGREE	
+fa-01	match	139	Wrist Curl	FDS	2	dynamic_concentric_eccentric	supporting_dynamic	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	DISAGREE	package grade 2 dynamic_concentric_eccentric supporting_dynamic (= our contributing_dynamic); ours incidental isometric = incidental_isometric.
+fa-01	match	139	Wrist Curl	FDP	2	dynamic_concentric_eccentric	supporting_dynamic	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	DISAGREE	package grade 2 dynamic_concentric_eccentric supporting_dynamic (= our contributing_dynamic); ours incidental isometric = incidental_isometric.
+fa-01	match	139	Wrist Curl	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-02	match	140	Reverse Wrist Curl	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-02	match	140	Reverse Wrist Curl	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-02	match	140	Reverse Wrist Curl	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-02	match	140	Reverse Wrist Curl	ECRL	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.extension	AGREE	
+fa-02	match	140	Reverse Wrist Curl	ECRB	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.extension	AGREE	
+fa-02	match	140	Reverse Wrist Curl	ECU	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.extension	AGREE	
+fa-02	match	140	Reverse Wrist Curl	ED	2	dynamic_concentric_eccentric	supporting_dynamic	contributing	dynamic	individual	contributing_dynamic	reviewed	wrist.extension	AGREE	
+fa-03	none	-												NO-CATALOG-MATCH	No behind-the-back wrist curl in the catalog. 139 is the nearest family (supinated barbell wrist flexion) but is supported in front of the body; a behind-the-back row would be a new catalog row (one variant per catalog id, 10-multi-region.md:279).
+fa-04	match	135	Reverse Curl	BR	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	elbow.flexion	AGREE	
+fa-04	match	135	Reverse Curl	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-04	match	135	Reverse Curl	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-04	match	135	Reverse Curl	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-04	match	135	Reverse Curl	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-04	match	135	Reverse Curl	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-04	match	135	Reverse Curl	ECRL	2	isometric	supporting_isometric	stabilizer	isometric	individual	incidental_isometric	reviewed	wrist.extension	AGREE	
+fa-04	match	135	Reverse Curl	ECRB	2	isometric	supporting_isometric	stabilizer	isometric	individual	incidental_isometric	reviewed	wrist.extension	AGREE	
+fa-04	match	135	Reverse Curl	ECU	2	isometric	supporting_isometric	stabilizer	isometric	individual	incidental_isometric	reviewed	wrist.extension	AGREE	
+fa-04	match	135	Reverse Curl	upper_arm.biceps				contributing	dynamic		contributing_dynamic	reviewed		OURS-ONLY-EXTERNAL	upper-arm muscle, outside the package 19
+fa-04	match	135	Reverse Curl	upper_arm.brachialis				direct	dynamic		direct_dynamic	reviewed		OURS-ONLY-EXTERNAL	upper-arm muscle, outside the package 19
+fa-05	none	-												NO-CATALOG-MATCH	No reverse (pronated) preacher curl. 126 Preacher Curl is supinated (variants/forearm.ts:101); 135 Reverse Curl is not on a pad.
+fa-06	none	-												NO-CATALOG-MATCH	No barbell static hold. 145 Farmer Hold is 'an implement in each hand', neutral grip (variants/forearm.ts:152); a bar held in both hands, pronated or mixed, is a different grip and forearm orientation.
+fa-07	ambiguous	238,141,401												PACKAGE-BLOCKED	Package blocks it (protocol unknown). Candidates: 238 Barbell Rollout (abdominal), 141 Wrist Roller, 401 Finger Curl (bar rolled to the fingertips). Do not choose; keep blocked.
+fa-08	ambiguous	121	Barbell Curl	BR	4	dynamic_concentric_eccentric	direct_dynamic	contributing	dynamic	individual	contributing_dynamic	reviewed	elbow.flexion	DISAGREE	package grade 4 dynamic_concentric_eccentric direct_dynamic (= our direct_dynamic); ours contributing dynamic = contributing_dynamic.
+fa-08	ambiguous	121	Barbell Curl	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-08	ambiguous	121	Barbell Curl	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-08	ambiguous	121	Barbell Curl	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-08	ambiguous	121	Barbell Curl	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-08	ambiguous	121	Barbell Curl	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-08	ambiguous	121	Barbell Curl	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-08	ambiguous	121	Barbell Curl	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-08	ambiguous	121	Barbell Curl	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-08	ambiguous	121	Barbell Curl	upper_arm.biceps				direct	dynamic		direct_dynamic	reviewed		OURS-ONLY-EXTERNAL	upper-arm muscle, outside the package 19
+fa-08	ambiguous	121	Barbell Curl	upper_arm.brachialis				direct	dynamic		direct_dynamic	reviewed		OURS-ONLY-EXTERNAL	upper-arm muscle, outside the package 19
+fa-09	ambiguous	42	Romanian Deadlift	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-09	ambiguous	42	Romanian Deadlift	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-09	ambiguous	42	Romanian Deadlift	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-09	ambiguous	42	Romanian Deadlift	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-09	ambiguous	42	Romanian Deadlift	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-09	ambiguous	42	Romanian Deadlift	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-09	ambiguous	42	Romanian Deadlift	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-09	ambiguous	42	Romanian Deadlift	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-09	ambiguous	186	Romanian Deadlift	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-09	ambiguous	186	Romanian Deadlift	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-09	ambiguous	186	Romanian Deadlift	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-09	ambiguous	186	Romanian Deadlift	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-09	ambiguous	186	Romanian Deadlift	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-09	ambiguous	186	Romanian Deadlift	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-09	ambiguous	186	Romanian Deadlift	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-09	ambiguous	186	Romanian Deadlift	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-10	ambiguous	140,401,141,415												PACKAGE-BLOCKED	Package blocks it. Candidates: 140 Reverse Wrist Curl, 401 Finger Curl, 141 Wrist Roller, 415 Wrist Roller, Extension Wind.
+fa-11	match	410	One-Arm Dumbbell Wrist Curl	FCR	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.flexion	AGREE	
+fa-11	match	410	One-Arm Dumbbell Wrist Curl	FCU	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.flexion	AGREE	
+fa-11	match	410	One-Arm Dumbbell Wrist Curl	PL	2	dynamic_concentric_eccentric	supporting_dynamic	contributing	dynamic	individual	contributing_dynamic	reviewed	wrist.flexion	AGREE	
+fa-11	match	410	One-Arm Dumbbell Wrist Curl	FDS	2	dynamic_concentric_eccentric	supporting_dynamic	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	DISAGREE	package grade 2 dynamic_concentric_eccentric supporting_dynamic (= our contributing_dynamic); ours incidental isometric = incidental_isometric.
+fa-11	match	410	One-Arm Dumbbell Wrist Curl	FDP	2	dynamic_concentric_eccentric	supporting_dynamic	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	DISAGREE	package grade 2 dynamic_concentric_eccentric supporting_dynamic (= our contributing_dynamic); ours incidental isometric = incidental_isometric.
+fa-11	match	410	One-Arm Dumbbell Wrist Curl	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-12	match	411	One-Arm Dumbbell Reverse Wrist Curl	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-12	match	411	One-Arm Dumbbell Reverse Wrist Curl	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-12	match	411	One-Arm Dumbbell Reverse Wrist Curl	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-12	match	411	One-Arm Dumbbell Reverse Wrist Curl	ECRL	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.extension	AGREE	
+fa-12	match	411	One-Arm Dumbbell Reverse Wrist Curl	ECRB	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.extension	AGREE	
+fa-12	match	411	One-Arm Dumbbell Reverse Wrist Curl	ECU	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.extension	AGREE	
+fa-12	match	411	One-Arm Dumbbell Reverse Wrist Curl	ED	2	dynamic_concentric_eccentric	supporting_dynamic	contributing	dynamic	individual	contributing_dynamic	reviewed	wrist.extension	AGREE	
+fa-13	ambiguous	407												PACKAGE-BLOCKED	Package blocks it (wrist flexion or radial deviation not identified). If it is radial deviation, 407 Lever Radial Deviation; if neutral-forearm wrist flexion, the catalog has none.
+fa-14	match	132	Hammer Curl	BR	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	elbow.flexion	AGREE	
+fa-14	match	132	Hammer Curl	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-14	match	132	Hammer Curl	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-14	match	132	Hammer Curl	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-14	match	132	Hammer Curl	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-14	match	132	Hammer Curl	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-14	match	132	Hammer Curl	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-14	match	132	Hammer Curl	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-14	match	132	Hammer Curl	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-14	match	132	Hammer Curl	upper_arm.biceps				contributing	dynamic		contributing_dynamic	reviewed		OURS-ONLY-EXTERNAL	upper-arm muscle, outside the package 19
+fa-14	match	132	Hammer Curl	upper_arm.brachialis				direct	dynamic		direct_dynamic	reviewed		OURS-ONLY-EXTERNAL	upper-arm muscle, outside the package 19
+fa-15	none	-												NO-CATALOG-MATCH	No preacher hammer curl. 132 is unsupported; 126 is supinated.
+fa-16	match	136	Zottman Curl	BR	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	elbow.flexion	AGREE	
+fa-16	match	136	Zottman Curl	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-16	match	136	Zottman Curl	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-16	match	136	Zottman Curl	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-16	match	136	Zottman Curl	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-16	match	136	Zottman Curl	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-16	match	136	Zottman Curl	ECRL	2	isometric	supporting_isometric	stabilizer	isometric	individual	incidental_isometric	reviewed	wrist.extension	AGREE	
+fa-16	match	136	Zottman Curl	ECRB	2	isometric	supporting_isometric	stabilizer	isometric	individual	incidental_isometric	reviewed	wrist.extension	AGREE	
+fa-16	match	136	Zottman Curl	ECU	2	isometric	supporting_isometric	stabilizer	isometric	individual	incidental_isometric	reviewed	wrist.extension	AGREE	
+fa-16	match	136	Zottman Curl	upper_arm.biceps				direct	dynamic		direct_dynamic	reviewed		OURS-ONLY-EXTERNAL	upper-arm muscle, outside the package 19
+fa-16	match	136	Zottman Curl	upper_arm.brachialis				direct	dynamic		direct_dynamic	reviewed		OURS-ONLY-EXTERNAL	upper-arm muscle, outside the package 19
+fa-17	match	405	Lever Pronation	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-17	match	405	Lever Pronation	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-17	match	405	Lever Pronation	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-17	match	405	Lever Pronation	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-17	match	405	Lever Pronation	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-17	match	405	Lever Pronation	PT	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	shared	direct_dynamic	reviewed	forearm.pronation	AGREE	
+fa-17	match	405	Lever Pronation	PQ	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	shared	direct_dynamic	reviewed	forearm.pronation	AGREE	
+fa-17	match	405	Lever Pronation	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-17	match	405	Lever Pronation	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-17	match	405	Lever Pronation	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-18	match	406	Lever Supination	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-18	match	406	Lever Supination	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-18	match	406	Lever Supination	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-18	match	406	Lever Supination	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-18	match	406	Lever Supination	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-18	match	406	Lever Supination	PQ	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-18	match	406	Lever Supination	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-18	match	406	Lever Supination	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-18	match	406	Lever Supination	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-18	match	406	Lever Supination	SUP	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	shared	direct_dynamic	reviewed	forearm.supination	AGREE	
+fa-18	match	406	Lever Supination	upper_arm.biceps				contributing	dynamic		contributing_dynamic	reviewed		OURS-ONLY-EXTERNAL	upper-arm muscle, outside the package 19
+fa-19	match	407	Lever Radial Deviation	FCR	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	shared	direct_dynamic	reviewed	wrist.radial_deviation	AGREE	
+fa-19	match	407	Lever Radial Deviation	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-19	match	407	Lever Radial Deviation	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-19	match	407	Lever Radial Deviation	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-19	match	407	Lever Radial Deviation	ECRL	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	shared	direct_dynamic	reviewed	wrist.radial_deviation	AGREE	
+fa-19	match	407	Lever Radial Deviation	ECRB	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	shared	direct_dynamic	reviewed	wrist.radial_deviation	AGREE	
+fa-20	match	408	Lever Ulnar Deviation	FCU	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	shared	direct_dynamic	reviewed	wrist.ulnar_deviation	AGREE	
+fa-20	match	408	Lever Ulnar Deviation	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-20	match	408	Lever Ulnar Deviation	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-20	match	408	Lever Ulnar Deviation	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-20	match	408	Lever Ulnar Deviation	ECU	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	shared	direct_dynamic	reviewed	wrist.ulnar_deviation	AGREE	
+fa-21	ambiguous	299	Farmer’s Walk	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-21	ambiguous	299	Farmer’s Walk	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-21	ambiguous	299	Farmer’s Walk	FDS	4	isometric	deliberate_isometric	direct	isometric	shared	deliberate_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-21	ambiguous	299	Farmer’s Walk	FDP	4	isometric	deliberate_isometric	direct	isometric	shared	deliberate_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-21	ambiguous	299	Farmer’s Walk	FPL	2	isometric	supporting_isometric	contributing	isometric	individual	deliberate_isometric	draft	thumb.ip_flexion	DISAGREE-DRAFT	package grade 2 isometric supporting_isometric (= our incidental_isometric); ours contributing isometric = deliberate_isometric. Ours is a draft mapping: pending review, not counted.
+fa-21	ambiguous	299	Farmer’s Walk	ECRL	2	isometric	supporting_isometric	stabilizer	isometric	individual	incidental_isometric	reviewed	wrist.extension	AGREE	
+fa-21	ambiguous	299	Farmer’s Walk	ECRB	2	isometric	supporting_isometric	stabilizer	isometric	individual	incidental_isometric	reviewed	wrist.extension	AGREE	
+fa-21	ambiguous	299	Farmer’s Walk	ECU	2	isometric	supporting_isometric	stabilizer	isometric	individual	incidental_isometric	reviewed	wrist.extension	AGREE	
+fa-22	alias	411	One-Arm Dumbbell Reverse Wrist Curl	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-22	alias	411	One-Arm Dumbbell Reverse Wrist Curl	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-22	alias	411	One-Arm Dumbbell Reverse Wrist Curl	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-22	alias	411	One-Arm Dumbbell Reverse Wrist Curl	ECRL	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.extension	AGREE	
+fa-22	alias	411	One-Arm Dumbbell Reverse Wrist Curl	ECRB	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.extension	AGREE	
+fa-22	alias	411	One-Arm Dumbbell Reverse Wrist Curl	ECU	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.extension	AGREE	
+fa-22	alias	411	One-Arm Dumbbell Reverse Wrist Curl	ED	2	dynamic_concentric_eccentric	supporting_dynamic	contributing	dynamic	individual	contributing_dynamic	reviewed	wrist.extension	AGREE	
+fa-23	none	-												NO-CATALOG-MATCH	No cable wrist curl (flexion). The catalog has only the extension, 350.
+fa-24	match	350	Cable Wrist Extension	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-24	match	350	Cable Wrist Extension	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-24	match	350	Cable Wrist Extension	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-24	match	350	Cable Wrist Extension	ECRL	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.extension	AGREE	
+fa-24	match	350	Cable Wrist Extension	ECRB	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.extension	AGREE	
+fa-24	match	350	Cable Wrist Extension	ECU	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	wrist.extension	AGREE	
+fa-24	match	350	Cable Wrist Extension	ED	2	dynamic_concentric_eccentric	supporting_dynamic	contributing	dynamic	individual	contributing_dynamic	reviewed	wrist.extension	AGREE	
+fa-25	none	-												NO-CATALOG-MATCH	No cable reverse curl. 135 is a barbell.
+fa-26	ambiguous	134	Rope Hammer Curl	BR	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	elbow.flexion	AGREE	
+fa-26	ambiguous	134	Rope Hammer Curl	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-26	ambiguous	134	Rope Hammer Curl	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-26	ambiguous	134	Rope Hammer Curl	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-26	ambiguous	134	Rope Hammer Curl	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-26	ambiguous	134	Rope Hammer Curl	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-26	ambiguous	134	Rope Hammer Curl	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-26	ambiguous	134	Rope Hammer Curl	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-26	ambiguous	134	Rope Hammer Curl	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-26	ambiguous	134	Rope Hammer Curl	upper_arm.biceps				contributing	dynamic		contributing_dynamic	reviewed		OURS-ONLY-EXTERNAL	upper-arm muscle, outside the package 19
+fa-26	ambiguous	134	Rope Hammer Curl	upper_arm.brachialis				direct	dynamic		direct_dynamic	reviewed		OURS-ONLY-EXTERNAL	upper-arm muscle, outside the package 19
+fa-26	ambiguous	337	Rope Hammer Cable Curl	BR	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	individual	direct_dynamic	reviewed	elbow.flexion	AGREE	
+fa-26	ambiguous	337	Rope Hammer Cable Curl	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-26	ambiguous	337	Rope Hammer Cable Curl	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-26	ambiguous	337	Rope Hammer Cable Curl	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-26	ambiguous	337	Rope Hammer Cable Curl	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-26	ambiguous	337	Rope Hammer Cable Curl	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-26	ambiguous	337	Rope Hammer Cable Curl	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-26	ambiguous	337	Rope Hammer Cable Curl	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-26	ambiguous	337	Rope Hammer Cable Curl	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-26	ambiguous	337	Rope Hammer Cable Curl	upper_arm.biceps				contributing	dynamic		contributing_dynamic	reviewed		OURS-ONLY-EXTERNAL	upper-arm muscle, outside the package 19
+fa-26	ambiguous	337	Rope Hammer Cable Curl	upper_arm.brachialis				direct	dynamic		direct_dynamic	reviewed		OURS-ONLY-EXTERNAL	upper-arm muscle, outside the package 19
+fa-27	ambiguous	129												PACKAGE-BLOCKED	Package blocks it (elbow or wrist family). If an elbow curl with the arm behind the torso, 129 Bayesian Cable Curl; no behind-the-back cable wrist curl exists.
+fa-28	match	332	Rope Cable Row	BR	3	dynamic_concentric_eccentric	supporting_dynamic	contributing	dynamic	individual	contributing_dynamic	reviewed	elbow.flexion	AGREE	
+fa-28	match	332	Rope Cable Row	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-28	match	332	Rope Cable Row	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-28	match	332	Rope Cable Row	FDS	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-28	match	332	Rope Cable Row	FDP	2	isometric	incidental_grip	incidental	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-28	match	332	Rope Cable Row	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-28	match	332	Rope Cable Row	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-28	match	332	Rope Cable Row	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-28	match	332	Rope Cable Row	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-29	none	-												NO-CATALOG-MATCH	No towel cable row. 78 Towel Pull-Up is the only towel pull.
+fa-30	none	-												NO-CATALOG-MATCH	No pronation machine; 405 is a dumbbell lever (equipment Dumbbells).
+fa-31	none	-												NO-CATALOG-MATCH	No supination machine; 406 is a dumbbell lever.
+fa-32-flexion	none	-												NO-CATALOG-MATCH	No wrist flexion machine.
+fa-32-extension	none	-												NO-CATALOG-MATCH	No wrist extension machine.
+fa-33	match	409	Suitcase Carry	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-33	match	409	Suitcase Carry	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-33	match	409	Suitcase Carry	FDS	4	isometric	deliberate_isometric	direct	isometric	shared	deliberate_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-33	match	409	Suitcase Carry	FDP	4	isometric	deliberate_isometric	direct	isometric	shared	deliberate_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-33	match	409	Suitcase Carry	FPL	2	isometric	supporting_isometric	contributing	isometric	individual	deliberate_isometric	draft	thumb.ip_flexion	DISAGREE-DRAFT	package grade 2 isometric supporting_isometric (= our incidental_isometric); ours contributing isometric = deliberate_isometric. Ours is a draft mapping: pending review, not counted.
+fa-33	match	409	Suitcase Carry	ECRL	2	isometric	supporting_isometric	stabilizer	isometric	individual	incidental_isometric	reviewed	wrist.extension	AGREE	
+fa-33	match	409	Suitcase Carry	ECRB	2	isometric	supporting_isometric	stabilizer	isometric	individual	incidental_isometric	reviewed	wrist.extension	AGREE	
+fa-33	match	409	Suitcase Carry	ECU	2	isometric	supporting_isometric	stabilizer	isometric	individual	incidental_isometric	reviewed	wrist.extension	AGREE	
+fa-34	none	-												NO-CATALOG-MATCH	No bottoms-up kettlebell press.
+fa-35	none	-												NO-CATALOG-MATCH	No bottoms-up clean. 387 Kettlebell Clean is an ordinary clean and is deliberately unmapped (unmapped.ts:34, 'Ballistic: the bell rotates around the hand').
+fa-36	none	-												NO-CATALOG-MATCH	No kettlebell hammer curl; 132 is 'two dumbbells'.
+fa-37-flexion	none	-												NO-CATALOG-MATCH	No kettlebell wrist curl.
+fa-37-extension	none	-												NO-CATALOG-MATCH	No kettlebell reverse wrist curl.
+fa-38	match	142	Plate Pinch	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-38	match	142	Plate Pinch	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-38	match	142	Plate Pinch	FDS	4	isometric	deliberate_isometric	direct	isometric	shared	deliberate_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-38	match	142	Plate Pinch	FDP	4	isometric	deliberate_isometric	direct	isometric	shared	deliberate_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-38	match	142	Plate Pinch	FPL	4	isometric	deliberate_isometric	direct	isometric	individual	deliberate_isometric	reviewed	thumb.ip_flexion	AGREE	
+fa-38	match	142	Plate Pinch	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-38	match	142	Plate Pinch	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-38	match	142	Plate Pinch	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-39	none	-												PACKAGE-BLOCKED	No plate flip; package blocks it.
+fa-40	none	-												PACKAGE-BLOCKED	No plate wrist curl; package blocks it.
+fa-41	match	143	Dead Hang	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-41	match	143	Dead Hang	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-41	match	143	Dead Hang	FDS	4	isometric	deliberate_isometric	direct	isometric	shared	deliberate_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-41	match	143	Dead Hang	FDP	4	isometric	deliberate_isometric	direct	isometric	shared	deliberate_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-41	match	143	Dead Hang	FPL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-41	match	143	Dead Hang	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-41	match	143	Dead Hang	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-41	match	143	Dead Hang	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-42	match	78	Towel Pull-Up	BR	3	dynamic_concentric_eccentric	supporting_dynamic	contributing	dynamic	individual	contributing_dynamic	reviewed	elbow.flexion	AGREE	
+fa-42	match	78	Towel Pull-Up	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-42	match	78	Towel Pull-Up	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-42	match	78	Towel Pull-Up	FDS	2	isometric	incidental_grip	contributing	isometric	shared	incidental_isometric	reviewed	fingers.pip_flexion	AGREE-CATEGORY	same counted category (incidental_isometric) but relationship differs: package incidental_grip (grade 2) reads as incidental, ours is contributing.
+fa-42	match	78	Towel Pull-Up	FDP	2	isometric	incidental_grip	contributing	isometric	shared	incidental_isometric	reviewed	fingers.dip_flexion	AGREE-CATEGORY	same counted category (incidental_isometric) but relationship differs: package incidental_grip (grade 2) reads as incidental, ours is contributing.
+fa-42	match	78	Towel Pull-Up	FPL	2	isometric	incidental_grip							PACKAGE-ONLY	package grade 2 incidental_grip; we have no mapping for this muscle on this exercise
+fa-42	match	78	Towel Pull-Up	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-42	match	78	Towel Pull-Up	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-42	match	78	Towel Pull-Up	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-43	match	144	Towel Dead Hang	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-43	match	144	Towel Dead Hang	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-43	match	144	Towel Dead Hang	FDS	4	isometric	deliberate_isometric	direct	isometric	shared	deliberate_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-43	match	144	Towel Dead Hang	FDP	4	isometric	deliberate_isometric	direct	isometric	shared	deliberate_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-43	match	144	Towel Dead Hang	FPL	2	isometric	supporting_isometric	contributing	isometric	individual	deliberate_isometric	draft	thumb.ip_flexion	DISAGREE-DRAFT	package grade 2 isometric supporting_isometric (= our incidental_isometric); ours contributing isometric = deliberate_isometric. Ours is a draft mapping: pending review, not counted.
+fa-43	match	144	Towel Dead Hang	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-43	match	144	Towel Dead Hang	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-43	match	144	Towel Dead Hang	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-44	ambiguous	143	Dead Hang	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-44	ambiguous	143	Dead Hang	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-44	ambiguous	143	Dead Hang	FDS	4	isometric	deliberate_isometric	direct	isometric	shared	deliberate_isometric	reviewed	fingers.pip_flexion	AGREE	
+fa-44	ambiguous	143	Dead Hang	FDP	4	isometric	deliberate_isometric	direct	isometric	shared	deliberate_isometric	reviewed	fingers.dip_flexion	AGREE	
+fa-44	ambiguous	143	Dead Hang	FPL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-44	ambiguous	143	Dead Hang	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-44	ambiguous	143	Dead Hang	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-44	ambiguous	143	Dead Hang	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-45	none	-												NO-CATALOG-MATCH	No fingertip push-up; 26 Standard Push-Up is on the palms.
+fa-46	none	-												NO-CATALOG-MATCH	No fingertip plank.
+fa-47	match	402	Gripper Close	FCR	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-47	match	402	Gripper Close	FCU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-47	match	402	Gripper Close	FDS	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	shared	direct_dynamic	reviewed	fingers.pip_flexion	AGREE	
+fa-47	match	402	Gripper Close	FDP	4	dynamic_concentric_eccentric	direct_dynamic	direct	dynamic	shared	direct_dynamic	reviewed	fingers.dip_flexion	AGREE	
+fa-47	match	402	Gripper Close	FPL	2	dynamic_concentric_eccentric	supporting_dynamic							PACKAGE-ONLY	package grade 2 supporting_dynamic; we have no mapping for this muscle on this exercise
+fa-47	match	402	Gripper Close	ECRL	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-47	match	402	Gripper Close	ECRB	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-47	match	402	Gripper Close	ECU	2	isometric	supporting_isometric							PACKAGE-ONLY	package grade 2 supporting_isometric; we have no mapping for this muscle on this exercise
+fa-48	none	-												NO-CATALOG-MATCH	No ball squeeze. 402/403 are a torsion-spring gripper.
+fa-49	none	-												NO-CATALOG-MATCH	No crab walk.
+fa-50-finger-close	none	-												NO-CATALOG-MATCH	No rice-bucket drills in the catalog.
+fa-50-finger-open	none	-												NO-CATALOG-MATCH	No rice bucket; 404 Band Finger Extension is the nearest family (same action).
+fa-50-pronation	none	-												NO-CATALOG-MATCH	No rice bucket.
+fa-50-supination	none	-												NO-CATALOG-MATCH	No rice bucket.
+fa-50-wrist-flexion	none	-												NO-CATALOG-MATCH	No rice bucket.
+fa-50-wrist-extension	none	-												NO-CATALOG-MATCH	No rice bucket.

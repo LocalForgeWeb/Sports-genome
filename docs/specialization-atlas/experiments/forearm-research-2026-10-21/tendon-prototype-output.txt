@@ -1,0 +1,176 @@
+Tendon exposure prototype, 2026-10-21T18:00:00.000Z (Europe/London); forearm_mappings_v1 (418 mappings), 134 bout records from 17 sessions.
+Weeks: this week This week · 19–25 Oct; last week 12–18 Oct; baseline weeks 14–20 Sep, 21–27 Sep (no finished workout: unknown), 28 Sep – 4 Oct, 5–11 Oct.
+
+==================== Design B (recommended: both ends)
+-- right arm, This week · 19–25 Oct (region: 11 distinct bouts, 0 with no arm, 0 region-only, excluded 1 not completed / 0 warm-ups)
+   Inner elbow    11 sets = 6 target · 1 hold · 4 other | holds 35 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 2/1/2  4/0/2  -  -  -  -  -
+   Outer elbow     4 sets = 2 target · 0 hold · 2 other | holds 0 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 0/0/2  2/0/0  -  -  -  -  -
+   Wrist & thumb   6 sets = 6 target · 0 hold · 0 other | holds 0 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 2/0/0  4/0/0  -  -  -  -  -
+   Fingers        11 sets = 2 target · 1 hold · 8 other | holds 35 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 0/1/4  2/0/4  -  -  -  -  -
+-- left arm, This week · 19–25 Oct (region: 9 distinct bouts, 0 with no arm, 0 region-only, excluded 0 not completed / 0 warm-ups)
+   Inner elbow     9 sets = 4 target · 1 hold · 4 other | holds 35 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 2/1/2  2/0/2  -  -  -  -  -
+   Outer elbow     4 sets = 2 target · 0 hold · 2 other | holds 0 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 0/0/2  2/0/0  -  -  -  -  -
+   Wrist & thumb   6 sets = 6 target · 0 hold · 0 other | holds 0 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 2/0/0  4/0/0  -  -  -  -  -
+   Fingers         9 sets = 0 target · 1 hold · 8 other | holds 35 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 0/1/4  0/0/4  -  -  -  -  -
+-- right arm, last week 12–18 Oct against the 4 weeks before
+   Inner elbow: 26 sets (10 target · 5 hold · 11 other), holds 125 s + 1 with no time; apart 1 no arm · 5 strapped · 0 pending; warm-ups 1; muscles fcr:6 fcu:6 pl:6 fds:26 pt:3
+      Target sets   10; median of 3 weeks before 4; +6 · more than in any of those weeks   [weeks before: 4, unknown, 4, 4]
+      Hold sets     5; median of 3 weeks before 3; +2 · more than in any of those weeks   [weeks before: 3, unknown, 3, 3]
+      Other sets    11; median of 3 weeks before 11; ±0   [weeks before: 11, unknown, 11, 11]
+      All sets      26; median of 3 weeks before 18; +8 · more than in any of those weeks   [weeks before: 18, unknown, 18, 18]
+      Hold seconds  125 s; median of 3 weeks before 100 s; +25 s · more than in any of those weeks   [weeks before: 100, unknown, 100, 100]
+   Outer elbow: 15 sets (6 target · 0 hold · 9 other), holds 0 s; apart 0 no arm · 0 strapped · 0 pending; warm-ups 0; muscles br:9 ecrl:5 ecrb:5 ecu:5 ed:3 edm:1
+      Target sets   6; median of 3 weeks before 5; +1 · more than in any of those weeks   [weeks before: 5, unknown, 5, 5]
+      Hold sets     0; median of 3 weeks before 0; ±0   [weeks before: 0, unknown, 0, 0]
+      Other sets    9; median of 3 weeks before 7; +2 · more than in any of those weeks   [weeks before: 7, unknown, 7, 7]
+      All sets      15; median of 3 weeks before 12; +3 · more than in any of those weeks   [weeks before: 12, unknown, 12, 12]
+      Hold seconds  0 s; median of 3 weeks before 0 s; ±0 s   [weeks before: 0, unknown, 0, 0]
+   Wrist & thumb: 16 sets (13 target · 0 hold · 3 other), holds 0 s; apart 0 no arm · 0 strapped · 2 pending; warm-ups 1; muscles fcr:6 fcu:6 pl:6 pq:3 ecrl:5 ecrb:5 ecu:5 epb:2 epl:2
+      Target sets   13; median of 3 weeks before 6; +7 · more than in any of those weeks   [weeks before: 6, unknown, 6, 6]
+      Hold sets     0; median of 3 weeks before 0; ±0   [weeks before: 0, unknown, 0, 0]
+      Other sets    3; median of 3 weeks before 1; +2 · more than in any of those weeks   [weeks before: 1, unknown, 1, 1]
+      All sets      16; median of 3 weeks before 7; +9 · more than in any of those weeks   [weeks before: 7, unknown, 7, 7]
+      Hold seconds  0 s; median of 3 weeks before 0 s; ±0 s   [weeks before: 0, unknown, 0, 0]
+   Fingers: 27 sets (2 target · 5 hold · 20 other), holds 125 s + 1 with no time; apart 1 no arm · 5 strapped · 0 pending; warm-ups 1; muscles fds:26 fdp:26 ed:3 edm:1 ei:1
+      Target sets   New: 2; none in the 4 weeks before   [weeks before: 0, unknown, 0, 0]
+      Hold sets     5; median of 3 weeks before 3; +2 · more than in any of those weeks   [weeks before: 3, unknown, 3, 3]
+      Other sets    20; median of 3 weeks before 15; +5 · more than in any of those weeks   [weeks before: 15, unknown, 15, 15]
+      All sets      27; median of 3 weeks before 18; +9 · more than in any of those weeks   [weeks before: 18, unknown, 18, 18]
+      Hold seconds  125 s; median of 3 weeks before 100 s; +25 s · more than in any of those weeks   [weeks before: 100, unknown, 100, 100]
+-- left arm, last week 12–18 Oct against the 4 weeks before
+   Inner elbow: 22 sets (6 target · 5 hold · 11 other), holds 125 s + 1 with no time; apart 1 no arm · 5 strapped · 0 pending; warm-ups 1; muscles fcr:5 fcu:5 pl:5 fds:22
+      Target sets   6; median of 3 weeks before 3; +3 · more than in any of those weeks   [weeks before: 3, unknown, 3, 3]
+      Hold sets     5; median of 3 weeks before 3; +2 · more than in any of those weeks   [weeks before: 3, unknown, 3, 3]
+      Other sets    11; median of 3 weeks before 11; ±0   [weeks before: 11, unknown, 11, 11]
+      All sets      22; median of 3 weeks before 17; +5 · more than in any of those weeks   [weeks before: 17, unknown, 17, 17]
+      Hold seconds  125 s; median of 3 weeks before 100 s; +25 s · more than in any of those weeks   [weeks before: 100, unknown, 100, 100]
+   Outer elbow: 15 sets (6 target · 0 hold · 9 other), holds 0 s; apart 0 no arm · 0 strapped · 0 pending; warm-ups 0; muscles br:9 ecrl:5 ecrb:5 ecu:5 ed:3 edm:1
+      Target sets   6; median of 3 weeks before 5; +1 · more than in any of those weeks   [weeks before: 5, unknown, 5, 5]
+      Hold sets     0; median of 3 weeks before 0; ±0   [weeks before: 0, unknown, 0, 0]
+      Other sets    9; median of 3 weeks before 7; +2 · more than in any of those weeks   [weeks before: 7, unknown, 7, 7]
+      All sets      15; median of 3 weeks before 12; +3 · more than in any of those weeks   [weeks before: 12, unknown, 12, 12]
+      Hold seconds  0 s; median of 3 weeks before 0 s; ±0 s   [weeks before: 0, unknown, 0, 0]
+   Wrist & thumb: 10 sets (7 target · 0 hold · 3 other), holds 0 s; apart 0 no arm · 0 strapped · 2 pending; warm-ups 1; muscles fcr:5 fcu:5 pl:5 ecrl:5 ecrb:5 ecu:5
+      Target sets   7; median of 3 weeks before 5; +2 · more than in any of those weeks   [weeks before: 5, unknown, 5, 5]
+      Hold sets     0; median of 3 weeks before 0; ±0   [weeks before: 0, unknown, 0, 0]
+      Other sets    3; median of 3 weeks before 1; +2 · more than in any of those weeks   [weeks before: 1, unknown, 1, 1]
+      All sets      10; median of 3 weeks before 6; +4 · more than in any of those weeks   [weeks before: 6, unknown, 6, 6]
+      Hold seconds  0 s; median of 3 weeks before 0 s; ±0 s   [weeks before: 0, unknown, 0, 0]
+   Fingers: 23 sets (2 target · 5 hold · 16 other), holds 125 s + 1 with no time; apart 1 no arm · 5 strapped · 0 pending; warm-ups 1; muscles fds:22 fdp:22 ed:3 edm:1 ei:1
+      Target sets   New: 2; none in the 4 weeks before   [weeks before: 0, unknown, 0, 0]
+      Hold sets     5; median of 3 weeks before 3; +2 · more than in any of those weeks   [weeks before: 3, unknown, 3, 3]
+      Other sets    16; median of 3 weeks before 14; +2 · more than in any of those weeks   [weeks before: 14, unknown, 14, 14]
+      All sets      23; median of 3 weeks before 17; +6 · more than in any of those weeks   [weeks before: 17, unknown, 17, 17]
+      Hold seconds  125 s; median of 3 weeks before 100 s; +25 s · more than in any of those weeks   [weeks before: 100, unknown, 100, 100]
+
+==================== Design A (package groups as a partition)
+-- right arm, This week · 19–25 Oct (region: 11 distinct bouts, 0 with no arm, 0 region-only, excluded 1 not completed / 0 warm-ups)
+   Inner elbow    11 sets = 6 target · 1 hold · 4 other | holds 35 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 2/1/2  4/0/2  -  -  -  -  -
+   Outer elbow     4 sets = 2 target · 0 hold · 2 other | holds 0 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 0/0/2  2/0/0  -  -  -  -  -
+   Wrist & thumb   0 sets = 0 target · 0 hold · 0 other | holds 0 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: -  -  -  -  -  -  -
+   Fingers        11 sets = 2 target · 1 hold · 8 other | holds 35 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 0/1/4  2/0/4  -  -  -  -  -
+-- left arm, This week · 19–25 Oct (region: 9 distinct bouts, 0 with no arm, 0 region-only, excluded 0 not completed / 0 warm-ups)
+   Inner elbow     9 sets = 4 target · 1 hold · 4 other | holds 35 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 2/1/2  2/0/2  -  -  -  -  -
+   Outer elbow     4 sets = 2 target · 0 hold · 2 other | holds 0 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 0/0/2  2/0/0  -  -  -  -  -
+   Wrist & thumb   0 sets = 0 target · 0 hold · 0 other | holds 0 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: -  -  -  -  -  -  -
+   Fingers         9 sets = 0 target · 1 hold · 8 other | holds 35 s | apart: 0 no arm, 0 strapped, 0 pending | warm-ups 0
+      days Mon..Sun [target/hold/other]: 0/1/4  0/0/4  -  -  -  -  -
+-- right arm, last week 12–18 Oct against the 4 weeks before
+   Inner elbow: 26 sets (10 target · 5 hold · 11 other), holds 125 s + 1 with no time; apart 1 no arm · 5 strapped · 0 pending; warm-ups 1; muscles fcr:6 fcu:6 pl:6 fds:26 pt:3
+      Target sets   10; median of 3 weeks before 4; +6 · more than in any of those weeks   [weeks before: 4, unknown, 4, 4]
+      Hold sets     5; median of 3 weeks before 3; +2 · more than in any of those weeks   [weeks before: 3, unknown, 3, 3]
+      Other sets    11; median of 3 weeks before 11; ±0   [weeks before: 11, unknown, 11, 11]
+      All sets      26; median of 3 weeks before 18; +8 · more than in any of those weeks   [weeks before: 18, unknown, 18, 18]
+      Hold seconds  125 s; median of 3 weeks before 100 s; +25 s · more than in any of those weeks   [weeks before: 100, unknown, 100, 100]
+   Outer elbow: 15 sets (6 target · 0 hold · 9 other), holds 0 s; apart 0 no arm · 0 strapped · 0 pending; warm-ups 0; muscles br:9 ecrl:5 ecrb:5 ecu:5 ed:3 edm:1
+      Target sets   6; median of 3 weeks before 5; +1 · more than in any of those weeks   [weeks before: 5, unknown, 5, 5]
+      Hold sets     0; median of 3 weeks before 0; ±0   [weeks before: 0, unknown, 0, 0]
+      Other sets    9; median of 3 weeks before 7; +2 · more than in any of those weeks   [weeks before: 7, unknown, 7, 7]
+      All sets      15; median of 3 weeks before 12; +3 · more than in any of those weeks   [weeks before: 12, unknown, 12, 12]
+      Hold seconds  0 s; median of 3 weeks before 0 s; ±0 s   [weeks before: 0, unknown, 0, 0]
+   Wrist & thumb: 5 sets (5 target · 0 hold · 0 other), holds 0 s; apart 0 no arm · 0 strapped · 5 pending; warm-ups 0; muscles pq:3 epb:2 epl:2
+      Target sets   New: 5; none in the 4 weeks before   [weeks before: 0, unknown, 0, 0]
+      Hold sets     0; median of 3 weeks before 0; ±0   [weeks before: 0, unknown, 0, 0]
+      Other sets    0; median of 3 weeks before 0; ±0   [weeks before: 0, unknown, 0, 0]
+      All sets      New: 5; none in the 4 weeks before   [weeks before: 0, unknown, 0, 0]
+      Hold seconds  0 s; median of 3 weeks before 0 s; ±0 s   [weeks before: 0, unknown, 0, 0]
+   Fingers: 27 sets (1 target · 5 hold · 21 other), holds 125 s + 1 with no time; apart 1 no arm · 5 strapped · 0 pending; warm-ups 1; muscles fdp:26 ei:1
+      Target sets   New: 1; none in the 4 weeks before   [weeks before: 0, unknown, 0, 0]
+      Hold sets     5; median of 3 weeks before 3; +2 · more than in any of those weeks   [weeks before: 3, unknown, 3, 3]
+      Other sets    21; median of 3 weeks before 15; +6 · more than in any of those weeks   [weeks before: 15, unknown, 15, 15]
+      All sets      27; median of 3 weeks before 18; +9 · more than in any of those weeks   [weeks before: 18, unknown, 18, 18]
+      Hold seconds  125 s; median of 3 weeks before 100 s; +25 s · more than in any of those weeks   [weeks before: 100, unknown, 100, 100]
+-- left arm, last week 12–18 Oct against the 4 weeks before
+   Inner elbow: 22 sets (6 target · 5 hold · 11 other), holds 125 s + 1 with no time; apart 1 no arm · 5 strapped · 0 pending; warm-ups 1; muscles fcr:5 fcu:5 pl:5 fds:22
+      Target sets   6; median of 3 weeks before 3; +3 · more than in any of those weeks   [weeks before: 3, unknown, 3, 3]
+      Hold sets     5; median of 3 weeks before 3; +2 · more than in any of those weeks   [weeks before: 3, unknown, 3, 3]
+      Other sets    11; median of 3 weeks before 11; ±0   [weeks before: 11, unknown, 11, 11]
+      All sets      22; median of 3 weeks before 17; +5 · more than in any of those weeks   [weeks before: 17, unknown, 17, 17]
+      Hold seconds  125 s; median of 3 weeks before 100 s; +25 s · more than in any of those weeks   [weeks before: 100, unknown, 100, 100]
+   Outer elbow: 15 sets (6 target · 0 hold · 9 other), holds 0 s; apart 0 no arm · 0 strapped · 0 pending; warm-ups 0; muscles br:9 ecrl:5 ecrb:5 ecu:5 ed:3 edm:1
+      Target sets   6; median of 3 weeks before 5; +1 · more than in any of those weeks   [weeks before: 5, unknown, 5, 5]
+      Hold sets     0; median of 3 weeks before 0; ±0   [weeks before: 0, unknown, 0, 0]
+      Other sets    9; median of 3 weeks before 7; +2 · more than in any of those weeks   [weeks before: 7, unknown, 7, 7]
+      All sets      15; median of 3 weeks before 12; +3 · more than in any of those weeks   [weeks before: 12, unknown, 12, 12]
+      Hold seconds  0 s; median of 3 weeks before 0 s; ±0 s   [weeks before: 0, unknown, 0, 0]
+   Wrist & thumb: 0 sets (0 target · 0 hold · 0 other), holds 0 s; apart 0 no arm · 0 strapped · 5 pending; warm-ups 0; muscles 
+      Target sets   0; median of 3 weeks before 0; ±0   [weeks before: 0, unknown, 0, 0]
+      Hold sets     0; median of 3 weeks before 0; ±0   [weeks before: 0, unknown, 0, 0]
+      Other sets    0; median of 3 weeks before 0; ±0   [weeks before: 0, unknown, 0, 0]
+      All sets      0; median of 3 weeks before 0; ±0   [weeks before: 0, unknown, 0, 0]
+      Hold seconds  0 s; median of 3 weeks before 0 s; ±0 s   [weeks before: 0, unknown, 0, 0]
+   Fingers: 23 sets (1 target · 5 hold · 17 other), holds 125 s + 1 with no time; apart 1 no arm · 5 strapped · 0 pending; warm-ups 1; muscles fdp:22 ei:1
+      Target sets   New: 1; none in the 4 weeks before   [weeks before: 0, unknown, 0, 0]
+      Hold sets     5; median of 3 weeks before 3; +2 · more than in any of those weeks   [weeks before: 3, unknown, 3, 3]
+      Other sets    17; median of 3 weeks before 14; +3 · more than in any of those weeks   [weeks before: 14, unknown, 14, 14]
+      All sets      23; median of 3 weeks before 17; +6 · more than in any of those weeks   [weeks before: 17, unknown, 17, 17]
+      Hold seconds  125 s; median of 3 weeks before 100 s; +25 s · more than in any of those weeks   [weeks before: 100, unknown, 100, 100]
+
+==================== Package regional_groups, last week, right arm (distinct working bouts per group)
+   br-attachments                   9 (3/0/6)
+   medial-flexor-origin             26 (10/5/11)
+   deep-digital-flexors             26 (1/5/20)
+   thumb-flexor                     0 (0/0/0)
+   distal-rotators                  3 (3/0/0)
+   radial-wrist-extensors           5 (2/0/3)
+   lateral-extensor-origin          6 (3/0/3)
+   deep-digital-extensors           1 (0/0/1)
+   thumb-abductor-extensor-region   2 (2/0/0)
+   thumb-long-extensor              2 (2/0/0)
+   proximal-supinator-attachments   0 (0/0/0)
+
+==================== START-HERE §9 examples through the real pipeline (right arm, one day)
+   A: two one-arm wrist curls + 20 s suitcase carry: region 3 bouts; fcr[dd2 cd0 hold0/0s inc0] fcu[dd2 cd0 hold0/0s inc0] pl[dd0 cd2 hold0/0s inc0] fds[dd0 cd0 hold1/20s inc2] fdp[dd0 cd0 hold1/20s inc2] ecrl[dd0 cd0 hold0/0s inc1] ecrb[dd0 cd0 hold0/0s inc1] ecu[dd0 cd0 hold0/0s inc1]
+      areas (B): Inner elbow 3 · Outer elbow 1 · Wrist & thumb 3 · Fingers 3; package medial-flexor-origin 3
+   B: one drop set of 3 stages (5+6+10 reps), delivered twice: region 1 bouts; fcr[dd1 cd0 hold0/0s inc0] fcu[dd1 cd0 hold0/0s inc0] pl[dd0 cd1 hold0/0s inc0] fds[dd0 cd0 hold0/0s inc1] fdp[dd0 cd0 hold0/0s inc1]
+      areas (B): Inner elbow 1 · Outer elbow 0 · Wrist & thumb 1 · Fingers 1; package medial-flexor-origin 1
+      FCR: 1 direct bout, 21 reps, 3 segments, kind drop
+   C: an exercise the atlas has no muscle mapping for (Cable Triceps Pressdown, tagged forearms): region 0 bouts; 
+      areas (B): Inner elbow 0 · Outer elbow 0 · Wrist & thumb 0 · Fingers 0; package medial-flexor-origin 0
+      region-only bouts 1; in no area
+   D: a week of curls, carries and wrist curls (no thumb-extension credit): region 3 bouts; br[dd1 cd0 hold0/0s inc0] fcr[dd1 cd0 hold0/0s inc0] fcu[dd1 cd0 hold0/0s inc0] pl[dd0 cd1 hold0/0s inc0] fds[dd0 cd0 hold1/40s inc2] fdp[dd0 cd0 hold1/40s inc2] ecrl[dd0 cd0 hold0/0s inc1] ecrb[dd0 cd0 hold0/0s inc1] ecu[dd0 cd0 hold0/0s inc1] UA.biceps[dd0 cd1 hold0/0s inc0] UA.brachialis[dd1 cd0 hold0/0s inc0]
+      areas (B): Inner elbow 3 · Outer elbow 2 · Wrist & thumb 2 · Fingers 3; package medial-flexor-origin 3
+
+==================== Change-line states (current; weeks before, null = no finished workout)
+   8 vs [5, 5, 5, 5]: 8; median of 4 weeks before 5; +3 · more than in any of those weeks
+   8 vs [0, 0, 0, 0]: New: 8; none in the 4 weeks before
+   8 vs [1, unknown, 2, unknown]: Building your baseline (2 of 3 earlier weeks with a finished workout)
+   0 vs [0, 0, 0, 0]: 0; median of 4 weeks before 0; ±0
+   3 vs [1, 1, 9, 9]: 3; median of 4 weeks before 5; −2
+   6 vs [2, unknown, 3, 4]: 6; median of 3 weeks before 3; +3 · more than in any of those weeks
+

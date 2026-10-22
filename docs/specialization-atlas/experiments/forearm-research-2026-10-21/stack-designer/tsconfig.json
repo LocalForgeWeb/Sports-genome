@@ -1,0 +1,5 @@
+{
+  "extends": "/home/user/Sports-genome/tsconfig.json",
+  "compilerOptions": { "incremental": false, "target": "es2020", "baseUrl": "/home/user/Sports-genome", "typeRoots": ["/home/user/Sports-genome/node_modules/@types"], "types": ["node"] },
+  "include": ["/tmp/claude-0/-home-user-Sports-genome/1ff0a7bc-72e5-5e41-a8d9-937a97929500/scratchpad/forearm-v2/stack-designer/stackDesigner.ts", "/tmp/claude-0/-home-user-Sports-genome/1ff0a7bc-72e5-5e41-a8d9-937a97929500/scratchpad/forearm-v2/stack-designer/run.ts"]
+}

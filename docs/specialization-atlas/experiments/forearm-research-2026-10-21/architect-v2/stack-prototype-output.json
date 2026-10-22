@@ -1,0 +1,4474 @@
+[
+ {
+  "scenario": "A",
+  "total": null,
+  "result": {
+   "totalPerArm": 14,
+   "startValue": 14,
+   "stepper": {
+    "min": 3,
+    "max": 36,
+    "fitsTime": 28
+   },
+   "existingDirectPerArm": {
+    "left": 3,
+    "right": 3
+   },
+   "added": 11,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 140,
+     "name": "Reverse Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist extension (Extensor carpi radialis longus): no direct work planned this week",
+      "Wrist extension (Extensor carpi radialis brevis): no direct work planned this week",
+      "Wrist extension (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 407,
+     "name": "Lever Radial Deviation",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Radial deviation (Flexor carpi radialis): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis longus): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis brevis): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi radialis brevis and Extensor carpi radialis longus and Flexor carpi radialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 139,
+     "name": "Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist flexion (Flexor carpi radialis): no direct work planned this week",
+      "Wrist flexion (Flexor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 408,
+     "name": "Lever Ulnar Deviation",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Ulnar deviation (Flexor carpi ulnaris): no direct work planned this week",
+      "Ulnar deviation (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi ulnaris and Flexor carpi ulnaris; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 405,
+     "name": "Lever Pronation",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Pronation (Pronator teres): no direct work planned this week",
+      "Pronation (Pronator quadratus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Pronator quadratus and Pronator teres; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 401,
+     "name": "Finger Curl",
+     "family": "finger",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Middle-joint flexion (Flexor digitorum superficialis): no direct work planned this week",
+      "Fingertip flexion (Flexor digitorum profundus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Flexor digitorum profundus and Flexor digitorum superficialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 404,
+     "name": "Band Finger Extension",
+     "family": "finger",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Finger extension (Extensor digitorum): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 413,
+     "name": "Band Thumb Extension",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-knuckle extension (Extensor pollicis brevis): no direct work planned this week",
+      "Thumb-tip extension (Extensor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor pollicis brevis and Extensor pollicis longus; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 406,
+     "name": "Lever Supination",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Supination (Supinator): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 412,
+     "name": "Band Thumb Flexion",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-tip flexion (Flexor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 414,
+     "name": "Band Thumb Abduction",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb abduction (Abductor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": null
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 140,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 407,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 139,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 408,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 405,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 401,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 404,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 413,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 406,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 412,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 414,
+     "prescription": "1 × 12–25"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis)."
+   ],
+   "notes": [],
+   "days": [
+    {
+     "slot": "Day 01 · Push",
+     "minutesBefore": 38,
+     "minutesAfter": 48,
+     "added": [
+      "Reverse Wrist Curl 1 × 10–25",
+      "Lever Radial Deviation 1 × 10–25",
+      "Wrist Curl 1 × 10–25",
+      "Lever Ulnar Deviation 1 × 10–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 02 · Pull",
+     "minutesBefore": 38,
+     "minutesAfter": 48,
+     "added": [
+      "Lever Pronation 1 × 10–20",
+      "Finger Curl 1 × 10–25",
+      "Band Finger Extension 1 × 10–25",
+      "Band Thumb Extension 1 × 12–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 03 · Legs",
+     "minutesBefore": 38,
+     "minutesAfter": 46,
+     "added": [
+      "Lever Supination 1 × 10–20",
+      "Band Thumb Flexion 1 × 12–25",
+      "Band Thumb Abduction 1 × 12–25"
+     ],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [],
+   "check": {
+    "left": {
+     "before": 3,
+     "after": 14
+    },
+    "right": {
+     "before": 3,
+     "after": 14
+    },
+    "musclesWithDirect": {
+     "before": 1,
+     "after": 16
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 0
+    },
+    "remainingGaps": [
+     "Palmar fascia tension (Palmaris longus)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)"
+    ],
+    "targets": []
+   },
+   "timings": {
+    "totalMs": 18.032441000000063,
+    "placeMs": 1.0390009999999847,
+    "searched": 2047,
+    "placement": {
+     "localCost": 3,
+     "exactCost": 3,
+     "exactComplete": true,
+     "evaluations": 104,
+     "exactNodes": 518
+    }
+   }
+  }
+ },
+ {
+  "scenario": "A",
+  "total": 8,
+  "result": {
+   "totalPerArm": 8,
+   "startValue": 14,
+   "stepper": {
+    "min": 3,
+    "max": 36,
+    "fitsTime": 28
+   },
+   "existingDirectPerArm": {
+    "left": 3,
+    "right": 3
+   },
+   "added": 5,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 405,
+     "name": "Lever Pronation",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Pronation (Pronator teres): no direct work planned this week",
+      "Pronation (Pronator quadratus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Pronator quadratus and Pronator teres; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 401,
+     "name": "Finger Curl",
+     "family": "finger",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Middle-joint flexion (Flexor digitorum superficialis): no direct work planned this week",
+      "Fingertip flexion (Flexor digitorum profundus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Flexor digitorum profundus and Flexor digitorum superficialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 139,
+     "name": "Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist flexion (Flexor carpi radialis): no direct work planned this week",
+      "Wrist flexion (Flexor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 413,
+     "name": "Band Thumb Extension",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-knuckle extension (Extensor pollicis brevis): no direct work planned this week",
+      "Thumb-tip extension (Extensor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor pollicis brevis and Extensor pollicis longus; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 140,
+     "name": "Reverse Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist extension (Extensor carpi radialis longus): no direct work planned this week",
+      "Wrist extension (Extensor carpi radialis brevis): no direct work planned this week",
+      "Wrist extension (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 405,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 401,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 139,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 413,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 140,
+     "prescription": "1 × 10–25"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis).",
+    "Finger extension (Extensor digitorum) (Band Finger Extension): needs 1 more sets per arm; raise the total to include it.",
+    "Supination (Supinator) (Lever Supination): needs 1 more sets per arm; raise the total to include it.",
+    "Thumb-tip flexion (Flexor pollicis longus) (Band Thumb Flexion): needs 1 more sets per arm; raise the total to include it.",
+    "Thumb abduction (Abductor pollicis longus) (Band Thumb Abduction): needs 1 more sets per arm; raise the total to include it.",
+    "Radial deviation (Flexor carpi radialis), Radial deviation (Extensor carpi radialis longus), Radial deviation (Extensor carpi radialis brevis) (Lever Radial Deviation): needs 1 more sets per arm; raise the total to include it.",
+    "Ulnar deviation (Flexor carpi ulnaris), Ulnar deviation (Extensor carpi ulnaris) (Lever Ulnar Deviation): needs 1 more sets per arm; raise the total to include it."
+   ],
+   "notes": [],
+   "days": [
+    {
+     "slot": "Day 01 · Push",
+     "minutesBefore": 38,
+     "minutesAfter": 43,
+     "added": [
+      "Lever Pronation 1 × 10–20",
+      "Finger Curl 1 × 10–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 02 · Pull",
+     "minutesBefore": 38,
+     "minutesAfter": 43,
+     "added": [
+      "Wrist Curl 1 × 10–25",
+      "Band Thumb Extension 1 × 12–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 03 · Legs",
+     "minutesBefore": 38,
+     "minutesAfter": 41,
+     "added": [
+      "Reverse Wrist Curl 1 × 10–25"
+     ],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [],
+   "check": {
+    "left": {
+     "before": 3,
+     "after": 8
+    },
+    "right": {
+     "before": 3,
+     "after": 8
+    },
+    "musclesWithDirect": {
+     "before": 1,
+     "after": 12
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 0
+    },
+    "remainingGaps": [
+     "Radial deviation (Flexor carpi radialis)",
+     "Ulnar deviation (Flexor carpi ulnaris)",
+     "Palmar fascia tension (Palmaris longus)",
+     "Thumb-tip flexion (Flexor pollicis longus)",
+     "Radial deviation (Extensor carpi radialis longus)",
+     "Radial deviation (Extensor carpi radialis brevis)",
+     "Ulnar deviation (Extensor carpi ulnaris)",
+     "Finger extension (Extensor digitorum)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)",
+     "Thumb abduction (Abductor pollicis longus)",
+     "Supination (Supinator)"
+    ],
+    "targets": []
+   },
+   "timings": {
+    "totalMs": 10.056745999999976,
+    "placeMs": 0.1977319999999736,
+    "searched": 2047,
+    "placement": {
+     "localCost": 3,
+     "exactCost": 3,
+     "exactComplete": true,
+     "evaluations": 50,
+     "exactNodes": 350
+    }
+   }
+  }
+ },
+ {
+  "scenario": "A",
+  "total": 16,
+  "result": {
+   "totalPerArm": 16,
+   "startValue": 14,
+   "stepper": {
+    "min": 3,
+    "max": 36,
+    "fitsTime": 28
+   },
+   "existingDirectPerArm": {
+    "left": 3,
+    "right": 3
+   },
+   "added": 13,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 140,
+     "name": "Reverse Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist extension (Extensor carpi radialis longus): no direct work planned this week",
+      "Wrist extension (Extensor carpi radialis brevis): no direct work planned this week",
+      "Wrist extension (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 407,
+     "name": "Lever Radial Deviation",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Radial deviation (Flexor carpi radialis): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis longus): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis brevis): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi radialis brevis and Extensor carpi radialis longus and Flexor carpi radialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 405,
+     "name": "Lever Pronation",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Pronation (Pronator teres): no direct work planned this week",
+      "Pronation (Pronator quadratus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Pronator quadratus and Pronator teres; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 401,
+     "name": "Finger Curl",
+     "family": "finger",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Middle-joint flexion (Flexor digitorum superficialis): no direct work planned this week",
+      "Fingertip flexion (Flexor digitorum profundus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Flexor digitorum profundus and Flexor digitorum superficialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 139,
+     "name": "Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist flexion (Flexor carpi radialis): no direct work planned this week",
+      "Wrist flexion (Flexor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 408,
+     "name": "Lever Ulnar Deviation",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Ulnar deviation (Flexor carpi ulnaris): no direct work planned this week",
+      "Ulnar deviation (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi ulnaris and Flexor carpi ulnaris; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 404,
+     "name": "Band Finger Extension",
+     "family": "finger",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Finger extension (Extensor digitorum): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 413,
+     "name": "Band Thumb Extension",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-knuckle extension (Extensor pollicis brevis): no direct work planned this week",
+      "Thumb-tip extension (Extensor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor pollicis brevis and Extensor pollicis longus; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 406,
+     "name": "Lever Supination",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Supination (Supinator): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 412,
+     "name": "Band Thumb Flexion",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-tip flexion (Flexor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 414,
+     "name": "Band Thumb Abduction",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb abduction (Abductor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": null
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 140,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 407,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 405,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 401,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 139,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 408,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 404,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 413,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 406,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 412,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 414,
+     "prescription": "1 × 12–25"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis)."
+   ],
+   "notes": [],
+   "days": [
+    {
+     "slot": "Day 01 · Push",
+     "minutesBefore": 38,
+     "minutesAfter": 51,
+     "added": [
+      "Reverse Wrist Curl 2 × 10–25",
+      "Lever Radial Deviation 1 × 10–25",
+      "Lever Pronation 1 × 10–20",
+      "Finger Curl 1 × 10–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 02 · Pull",
+     "minutesBefore": 38,
+     "minutesAfter": 51,
+     "added": [
+      "Wrist Curl 2 × 10–25",
+      "Lever Ulnar Deviation 1 × 10–25",
+      "Band Finger Extension 1 × 10–25",
+      "Band Thumb Extension 1 × 12–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 03 · Legs",
+     "minutesBefore": 38,
+     "minutesAfter": 46,
+     "added": [
+      "Lever Supination 1 × 10–20",
+      "Band Thumb Flexion 1 × 12–25",
+      "Band Thumb Abduction 1 × 12–25"
+     ],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [
+    "Day 01 and Day 02: ECU, FCR"
+   ],
+   "check": {
+    "left": {
+     "before": 3,
+     "after": 16
+    },
+    "right": {
+     "before": 3,
+     "after": 16
+    },
+    "musclesWithDirect": {
+     "before": 1,
+     "after": 16
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 0
+    },
+    "remainingGaps": [
+     "Palmar fascia tension (Palmaris longus)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)"
+    ],
+    "targets": []
+   },
+   "timings": {
+    "totalMs": 14.384747999999945,
+    "placeMs": 0.4843220000000201,
+    "searched": 2047,
+    "placement": {
+     "localCost": 20005,
+     "exactCost": 8,
+     "exactComplete": true,
+     "evaluations": 102,
+     "exactNodes": 518
+    }
+   }
+  }
+ },
+ {
+  "scenario": "A",
+  "total": 30,
+  "result": {
+   "totalPerArm": 30,
+   "startValue": 14,
+   "stepper": {
+    "min": 3,
+    "max": 36,
+    "fitsTime": 28
+   },
+   "existingDirectPerArm": {
+    "left": 3,
+    "right": 3
+   },
+   "added": 27,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 406,
+     "name": "Lever Supination",
+     "family": "rotation",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 2,
+       "prescription": "2 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Supination (Supinator): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 401,
+     "name": "Finger Curl",
+     "family": "finger",
+     "setsPerWeek": 3,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 3,
+       "prescription": "3 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Middle-joint flexion (Flexor digitorum superficialis): no direct work planned this week",
+      "Fingertip flexion (Flexor digitorum profundus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Flexor digitorum profundus and Flexor digitorum superficialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 404,
+     "name": "Band Finger Extension",
+     "family": "finger",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Finger extension (Extensor digitorum): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 412,
+     "name": "Band Thumb Flexion",
+     "family": "thumb",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 2,
+       "prescription": "2 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-tip flexion (Flexor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 140,
+     "name": "Reverse Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 3,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 3,
+       "prescription": "3 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist extension (Extensor carpi radialis longus): no direct work planned this week",
+      "Wrist extension (Extensor carpi radialis brevis): no direct work planned this week",
+      "Wrist extension (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 407,
+     "name": "Lever Radial Deviation",
+     "family": "wrist",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Radial deviation (Flexor carpi radialis): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis longus): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis brevis): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi radialis brevis and Extensor carpi radialis longus and Flexor carpi radialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 408,
+     "name": "Lever Ulnar Deviation",
+     "family": "wrist",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Ulnar deviation (Flexor carpi ulnaris): no direct work planned this week",
+      "Ulnar deviation (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi ulnaris and Flexor carpi ulnaris; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 414,
+     "name": "Band Thumb Abduction",
+     "family": "thumb",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 2,
+       "prescription": "2 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb abduction (Abductor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 139,
+     "name": "Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 3,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 3,
+       "prescription": "3 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist flexion (Flexor carpi radialis): no direct work planned this week",
+      "Wrist flexion (Flexor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 405,
+     "name": "Lever Pronation",
+     "family": "rotation",
+     "setsPerWeek": 3,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 3,
+       "prescription": "3 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Pronation (Pronator teres): no direct work planned this week",
+      "Pronation (Pronator quadratus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Pronator quadratus and Pronator teres; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 413,
+     "name": "Band Thumb Extension",
+     "family": "thumb",
+     "setsPerWeek": 3,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 3,
+       "prescription": "3 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-knuckle extension (Extensor pollicis brevis): no direct work planned this week",
+      "Thumb-tip extension (Extensor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor pollicis brevis and Extensor pollicis longus; the evidence does not split it."
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 406,
+     "prescription": "2 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 401,
+     "prescription": "3 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 404,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 412,
+     "prescription": "2 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 140,
+     "prescription": "3 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 407,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 408,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 414,
+     "prescription": "2 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 139,
+     "prescription": "3 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 405,
+     "prescription": "3 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 413,
+     "prescription": "3 × 12–25"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis)."
+   ],
+   "notes": [],
+   "days": [
+    {
+     "slot": "Day 01 · Push",
+     "minutesBefore": 38,
+     "minutesAfter": 61,
+     "added": [
+      "Lever Supination 2 × 10–20",
+      "Finger Curl 3 × 10–25",
+      "Band Finger Extension 2 × 10–25",
+      "Band Thumb Flexion 2 × 12–25"
+     ],
+     "overWindow": true
+    },
+    {
+     "slot": "Day 02 · Pull",
+     "minutesBefore": 38,
+     "minutesAfter": 61,
+     "added": [
+      "Reverse Wrist Curl 3 × 10–25",
+      "Lever Radial Deviation 2 × 10–25",
+      "Lever Ulnar Deviation 2 × 10–25",
+      "Band Thumb Abduction 2 × 12–25"
+     ],
+     "overWindow": true
+    },
+    {
+     "slot": "Day 03 · Legs",
+     "minutesBefore": 38,
+     "minutesAfter": 61,
+     "added": [
+      "Wrist Curl 3 × 10–25",
+      "Lever Pronation 3 × 10–20",
+      "Band Thumb Extension 3 × 12–25"
+     ],
+     "overWindow": true
+    }
+   ],
+   "adjacency": [
+    "Day 02 and Day 03: FCR, FCU"
+   ],
+   "check": {
+    "left": {
+     "before": 3,
+     "after": 30
+    },
+    "right": {
+     "before": 3,
+     "after": 30
+    },
+    "musclesWithDirect": {
+     "before": 1,
+     "after": 16
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 0
+    },
+    "remainingGaps": [
+     "Palmar fascia tension (Palmaris longus)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)"
+    ],
+    "targets": []
+   },
+   "timings": {
+    "totalMs": 10.329267000000073,
+    "placeMs": 0.3251619999999775,
+    "searched": 2047,
+    "placement": {
+     "localCost": 3020000,
+     "exactCost": 3020000,
+     "exactComplete": true,
+     "evaluations": 189,
+     "exactNodes": 16933
+    }
+   }
+  }
+ },
+ {
+  "scenario": "B",
+  "total": null,
+  "result": {
+   "totalPerArm": 25,
+   "startValue": 25,
+   "stepper": {
+    "min": 0,
+    "max": 48,
+    "fitsTime": 51
+   },
+   "existingDirectPerArm": {
+    "left": 0,
+    "right": 0
+   },
+   "added": 25,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 140,
+     "name": "Reverse Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Upper",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist extension (Extensor carpi radialis longus): no direct work planned this week",
+      "Wrist extension (Extensor carpi radialis brevis): no direct work planned this week",
+      "Wrist extension (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 407,
+     "name": "Lever Radial Deviation",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Upper",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Radial deviation (Flexor carpi radialis): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis longus): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis brevis): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi radialis brevis and Extensor carpi radialis longus and Flexor carpi radialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 139,
+     "name": "Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 5,
+     "days": [
+      {
+       "slot": "Day 01 · Upper",
+       "sets": 3,
+       "prescription": "3 × 10–25"
+      },
+      {
+       "slot": "Day 03 · Upper",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Flexor carpi ulnaris: your target, 8 short (direct dynamic bouts, left and right)",
+      "Wrist flexion (Flexor carpi radialis): no direct work planned this week",
+      "Wrist flexion (Flexor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 142,
+     "name": "Plate Pinch",
+     "family": "isometric_grip",
+     "setsPerWeek": 4,
+     "days": [
+      {
+       "slot": "Day 01 · Upper",
+       "sets": 2,
+       "prescription": "2 × 30 sec"
+      },
+      {
+       "slot": "Day 03 · Upper",
+       "sets": 2,
+       "prescription": "2 × 30 sec"
+      }
+     ],
+     "reasons": [
+      "Flexor digitorum superficialis: your target, 120 short (deliberate hold seconds, left and right)",
+      "Middle-joint flexion (Flexor digitorum superficialis): no direct work planned this week",
+      "Fingertip flexion (Flexor digitorum profundus): no direct work planned this week",
+      "Thumb-tip flexion (Flexor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Flexor digitorum profundus and Flexor digitorum superficialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 132,
+     "name": "Hammer Curl",
+     "family": "elbow",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Lower",
+       "sets": 1,
+       "prescription": "1 × 6–20"
+      }
+     ],
+     "reasons": [
+      "Elbow flexion (Brachioradialis): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 406,
+     "name": "Lever Supination",
+     "family": "rotation",
+     "setsPerWeek": 6,
+     "days": [
+      {
+       "slot": "Day 02 · Lower",
+       "sets": 3,
+       "prescription": "3 × 10–20"
+      },
+      {
+       "slot": "Day 04 · Lower",
+       "sets": 3,
+       "prescription": "3 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Supination: your target, 6 short (direct dynamic bouts, left)",
+      "Supination (Supinator): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 404,
+     "name": "Band Finger Extension",
+     "family": "finger",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Lower",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Finger extension (Extensor digitorum): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 413,
+     "name": "Band Thumb Extension",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Lower",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-knuckle extension (Extensor pollicis brevis): no direct work planned this week",
+      "Thumb-tip extension (Extensor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor pollicis brevis and Extensor pollicis longus; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 408,
+     "name": "Lever Ulnar Deviation",
+     "family": "wrist",
+     "setsPerWeek": 3,
+     "days": [
+      {
+       "slot": "Day 03 · Upper",
+       "sets": 3,
+       "prescription": "3 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Flexor carpi ulnaris: your target, 8 short (direct dynamic bouts, left and right)",
+      "Ulnar deviation (Flexor carpi ulnaris): no direct work planned this week",
+      "Ulnar deviation (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi ulnaris and Flexor carpi ulnaris; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 405,
+     "name": "Lever Pronation",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 04 · Lower",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Pronation (Pronator teres): no direct work planned this week",
+      "Pronation (Pronator quadratus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Pronator quadratus and Pronator teres; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 414,
+     "name": "Band Thumb Abduction",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 04 · Lower",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb abduction (Abductor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": null
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Upper",
+     "catalogExerciseId": 140,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Upper",
+     "catalogExerciseId": 407,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Upper",
+     "catalogExerciseId": 139,
+     "prescription": "3 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Upper",
+     "catalogExerciseId": 142,
+     "prescription": "2 × 30 sec"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Lower",
+     "catalogExerciseId": 132,
+     "prescription": "1 × 6–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Lower",
+     "catalogExerciseId": 406,
+     "prescription": "3 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Lower",
+     "catalogExerciseId": 404,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Lower",
+     "catalogExerciseId": 413,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Upper",
+     "catalogExerciseId": 408,
+     "prescription": "3 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Upper",
+     "catalogExerciseId": 139,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Upper",
+     "catalogExerciseId": 142,
+     "prescription": "2 × 30 sec"
+    },
+    {
+     "week": 1,
+     "slotIndex": 3,
+     "dayKey": "3-Lower",
+     "catalogExerciseId": 405,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 3,
+     "dayKey": "3-Lower",
+     "catalogExerciseId": 406,
+     "prescription": "3 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 3,
+     "dayKey": "3-Lower",
+     "catalogExerciseId": 414,
+     "prescription": "1 × 12–25"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis)."
+   ],
+   "notes": [
+    "A target on one arm only is planned for both: a plan's one-arm sets are each side (design §3), so the plan cannot hold one-arm-only work."
+   ],
+   "days": [
+    {
+     "slot": "Day 01 · Upper",
+     "minutesBefore": 46,
+     "minutesAfter": 64,
+     "added": [
+      "Reverse Wrist Curl 1 × 10–25",
+      "Lever Radial Deviation 1 × 10–25",
+      "Wrist Curl 3 × 10–25",
+      "Plate Pinch 2 × 30 sec"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 02 · Lower",
+     "minutesBefore": 38,
+     "minutesAfter": 53,
+     "added": [
+      "Hammer Curl 1 × 6–20",
+      "Lever Supination 3 × 10–20",
+      "Band Finger Extension 1 × 10–25",
+      "Band Thumb Extension 1 × 12–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 03 · Upper",
+     "minutesBefore": 46,
+     "minutesAfter": 64,
+     "added": [
+      "Lever Ulnar Deviation 3 × 10–25",
+      "Wrist Curl 2 × 10–25",
+      "Plate Pinch 2 × 30 sec"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 04 · Lower",
+     "minutesBefore": 38,
+     "minutesAfter": 51,
+     "added": [
+      "Lever Pronation 1 × 10–20",
+      "Lever Supination 3 × 10–20",
+      "Band Thumb Abduction 1 × 12–25"
+     ],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [],
+   "check": {
+    "left": {
+     "before": 0,
+     "after": 25
+    },
+    "right": {
+     "before": 0,
+     "after": 25
+    },
+    "musclesWithDirect": {
+     "before": 0,
+     "after": 16
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 120
+    },
+    "remainingGaps": [
+     "Palmar fascia tension (Palmaris longus)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)"
+    ],
+    "targets": [
+     "forearm.fcu left direct_dynamic_bouts: 8 of your 8",
+     "forearm.fds left deliberate_hold_seconds: 120 of your 120 seconds",
+     "forearm.supination left direct_dynamic_bouts: 6 of your 6",
+     "forearm.fcu right direct_dynamic_bouts: 8 of your 8",
+     "forearm.fds right deliberate_hold_seconds: 120 of your 120 seconds"
+    ]
+   },
+   "timings": {
+    "totalMs": 25.269029000000046,
+    "placeMs": 0.43570599999998194,
+    "searched": 16314,
+    "placement": {
+     "localCost": 5,
+     "exactCost": 3,
+     "exactComplete": true,
+     "evaluations": 195,
+     "exactNodes": 130101
+    }
+   }
+  }
+ },
+ {
+  "scenario": "B",
+  "total": 20,
+  "result": {
+   "totalPerArm": 20,
+   "startValue": 25,
+   "stepper": {
+    "min": 0,
+    "max": 48,
+    "fitsTime": 51
+   },
+   "existingDirectPerArm": {
+    "left": 0,
+    "right": 0
+   },
+   "added": 20,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 140,
+     "name": "Reverse Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Upper",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist extension (Extensor carpi radialis longus): no direct work planned this week",
+      "Wrist extension (Extensor carpi radialis brevis): no direct work planned this week",
+      "Wrist extension (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 407,
+     "name": "Lever Radial Deviation",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Upper",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Radial deviation (Flexor carpi radialis): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis longus): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis brevis): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi radialis brevis and Extensor carpi radialis longus and Flexor carpi radialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 408,
+     "name": "Lever Ulnar Deviation",
+     "family": "wrist",
+     "setsPerWeek": 3,
+     "days": [
+      {
+       "slot": "Day 01 · Upper",
+       "sets": 3,
+       "prescription": "3 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Flexor carpi ulnaris: your target, 8 short (direct dynamic bouts, left and right)",
+      "Ulnar deviation (Flexor carpi ulnaris): no direct work planned this week",
+      "Ulnar deviation (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi ulnaris and Flexor carpi ulnaris; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 139,
+     "name": "Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 4,
+     "days": [
+      {
+       "slot": "Day 01 · Upper",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      },
+      {
+       "slot": "Day 03 · Upper",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Flexor carpi ulnaris: your target, 8 short (direct dynamic bouts, left and right)",
+      "Wrist flexion (Flexor carpi radialis): no direct work planned this week",
+      "Wrist flexion (Flexor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 406,
+     "name": "Lever Supination",
+     "family": "rotation",
+     "setsPerWeek": 3,
+     "days": [
+      {
+       "slot": "Day 02 · Lower",
+       "sets": 3,
+       "prescription": "3 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Supination: your target, 6 short (direct dynamic bouts, left)",
+      "Supination (Supinator): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 413,
+     "name": "Band Thumb Extension",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Lower",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-knuckle extension (Extensor pollicis brevis): no direct work planned this week",
+      "Thumb-tip extension (Extensor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor pollicis brevis and Extensor pollicis longus; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 132,
+     "name": "Hammer Curl",
+     "family": "elbow",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Upper",
+       "sets": 1,
+       "prescription": "1 × 6–20"
+      }
+     ],
+     "reasons": [
+      "Elbow flexion (Brachioradialis): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 404,
+     "name": "Band Finger Extension",
+     "family": "finger",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Upper",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Finger extension (Extensor digitorum): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 414,
+     "name": "Band Thumb Abduction",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Upper",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb abduction (Abductor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 405,
+     "name": "Lever Pronation",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 04 · Lower",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Pronation (Pronator teres): no direct work planned this week",
+      "Pronation (Pronator quadratus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Pronator quadratus and Pronator teres; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 142,
+     "name": "Plate Pinch",
+     "family": "isometric_grip",
+     "setsPerWeek": 3,
+     "days": [
+      {
+       "slot": "Day 04 · Lower",
+       "sets": 3,
+       "prescription": "3 × 30 sec"
+      }
+     ],
+     "reasons": [
+      "Flexor digitorum superficialis: your target, 120 short (deliberate hold seconds, left and right)",
+      "Middle-joint flexion (Flexor digitorum superficialis): no direct work planned this week",
+      "Fingertip flexion (Flexor digitorum profundus): no direct work planned this week",
+      "Thumb-tip flexion (Flexor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Flexor digitorum profundus and Flexor digitorum superficialis; the evidence does not split it."
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Upper",
+     "catalogExerciseId": 140,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Upper",
+     "catalogExerciseId": 407,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Upper",
+     "catalogExerciseId": 408,
+     "prescription": "3 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Upper",
+     "catalogExerciseId": 139,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Lower",
+     "catalogExerciseId": 406,
+     "prescription": "3 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Lower",
+     "catalogExerciseId": 413,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Upper",
+     "catalogExerciseId": 132,
+     "prescription": "1 × 6–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Upper",
+     "catalogExerciseId": 139,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Upper",
+     "catalogExerciseId": 404,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Upper",
+     "catalogExerciseId": 414,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 3,
+     "dayKey": "3-Lower",
+     "catalogExerciseId": 405,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 3,
+     "dayKey": "3-Lower",
+     "catalogExerciseId": 142,
+     "prescription": "3 × 30 sec"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis)."
+   ],
+   "notes": [
+    "A target on one arm only is planned for both: a plan's one-arm sets are each side (design §3), so the plan cannot hold one-arm-only work.",
+    "Flexor carpi ulnaris: your target, 8 short (direct dynamic bouts, left and right): still 1 set(s) short at this total.",
+    "Flexor digitorum superficialis: your target, 120 short (deliberate hold seconds, left and right): still 1 set(s) short at this total.",
+    "Supination: your target, 6 short (direct dynamic bouts, left): still 3 set(s) short at this total."
+   ],
+   "days": [
+    {
+     "slot": "Day 01 · Upper",
+     "minutesBefore": 46,
+     "minutesAfter": 64,
+     "added": [
+      "Reverse Wrist Curl 1 × 10–25",
+      "Lever Radial Deviation 1 × 10–25",
+      "Lever Ulnar Deviation 3 × 10–25",
+      "Wrist Curl 2 × 10–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 02 · Lower",
+     "minutesBefore": 38,
+     "minutesAfter": 48,
+     "added": [
+      "Lever Supination 3 × 10–20",
+      "Band Thumb Extension 1 × 12–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 03 · Upper",
+     "minutesBefore": 46,
+     "minutesAfter": 59,
+     "added": [
+      "Hammer Curl 1 × 6–20",
+      "Wrist Curl 2 × 10–25",
+      "Band Finger Extension 1 × 10–25",
+      "Band Thumb Abduction 1 × 12–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 04 · Lower",
+     "minutesBefore": 38,
+     "minutesAfter": 48,
+     "added": [
+      "Lever Pronation 1 × 10–20",
+      "Plate Pinch 3 × 30 sec"
+     ],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [],
+   "check": {
+    "left": {
+     "before": 0,
+     "after": 20
+    },
+    "right": {
+     "before": 0,
+     "after": 20
+    },
+    "musclesWithDirect": {
+     "before": 0,
+     "after": 16
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 90
+    },
+    "remainingGaps": [
+     "Palmar fascia tension (Palmaris longus)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)"
+    ],
+    "targets": [
+     "forearm.fcu left direct_dynamic_bouts: 7 of your 8",
+     "forearm.fds left deliberate_hold_seconds: 90 of your 120 seconds",
+     "forearm.supination left direct_dynamic_bouts: 3 of your 6",
+     "forearm.fcu right direct_dynamic_bouts: 7 of your 8",
+     "forearm.fds right deliberate_hold_seconds: 90 of your 120 seconds"
+    ]
+   },
+   "timings": {
+    "totalMs": 22.88509699999986,
+    "placeMs": 0.5691810000000714,
+    "searched": 16314,
+    "placement": {
+     "localCost": 8,
+     "exactCost": 0,
+     "exactComplete": true,
+     "evaluations": 166,
+     "exactNodes": 17128
+    }
+   }
+  }
+ },
+ {
+  "scenario": "B",
+  "total": 12,
+  "result": {
+   "totalPerArm": 12,
+   "startValue": 25,
+   "stepper": {
+    "min": 0,
+    "max": 48,
+    "fitsTime": 51
+   },
+   "existingDirectPerArm": {
+    "left": 0,
+    "right": 0
+   },
+   "added": 12,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 407,
+     "name": "Lever Radial Deviation",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Upper",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Radial deviation (Flexor carpi radialis): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis longus): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis brevis): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi radialis brevis and Extensor carpi radialis longus and Flexor carpi radialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 139,
+     "name": "Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 01 · Upper",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Flexor carpi ulnaris: your target, 8 short (direct dynamic bouts, left and right)",
+      "Wrist flexion (Flexor carpi radialis): no direct work planned this week",
+      "Wrist flexion (Flexor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 132,
+     "name": "Hammer Curl",
+     "family": "elbow",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Lower",
+       "sets": 1,
+       "prescription": "1 × 6–20"
+      }
+     ],
+     "reasons": [
+      "Elbow flexion (Brachioradialis): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 404,
+     "name": "Band Finger Extension",
+     "family": "finger",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Lower",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Finger extension (Extensor digitorum): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 413,
+     "name": "Band Thumb Extension",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Lower",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-knuckle extension (Extensor pollicis brevis): no direct work planned this week",
+      "Thumb-tip extension (Extensor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor pollicis brevis and Extensor pollicis longus; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 140,
+     "name": "Reverse Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Upper",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist extension (Extensor carpi radialis longus): no direct work planned this week",
+      "Wrist extension (Extensor carpi radialis brevis): no direct work planned this week",
+      "Wrist extension (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 408,
+     "name": "Lever Ulnar Deviation",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Upper",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Flexor carpi ulnaris: your target, 8 short (direct dynamic bouts, left and right)",
+      "Ulnar deviation (Flexor carpi ulnaris): no direct work planned this week",
+      "Ulnar deviation (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi ulnaris and Flexor carpi ulnaris; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 414,
+     "name": "Band Thumb Abduction",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Upper",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb abduction (Abductor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 405,
+     "name": "Lever Pronation",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 04 · Lower",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Pronation (Pronator teres): no direct work planned this week",
+      "Pronation (Pronator quadratus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Pronator quadratus and Pronator teres; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 406,
+     "name": "Lever Supination",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 04 · Lower",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Supination: your target, 6 short (direct dynamic bouts, left)",
+      "Supination (Supinator): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 142,
+     "name": "Plate Pinch",
+     "family": "isometric_grip",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 04 · Lower",
+       "sets": 1,
+       "prescription": "1 × 30 sec"
+      }
+     ],
+     "reasons": [
+      "Flexor digitorum superficialis: your target, 120 short (deliberate hold seconds, left and right)",
+      "Middle-joint flexion (Flexor digitorum superficialis): no direct work planned this week",
+      "Fingertip flexion (Flexor digitorum profundus): no direct work planned this week",
+      "Thumb-tip flexion (Flexor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Flexor digitorum profundus and Flexor digitorum superficialis; the evidence does not split it."
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Upper",
+     "catalogExerciseId": 407,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Upper",
+     "catalogExerciseId": 139,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Lower",
+     "catalogExerciseId": 132,
+     "prescription": "1 × 6–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Lower",
+     "catalogExerciseId": 404,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Lower",
+     "catalogExerciseId": 413,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Upper",
+     "catalogExerciseId": 140,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Upper",
+     "catalogExerciseId": 408,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Upper",
+     "catalogExerciseId": 414,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 3,
+     "dayKey": "3-Lower",
+     "catalogExerciseId": 405,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 3,
+     "dayKey": "3-Lower",
+     "catalogExerciseId": 406,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 3,
+     "dayKey": "3-Lower",
+     "catalogExerciseId": 142,
+     "prescription": "1 × 30 sec"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis)."
+   ],
+   "notes": [
+    "A target on one arm only is planned for both: a plan's one-arm sets are each side (design §3), so the plan cannot hold one-arm-only work.",
+    "Flexor carpi ulnaris: your target, 8 short (direct dynamic bouts, left and right): still 5 set(s) short at this total.",
+    "Flexor digitorum superficialis: your target, 120 short (deliberate hold seconds, left and right): still 3 set(s) short at this total.",
+    "Supination: your target, 6 short (direct dynamic bouts, left): still 5 set(s) short at this total."
+   ],
+   "days": [
+    {
+     "slot": "Day 01 · Upper",
+     "minutesBefore": 46,
+     "minutesAfter": 54,
+     "added": [
+      "Lever Radial Deviation 1 × 10–25",
+      "Wrist Curl 2 × 10–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 02 · Lower",
+     "minutesBefore": 38,
+     "minutesAfter": 46,
+     "added": [
+      "Hammer Curl 1 × 6–20",
+      "Band Finger Extension 1 × 10–25",
+      "Band Thumb Extension 1 × 12–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 03 · Upper",
+     "minutesBefore": 46,
+     "minutesAfter": 54,
+     "added": [
+      "Reverse Wrist Curl 1 × 10–25",
+      "Lever Ulnar Deviation 1 × 10–25",
+      "Band Thumb Abduction 1 × 12–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 04 · Lower",
+     "minutesBefore": 38,
+     "minutesAfter": 46,
+     "added": [
+      "Lever Pronation 1 × 10–20",
+      "Lever Supination 1 × 10–20",
+      "Plate Pinch 1 × 30 sec"
+     ],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [],
+   "check": {
+    "left": {
+     "before": 0,
+     "after": 12
+    },
+    "right": {
+     "before": 0,
+     "after": 12
+    },
+    "musclesWithDirect": {
+     "before": 0,
+     "after": 16
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 30
+    },
+    "remainingGaps": [
+     "Palmar fascia tension (Palmaris longus)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)"
+    ],
+    "targets": [
+     "forearm.fcu left direct_dynamic_bouts: 3 of your 8",
+     "forearm.fds left deliberate_hold_seconds: 30 of your 120 seconds",
+     "forearm.supination left direct_dynamic_bouts: 1 of your 6",
+     "forearm.fcu right direct_dynamic_bouts: 3 of your 8",
+     "forearm.fds right deliberate_hold_seconds: 30 of your 120 seconds"
+    ]
+   },
+   "timings": {
+    "totalMs": 17.77964299999985,
+    "placeMs": 0.4195709999999053,
+    "searched": 16314,
+    "placement": {
+     "localCost": 0,
+     "exactCost": 0,
+     "exactComplete": true,
+     "evaluations": 180,
+     "exactNodes": 2169
+    }
+   }
+  }
+ },
+ {
+  "scenario": "C",
+  "total": null,
+  "result": {
+   "totalPerArm": 14,
+   "startValue": 14,
+   "stepper": {
+    "min": 3,
+    "max": 60,
+    "fitsTime": 23
+   },
+   "existingDirectPerArm": {
+    "left": 3,
+    "right": 3
+   },
+   "added": 11,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 140,
+     "name": "Reverse Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist extension (Extensor carpi radialis longus): no direct work planned this week",
+      "Wrist extension (Extensor carpi radialis brevis): no direct work planned this week",
+      "Wrist extension (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 407,
+     "name": "Lever Radial Deviation",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Radial deviation (Flexor carpi radialis): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis longus): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis brevis): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi radialis brevis and Extensor carpi radialis longus and Flexor carpi radialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 139,
+     "name": "Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist flexion (Flexor carpi radialis): no direct work planned this week",
+      "Wrist flexion (Flexor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 405,
+     "name": "Lever Pronation",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Pronation (Pronator teres): no direct work planned this week",
+      "Pronation (Pronator quadratus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Pronator quadratus and Pronator teres; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 413,
+     "name": "Band Thumb Extension",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-knuckle extension (Extensor pollicis brevis): no direct work planned this week",
+      "Thumb-tip extension (Extensor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor pollicis brevis and Extensor pollicis longus; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 408,
+     "name": "Lever Ulnar Deviation",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Ulnar deviation (Flexor carpi ulnaris): no direct work planned this week",
+      "Ulnar deviation (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi ulnaris and Flexor carpi ulnaris; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 406,
+     "name": "Lever Supination",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Supination (Supinator): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 412,
+     "name": "Band Thumb Flexion",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 04 · Upper",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-tip flexion (Flexor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 414,
+     "name": "Band Thumb Abduction",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 04 · Upper",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb abduction (Abductor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 402,
+     "name": "Gripper Close",
+     "family": "finger",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 05 · Sport Transfer",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Middle-joint flexion (Flexor digitorum superficialis): no direct work planned this week",
+      "Fingertip flexion (Flexor digitorum profundus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Flexor digitorum profundus and Flexor digitorum superficialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 404,
+     "name": "Band Finger Extension",
+     "family": "finger",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 05 · Sport Transfer",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Finger extension (Extensor digitorum): no direct work planned this week"
+     ],
+     "sharedNote": null
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 140,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 407,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 139,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 405,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 413,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 408,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 406,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 3,
+     "dayKey": "3-Upper",
+     "catalogExerciseId": 412,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 3,
+     "dayKey": "3-Upper",
+     "catalogExerciseId": 414,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 4,
+     "dayKey": "4-Sport Transfer",
+     "catalogExerciseId": 402,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 4,
+     "dayKey": "4-Sport Transfer",
+     "catalogExerciseId": 404,
+     "prescription": "1 × 10–25"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis)."
+   ],
+   "notes": [],
+   "days": [
+    {
+     "slot": "Day 01 · Push",
+     "minutesBefore": 36,
+     "minutesAfter": 44,
+     "added": [
+      "Reverse Wrist Curl 1 × 10–25",
+      "Lever Radial Deviation 1 × 10–25",
+      "Wrist Curl 1 × 10–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 02 · Pull",
+     "minutesBefore": 36,
+     "minutesAfter": 41,
+     "added": [
+      "Lever Pronation 1 × 10–20",
+      "Band Thumb Extension 1 × 12–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 03 · Legs",
+     "minutesBefore": 36,
+     "minutesAfter": 41,
+     "added": [
+      "Lever Ulnar Deviation 1 × 10–25",
+      "Lever Supination 1 × 10–20"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 04 · Upper",
+     "minutesBefore": 36,
+     "minutesAfter": 41,
+     "added": [
+      "Band Thumb Flexion 1 × 12–25",
+      "Band Thumb Abduction 1 × 12–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 05 · Sport Transfer",
+     "minutesBefore": 28,
+     "minutesAfter": 33,
+     "added": [
+      "Gripper Close 1 × 10–25",
+      "Band Finger Extension 1 × 10–25"
+     ],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [],
+   "check": {
+    "left": {
+     "before": 3,
+     "after": 14
+    },
+    "right": {
+     "before": 3,
+     "after": 14
+    },
+    "musclesWithDirect": {
+     "before": 1,
+     "after": 16
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 0
+    },
+    "remainingGaps": [
+     "Palmar fascia tension (Palmaris longus)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)"
+    ],
+    "targets": []
+   },
+   "timings": {
+    "totalMs": 14.12856899999997,
+    "placeMs": 0.49201799999991636,
+    "searched": 2047,
+    "placement": {
+     "localCost": 3,
+     "exactCost": 3,
+     "exactComplete": false,
+     "evaluations": 239,
+     "exactNodes": 300026
+    }
+   }
+  }
+ },
+ {
+  "scenario": "C",
+  "total": 10,
+  "result": {
+   "totalPerArm": 10,
+   "startValue": 14,
+   "stepper": {
+    "min": 3,
+    "max": 60,
+    "fitsTime": 23
+   },
+   "existingDirectPerArm": {
+    "left": 3,
+    "right": 3
+   },
+   "added": 7,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 140,
+     "name": "Reverse Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist extension (Extensor carpi radialis longus): no direct work planned this week",
+      "Wrist extension (Extensor carpi radialis brevis): no direct work planned this week",
+      "Wrist extension (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 139,
+     "name": "Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist flexion (Flexor carpi radialis): no direct work planned this week",
+      "Wrist flexion (Flexor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 402,
+     "name": "Gripper Close",
+     "family": "finger",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Middle-joint flexion (Flexor digitorum superficialis): no direct work planned this week",
+      "Fingertip flexion (Flexor digitorum profundus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Flexor digitorum profundus and Flexor digitorum superficialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 405,
+     "name": "Lever Pronation",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Pronation (Pronator teres): no direct work planned this week",
+      "Pronation (Pronator quadratus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Pronator quadratus and Pronator teres; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 404,
+     "name": "Band Finger Extension",
+     "family": "finger",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Finger extension (Extensor digitorum): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 413,
+     "name": "Band Thumb Extension",
+     "family": "thumb",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-knuckle extension (Extensor pollicis brevis): no direct work planned this week",
+      "Thumb-tip extension (Extensor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor pollicis brevis and Extensor pollicis longus; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 406,
+     "name": "Lever Supination",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Supination (Supinator): no direct work planned this week"
+     ],
+     "sharedNote": null
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 140,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 139,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 402,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 405,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 404,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 413,
+     "prescription": "1 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 406,
+     "prescription": "1 × 10–20"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis).",
+    "Thumb-tip flexion (Flexor pollicis longus) (Band Thumb Flexion): needs 1 more sets per arm; raise the total to include it.",
+    "Thumb abduction (Abductor pollicis longus) (Band Thumb Abduction): needs 1 more sets per arm; raise the total to include it.",
+    "Radial deviation (Flexor carpi radialis), Radial deviation (Extensor carpi radialis longus), Radial deviation (Extensor carpi radialis brevis) (Lever Radial Deviation): needs 1 more sets per arm; raise the total to include it.",
+    "Ulnar deviation (Flexor carpi ulnaris), Ulnar deviation (Extensor carpi ulnaris) (Lever Ulnar Deviation): needs 1 more sets per arm; raise the total to include it."
+   ],
+   "notes": [],
+   "days": [
+    {
+     "slot": "Day 01 · Push",
+     "minutesBefore": 36,
+     "minutesAfter": 44,
+     "added": [
+      "Reverse Wrist Curl 1 × 10–25",
+      "Wrist Curl 1 × 10–25",
+      "Gripper Close 1 × 10–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 02 · Pull",
+     "minutesBefore": 36,
+     "minutesAfter": 44,
+     "added": [
+      "Lever Pronation 1 × 10–20",
+      "Band Finger Extension 1 × 10–25",
+      "Band Thumb Extension 1 × 12–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 03 · Legs",
+     "minutesBefore": 36,
+     "minutesAfter": 39,
+     "added": [
+      "Lever Supination 1 × 10–20"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 04 · Upper",
+     "minutesBefore": 36,
+     "minutesAfter": 36,
+     "added": [],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 05 · Sport Transfer",
+     "minutesBefore": 28,
+     "minutesAfter": 28,
+     "added": [],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [],
+   "check": {
+    "left": {
+     "before": 3,
+     "after": 10
+    },
+    "right": {
+     "before": 3,
+     "after": 10
+    },
+    "musclesWithDirect": {
+     "before": 1,
+     "after": 14
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 0
+    },
+    "remainingGaps": [
+     "Radial deviation (Flexor carpi radialis)",
+     "Ulnar deviation (Flexor carpi ulnaris)",
+     "Palmar fascia tension (Palmaris longus)",
+     "Thumb-tip flexion (Flexor pollicis longus)",
+     "Radial deviation (Extensor carpi radialis longus)",
+     "Radial deviation (Extensor carpi radialis brevis)",
+     "Ulnar deviation (Extensor carpi ulnaris)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)",
+     "Thumb abduction (Abductor pollicis longus)"
+    ],
+    "targets": []
+   },
+   "timings": {
+    "totalMs": 11.53649299999961,
+    "placeMs": 0.19168500000023414,
+    "searched": 2047,
+    "placement": {
+     "localCost": 8,
+     "exactCost": 3,
+     "exactComplete": true,
+     "evaluations": 78,
+     "exactNodes": 90176
+    }
+   }
+  }
+ },
+ {
+  "scenario": "C",
+  "total": 24,
+  "result": {
+   "totalPerArm": 24,
+   "startValue": 14,
+   "stepper": {
+    "min": 3,
+    "max": 60,
+    "fitsTime": 23
+   },
+   "existingDirectPerArm": {
+    "left": 3,
+    "right": 3
+   },
+   "added": 21,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 140,
+     "name": "Reverse Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist extension (Extensor carpi radialis longus): no direct work planned this week",
+      "Wrist extension (Extensor carpi radialis brevis): no direct work planned this week",
+      "Wrist extension (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 406,
+     "name": "Lever Supination",
+     "family": "rotation",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 2,
+       "prescription": "2 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Supination (Supinator): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 402,
+     "name": "Gripper Close",
+     "family": "finger",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Middle-joint flexion (Flexor digitorum superficialis): no direct work planned this week",
+      "Fingertip flexion (Flexor digitorum profundus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Flexor digitorum profundus and Flexor digitorum superficialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 412,
+     "name": "Band Thumb Flexion",
+     "family": "thumb",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 2,
+       "prescription": "2 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-tip flexion (Flexor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 407,
+     "name": "Lever Radial Deviation",
+     "family": "wrist",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Radial deviation (Flexor carpi radialis): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis longus): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis brevis): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi radialis brevis and Extensor carpi radialis longus and Flexor carpi radialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 408,
+     "name": "Lever Ulnar Deviation",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Ulnar deviation (Flexor carpi ulnaris): no direct work planned this week",
+      "Ulnar deviation (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi ulnaris and Flexor carpi ulnaris; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 405,
+     "name": "Lever Pronation",
+     "family": "rotation",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 04 · Upper",
+       "sets": 2,
+       "prescription": "2 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Pronation (Pronator teres): no direct work planned this week",
+      "Pronation (Pronator quadratus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Pronator quadratus and Pronator teres; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 414,
+     "name": "Band Thumb Abduction",
+     "family": "thumb",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 04 · Upper",
+       "sets": 2,
+       "prescription": "2 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb abduction (Abductor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 139,
+     "name": "Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 05 · Sport Transfer",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist flexion (Flexor carpi radialis): no direct work planned this week",
+      "Wrist flexion (Flexor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 404,
+     "name": "Band Finger Extension",
+     "family": "finger",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 05 · Sport Transfer",
+       "sets": 2,
+       "prescription": "2 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Finger extension (Extensor digitorum): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 413,
+     "name": "Band Thumb Extension",
+     "family": "thumb",
+     "setsPerWeek": 2,
+     "days": [
+      {
+       "slot": "Day 05 · Sport Transfer",
+       "sets": 2,
+       "prescription": "2 × 12–25"
+      }
+     ],
+     "reasons": [
+      "Thumb-knuckle extension (Extensor pollicis brevis): no direct work planned this week",
+      "Thumb-tip extension (Extensor pollicis longus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor pollicis brevis and Extensor pollicis longus; the evidence does not split it."
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 140,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 406,
+     "prescription": "2 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 402,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 412,
+     "prescription": "2 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 407,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 408,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 3,
+     "dayKey": "3-Upper",
+     "catalogExerciseId": 405,
+     "prescription": "2 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 3,
+     "dayKey": "3-Upper",
+     "catalogExerciseId": 414,
+     "prescription": "2 × 12–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 4,
+     "dayKey": "4-Sport Transfer",
+     "catalogExerciseId": 139,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 4,
+     "dayKey": "4-Sport Transfer",
+     "catalogExerciseId": 404,
+     "prescription": "2 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 4,
+     "dayKey": "4-Sport Transfer",
+     "catalogExerciseId": 413,
+     "prescription": "2 × 12–25"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis)."
+   ],
+   "notes": [],
+   "days": [
+    {
+     "slot": "Day 01 · Push",
+     "minutesBefore": 36,
+     "minutesAfter": 46,
+     "added": [
+      "Reverse Wrist Curl 2 × 10–25",
+      "Lever Supination 2 × 10–20"
+     ],
+     "overWindow": true
+    },
+    {
+     "slot": "Day 02 · Pull",
+     "minutesBefore": 36,
+     "minutesAfter": 46,
+     "added": [
+      "Gripper Close 2 × 10–25",
+      "Band Thumb Flexion 2 × 12–25"
+     ],
+     "overWindow": true
+    },
+    {
+     "slot": "Day 03 · Legs",
+     "minutesBefore": 36,
+     "minutesAfter": 44,
+     "added": [
+      "Lever Radial Deviation 2 × 10–25",
+      "Lever Ulnar Deviation 1 × 10–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 04 · Upper",
+     "minutesBefore": 36,
+     "minutesAfter": 46,
+     "added": [
+      "Lever Pronation 2 × 10–20",
+      "Band Thumb Abduction 2 × 12–25"
+     ],
+     "overWindow": true
+    },
+    {
+     "slot": "Day 05 · Sport Transfer",
+     "minutesBefore": 28,
+     "minutesAfter": 43,
+     "added": [
+      "Wrist Curl 2 × 10–25",
+      "Band Finger Extension 2 × 10–25",
+      "Band Thumb Extension 2 × 12–25"
+     ],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [],
+   "check": {
+    "left": {
+     "before": 3,
+     "after": 24
+    },
+    "right": {
+     "before": 3,
+     "after": 24
+    },
+    "musclesWithDirect": {
+     "before": 1,
+     "after": 16
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 0
+    },
+    "remainingGaps": [
+     "Palmar fascia tension (Palmaris longus)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)"
+    ],
+    "targets": []
+   },
+   "timings": {
+    "totalMs": 16.02941299999975,
+    "placeMs": 0.3181960000001709,
+    "searched": 2047,
+    "placement": {
+     "localCost": 6000008,
+     "exactCost": 6000008,
+     "exactComplete": false,
+     "evaluations": 147,
+     "exactNodes": 300025
+    }
+   }
+  }
+ },
+ {
+  "scenario": "D",
+  "total": null,
+  "result": {
+   "totalPerArm": 1,
+   "startValue": 1,
+   "stepper": {
+    "min": 0,
+    "max": 6,
+    "fitsTime": 4
+   },
+   "existingDirectPerArm": {
+    "left": 0,
+    "right": 0
+   },
+   "added": 1,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 143,
+     "name": "Dead Hang",
+     "family": "isometric_grip",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Lower",
+       "sets": 1,
+       "prescription": "1 × 10 sec"
+      }
+     ],
+     "reasons": [
+      "Middle-joint flexion (Flexor digitorum superficialis): no direct work planned this week",
+      "Fingertip flexion (Flexor digitorum profundus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Flexor digitorum profundus and Flexor digitorum superficialis; the evidence does not split it."
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Lower",
+     "catalogExerciseId": 143,
+     "prescription": "1 × 10 sec"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis).",
+    "Left out by your equipment, exclusions or the groups you turned off: Elbow flexion (Brachioradialis); Wrist flexion (Flexor carpi radialis); Radial deviation (Flexor carpi radialis); Wrist flexion (Flexor carpi ulnaris); Ulnar deviation (Flexor carpi ulnaris); Thumb-tip flexion (Flexor pollicis longus); Pronation (Pronator teres); Pronation (Pronator quadratus); Wrist extension (Extensor carpi radialis longus); Radial deviation (Extensor carpi radialis longus); Wrist extension (Extensor carpi radialis brevis); Radial deviation (Extensor carpi radialis brevis); Wrist extension (Extensor carpi ulnaris); Ulnar deviation (Extensor carpi ulnaris); Finger extension (Extensor digitorum); Thumb abduction (Abductor pollicis longus); Thumb-knuckle extension (Extensor pollicis brevis); Thumb-tip extension (Extensor pollicis longus); Supination (Supinator)."
+   ],
+   "notes": [],
+   "days": [
+    {
+     "slot": "Day 01 · Upper",
+     "minutesBefore": 28,
+     "minutesAfter": 28,
+     "added": [],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 02 · Lower",
+     "minutesBefore": 20,
+     "minutesAfter": 23,
+     "added": [
+      "Dead Hang 1 × 10 sec"
+     ],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [],
+   "check": {
+    "left": {
+     "before": 0,
+     "after": 1
+    },
+    "right": {
+     "before": 0,
+     "after": 1
+    },
+    "musclesWithDirect": {
+     "before": 0,
+     "after": 2
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 10
+    },
+    "remainingGaps": [
+     "Elbow flexion (Brachioradialis)",
+     "Wrist flexion (Flexor carpi radialis)",
+     "Radial deviation (Flexor carpi radialis)",
+     "Wrist flexion (Flexor carpi ulnaris)",
+     "Ulnar deviation (Flexor carpi ulnaris)",
+     "Palmar fascia tension (Palmaris longus)",
+     "Thumb-tip flexion (Flexor pollicis longus)",
+     "Pronation (Pronator teres)",
+     "Pronation (Pronator quadratus)",
+     "Wrist extension (Extensor carpi radialis longus)",
+     "Radial deviation (Extensor carpi radialis longus)",
+     "Wrist extension (Extensor carpi radialis brevis)",
+     "Radial deviation (Extensor carpi radialis brevis)",
+     "Wrist extension (Extensor carpi ulnaris)",
+     "Ulnar deviation (Extensor carpi ulnaris)",
+     "Finger extension (Extensor digitorum)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)",
+     "Thumb abduction (Abductor pollicis longus)",
+     "Thumb-knuckle extension (Extensor pollicis brevis)",
+     "Thumb-tip extension (Extensor pollicis longus)",
+     "Supination (Supinator)"
+    ],
+    "targets": []
+   },
+   "timings": {
+    "totalMs": 1.3367319999997562,
+    "placeMs": 0.015322999999625608,
+    "searched": 1,
+    "placement": {
+     "localCost": 3,
+     "exactCost": 3,
+     "exactComplete": true,
+     "evaluations": 3,
+     "exactNodes": 3
+    }
+   }
+  }
+ },
+ {
+  "scenario": "D",
+  "total": 12,
+  "result": {
+   "totalPerArm": 6,
+   "startValue": 1,
+   "stepper": {
+    "min": 0,
+    "max": 6,
+    "fitsTime": 4
+   },
+   "existingDirectPerArm": {
+    "left": 0,
+    "right": 0
+   },
+   "added": 6,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 143,
+     "name": "Dead Hang",
+     "family": "isometric_grip",
+     "setsPerWeek": 6,
+     "days": [
+      {
+       "slot": "Day 01 · Upper",
+       "sets": 3,
+       "prescription": "3 × 10 sec"
+      },
+      {
+       "slot": "Day 02 · Lower",
+       "sets": 3,
+       "prescription": "3 × 10 sec"
+      }
+     ],
+     "reasons": [
+      "Middle-joint flexion (Flexor digitorum superficialis): no direct work planned this week",
+      "Fingertip flexion (Flexor digitorum profundus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Flexor digitorum profundus and Flexor digitorum superficialis; the evidence does not split it."
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Upper",
+     "catalogExerciseId": 143,
+     "prescription": "3 × 10 sec"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Lower",
+     "catalogExerciseId": 143,
+     "prescription": "3 × 10 sec"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis).",
+    "Left out by your equipment, exclusions or the groups you turned off: Elbow flexion (Brachioradialis); Wrist flexion (Flexor carpi radialis); Radial deviation (Flexor carpi radialis); Wrist flexion (Flexor carpi ulnaris); Ulnar deviation (Flexor carpi ulnaris); Thumb-tip flexion (Flexor pollicis longus); Pronation (Pronator teres); Pronation (Pronator quadratus); Wrist extension (Extensor carpi radialis longus); Radial deviation (Extensor carpi radialis longus); Wrist extension (Extensor carpi radialis brevis); Radial deviation (Extensor carpi radialis brevis); Wrist extension (Extensor carpi ulnaris); Ulnar deviation (Extensor carpi ulnaris); Finger extension (Extensor digitorum); Thumb abduction (Abductor pollicis longus); Thumb-knuckle extension (Extensor pollicis brevis); Thumb-tip extension (Extensor pollicis longus); Supination (Supinator)."
+   ],
+   "notes": [
+    "12 is more than 4 forearm exercises a day can hold in this plan (6)."
+   ],
+   "days": [
+    {
+     "slot": "Day 01 · Upper",
+     "minutesBefore": 28,
+     "minutesAfter": 36,
+     "added": [
+      "Dead Hang 3 × 10 sec"
+     ],
+     "overWindow": true
+    },
+    {
+     "slot": "Day 02 · Lower",
+     "minutesBefore": 20,
+     "minutesAfter": 28,
+     "added": [
+      "Dead Hang 3 × 10 sec"
+     ],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [
+    "Day 01 and Day 02: FDP, FDS"
+   ],
+   "check": {
+    "left": {
+     "before": 0,
+     "after": 6
+    },
+    "right": {
+     "before": 0,
+     "after": 6
+    },
+    "musclesWithDirect": {
+     "before": 0,
+     "after": 2
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 60
+    },
+    "remainingGaps": [
+     "Elbow flexion (Brachioradialis)",
+     "Wrist flexion (Flexor carpi radialis)",
+     "Radial deviation (Flexor carpi radialis)",
+     "Wrist flexion (Flexor carpi ulnaris)",
+     "Ulnar deviation (Flexor carpi ulnaris)",
+     "Palmar fascia tension (Palmaris longus)",
+     "Thumb-tip flexion (Flexor pollicis longus)",
+     "Pronation (Pronator teres)",
+     "Pronation (Pronator quadratus)",
+     "Wrist extension (Extensor carpi radialis longus)",
+     "Radial deviation (Extensor carpi radialis longus)",
+     "Wrist extension (Extensor carpi radialis brevis)",
+     "Radial deviation (Extensor carpi radialis brevis)",
+     "Wrist extension (Extensor carpi ulnaris)",
+     "Ulnar deviation (Extensor carpi ulnaris)",
+     "Finger extension (Extensor digitorum)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)",
+     "Thumb abduction (Abductor pollicis longus)",
+     "Thumb-knuckle extension (Extensor pollicis brevis)",
+     "Thumb-tip extension (Extensor pollicis longus)",
+     "Supination (Supinator)"
+    ],
+    "targets": []
+   },
+   "timings": {
+    "totalMs": 1.5747569999998632,
+    "placeMs": 0.016929999999774736,
+    "searched": 1,
+    "placement": {
+     "localCost": 6020000,
+     "exactCost": 6020000,
+     "exactComplete": true,
+     "evaluations": 4,
+     "exactNodes": 5
+    }
+   }
+  }
+ },
+ {
+  "scenario": "E",
+  "total": 4,
+  "result": {
+   "totalPerArm": 6,
+   "startValue": 8,
+   "stepper": {
+    "min": 6,
+    "max": 12,
+    "fitsTime": 14
+   },
+   "existingDirectPerArm": {
+    "left": 6,
+    "right": 6
+   },
+   "added": 0,
+   "leftUnplanned": 0,
+   "entries": [],
+   "changes": [],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis).",
+    "Middle-joint flexion (Flexor digitorum superficialis), Fingertip flexion (Flexor digitorum profundus) (Finger Curl): needs 1 more sets per arm; raise the total to include it.",
+    "Pronation (Pronator teres), Pronation (Pronator quadratus) (Lever Pronation): needs 1 more sets per arm; raise the total to include it.",
+    "Thumb-knuckle extension (Extensor pollicis brevis), Thumb-tip extension (Extensor pollicis longus) (Band Thumb Extension): needs 1 more sets per arm; raise the total to include it.",
+    "Elbow flexion (Brachioradialis) (Hammer Curl): needs 1 more sets per arm; raise the total to include it.",
+    "Finger extension (Extensor digitorum) (Band Finger Extension): needs 1 more sets per arm; raise the total to include it.",
+    "Supination (Supinator) (Lever Supination): needs 1 more sets per arm; raise the total to include it.",
+    "Thumb-tip flexion (Flexor pollicis longus) (Band Thumb Flexion): needs 1 more sets per arm; raise the total to include it.",
+    "Thumb abduction (Abductor pollicis longus) (Band Thumb Abduction): needs 1 more sets per arm; raise the total to include it.",
+    "Radial deviation (Flexor carpi radialis), Radial deviation (Extensor carpi radialis longus), Radial deviation (Extensor carpi radialis brevis) (Lever Radial Deviation): needs 1 more sets per arm; raise the total to include it.",
+    "Ulnar deviation (Flexor carpi ulnaris), Ulnar deviation (Extensor carpi ulnaris) (Lever Ulnar Deviation): needs 1 more sets per arm; raise the total to include it."
+   ],
+   "notes": [
+    "Your plan already has 6 direct forearm sets per arm; the stack never removes your own exercises, so it adds nothing below that.",
+    "Meeting every need takes 10 exercises; 4 forearm exercises a day on 1 day(s), your own included, leave room for 2."
+   ],
+   "days": [
+    {
+     "slot": "Day 01 · Full Body",
+     "minutesBefore": 38,
+     "minutesAfter": 38,
+     "added": [],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [],
+   "check": {
+    "left": {
+     "before": 6,
+     "after": 6
+    },
+    "right": {
+     "before": 6,
+     "after": 6
+    },
+    "musclesWithDirect": {
+     "before": 5,
+     "after": 5
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 0
+    },
+    "remainingGaps": [
+     "Elbow flexion (Brachioradialis)",
+     "Radial deviation (Flexor carpi radialis)",
+     "Ulnar deviation (Flexor carpi ulnaris)",
+     "Palmar fascia tension (Palmaris longus)",
+     "Middle-joint flexion (Flexor digitorum superficialis)",
+     "Fingertip flexion (Flexor digitorum profundus)",
+     "Thumb-tip flexion (Flexor pollicis longus)",
+     "Pronation (Pronator teres)",
+     "Pronation (Pronator quadratus)",
+     "Radial deviation (Extensor carpi radialis longus)",
+     "Radial deviation (Extensor carpi radialis brevis)",
+     "Ulnar deviation (Extensor carpi ulnaris)",
+     "Finger extension (Extensor digitorum)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)",
+     "Thumb abduction (Abductor pollicis longus)",
+     "Thumb-knuckle extension (Extensor pollicis brevis)",
+     "Thumb-tip extension (Extensor pollicis longus)",
+     "Supination (Supinator)"
+    ],
+    "targets": []
+   },
+   "timings": {
+    "totalMs": 2.35062599999992,
+    "placeMs": 0.009273000000121101,
+    "searched": 1023,
+    "placement": {
+     "localCost": 0,
+     "exactCost": 0,
+     "exactComplete": true,
+     "evaluations": 0,
+     "exactNodes": 1
+    }
+   }
+  }
+ },
+ {
+  "scenario": "E",
+  "total": null,
+  "result": {
+   "totalPerArm": 8,
+   "startValue": 8,
+   "stepper": {
+    "min": 6,
+    "max": 12,
+    "fitsTime": 14
+   },
+   "existingDirectPerArm": {
+    "left": 6,
+    "right": 6
+   },
+   "added": 2,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 405,
+     "name": "Lever Pronation",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Full Body",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Pronation (Pronator teres): no direct work planned this week",
+      "Pronation (Pronator quadratus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Pronator quadratus and Pronator teres; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 401,
+     "name": "Finger Curl",
+     "family": "finger",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Full Body",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Middle-joint flexion (Flexor digitorum superficialis): no direct work planned this week",
+      "Fingertip flexion (Flexor digitorum profundus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Flexor digitorum profundus and Flexor digitorum superficialis; the evidence does not split it."
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Full Body",
+     "catalogExerciseId": 405,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Full Body",
+     "catalogExerciseId": 401,
+     "prescription": "1 × 10–25"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis).",
+    "Thumb-knuckle extension (Extensor pollicis brevis), Thumb-tip extension (Extensor pollicis longus) (Band Thumb Extension): no room: 4 forearm exercises a day.",
+    "Elbow flexion (Brachioradialis) (Hammer Curl): no room: 4 forearm exercises a day.",
+    "Finger extension (Extensor digitorum) (Band Finger Extension): no room: 4 forearm exercises a day.",
+    "Supination (Supinator) (Lever Supination): no room: 4 forearm exercises a day.",
+    "Thumb-tip flexion (Flexor pollicis longus) (Band Thumb Flexion): no room: 4 forearm exercises a day.",
+    "Thumb abduction (Abductor pollicis longus) (Band Thumb Abduction): no room: 4 forearm exercises a day.",
+    "Radial deviation (Flexor carpi radialis), Radial deviation (Extensor carpi radialis longus), Radial deviation (Extensor carpi radialis brevis) (Lever Radial Deviation): no room: 4 forearm exercises a day.",
+    "Ulnar deviation (Flexor carpi ulnaris), Ulnar deviation (Extensor carpi ulnaris) (Lever Ulnar Deviation): no room: 4 forearm exercises a day."
+   ],
+   "notes": [
+    "Meeting every need takes 10 exercises; 4 forearm exercises a day on 1 day(s), your own included, leave room for 2."
+   ],
+   "days": [
+    {
+     "slot": "Day 01 · Full Body",
+     "minutesBefore": 38,
+     "minutesAfter": 43,
+     "added": [
+      "Lever Pronation 1 × 10–20",
+      "Finger Curl 1 × 10–25"
+     ],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [],
+   "check": {
+    "left": {
+     "before": 6,
+     "after": 8
+    },
+    "right": {
+     "before": 6,
+     "after": 8
+    },
+    "musclesWithDirect": {
+     "before": 5,
+     "after": 9
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 0
+    },
+    "remainingGaps": [
+     "Elbow flexion (Brachioradialis)",
+     "Radial deviation (Flexor carpi radialis)",
+     "Ulnar deviation (Flexor carpi ulnaris)",
+     "Palmar fascia tension (Palmaris longus)",
+     "Thumb-tip flexion (Flexor pollicis longus)",
+     "Radial deviation (Extensor carpi radialis longus)",
+     "Radial deviation (Extensor carpi radialis brevis)",
+     "Ulnar deviation (Extensor carpi ulnaris)",
+     "Finger extension (Extensor digitorum)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)",
+     "Thumb abduction (Abductor pollicis longus)",
+     "Thumb-knuckle extension (Extensor pollicis brevis)",
+     "Thumb-tip extension (Extensor pollicis longus)",
+     "Supination (Supinator)"
+    ],
+    "targets": []
+   },
+   "timings": {
+    "totalMs": 2.5170130000001336,
+    "placeMs": 0.01441000000022541,
+    "searched": 1023,
+    "placement": {
+     "localCost": 0,
+     "exactCost": 0,
+     "exactComplete": true,
+     "evaluations": 2,
+     "exactNodes": 3
+    }
+   }
+  }
+ },
+ {
+  "scenario": "F",
+  "total": null,
+  "result": {
+   "totalPerArm": 9,
+   "startValue": 9,
+   "stepper": {
+    "min": 3,
+    "max": 36,
+    "fitsTime": 28
+   },
+   "existingDirectPerArm": {
+    "left": 3,
+    "right": 3
+   },
+   "added": 6,
+   "leftUnplanned": 0,
+   "entries": [
+    {
+     "catalogExerciseId": 140,
+     "name": "Reverse Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist extension (Extensor carpi radialis longus): no direct work planned this week",
+      "Wrist extension (Extensor carpi radialis brevis): no direct work planned this week",
+      "Wrist extension (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 407,
+     "name": "Lever Radial Deviation",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 01 · Push",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Radial deviation (Flexor carpi radialis): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis longus): no direct work planned this week",
+      "Radial deviation (Extensor carpi radialis brevis): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi radialis brevis and Extensor carpi radialis longus and Flexor carpi radialis; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 139,
+     "name": "Wrist Curl",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Wrist flexion (Flexor carpi radialis): no direct work planned this week",
+      "Wrist flexion (Flexor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": null
+    },
+    {
+     "catalogExerciseId": 408,
+     "name": "Lever Ulnar Deviation",
+     "family": "wrist",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 02 · Pull",
+       "sets": 1,
+       "prescription": "1 × 10–25"
+      }
+     ],
+     "reasons": [
+      "Ulnar deviation (Flexor carpi ulnaris): no direct work planned this week",
+      "Ulnar deviation (Extensor carpi ulnaris): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Extensor carpi ulnaris and Flexor carpi ulnaris; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 405,
+     "name": "Lever Pronation",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Pronation (Pronator teres): no direct work planned this week",
+      "Pronation (Pronator quadratus): no direct work planned this week"
+     ],
+     "sharedNote": "Shared between Pronator quadratus and Pronator teres; the evidence does not split it."
+    },
+    {
+     "catalogExerciseId": 406,
+     "name": "Lever Supination",
+     "family": "rotation",
+     "setsPerWeek": 1,
+     "days": [
+      {
+       "slot": "Day 03 · Legs",
+       "sets": 1,
+       "prescription": "1 × 10–20"
+      }
+     ],
+     "reasons": [
+      "Supination (Supinator): no direct work planned this week"
+     ],
+     "sharedNote": null
+    }
+   ],
+   "changes": [
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 140,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 0,
+     "dayKey": "0-Push",
+     "catalogExerciseId": 407,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 139,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 1,
+     "dayKey": "1-Pull",
+     "catalogExerciseId": 408,
+     "prescription": "1 × 10–25"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 405,
+     "prescription": "1 × 10–20"
+    },
+    {
+     "week": 1,
+     "slotIndex": 2,
+     "dayKey": "2-Legs",
+     "catalogExerciseId": 406,
+     "prescription": "1 × 10–20"
+    }
+   ],
+   "notInStack": [
+    "No reviewed exercise trains these directly: Palmar fascia tension (Palmaris longus); Little-finger extension (Extensor digiti minimi); Index-finger extension (Extensor indicis).",
+    "Left out by your equipment, exclusions or the groups you turned off: Middle-joint flexion (Flexor digitorum superficialis); Fingertip flexion (Flexor digitorum profundus); Thumb-tip flexion (Flexor pollicis longus); Finger extension (Extensor digitorum); Thumb abduction (Abductor pollicis longus); Thumb-knuckle extension (Extensor pollicis brevis); Thumb-tip extension (Extensor pollicis longus).",
+    "Palmaris longus: no reviewed exercise counts toward this target (direct dynamic bouts).",
+    "Flexor carpi radialis: no reviewed exercise counts toward this target (deliberate hold seconds).",
+    "Extensor digiti minimi: no reviewed exercise counts toward this target (direct dynamic bouts)."
+   ],
+   "notes": [
+    "Palmaris longus: your target, 6 short (direct dynamic bouts, left and right): still 6 set(s) short at this total.",
+    "Flexor carpi radialis: your target, 90 short (deliberate hold seconds, left and right): still 3 set(s) short at this total.",
+    "Extensor digiti minimi: your target, 4 short (direct dynamic bouts, left and right): still 4 set(s) short at this total."
+   ],
+   "days": [
+    {
+     "slot": "Day 01 · Push",
+     "minutesBefore": 38,
+     "minutesAfter": 43,
+     "added": [
+      "Reverse Wrist Curl 1 × 10–25",
+      "Lever Radial Deviation 1 × 10–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 02 · Pull",
+     "minutesBefore": 38,
+     "minutesAfter": 43,
+     "added": [
+      "Wrist Curl 1 × 10–25",
+      "Lever Ulnar Deviation 1 × 10–25"
+     ],
+     "overWindow": false
+    },
+    {
+     "slot": "Day 03 · Legs",
+     "minutesBefore": 38,
+     "minutesAfter": 43,
+     "added": [
+      "Lever Pronation 1 × 10–20",
+      "Lever Supination 1 × 10–20"
+     ],
+     "overWindow": false
+    }
+   ],
+   "adjacency": [
+    "Day 01 and Day 02: ECU, FCR"
+   ],
+   "check": {
+    "left": {
+     "before": 3,
+     "after": 9
+    },
+    "right": {
+     "before": 3,
+     "after": 9
+    },
+    "musclesWithDirect": {
+     "before": 1,
+     "after": 9
+    },
+    "holdSecondsRight": {
+     "before": 0,
+     "after": 0
+    },
+    "remainingGaps": [
+     "Palmar fascia tension (Palmaris longus)",
+     "Middle-joint flexion (Flexor digitorum superficialis)",
+     "Fingertip flexion (Flexor digitorum profundus)",
+     "Thumb-tip flexion (Flexor pollicis longus)",
+     "Finger extension (Extensor digitorum)",
+     "Little-finger extension (Extensor digiti minimi)",
+     "Index-finger extension (Extensor indicis)",
+     "Thumb abduction (Abductor pollicis longus)",
+     "Thumb-knuckle extension (Extensor pollicis brevis)",
+     "Thumb-tip extension (Extensor pollicis longus)"
+    ],
+    "targets": [
+     "forearm.pl left direct_dynamic_bouts: 0 of your 6",
+     "forearm.fcr left deliberate_hold_seconds: 0 of your 90 seconds",
+     "forearm.edm left direct_dynamic_bouts: 0 of your 4",
+     "forearm.pl right direct_dynamic_bouts: 0 of your 6",
+     "forearm.fcr right deliberate_hold_seconds: 0 of your 90 seconds",
+     "forearm.edm right direct_dynamic_bouts: 0 of your 4"
+    ]
+   },
+   "timings": {
+    "totalMs": 5.896959000000152,
+    "placeMs": 0.11488000000008469,
+    "searched": 63,
+    "placement": {
+     "localCost": 20000,
+     "exactCost": 8,
+     "exactComplete": true,
+     "evaluations": 64,
+     "exactNodes": 62
+    }
+   }
+  }
+ }
+]

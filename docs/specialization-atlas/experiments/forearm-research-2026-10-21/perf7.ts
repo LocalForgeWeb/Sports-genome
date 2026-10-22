@@ -1,0 +1,18 @@
+import { performance } from "node:perf_hooks";
+import { exercises as catalog } from "@/lib/exerciseCatalog";
+import { splitDaysForFrequency } from "@/lib/splitCycle";
+import { buildDaySlots, emptyDayStore, commitDay } from "@/lib/trainingDayPlan";
+import { forearmRegionData as region } from "@shared/specialization/regions/forearm/index";
+import { applyAll, buildModel, designStack, equipmentFor, previewOf, type StackInput } from "./stackDesigner";
+const byId = new Map(catalog.map((e) => [e.id, e] as const));
+const t0 = performance.now(); const model = buildModel(region); const modelMs = performance.now() - t0;
+const slots = buildDaySlots(splitDaysForFrequency(7));
+const pool = [1, 43, 101, 66, 132, 148, 161, 42, 171, 194, 221, 5, 54, 103, 57, 123, 150, 41, 163, 173, 206, 299, 139, 140, 4, 46, 59, 111, 87, 121, 169, 177];
+let store = emptyDayStore();
+slots.forEach((slot, i) => { const workout = Array.from({ length: 8 }, (_, k) => byId.get(pool[(i * 8 + k) % pool.length])!).filter((e, k, a) => a.findIndex((x) => x.id === e.id) === k); store = commitDay(store, slot.key, { workout, prescriptions: Object.fromEntries(workout.map((e) => [e.id, "4 × 8–12"])), settings: {}, context: [] }); });
+const input: StackInput = { model, week: 1, slots, store, goal: "Muscle growth", gymMinutes: 90, equipment: equipmentFor("Commercial gym"), exclusions: { catalogExerciseIds: [], equipment: [] }, goals: [], maxExercisesPerDay: 4, maxSetsPerSession: 3, minutesPerDay: 15, includeHolds: true, totalSets: 40 };
+for (let i = 0; i < 5; i += 1) designStack(input);
+let a = performance.now(); let d = designStack(input); for (let i = 0; i < 29; i += 1) d = designStack(input); const designMs = (performance.now() - a) / 30;
+a = performance.now(); for (let i = 0; i < 30; i += 1) { const r = applyAll(store, d.changes); if (r.ok) previewOf(input, r.store); } const prevMs = (performance.now() - a) / 30;
+console.log(`model build ${modelMs.toFixed(1)} ms (once per region load); 7-day plan, ${slots.reduce((n, s) => n + (store.plan[s.key]?.length ?? 0), 0)} entries x 4 sets; design ${designMs.toFixed(1)} ms; apply+preview ${prevMs.toFixed(1)} ms; added ${d.added} sets in ${d.changes.length} exercises; existing direct ${d.existingDirect}`);
+console.log(d.shortfalls.join("\n")); console.log(d.notes.join("\n"));
