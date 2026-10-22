@@ -135,13 +135,15 @@ async function readPage(state: SpecializationViewState, planned: typeof store): 
 
 /**
  * The page with the 3D model (its row of muscles, the stage and the Overview panel), every
- * disclosure open; then each muscle of the row chosen in turn, and the stage and the model's panel
+ * finding shown and every disclosure open; then each muscle of the row chosen in turn, and the stage and the model's panel
  * read for it, the panel's disclosures open. The sheets are the drawing states' own.
  */
 async function readModel(state: SpecializationViewState, planned: typeof store): Promise<Reading> {
   render(createElement(Harness, { initial: state, planned }));
   await act(async () => {});
   const seen: Reading = {};
+  const more = pageButton(/^Show \d+ more$/);
+  if (more) await click(more);
   await openAll(document.querySelector(".spz-page")!);
   seen.page = linesOf(document.querySelector(".spz-page")!);
   const chips = () => Array.from(document.querySelectorAll<HTMLElement>(".sg-anatomy3d-rail-chip"));

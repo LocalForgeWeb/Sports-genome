@@ -227,6 +227,11 @@ describe("every page sentence that names a region, for every region shape", () =
     expect(problems(forearmRegionData, ["Both arms count together: a set counts once, whichever arm or arms did it, and a set with no arm recorded counts like any other."])).toEqual([]);
     expect(problems(forearmRegionData, ["Plan Week 1, as written: 18 distinct bouts are planned for the forearms in Plan\u00a0Week 1."])).toHaveLength(1);
     expect(problems(forearmRegionData, ["Plan Week 2, as written: 18 distinct bouts are planned for the forearms in Plan Week 1."])).toEqual([]);
+    // Nothing read, measured or counted by, per or each side (the release review, 22 Oct): main's words, and what the page says now.
+    expect(problems(forearmRegionData, ["Circumference and grip, by arm"])).toEqual(["counted per side: Circumference and grip, by arm"]);
+    expect(problems(forearmRegionData, ["One bout per set, per muscle, per arm"])).toEqual(["counted per side: One bout per set, per muscle, per arm"]);
+    expect(problems(thigh, ["Each side assumed", "Measured per leg", "Counted by sides"])).toHaveLength(3);
+    expect(problems(forearmRegionData, ["Circumference and grip", "One bout per set, per muscle", "By FCR, FCU, PL.", "Each set counts once per muscle, from your logged workouts."])).toEqual([]);
   });
 
   /** What the page's live region says once Planned is chosen. */
