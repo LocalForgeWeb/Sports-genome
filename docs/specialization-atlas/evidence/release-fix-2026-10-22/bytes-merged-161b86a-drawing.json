@@ -1,0 +1,25 @@
+{
+ "label": "merged-161b86a",
+ "figureAsked": "drawing (3D APIs off)",
+ "runs": 3,
+ "sameEveryRun": true,
+ "figure": "Drawing",
+ "specialize": [
+  {
+   "file": "index-DaeUMW5j.js",
+   "bytes": 227024
+  },
+  {
+   "file": "index-CwB7Ep0o.js",
+   "bytes": 20836
+  },
+  {
+   "file": "SpecializationPanel-c3jhKB8n.js",
+   "bytes": 205570
+  }
+ ],
+ "total": 453430,
+ "model": 0,
+ "page": 453430,
+ "filesBeforeTheTap": 9
+}

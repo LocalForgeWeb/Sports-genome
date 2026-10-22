@@ -1,0 +1,29 @@
+{
+ "label": "main-4dac1ae",
+ "figureAsked": "3D model (WebGL)",
+ "runs": 3,
+ "sameEveryRun": true,
+ "figure": "3D model (ready)",
+ "specialize": [
+  {
+   "file": "SpecializationPanel-kR618p1Z.js",
+   "bytes": 384883
+  },
+  {
+   "file": "mappings-BixpmbJA.js",
+   "bytes": 43740
+  },
+  {
+   "file": "ForearmModelView-CQMYw_9e.js",
+   "bytes": 613725
+  },
+  {
+   "file": "/draco/draco_wasm_wrapper.js",
+   "bytes": 58456
+  }
+ ],
+ "total": 1100804,
+ "model": 672181,
+ "page": 428623,
+ "filesBeforeTheTap": 9
+}

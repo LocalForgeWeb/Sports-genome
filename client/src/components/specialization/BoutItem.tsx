@@ -11,13 +11,14 @@ export function boutDay(performedAt: string | null): string | null {
 
 /**
  * One set record in a list of bouts (the movement sheet, the region's own totals): what it
- * was, when and on which arm, its segments as logged, and "Open this workout" when it was a
- * logged workout. The muscle sheet's ledger draws its rows the same way.
+ * was and when, its segments as logged, and "Open this workout" when it was a logged workout. No
+ * side is named: both sides are counted as one (owner, 20 Oct 2026). The muscle sheet's ledger
+ * draws its rows the same way.
  */
 export function BoutItem({ row, title, meta, weightUnit, onOpenSession, children }: {
   row: RegionBoutRow;
   title: string;
-  /** The line under the title; by default the workout, the day and the arm. */
+  /** The line under the title; by default the workout and the day. */
   meta?: string;
   weightUnit: DisplayWeightUnit;
   onOpenSession: (sessionId: string) => void;

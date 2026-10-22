@@ -10,7 +10,7 @@ import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { buildDaySlots, commitDay, emptyDayStore } from "@/lib/trainingDayPlan";
-import { forearmAdjacentIds, forearmMuscleIds as m } from "@shared/specialization/ids";
+import { forearmAdjacentIds, forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { regionDataFor } from "@shared/specialization/registry";
 import { canonicalForModelSource } from "./modelIdentity";
 import { muscleManifest } from "./muscleManifest";

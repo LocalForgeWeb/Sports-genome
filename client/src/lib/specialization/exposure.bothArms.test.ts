@@ -11,29 +11,42 @@ import { catalogMusclesLookup } from "./useSpecializationSummary";
  * summary for side "both" counts each set once per muscle, whichever arm did it: a one-arm
  * set, a two-handed set and a set with no arm recorded alike. Nothing is kept apart as "no
  * arm recorded", and a target counts work from either arm.
+ *
+ * Adapted to wave 0's bout shape only (10-multi-region.md §2.1): a bout carries the arm's side as
+ * recorded (`armSide`) and the calculator resolves it per mapping, where it once carried one
+ * resolved `side`. The helper below keeps this test's words: "bilateral" is a set recorded Both,
+ * "left" and "right" a set recorded on that arm, "unknown" a set with no arm recorded.
  */
 
 const NOW = "2026-10-16T12:00:00.000Z";
 const WEEK = calendarWeekInterval(NOW, "Europe/London");
 const WED = "2026-10-14T18:00:00.000Z";
 const catalogMusclesFor = catalogMusclesLookup(exercises);
-const REVERSE_CURL = 135;
+/**
+ * The exercise these sets are of. Main's test used the Reverse Curl (135), which the fixture holds
+ * as two-handed; since wave 0 a set's sides are read from its exercise per mapping (a two-handed
+ * exercise is on both arms whatever was recorded), so "no arm recorded" means something only on an
+ * exercise that can be done one arm at a time: the Wrist Curl (139, either arm).
+ */
+const ONE_ARM_CAPABLE = 139;
 
 let sequence = 0;
-function bout(side: ExposureBout["side"], over: Partial<ExposureBout> = {}): ExposureBout {
+type RecordedArm = "left" | "right" | "bilateral" | "unknown";
+function bout(side: RecordedArm, over: Partial<ExposureBout> = {}): ExposureBout {
   const id = `b${String(++sequence).padStart(3, "0")}`;
+  const armSide: ExposureBout["armSide"] = side === "unknown" ? null : { side: side === "bilateral" ? "both" : side, source: "recorded" };
   return {
     id, mode: "completed", performedAt: WED, sessionId: "s1", sessionLabel: "Week 1 · Day 01 · Pull", planWeek: null, dayKey: null, exerciseEntryId: "e1",
-    catalogExerciseId: REVERSE_CURL, exerciseName: "Reverse Curl", matchedBy: "id", side, sideSource: side === "unknown" ? "unknown" : "recorded",
+    catalogExerciseId: ONE_ARM_CAPABLE, exerciseName: "Wrist Curl", matchedBy: "id", armSide, legSide: null,
     straps: "unknown", warmup: false, effort: null, kind: "standard", segments: [{ id, reps: 12, loadKg: 20, holdSeconds: null }], ...over,
   };
 }
 const summarize = (bouts: readonly ExposureBout[], side: SummaryRequest["side"], goals: SpecializationGoal[] = []): SpecializationSummary =>
   getSpecializationSummary({ region: syntheticForearm, bouts, interval: WEEK, side, mode: "completed", goals, catalogMusclesFor, sourceRevision: "src", planRevision: null, now: NOW });
-/** The muscle the reverse curl loads directly in the fixture. */
+/** The muscle the wrist curl loads directly in the fixture. */
 const directNode = () => {
   const node = summarize([bout("bilateral")], "both").nodes.find((item) => item.directDynamicBouts > 0);
-  if (!node) throw new Error("the fixture's reverse curl credits no muscle directly");
+  if (!node) throw new Error("the fixture's wrist curl credits no muscle directly");
   return node.nodeId;
 };
 const direct = (summary: SpecializationSummary, nodeId: string) => summary.nodes.find((node) => node.nodeId === nodeId)!.directDynamicBouts;

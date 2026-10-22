@@ -1,0 +1,72 @@
+target nodes 19 forearm.br,forearm.fcr,forearm.fcu,forearm.pl,forearm.fds,forearm.fdp,forearm.fpl,forearm.pt,forearm.pq,forearm.ecrl,forearm.ecrb,forearm.ecu,forearm.ed,forearm.edm,forearm.ei,forearm.apl,forearm.epb,forearm.epl,forearm.supinator
+nodes roles forearm.anterior:group forearm.posterior:group forearm.br:target forearm.fcr:target forearm.fcu:target forearm.pl:target forearm.fds:target forearm.fdp:target forearm.fpl:target forearm.pt:target forearm.pq:target forearm.ecrl:target forearm.ecrb:target forearm.ecu:target forearm.ed:target forearm.edm:target forearm.ei:target forearm.apl:target forearm.epb:target forearm.epl:target forearm.supinator:target forearm.anconeus:adjacent upper_arm.biceps:external upper_arm.brachialis:external
+mappings total 418 reviewed 413 versions forearm_mappings_v1
+catalogId	name	equipment	laterality	sidedBy	measure	deliberateHold	credits(node:action:category:alloc)
+132	Hammer Curl	Free weights	bilateral	none	reps	false	br:flexion:direct_dynamic:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+133	Cross-Body Hammer Curl	Free weights	bilateral	none	reps	false	br:flexion:direct_dynamic:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+134	Rope Hammer Curl	Free weights	bilateral	none	reps	false	br:flexion:direct_dynamic:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+135	Reverse Curl	Free weights	bilateral	none	reps	false	br:flexion:direct_dynamic:individual ecrb:extension:incidental_isometric:individual ecrl:extension:incidental_isometric:individual ecu:extension:incidental_isometric:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+136	Zottman Curl	Free weights	bilateral	none	reps	false	br:flexion:direct_dynamic:individual ecrb:extension:incidental_isometric:individual ecrl:extension:incidental_isometric:individual ecu:extension:incidental_isometric:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+139	Wrist Curl	Free weights	bilateral	none	reps	false	fcr:flexion:direct_dynamic:individual fcu:flexion:direct_dynamic:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared pl:flexion:contributing_dynamic:individual
+140	Reverse Wrist Curl	Free weights	bilateral	none	reps	false	ecrb:extension:direct_dynamic:individual ecrl:extension:direct_dynamic:individual ecu:extension:direct_dynamic:individual ed:extension:contributing_dynamic:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+142	Plate Pinch	Free weights	unilateral	arm	seconds	true	fdp:dip_flexion:deliberate_isometric:shared fds:pip_flexion:deliberate_isometric:shared fpl:ip_flexion:deliberate_isometric:individual
+143	Dead Hang	Bodyweight	bilateral	none	seconds	true	fdp:dip_flexion:deliberate_isometric:shared fds:pip_flexion:deliberate_isometric:shared
+144	Towel Dead Hang	Bodyweight	bilateral	none	seconds	true	fdp:dip_flexion:deliberate_isometric:shared fds:pip_flexion:deliberate_isometric:shared
+145	Farmer Hold	Free weights	bilateral	none	seconds	true	ecrb:extension:incidental_isometric:individual ecrl:extension:incidental_isometric:individual ecu:extension:incidental_isometric:individual fdp:dip_flexion:deliberate_isometric:shared fds:pip_flexion:deliberate_isometric:shared
+299	Farmer’s Walk	Free weights	bilateral	none	seconds	true	ecrb:extension:incidental_isometric:individual ecrl:extension:incidental_isometric:individual ecu:extension:incidental_isometric:individual fdp:dip_flexion:deliberate_isometric:shared fds:pip_flexion:deliberate_isometric:shared
+300	Zercher Carry	Barbell	bilateral	none	seconds	true	br:flexion:deliberate_isometric:individual
+337	Rope Hammer Cable Curl	Cable	bilateral	none	reps	false	br:flexion:direct_dynamic:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+342	Cross-Body Cable Curl	Cable	unilateral	arm	reps	false	br:flexion:direct_dynamic:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+350	Cable Wrist Extension	Cable	either	arm	reps	false	ecrb:extension:direct_dynamic:individual ecrl:extension:direct_dynamic:individual ecu:extension:direct_dynamic:individual ed:extension:contributing_dynamic:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+401	Finger Curl	Barbell	bilateral	none	reps	false	fdp:dip_flexion:direct_dynamic:shared fds:pip_flexion:direct_dynamic:shared
+402	Gripper Close	Free weights	unilateral	arm	reps	false	fdp:dip_flexion:direct_dynamic:shared fds:pip_flexion:direct_dynamic:shared
+403	Gripper Hold	Free weights	unilateral	arm	seconds	true	fdp:dip_flexion:deliberate_isometric:shared fds:pip_flexion:deliberate_isometric:shared
+404	Band Finger Extension	Band	unilateral	arm	reps	false	ed:extension:direct_dynamic:shared edm:extension:contributing_dynamic:shared ei:extension:contributing_dynamic:shared
+405	Lever Pronation	Dumbbells	unilateral	arm	reps	false	fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared pq:pronation:direct_dynamic:shared pt:pronation:direct_dynamic:shared
+406	Lever Supination	Dumbbells	unilateral	arm	reps	false	fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared supinator:supination:direct_dynamic:shared
+407	Lever Radial Deviation	Dumbbells	unilateral	arm	reps	false	ecrb:radial_deviation:direct_dynamic:shared ecrl:radial_deviation:direct_dynamic:shared fcr:radial_deviation:direct_dynamic:shared fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+408	Lever Ulnar Deviation	Dumbbells	unilateral	arm	reps	false	ecu:ulnar_deviation:direct_dynamic:shared fcu:ulnar_deviation:direct_dynamic:shared fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+409	Suitcase Carry	Free weights	unilateral	arm	seconds	true	ecrb:extension:incidental_isometric:individual ecrl:extension:incidental_isometric:individual ecu:extension:incidental_isometric:individual fdp:dip_flexion:deliberate_isometric:shared fds:pip_flexion:deliberate_isometric:shared
+410	One-Arm Dumbbell Wrist Curl	Dumbbells	unilateral	arm	reps	false	fcr:flexion:direct_dynamic:individual fcu:flexion:direct_dynamic:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared pl:flexion:contributing_dynamic:individual
+411	One-Arm Dumbbell Reverse Wrist Curl	Dumbbells	unilateral	arm	reps	false	ecrb:extension:direct_dynamic:individual ecrl:extension:direct_dynamic:individual ecu:extension:direct_dynamic:individual ed:extension:contributing_dynamic:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+412	Band Thumb Flexion	Band	unilateral	arm	reps	false	fpl:ip_flexion:direct_dynamic:individual
+413	Band Thumb Extension	Band	unilateral	arm	reps	false	epb:mcp_extension:direct_dynamic:shared epl:ip_extension:direct_dynamic:shared
+414	Band Thumb Abduction	Band	unilateral	arm	reps	false	apl:cmc_abduction:direct_dynamic:individual
+415	Wrist Roller, Extension Wind	Free weights	bilateral	none	reps	false	ecrb:extension:direct_dynamic:individual ecrl:extension:direct_dynamic:individual ecu:extension:direct_dynamic:individual fcr:flexion:contributing_dynamic:individual fcu:flexion:contributing_dynamic:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+416	Wrist Roller, Flexion Wind	Free weights	bilateral	none	reps	false	ecrb:extension:contributing_dynamic:individual ecrl:extension:contributing_dynamic:individual ecu:extension:contributing_dynamic:individual fcr:flexion:direct_dynamic:individual fcu:flexion:direct_dynamic:individual fdp:dip_flexion:incidental_isometric:shared fds:pip_flexion:incidental_isometric:shared
+
+node actions:
+forearm.br elbow.flexion prime
+forearm.fcr wrist.flexion prime
+forearm.fcr wrist.radial_deviation prime
+forearm.fcu wrist.flexion prime
+forearm.fcu wrist.ulnar_deviation prime
+forearm.pl hand.palmar_aponeurosis_tension prime
+forearm.pl wrist.flexion assist
+forearm.fds fingers.pip_flexion prime
+forearm.fds fingers.mcp_flexion assist
+forearm.fds wrist.flexion assist
+forearm.fdp fingers.dip_flexion prime
+forearm.fdp fingers.pip_flexion assist
+forearm.fdp fingers.mcp_flexion assist
+forearm.fdp wrist.flexion assist
+forearm.fpl thumb.ip_flexion prime
+forearm.pt forearm.pronation prime
+forearm.pt elbow.flexion assist
+forearm.pq forearm.pronation prime
+forearm.pq forearm.distal_radioulnar_stabilization assist
+forearm.ecrl wrist.extension prime
+forearm.ecrl wrist.radial_deviation prime
+forearm.ecrb wrist.extension prime
+forearm.ecrb wrist.radial_deviation prime
+forearm.ecu wrist.extension prime
+forearm.ecu wrist.ulnar_deviation prime
+forearm.ed fingers.extension prime
+forearm.ed wrist.extension assist
+forearm.edm little_finger.extension prime
+forearm.ei index_finger.extension prime
+forearm.apl thumb.cmc_abduction prime
+forearm.epb thumb.mcp_extension prime
+forearm.epl thumb.ip_extension prime
+forearm.epl thumb.mcp_extension assist
+forearm.supinator forearm.supination prime

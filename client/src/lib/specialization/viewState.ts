@@ -1,11 +1,13 @@
+import { scopedKey } from "@/lib/deviceStorageScope";
 import { isDateKey } from "@shared/specialization/time";
 import type { DiagramLayerId, DiagramViewId, RegionId, SummaryMode } from "@shared/specialization/types";
 
 /**
  * What the specialization page is showing, kept in the URL so Back, a reload and a
- * return from an add/swap land on the same muscle, arm, window and view (brief §6,
+ * return from an add/swap land on the same muscle, window and view (brief §6,
  * "Persist region, selected muscle, side, time window, planned/completed mode, and
- * view in navigation state/URL").
+ * view in navigation state/URL"). No side is kept: both sides are counted as one (owner,
+ * 20 Oct 2026), so there is no side to choose.
  *
  * Parameter names avoid the ones other workspaces own (`muscle`, `sport`, `movement`,
  * `discover`, `scope`, `session`): Home strips these on every other workspace.
@@ -40,15 +42,16 @@ export type SpecializationViewState = {
   planWeek: number | null;
 };
 
+/**
+ * The page's parameters. `limb` (an arm, later a leg) is no longer part of the page: both sides
+ * are counted as one (owner, 20 Oct 2026). It stays in this list so an old address loses it on
+ * the page's first rewrite, and so every other page strips it.
+ */
 export const specializationParamNames = ["region", "node", "limb", "window", "from", "to", "mode", "view", "layer", "map", "fig", "pweek"] as const;
 
 /** A view id's shape (the database checks the same): which views exist is the drawing's business. */
 const VIEW_ID = /^[a-z][a-z0-9_]*$/;
 const LAYERS: readonly DiagramLayerId[] = ["surface", "intermediate", "deep"];
-/**
- * `limb` (left / right arm) is no longer part of the page (20 Oct 2026: the forearms are one).
- * It stays in the names above so an old address loses it on the page's first rewrite.
- */
 /** The last date a custom window may end on: a day after it has no next day to end at. */
 const LAST_DATE = "9999-12-30";
 
@@ -87,6 +90,15 @@ export function specializationStateFromParams(params: URLSearchParams, defaultRe
   };
 }
 
+/**
+ * Another region, picked on the page (10-multi-region.md §6.1): its muscle (none, unless one is
+ * named) and its first view and surface layer, since those were the old region's; the mode, the
+ * window and its dates, the plan week, what the map shows and the figure carry over.
+ */
+export function withRegion(state: SpecializationViewState, regionId: RegionId, nodeId: string | null = null): SpecializationViewState {
+  return { ...state, regionId, nodeId, view: null, layer: "surface" };
+}
+
 /** Writes the page state into URL params, leaving every other param untouched. */
 export function writeSpecializationParams(params: URLSearchParams, state: SpecializationViewState): void {
   clearSpecializationParams(params);
@@ -101,6 +113,32 @@ export function writeSpecializationParams(params: URLSearchParams, state: Specia
   if (state.map !== base.map) params.set("map", state.map);
   if (state.figure) params.set("fig", state.figure);
   if (state.planWeek !== null) params.set("pweek", String(state.planWeek));
+}
+
+/**
+ * The region this account last opened on this device, so the page opens on it again
+ * (10-multi-region.md §6.1). Device storage can be missing, full or refused (a private window),
+ * so every read and write is guarded: without it the page opens on the default region.
+ */
+export const specializationRegionKeyBase = "sports-genome-specialization-region-v1";
+
+export function readRememberedRegion(accountId: string | number | null | undefined, knownRegions: ReadonlySet<RegionId>): RegionId | null {
+  try {
+    if (typeof window === "undefined") return null;
+    const stored = window.localStorage.getItem(scopedKey(specializationRegionKeyBase, accountId));
+    return stored && knownRegions.has(stored) ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+export function rememberRegion(accountId: string | number | null | undefined, regionId: RegionId): void {
+  try {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(scopedKey(specializationRegionKeyBase, accountId), regionId);
+  } catch {
+    // Not remembered: the next visit opens on the default region, which is all that is lost.
+  }
 }
 
 /** Removes the page's params, for every workspace that is not the specialization page. */

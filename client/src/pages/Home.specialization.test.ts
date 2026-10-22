@@ -142,15 +142,18 @@ describe("The specialization page", () => {
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: /Explore forearm coverage/ })); });
     await tick();
     expect(window.location.search).toBe("?workspace=specialization&region=forearm&mode=planned&pweek=1");
-    expect(screen.getByRole("button", { name: "Planned" }).getAttribute("aria-pressed")).toBe("true");
+    // The region's data loads after the page's own chunk: found outside act.
+    expect((await screen.findByRole("button", { name: "Planned" }, { timeout: 15000 })).getAttribute("aria-pressed")).toBe("true");
+    // Back sits in the heading row by Review's short name, with its whole name for a screen reader.
+    expect(screen.getByRole("button", { name: "Back to Review" }).textContent).toBe("Review");
     // A reload of that entry (or iOS bringing the app back) keeps the Back.
     cleanup();
     render(createElement(Home));
-    const back = await screen.findByRole("button", { name: /Back to Review your week/ }, { timeout: 15000 });
+    const back = await screen.findByRole("button", { name: "Back to Review" }, { timeout: 15000 });
     await act(async () => { fireEvent.click(back); });
     await tick();
     expect(window.location.search).toBe("?workspace=review");
-  });
+  }, 30000);
   const startRowWorkout = async () => {
     const rowWeek = { ...week, weeklyPlanEntries: { "0-Push": entries([45]), "1-Pull": entries([exercises[2].id]) }, activeDayIndex: 0 };
     window.localStorage.setItem(PLAN_KEY, JSON.stringify({ version: 2, ...rowWeek, weeks: { "1": rowWeek }, activeWeek: 1 }));

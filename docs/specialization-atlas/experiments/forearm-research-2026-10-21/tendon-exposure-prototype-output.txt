@@ -1,0 +1,130 @@
+
+==================== RIGHT ARM ====================
+
+Weekly distinct bouts per group (T target / H hold / O other; s = known hold seconds; nt = hold sets with no time; wu = warm-ups; ?side; strap; pend) ; logged workouts per week:
+week        logged  common_flexor_origin    common_extensor_origin  ecrl                    brachioradialis         supinator               thumb_first_compartment epl                     fpl                     pronator_quadratus      fdp                     ei                      
+2026-08-31    0     0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                
+2026-09-07    2     16=3T2H11O 80s          4=2T0H2O                4=2T0H2O                9=3T0H6O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O pend2          0=0T0H0O                16=0T2H14O 80s          0=0T0H0O                
+2026-09-14    2     16=3T2H11O 80s          4=2T0H2O                4=2T0H2O                9=3T0H6O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O pend2          0=0T0H0O                16=0T2H14O 80s          0=0T0H0O                
+2026-09-21    3     16=3T2H11O 80s,?2       4=2T0H2O                4=2T0H2O                9=3T0H6O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O pend2          0=0T0H0O                16=0T2H14O 80s,?2       0=0T0H0O                
+2026-09-28    1     9=0T0H9O                0=0T0H0O                0=0T0H0O                9=3T0H6O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                9=0T0H9O                0=0T0H0O                
+2026-10-05    2     16=3T2H11O 80s          4=2T0H2O                4=2T0H2O                9=3T0H6O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O pend2          0=0T0H0O                16=0T2H14O 80s          0=0T0H0O                
+2026-10-12    3     25=6T7H12O 190s,nt1,wu1,strap58=3T0H5O                8=3T0H5O                12=6T0H6O               0=0T0H0O                0=0T0H0O                0=0T0H0O                3=0T3H0O 60s,nt1,pend4  0=0T0H0O                25=3T7H15O 190s,nt1,wu1,strap50=0T0H0O                
+2026-10-19    1*    6=3T0H3O                0=0T0H0O                0=0T0H0O                3=0T0H3O                0=0T0H0O                2=2T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                6=0T0H6O                0=0T0H0O                
+(* = week not ended yet)
+
+Recent change (latest complete calendar week vs median of up to 4 earlier complete weeks, min 3):
+  common_flexor_origin: Week of 2026-10-12: 25 sets. Your weekly median before it: 16 (4 earlier weeks; 2 week(s) left out as incomplete). +9 sets.
+                        target only: Week of 2026-10-12: 6 target sets. Your weekly median before it: 3 (4 earlier weeks; 2 week(s) left out as incomplete). +3 target sets.
+  common_extensor_origin: Week of 2026-10-12: 8 sets. Your weekly median before it: 4 (4 earlier weeks; 1 week(s) left out as incomplete). +4 sets.
+                          target only: Week of 2026-10-12: 3 target sets. Your weekly median before it: 2 (4 earlier weeks; 1 week(s) left out as incomplete). +1 target sets.
+  ecrl: Week of 2026-10-12: 8 sets. Your weekly median before it: 4 (4 earlier weeks; 1 week(s) left out as incomplete). +4 sets.
+        target only: Week of 2026-10-12: 3 target sets. Your weekly median before it: 2 (4 earlier weeks; 1 week(s) left out as incomplete). +1 target sets.
+  brachioradialis: Week of 2026-10-12: 12 sets. Your weekly median before it: 9 (4 earlier weeks; 1 week(s) left out as incomplete). +3 sets.
+                   target only: Week of 2026-10-12: 6 target sets. Your weekly median before it: 3 (4 earlier weeks; 1 week(s) left out as incomplete). +3 target sets.
+  supinator: Week of 2026-10-12: 0 sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+             target only: Week of 2026-10-12: 0 target sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+  thumb_first_compartment: Week of 2026-10-12: 0 sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+                           target only: Week of 2026-10-12: 0 target sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+  epl: Week of 2026-10-12: 0 sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+       target only: Week of 2026-10-12: 0 target sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+  fpl: Week of 2026-10-12: New exposure: 3 sets; none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+       target only: Week of 2026-10-12: 0 target sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+  pronator_quadratus: Week of 2026-10-12: 0 sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+                      target only: Week of 2026-10-12: 0 target sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+  fdp: Week of 2026-10-12: 25 sets. Your weekly median before it: 16 (4 earlier weeks; 2 week(s) left out as incomplete). +9 sets.
+       target only: Week of 2026-10-12: New exposure: 3 target sets; none in your 4 earlier weeks; 2 week(s) left out as incomplete.
+  ei: Week of 2026-10-12: 0 sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+      target only: Week of 2026-10-12: 0 target sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+
+Seven-day columns, week of 2026-10-12 (complete), distinct bouts T/H/O per day:
+  common_flexor_origin     0/0/6  .      6/5/3  .      0/2/3  .      .        | holds 7: 190 s known, 1 with no time | warm-ups 1 | no arm 0 | strapped grip 5 | pending 0
+  common_extensor_origin   .      .      0/0/3  .      3/0/2  .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 0
+  ecrl                     .      .      0/0/3  .      3/0/2  .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 0
+  brachioradialis          3/0/6  .      3/0/0  .      .      .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 0
+  fpl                      .      .      0/3/0  .      .      .      .        | holds 3: 60 s known, 1 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 4
+  fdp                      0/0/6  .      3/5/6  .      0/2/3  .      .        | holds 7: 190 s known, 1 with no time | warm-ups 1 | no arm 0 | strapped grip 5 | pending 0
+  Forearm as a whole: 2 region-only set(s) (Kettlebell Clean x2); 0 warm-up(s) left out of work; 0 not completed; 2 with no arm recorded.
+  Not identified by the catalog (not counted anywhere on the page today): 2 set(s).
+
+Seven-day columns, week of 2026-10-19 (in progress), distinct bouts T/H/O per day:
+  common_flexor_origin     3/0/3  .      .      .      .      .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 0
+  brachioradialis          0/0/3  .      .      .      .      .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 0
+  thumb_first_compartment  2/0/0  .      .      .      .      .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 0
+  fdp                      0/0/6  .      .      .      .      .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 0
+  Forearm as a whole: 0 region-only set(s) (none); 0 warm-up(s) left out of work; 0 not completed; 0 with no arm recorded.
+  Not identified by the catalog (not counted anywhere on the page today): 0 set(s).
+
+Drop set as the common flexor origin counts it (right): 1 bout, kind target, 3 segments, 21 reps.
+Swap on 16 Oct as the common extensor origin counts it (right): Reverse Wrist Curl (target), Cable Wrist Extension (target), Cable Wrist Extension (target), Farmer Hold (other), Farmer Hold (other).
+
+==================== LEFT ARM ====================
+
+Weekly distinct bouts per group (T target / H hold / O other; s = known hold seconds; nt = hold sets with no time; wu = warm-ups; ?side; strap; pend) ; logged workouts per week:
+week        logged  common_flexor_origin    common_extensor_origin  ecrl                    brachioradialis         supinator               thumb_first_compartment epl                     fpl                     pronator_quadratus      fdp                     ei                      
+2026-08-31    0     0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                
+2026-09-07    2     16=3T2H11O 80s          4=2T0H2O                4=2T0H2O                9=3T0H6O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O pend2          0=0T0H0O                16=0T2H14O 80s          0=0T0H0O                
+2026-09-14    2     16=3T2H11O 80s          4=2T0H2O                4=2T0H2O                9=3T0H6O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O pend2          0=0T0H0O                16=0T2H14O 80s          0=0T0H0O                
+2026-09-21    3     16=3T2H11O 80s,?2       4=2T0H2O                4=2T0H2O                9=3T0H6O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O pend2          0=0T0H0O                16=0T2H14O 80s,?2       0=0T0H0O                
+2026-09-28    1     9=0T0H9O                0=0T0H0O                0=0T0H0O                9=3T0H6O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                9=0T0H9O                0=0T0H0O                
+2026-10-05    2     16=3T2H11O 80s          4=2T0H2O                4=2T0H2O                9=3T0H6O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O pend2          0=0T0H0O                16=0T2H14O 80s          0=0T0H0O                
+2026-10-12    3     22=6T4H12O 130s,wu1,strap58=3T0H5O                8=3T0H5O                12=6T0H6O               0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O pend4          0=0T0H0O                22=3T4H15O 130s,wu1,strap50=0T0H0O                
+2026-10-19    1*    6=3T0H3O                0=0T0H0O                0=0T0H0O                3=0T0H3O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                0=0T0H0O                6=0T0H6O                0=0T0H0O                
+(* = week not ended yet)
+
+Recent change (latest complete calendar week vs median of up to 4 earlier complete weeks, min 3):
+  common_flexor_origin: Week of 2026-10-12: 22 sets. Your weekly median before it: 16 (4 earlier weeks; 2 week(s) left out as incomplete). +6 sets.
+                        target only: Week of 2026-10-12: 6 target sets. Your weekly median before it: 3 (4 earlier weeks; 2 week(s) left out as incomplete). +3 target sets.
+  common_extensor_origin: Week of 2026-10-12: 8 sets. Your weekly median before it: 4 (4 earlier weeks; 1 week(s) left out as incomplete). +4 sets.
+                          target only: Week of 2026-10-12: 3 target sets. Your weekly median before it: 2 (4 earlier weeks; 1 week(s) left out as incomplete). +1 target sets.
+  ecrl: Week of 2026-10-12: 8 sets. Your weekly median before it: 4 (4 earlier weeks; 1 week(s) left out as incomplete). +4 sets.
+        target only: Week of 2026-10-12: 3 target sets. Your weekly median before it: 2 (4 earlier weeks; 1 week(s) left out as incomplete). +1 target sets.
+  brachioradialis: Week of 2026-10-12: 12 sets. Your weekly median before it: 9 (4 earlier weeks; 1 week(s) left out as incomplete). +3 sets.
+                   target only: Week of 2026-10-12: 6 target sets. Your weekly median before it: 3 (4 earlier weeks; 1 week(s) left out as incomplete). +3 target sets.
+  supinator: Week of 2026-10-12: 0 sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+             target only: Week of 2026-10-12: 0 target sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+  thumb_first_compartment: Week of 2026-10-12: 0 sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+                           target only: Week of 2026-10-12: 0 target sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+  epl: Week of 2026-10-12: 0 sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+       target only: Week of 2026-10-12: 0 target sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+  fpl: Week of 2026-10-12: 0 sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+       target only: Week of 2026-10-12: 0 target sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+  pronator_quadratus: Week of 2026-10-12: 0 sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+                      target only: Week of 2026-10-12: 0 target sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+  fdp: Week of 2026-10-12: 22 sets. Your weekly median before it: 16 (4 earlier weeks; 2 week(s) left out as incomplete). +6 sets.
+       target only: Week of 2026-10-12: New exposure: 3 target sets; none in your 4 earlier weeks; 2 week(s) left out as incomplete.
+  ei: Week of 2026-10-12: 0 sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+      target only: Week of 2026-10-12: 0 target sets, and none in your 4 earlier weeks; 1 week(s) left out as incomplete.
+
+Seven-day columns, week of 2026-10-12 (complete), distinct bouts T/H/O per day:
+  common_flexor_origin     0/0/6  .      6/2/3  .      0/2/3  .      .        | holds 4: 130 s known, 0 with no time | warm-ups 1 | no arm 0 | strapped grip 5 | pending 0
+  common_extensor_origin   .      .      0/0/3  .      3/0/2  .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 0
+  ecrl                     .      .      0/0/3  .      3/0/2  .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 0
+  brachioradialis          3/0/6  .      3/0/0  .      .      .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 0
+  fpl                      .      .      .      .      .      .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 4
+  fdp                      0/0/6  .      3/2/6  .      0/2/3  .      .        | holds 4: 130 s known, 0 with no time | warm-ups 1 | no arm 0 | strapped grip 5 | pending 0
+  Forearm as a whole: 2 region-only set(s) (Kettlebell Clean x2); 0 warm-up(s) left out of work; 0 not completed; 2 with no arm recorded.
+  Not identified by the catalog (not counted anywhere on the page today): 2 set(s).
+
+Seven-day columns, week of 2026-10-19 (in progress), distinct bouts T/H/O per day:
+  common_flexor_origin     3/0/3  .      .      .      .      .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 0
+  brachioradialis          0/0/3  .      .      .      .      .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 0
+  fdp                      0/0/6  .      .      .      .      .      .        | holds 0: 0 s known, 0 with no time | warm-ups 0 | no arm 0 | strapped grip 0 | pending 0
+  Forearm as a whole: 0 region-only set(s) (none); 0 warm-up(s) left out of work; 0 not completed; 0 with no arm recorded.
+  Not identified by the catalog (not counted anywhere on the page today): 0 set(s).
+
+Drop set as the common flexor origin counts it (left): 1 bout, kind target, 3 segments, 21 reps.
+Swap on 16 Oct as the common extensor origin counts it (left): Reverse Wrist Curl (target), Cable Wrist Extension (target), Cable Wrist Extension (target), Farmer Hold (other), Farmer Hold (other).
+
+==================== Package Example A through forearm_mappings_v1 (right) ====================
+  forearm.fcr: direct 2, other dynamic 0, holds 0 (0 s), incidental 0
+  forearm.fcu: direct 2, other dynamic 0, holds 0 (0 s), incidental 0
+  forearm.fds: direct 0, other dynamic 0, holds 1 (20 s), incidental 2
+  forearm.fdp: direct 0, other dynamic 0, holds 1 (20 s), incidental 2
+  forearm.br: direct 0, other dynamic 0, holds 0 (0 s), incidental 0
+  forearm.fpl: direct 0, other dynamic 0, holds 0 (0 s), incidental 0
+  forearm.ecrb: direct 0, other dynamic 0, holds 0 (0 s), incidental 1
+  group common_flexor_origin: 3 distinct bouts (2T 1H 0O), 20 s
+  group common_extensor_origin: 1 distinct bouts (0T 0H 1O), 0 s
+  group ecrl: 1 distinct bouts (0T 0H 1O), 0 s
+  group fdp: 3 distinct bouts (0T 1H 2O), 20 s

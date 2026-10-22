@@ -4,12 +4,14 @@ import { join } from "node:path";
 import React, { createElement } from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { forearmMuscleIds as m } from "@shared/specialization/ids";
+import { actionLibrary } from "@shared/specialization/actions";
+import { forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
-import type { DiagramAsset, DiagramLayerId, DiagramViewId } from "@shared/specialization/types";
+import type { DiagramAsset, DiagramPath } from "@shared/specialization/types";
 import { deltoidIds, deltoidRegionData } from "@/lib/specialization/__fixtures__/deltoidRegion";
+import { ActionGlyph, actionGlyphKind } from "./ActionGlyph";
 import { HIT_SQUARE_SHARE, SpecializationDiagram, type SpecializationDiagramProps } from "./SpecializationDiagram";
-import { containsPoint, drawnNodes, flattenPath } from "./diagramGeometry";
+import { acrossAxis, containsPoint, drawableNodeIds, drawnNodes, flattenPath, sliceCentres, type DiagramNode } from "./diagramGeometry";
 import type { DiagramFill } from "./model";
 
 /**
@@ -252,10 +254,10 @@ describe("the left arm", () => {
 });
 
 describe("tap targets on a phone", () => {
-  // The page draws the diagram 321 px wide on a 390 pt phone and 307 px on a 375 pt phone
-  // (docs/specialization-atlas/evidence/diagram-page-checks.json); the tap squares measured
-  // in Chromium are in docs/specialization-atlas/evidence/hit-targets.json.
-  const views: [DiagramViewId, DiagramLayerId][] = [["palm", "surface"], ["palm", "intermediate"], ["palm", "deep"], ["back", "surface"], ["back", "deep"], ["thumb", "surface"], ["thumb", "deep"]];
+  // The page drew the diagram 321 px wide on a 390 pt phone and 307 px on a 375 pt phone on
+  // 16 Oct (docs/specialization-atlas/evidence/diagram-page-checks.json), the narrowest it has
+  // been; the tap squares measured in Chromium at both widths, every region's drawing held to
+  // 44 px, are in docs/specialization-atlas/evidence/<region>/hit-targets.json.
   const side = HIT_SQUARE_SHARE * asset.viewBox.width;
 
   it("gives every muscle a square at least 44 px across at the phone's drawing width", () => {
@@ -269,55 +271,67 @@ describe("tap targets on a phone", () => {
     expect(container.querySelectorAll(".spz-diagram-hits rect").length).toBe(screen.getAllByRole("button").length);
   });
 
-  it("places the squares so none overlaps another and each stays on the canvas, on every layer", () => {
-    for (const [view, layer] of views) {
-      const placedNodes = drawnNodes(asset.views[view]![layer]!.paths, { square: side, canvas: asset.viewBox });
-      for (const node of placedNodes) {
-        expect(node.hitAnchor.x - side / 2, `${view}/${layer} ${node.nodeId}`).toBeGreaterThanOrEqual(-0.01);
-        expect(node.hitAnchor.y - side / 2, `${view}/${layer} ${node.nodeId}`).toBeGreaterThanOrEqual(-0.01);
-        expect(node.hitAnchor.x + side / 2).toBeLessThanOrEqual(asset.viewBox.width + 0.01);
-        expect(node.hitAnchor.y + side / 2).toBeLessThanOrEqual(asset.viewBox.height + 0.01);
-      }
-      for (let i = 0; i < placedNodes.length; i++) for (let j = i + 1; j < placedNodes.length; j++) {
-        const a = placedNodes[i].hitAnchor;
-        const b = placedNodes[j].hitAnchor;
-        expect(Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y)), `${view}/${layer}: ${placedNodes[i].nodeId} and ${placedNodes[j].nodeId}`).toBeGreaterThanOrEqual(side - 0.01);
-      }
+  // Squares on the canvas and clear of one another, the share of muscle under other muscles'
+  // squares, and label anchors on the drawing are held for every layer of every drawing by
+  // client/src/lib/specialization/diagramContract.test.ts.
+
+  it("slices a belly lying across the drawing the other way, so its anchors run along it", () => {
+    const rect = (x1: number, y1: number, x2: number, y2: number) => `M${x1} ${y1} L${x2} ${y1} L${x2} ${y2} L${x1} ${y2} Z`;
+    const canvas = { width: 360, height: 300 };
+    const square = HIT_SQUARE_SHARE * canvas.width;
+    // A band from one side to the other, under three small muscles whose squares stand over the
+    // middle and the quarter points of every horizontal slice through it.
+    const band = { id: "front__surface__band__1", nodeId: "band", kind: "belly" as const, d: rect(10, 110, 350, 140) };
+    const small = [50, 130, 210].map((x, index) => ({ id: `front__surface__s${index}__1`, nodeId: `s${index}`, kind: "belly" as const, d: rect(x, 70, x + 50, 105) }));
+    expect(acrossAxis(flattenPath(band.d))).toBe("columns");
+    expect(acrossAxis(flattenPath(small[0].d))).toBe("rows");
+    expect(sliceCentres(flattenPath(band.d), 48, "columns").every(({ point, width }) => Math.abs(point.y - 125) < 0.01 && Math.abs(width - 30) < 0.01)).toBe(true);
+    const placed = drawnNodes([band, ...small], { square, canvas });
+    const bandNode = placed.find((node) => node.nodeId === "band")!;
+    for (const other of placed.filter((node) => node !== bandNode)) {
+      expect(Math.max(Math.abs(other.hitAnchor.x - bandNode.hitAnchor.x), Math.abs(other.hitAnchor.y - bandNode.hitAnchor.y)), other.nodeId).toBeGreaterThanOrEqual(square - 0.01);
     }
+    expect(containsPoint(flattenPath(band.d), bandNode.hitAnchor)).toBe(true);
+    expect(containsPoint(flattenPath(band.d), bandNode.labelAnchor)).toBe(true);
   });
 
-  it("places each square where it covers little of other muscles as drawn (a tap there selects the square's muscle)", () => {
-    // The squares sit above the bellies. Measured share of drawn belly area under another
-    // muscle's square, before this placement: palm surface 3.2 %, back surface 12.9 % (EPB 45 %),
-    // back deep 3.8 %, thumb surface 10.2 % (ECRB 28 %), thumb deep 6.7 %.
-    const bounds: Record<string, number> = { "palm/surface": 0.03, "palm/intermediate": 0, "palm/deep": 0.01, "back/surface": 0.065, "back/deep": 0.015, "thumb/surface": 0.055, "thumb/deep": 0.05 };
-    for (const [view, layer] of views) {
-      const paths = asset.views[view]![layer]!.paths;
-      const bellies = paths.filter((path) => path.kind === "belly" && path.nodeId).map((path) => ({ nodeId: path.nodeId!, points: flattenPath(path.d) }));
-      const placed = drawnNodes(paths, { square: side, canvas: asset.viewBox });
-      let drawn = 0;
-      let taken = 0;
-      for (let y = 1; y < asset.viewBox.height; y += 3) {
-        for (let x = 1; x < asset.viewBox.width; x += 3) {
-          const top = [...bellies].reverse().find((belly) => containsPoint(belly.points, { x, y }));
-          if (!top) continue;
-          drawn++;
-          const square = placed.find((node) => Math.abs(node.hitAnchor.x - x) <= side / 2 && Math.abs(node.hitAnchor.y - y) <= side / 2);
-          if (square && square.nodeId !== top.nodeId) taken++;
-        }
+  describe("anchors along a belly's length, whichever way it lies (10-multi-region.md §7.3)", () => {
+    const rect = (x1: number, y1: number, x2: number, y2: number) => `M${x1} ${y1} L${x2} ${y1} L${x2} ${y2} L${x1} ${y2} Z`;
+    const belly = (nodeId: string, d: string): DiagramPath => ({ id: `front__surface__${nodeId}__1`, nodeId, kind: "belly", d });
+    const canvas = { width: 360, height: 300 };
+    const square = HIT_SQUARE_SHARE * canvas.width;
+    /** The node's square is whole: inside its own belly and a full side from every other square. */
+    const expectClear = (paths: DiagramPath[], nodeId: string) => {
+      const placed = drawnNodes(paths, { square, canvas });
+      const node = placed.find((item) => item.nodeId === nodeId)!;
+      for (const other of placed.filter((item) => item !== node)) {
+        expect(Math.max(Math.abs(other.hitAnchor.x - node.hitAnchor.x), Math.abs(other.hitAnchor.y - node.hitAnchor.y)), `${nodeId} and ${other.nodeId}`).toBeGreaterThanOrEqual(square - 0.01);
       }
-      expect(taken / drawn, `${view}/${layer}`).toBeLessThanOrEqual(bounds[`${view}/${layer}`]);
-    }
-  });
+      expect(containsPoint(flattenPath(paths.find((path) => path.nodeId === nodeId)!.d), node.hitAnchor)).toBe(true);
+    };
 
-  it("keeps every selected muscle's label anchor on the drawing, so its leader line ends on it", () => {
-    // Before: BR in the back view runs off the top of the canvas and its anchor sat at y -8.
-    for (const [view, layer] of views) {
-      for (const node of drawnNodes(asset.views[view]![layer]!.paths, { square: side, canvas: asset.viewBox })) {
-        expect(node.labelAnchor.y, `${view}/${layer} ${node.nodeId}`).toBeGreaterThanOrEqual(10);
-        expect(node.labelAnchor.y, `${view}/${layer} ${node.nodeId}`).toBeLessThanOrEqual(asset.viewBox.height - 10);
-      }
-    }
+    it("finds a band's square along it when small muscles above and below take every place across it", () => {
+      // Their squares stand over the middle and the quarter points of every horizontal slice
+      // through the band, so only its vertical slices give its square room.
+      const small = [95, 180, 265].flatMap((x, index) => [belly(`a${index}`, rect(x - 24, 80, x + 24, 108)), belly(`b${index}`, rect(x - 24, 142, x + 24, 170))]);
+      expectClear([belly("band", rect(10, 110, 350, 140)), ...small], "band");
+    });
+
+    it("tries an upright belly's vertical slices where none of its horizontal ones has room", () => {
+      // A column of thin muscles beside it stands too close to every horizontal slice's middle and quarter points.
+      const upright = belly("upright", rect(150, 20, 210, 280));
+      expect(acrossAxis(flattenPath(upright.d))).toBe("rows");
+      expectClear([upright, ...[20, 72, 124, 176, 228].map((y, index) => belly(`s${index}`, rect(212, y, 222, y + 50)))], "upright");
+    });
+
+    it("points a band's name at its thickest part, not at the middle of its longest horizontal line", () => {
+      // A wedge lying across, 40 units thick at one end and 10 at the other.
+      const wedge = belly("wedge", "M10 100 L350 135 L350 145 L10 140 Z");
+      expect(acrossAxis(flattenPath(wedge.d))).toBe("columns");
+      const [node] = drawnNodes([wedge], { square, canvas });
+      expect(node.labelAnchor.x).toBeLessThan(60);
+      expect(containsPoint(flattenPath(wedge.d), node.labelAnchor)).toBe(true);
+    });
   });
 
   it("lets taps pass through the labels and the selected muscle's name", () => {
@@ -375,5 +389,78 @@ describe("region-agnostic", () => {
       const hits = source.split("\n").map((line, index) => [index + 1, line] as const).filter(([, line]) => regionWords.test(line));
       expect(hits, file).toEqual([]);
     }
+  });
+});
+
+describe("what is drawn and chosen: muscles and heads, never a parent or a group (10-multi-region.md §7.3)", () => {
+  // A muscle split into two heads, a group and a compartment, each given a belly as if an asset drew them.
+  const nodes: DiagramNode[] = [
+    { id: "r.whole", kind: "muscle", parentId: null },
+    { id: "r.front", kind: "head", parentId: "r.whole" },
+    { id: "r.back", kind: "head", parentId: "r.whole" },
+    { id: "r.group", kind: "group", parentId: null },
+    { id: "r.part", kind: "compartment", parentId: null },
+  ];
+  const rect = (x1: number, x2: number) => `M${x1} 50 L${x2} 50 L${x2} 250 L${x1} 250 Z`;
+  const paths: DiagramPath[] = [
+    { id: "front__surface__skin__1", nodeId: null, kind: "skin", d: "M0 0 L360 0 L360 300 L0 300 Z" },
+    { id: "front__surface__whole__1", nodeId: "r.whole", kind: "belly", d: rect(10, 90) },
+    { id: "front__surface__front__1", nodeId: "r.front", kind: "belly", d: rect(100, 170) },
+    { id: "front__surface__back__1", nodeId: "r.back", kind: "belly", d: rect(180, 250) },
+    { id: "front__surface__group__1", nodeId: "r.group", kind: "belly", d: rect(260, 300) },
+    { id: "front__surface__part__1", nodeId: "r.part", kind: "belly", d: rect(310, 350) },
+    { id: "front__surface__whole__2", nodeId: "r.whole", kind: "tendon", d: "M40 250 L50 250 L50 290 L40 290 Z" },
+  ];
+  const drawing: DiagramAsset = { key: "test", version: 1, regionId: "r", viewBox: { width: 360, height: 300 }, viewOrder: [{ id: "front", label: "Front" }], views: { front: { surface: { paths, labels: [] } } }, licenseNote: "Drawn for this test." };
+  const show = (props: Partial<SpecializationDiagramProps>) => render(createElement(SpecializationDiagram, {
+    asset: drawing, view: "front", layer: "surface", mirrored: false, fillFor: () => ({ kind: "bin", step: 2 }), selectedNodeId: null, onSelect: () => {}, labelFor: (id: string) => id, ...props,
+  }));
+
+  it("keeps the muscles and heads that are no node's parent", () => {
+    expect([...drawableNodeIds(nodes)].sort()).toEqual(["r.back", "r.front"]);
+    // Whatever its kind: the same muscle with nothing naming it as a parent is drawable.
+    expect(drawableNodeIds([{ id: "r.whole", kind: "muscle", parentId: null }])).toEqual(new Set(["r.whole"]));
+  });
+
+  it("neither draws nor offers a parent, a group or a compartment, given the region's members", () => {
+    const { container } = show({ nodes, selectedNodeId: "r.whole" });
+    expect(screen.getAllByRole("button").map((button) => button.getAttribute("data-node")).sort()).toEqual(["r.back", "r.front"]);
+    for (const id of ["r.whole", "r.group", "r.part"]) expect(container.querySelector(`[data-node="${id}"]`), id).toBeNull();
+    expect(screen.getByRole("note").textContent).toBe("r.whole is not part of this drawing.");
+    cleanup();
+    // Without the members it draws what it is handed; the contract test keeps such paths out of every asset.
+    show({});
+    expect(screen.getAllByRole("button")).toHaveLength(5);
+  });
+});
+
+describe("action glyphs", () => {
+  it("draws the shoulder blade's moves by their ids: a glide round the ribs, a ride up and down", () => {
+    expect(["scapula.protraction", "scapula.retraction"].map(actionGlyphKind)).toEqual(["glide", "glide"]);
+    expect(["scapula.elevation", "scapula.depression"].map(actionGlyphKind)).toEqual(["elevate", "elevate"]);
+    expect(["scapula.upward_rotation", "scapula.downward_rotation"].map(actionGlyphKind)).toEqual(["rotate", "rotate"]);
+    // Every other id still reads its verb.
+    expect(["shoulder.flexion", "shoulder.extension", "shoulder.horizontal_abduction", "shoulder.internal_rotation", "abdomen.compression"].map(actionGlyphKind)).toEqual(["bend", "straighten", "tilt", "rotate", "steady"]);
+    for (const actionId of ["scapula.protraction", "scapula.elevation"]) {
+      const { container } = render(createElement(ActionGlyph, { actionId }));
+      const svg = container.querySelector("svg")!;
+      expect(svg.getAttribute("data-kind")).toBe(actionGlyphKind(actionId));
+      expect(svg.getAttribute("aria-hidden")).toBe("true");
+      // A two-way arrow: a head at each end.
+      const arrow = svg.querySelector(".spz-glyph-arrow")!;
+      expect(arrow.getAttribute("marker-start")).toMatch(/^url\(#.+\)$/);
+      expect(arrow.getAttribute("marker-end")).toBe(arrow.getAttribute("marker-start"));
+      cleanup();
+    }
+  });
+
+  it("draws every action in the shared list as a movement, except the holds", () => {
+    // "Steady" is the hold drawing (a still limb, two arrows pointing in). A new action that no
+    // verb or id matches would fall to it, so each one has to be given a glyph or listed here.
+    const holds = ["abdomen.compression", "hand.palmar_aponeurosis_tension", "forearm.distal_radioulnar_stabilization"];
+    expect(actionLibrary.length).toBeGreaterThan(40);
+    expect(actionLibrary.filter((action) => actionGlyphKind(action.id) === "steady").map((action) => action.id).sort()).toEqual([...holds].sort());
+    // Tilting the sole in or out is a tilt, as the hand's is toward the thumb or the little finger.
+    expect(["foot.inversion", "foot.eversion"].map(actionGlyphKind)).toEqual(["tilt", "tilt"]);
   });
 });

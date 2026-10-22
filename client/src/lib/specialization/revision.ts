@@ -22,7 +22,7 @@ export function stableStringify(value: unknown): string {
   return `{${keys.map((key) => `${JSON.stringify(key)}:${stableStringify(record[key])}`).join(",")}}`;
 }
 
-const SET_FIELDS = ["id", "weight", "reps", "unit", "completed", "skipped", "type", "stages", "effort", "side", "holdSeconds", "warmup"] as const;
+const SET_FIELDS = ["id", "weight", "reps", "unit", "completed", "skipped", "type", "stages", "effort", "side", "legSide", "holdSeconds", "warmup"] as const;
 
 /** What of the workout log a summary depends on. Sessions are read in id order. */
 export function sourceRevision(sessions: readonly DeviceWorkoutSession[]): string {

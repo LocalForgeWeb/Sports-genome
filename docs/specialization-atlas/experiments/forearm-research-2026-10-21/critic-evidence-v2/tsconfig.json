@@ -1,0 +1,1 @@
+{ "extends": "/home/user/Sports-genome/tsconfig.json", "compilerOptions": { "incremental": false, "noEmit": true, "baseUrl": "/home/user/Sports-genome", "types": ["node"], "typeRoots": ["/home/user/Sports-genome/node_modules/@types"] }, "include": ["*.ts"] }

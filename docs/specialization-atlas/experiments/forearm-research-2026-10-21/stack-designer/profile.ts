@@ -1,0 +1,15 @@
+import { exercises } from "/home/user/Sports-genome/client/src/lib/exerciseCatalog";
+import { splitDaysForFrequency } from "/home/user/Sports-genome/client/src/lib/splitCycle";
+import { buildDaySlots, commitDay, emptyDayStore } from "/home/user/Sports-genome/client/src/lib/trainingDayPlan";
+import { forearmRegionData as R } from "/home/user/Sports-genome/shared/specialization/regions/forearm/index";
+import { plannedSummaries, candidatesOf } from "./stackDesigner";
+const byId = new Map(exercises.map((e) => [e.id, e] as const));
+const slots = buildDaySlots(splitDaysForFrequency(4));
+let store = emptyDayStore();
+const content = [[1, 43, 103, 57, 121, 150], [161, 186, 171, 194, 221], [5, 47, 66, 111, 148, 123], [41, 173, 206, 195, 222]];
+slots.forEach((s, i) => { store = commitDay(store, s.key, { workout: content[i].map((id) => byId.get(id)!), prescriptions: {}, settings: {}, context: [] }); });
+const input = { region: R, catalog: exercises, week: 1, slots, store, goal: "Muscle growth" as const, goals: [], now: "2026-10-21T12:00:00Z" };
+plannedSummaries(input);
+const t = (f: () => unknown, n = 20) => { const a = performance.now(); for (let i = 0; i < n; i += 1) f(); return ((performance.now() - a) / n).toFixed(2); };
+console.log("plannedSummaries (2 arms):", t(() => plannedSummaries(input)), "ms");
+console.log("candidatesOf:", t(() => candidatesOf(R, exercises)), "ms");

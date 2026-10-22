@@ -1,0 +1,20 @@
+A01   https://medicine.uams.edu/neuroscience/education/medical-school-courses/human-structure-module/anatomy-tables/muscle-tables/muscles-of-the-upper-limb/
+A02   https://www.stritch.luc.edu/lumen/meded/grossanatomy/homepage/muscletables/upperextremitymuscletable.pdf
+S02 39819577 10.1186/s13018-024-05363-x https://pubmed.ncbi.nlm.nih.gov/39819577/
+S03 14656682 10.1016/S0736-0266(03)00115-3 https://pubmed.ncbi.nlm.nih.gov/14656682/
+S04 32636008 10.1016/j.jbiomech.2020.109897 https://pubmed.ncbi.nlm.nih.gov/32636008/
+S05 35646483 10.7717/peerj.13495 https://pubmed.ncbi.nlm.nih.gov/35646483/
+S06 26300781 10.3389/fphys.2015.00215 https://pubmed.ncbi.nlm.nih.gov/26300781/
+S07 30694963 10.1519/JSC.0000000000002954 https://pubmed.ncbi.nlm.nih.gov/30694963/
+S08 15946972 10.1113/jphysiol.2005.089201 https://pubmed.ncbi.nlm.nih.gov/15946972/
+S09 27174923 10.1152/japplphysiol.00154.2016 https://pubmed.ncbi.nlm.nih.gov/27174923/
+S10 29564973 10.1080/17461391.2018.1450898 https://pubmed.ncbi.nlm.nih.gov/29564973/
+S11 28249351 10.1002/mus.25637 https://pubmed.ncbi.nlm.nih.gov/28249351/
+S12 41343037 10.1007/s40279-025-02344-w https://pubmed.ncbi.nlm.nih.gov/41343037/
+S13 38970765 10.1007/s40279-024-02069-2 https://pubmed.ncbi.nlm.nih.gov/38970765/
+S14 30580468 10.1111/sms.13375 https://pubmed.ncbi.nlm.nih.gov/30580468/
+S15 35657492 10.1007/s40279-022-01695-y https://pubmed.ncbi.nlm.nih.gov/35657492/
+S16 24669550 10.1177/0018720813492327 https://pubmed.ncbi.nlm.nih.gov/24669550/
+S17 30621312 10.3390/ijerph16010130 https://pubmed.ncbi.nlm.nih.gov/30621312/
+S18 28834797 10.1519/JSC.0000000000002200 https://pubmed.ncbi.nlm.nih.gov/28834797/
+S19 20353863 10.1016/j.jhsa.2010.01.006 https://pubmed.ncbi.nlm.nih.gov/20353863/

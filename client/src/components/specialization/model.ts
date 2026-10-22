@@ -1,6 +1,8 @@
 import { formatDisplayWeight, type DisplayWeightUnit } from "@/lib/weightUnits";
-import { categoryFor, exposureCategoryLabels } from "@shared/specialization/rules";
-import type { AnatomyNode, Contribution, ContributionSegment, ExposureCategory, GoalMetric, GoalProgress, MappingEvidenceBasis, MuscleMode, NodeExposure, NodeId, RegionBoutRow, Relationship, SpecializationRegionData, SpecializationSummary, VariantMapping } from "@shared/specialization/types";
+import { creditedMappingsFor, mappingsByKey } from "@shared/specialization/exposure";
+import { categoryFor, currentExposureRule, exposureCategoryLabelsFor } from "@shared/specialization/rules";
+import type { AnatomyNode, Contribution, ContributionSegment, ExposureCategory, GoalMetric, GoalProgress, JointAction, MappingEvidenceBasis, MuscleMode, NodeExposure, NodeId, RegionBoutRow, RegionWording, Relationship, SideRelation, SpecializationRegion, SpecializationRegionData, SpecializationSummary, VariantMapping } from "@shared/specialization/types";
+import { drawableNodeIds } from "./diagramGeometry";
 
 /**
  * What the specialization page shows, worked out from one summary (design §7). Pure, so
@@ -48,10 +50,9 @@ export function isDirectWork(contribution: Contribution): boolean {
  * helps with or steadies stays in the list and the ledger, off the map.
  */
 export function directWorkBouts(node: NodeExposure): number {
-  // A set with no arm recorded is kept apart (in `unknownSide`) only by a one-arm summary; in
-  // a summary of both arms (what the page shows) it is counted like any other set.
-  const keptApart = node.unknownSide.bouts + (node.unknownSide.pendingReviewBouts ?? 0) > 0;
-  return new Set(node.contributions.filter((item) => (!keptApart || item.side !== "unknown") && isDirectWork(item)).map((item) => item.boutId)).size;
+  // A row kept apart for want of a side (only a per-side summary keeps one) is never on the map;
+  // in the page's summary, both sides as one, a set with no side recorded counts like any other.
+  return new Set(node.contributions.filter((item) => item.countedSide !== "unknown" && isDirectWork(item)).map((item) => item.boutId)).size;
 }
 
 export function goalsForNode(summary: SpecializationSummary | null, nodeId: string): GoalProgress[] {
@@ -85,33 +86,53 @@ export function holdTime(seconds: number): string {
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
 /**
+ * The plain word for holding a position while other muscles move the load, the kind of work every
+ * region's incidental credit is (10-multi-region.md §8, the method note). One region's own word for
+ * it is the same word, which is why the page scan lists this line.
+ */
+const holdingWord = "steadying";
+
+/**
+ * Incidental work in a sentence, as the forearm page has said it since 17 Oct: the region's word for
+ * it and steadying ("grip or steadying"), or the region's word alone where it is that word.
+ */
+export function incidentalWords(incidentalWork: string): string {
+  return incidentalWork === holdingWord ? incidentalWork : `${incidentalWork} or ${holdingWord}`;
+}
+
+/** What "other work" for a movement is, beside its number in the movement sheet: "helping or steadying". */
+export const otherWorkWords = `helping or ${holdingWord}`;
+
+/**
  * The parts of a muscle's exposure that are not zero, in the brief's order (§5 "Default muscle
- * totals"). `incidentalWork` is the region's word for incidental work (`region.wording`).
+ * totals"). Incidental work is said in the region's word for it (`wording.incidentalWork`):
+ * "4 incidental grip or steadying".
  */
 export function exposureParts(node: NodeExposure, incidentalWork: string): string[] {
   const parts: string[] = [];
   if (node.directDynamicBouts) parts.push(`${plural(node.directDynamicBouts, "direct dynamic bout")}`);
   if (node.contributingDynamicBouts) parts.push(`${node.contributingDynamicBouts} other dynamic`);
   if (node.deliberateHoldBouts) parts.push(`${plural(node.deliberateHoldBouts, "deliberate hold")}, ${holdTime(node.deliberateHoldSeconds)}`);
-  if (node.incidentalBouts) parts.push(`${node.incidentalBouts} incidental ${incidentalWork} or steadying`);
+  if (node.incidentalBouts) parts.push(`${node.incidentalBouts} incidental ${incidentalWords(incidentalWork)}`);
   if (node.mixedBouts) parts.push(`${node.mixedBouts} mixed`);
   if (node.unknownBouts) parts.push(`${node.unknownBouts} unclassified`);
   return parts;
 }
 
-/** One line for a muscle: what it got, or why there is nothing to count. */
+/**
+ * One line for a muscle: what it got, or why there is nothing to count. The page's summary counts
+ * both sides as one (owner, 20 Oct 2026), so nothing is kept apart for want of a side and no side
+ * is named.
+ */
 export function exposureSentence(node: NodeExposure | null, incidentalWork: string): string {
   if (!node || node.mappingCoverage === "none") return "No exercise is mapped to this muscle yet, so nothing can be counted for it.";
   const parts = exposureParts(node, incidentalWork);
   const pending = node.pendingReviewBouts ? `${plural(node.pendingReviewBouts, "set")} matched a mapping still under review and ${node.pendingReviewBouts === 1 ? "is" : "are"} not counted.` : "";
-  const noArmPending = node.unknownSide.pendingReviewBouts ?? 0;
-  const pendingNoArm = noArmPending ? `${plural(noArmPending, "set")} with no arm recorded matched a mapping still under review and ${noArmPending === 1 ? "is" : "are"} not counted.` : "";
-  const unknownSide = node.unknownSide.bouts ? `${plural(node.unknownSide.bouts, "set")} with no arm recorded ${node.unknownSide.bouts === 1 ? "is" : "are"} kept apart.` : "";
   const head = parts.length ? `${parts.join(" · ")}.` : node.mappingCoverage === "pending_review" ? "Its exercise mapping is still under review." : "No work for it in this window.";
-  return [head, pending, pendingNoArm, unknownSide].filter(Boolean).join(" ");
+  return [head, pending].filter(Boolean).join(" ");
 }
 
-/** Every bout counted in the list's bar, by kind, on this arm. */
+/** Every bout counted in the list's bar, by kind. */
 export function barParts(node: NodeExposure) {
   return {
     direct: node.directDynamicBouts,
@@ -125,9 +146,14 @@ export function barParts(node: NodeExposure) {
 /** The bar's fixed scale: 20 bouts fill it, more stays at full width with its number shown. */
 export const BAR_SCALE = 20;
 
-/** The muscles the list and the diagram can select: muscles and heads, not the compartments that group them. */
+/**
+ * The muscles the list and the diagram can select: the drawing's rule (`drawableNodeIds`), muscles
+ * and heads, never a group, a compartment or any node's parent (the deltoid over its heads), which
+ * would overlap its parts and read "Mapping not reviewed" (10-multi-region.md §7.3).
+ */
 export function selectableNodes(data: SpecializationRegionData): AnatomyNode[] {
-  return data.nodes.filter((node) => node.kind === "muscle" || node.kind === "head");
+  const drawable = drawableNodeIds(data.nodes);
+  return data.nodes.filter((node) => drawable.has(node.id));
 }
 
 export const layerLabels: Record<AnatomyNode["layer"], string> = { surface: "Surface", intermediate: "Middle layer", deep: "Deep", mixed: "Mixed layers" };
@@ -161,8 +187,9 @@ export const goalMetricShortLabels: Record<GoalMetric, string> = {
   deliberate_hold_seconds: "Hold seconds",
 };
 
-export function categoryLabel(category: ExposureCategory): string {
-  return exposureCategoryLabels[category];
+/** A kind of work as the ledger names it, incidental work in the region's word ("Incidental grip / stabilization"). */
+export function categoryLabel(category: ExposureCategory, wording: Pick<RegionWording, "incidentalWork">): string {
+  return exposureCategoryLabelsFor(wording)[category];
 }
 
 /** One segment of a bout, as the athlete logged it: "20 kg × 12", "30 s", "× 10". */
@@ -194,12 +221,15 @@ export function ledgerByExercise<T extends LedgerRow>(rows: readonly T[]): Ledge
     .sort((left, right) => right.rows.length - left.rows.length || latest(right).localeCompare(latest(left)) || left.name.localeCompare(right.name));
 }
 
-export const sideLabels: Record<Contribution["side"], string> = { left: "Left arm", right: "Right arm", bilateral: "Both arms", unknown: "Arm not recorded" };
-
 // ---------------------------------------------------------------- findings
 
-/** Which region-level list of bouts a total opens: the region's distinct bouts, the ones with no arm, or work mapped to no muscle. */
-export type RegionBoutList = "region" | "unknown-side" | "region-only";
+/**
+ * Which region-level list of bouts a total opens: the region's distinct bouts, work mapped to no
+ * muscle, or the sets whose exercise tags the region but which it does not count
+ * (10-multi-region.md §8). There is no list of sets kept apart for want of a side: the page counts
+ * both sides as one (owner, 20 Oct 2026).
+ */
+export type RegionBoutList = "region" | "region-only" | "listed-unmapped";
 export type FindingAction =
   | { kind: "inspect"; nodeId: string }
   | { kind: "add"; nodeId: string }
@@ -208,47 +238,64 @@ export type FindingAction =
   | { kind: "method" };
 export type Finding = { id: string; title: string; detail: string; action: FindingAction | null; actionLabel: string | null };
 
+/** Said beside a target on a muscle that is not a target of the page's region (10-multi-region.md §2.2). */
+export const READ_ONLY_TARGET_NOTE = "Targets are for this region's target muscles. You can end or remove this one.";
+/** A muscle target's progress where nothing is counted for the muscle (no reviewed mapping): unknown is never shown as zero. Short, so the selected muscle's target stays one line on a small phone. */
+export const UNCOUNTED_TARGET_PROGRESS = "cannot be counted yet";
+
+/**
+ * A target's progress in words: "3 of your 6", or, for a muscle target whose muscle has no
+ * reviewed exercise mapping here, that it cannot be counted yet, never "0 of your 3".
+ */
+export function targetProgressText(progress: Pick<GoalProgress, "goal" | "label">, exposure: Pick<NodeExposure, "mappingCoverage"> | null | undefined): string {
+  return progress.goal.nodeId && exposure && exposure.mappingCoverage !== "reviewed" ? UNCOUNTED_TARGET_PROGRESS : progress.label;
+}
+
 /**
  * "Coverage to review" (design §7, item 6): facts about the records and the mapping, in
  * neutral words, most useful first. A target behind leads, because the athlete set it;
- * after it what the numbers cannot see (no arm, no mapping, a mapping under review); then
- * a difference between the arms, and grip a strapped set did not earn. Nothing here is a
- * score, and nothing suggests training only to fill a muscle (brief §10).
+ * after it what the numbers cannot see (no mapping, a mapping under review), then credit a
+ * strapped set did not earn. Nothing here is a score, and nothing suggests training only to fill
+ * a muscle (brief §10). Both sides are counted as one (owner, 20 Oct 2026), so nothing here names
+ * a side: there is no finding for sets with no side recorded and none for a difference between
+ * the sides.
+ *
+ * Only a target on a muscle that is a target here, and that can be counted, is "behind" with
+ * exercises for it. A target saved earlier on a muscle that is not a target here (an external or
+ * adjacent one, 10-multi-region.md §2.2) is said last, once per muscle, as one the athlete can end
+ * or remove: the page offers no target there, so it never sends the athlete to train for one.
  */
 export function findingsFor(input: {
   data: SpecializationRegionData;
   summary: SpecializationSummary;
-  otherSide: SpecializationSummary | null;
 }): Finding[] {
-  const { data, summary, otherSide } = input;
+  const { data, summary } = input;
   const findings: Finding[] = [];
   const nodeById = new Map(data.nodes.map((node) => [node.id, node] as const));
   const nameOf = (id: string) => nodeById.get(id)?.name ?? id;
   const window = summary.mode === "planned" ? "in this plan week" : "in this window";
-  const arm = summary.side === "left" ? "left arm" : summary.side === "right" ? "right arm" : null;
   const region = data.region.label.toLowerCase();
 
+  const exposureOf = (id: string) => summary.nodes.find((node) => node.nodeId === id) ?? null;
+  const readOnlyNodes: string[] = [];
   for (const progress of summary.goals) {
+    const nodeId = progress.goal.nodeId;
+    if (nodeId && nodeById.get(nodeId)?.role !== "target") {
+      if (!readOnlyNodes.includes(nodeId)) readOnlyNodes.push(nodeId);
+      continue;
+    }
+    // Nothing can be counted for its muscle: "without a reviewed exercise mapping" below says why, rather than a zero.
+    if (nodeId && targetProgressText(progress, exposureOf(nodeId)) === UNCOUNTED_TARGET_PROGRESS) continue;
     if (progress.fraction >= 1) continue;
-    const subject = progress.goal.nodeId ? nameOf(progress.goal.nodeId) : data.actions.find((action) => action.id === progress.goal.actionId)?.label ?? "This movement";
+    const subject = nodeId ? nameOf(nodeId) : data.actions.find((action) => action.id === progress.goal.actionId)?.label ?? "This movement";
     findings.push({
       id: `goal:${progress.goal.id}`,
       title: `${subject}: ${progress.label}`,
       // Planned mode reads the plan week on screen; completed mode reads the target's own period.
-      detail: `${goalMetricLabels[progress.goal.metric]}, ${arm ? `${arm}, ` : ""}${summary.mode === "planned" ? `${summary.interval.label}` : progress.goal.period === "calendar_week" ? "this calendar week" : "the last 7 days"}. The target is yours, not a prescription.`,
+      detail: `${goalMetricLabels[progress.goal.metric]}, ${summary.mode === "planned" ? `${summary.interval.label}` : progress.goal.period === "calendar_week" ? "this calendar week" : "the last 7 days"}. The target is yours, not a prescription.`,
       // A muscle target opens the muscle's exercises; a movement target opens the movement: its sets and its exercises.
       action: progress.goal.nodeId ? { kind: "add", nodeId: progress.goal.nodeId } : progress.goal.actionId ? { kind: "movement", actionId: progress.goal.actionId } : null,
       actionLabel: progress.goal.nodeId ? "See exercises for it" : progress.goal.actionId ? "See its sets and exercises" : null,
-    });
-  }
-
-  if (summary.regionUnknownSideBouts > 0) {
-    findings.push({
-      id: "unknown-side",
-      title: `${plural(summary.regionUnknownSideBouts, "set")} with no arm recorded`,
-      detail: `They are kept apart and counted for neither arm. One-arm work logged from now on asks which arm.`,
-      action: { kind: "bouts", list: "unknown-side" },
-      actionLabel: "See these sets",
     });
   }
 
@@ -263,16 +310,13 @@ export function findingsFor(input: {
     });
   }
 
-  // Sets with no arm recorded are in neither arm's count (unknownSide), and are named as such.
-  const noArmPendingOf = (node: NodeExposure) => node.unknownSide.pendingReviewBouts ?? 0;
-  const pending = summary.nodes.filter((node) => node.pendingReviewBouts > 0 || noArmPendingOf(node) > 0);
+  const pending = summary.nodes.filter((node) => node.pendingReviewBouts > 0);
   if (pending.length) {
-    const onArm = pending.reduce((sum, node) => sum + node.pendingReviewBouts, 0);
-    const noArm = pending.reduce((sum, node) => sum + noArmPendingOf(node), 0);
+    const sets = pending.reduce((sum, node) => sum + node.pendingReviewBouts, 0);
     findings.push({
       id: "pending-review",
       title: `Mapping under review for ${pending.slice(0, 2).map((node) => nameOf(node.nodeId)).join(" and ")}${pending.length > 2 ? ` and ${pending.length - 2} more` : ""}`,
-      detail: `${plural(onArm + noArm, "set")} ${window} matched a mapping that is not reviewed yet${noArm ? `, ${noArm} of them with no arm recorded` : ""}. ${onArm + noArm === 1 ? "It is" : "They are"} shown in the ledger and not counted.`,
+      detail: `${plural(sets, "set")} ${window} matched a mapping that is not reviewed yet. ${sets === 1 ? "It is" : "They are"} shown in the ledger and not counted.`,
       action: { kind: "inspect", nodeId: pending[0].nodeId },
       actionLabel: "Inspect coverage",
     });
@@ -289,36 +333,28 @@ export function findingsFor(input: {
     });
   }
 
-  if (otherSide) {
-    const gaps = summary.nodes
-      .map((node) => {
-        const other = otherSide.nodes.find((item) => item.nodeId === node.nodeId);
-        return other && node.mappingCoverage === "reviewed" ? { node, here: directWorkBouts(node), there: directWorkBouts(other) } : null;
-      })
-      .filter((item): item is { node: NodeExposure; here: number; there: number } => item !== null && Math.abs(item.here - item.there) >= 2)
-      .sort((left, right) => Math.abs(right.here - right.there) - Math.abs(left.here - left.there));
-    if (gaps.length) {
-      const top = gaps[0];
-      const otherArm = summary.side === "left" ? "right" : "left";
-      findings.push({
-        id: `arms:${top.node.nodeId}`,
-        title: `${nameOf(top.node.nodeId)}: ${top.here} direct bouts on the ${summary.side} arm, ${top.there} on the ${otherArm}`,
-        detail: `${gaps.length > 1 ? `${gaps.length - 1} more muscle${gaps.length === 2 ? "" : "s"} differ by two or more bouts. ` : ""}Two-handed sets count for both arms; only one-arm sets make the arms differ.`,
-        action: { kind: "inspect", nodeId: top.node.nodeId },
-        actionLabel: "Inspect coverage",
-      });
-    }
-  }
-
-  const strapped = new Set<string>();
-  for (const node of summary.nodes) for (const row of node.notCounted ?? []) if (row.notes.some((note) => /strap/i.test(note) && /not counted/i.test(note))) strapped.add(row.boutId);
+  // Credit withheld from a strapped set, in the calculator's note and the published rule's words
+  // (rules.ts `straps`), so the page adds no words about which muscles hold the bar.
+  const strapped = new Map<string, string>();
+  for (const node of summary.nodes) for (const row of node.notCounted ?? []) for (const note of row.notes) if (/^strapped:/i.test(note)) strapped.set(row.boutId, note.replace(/^strapped:\s*/i, ""));
   if (strapped.size) {
+    const withheld = Array.from(new Set(strapped.values()));
     findings.push({
       id: "straps",
-      title: `${plural(strapped.size, "strapped set")} earned no grip credit`,
-      detail: "Straps hold the bar for the hand, so the finger flexors are not credited for those sets. The rest of each set still counts.",
+      title: `${plural(strapped.size, "strapped set")}: ${withheld.join("; ")}`,
+      detail: `${currentExposureRule.specification.straps} The rest of each set still counts.`,
       action: { kind: "method" },
       actionLabel: "How this is counted",
+    });
+  }
+
+  for (const nodeId of readOnlyNodes) {
+    findings.push({
+      id: `read-only:${nodeId}`,
+      title: `${nameOf(nodeId)}: a target saved earlier`,
+      detail: READ_ONLY_TARGET_NOTE,
+      action: { kind: "inspect", nodeId },
+      actionLabel: "End or remove it",
     });
   }
 
@@ -333,8 +369,8 @@ export function exercisesInWindow(summary: SpecializationSummary, data: Speciali
   for (const node of summary.nodes) {
     if (!regionNodes.has(node.nodeId)) continue;
     for (const row of node.contributions) {
-      // Kept apart with no arm recorded only in a one-arm summary; both arms count every set.
-      if (summary.side !== "both" && row.side === "unknown") continue;
+      // A row kept apart for want of a side (only a per-side summary keeps one) is in no total.
+      if (row.countedSide === "unknown") continue;
       const key = row.catalogExerciseId !== null ? `id:${row.catalogExerciseId}` : `name:${row.exerciseName}`;
       const entry = byExercise.get(key) ?? { name: row.exerciseName, catalogExerciseId: row.catalogExerciseId, bouts: new Set<string>(), directFor: new Set<string>() };
       entry.bouts.add(row.boutId);
@@ -354,7 +390,7 @@ export function boutsByDay(summary: SpecializationSummary, data: SpecializationR
   for (const node of summary.nodes) {
     if (!regionNodes.has(node.nodeId)) continue;
     for (const row of node.contributions) {
-      if ((summary.side !== "both" && row.side === "unknown") || !row.performedAt) continue;
+      if (row.countedSide === "unknown" || !row.performedAt) continue;
       const key = dayKeyOf(row.performedAt);
       const set = byDay.get(key) ?? new Set<string>();
       set.add(row.boutId);
@@ -378,7 +414,7 @@ export function overlapsInWindow(summary: SpecializationSummary, data: Specializ
     const meta = regionNodes.get(node.nodeId);
     if (!meta) continue;
     for (const row of node.contributions) {
-      if ((summary.side !== "both" && row.side === "unknown") || !isDirectWork(row)) continue;
+      if (row.countedSide === "unknown" || !isDirectWork(row)) continue;
       const session = row.sessionId ?? row.sessionLabel;
       const key = `${session}|${node.nodeId}`;
       const entry = bySessionNode.get(key) ?? { key, sessionLabel: row.sessionLabel, performedAt: row.performedAt, nodeId: node.nodeId, nodeShortName: meta.shortName, exercises: [], names: new Set<string>() };
@@ -402,8 +438,47 @@ export function overlapsInWindow(summary: SpecializationSummary, data: Specializ
  */
 export function regionBoutRows(summary: SpecializationSummary, list: RegionBoutList): RegionBoutRow[] {
   if (list === "region") return summary.regionBoutRows ?? [];
-  if (list === "unknown-side") return summary.regionUnknownSideRows ?? [];
+  if (list === "listed-unmapped") return summary.listedUnmappedRows ?? [];
   return summary.regionUnclassifiedRows ?? [];
+}
+
+/**
+ * What the page says about the sets it does not count although their exercise tags the region
+ * (10-multi-region.md §8), one sentence per kind: tagged as a secondary muscle where the region
+ * counts primary tags only, or one of the exercises the region lists as left unmapped. Each
+ * exercise's own reason is said where the sets open (`listedUnmappedReasons`).
+ */
+export function listedUnmappedSentences(summary: SpecializationSummary, data: SpecializationRegionData): string[] {
+  const rows = summary.listedUnmappedRows ?? [];
+  const region = data.region.label.toLowerCase();
+  const secondary = rows.filter((row) => row.tag === "secondary").length;
+  const listed = rows.length - secondary;
+  const are = (count: number) => (count === 1 ? "is" : "are");
+  return [
+    secondary ? `${plural(secondary, "set")} tag the ${region} as a secondary muscle and ${are(secondary)} not counted here.` : "",
+    listed ? `${plural(listed, "set")} of exercises left unmapped here ${are(listed)} not counted, each for the reason given with it.` : "",
+  ].filter(Boolean);
+}
+
+/**
+ * Each exercise's reason, by the ledger's exercise key, for the sets `listedUnmappedSentences`
+ * counts; and where another region's muscle listed here is credited with them (`creditedTo`: its
+ * home region counts them, this one does not), the row that shows them (06-calculation.md §9.3).
+ */
+export function listedUnmappedReasons(summary: SpecializationSummary, data: SpecializationRegionData): Map<string, string> {
+  const region = data.region.label.toLowerCase();
+  const nameOf = new Map(data.nodes.map((node) => [node.id, node.name] as const));
+  const byExercise = new Map<string, { reason: string; credited: string[] }>();
+  for (const row of summary.listedUnmappedRows ?? []) {
+    const key = exerciseKeyOf(row);
+    const entry = byExercise.get(key) ?? { reason: row.reason ?? (row.tag === "secondary" ? `It tags the ${region} as a secondary muscle; this page counts only exercises that tag it as a primary muscle.` : "Left unmapped here."), credited: [] };
+    for (const nodeId of row.creditedTo ?? []) if (!entry.credited.includes(nodeId)) entry.credited.push(nodeId);
+    byExercise.set(key, entry);
+  }
+  return new Map(Array.from(byExercise, ([key, { reason, credited }]) => {
+    const names = credited.map((nodeId) => nameOf.get(nodeId) ?? nodeId);
+    return [key, names.length ? `${reason} ${listWords(names)} ${names.length === 1 ? "is credited on its row" : "are credited on their rows"} here, as ${names.length === 1 ? "its home region counts" : "their home regions count"} these sets.` : reason];
+  }));
 }
 
 /**
@@ -474,8 +549,8 @@ export function missingActionNote(input: {
   if (!uncovered.length) return null;
   const variantById = new Map(data.variants.map((variant) => [variant.id, variant] as const));
   /** The exercises the recommender counts as direct work on this action for this muscle: a reviewed direct mapping it credits (moved, or held on purpose). */
-  const directExercises = (actionId: string) => Array.from(new Set(data.mappings
-    .filter((mapping) => mapping.versionKey === data.mappingVersion.key && mapping.reviewStatus === "reviewed" && mapping.nodeId === nodeId && mapping.actionId === actionId && mapping.relationship === "direct")
+  const directExercises = (actionId: string) => Array.from(new Set(creditedMappingsFor(data, nodeId)
+    .filter((mapping) => mapping.reviewStatus === "reviewed" && mapping.actionId === actionId && mapping.relationship === "direct")
     .filter((mapping) => {
       const variant = variantById.get(mapping.variantId);
       if (!variant) return false;
@@ -526,6 +601,8 @@ export function missingActionNote(input: {
 
 /** One bout behind a movement's numbers: the set, the kinds of work it gave the movement, and the muscles that did it. */
 export type MovementBout = RegionBoutRow & {
+  /** Where its first muscle's mapping loads the muscle relative to the recorded side (`same`, `opposite`, `both`). */
+  sideRelation?: SideRelation;
   /** The kinds of work this bout gave the movement, strongest first: one set can move it directly with one muscle and help with another. */
   categories: ExposureCategory[];
   /** The region's muscles credited with this movement in this bout. */
@@ -539,8 +616,9 @@ export type MovementBout = RegionBoutRow & {
 /**
  * A movement's numbers, counted the way a movement target is (exposure.ts goalProgressFor):
  * distinct bouts in which a credited mapping for that movement on one of the region's own
- * muscles is that kind of work; hold seconds once per bout; a bout with no arm recorded is
- * listed apart and counted for neither arm.
+ * muscles is that kind of work; hold seconds once per bout. In a per-side summary (dormant) a bout
+ * kept apart for want of a side is counted apart (`unknownSideBouts`); the page's summary counts
+ * both sides as one, so it keeps none apart.
  */
 export type MovementTotals = { directDynamicBouts: number; deliberateHoldBouts: number; deliberateHoldSeconds: number; otherBouts: number; unknownSideBouts: number };
 
@@ -552,32 +630,51 @@ const CATEGORY_ORDER: readonly ExposureCategory[] = ["direct_dynamic", "delibera
  * many muscles it moved, so "3 of your 10" for wrist extension opens the three sets.
  */
 export function movementLedger(summary: SpecializationSummary, data: SpecializationRegionData, actionId: string): { bouts: MovementBout[]; totals: MovementTotals } {
-  const bothArms = summary.side === "both";
   const regionNodes = new Set(data.nodes.filter((node) => node.regionId === data.region.id).map((node) => node.id));
   const byBout = new Map<string, MovementBout>();
+  /**
+   * The kinds of work a bout did for the movement, from the rows counted on this side; from the
+   * rows kept apart only where no own muscle's row counts it. A bout one muscle counts on this side
+   * and another keeps apart (two mappings of one action with different side relations) is this
+   * side's, as the movement's target counts it (exposure.ts `goalProgressFor`).
+   */
+  const kinds = new Map<string, { counted: ExposureCategory[]; apart: ExposureCategory[] }>();
   for (const node of summary.nodes) {
     if (!regionNodes.has(node.nodeId)) continue;
     for (const row of node.contributions) {
       const parts = row.parts.filter((part) => part.actionId === actionId);
       if (!parts.length) continue;
-      const entry = byBout.get(row.boutId) ?? {
-        boutId: row.boutId, side: row.side, sideSource: row.sideSource, catalogExerciseId: row.catalogExerciseId, exerciseName: row.exerciseName, matchedBy: row.matchedBy,
+      const counted = row.countedSide !== "unknown";
+      const sideOf = { side: row.side, sideSource: row.sideSource, countedSide: row.countedSide, recordedSide: row.recordedSide, sideRelation: row.sideRelation };
+      const found = byBout.get(row.boutId);
+      const entry = found ?? {
+        boutId: row.boutId, ...sideOf,
+        catalogExerciseId: row.catalogExerciseId, exerciseName: row.exerciseName, matchedBy: row.matchedBy,
         sessionId: row.sessionId, sessionLabel: row.sessionLabel, performedAt: row.performedAt, kind: row.kind, segments: row.segments,
         categories: [], nodeIds: [], mappingIds: [], holdSeconds: row.holdSeconds, notes: [],
       };
+      // Counted by this muscle where an earlier one kept it apart: the bout takes this row's side.
+      if (found && counted && found.countedSide === "unknown") Object.assign(entry, sideOf);
+      const bucket = kinds.get(row.boutId) ?? { counted: [], apart: [] };
       for (const part of parts) {
-        if (!entry.categories.includes(part.category)) entry.categories.push(part.category);
+        const list = counted ? bucket.counted : bucket.apart;
+        if (!list.includes(part.category)) list.push(part.category);
         if (!entry.mappingIds.includes(part.mappingId)) entry.mappingIds.push(part.mappingId);
       }
+      kinds.set(row.boutId, bucket);
       if (!entry.nodeIds.includes(node.nodeId)) entry.nodeIds.push(node.nodeId);
       for (const note of row.notes) if (!entry.notes.includes(note)) entry.notes.push(note);
       byBout.set(row.boutId, entry);
     }
   }
-  const bouts = Array.from(byBout.values()).map((bout) => ({ ...bout, categories: [...bout.categories].sort((left, right) => CATEGORY_ORDER.indexOf(left) - CATEGORY_ORDER.indexOf(right)) }));
+  const categoriesOf = (boutId: string) => {
+    const bucket = kinds.get(boutId)!;
+    return [...(bucket.counted.length ? bucket.counted : bucket.apart)].sort((left, right) => CATEGORY_ORDER.indexOf(left) - CATEGORY_ORDER.indexOf(right));
+  };
+  const bouts = Array.from(byBout.values()).map((bout) => ({ ...bout, categories: categoriesOf(bout.boutId) }));
   const totals: MovementTotals = { directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, otherBouts: 0, unknownSideBouts: 0 };
   for (const bout of bouts) {
-    if (bout.side === "unknown" && !bothArms) { totals.unknownSideBouts += 1; continue; }
+    if (bout.countedSide === "unknown") { totals.unknownSideBouts += 1; continue; }
     const direct = bout.categories.includes("direct_dynamic");
     const held = bout.categories.includes("deliberate_isometric");
     if (direct) totals.directDynamicBouts += 1;
@@ -636,17 +733,23 @@ export function latestSessionDayLabel(sessions: readonly { dayLabel?: string | n
   return latest?.label ?? null;
 }
 
-/** The mappings with these ids, each once, in the order given. Ids the region does not have are skipped. */
+/**
+ * The mappings behind ledger keys, each once, in the order given (`mappingsByKey`): a key is a
+ * mapping's id in the region's own version and `<version>/<id>` in an external member's home
+ * version (10-multi-region.md §4.1). Keys the region does not credit are skipped.
+ */
 export function mappingsBehind(data: SpecializationRegionData, ids: readonly string[]): VariantMapping[] {
-  const byId = new Map(data.mappings.map((mapping) => [mapping.id, mapping] as const));
-  const seen = new Set<string>();
-  const out: VariantMapping[] = [];
-  for (const id of ids) {
-    const mapping = byId.get(id);
-    if (!mapping || seen.has(id)) continue;
-    seen.add(id);
-    out.push(mapping);
-  }
-  return out;
+  return mappingsByKey(data, ids);
+}
+
+/**
+ * A mapping's joint action as its own version names it: an external member's mapping is labelled
+ * from its home version's actions (`externalMappingVersions[].actions`), never from the page's own
+ * (a muscle of another region can be credited for an action this region does not list).
+ */
+export function mappingAction(data: SpecializationRegionData, mapping: Pick<VariantMapping, "versionKey" | "actionId">): JointAction | null {
+  if (!mapping.actionId) return null;
+  const actions = mapping.versionKey === data.mappingVersion.key ? data.actions : data.externalMappingVersions.find((external) => external.version.key === mapping.versionKey)?.actions ?? [];
+  return actions.find((action) => action.id === mapping.actionId) ?? null;
 }
 

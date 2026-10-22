@@ -1,13 +1,20 @@
 /* -- Body Lab → Specialize → Progress (Oct 16 forearm brief §10, design §5) -------- *
 
    Additions to the Progress disclosure's charts and form in specialization.css: the
-   date and time of a reading side by side (wrapping on a narrow phone), the
+   date and time of a reading in two equal columns (stacked under 375 px), the
    exercise-performance line, and its marker for a set that recorded no arm, which is
    a different shape (a square), not a fainter dot; the best so far; the weeks that
    open their bouts. Tokens only; inputs stay at 16 px through .spz-field. */
 
-.spz-progress-when { display: flex; flex-wrap: wrap; gap: .7rem; min-width: 0; }
-.spz-progress-when > .spz-field { flex: 1 1 9rem; }
+/* A date input in Chromium does not shrink below its own width, so in a flex row it ran under the
+   Time field at 375 px (headless Chromium, en-US: 5.8 px over; 1 px apart at 390). Two equal grid
+   columns that may shrink, with the input's side padding small, as Custom's dates have: the whole
+   date shows at 16 px (no smaller type: iOS zooms on focus under 16 px). Stacked under 375 px. */
+.spz-progress-when { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; min-width: 0; }
+.spz-progress-when input { min-width: 0; padding: 0 .375rem; }
+@media (max-width: 374px) {
+  .spz-progress-when { grid-template-columns: minmax(0, 1fr); }
+}
 
 .spz-progress-section { gap: .6rem; border-top: 1px solid rgb(164 200 232 / .2); padding-top: .8rem; }
 .spz-progress-section .spz-field select { text-overflow: ellipsis; }

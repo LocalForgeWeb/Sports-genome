@@ -1,91 +1,100 @@
-import type { ExerciseVariant, VariantMapping } from "./types";
-import { specializationLoggingRegions } from "./loggingRegions";
+import type { Limb, RegionId } from "./types";
+import { loggingTable, type LoggingTableRow } from "./loggingTable.generated";
 
 /**
- * What the workout logger asks of one exercise, read from the atlas's variant data
- * (docs/specialization-atlas/02-design.md §6).
+ * What the workout logger asks of one exercise, read from the atlas's logging table
+ * (docs/specialization-atlas/02-design.md §6; 10-multi-region.md §6.4).
  *
  * The brief wants this information "out of the workout logger until relevant" and every
  * set entry kept from turning into a questionnaire (§6, "Muscle detail sheet"). So the
  * logger asks for nothing the atlas has not said matters for that exact exercise: a
- * Seconds box only where the variant is measured in seconds, a side only where the
- * variant can be done one arm at a time, a straps question only where a grip mapping
- * depends on a bare hand. An exercise the atlas does not map gets the default policy,
- * which is exactly the logger as it was before the atlas existed.
+ * Seconds box only where the variant is measured in seconds, and a straps question only
+ * where a grip mapping depends on a bare hand. No side is asked, of an arm or a leg: both
+ * sides are counted as one (owner, 20 Oct 2026). An exercise no production region maps gets
+ * the default policy, which is exactly the logger as it was before the atlas existed.
  *
- * Region-agnostic on purpose: it reads every production region's variants, so a
- * deltoid or calf region added to the registry is picked up with no change here.
+ * Region-agnostic on purpose: the table (`loggingTable.generated.ts`) is written from every
+ * production region by scripts/specialization/emit-logging-table.ts, so a region added to the
+ * registry is picked up with no change here. The tracker and the swap sheet import this
+ * module, and the table holds a few facts per exercise, never a region's mappings, drawing,
+ * claims or sources.
  *
- * It reads the regions through `loggingRegions.ts` (variants and mappings only), never through
- * `registry.ts`: the tracker and the swap sheet import this module, and the registry would
- * bring the atlas's drawing, claims and sources into the workout logger's download.
+ * What the athlete's targets decide (the straps question) is not here: that is
+ * `loggerGatesFor` in client/src/lib/specialization/loggerGates.ts, read from this policy.
  */
 export type LoggedSide = "left" | "right" | "both";
 
 export interface LoggingPolicy {
   /** What the set's dose is entered in: reps, or the seconds of a hold. */
   measure: "reps" | "seconds";
-  /** Ask which arm. Always false since the forearms are counted as one (20 Oct 2026); kept so a later region can ask. */
+  /**
+   * Ask which side. Always false: both sides are counted as one (owner, 20 Oct 2026, "there's no
+   * reason for a left and right arm", extended to every limb), so the side a set was done with
+   * changes no number, and no arm or leg is asked. Kept so a later decision can ask again; a set
+   * logged with a side before keeps it.
+   */
   askSide: boolean;
   /**
-   * The variant is one arm at a time by definition (laterality `unilateral`, not `either`): a
-   * planned set of it is done once with each arm. The tracker reads this to lay a planned set
-   * out as two rows, one per arm, for an athlete tracking per-arm totals.
+   * The limb a side is recorded on (the variant's `sidedBy`): a set's `side` for the arm, `legSide`
+   * for the leg; null where no side is. Nothing asks for one; a swap reads it to name the rows of a
+   * workout left open from before 20 Oct 2026, built per side.
+   */
+  sideLimb: Limb | null;
+  /**
+   * Lay a planned set out as one row per arm. Always false: with both sides counted as one, a
+   * planned one-side set is one row per planned set, so the logged week matches the planned week
+   * (the plan counts it as one bout, planBouts.ts). Main's name, kept for its tests.
    */
   oneArm: boolean;
   /**
    * The side shown selected before the athlete has logged a set of this exercise in the
-   * session. `both` for an exercise usually done with both arms that may be done with
-   * one; null for a one-arm exercise, where which arm goes first is the athlete's call.
+   * session. `both` for an exercise usually done with both arms (or legs) that may be done with
+   * one; null for a one-side exercise, where which side goes first is the athlete's call.
    */
   sideDefault: LoggedSide | null;
   /** A grip mapping of this variant is not earned by a strapped set, so straps matter here. */
   strapsSensitive: boolean;
+  /** The production regions with such a mapping of it, for the athlete's gates. */
+  strapsBy: readonly RegionId[];
+  /** The production regions that map it, for the athlete's gates. */
+  mappedBy: readonly RegionId[];
 }
 
 /** The logger as it always was: reps, no side, no straps. */
-export const defaultLoggingPolicy: LoggingPolicy = Object.freeze({ measure: "reps", askSide: false, oneArm: false, sideDefault: null, strapsSensitive: false });
+export const defaultLoggingPolicy: LoggingPolicy = Object.freeze({ measure: "reps", askSide: false, sideLimb: null, oneArm: false, sideDefault: null, strapsSensitive: false, strapsBy: [], mappedBy: [] });
 
-const productionRegions = () => specializationLoggingRegions.filter((data) => data.region.status === "production");
-
-/** Every production region's variants: the default the logger reads. */
-export function productionVariants(): ExerciseVariant[] {
-  return productionRegions().flatMap((data) => data.variants);
-}
-
-/** Every production region's mappings, for the straps question. */
-export function productionMappings(): VariantMapping[] {
-  return productionRegions().flatMap((data) => data.mappings);
+/** An exercise's row of the logging table, or null when no production region maps it. */
+export function loggingEntryFor(catalogExerciseId: number | null | undefined, table: ReadonlyMap<number, LoggingTableRow> = loggingTable): LoggingTableRow | null {
+  if (catalogExerciseId === null || catalogExerciseId === undefined || !Number.isFinite(catalogExerciseId)) return null;
+  return table.get(catalogExerciseId) ?? null;
 }
 
 /**
- * The policy for a catalog exercise. Variants and mappings are injectable so a test (or
- * a fixture region) can supply its own; by default they are the production regions'.
+ * The policy for a catalog exercise. The table is injectable so a test (or a fixture region)
+ * can supply its own; by default it is the generated one, every production region's.
  *
- * Only reviewed mappings would credit work, but the straps question is about how the set
- * was done, which is worth recording whether or not the mapping is reviewed yet: a
- * mapping reviewed later can then read sets logged before the review. Rejected mappings
- * are the exception: they say the claim does not hold, so they ask nothing.
+ * Only reviewed mappings would credit work, but the straps question is about how the set was
+ * done, which is worth recording whether or not the mapping is reviewed yet: a mapping reviewed
+ * later can then read sets logged before the review. Rejected mappings say the claim does not
+ * hold, so the table leaves them out and they ask nothing.
  */
-export function loggingPolicyFor(
-  catalogExerciseId: number | null | undefined,
-  variants: readonly ExerciseVariant[] = productionVariants(),
-  mappings: readonly VariantMapping[] = productionMappings(),
-): LoggingPolicy {
-  if (catalogExerciseId === null || catalogExerciseId === undefined || !Number.isFinite(catalogExerciseId)) return defaultLoggingPolicy;
-  const variant = variants.find((item) => item.catalogExerciseId === catalogExerciseId);
-  if (!variant) return defaultLoggingPolicy;
+export function loggingPolicyFor(catalogExerciseId: number | null | undefined, table: ReadonlyMap<number, LoggingTableRow> = loggingTable): LoggingPolicy {
+  const row = loggingEntryFor(catalogExerciseId, table);
+  if (!row) return defaultLoggingPolicy;
+  const sideLimb = row.sidedBy === "none" ? null : row.sidedBy;
+  // How the limb the side is recorded on works: the arms' laterality, or the legs'.
+  const laterality = sideLimb === "arm" ? row.laterality : sideLimb === "leg" ? row.legLaterality : undefined;
   return {
-    measure: variant.measure === "seconds" ? "seconds" : "reps",
-    // Which arm is no longer asked (20 Oct 2026): the forearms are counted as one, so the arm
-    // a set was done with changes no number. A set logged with an arm earlier keeps it.
+    measure: row.measure === "seconds" ? "seconds" : "reps",
+    // No side is asked, of an arm or a leg: both sides are counted as one (owner, 20 Oct 2026).
     askSide: false,
-    // Nor is a planned one-arm set laid out as a row per arm: with the arms counted as one,
-    // a set is a set.
+    sideLimb,
+    // Nor is a planned one-side set laid out as a row per side: a set is a set.
     oneArm: false,
-    // A two-handed implement never asks. "Either" is usually two arms at once (a pair of
-    // dumbbells), so it starts on Both; a one-arm exercise starts unset.
-    sideDefault: variant.laterality === "either" ? "both" : null,
-    strapsSensitive: mappings.some((mapping) => mapping.variantId === variant.id && mapping.requiresNoStraps && mapping.reviewStatus !== "rejected"),
+    // The side a set would start on, read from the variant, for a decision that asks again.
+    sideDefault: laterality === "either" ? "both" : null,
+    strapsSensitive: row.strapsBy.length > 0,
+    strapsBy: row.strapsBy,
+    mappedBy: row.mappedBy,
   };
 }

@@ -4,6 +4,7 @@ import { muscleLabels } from "@/components/AnatomyMap";
 import { strengthRegionDefinitions } from "../../../shared/strengthGenomeDefinitions";
 import { EXERCISE_ALIASES, normalizeSearchText, withinEditDistance } from "./exerciseSearch";
 import { capacityTargetSearchTerms } from "./capacityTargets";
+import { specializationRegionIndex } from "@shared/specialization/regionIndex";
 
 /**
  * Universal search, per the philosophy's "Universal search and retrieval
@@ -201,9 +202,9 @@ const DESTINATIONS: Candidate[] = [
   { type: "destination", id: "catalog", label: "Exercise catalog", context: "Body Lab", terms: ["exercise catalog", "catalog", "exercises"] },
   { type: "destination", id: "body", label: "Muscle map", context: "Body Lab", terms: ["muscle map", "body lab", "body map", "anatomy"] },
   { type: "destination", id: "movement", label: "Movement explorer", context: "Body Lab", terms: ["movement explorer", "movement atlas", "movements", "actions"] },
-  // The specialization page (Oct 16 brief): the forearm is its only region so far, and it
-  // is named as the page names itself. The terms are the words people type for that work.
-  { type: "destination", id: "specialization", label: "Forearm specialization", context: "Body Lab", terms: ["forearm specialization", "specialize", "specialization", "forearms", "forearm", "grip", "wrist", "brachioradialis", "muscle atlas"] },
+  // The specialization page as a place: it opens on the region it was left on. Each region with a
+  // page is a destination of its own (`specializationCandidates`).
+  { type: "destination", id: "specialization", label: "Specialize", context: "Body Lab", terms: ["specialize", "specialization", "muscle atlas", "specialization atlas"] },
   { type: "destination", id: "profile", label: "About me", context: "Profile", terms: ["about me", "profile", "settings", "account"] },
   /**
    * The contract's §11 "named/search/list path with the same authority as any
@@ -226,11 +227,42 @@ const DESTINATIONS: Candidate[] = [
   },
 ];
 
+/**
+ * Words people type for a body-map key's specialization work that are neither the muscle's name nor
+ * one of its aliases above. The forearm page was found by "wrist" before each region had a
+ * destination of its own, and still is.
+ */
+const SPECIALIZATION_TERMS: Record<string, string[]> = {
+  forearms: ["wrist"],
+};
+
+/**
+ * One destination per body region with a specialization page, from the light region index
+ * (docs/specialization-atlas/10-multi-region.md §6.2): `specialization#<region>`, named as the page
+ * names itself (its heading), found by its label, its body-map keys and those muscles' names and
+ * aliases ("forearm", "grip", "brachioradialis"), and the words people type for that work ("wrist").
+ * Home opens that region, with no Back.
+ */
+function specializationCandidates(): Candidate[] {
+  return specializationRegionIndex.map((region) => ({
+    type: "destination" as const,
+    id: `specialization#${region.id}`,
+    label: region.heading,
+    context: "Body Lab · Specialize",
+    terms: Array.from(new Set([
+      region.heading,
+      region.label,
+      ...region.bodyMapKeys.flatMap((key) => [key, muscleLabels[key] ?? "", ...(ALIASES[key] ?? []), ...(SPECIALIZATION_TERMS[key] ?? [])]),
+    ].filter(Boolean).map(normalize))),
+  }));
+}
+
 let cachedCandidates: Candidate[] | null = null;
 function allCandidates(): Candidate[] {
   if (!cachedCandidates) {
     cachedCandidates = [
       ...DESTINATIONS,
+      ...specializationCandidates(),
       ...muscleCandidates(),
       ...sportCandidates(),
       ...metricCandidates(),

@@ -1,4 +1,4 @@
-import { forearmAdjacentIds, forearmMuscleIds as m, FOREARM_REGION_ID } from "@shared/specialization/ids";
+import { forearmAdjacentIds, forearmMuscleIds as m, FOREARM_REGION_ID } from "@shared/specialization/regions/forearm/ids";
 import type { NodeId, RegionId } from "@shared/specialization/types";
 import { muscleManifest } from "./muscleManifest";
 

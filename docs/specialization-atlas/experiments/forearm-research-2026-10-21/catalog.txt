@@ -1,0 +1,416 @@
+1 | Barbell Bench Press | Barbell | Chest & push | chest
+2 | Incline Barbell Bench Press | Barbell | Chest & push | chest
+3 | Decline Barbell Bench Press | Barbell | Chest & push | chest
+4 | Dumbbell Bench Press | Dumbbells | Chest & push | chest
+5 | Incline Dumbbell Bench Press | Dumbbells | Chest & push | chest
+6 | Decline Dumbbell Bench Press | Dumbbells | Chest & push | chest
+7 | Dumbbell Floor Press | Dumbbells | Chest & push | chest
+8 | Dumbbell Squeeze Press | Dumbbells | Chest & push | chest
+9 | Alternating Dumbbell Bench Press | Dumbbells | Chest & push | chest
+10 | Single-Arm Dumbbell Bench Press | Dumbbells | Chest & push | chest
+11 | Machine Chest Press | Machine | Chest & push | chest
+12 | Incline Machine Chest Press | Machine | Chest & push | chest
+13 | Plate-Loaded Chest Press | Free weights | Chest & push | chest
+14 | Smith Machine Bench Press | Machine | Chest & push | chest
+15 | Smith Machine Incline Press | Machine | Chest & push | chest
+16 | Cable Chest Press | Cable | Chest & push | chest
+17 | Single-Arm Cable Chest Press | Cable | Chest & push | chest
+18 | Cable Fly | Cable | Chest & push | chest
+19 | Low-to-High Cable Fly | Cable | Chest & push | chest
+20 | High-to-Low Cable Fly | Cable | Chest & push | chest
+21 | Pec Deck Fly | Machine | Chest & push | chest
+22 | Dumbbell Fly | Dumbbells | Chest & push | chest
+23 | Incline Dumbbell Fly | Dumbbells | Chest & push | chest
+24 | Dumbbell Pullover | Dumbbells | Chest & push | lats,upperBack
+25 | Plate Squeeze Press | Free weights | Chest & push | chest
+26 | Standard Push-Up | Bodyweight | Chest & push | chest
+27 | Wide-Grip Push-Up | Bodyweight | Chest & push | chest
+28 | Diamond Push-Up | Bodyweight | Chest & push | chest
+29 | Decline Push-Up | Bodyweight | Chest & push | chest
+30 | Incline Push-Up | Bodyweight | Chest & push | chest
+31 | Archer Push-Up | Bodyweight | Chest & push | chest
+32 | Plyometric Push-Up | Bodyweight | Chest & push | chest
+33 | Clap Push-Up | Bodyweight | Chest & push | chest
+34 | Explosive Depth Push-Up | Bodyweight | Chest & push | chest
+35 | Deficit Push-Up | Bodyweight | Chest & push | chest
+36 | Ring Push-Up | Bodyweight | Chest & push | chest
+37 | Weighted Push-Up | Bodyweight | Chest & push | chest
+38 | Spiderman Push-Up | Bodyweight | Chest & push | chest
+39 | Typewriter Push-Up | Bodyweight | Chest & push | chest
+40 | Parallel-Bar Dip | Bodyweight | Chest & push | chest
+41 | Conventional Deadlift | Free weights | Back & pull | hamstrings,glutes
+42 | Romanian Deadlift | Free weights | Back & pull | hamstrings,glutes
+43 | Barbell Bent-Over Row | Barbell | Back & pull | lats,upperBack
+44 | Pendlay Row | Barbell | Back & pull | lats,upperBack
+45 | Underhand Barbell Row | Barbell | Back & pull | lats,upperBack
+46 | Dumbbell Row | Dumbbells | Back & pull | lats,upperBack
+47 | Chest-Supported Dumbbell Row | Dumbbells | Back & pull | lats,upperBack
+48 | Seal Row | Free weights | Back & pull | lats,upperBack
+49 | Meadows Row | Free weights | Back & pull | lats,upperBack
+50 | T-Bar Row | Free weights | Back & pull | lats,upperBack
+51 | Chest-Supported T-Bar Row | Free weights | Back & pull | lats,upperBack
+52 | Machine High Row | Machine | Back & pull | lats,upperBack
+53 | Machine Low Row | Machine | Back & pull | lats,upperBack
+54 | Seated Cable Row | Cable | Back & pull | lats,upperBack
+55 | Wide-Grip Cable Row | Cable | Back & pull | lats,upperBack
+56 | Single-Arm Cable Row | Cable | Back & pull | lats,upperBack
+57 | Lat Pulldown | Free weights | Back & pull | lats,upperBack
+58 | Wide-Grip Lat Pulldown | Free weights | Back & pull | lats,upperBack
+59 | Neutral-Grip Lat Pulldown | Free weights | Back & pull | lats,upperBack
+60 | Underhand Lat Pulldown | Free weights | Back & pull | lats,upperBack
+61 | Single-Arm Lat Pulldown | Free weights | Back & pull | lats,upperBack
+62 | Straight-Arm Cable Pulldown | Cable | Back & pull | lats,upperBack
+63 | Cable Pullover | Cable | Back & pull | lats,upperBack
+64 | Machine Pullover | Machine | Back & pull | lats,upperBack
+65 | Dumbbell Pullover | Dumbbells | Back & pull | lats,upperBack
+66 | Pull-Up | Bodyweight | Back & pull | lats,upperBack
+67 | Chin-Up | Free weights | Back & pull | lats,upperBack
+68 | Neutral-Grip Pull-Up | Bodyweight | Back & pull | lats,upperBack
+69 | Wide-Grip Pull-Up | Bodyweight | Back & pull | lats,upperBack
+70 | Weighted Pull-Up | Bodyweight | Back & pull | lats,upperBack
+71 | Weighted Chin-Up | Free weights | Back & pull | lats,upperBack
+72 | Commando Pull-Up | Bodyweight | Back & pull | lats,upperBack
+73 | Archer Pull-Up | Bodyweight | Back & pull | lats,upperBack
+74 | L-Sit Pull-Up | Bodyweight | Back & pull | abs
+75 | Inverted Row | Bodyweight | Back & pull | lats,upperBack
+76 | Feet-Elevated Inverted Row | Bodyweight | Back & pull | lats,upperBack
+77 | Ring Row | Bodyweight | Back & pull | lats,upperBack
+78 | Towel Pull-Up | Bodyweight | Back & pull | lats,upperBack
+79 | Scapular Pull-Up | Bodyweight | Back & pull | lats,upperBack
+80 | Rope Climb | Bodyweight | Back & pull | lats,upperBack
+81 | Barbell Shrug | Barbell | Scapular control | traps
+82 | Dumbbell Shrug | Dumbbells | Scapular control | traps
+83 | Trap-Bar Shrug | Free weights | Scapular control | traps
+84 | Cable Shrug | Cable | Scapular control | traps
+85 | Machine Shrug | Machine | Scapular control | traps
+86 | Incline Dumbbell Shrug | Dumbbells | Scapular control | traps
+87 | Face Pull | Free weights | Scapular control | rearDelts,traps
+88 | Rope Face Pull with External Rotation | Free weights | Scapular control | rearDelts,traps
+89 | Reverse Pec Deck | Machine | Scapular control | rearDelts,traps
+90 | Bent-Over Rear-Delt Fly | Free weights | Scapular control | rearDelts,traps
+91 | Chest-Supported Rear-Delt Raise | Free weights | Scapular control | rearDelts,traps
+92 | Cable Rear-Delt Fly | Cable | Scapular control | rearDelts,traps
+93 | Single-Arm Cable Rear-Delt Fly | Cable | Scapular control | rearDelts,traps
+94 | Dumbbell Y-Raise | Dumbbells | Scapular control | rearDelts,traps
+95 | Cable Y-Raise | Cable | Scapular control | rearDelts,traps
+96 | Prone Y-Raise | Free weights | Scapular control | rearDelts,traps
+97 | Prone T-Raise | Free weights | Scapular control | rearDelts,traps
+98 | Prone W-Raise | Free weights | Scapular control | rearDelts,traps
+99 | Scapular Wall Slide | Bodyweight | Scapular control | serratusAnterior,traps
+100 | Band Pull-Apart | Band | Scapular control | rearDelts,traps
+101 | Barbell Overhead Press | Barbell | Shoulders | frontDelts,sideDelts
+102 | Seated Barbell Overhead Press | Barbell | Shoulders | frontDelts,sideDelts
+103 | Dumbbell Shoulder Press | Dumbbells | Shoulders | frontDelts,sideDelts
+104 | Seated Dumbbell Shoulder Press | Dumbbells | Shoulders | frontDelts,sideDelts
+105 | Arnold Press | Free weights | Shoulders | chest
+106 | Machine Shoulder Press | Machine | Shoulders | frontDelts,sideDelts
+107 | Smith Machine Shoulder Press | Machine | Shoulders | frontDelts,sideDelts
+108 | Single-Arm Dumbbell Overhead Press | Dumbbells | Shoulders | frontDelts,sideDelts
+109 | Z-Press | Free weights | Shoulders | frontDelts,sideDelts
+110 | Push Press | Free weights | Shoulders | chest
+111 | Dumbbell Lateral Raise | Dumbbells | Shoulders | sideDelts
+112 | Cable Lateral Raise | Cable | Shoulders | sideDelts
+113 | Machine Lateral Raise | Machine | Shoulders | sideDelts
+114 | Leaning Cable Lateral Raise | Cable | Shoulders | sideDelts
+115 | Behind-the-Back Cable Lateral Raise | Cable | Shoulders | sideDelts
+116 | Incline Dumbbell Lateral Raise | Dumbbells | Shoulders | sideDelts
+117 | Dumbbell Front Raise | Dumbbells | Shoulders | frontDelts
+118 | Cable Front Raise | Cable | Shoulders | frontDelts
+119 | Plate Front Raise | Free weights | Shoulders | frontDelts
+120 | Handstand Push-Up | Bodyweight | Shoulders | frontDelts,sideDelts
+121 | Barbell Curl | Barbell | Arms & grip | biceps,brachialis
+122 | EZ-Bar Curl | Free weights | Arms & grip | biceps,brachialis
+123 | Dumbbell Curl | Dumbbells | Arms & grip | biceps,brachialis
+124 | Alternating Dumbbell Curl | Dumbbells | Arms & grip | biceps,brachialis
+125 | Incline Dumbbell Curl | Dumbbells | Arms & grip | biceps,brachialis
+126 | Preacher Curl | Free weights | Arms & grip | biceps,brachialis
+127 | Machine Preacher Curl | Machine | Arms & grip | biceps,brachialis
+128 | Cable Curl | Cable | Arms & grip | biceps,brachialis
+129 | Bayesian Cable Curl | Cable | Arms & grip | biceps,brachialis
+130 | Spider Curl | Free weights | Arms & grip | biceps,brachialis
+131 | Concentration Curl | Free weights | Arms & grip | biceps,brachialis
+132 | Hammer Curl | Free weights | Arms & grip | biceps,brachialis
+133 | Cross-Body Hammer Curl | Free weights | Arms & grip | biceps,brachialis
+134 | Rope Hammer Curl | Free weights | Arms & grip | biceps,brachialis
+135 | Reverse Curl | Free weights | Arms & grip | biceps,brachialis
+136 | Zottman Curl | Free weights | Arms & grip | biceps,brachialis
+137 | Drag Curl | Free weights | Arms & grip | biceps,brachialis
+138 | Chin-Up Curl | Free weights | Arms & grip | biceps,brachialis
+139 | Wrist Curl | Free weights | Arms & grip | forearms
+140 | Reverse Wrist Curl | Free weights | Arms & grip | forearms
+141 | Wrist Roller | Free weights | Arms & grip | forearms
+142 | Plate Pinch | Free weights | Arms & grip | forearms
+143 | Dead Hang | Bodyweight | Arms & grip | forearms
+144 | Towel Dead Hang | Bodyweight | Arms & grip | forearms
+145 | Farmer Hold | Free weights | Arms & grip | forearms
+146 | Close-Grip Bench Press | Free weights | Arms & push | chest
+147 | JM Press | Free weights | Arms & push | chest
+148 | Skull Crusher | Barbell | Arms & push | triceps
+149 | Dumbbell Skull Crusher | Dumbbells | Arms & push | triceps
+150 | Cable Triceps Pushdown | Cable | Arms & push | triceps
+151 | Rope Triceps Pushdown | Free weights | Arms & push | triceps
+152 | Reverse-Grip Pushdown | Free weights | Arms & push | triceps
+153 | Single-Arm Cable Pushdown | Cable | Arms & push | triceps
+154 | Overhead Cable Triceps Extension | Cable | Arms & push | triceps
+155 | Dumbbell Overhead Triceps Extension | Dumbbells | Arms & push | triceps
+156 | Single-Arm Dumbbell Triceps Extension | Dumbbells | Arms & push | triceps
+157 | Machine Triceps Extension | Machine | Arms & push | triceps
+158 | Bench Dip | Bodyweight | Arms & push | chest
+159 | Ring Dip | Bodyweight | Arms & push | chest
+160 | Bodyweight Triceps Extension | Free weights | Arms & push | triceps
+161 | Back Squat | Free weights | Knee dominant | quads,glutes
+162 | High-Bar Back Squat | Free weights | Knee dominant | quads,glutes
+163 | Front Squat | Free weights | Knee dominant | quads,glutes
+164 | Zercher Squat | Barbell | Knee dominant | quads,glutes
+165 | Goblet Squat | Free weights | Knee dominant | quads,glutes
+166 | Hack Squat | Free weights | Knee dominant | quads,glutes
+167 | Pendulum Squat | Free weights | Knee dominant | quads,glutes
+168 | Smith Machine Squat | Machine | Knee dominant | quads,glutes
+169 | Leg Press | Machine | Knee dominant | quads,glutes
+170 | Single-Leg Leg Press | Machine | Knee dominant | quads,glutes
+171 | Leg Extension | Machine | Knee dominant | quads
+172 | Single-Leg Leg Extension | Free weights | Knee dominant | quads,glutes
+173 | Bulgarian Split Squat | Free weights | Knee dominant | quads,glutes
+174 | Front-Foot-Elevated Split Squat | Free weights | Knee dominant | quads,glutes
+175 | Reverse Lunge | Free weights | Knee dominant | quads,glutes
+176 | Forward Lunge | Free weights | Knee dominant | quads,glutes
+177 | Walking Lunge | Free weights | Knee dominant | quads,glutes
+178 | Deficit Reverse Lunge | Free weights | Knee dominant | quads,glutes
+179 | Step-Up | Free weights | Knee dominant | quads,glutes
+180 | Peterson Step-Up | Free weights | Knee dominant | quads,glutes
+181 | Cyclist Squat | Free weights | Knee dominant | quads,glutes
+182 | Sissy Squat | Free weights | Knee dominant | quads,glutes
+183 | Spanish Squat | Free weights | Knee dominant | quads,glutes
+184 | Pistol Squat | Bodyweight | Knee dominant | quads,glutes
+185 | Assisted Pistol Squat | Bodyweight | Knee dominant | quads,glutes
+186 | Romanian Deadlift | Free weights | Posterior chain | hamstrings,glutes
+187 | Stiff-Leg Deadlift | Free weights | Posterior chain | hamstrings,glutes
+188 | Single-Leg Romanian Deadlift | Free weights | Posterior chain | hamstrings,glutes
+189 | Dumbbell Romanian Deadlift | Dumbbells | Posterior chain | hamstrings,glutes
+190 | Good Morning | Barbell | Posterior chain | hamstrings,glutes
+191 | Seated Good Morning | Barbell | Posterior chain | hamstrings,glutes
+192 | Nordic Hamstring Curl | Free weights | Posterior chain | hamstrings
+193 | Assisted Nordic Curl | Free weights | Posterior chain | hamstrings
+194 | Lying Leg Curl | Free weights | Posterior chain | hamstrings
+195 | Seated Leg Curl | Free weights | Posterior chain | hamstrings
+196 | Standing Single-Leg Curl | Free weights | Posterior chain | hamstrings
+197 | Stability-Ball Hamstring Curl | Free weights | Posterior chain | hamstrings
+198 | Slider Hamstring Curl | Free weights | Posterior chain | hamstrings
+199 | Glute-Ham Raise | Free weights | Posterior chain | hamstrings
+200 | 45-Degree Back Extension | Free weights | Posterior chain | hamstrings,glutes
+201 | Reverse Hyperextension | Free weights | Posterior chain | hamstrings,glutes
+202 | Cable Pull-Through | Cable | Posterior chain | hamstrings,glutes
+203 | Kettlebell Swing | Kettlebell | Posterior chain | hamstrings,glutes
+204 | Barbell Hip Hinge | Barbell | Posterior chain | hamstrings,glutes
+205 | B-Stance Romanian Deadlift | Free weights | Posterior chain | hamstrings,glutes
+206 | Barbell Hip Thrust | Barbell | Hips & glutes | glutes
+207 | Smith Machine Hip Thrust | Machine | Hips & glutes | glutes
+208 | Dumbbell Hip Thrust | Dumbbells | Hips & glutes | glutes
+209 | Single-Leg Hip Thrust | Free weights | Hips & glutes | glutes
+210 | Glute Bridge | Free weights | Hips & glutes | glutes
+211 | Single-Leg Glute Bridge | Free weights | Hips & glutes | glutes
+212 | Cable Glute Kickback | Cable | Hips & glutes | glutes
+213 | Machine Glute Kickback | Machine | Hips & glutes | glutes
+214 | Hip Abduction Machine | Machine | Hips & glutes | abductors,glutes
+215 | Cable Hip Abduction | Cable | Hips & glutes | abductors,glutes
+216 | Lateral Band Walk | Band | Hips & glutes | abductors,glutes
+217 | Copenhagen Plank | Bodyweight | Hips & glutes | adductors
+218 | Cable Hip Adduction | Cable | Hips & glutes | adductors
+219 | Hip Adduction Machine | Machine | Hips & glutes | adductors
+220 | Cossack Squat | Free weights | Hips & glutes | abductors,glutes
+221 | Standing Calf Raise | Free weights | Lower leg | calves
+222 | Seated Calf Raise | Free weights | Lower leg | calves
+223 | Leg-Press Calf Raise | Free weights | Lower leg | chest
+224 | Single-Leg Calf Raise | Free weights | Lower leg | calves
+225 | Donkey Calf Raise | Free weights | Lower leg | calves
+226 | Smith Machine Calf Raise | Machine | Lower leg | calves
+227 | Tibialis Raise | Free weights | Lower leg | tibialis
+228 | Weighted Tibialis Raise | Free weights | Lower leg | tibialis
+229 | Toe Walk | Bodyweight | Lower leg | calves
+230 | Heel Walk | Bodyweight | Lower leg | tibialis
+231 | Hanging Leg Raise | Free weights | Core | abs
+232 | Hanging Knee Raise | Free weights | Core | abs
+233 | Captain’s-Chair Leg Raise | Machine | Core | abs
+234 | Toes-to-Bar | Free weights | Core | abs,obliques
+235 | L-Sit | Bodyweight | Core | abs
+236 | V-Up | Bodyweight | Core | abs
+237 | Ab-Wheel Rollout | Free weights | Core | abs
+238 | Barbell Rollout | Barbell | Core | abs
+239 | Cable Crunch | Cable | Core | abs
+240 | Machine Crunch | Machine | Core | abs
+241 | Decline Sit-Up | Free weights | Core | abs
+242 | Weighted Decline Sit-Up | Free weights | Core | abs
+243 | Reverse Crunch | Free weights | Core | abs
+244 | Dead Bug | Free weights | Core | abs
+245 | Hollow-Body Hold | Free weights | Core | abs
+246 | RKC Plank | Bodyweight | Core | abs
+247 | Side Plank | Bodyweight | Core | abs
+248 | Weighted Plank | Bodyweight | Core | abs
+249 | Pallof Press | Free weights | Core | chest
+250 | Cable Wood Chop | Cable | Core | obliques,glutes
+251 | Landmine Press | Landmine | Landmine | chest
+252 | Half-Kneeling Landmine Press | Landmine | Landmine | chest
+253 | Single-Arm Standing Landmine Press | Landmine | Landmine | chest
+254 | Landmine Push Press | Landmine | Landmine | chest
+255 | Landmine Squat-to-Press | Landmine | Landmine | chest
+256 | Landmine Row | Landmine | Landmine | lats,upperBack
+257 | Meadows Landmine Row | Landmine | Landmine | lats,upperBack
+258 | Landmine T-Bar Row | Landmine | Landmine | lats,upperBack
+259 | Landmine Squat | Landmine | Landmine | quads,glutes
+260 | Landmine Hack Squat | Landmine | Landmine | quads,glutes
+261 | Landmine Reverse Lunge | Landmine | Landmine | quads,glutes
+262 | Landmine Lateral Lunge | Landmine | Landmine | quads,glutes
+263 | Landmine Romanian Deadlift | Landmine | Landmine | hamstrings,glutes
+264 | Landmine Single-Leg Romanian Deadlift | Landmine | Landmine | hamstrings,glutes
+265 | Landmine Rotation | Landmine | Landmine | obliques,glutes
+266 | Landmine 180 | Landmine | Landmine | obliques,glutes
+267 | Landmine Anti-Rotation Press | Landmine | Landmine | chest
+268 | Landmine Thruster | Landmine | Landmine | shoulders,chest,glutes
+269 | Landmine Clean and Press | Landmine | Landmine | chest
+270 | Landmine Split Jerk | Landmine | Landmine | shoulders,chest,glutes
+271 | Medicine-Ball Chest Pass | Medicine ball | Medicine ball | obliques,chest,shoulders
+272 | Explosive Medicine-Ball Push-Up | Medicine ball | Medicine ball | chest
+273 | Medicine-Ball Overhead Slam | Medicine ball | Medicine ball | obliques,chest,shoulders
+274 | Medicine-Ball Rotational Slam | Medicine ball | Medicine ball | obliques,glutes
+275 | Medicine-Ball Side Throw | Medicine ball | Medicine ball | obliques,glutes
+276 | Medicine-Ball Rotational Wall Throw | Medicine ball | Medicine ball | obliques,glutes
+277 | Medicine-Ball Scoop Toss | Medicine ball | Medicine ball | obliques,glutes
+278 | Medicine-Ball Shot-Put Throw | Medicine ball | Medicine ball | obliques,glutes
+279 | Medicine-Ball Overhead Backward Throw | Medicine ball | Medicine ball | lats,upperBack
+280 | Medicine-Ball Forward Overhead Throw | Medicine ball | Medicine ball | lats,upperBack
+281 | Kneeling Medicine-Ball Chest Pass | Medicine ball | Medicine ball | obliques,chest,shoulders
+282 | Half-Kneeling Rotational Throw | Free weights | Medicine ball | obliques,glutes
+283 | Medicine-Ball Sit-Up Throw | Medicine ball | Medicine ball | abs
+284 | Medicine-Ball Sprawl-to-Slam | Medicine ball | Medicine ball | obliques,chest,shoulders
+285 | Medicine-Ball Slam-to-Sprint | Medicine ball | Medicine ball | obliques,chest,shoulders
+286 | Box Jump | Free weights | Plyometric | quads,glutes,calves
+287 | Depth Jump | Free weights | Plyometric | quads,glutes,calves
+288 | Broad Jump | Free weights | Plyometric | quads,glutes,calves
+289 | Weighted Box Jump | Free weights | Plyometric | quads,glutes,calves
+290 | Lateral Bound | Free weights | Plyometric | quads,glutes,calves
+291 | Single-Leg Broad Jump | Free weights | Plyometric | quads,glutes,calves
+292 | Pogo Jump | Free weights | Plyometric | quads,glutes,calves
+293 | Jump Squat | Free weights | Plyometric | quads,glutes,calves
+294 | Split-Squat Jump | Free weights | Plyometric | quads,glutes,calves
+295 | Explosive Step-Up | Free weights | Plyometric | quads,glutes,calves
+296 | Heavy Sled Push | Sled | Conditioning | quads,glutes
+297 | Backward Sled Drag | Sled | Conditioning | quads,glutes
+298 | Sled Sprint | Sled | Conditioning | quads,glutes
+299 | Farmer’s Walk | Free weights | Conditioning | forearms,upperBack,abs
+300 | Zercher Carry | Barbell | Conditioning | forearms,upperBack,abs
+301 | Cable Press Around | Cable | Chest & push | chest
+302 | Split-Stance Cable Chest Press | Cable | Chest & push | chest
+303 | Half-Kneeling Cable Chest Press | Cable | Chest & push | chest
+304 | Cable Squeeze Press | Cable | Chest & push | chest
+305 | Cable Incline Press | Cable | Chest & push | chest,frontDelts
+306 | Cable Decline Press | Cable | Chest & push | chest
+307 | Neutral-Grip Cable Chest Press | Cable | Chest & push | chest
+308 | Single-Arm Cable Floor Press | Cable | Chest & push | chest
+309 | Cable Resisted Push-Up | Cable | Chest & push | chest,triceps
+310 | Cable Press-Out | Cable | Chest & push | abs,obliques
+311 | Single-Arm Cable Fly | Cable | Chest & push | chest
+312 | Cable Incline Fly | Cable | Chest & push | chest
+313 | Cable Decline Fly | Cable | Chest & push | chest
+314 | Cable Reverse Fly Cross | Cable | Shoulders & posture | rearDelts,upperBack
+315 | Cable Y Raise | Cable | Shoulders & posture | traps,rotatorCuff
+316 | Cable Scaption Raise | Cable | Shoulders & posture | sideDelts,frontDelts
+317 | Cable Upright Row | Cable | Shoulders & posture | sideDelts,traps
+318 | Cable Rear-Delt Row | Cable | Shoulders & posture | rearDelts,upperBack
+319 | Cable Cuban Rotation | Cable | Shoulders & posture | rotatorCuff,rearDelts
+320 | Cable 90/90 External Rotation | Cable | Shoulders & posture | rotatorCuff
+321 | Cable 90/90 Internal Rotation | Cable | Shoulders & posture | chest,frontDelts
+322 | Cable Serratus Punch | Cable | Shoulders & posture | serratusAnterior
+323 | Cable Standing Punch | Cable | Chest & push | chest,triceps
+324 | Cable Incline Press-Around | Cable | Chest & push | chest,frontDelts
+325 | Cable Front-Foot-Elevated Press | Cable | Chest & push | chest
+326 | Kneeling Cable Lat Pulldown | Cable | Back & pull | lats
+327 | Wide-Grip Cable Lat Pulldown | Cable | Back & pull | lats,upperBack
+328 | Cable Straight-Arm Pulldown | Cable | Back & pull | lats
+329 | Cable Single-Arm Bent-Over Row | Cable | Back & pull | lats,upperBack
+330 | Chest-Supported Cable Row | Cable | Back & pull | upperBack,lats
+331 | Low Cable Row | Cable | Back & pull | lats,upperBack
+332 | Rope Cable Row | Cable | Back & pull | upperBack,lats
+333 | Cable High Row | Cable | Back & pull | upperBack,rearDelts
+334 | Cable Trap Raise | Cable | Shoulders & posture | traps
+335 | Cable High Pull | Cable | Shoulders & posture | traps,sideDelts
+336 | Cable Biceps Curl | Cable | Arms & grip | biceps
+337 | Rope Hammer Cable Curl | Cable | Arms & grip | brachialis,forearms
+338 | Incline Cable Curl | Cable | Arms & grip | biceps
+339 | High Cable Curl | Cable | Arms & grip | biceps
+340 | Cable Concentration Curl | Cable | Arms & grip | biceps
+341 | Cable Spider Curl | Cable | Arms & grip | biceps
+342 | Cross-Body Cable Curl | Cable | Arms & grip | brachialis,forearms
+343 | Cable Triceps Pressdown | Cable | Arms & grip | triceps
+344 | Rope Cable Pressdown | Cable | Arms & grip | triceps
+345 | Reverse-Grip Cable Pressdown | Cable | Arms & grip | triceps
+346 | Single-Arm Cable Pressdown | Cable | Arms & grip | triceps
+347 | Cross-Body Cable Triceps Extension | Cable | Arms & grip | triceps
+348 | Cable Triceps Kickback | Cable | Arms & grip | triceps
+349 | Cable Overhead Triceps Extension | Cable | Arms & grip | triceps
+350 | Cable Wrist Extension | Cable | Arms & grip | forearms
+351 | Cable Belt Squat | Cable | Lower body | quads,glutes
+352 | Cable Goblet Squat | Cable | Lower body | quads,glutes
+353 | Cable Front Squat | Cable | Lower body | quads,glutes
+354 | Cable Deadlift | Cable | Lower body | glutes,hamstrings
+355 | Cable Good Morning | Cable | Lower body | hamstrings,glutes
+356 | Cable Single-Leg Deadlift | Cable | Lower body | hamstrings,glutes
+357 | Cable Step-Up | Cable | Lower body | quads,glutes
+358 | Cable Lateral Step-Up | Cable | Lower body | quads,glutes,abductors
+359 | Cable Skater Squat | Cable | Lower body | quads,glutes
+360 | Cable Hip Thrust | Cable | Lower body | glutes
+361 | Cable Quadruped Hip Extension | Cable | Lower body | glutes
+362 | Cable Donkey Kick | Cable | Lower body | glutes
+363 | Cable Fire Hydrant | Cable | Lower body | abductors
+364 | Cable Standing Hip Adduction | Cable | Lower body | adductors
+365 | Cable Standing Hip Abduction | Cable | Lower body | abductors
+366 | Cable Hamstring Curl | Cable | Lower body | hamstrings
+367 | Cable Standing Leg Curl | Cable | Lower body | hamstrings
+368 | Cable Leg Extension | Cable | Lower body | quads
+369 | Cable Calf Raise | Cable | Lower body | calves
+370 | Cable Tibialis Raise | Cable | Lower body | tibialis
+371 | Cable Reverse Lunge | Cable | Lower body | quads,glutes
+372 | Cable Lateral Lunge | Cable | Lower body | quads,glutes,adductors
+373 | Cable Crossover Step Lunge | Cable | Lower body | glutes,quads,adductors
+374 | Cable Forward March | Cable | Lower body | glutes,quads,calves
+375 | Cable Standing Knee Drive | Cable | Lower body | hipFlexors,quads
+376 | Cable Dead Bug | Cable | Core & rotation | abs,obliques
+377 | Cable Reverse Chop | Cable | Core & rotation | obliques,abs
+378 | Cable Horizontal Chop | Cable | Core & rotation | obliques,abs
+379 | Cable Rotational Row | Cable | Core & rotation | lats,upperBack,obliques
+380 | Cable Anti-Rotation Walkout | Cable | Core & rotation | obliques,abs
+381 | Alternating Landmine Press | Landmine | Power & athletic | frontDelts,chest
+382 | Tall-Kneeling Landmine Press | Landmine | Power & athletic | frontDelts,chest
+383 | Chest-Supported Landmine Row | Landmine | Back & pull | lats,upperBack
+384 | Offset Landmine Row | Landmine | Back & pull | lats,upperBack
+385 | Landmine Full Contact Twist | Landmine | Core & rotation | obliques,glutes
+386 | Landmine Split Press | Landmine | Power & athletic | frontDelts,triceps
+387 | Kettlebell Clean | Kettlebell | Power & athletic | glutes,hamstrings,traps
+388 | Kettlebell Snatch | Kettlebell | Power & athletic | glutes,hamstrings,traps
+389 | Kettlebell Clean and Press | Kettlebell | Power & athletic | glutes,frontDelts,triceps
+390 | Turkish Get-Up | Kettlebell | Power & athletic | frontDelts,abs,glutes
+391 | Lateral Goblet Squat | Kettlebell | Lower body | quads,glutes,adductors
+392 | Skater Bound | Bodyweight | Power & athletic | glutes,quads,abductors
+393 | Single-Leg Box Jump | Plyometric box | Power & athletic | quads,glutes,calves
+394 | Depth Drop to Stick | Plyometric box | Power & athletic | quads,glutes
+395 | Drop Landing | Plyometric box | Power & athletic | quads,glutes
+396 | Assisted Nordic Hamstring Curl | Bodyweight | Lower body | hamstrings
+397 | Side Plank Hip Adduction | Bodyweight | Core & rotation | adductors,obliques
+398 | Sled March | Sled | Power & athletic | quads,glutes,calves
+399 | Battle Rope Slams | Battle ropes | Power & athletic | lats,triceps,abs
+400 | Battle Rope Alternating Waves | Battle ropes | Power & athletic | frontDelts,forearms,abs
+401 | Finger Curl | Barbell | Arms & grip | forearms
+402 | Gripper Close | Free weights | Arms & grip | forearms
+403 | Gripper Hold | Free weights | Arms & grip | forearms
+404 | Band Finger Extension | Band | Arms & grip | forearms
+405 | Lever Pronation | Dumbbells | Arms & grip | forearms
+406 | Lever Supination | Dumbbells | Arms & grip | forearms
+407 | Lever Radial Deviation | Dumbbells | Arms & grip | forearms
+408 | Lever Ulnar Deviation | Dumbbells | Arms & grip | forearms
+409 | Suitcase Carry | Free weights | Conditioning | forearms,obliques
+410 | One-Arm Dumbbell Wrist Curl | Dumbbells | Arms & grip | forearms
+411 | One-Arm Dumbbell Reverse Wrist Curl | Dumbbells | Arms & grip | forearms
+412 | Band Thumb Flexion | Band | Arms & grip | forearms
+413 | Band Thumb Extension | Band | Arms & grip | forearms
+414 | Band Thumb Abduction | Band | Arms & grip | forearms
+415 | Wrist Roller, Extension Wind | Free weights | Arms & grip | forearms
+416 | Wrist Roller, Flexion Wind | Free weights | Arms & grip | forearms

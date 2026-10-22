@@ -103,10 +103,10 @@ function targetOf(progress: GoalProgress, view: ViewerWindow): ViewerTarget {
   };
 }
 
-function exercisesOf(exposure: NodeExposure): ViewerExercise[] {
+function exercisesOf(exposure: NodeExposure, wording: SpecializationRegionData["region"]["wording"]): ViewerExercise[] {
   return ledgerByExercise(exposure.contributions).map((group) => {
     const counts = new Map<string, number>();
-    for (const row of group.rows) counts.set(categoryLabel(row.category), (counts.get(categoryLabel(row.category)) ?? 0) + 1);
+    for (const row of group.rows) counts.set(categoryLabel(row.category, wording), (counts.get(categoryLabel(row.category, wording)) ?? 0) + 1);
     return {
       key: group.key,
       catalogExerciseId: group.catalogExerciseId,
@@ -201,7 +201,7 @@ export function viewerMuscleData(input: { data: SpecializationRegionData; nodeId
     incidentalGripExposure: { value: exposure.incidentalBouts, unit: "bouts" },
     targetSets: targets.find((target) => target.metric === "direct_dynamic_bouts" && target.matchesWindow) ?? null,
     targets,
-    exercises: exercisesOf(exposure),
+    exercises: exercisesOf(exposure, data.region.wording),
     otherBouts: exposure.mixedBouts + exposure.unknownBouts,
     dataStatus: status,
     dataNote: status === "zero" ? nothing : status === "partial" && counted === 0 ? `${nothing} ${note}` : note,

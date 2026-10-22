@@ -1,0 +1,22 @@
+total start 26 → 26, existing 6, added 20, unplanned 0
+  Lever Radial Deviation: 2
+  Lever Pronation: 2
+  Finger Curl: 2
+  Hammer Curl: 2
+  Band Finger Extension: 2
+  Band Thumb Extension: 2
+  Lever Ulnar Deviation: 2
+  Lever Supination: 2
+  Band Thumb Flexion: 2
+  Band Thumb Abduction: 2
+total 40 → 40, existing 6, added 34, unplanned 0
+  Lever Radial Deviation: 3
+  Lever Ulnar Deviation: 2
+  Band Thumb Extension: 4
+  Hammer Curl: 4
+  Finger Curl: 4
+  Band Finger Extension: 4
+  Lever Pronation: 4
+  Lever Supination: 3
+  Band Thumb Flexion: 3
+  Band Thumb Abduction: 3

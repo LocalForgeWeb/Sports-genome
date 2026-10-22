@@ -1,0 +1,146 @@
+// @vitest-environment jsdom
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import React, { createElement, useState } from "react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { SpecializationPanel } from "./SpecializationPanel";
+import { exercises } from "@/lib/exerciseCatalog";
+import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
+import { loadRegionData } from "@/lib/specialization/loadRegion";
+import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
+import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
+import { NOW, goals, sessions, slots, store } from "./__fixtures__/forearmWeek";
+
+/**
+ * The forearm page's numbers are main's (4dac1ae: both arms counted as one, owner 20 Oct 2026),
+ * which are the athlete's current reality; wave 0 changes no number (docs/specialization-atlas/
+ * 10-multi-region.md §9.1, "numbers unchanged"; appendix "Both sides as one"). The page is rendered
+ * on one week of forearm work that reaches every kind of row (two-handed, one-arm, either-way with
+ * Both, one and no arm, holds, straps, region-only work, a set matched by name, a warm-up, an
+ * unfinished workout) and on a plan, both arms as one, for three windows and the plan week, and
+ * every number it shows is read off the screen: each muscle row's value, the region's line, the
+ * window line, the findings, the exercises in the window and each day's bar, the completeness
+ * counts, and two muscle sheets' numbers.
+ *
+ * The reference was read the same way off main's page, at 4dac1ae, by a copy of this file run in
+ * that tree: __fixtures__/pageNumbers.4dac1ae.json. (Wave 0 first held these numbers against
+ * 3986178 per arm; the reconciliation of 21 Oct 2026 re-baselined them on main for both arms.) To
+ * read it again, copy this file and __fixtures__/forearmWeek.ts into a tree at 4dac1ae and run it
+ * there with READ_PAGE_NUMBERS=<path> and without the region loader (that tree has none). The week
+ * and the plan are __fixtures__/forearmWeek.ts.
+ */
+
+(globalThis as typeof globalThis & { React?: typeof React }).React = React;
+if (!window.matchMedia) (window as unknown as Record<string, unknown>).matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
+Element.prototype.scrollIntoView = () => {};
+
+function Harness({ initial }: { initial: SpecializationViewState }) {
+  const [state, setState] = useState(initial);
+  return createElement(SpecializationPanel, {
+    state,
+    onStateChange: setState,
+    plan: { ready: true, slots, weeks: { 1: store }, choice: null, activeWeek: 1 },
+    catalog: exercises,
+    equipmentProfile: defaultEquipmentProfile,
+    accountId: null,
+    goal: "Muscle growth",
+    weightUnit: "lb",
+    onApplyPlanChange: () => ({ ok: true, undo: () => {} }),
+    onInspectExercise: () => {},
+    onOpenSession: () => {},
+    backLabel: null,
+    onBack: null,
+  });
+}
+
+/** The numbers in a piece of text, in order: what the page counts, without the words around them. */
+const numbers = (text: string | null | undefined) => (text ?? "").match(/\d+(?:\.\d+)?/g) ?? [];
+const textOf = (selector: string) => document.querySelector(selector)?.textContent ?? null;
+
+async function readPage(state: SpecializationViewState) {
+  render(createElement(Harness, { initial: state }));
+  await act(async () => {});
+  // Every finding, not only the first few the page shows at rest.
+  const more = Array.from(document.querySelectorAll<HTMLElement>(".spz-page button")).find((button) => /^Show \d+ more$/.test(button.textContent ?? ""));
+  if (more) await act(async () => { fireEvent.click(more); });
+  const rows = Array.from(document.querySelectorAll(".spz-row")).map((row) => [row.querySelector(".spz-row-name")?.childNodes[0]?.textContent ?? "", row.querySelector(".spz-row-value")?.textContent ?? ""]);
+  const findings = Array.from(document.querySelectorAll(".spz-finding strong")).map((item) => numbers(item.textContent));
+  const exercisesShown = Array.from(document.querySelectorAll(".spz-exercise-list li")).map((item) => [item.querySelector("b")?.textContent ?? "", numbers(item.querySelector("small")?.textContent)]);
+  const days = Array.from(document.querySelectorAll(".spz-days li b")).map((item) => item.textContent);
+  const completeness = Array.from(document.querySelectorAll("#spz-method p")).map((item) => item.textContent ?? "").find((text) => /sets considered/.test(text));
+  // Read with nothing selected, before a row is opened (opening one selects its muscle).
+  const region = numbers(textOf(".spz-strip-line"));
+  const windowLine = numbers(textOf(".spz-window"));
+  const sheets: Record<string, string[][]> = {};
+  for (const name of ["Brachioradialis", "Flexor digitorum superficialis"]) {
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${name}, `) })); });
+    const sheet = screen.getByRole("dialog", { name });
+    // Each count in the sheet's order; the labels are words (the incidental one is the ledger's category since wave 0).
+    sheets[name] = Array.from(sheet.querySelectorAll(".spz-numbers div")).map((item) => numbers(item.querySelector("dd")?.textContent));
+    await act(async () => { fireEvent.click(within(sheet).getByRole("button", { name: /^Close/ })); });
+  }
+  const read = { rows, region, window: windowLine, findings, exercises: exercisesShown, days, completeness: numbers(completeness), sheets };
+  cleanup();
+  return read;
+}
+
+/** Every state the reference reads, both arms as one: this week, the rolling 7 days, a custom window and the plan week. */
+const states: [string, Partial<SpecializationViewState>][] = [
+  ["week", {}],
+  ["7d", { window: "7d" }],
+  ["custom", { window: "custom", from: "2026-10-05", to: "2026-10-16" }],
+  ["planned", { mode: "planned" }],
+];
+
+beforeAll(async () => { await loadRegionData("forearm"); });
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date(NOW));
+  window.localStorage.clear();
+  window.localStorage.setItem("sports-genome-device-workout-history-v1", JSON.stringify(sessions));
+  window.localStorage.setItem("sports-genome-specialization-goals-v1", JSON.stringify(goals));
+  clearSummaryCache();
+});
+afterEach(() => { cleanup(); vi.useRealTimers(); });
+
+const out = process.env.READ_PAGE_NUMBERS;
+describe.runIf(out)("reading the page's numbers", () => {
+  it("writes them", async () => {
+    const read: Record<string, unknown> = {};
+    for (const [id, over] of states) read[id] = await readPage({ ...defaultSpecializationState("forearm"), ...over });
+    writeFileSync(out!, `${JSON.stringify(read, null, 1)}\n`);
+  }, 300000);
+});
+
+/**
+ * The one place wave 0 moves a number main shows (09-page.md item 5; 10-multi-region.md §2.2): a
+ * target saved earlier on a muscle that is not a target here (the fixture's anconeus target of 3
+ * and biceps target of 5, which main reads "0 of your 3" and "0 of your 5") is no target behind. Its
+ * finding leaves its place and is said last, as one to end or remove, with no number.
+ */
+const SAVED_EARLIER = [["0", "3"], ["0", "5"]];
+function withWaveZero(reading: { findings: string[][] }) {
+  const same = (one: string[], other: string[]) => JSON.stringify(one) === JSON.stringify(other);
+  const kept = reading.findings.filter((finding) => !SAVED_EARLIER.some((saved) => same(saved, finding)));
+  expect(reading.findings.length - kept.length, "both targets saved earlier are among main's findings").toBe(SAVED_EARLIER.length);
+  return { ...reading, findings: [...kept, ...SAVED_EARLIER.map(() => [])] };
+}
+
+describe.skipIf(out)("the forearm page shows main's numbers (4dac1ae), both arms as one", () => {
+  const reference = (out ? {} : JSON.parse(readFileSync(join(process.cwd(), "client/src/components/specialization/__fixtures__/pageNumbers.4dac1ae.json"), "utf8"))) as Record<string, { findings: string[][] }>;
+
+  it("reads every state the reference read", () => {
+    expect(Object.keys(reference).sort()).toEqual(states.map(([id]) => id).sort());
+  });
+
+  for (const [id, over] of states) {
+    it(id, async () => {
+      const read = await readPage({ ...defaultSpecializationState("forearm"), ...over });
+      // The reading reaches the page's numbers at all: rows with work, and the completeness counts.
+      expect(read.rows.length).toBeGreaterThan(20);
+      expect(read.completeness.length).toBeGreaterThan(5);
+      expect(read).toEqual(withWaveZero(reference[id]));
+    }, 30000);
+  }
+});

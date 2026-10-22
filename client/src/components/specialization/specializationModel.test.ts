@@ -73,7 +73,8 @@ describe("a muscle's fill", () => {
         contribution({ boutId: "c", category: "mixed", parts: [{ mappingId: "m", actionId: null, relationship: "direct", muscleMode: "dynamic", category: "direct_dynamic" }, { mappingId: "n", actionId: null, relationship: "incidental", muscleMode: "isometric", category: "incidental_isometric" }] }),
         contribution({ boutId: "d", category: "incidental_isometric" }),
         contribution({ boutId: "e", category: "contributing_dynamic" }),
-        contribution({ boutId: "f", side: "unknown" }),
+        // Kept apart for want of an arm: wave 0 says so in the row's counted side.
+        contribution({ boutId: "f", side: "unknown", countedSide: "unknown" }),
       ],
       // A one-arm summary keeps the set with no arm apart, and says so here.
       unknownSide: { bouts: 1, directDynamicBouts: 1, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 0 },
@@ -96,17 +97,21 @@ describe("what the page says about a muscle", () => {
   it("names missing mapping as missing mapping", () => {
     expect(exposureSentence(node({ mappingCoverage: "none" }), "grip")).toMatch(/No exercise is mapped/);
   });
-  it("lists only the kinds of work that happened, holds in time, and keeps no-arm sets apart", () => {
-    const sentence = exposureSentence(node({ directDynamicBouts: 6, contributingDynamicBouts: 2, deliberateHoldBouts: 2, deliberateHoldSeconds: 60, unknownSide: { bouts: 1, directDynamicBouts: 1, deliberateHoldBouts: 0, deliberateHoldSeconds: 0 } }), "grip");
-    expect(sentence).toBe("6 direct dynamic bouts · 2 other dynamic · 2 deliberate holds, 1 min. 1 set with no arm recorded is kept apart.");
+  it("lists only the kinds of work that happened, holds in time, and names no arm (both arms as one, 20 Oct 2026)", () => {
+    const sentence = exposureSentence(node({ directDynamicBouts: 6, contributingDynamicBouts: 2, deliberateHoldBouts: 2, deliberateHoldSeconds: 60 }), "grip");
+    expect(sentence).toBe("6 direct dynamic bouts · 2 other dynamic · 2 deliberate holds, 1 min.");
   });
-  it("names sets under review with no arm recorded apart from this arm's own", () => {
-    const sentence = exposureSentence(node({ pendingReviewBouts: 1, unknownSide: { bouts: 0, directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 2 } }), "grip");
-    expect(sentence).toBe("No work for it in this window. 1 set matched a mapping still under review and is not counted. 2 sets with no arm recorded matched a mapping still under review and are not counted.");
+  it("names sets under review once, with no arm kept apart", () => {
+    // The page's summary counts both arms as one, so it keeps nothing apart for want of an arm.
+    const sentence = exposureSentence(node({ pendingReviewBouts: 3 }), "grip");
+    expect(sentence).toBe("No work for it in this window. 3 sets matched a mapping still under review and are not counted.");
   });
   it("names incidental work in the region's own word", () => {
+    // The forearm's words as shipped (17 Oct), unchanged in wave 0 (10-multi-region.md §9.1).
     expect(exposureSentence(node({ incidentalBouts: 4 }), "grip")).toBe("4 incidental grip or steadying.");
     expect(exposureSentence(node({ incidentalBouts: 4 }), "bracing")).toBe("4 incidental bracing or steadying.");
+    // A region whose word is steadying says it once.
+    expect(exposureSentence(node({ incidentalBouts: 4 }), "steadying")).toBe("4 incidental steadying.");
   });
   it("says a hold's time was not recorded rather than 0 s", () => {
     expect(holdTime(0)).toBe("time not recorded");
@@ -148,32 +153,31 @@ describe("the list and the ledger", () => {
 
 describe("coverage to review", () => {
   it("is empty when there is nothing to say", () => {
-    expect(findingsFor({ data: forearmRegionData, summary: summary(), otherSide: null }).filter((item) => item.id !== "no-mapping")).toEqual([]);
+    expect(findingsFor({ data: forearmRegionData, summary: summary() }).filter((item) => item.id !== "no-mapping")).toEqual([]);
   });
   it("leads with a target the athlete set and is behind on, then what the numbers cannot see", () => {
     const findings = findingsFor({
       data: forearmRegionData,
-      summary: summary({ goals: [progress(3)], regionUnknownSideBouts: 2, regionUnclassified: { bouts: 2, exercises: [{ name: "Cable Deadlift", catalogExerciseId: 354, bouts: 2 }] } }),
-      otherSide: null,
+      summary: summary({ goals: [progress(3)], regionUnclassified: { bouts: 2, exercises: [{ name: "Cable Deadlift", catalogExerciseId: 354, bouts: 2 }] } }),
     });
     expect(findings[0].title).toBe("Brachioradialis: 3 of your 20");
     expect(findings[0].detail).toMatch(/The target is yours, not a prescription/);
-    expect(findings.map((item) => item.id).slice(1, 3)).toEqual(["unknown-side", "region-only"]);
+    expect(findings[1].id).toBe("region-only");
     expect(findings.find((item) => item.id === "region-only")!.detail).toBe("Cable Deadlift is tagged with the forearms but not mapped to a muscle yet, so it adds to no single muscle.");
   });
-  it("counts sets under review with no arm recorded once, and says so", () => {
-    const nodes = forearmRegionData.nodes.map((item) => node({ nodeId: item.id, ...(item.id === "forearm.fpl" ? { pendingReviewBouts: 1, mappingCoverage: "pending_review" as const, unknownSide: { bouts: 0, directDynamicBouts: 0, deliberateHoldBouts: 0, deliberateHoldSeconds: 0, pendingReviewBouts: 2 } } : {}) }));
-    const finding = findingsFor({ data: forearmRegionData, summary: summary({ nodes }), otherSide: null }).find((item) => item.id === "pending-review")!;
-    expect(finding.detail).toMatch(/^3 sets .* matched a mapping that is not reviewed yet, 2 of them with no arm recorded\. They are shown in the ledger and not counted\.$/);
+  it("counts sets under review once, and names no arm", () => {
+    const nodes = forearmRegionData.nodes.map((item) => node({ nodeId: item.id, ...(item.id === "forearm.fpl" ? { pendingReviewBouts: 3, mappingCoverage: "pending_review" as const } : {}) }));
+    const finding = findingsFor({ data: forearmRegionData, summary: summary({ nodes }) }).find((item) => item.id === "pending-review")!;
+    expect(finding.detail).toBe("3 sets in this window matched a mapping that is not reviewed yet. They are shown in the ledger and not counted.");
   });
   it("says nothing about a target already met", () => {
-    expect(findingsFor({ data: forearmRegionData, summary: summary({ goals: [progress(25)] }), otherSide: null }).some((item) => item.id.startsWith("goal:"))).toBe(false);
+    expect(findingsFor({ data: forearmRegionData, summary: summary({ goals: [progress(25)] }) }).some((item) => item.id.startsWith("goal:"))).toBe(false);
   });
-  it("states a difference between the arms in numbers, without judging it", () => {
-    const withWork = (count: number) => summary({ nodes: forearmRegionData.nodes.map((item) => node({ nodeId: item.id, ...(item.id === "forearm.fcr" ? { directDynamicBouts: count, contributions: Array.from({ length: count }, (_, index) => contribution({ boutId: `x${index}`, nodeId: "forearm.fcr" })) } : {}) })) });
-    const finding = findingsFor({ data: forearmRegionData, summary: { ...withWork(5), side: "left" }, otherSide: { ...withWork(2), side: "right" } }).find((item) => item.id.startsWith("arms:"));
-    expect(finding?.title).toBe("Flexor carpi radialis: 5 direct bouts on the left arm, 2 on the right");
-    expect(finding?.detail).not.toMatch(/imbalance|weak|behind/i);
+  it("states no difference between the arms: both arms are one count (owner, 20 Oct 2026)", () => {
+    const withWork = summary({ side: "both", nodes: forearmRegionData.nodes.map((item) => node({ nodeId: item.id, ...(item.id === "forearm.fcr" ? { directDynamicBouts: 5, contributions: Array.from({ length: 5 }, (_, index) => contribution({ boutId: `x${index}`, nodeId: "forearm.fcr", side: index < 3 ? "left" : "right" })) } : {}) })) });
+    const findings = findingsFor({ data: forearmRegionData, summary: withWork });
+    expect(findings.some((item) => item.id.startsWith("sides:") || item.id === "unknown-side")).toBe(false);
+    expect(findings.map((item) => `${item.title} ${item.detail}`).join(" ")).not.toMatch(/\b(left|right|arms?)\b/i);
   });
 });
 
@@ -196,21 +200,20 @@ describe("totals that open their sets (brief §1: every total opens the set reco
     return { goal: target, value, fraction: value / 10, label: `${value} of your 10` };
   };
   it("gives a movement target behind its own action: the movement's sets and exercises", () => {
-    const finding = findingsFor({ data: forearmRegionData, summary: summary({ goals: [movementGoal(3)] }), otherSide: null })[0];
+    const finding = findingsFor({ data: forearmRegionData, summary: summary({ goals: [movementGoal(3)] }) })[0];
     expect(finding.title).toBe("Wrist extension: 3 of your 10");
     expect(finding.action).toEqual({ kind: "movement", actionId: "wrist.extension" });
     expect(finding.actionLabel).toBe("See its sets and exercises");
   });
-  it("opens the sets with no arm and the work mapped to no muscle, not only the method", () => {
-    const findings = findingsFor({ data: forearmRegionData, summary: summary({ regionUnknownSideBouts: 2, regionUnclassified: { bouts: 1, exercises: [{ name: "Dumbbell Pullover", catalogExerciseId: 24, bouts: 1 }] } }), otherSide: null });
-    expect(findings.find((item) => item.id === "unknown-side")).toMatchObject({ action: { kind: "bouts", list: "unknown-side" }, actionLabel: "See these sets" });
+  it("opens the work mapped to no muscle, not only the method; no list is kept of sets with no arm", () => {
+    const findings = findingsFor({ data: forearmRegionData, summary: summary({ regionUnclassified: { bouts: 1, exercises: [{ name: "Dumbbell Pullover", catalogExerciseId: 24, bouts: 1 }] } }) });
+    expect(findings.find((item) => item.id === "unknown-side")).toBeUndefined();
     expect(findings.find((item) => item.id === "region-only")).toMatchObject({ action: { kind: "bouts", list: "region-only" }, actionLabel: "See these sets" });
   });
   it("hands back the rows behind each region total, and none for a summary made without them", () => {
     const row: RegionBoutRow = { boutId: "r1", side: "bilateral", sideSource: "recorded", catalogExerciseId: 24, exerciseName: "Dumbbell Pullover", matchedBy: "id", sessionId: "s1", sessionLabel: "Pull", performedAt: "2026-10-13T17:00:00.000Z", kind: "standard", segments: [] };
-    const withRows = summary({ regionBoutRows: [{ ...row, boutId: "a" }], regionUnknownSideRows: [{ ...row, boutId: "u", side: "unknown" }], regionUnclassifiedRows: [row] });
+    const withRows = summary({ regionBoutRows: [{ ...row, boutId: "a" }], regionUnclassifiedRows: [row] });
     expect(regionBoutRows(withRows, "region").map((item) => item.boutId)).toEqual(["a"]);
-    expect(regionBoutRows(withRows, "unknown-side").map((item) => item.boutId)).toEqual(["u"]);
     expect(regionBoutRows(withRows, "region-only").map((item) => item.boutId)).toEqual(["r1"]);
     expect(regionBoutRows(summary(), "region")).toEqual([]);
     // The ledger groups any row that names its exercise, region rows included.
@@ -227,7 +230,8 @@ describe("a movement's own ledger (brief §7: targets attach to a muscle or an a
       "forearm.ecu": [contribution({ boutId: "rw1", nodeId: "forearm.ecu", exerciseName: "Reverse Wrist Curl", catalogExerciseId: 140, parts: [part("m-ecu", "wrist.extension", "direct_dynamic")] })],
       "forearm.ed": [contribution({ boutId: "rw1", nodeId: "forearm.ed", exerciseName: "Reverse Wrist Curl", catalogExerciseId: 140, parts: [part("m-ed", "wrist.extension", "contributing_dynamic")] })],
       "forearm.br": [contribution({ boutId: "rc1", nodeId: "forearm.br", exerciseName: "Reverse Curl", catalogExerciseId: 135, parts: [part("m-br", "elbow.flexion", "direct_dynamic"), part("m-br2", "wrist.extension", "incidental_isometric")] })],
-      "forearm.fcr": [contribution({ boutId: "x1", nodeId: "forearm.fcr", side: "unknown", parts: [part("m-fcr", "wrist.extension", "direct_dynamic")] })],
+      // Kept apart for want of an arm, as only a per-arm summary (dormant) keeps one: wave 0 says so in the row's counted side.
+      "forearm.fcr": [contribution({ boutId: "x1", nodeId: "forearm.fcr", side: "unknown", countedSide: "unknown", parts: [part("m-fcr", "wrist.extension", "direct_dynamic")] })],
       "forearm.fcu": [contribution({ boutId: "w1", nodeId: "forearm.fcu", parts: [part("m-fcu", "wrist.flexion", "direct_dynamic")] })],
     }), forearmRegionData, "wrist.extension");
     const byId = new Map(result.bouts.map((bout) => [bout.boutId, bout] as const));
@@ -281,8 +285,8 @@ describe("the plan week being trained", () => {
 
 describe("a target in planned mode", () => {
   it("names the plan week it was read over, not the calendar period", () => {
-    const finding = findingsFor({ data: forearmRegionData, summary: summary({ mode: "planned", interval: { kind: "plan_week", startAt: null, endAtExclusive: null, timezone: "UTC", planWeek: 2, label: "Plan Week 2, as written" }, goals: [progress(3)] }), otherSide: null })[0];
-    expect(finding.detail).toMatch(/right arm, Plan Week 2, as written\./);
+    const finding = findingsFor({ data: forearmRegionData, summary: summary({ mode: "planned", interval: { kind: "plan_week", startAt: null, endAtExclusive: null, timezone: "UTC", planWeek: 2, label: "Plan Week 2, as written" }, goals: [progress(3)] }) })[0];
+    expect(finding.detail).toMatch(/^Direct dynamic bouts, Plan Week 2, as written\./);
     expect(finding.detail).not.toMatch(/calendar week/);
   });
 });

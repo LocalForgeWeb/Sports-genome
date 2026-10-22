@@ -13,6 +13,7 @@ import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { calendarWeekInterval, planWeekInterval } from "@shared/specialization/time";
 import type { ExposureBout, SpecializationSummary } from "@shared/specialization/types";
+import { loggerGatesForRegions } from "@/lib/specialization/loggerGates";
 
 type Toast = { title: string; options?: { description?: string; action?: { label: string; onClick: () => void } } };
 const toasts: Toast[] = [];
@@ -26,11 +27,11 @@ import { DeviceWorkoutTracker } from "./DeviceWorkoutTracker";
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
 
 /**
- * Swap and add in the middle of a workout, for an athlete tracking per-arm totals (`perArmSets`,
- * which Home passes with `askStraps`). On the real forearm data: a one-arm exercise coming in is
- * laid out Right then Left per planned set, exactly as a planned one is; a one-arm exercise going
- * out leaves its planned sets, not its rows; the sheet says the count before the confirm, and
- * Undo puts back exactly what was there. Without the gate nothing changes.
+ * Swap and add in the middle of a workout, with and without a forearm target (the gates Home
+ * builds, lib/specialization/loggerGates.ts). Both arms are counted as one (owner, 20 Oct 2026),
+ * so on the real forearm data a one-arm exercise coming in takes the planned sets row for row,
+ * with no arm; the sheet says the count before the confirm, and Undo puts back exactly what was
+ * there.
  */
 const byId = (id: number) => exercises.find((exercise) => exercise.id === id)!;
 const oneArmCurl = byId(410); // One-Arm Dumbbell Wrist Curl: unilateral
@@ -44,9 +45,10 @@ const type = (label: RegExp | string, value: string) => fireEvent.change(within(
 const logButton = () => within(card()).getByRole("button", { name: /^Log set/ }) as HTMLButtonElement;
 const sidesOf = (index: number) => stored()[0].exercises[index].sets.map((set) => set.side ?? null);
 
-function start(workout: Exercise[], options: { perArmSets?: boolean; prescriptions?: Record<number, string> } = {}) {
+/** `forearmTarget` stands for main's `perArmSets`: an athlete with an active forearm target, through the gates Home builds. */
+function start(workout: Exercise[], options: { forearmTarget?: boolean; prescriptions?: Record<number, string> } = {}) {
   const prescriptions = options.prescriptions ?? Object.fromEntries(workout.map((exercise) => [exercise.id, "3 × 12"]));
-  render(createElement(DeviceWorkoutTracker, { workout, prescriptions, settings: {}, goal: "Athleticism", dayLabel: DAY, weightUnit: "lb", perArmSets: options.perArmSets }));
+  render(createElement(DeviceWorkoutTracker, { workout, prescriptions, settings: {}, goal: "Athleticism", dayLabel: DAY, weightUnit: "lb", loggerGates: options.forearmTarget ? loggerGatesForRegions(["forearm"]) : undefined }));
   fireEvent.click(screen.getByRole("button", { name: /start workout/i }));
 }
 function choose(dialog: HTMLElement, query: string, name: string) {
@@ -66,7 +68,7 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe("Swapping or adding a one-arm exercise is row for row, even with the gate: both arms are counted as one (owner, 20 Oct 2026)", () => {
   it("swaps a two-handed exercise for a one-arm one with the same 3 sets and no arm", () => {
-    start([hammerCurl], { perArmSets: true });
+    start([hammerCurl], { forearmTarget: true });
     const dialog = openSwap("one-arm dumbbell wrist curl", oneArmCurl.name);
     expect(what(dialog)).toBe("Nothing is logged for Hammer Curl yet, so the exercise you choose takes its place with the same 3 sets.");
     expect(dialog.querySelector(".swap-logging")!.textContent).not.toContain("one arm at a time");
@@ -79,7 +81,7 @@ describe("Swapping or adding a one-arm exercise is row for row, even with the ga
   });
 
   it("is undone exactly: the session is as it was before the swap", () => {
-    start([hammerCurl], { perArmSets: true });
+    start([hammerCurl], { forearmTarget: true });
     const before = stored()[0];
     fireEvent.click(within(openSwap("one-arm dumbbell wrist curl", oneArmCurl.name)).getByRole("button", { name: `Use ${oneArmCurl.name}` }));
     act(() => toasts.at(-1)!.options!.action!.onClick());
@@ -87,7 +89,7 @@ describe("Swapping or adding a one-arm exercise is row for row, even with the ga
   });
 
   it("logged as built, gives the week the work the plan counts for the one-arm exercise", () => {
-    start([hammerCurl], { perArmSets: true });
+    start([hammerCurl], { forearmTarget: true });
     fireEvent.click(within(openSwap("one-arm dumbbell wrist curl", oneArmCurl.name)).getByRole("button", { name: `Use ${oneArmCurl.name}` }));
     type(/^Weight/, "25");
     type("Reps", "12");
@@ -109,7 +111,7 @@ describe("Swapping or adding a one-arm exercise is row for row, even with the ga
   });
 
   it("adds a one-arm exercise mid-workout with one row per planned set", () => {
-    start([hammerCurl], { perArmSets: true });
+    start([hammerCurl], { forearmTarget: true });
     fireEvent.click(within(card()).getByRole("button", { name: "Add exercise" }));
     const dialog = screen.getByRole("dialog", { name: "Add an exercise" });
     choose(dialog, "one-arm dumbbell wrist curl", oneArmCurl.name);

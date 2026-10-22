@@ -1,24 +1,30 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type RefObject } from "react";
 import { ChevronDown, Plus } from "lucide-react";
 import type { StoreWrite } from "@/lib/specialization/stores";
-import { goalProgressLabel, goalsForBothArms } from "@shared/specialization/goals";
+import { goalProgressLabel } from "@shared/specialization/goals";
 import { addDaysToDateKey } from "@shared/specialization/time";
-import type { ArmSide, GoalMetric, GoalPeriod, GoalProgress, SpecializationGoal, SummarySide } from "@shared/specialization/types";
-import { goalMetricLabels } from "./model";
+import type { GoalMetric, GoalPeriod, GoalProgress, SpecializationGoal, SpecializationRegion, SummarySide } from "@shared/specialization/types";
+import { READ_ONLY_TARGET_NOTE, UNCOUNTED_TARGET_PROGRESS, goalMetricLabels } from "./model";
 import { revealClearOfBars } from "./reveal";
+import { sideWordsFor } from "./sideWords";
 import "./targets.css";
 
 /*
  * Targets (brief §7, design §5): the athlete's own intent, attached to one muscle or one
- * movement, one arm, one measure and one period. This file holds what the muscle sheet's
- * "Your target" and the page's Targets overview share: the form, the rows with Change / End /
- * Remove, the Undo that takes back every removal since the last other change, and the
- * read-only list of ended targets.
+ * movement, one measure and one period. This file holds what the muscle sheet's "Your target"
+ * and the page's Targets overview share: the form, the rows with Change / End / Remove, the Undo
+ * that takes back every removal since the last other change, and the read-only list of ended
+ * targets. Targets have no side: both sides are counted as one (owner, 20 Oct 2026), so a target
+ * counts work from either side, the form asks for no side, and nothing here names one. A target
+ * is saved once; a paired region's stores `right` as a placeholder nothing reads, a midline
+ * region's `midline`. A target saved earlier for one side only, or as an old "Both arms" pair
+ * (read as one, `collapseArmPairs`), is shown and counted the same way.
  */
 
 export const targetMetrics: readonly GoalMetric[] = ["direct_dynamic_bouts", "deliberate_hold_bouts", "deliberate_hold_seconds"];
 export const targetPeriodLabels: Record<GoalPeriod, string> = { calendar_week: "Per calendar week", rolling_7d: "Per rolling 7 days" };
-const sideLabels: Record<ArmSide, string> = { left: "Left arm", right: "Right arm" };
+/** What a target list needs of its region: its id, its side model (where a target is stored) and its words. */
+export type TargetWords = Pick<SpecializationRegion, "id" | "label" | "sides" | "wording">;
 
 let goalSequence = 0;
 const newGoalId = () => `goal-${Date.now().toString(36)}-${(goalSequence += 1).toString(36)}`;
@@ -26,7 +32,7 @@ const newGoalId = () => `goal-${Date.now().toString(36)}-${(goalSequence += 1).t
 /** What a target is for: one muscle (a node) or one movement (a joint action). */
 export type TargetSubject = { kind: "muscle" | "movement"; id: string; name: string };
 
-/** One key per subject, the same for both arms: `muscle:forearm.br`, `movement:elbow.flexion`. */
+/** One key per subject, the same for both sides: `muscle:forearm.br`, `movement:elbow.flexion`. */
 export const subjectKeyOf = (goal: Pick<SpecializationGoal, "nodeId" | "actionId">): string =>
   goal.nodeId !== null ? `muscle:${goal.nodeId}` : `movement:${goal.actionId ?? ""}`;
 const keyOfSubject = (subject: TargetSubject) => `${subject.kind}:${subject.id}`;
@@ -44,7 +50,7 @@ export function splitTargets(goals: readonly SpecializationGoal[], todayKey: str
   return { active, ended };
 }
 
-/** Left before right, then the three measures in their fixed order, then the period. */
+/** The three measures in their fixed order, then the period (the stored side first, as before, so the order never jumps). */
 export function sortTargets(goals: readonly SpecializationGoal[]): SpecializationGoal[] {
   return [...goals].sort((a, b) => a.side.localeCompare(b.side) || targetMetrics.indexOf(a.metric) - targetMetrics.indexOf(b.metric) || a.period.localeCompare(b.period));
 }
@@ -57,17 +63,17 @@ export function formatDateKey(dateKey: string): string {
 
 const isSeconds = (goal: Pick<SpecializationGoal, "metric">) => goal.metric === "deliberate_hold_seconds";
 const amountOf = (goal: Pick<SpecializationGoal, "metric" | "target">) => `${goal.target}${isSeconds(goal) ? " seconds" : ""}`;
-const capitalised = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+/** "Target for Brachioradialis". */
+const targetFor = (subjectName: string) => `Target for ${subjectName}`;
 
 /**
- * "the left-arm target of 20 direct dynamic bouts per calendar week for Brachioradialis", for
- * button names. The period (and a later start) is part of it: one arm can hold the same number
- * per calendar week and per rolling 7 days, and each row's buttons need a name of their own.
+ * "the target of 20 direct dynamic bouts per calendar week for Brachioradialis", for button names.
+ * The period (and a later start) is part of it: a muscle can hold the same number per calendar
+ * week and per rolling 7 days, and each row's buttons need a name of their own.
  */
 function describeTarget(goal: SpecializationGoal, subjectName: string, todayKey: string): string {
   const what = isSeconds(goal) ? `${goal.target} seconds of deliberate holds` : `${goal.target} ${goalMetricLabels[goal.metric].toLowerCase()}`;
   const starts = goal.startsOn > todayKey ? ` starting ${formatDateKey(goal.startsOn)}` : "";
-  // The forearms are counted as one (20 Oct 2026): a target names no arm; its stored side is not read.
   return `the target of ${what} ${targetPeriodLabels[goal.period].toLowerCase()}${starts} for ${subjectName}`;
 }
 
@@ -78,7 +84,7 @@ type Undoable = { kind: "removed" | "ended" | "ended_unstarted"; goal: Specializ
 function undoMessage(entries: readonly Undoable[], subjectName: (goal: SpecializationGoal) => string, todayKey: string): string {
   if (entries.length === 1) {
     const [{ kind, goal }] = entries;
-    const which = `Target for ${subjectName(goal)}`;
+    const which = targetFor(subjectName(goal));
     if (kind === "removed") return `${which} removed.`;
     if (kind === "ended") return `${which} ended. It stops counting from today and is listed under Ended targets.`;
     const why = goal.startsOn > todayKey ? "It had not started yet" : "It started today";
@@ -109,14 +115,19 @@ export type TargetEdits = {
 };
 
 /**
- * Remove, End, Change and Undo, over the page's store. Removing the left target and then the
- * right one keeps both for Undo, so a "Both arms" target comes back whole; saving anything
- * else makes the removals before it final, so Undo can never restore a target that would now
- * overlap a newer one. A target that has not started yet (it started today, or later) has no
- * days to keep, so ending it removes it — with the same Undo.
+ * Remove, End, Change and Undo, over the page's store. Removing one target and then another keeps
+ * both for Undo, so they come back together; saving anything else makes the removals before it
+ * final, so Undo can never restore a target that would now overlap a newer one. A target that has not started yet (it started today, or later)
+ * has no days to keep, so ending it removes it — with the same Undo.
+ *
+ * Undo writes back exactly the targets it took away, through `onRestore`: a target saved before
+ * targets were limited to the region's target muscles (10-multi-region.md §2.2) can be ended or
+ * removed, so it must come back too, although a new one on that muscle would be refused.
  */
-export function useTargetEdits({ onSave, onRemove, todayKey, subjectName }: {
+export function useTargetEdits({ onSave, onRestore = onSave, onRemove, todayKey, subjectName }: {
   onSave: (goals: SpecializationGoal[]) => StoreWrite;
+  /** Writes back targets as they were before an End or a Remove (Undo); by default `onSave`. */
+  onRestore?: (goals: SpecializationGoal[]) => StoreWrite;
   onRemove: (goalId: string) => StoreWrite;
   todayKey: string;
   subjectName: (goal: SpecializationGoal) => string;
@@ -171,12 +182,12 @@ export function useTargetEdits({ onSave, onRemove, todayKey, subjectName }: {
   };
   const change = (goal: SpecializationGoal, target: number): StoreWrite => {
     const result = onSave([{ ...goal, target, updatedAt: new Date().toISOString() }]);
-    if (result.ok) settle(`Target for ${subjectName(goal)} changed to ${amountOf({ ...goal, target })} ${targetPeriodLabels[goal.period].toLowerCase()}.`);
+    if (result.ok) settle(`${targetFor(subjectName(goal))} changed to ${amountOf({ ...goal, target })} ${targetPeriodLabels[goal.period].toLowerCase()}.`);
     return result;
   };
   const undo = () => {
     if (!undoable.length) return;
-    const result = onSave(undoable.map((entry) => entry.goal));
+    const result = onRestore(undoable.map((entry) => entry.goal));
     if (!result.ok) { setError(result.reason); return; }
     settle(undoable.length === 1 ? "Target restored." : `${undoable.length} targets restored.`);
     setFocus((current) => ({ on: "status", count: current.count + 1 }));
@@ -228,12 +239,16 @@ function ChangeTarget({ goal, description, onSave, onCancel }: {
   </form>;
 }
 
-function TargetRow({ goal, side, progress, subjectName, showSubject, editing, onEdit, onStopEditing, edits, todayKey }: {
+function TargetRow({ goal, side, progress, subjectName, showSubject, readOnly, uncounted, editing, onEdit, onStopEditing, edits, todayKey }: {
   goal: SpecializationGoal;
   side: SummarySide;
   progress: GoalProgress | null;
   subjectName: string;
   showSubject: boolean;
+  /** A target on a muscle that is not a target here: it can be ended or removed, not changed. */
+  readOnly: boolean;
+  /** Nothing can be counted for its muscle (no reviewed mapping): its progress says so, never a zero. */
+  uncounted: boolean;
   editing: boolean;
   onEdit: () => void;
   onStopEditing: () => void;
@@ -248,12 +263,13 @@ function TargetRow({ goal, side, progress, subjectName, showSubject, editing, on
   }, [editing]);
   const description = describeTarget(goal, subjectName, todayKey);
   const startsLater = goal.startsOn > todayKey;
+  // Both sides as one (the page's `both`) read every target; a per-side summary (dormant) its own side's.
   const current = side === "both" || goal.side === side;
-  // On this arm, the summary's "8 of your 20"; with no summary yet, nothing rather than a guess.
-  const label = !current || startsLater ? null : progress ? progress.label : null;
+  // The summary's "8 of your 20"; with no summary yet, nothing rather than a guess.
+  const label = !current || startsLater ? null : uncounted ? UNCOUNTED_TARGET_PROGRESS : progress ? progress.label : null;
   return <li className="spz-target spz-tg-row" data-side={goal.side} data-current={current || undefined}>
     <span>
-      <b>{showSubject ? `${subjectName} · ` : ""}{side === "both" ? "" : `${sideLabels[goal.side]} · `}{goalMetricLabels[goal.metric]}</b>
+      <b>{[showSubject ? subjectName : null, goalMetricLabels[goal.metric]].filter(Boolean).join(" · ")}</b>
       <small>
         {amountOf(goal)} {targetPeriodLabels[goal.period].toLowerCase()}
         {startsLater ? ` · starts ${formatDateKey(goal.startsOn)}` : ""}
@@ -270,7 +286,7 @@ function TargetRow({ goal, side, progress, subjectName, showSubject, editing, on
         return result;
       }} onCancel={onStopEditing} />
       : <div className="spz-tg-actions">
-        <button ref={changeRef} type="button" className="spz-button" onClick={onEdit} aria-label={`Change ${description}`}>Change</button>
+        {!readOnly && <button ref={changeRef} type="button" className="spz-button" onClick={onEdit} aria-label={`Change ${description}`}>Change</button>}
         <button type="button" className="spz-button" onClick={() => edits.end(goal)} aria-label={`End ${description}`}>End</button>
         <button type="button" className="spz-button" onClick={() => edits.remove(goal)} aria-label={`Remove ${description}`}>Remove</button>
       </div>}
@@ -278,16 +294,20 @@ function TargetRow({ goal, side, progress, subjectName, showSubject, editing, on
 }
 
 /**
- * Active targets as rows: each says its arm, measure, number and period, this arm's progress
- * ("8 of your 20"), and offers Change (the number, in place), End and Remove.
+ * Active targets as rows: each says its measure, number and period, its progress ("8 of your 20"),
+ * and offers Change (the number, in place), End and Remove; a target on a muscle that is not a
+ * target of this region (`readOnly`) offers End and Remove only.
  */
-export function TargetRows({ goals, side, progress, edits, subjectName, showSubject = false, todayKey, progressReady = true }: {
+export function TargetRows({ goals, side, progress, edits, subjectName, showSubject = false, readOnly = () => false, uncounted = () => false, todayKey, progressReady = true }: {
   goals: readonly SpecializationGoal[];
   side: SummarySide;
   progress: readonly GoalProgress[];
   edits: TargetEdits;
   subjectName: (goal: SpecializationGoal) => string;
   showSubject?: boolean;
+  readOnly?: (goal: SpecializationGoal) => boolean;
+  /** A target whose muscle nothing can be counted for yet (no reviewed mapping). */
+  uncounted?: (goal: SpecializationGoal) => boolean;
   todayKey: string;
   /** False while the summary is not ready: rows then show no progress rather than a zero. */
   progressReady?: boolean;
@@ -296,9 +316,9 @@ export function TargetRows({ goals, side, progress, edits, subjectName, showSubj
   return <ul className="spz-target-list">
     {sortTargets(goals).map((goal) => {
       const found = progress.find((item) => item.goal.id === goal.id) ?? null;
-      // A ready summary always reads an active target on its arm; without one, say what it reads as so far.
+      // A ready summary always reads an active target; without one, say what it reads as so far.
       const shown = found ?? (progressReady && (side === "both" || goal.side === side) && goal.startsOn <= todayKey ? { goal, value: 0, fraction: 0, label: goalProgressLabel(0, goal) } : null);
-      return <TargetRow key={goal.id} goal={goal} side={side} progress={shown} subjectName={subjectName(goal)} showSubject={showSubject}
+      return <TargetRow key={goal.id} goal={goal} side={side} progress={shown} subjectName={subjectName(goal)} showSubject={showSubject} readOnly={readOnly(goal)} uncounted={uncounted(goal)}
         editing={editingId === goal.id} onEdit={() => setEditingId(goal.id)} onStopEditing={() => setEditingId(null)} edits={edits} todayKey={todayKey} />;
     })}
   </ul>;
@@ -317,7 +337,7 @@ export function EndedTargets({ goals, subjectName, showSubject = false }: {
     <ul className="spz-target-list">
       {sorted.map((goal) => <li key={goal.id} className="spz-target" data-side={goal.side}>
         <span>
-          <b>{showSubject ? `${subjectName(goal)} · ` : ""}{goalMetricLabels[goal.metric]}</b>
+          <b>{[showSubject ? subjectName(goal) : null, goalMetricLabels[goal.metric]].filter(Boolean).join(" · ")}</b>
           <small>{amountOf(goal)} {targetPeriodLabels[goal.period].toLowerCase()} · {formatDateKey(goal.startsOn)} to {formatDateKey(goal.endsOn ?? goal.startsOn)}</small>
         </span>
       </li>)}
@@ -329,12 +349,13 @@ export function EndedTargets({ goals, subjectName, showSubject = false }: {
 
 /**
  * A new target: what it is for (fixed in the muscle sheet, chosen in the overview), what it
- * counts, the number, the period, and the arms. Nothing is filled in but the subject: the
- * number is always the athlete's own. "Both arms" saves two targets, one per arm.
+ * counts, the number and the period. Nothing is filled in but the subject: the number is always
+ * the athlete's own. No side is asked: a target is saved once and counts work from either side
+ * (owner, 20 Oct 2026); its stored side is `right` on a paired region (a placeholder nothing reads)
+ * and `midline` on a midline one.
  */
-export function TargetForm({ regionId, side, timeZone, todayKey, subject, subjectGroups, onSave, onSaved, onCancel }: {
-  regionId: string;
-  side: SummarySide;
+export function TargetForm({ region, timeZone, todayKey, subject, subjectGroups, onSave, onSaved, onCancel }: {
+  region: TargetWords;
   timeZone: string;
   todayKey: string;
   /** The subject, when it is fixed (the muscle sheet). */
@@ -346,11 +367,11 @@ export function TargetForm({ regionId, side, timeZone, todayKey, subject, subjec
   onCancel: () => void;
 }) {
   const uid = useId();
+  const words = sideWordsFor(region);
   const [choice, setChoice] = useState("");
   const [metric, setMetric] = useState<GoalMetric>("direct_dynamic_bouts");
   const [target, setTarget] = useState("");
   const [period, setPeriod] = useState<GoalPeriod>("calendar_week");
-  const [arms, setArms] = useState<"this" | "both">("both");
   const [error, setError] = useState<string | null>(null);
   const options = (subjectGroups ?? []).flatMap((group) => group.options);
   const chosen = subject ?? options.find((option) => keyOfSubject(option) === choice) ?? null;
@@ -362,13 +383,12 @@ export function TargetForm({ regionId, side, timeZone, todayKey, subject, subjec
     if (!target.trim() || !Number.isFinite(value) || value <= 0) { setError("Enter a target above zero."); return; }
     const now = new Date().toISOString();
     const draft = {
-      id: newGoalId(), regionId,
+      id: newGoalId(), regionId: region.id,
       nodeId: chosen.kind === "muscle" ? chosen.id : null,
       actionId: chosen.kind === "movement" ? chosen.id : null,
       metric, target: value, period, startsOn: todayKey, endsOn: null, timezone: timeZone, createdAt: now, updatedAt: now,
     };
-    // Both arms are one: a single target (its stored side is a placeholder nothing reads).
-    const goals: SpecializationGoal[] = side === "both" ? [{ ...draft, side: "right" }] : arms === "both" ? goalsForBothArms(draft) : [{ ...draft, side }];
+    const goals: SpecializationGoal[] = [{ ...draft, side: words.paired ? "right" : "midline" }];
     const result = onSave(goals);
     if (!result.ok) { setError(result.reason); return; }
     setError(null);
@@ -403,14 +423,7 @@ export function TargetForm({ regionId, side, timeZone, todayKey, subject, subjec
           {(Object.keys(targetPeriodLabels) as GoalPeriod[]).map((item) => <option key={item} value={item}>{targetPeriodLabels[item]}</option>)}
         </select>
       </label>
-      {side !== "both" && <div className="spz-tg-group-field">
-        <span id={`${uid}-arms`} className="spz-tg-label">Which arm</span>
-        <div className="spz-segment" role="group" aria-labelledby={`${uid}-arms`}>
-          <button type="button" aria-pressed={arms === "both"} onClick={() => setArms("both")}>Both arms</button>
-          <button type="button" aria-pressed={arms === "this"} onClick={() => setArms("this")}>{side === "left" ? "Left arm only" : "Right arm only"}</button>
-        </div>
-      </div>}
-      <p className="spz-note">A target is what you intend to do, not a proven growth threshold. Numbers above 15 are fine.{side === "both" ? " Work with either arm counts toward it." : " Both arms saves one target per arm, so each can be compared and changed on its own."}</p>
+      <p className="spz-note">A target is what you intend to do, not a proven growth threshold. Numbers above 15 are fine.{words.paired ? ` Work with either ${words.one} counts toward it.` : ""}</p>
       {chosen?.kind === "movement" && <p className="spz-note">A movement target counts each bout once when that movement is direct work for any muscle on this page.</p>}
       {error && <p className="spz-error" role="alert">{error}</p>}
       <div className="spz-actions">
@@ -434,48 +447,63 @@ export function useReturnFocus(open: boolean): RefObject<HTMLButtonElement | nul
 
 // ---------------------------------------------------------------- the muscle sheet
 
+/** What a saved target is said as once saved: "Saved: a target for BR." (a target is saved once, with no side). */
+export function savedMessage(subjectName: string): string {
+  return `Saved: a target for ${subjectName}.`;
+}
+
+export { READ_ONLY_TARGET_NOTE };
+
 /**
  * "Your target" in the muscle sheet (brief §7). A target is the athlete's intent, attached
- * to one muscle, one arm, one measure and one period; "Both arms" saves two, so the arms
- * stay comparable. Direct dynamic bouts, hold bouts and hold seconds are separate targets,
+ * to one muscle, one measure and one period, with no side: it counts work from either side
+ * (owner, 20 Oct 2026). Direct dynamic bouts, hold bouts and hold seconds are separate targets,
  * so a hold never hides inside a set count. No muscle gets a target it was not given:
  * without one the sheet says "Not targeted", never a deficit. A target can be changed or
  * ended in place; removing or ending offers Undo, which restores every removal since the
  * last other change.
+ *
+ * Only a target muscle of the region gets a new target (`canSet`); a target saved earlier on
+ * another muscle is shown with End and Remove only (10-multi-region.md §2.2).
  */
-export function TargetsEditor({ regionId, nodeId, nodeName, side, goals, progress, timeZone, todayKey, onSave, onRemove }: {
-  regionId: string;
+export function TargetsEditor({ region, nodeId, nodeName, canSet, counted = true, side, goals, progress, timeZone, todayKey, onSave, onRestore, onRemove }: {
+  region: TargetWords;
   nodeId: string;
   nodeName: string;
+  /** The muscle is a target of the page's region: targets can be set and changed. */
+  canSet: boolean;
+  /** Something can be counted for the muscle (a reviewed mapping); otherwise its targets say nothing can be counted yet. */
+  counted?: boolean;
   side: SummarySide;
-  /** Every saved target for this muscle, both arms, ended ones included. */
+  /** Every saved target for this muscle, whatever side an earlier version stored, ended ones included. */
   goals: readonly SpecializationGoal[];
-  /** Progress for the arm on screen, from the summary. */
+  /** Progress from the summary on screen. */
   progress: readonly GoalProgress[];
   timeZone: string;
   /** Today's local date (YYYY-MM-DD): what counts as ended, and the day a new target starts. */
   todayKey: string;
   onSave: (goals: SpecializationGoal[]) => StoreWrite;
+  /** Undo's write: the targets as they were (`useTargetEdits`). */
+  onRestore?: (goals: SpecializationGoal[]) => StoreWrite;
   onRemove: (goalId: string) => StoreWrite;
 }) {
   const [open, setOpen] = useState(false);
   const addRef = useReturnFocus(open);
   const subjectName = () => nodeName;
-  const edits = useTargetEdits({ onSave, onRemove, todayKey, subjectName });
+  const edits = useTargetEdits({ onSave, onRestore, onRemove, todayKey, subjectName });
   const { active, ended } = splitTargets(goals, todayKey);
-  const onThisArm = side === "both" || active.some((goal) => goal.side === side);
 
   return <div className="spz-targets">
+    {!canSet && active.length > 0 && <p className="spz-note">{READ_ONLY_TARGET_NOTE}</p>}
     {active.length ? <>
-      <TargetRows goals={active} side={side} progress={progress} edits={edits} subjectName={subjectName} todayKey={todayKey} />
-      {!onThisArm && <p className="spz-note"><b>Not targeted on the {side} arm.</b> Only the other arm has a target for this muscle.</p>}
-    </> : <p className="spz-note"><b>Not targeted.</b> Nothing here is behind: a muscle without a target has no gap to show.</p>}
+      <TargetRows goals={active} side={side} progress={progress} edits={edits} subjectName={subjectName} readOnly={() => !canSet} uncounted={() => !counted} todayKey={todayKey} />
+    </> : canSet && <p className="spz-note"><b>Not targeted.</b> Nothing here is behind: a muscle without a target has no gap to show.</p>}
     <TargetEditStatus edits={edits} />
-    {open
-      ? <TargetForm regionId={regionId} side={side} timeZone={timeZone} todayKey={todayKey} subject={{ kind: "muscle", id: nodeId, name: nodeName }} onSave={onSave}
-        onSaved={(saved) => { edits.settle(saved.length === 2 ? `Saved: one target per arm for ${nodeName}.` : `Saved: a target for ${nodeName}.`); setOpen(false); }}
+    {canSet && (open
+      ? <TargetForm region={region} timeZone={timeZone} todayKey={todayKey} subject={{ kind: "muscle", id: nodeId, name: nodeName }} onSave={onSave}
+        onSaved={() => { edits.settle(savedMessage(nodeName)); setOpen(false); }}
         onCancel={() => setOpen(false)} />
-      : <button ref={addRef} type="button" className="spz-link" onClick={() => setOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" />Set a target</button>}
+      : <button ref={addRef} type="button" className="spz-link" onClick={() => setOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" />Set a target</button>)}
     <EndedTargets goals={ended} subjectName={subjectName} />
   </div>;
 }

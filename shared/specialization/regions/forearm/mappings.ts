@@ -1,5 +1,6 @@
 import type { ActionId, MappingEvidenceBasis, MappingSourceRef, MappingVersion, MuscleMode, NodeId, Relationship, ReviewStatus, VariantMapping } from "../../types";
-import { FOREARM_MAPPING_VERSION, externalContributorIds as ext, forearmActionIds as a, forearmMuscleIds as m, variantIdFor } from "../../ids";
+import { variantIdFor } from "../../ids";
+import { FOREARM_MAPPING_VERSION, externalContributorIds as ext, forearmActionIds as a, forearmMuscleIds as m } from "./ids";
 
 /**
  * Variant → node mappings for the forearm atlas, by catalog id (brief §4: "use exercise IDs,

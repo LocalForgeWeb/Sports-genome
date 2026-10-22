@@ -5,35 +5,23 @@
  * with its plan line).
  *
  * Headless Chromium emulating an iPhone (viewport, isMobile, hasTouch, device scale 3): not an
- * iPhone, not Safari. Pattern: design/specialization/forearm/render-page.mjs.
+ * iPhone, not Safari. Pattern: design/specialization/shared/render-page.mjs, whose browser and
+ * server (design/specialization/shared/browser.mjs) it uses.
  *
  *   npx vite build && node design/specialization/forearm/render-logger.mjs [outDir]
  *
  * Screenshots are taken at every width; the evidence folder keeps the 390 and 375 ones, and
  * logger-checks.json holds the measurements for all three.
  */
-import { createReadStream, existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
-import { createServer } from "node:http";
-import { dirname, extname, join, resolve } from "node:path";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "/opt/node22/lib/node_modules/playwright/index.mjs";
+import { answerAsVisitor, chromium, serveBuild } from "../shared/browser.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const outDir = resolve(root, process.argv[2] ?? "docs/specialization-atlas/evidence/logger-fixes-2026-10-17");
-const publicDir = join(root, "dist/public");
-if (!existsSync(join(publicDir, "index.html"))) throw new Error("Build the client first: npx vite build");
 mkdirSync(outDir, { recursive: true });
-
-const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".json": "application/json", ".woff2": "font/woff2", ".webmanifest": "application/manifest+json" };
-const server = createServer((request, response) => {
-  const path = decodeURIComponent(new URL(request.url, "http://x").pathname);
-  let file = join(publicDir, path);
-  if (!file.startsWith(publicDir) || !existsSync(file) || statSync(file).isDirectory()) file = join(publicDir, "index.html");
-  response.writeHead(200, { "content-type": types[extname(file)] ?? "application/octet-stream" });
-  createReadStream(file).pipe(response);
-});
-await new Promise((done) => server.listen(0, "127.0.0.1", done));
-const base = `http://127.0.0.1:${server.address().port}`;
+const { base, close } = await serveBuild(join(root, "dist/public"));
 
 const entries = (ids) => ids.map((id) => ({ entryId: id, catalogExerciseId: id }));
 const planWith = (ids, prescriptions = {}) => {
@@ -42,7 +30,7 @@ const planWith = (ids, prescriptions = {}) => {
 };
 const profile = { version: 3, sportId: "", sportContextMode: "general", goal: "Athleticism", trainingDays: 4, gymMinutes: 60, movementId: "", baseline: { experience: "Intermediate", weightUnit: "lb", sexForReference: "male", birthYear: 1995, bodyWeight: 180 } };
 const today = new Date().toISOString().slice(0, 10);
-// An active forearm target: the gate (Home's askStraps, passed as perArmSets).
+// An active forearm target: what opens the gates (Home's loggerGatesFor: the straps question and per-side rows).
 const goal = { id: "g1", regionId: "forearm", nodeId: "forearm.fcr", actionId: null, side: "right", metric: "direct_dynamic_bouts", target: 6, period: "calendar_week", startsOn: "2026-10-01", endsOn: null, timezone: "UTC", createdAt: `${today}T00:00:00.000Z`, updatedAt: `${today}T00:00:00.000Z` };
 
 const browser = await chromium.launch();
@@ -54,7 +42,7 @@ const showFixed = (page) => page.evaluate(() => { for (const element of document
 async function open(width, height, seed, url) {
   const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
   const page = await context.newPage();
-  await page.route("**/api/trpc/**", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(new URL(route.request().url()).searchParams.get("batch") ? [{ result: { data: { json: null } } }] : { result: { data: { json: null } } }) }));
+  await answerAsVisitor(page);
   await page.addInitScript((value) => {
     if (sessionStorage.getItem("seeded")) return;
     sessionStorage.setItem("seeded", "1");
@@ -195,6 +183,6 @@ for (const [width, height] of [[390, 844], [375, 667], [320, 568]]) {
   }
 }
 await browser.close();
-server.close();
+close();
 writeFileSync(join(outDir, "logger-checks.json"), `${JSON.stringify(checks, null, 2)}\n`);
 console.log(JSON.stringify(checks, null, 2));

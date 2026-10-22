@@ -1,0 +1,196 @@
+[
+  {
+    "id": "A01",
+    "url": "https://medicine.uams.edu/neuroscience/education/medical-school-courses/human-structure-module/anatomy-tables/muscle-tables/muscles-of-the-upper-limb/",
+    "title": "UAMS upper limb anatomy table",
+    "access": "retrieved page text",
+    "use": "Anatomical actions; cross-check attachment details with A02."
+  },
+  {
+    "id": "A02",
+    "url": "https://www.stritch.luc.edu/lumen/meded/grossanatomy/homepage/muscletables/upperextremitymuscletable.pdf",
+    "title": "Loyola upper extremity muscle table",
+    "access": "retrieved PDF text",
+    "use": "Anatomical actions and attachments. Not exercise effect percentages."
+  },
+  {
+    "id": "S02",
+    "pmid": "39819577",
+    "title": "Effects of forearm rotation on wrist flexor and extensor muscle activities.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/39819577/",
+    "doi": "10.1186/s13018-024-05363-x",
+    "publication_date": "2025 Jan 17",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "At controlled torque: ECRB higher with pronation; FCR higher with supination; FCU lower pronated than neutral; ECU not different. Analog for wrist variants only."
+  },
+  {
+    "id": "S03",
+    "pmid": "14656682",
+    "title": "Electromyographic activity and strength during maximum isometric pronation and supination efforts in healthy adults.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/14656682/",
+    "doi": "10.1016/S0736-0266(03)00115-3",
+    "publication_date": "2004 Jan",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Fine-wire pronation/supination: PT/PQ pronate, supinator/biceps supinate; deep PQ may stabilize in both. Not isolation percentages."
+  },
+  {
+    "id": "S04",
+    "pmid": "32636008",
+    "title": "Characterizing forearm muscle activity in university-aged males during dynamic radial-ulnar deviation of the wrist using a wrist robot.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/32636008/",
+    "doi": "10.1016/j.jbiomech.2020.109897",
+    "publication_date": "2020 Jul 17",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Robot-based dynamic deviation experiment: posture, direction and phase affect activation/co-contraction. Not dumbbell-specific allocation."
+  },
+  {
+    "id": "S05",
+    "pmid": "35646483",
+    "title": "The effects of isometric hand grip force on wrist kinematics and forearm muscle activity during radial and ulnar wrist joint perturbations.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/35646483/",
+    "doi": "10.7717/peerj.13495",
+    "publication_date": "2022",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Increasing grip force increased most recorded forearm activity, including wrist extensors, during perturbations. Not carry/hang percentage calibration."
+  },
+  {
+    "id": "S06",
+    "pmid": "26300781",
+    "title": "Muscular coordination of biceps brachii and brachioradialis in elbow flexion with respect to hand position.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/26300781/",
+    "doi": "10.3389/fphys.2015.00215",
+    "publication_date": "2015",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Elbow flexion hand position changes BR activation; small acute study. No long-term hypertrophy ranking."
+  },
+  {
+    "id": "S07",
+    "pmid": "30694963",
+    "title": "Impact of Fat Grip Attachments on Muscular Strength and Neuromuscular Activation During Resistance Exercise.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/30694963/",
+    "doi": "10.1519/JSC.0000000000002954",
+    "publication_date": "2021 Feb 01",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Thick grips reduced strength performance and increased forearm EMG in some tested lifts, not all. No universal thick-grip multiplier."
+  },
+  {
+    "id": "S08",
+    "pmid": "15946972",
+    "title": "Selective recruitment of single motor units in human flexor digitorum superficialis muscle during flexion of individual fingers.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/15946972/",
+    "doi": "10.1113/jphysiol.2005.089201",
+    "publication_date": "2005 Aug 15",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "FDS motor units show selective recruitment across fingers. Whole-muscle grip allocation cannot resolve all digits."
+  },
+  {
+    "id": "S09",
+    "pmid": "27174923",
+    "title": "Neither load nor systemic hormones determine resistance training-mediated hypertrophy or strength gains in resistance-trained young men.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/27174923/",
+    "doi": "10.1152/japplphysiol.00154.2016",
+    "publication_date": "2016 Jul 01",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Trained-men trial: 20\u201325 versus 8\u201312 reps to failure produced similar hypertrophy outcomes; not isolated forearm-muscle data."
+  },
+  {
+    "id": "S10",
+    "pmid": "29564973",
+    "title": "Effects of different intensities of resistance training with equated volume load on muscle strength and hypertrophy.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/29564973/",
+    "doi": "10.1080/17461391.2018.1450898",
+    "publication_date": "2018 Jul",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Trial comparing 20/40/60/80% 1RM: very low load underperformed, higher loads favored strength. Not precise forearm rep optima."
+  },
+  {
+    "id": "S11",
+    "pmid": "28249351",
+    "title": "Cross-education after high-frequency versus low-frequency volume-matched handgrip training.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/28249351/",
+    "doi": "10.1002/mus.25637",
+    "publication_date": "2017 Oct",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Small four-week isometric handgrip study: volume-matched frequencies both improved grip; forearm thickness changes do not identify each muscle response."
+  },
+  {
+    "id": "S12",
+    "pmid": "41343037",
+    "title": "The Resistance Training Dose Response: Meta-Regressions Exploring the Effects of Weekly Volume and Frequency on Muscle Hypertrophy and Strength Gains.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/41343037/",
+    "doi": "10.1007/s40279-025-02344-w",
+    "publication_date": "2026 Feb",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "67-study meta-regression: distinguishing direct and indirect sets helped fit; diminishing returns. Fractional 0.5 is not validated for each small forearm muscle."
+  },
+  {
+    "id": "S13",
+    "pmid": "38970765",
+    "title": "Exploring the Dose-Response Relationship Between Estimated Resistance Training Proximity to Failure, Strength Gain, and Muscle Hypertrophy: A Series of Meta-Regressions.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/38970765/",
+    "doi": "10.1007/s40279-024-02069-2",
+    "publication_date": "2024 Sep",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Exploratory meta-regressions associate closer failure with more hypertrophy; exact relationship uncertain. Do not compute precise effective-rep bonuses."
+  },
+  {
+    "id": "S14",
+    "pmid": "30580468",
+    "title": "Isometric training and long-term adaptations: Effects of muscle length, intensity, and intent: A systematic review.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/30580468/",
+    "doi": "10.1111/sms.13375",
+    "publication_date": "2019 Apr",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Review: isometric adaptations depend on length, intensity and intent. No universal seconds-to-dynamic-set conversion."
+  },
+  {
+    "id": "S15",
+    "pmid": "35657492",
+    "title": "Mechanical, Material and Morphological Adaptations of Healthy Lower Limb Tendons to Mechanical Loading: A Systematic Review and Meta-Analysis.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/35657492/",
+    "doi": "10.1007/s40279-022-01695-y",
+    "publication_date": "2022 Oct",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Loading adapts tendon properties in lower-limb evidence. Not forearm injury thresholds; force/strain cannot be inferred from logged kg alone."
+  },
+  {
+    "id": "S16",
+    "pmid": "24669550",
+    "title": "The association between combination of hand force and forearm posture and incidence of lateral epicondylitis in a working population.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/24669550/",
+    "doi": "10.1177/0018720813492327",
+    "publication_date": "2014 Feb",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Occupational prospective study links combinations of force and posture with lateral epicondylitis. Workshift hazard ratios cannot become gym injury probabilities."
+  },
+  {
+    "id": "S17",
+    "pmid": "30621312",
+    "title": "Quantitative Measures of Physical Risk Factors Associated with Work-Related Musculoskeletal Disorders of the Elbow: A Systematic Review.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/30621312/",
+    "doi": "10.3390/ijerph16010130",
+    "publication_date": "2019 Jan 05",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Review of work-related elbow risk factors. Population/exposure context limits transfer to training."
+  },
+  {
+    "id": "S18",
+    "pmid": "28834797",
+    "title": "Strength and Hypertrophy Adaptations Between Low- vs. High-Load Resistance Training: A Systematic Review and Meta-analysis.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/28834797/",
+    "doi": "10.1519/JSC.0000000000002200",
+    "publication_date": "2017 Dec",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Meta-analysis: higher loads favor 1RM strength; hypertrophy occurs across loading ranges in studied conditions. Not a muscle-specific optimal rep table."
+  },
+  {
+    "id": "S19",
+    "pmid": "20353863",
+    "title": "Wrist tendon forces during various dynamic wrist motions.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/20353863/",
+    "doi": "10.1016/j.jhsa.2010.01.006",
+    "publication_date": "2010 Apr",
+    "access": "PubMed abstract and metadata; not a full-text systematic review",
+    "use": "Cadaver wrist simulator: tendon forces vary by movement. Not live exercise injury probabilities or hypertrophy weights."
+  }
+]

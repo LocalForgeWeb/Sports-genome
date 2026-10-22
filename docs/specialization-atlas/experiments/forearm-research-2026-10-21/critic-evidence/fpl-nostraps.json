@@ -1,0 +1,530 @@
+[
+ {
+  "id": "completed/one-week-4/calendar-week/left",
+  "inc": 3,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/one-week-4/calendar-week/right",
+  "inc": 3,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/one-week-4/rolling-7d/left",
+  "inc": 3,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/one-week-4/rolling-7d/right",
+  "inc": 3,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/one-week-4/custom-year/left",
+  "inc": 3,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/one-week-4/custom-year/right",
+  "inc": 3,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/year-4/calendar-week/left",
+  "inc": 3,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/year-4/calendar-week/right",
+  "inc": 3,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/year-4/rolling-7d/left",
+  "inc": 3,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/year-4/rolling-7d/right",
+  "inc": 3,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/year-4/custom-year/left",
+  "inc": 156,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/year-4/custom-year/right",
+  "inc": 156,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/heavy-year-6x2.5/calendar-week/left",
+  "inc": 8,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/heavy-year-6x2.5/calendar-week/right",
+  "inc": 8,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/heavy-year-6x2.5/rolling-7d/left",
+  "inc": 16,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/heavy-year-6x2.5/rolling-7d/right",
+  "inc": 16,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/heavy-year-6x2.5/custom-year/left",
+  "inc": 624,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/heavy-year-6x2.5/custom-year/right",
+  "inc": 624,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/offline-week/calendar-week/left",
+  "inc": 0,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/offline-week/calendar-week/right",
+  "inc": 0,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/offline-week/rolling-7d/left",
+  "inc": 0,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/offline-week/rolling-7d/right",
+  "inc": 0,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/offline-week/custom-year/left",
+  "inc": 0,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/offline-week/custom-year/right",
+  "inc": 0,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/edge-week/calendar-week/left",
+  "inc": 1,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 2,
+  "notes": [
+   "Strapped: grip not counted",
+   "Strapped: grip not counted"
+  ],
+  "unknownSide": {
+   "bouts": 1,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/edge-week/calendar-week/right",
+  "inc": 0,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 2,
+  "notes": [
+   "Strapped: grip not counted",
+   "Strapped: grip not counted"
+  ],
+  "unknownSide": {
+   "bouts": 1,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/edge-week/rolling-7d/left",
+  "inc": 1,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 2,
+  "notes": [
+   "Strapped: grip not counted",
+   "Strapped: grip not counted"
+  ],
+  "unknownSide": {
+   "bouts": 1,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/edge-week/rolling-7d/right",
+  "inc": 0,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 2,
+  "notes": [
+   "Strapped: grip not counted",
+   "Strapped: grip not counted"
+  ],
+  "unknownSide": {
+   "bouts": 1,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/edge-week/custom-year/left",
+  "inc": 1,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 2,
+  "notes": [
+   "Strapped: grip not counted",
+   "Strapped: grip not counted"
+  ],
+  "unknownSide": {
+   "bouts": 1,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "completed/edge-week/custom-year/right",
+  "inc": 0,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 2,
+  "notes": [
+   "Strapped: grip not counted",
+   "Strapped: grip not counted"
+  ],
+  "unknownSide": {
+   "bouts": 1,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "planned/release-gate-plan/left",
+  "inc": 0,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "planned/release-gate-plan/right",
+  "inc": 0,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "planned/day-templates-plan/left",
+  "inc": 3,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ },
+ {
+  "id": "planned/day-templates-plan/right",
+  "inc": 3,
+  "hold": 0,
+  "pend": 0,
+  "notCounted": 0,
+  "notes": [],
+  "unknownSide": {
+   "bouts": 0,
+   "directDynamicBouts": 0,
+   "deliberateHoldBouts": 0,
+   "deliberateHoldSeconds": 0,
+   "pendingReviewBouts": 0
+  }
+ }
+]

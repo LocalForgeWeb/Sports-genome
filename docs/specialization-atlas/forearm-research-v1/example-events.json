@@ -1,0 +1,51 @@
+[
+  {
+    "segment_id": "drop-1",
+    "session_id": "example-session",
+    "parent_bout_id": "drop-parent",
+    "exercise_id": "fa-11",
+    "side": "right",
+    "state": "completed",
+    "is_warmup": false,
+    "reps": 5,
+    "load": 100,
+    "unit": "lb"
+  },
+  {
+    "segment_id": "drop-2",
+    "session_id": "example-session",
+    "parent_bout_id": "drop-parent",
+    "exercise_id": "fa-11",
+    "side": "right",
+    "state": "completed",
+    "is_warmup": false,
+    "reps": 6,
+    "load": 70,
+    "unit": "lb"
+  },
+  {
+    "segment_id": "drop-3",
+    "session_id": "example-session",
+    "parent_bout_id": "drop-parent",
+    "exercise_id": "fa-11",
+    "side": "right",
+    "state": "completed",
+    "is_warmup": false,
+    "reps": 10,
+    "load": 50,
+    "unit": "lb"
+  },
+  {
+    "segment_id": "hold-1",
+    "session_id": "example-session",
+    "parent_bout_id": "hold-parent",
+    "exercise_id": "fa-33",
+    "side": "right",
+    "state": "completed",
+    "is_warmup": false,
+    "hold_seconds": 20,
+    "load": 20,
+    "unit": "kg",
+    "load_convention": "per_hand"
+  }
+]

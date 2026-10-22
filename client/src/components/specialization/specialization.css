@@ -23,19 +23,41 @@
 }
 .spz-page :is(h1, h2, h3, p, dl, dd, ul, ol) { margin: 0; }
 
-/* The top: heading, controls and window line, closer together than the page's sections, so
-   the selected muscle and the drawing's top stay on a 375 x 667 first screen even under a
-   "Back to …" link. The link is 44 px tall with its words centred, which already spaces it
-   from the heading. */
+/* The top: the heading row, controls and window line, closer together than the page's sections,
+   so the selected muscle and the drawing's top stay on a 375 x 667 first screen even with Back.
+   The heading row sits outside the region's page (it stays while a region loads), so it pulls the
+   controls up to the top's own gap. */
 .spz-top { display: grid; gap: .375rem; min-width: 0; margin-bottom: -.25rem; }
-.spz-head { display: grid; gap: 0; justify-items: start; min-width: 0; }
+.spz-head-wrap { display: grid; gap: .375rem; min-width: 0; margin-bottom: -.375rem; }
+/* One row (10-multi-region.md §6.1): Back, by its short name, then the heading; a heading too
+   long for the row wraps inside itself and the row grows, nothing is cut. */
+.spz-head { display: flex; align-items: center; gap: .5rem; min-width: 0; }
+.spz-head > .spz-title { flex: 1 1 auto; min-width: 0; }
 /* One line from 375 px, even in a fallback sans before the display face loads. */
 .spz-title { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.5rem, 6.4vw, 2.7rem); font-weight: 800; line-height: .95; text-transform: uppercase; overflow-wrap: anywhere; }
 .spz-lede { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 /* Back, and the links in the selected-muscle strip, sit on the Body Lab blue like the window
    line below: on-dark ink with a link-coloured underline (link ink reads under 4.5:1 there). */
-.spz-back { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; text-decoration: underline; text-decoration-color: var(--sg-link-on-dark); text-decoration-thickness: 2px; text-underline-offset: 3px; }
-.spz-back > svg { color: var(--sg-link-on-dark); }
+.spz-back { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .15rem; min-height: 2.75rem; min-width: 2.75rem; padding-right: .25rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; text-decoration: underline; text-decoration-color: var(--sg-link-on-dark); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.spz-back > svg { flex: 0 0 auto; margin-left: -.25rem; color: var(--sg-link-on-dark); }
+/* The heading as the region toggle (with more than one region): the label and a chevron in a
+   bordered button, visible at rest; the border is the on-dark subtle ink, 3:1 on the Body Lab blue. */
+.spz-region-toggle { display: inline-flex; align-items: center; gap: .35rem; max-width: 100%; min-height: 2.75rem; border: 1px solid var(--sg-text-subtle-on-dark); border-radius: var(--sg-radius-sm); padding: .2rem .6rem; color: inherit; font: inherit; line-height: inherit; text-align: left; text-transform: inherit; }
+.spz-region-toggle > span { min-width: 0; }
+.spz-region-chevron { flex: 0 0 auto; width: 1.25rem; height: 1.25rem; transition: transform var(--sg-motion-base) var(--sg-ease); }
+.spz-region-toggle[aria-expanded="true"] .spz-region-chevron { transform: rotate(180deg); }
+.spz-region-toggle:focus-visible, .spz-region:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+/* The regions, in body order, three to a row; each at least 44 px tall and as narrow as a third
+   of the row (not a chip's 6.5rem, which overflows at 320), its 16 px name wrapping between words
+   if it must, with how many active targets the athlete has there. Under 360 px, two to a row: a
+   third of 320 is narrower than one 16 px word ("Shoulders"), which would break inside it. */
+.spz-regions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .375rem; min-width: 0; }
+.spz-regions[hidden] { display: none; }
+.spz-region { display: grid; align-content: center; justify-items: start; gap: .05rem; min-width: 0; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: var(--sg-radius-sm); padding: .35rem .5rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 700; line-height: var(--sg-leading-snug); text-align: left; overflow-wrap: anywhere; }
+.spz-region small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+.spz-region[aria-pressed="true"] { border-color: var(--sg-text-on-dark); background: rgb(255 255 255 / .08); box-shadow: inset 0 0 0 1px var(--sg-text-on-dark); }
+/* Where a region's page will be while it loads: a line, never zeros. */
+.spz-loading { display: grid; justify-items: start; gap: .5rem; min-width: 0; }
 .spz-strip .spz-link { color: var(--sg-text-on-dark); text-decoration: underline; text-decoration-color: var(--sg-link-on-dark); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .spz-back:focus-visible, .spz-link:focus-visible, .spz-button:focus-visible, .spz-primary:focus-visible, .spz-row:focus-visible, .spz-chip:focus-visible, .spz-icon-button:focus-visible, .spz-close:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 
@@ -46,7 +68,23 @@
 .spz-segment button[aria-pressed="true"] { background: rgb(255 255 255 / .14); color: var(--sg-text-on-dark); }
 .spz-segment button:disabled { color: var(--sg-text-subtle-on-dark); cursor: not-allowed; }
 .spz-segment button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
-.spz-dates { display: flex; flex-wrap: wrap; gap: .5rem .75rem; width: 100%; }
+/* The custom window's dates, their labels inline: one 44 px row from 375 px, stacked below it.
+   Each label is a column only as wide as its word, and the two date fields share what is left
+   equally, so "From", the longer word, does not take its width from the From date. With the
+   input's side padding small, the whole date shows at 16 px (no smaller type: iOS zooms on focus
+   under 16 px). Measured in headless Chromium (en-US): a date with wide digits ("08/08/2026")
+   touched the calendar icon at 375 px when each label and its field shared half the row. */
+.spz-field.spz-dates { grid-template-columns: max-content minmax(0, 1fr) max-content minmax(0, 1fr); align-items: center; gap: .375rem .5rem; width: 100%; }
+.spz-dates > label { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.spz-field.spz-dates > input { padding: 0 .375rem; }
+/* Under 375 px the dates stack, the two labels sharing one column width so the two dates line up. */
+@media (max-width: 374px) {
+  .spz-field.spz-dates { grid-template-columns: 2.25rem minmax(0, 1fr); }
+}
+/* Under 360 px the regions sit two to a row (above): a third of 320 px is narrower than one 16 px word. */
+@media (max-width: 359px) {
+  .spz-regions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .spz-window { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-window b { color: var(--sg-text-on-dark); }
 /* With a pair (logged beside planned), a total, the line is one button that opens the sets
@@ -195,6 +233,7 @@
    a target and a Back link still has its strip and the drawing's top on the first screen. */
 @media (max-height: 700px) {
   .spz-page { gap: .5rem; }
+  .spz-head-wrap { margin-bottom: -.125rem; }
   .spz-card.spz-map { gap: .25rem; padding: .75rem; padding-top: .25rem; }
   .spz-controls, .spz-diagram-controls, .spz-map > .spz-section-head { row-gap: .25rem; }
 }
@@ -212,6 +251,8 @@ button.spz-day:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outli
 .spz-subsection h3 { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .spz-method { display: grid; gap: .6rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-method b { color: var(--sg-text-on-dark); }
+/* The published rule's paragraphs, grouped for what reads them; laid out as the method's own. */
+.spz-rule-text { display: contents; }
 .spz-categories { display: grid; gap: .4rem; }
 .spz-categories div { display: grid; gap: .1rem; }
 .spz-categories dt { color: var(--sg-text-on-dark); font-weight: 700; }
@@ -312,6 +353,6 @@ button.spz-day:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outli
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spz-segment button, .spz-track i, .spz-day-bar i, .spz-disclosure > summary svg { transition: none; }
+  .spz-segment button, .spz-track i, .spz-day-bar i, .spz-disclosure > summary svg, .spz-region-chevron { transition: none; }
   .spz-sheet { animation: none; }
 }

@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { readScopedRecord, scopedKey } from "@/lib/deviceStorageScope";
-import { goalMetrics, goalPeriods, isGoalActiveAt, validateGoal, type GoalValidation } from "@shared/specialization/goals";
+import { goalMetrics, goalPeriods, isGoalActiveAt, rehomedGoal, validateGoal, type GoalScope, type GoalValidation } from "@shared/specialization/goals";
+import { regionIndexEntry } from "@shared/specialization/regionIndex";
 import { isDateKey, isValidTimeZone } from "@shared/specialization/time";
-import type { MeasurementProtocol, SpecializationGoal, SpecializationMeasurement } from "@shared/specialization/types";
+import type { MeasurementProtocol, SpecializationGoal, SpecializationMeasurement, StoredSide } from "@shared/specialization/types";
 
 /**
  * Specialization targets and measurements, on the device (design §5, 01-reconciliation.md).
@@ -12,9 +13,11 @@ import type { MeasurementProtocol, SpecializationGoal, SpecializationMeasurement
  * owner-only access exist for a later sync; nothing writes them yet.
  *
  * What comes back from storage is checked entry by entry: a corrupt or foreign record
- * reads as nothing rather than a crash, an entry that is not a target (or not a
- * measurement) is dropped, and a write the device refused is reported as refused rather
- * than announced to the screens listening for it.
+ * reads as nothing rather than a crash, and a write the device refused is reported as refused
+ * rather than announced to the screens listening for it. An entry this version cannot read (one
+ * a later version wrote, such as a target with no side or a girth measurement before this
+ * version knew them) is left out of what the screens see, and kept: every save writes it back
+ * untouched (10-multi-region.md §2.1).
  */
 
 export const specializationGoalsKeyBase = "sports-genome-specialization-goals-v1";
@@ -30,6 +33,7 @@ const REFUSED: StoreWrite = { ok: false, reason: "This device did not save it. S
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 const nonEmpty = (value: unknown): value is string => typeof value === "string" && value.trim() !== "";
 const optionalString = (value: unknown): string | null | undefined => (value === undefined || value === null ? null : typeof value === "string" ? value : undefined);
+const isStoredSide = (value: unknown): value is StoredSide => value === "left" || value === "right" || value === "midline";
 
 function readList(base: string, accountId: AccountScope): unknown[] {
   if (typeof window === "undefined") return [];
@@ -39,6 +43,11 @@ function readList(base: string, accountId: AccountScope): unknown[] {
   } catch {
     return [];
   }
+}
+
+/** The stored entries this version cannot read, exactly as stored, so a save can write them back. */
+function unreadEntries(base: string, accountId: AccountScope, parse: (value: unknown) => unknown): unknown[] {
+  return readList(base, accountId).filter((entry) => parse(entry) === null);
 }
 
 function writeList(base: string, accountId: AccountScope, event: string, list: readonly unknown[]): boolean {
@@ -63,7 +72,7 @@ export function parseStoredGoal(value: unknown): SpecializationGoal | null {
   if (!nonEmpty(value.id) || !nonEmpty(value.regionId)) return null;
   if (!(nodeId === null || nonEmpty(nodeId)) || !(actionId === null || nonEmpty(actionId))) return null;
   if ((nodeId === null) === (actionId === null)) return null;
-  if (value.side !== "left" && value.side !== "right") return null;
+  if (!isStoredSide(value.side)) return null;
   if (!goalMetrics.includes(value.metric as SpecializationGoal["metric"]) || !goalPeriods.includes(value.period as SpecializationGoal["period"])) return null;
   if (typeof value.target !== "number" || !Number.isFinite(value.target) || value.target <= 0) return null;
   if (!isDateKey(value.startsOn) || !(endsOn === null || isDateKey(endsOn))) return null;
@@ -85,14 +94,25 @@ export function parseStoredGoal(value: unknown): SpecializationGoal | null {
   };
 }
 
+/**
+ * The account's targets as they are read now: each stored target this version can read, re-homed
+ * where its muscle's home has a page (the registered index's status and sides, `rehomedGoal`),
+ * and a target saved once per side read as one (`collapseArmPairs`).
+ */
 export function loadSpecializationGoals(accountId?: AccountScope): SpecializationGoal[] {
-  return collapseArmPairs(readList(specializationGoalsKeyBase, accountId).map(parseStoredGoal).filter((goal): goal is SpecializationGoal => goal !== null));
+  return collapseArmPairs(
+    readList(specializationGoalsKeyBase, accountId)
+      .map(parseStoredGoal)
+      .filter((goal): goal is SpecializationGoal => goal !== null)
+      .map((goal) => rehomedGoal(goal, regionIndexEntry)),
+  );
 }
 
 /**
- * Both arms are counted as one (20 Oct 2026). A target saved for "Both arms" was stored as
- * two, one per arm, identical but for the side: they read as one target (the right arm's copy
- * kept). The next write saves the list as read, so the extra copy leaves the device then.
+ * Both sides are counted as one (owner, 20 Oct 2026). A target saved for "Both arms" was stored
+ * as two, one per side, identical but for the side: they read as one target (the right side's
+ * copy kept). The next write saves the list as read, so the extra copy leaves the device then. A
+ * one-side target stays, and counts work from either side. A midline target has no pair.
  */
 export function collapseArmPairs(goals: readonly SpecializationGoal[]): SpecializationGoal[] {
   const keyOf = (goal: SpecializationGoal) => [goal.regionId, goal.nodeId, goal.actionId, goal.metric, goal.period, goal.target, goal.startsOn, goal.endsOn, goal.timezone].join("|");
@@ -100,14 +120,18 @@ export function collapseArmPairs(goals: readonly SpecializationGoal[]): Speciali
   return goals.filter((goal) => !(goal.side === "left" && rights.has(keyOf(goal))));
 }
 
-/** Returns whether the write reached the device. */
+/** Returns whether the write reached the device. Stored entries this version cannot read are written back after the targets, untouched. */
 export function saveSpecializationGoals(goals: readonly SpecializationGoal[], accountId?: AccountScope): boolean {
-  return writeList(specializationGoalsKeyBase, accountId, specializationGoalsEvent, goals);
+  return writeList(specializationGoalsKeyBase, accountId, specializationGoalsEvent, [...goals, ...unreadEntries(specializationGoalsKeyBase, accountId, parseStoredGoal)]);
 }
 
-/** Adds a target, or replaces the one with its id; refused (with the reason) when it overlaps another. */
-export function upsertGoal(existing: readonly SpecializationGoal[], goal: SpecializationGoal): { ok: true; goals: SpecializationGoal[] } | { ok: false; reason: string } {
-  const verdict: GoalValidation = validateGoal(goal, existing);
+/**
+ * Adds a target, or replaces the one with its id; refused (with the reason) when it overlaps
+ * another, or, with the page's scope, when it names a muscle that is not one of the region's
+ * targets (`validateGoal`).
+ */
+export function upsertGoal(existing: readonly SpecializationGoal[], goal: SpecializationGoal, scope?: GoalScope): { ok: true; goals: SpecializationGoal[] } | { ok: false; reason: string } {
+  const verdict: GoalValidation = validateGoal(goal, existing, scope);
   if (!verdict.ok) return verdict;
   const index = existing.findIndex((item) => item.id === goal.id);
   const goals = index < 0 ? [...existing, goal] : existing.map((item, at) => (at === index ? goal : item));
@@ -128,8 +152,9 @@ export function hasActiveGoalForRegion(regionId: string, accountId?: AccountScop
 
 // ---------------------------------------------------------------- measurements
 
-const POSTURES: readonly MeasurementProtocol["posture"][] = ["arm_relaxed_hanging", "arm_extended_supported", "elbow_90_supported", "other"];
+const POSTURES: readonly MeasurementProtocol["posture"][] = ["arm_relaxed_hanging", "arm_extended_supported", "elbow_90_supported", "arm_flexed", "standing_relaxed", "other"];
 const CONDITIONS: readonly MeasurementProtocol["condition"][] = ["unpumped", "pumped", "unknown"];
+const METRICS: readonly SpecializationMeasurement["metric"][] = ["circumference_cm", "grip_force_n", "girth_cm"];
 const TIME_OF_DAY = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 function parseProtocol(value: unknown): MeasurementProtocol | null {
@@ -150,17 +175,22 @@ function parseProtocol(value: unknown): MeasurementProtocol | null {
   };
 }
 
-/** A stored entry as a measurement, or null when it is not one this version can read. */
+/**
+ * A stored entry as a measurement, or null when it is not one this version can read. A girth goes
+ * around the trunk and has side `midline`; every other measure is taken on the left or the right
+ * (10-multi-region.md §4.4).
+ */
 export function parseStoredMeasurement(value: unknown): SpecializationMeasurement | null {
   if (!isRecord(value) || !nonEmpty(value.id) || !nonEmpty(value.regionId)) return null;
-  if (value.side !== "left" && value.side !== "right") return null;
+  if (!isStoredSide(value.side)) return null;
   if (typeof value.measuredAt !== "string" || !Number.isFinite(Date.parse(value.measuredAt))) return null;
-  if (value.metric !== "circumference_cm" && value.metric !== "grip_force_n") return null;
+  if (!METRICS.includes(value.metric as SpecializationMeasurement["metric"])) return null;
+  if ((value.metric === "girth_cm") !== (value.side === "midline")) return null;
   if (typeof value.value !== "number" || !Number.isFinite(value.value) || value.value <= 0) return null;
   const protocol = parseProtocol(value.protocol);
   const notes = optionalString(value.notes);
   if (!protocol || notes === undefined) return null;
-  return { id: value.id, regionId: value.regionId, side: value.side, measuredAt: value.measuredAt, metric: value.metric, value: value.value, protocol, notes };
+  return { id: value.id, regionId: value.regionId, side: value.side, measuredAt: value.measuredAt, metric: value.metric as SpecializationMeasurement["metric"], value: value.value, protocol, notes };
 }
 
 const byMeasuredAt = (a: SpecializationMeasurement, b: SpecializationMeasurement) => Date.parse(a.measuredAt) - Date.parse(b.measuredAt) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
@@ -173,8 +203,10 @@ export function loadSpecializationMeasurements(accountId?: AccountScope): Specia
     .sort(byMeasuredAt);
 }
 
+/** Returns whether the write reached the device. Stored entries this version cannot read are written back after the measurements, untouched. */
 export function saveSpecializationMeasurements(entries: readonly SpecializationMeasurement[], accountId?: AccountScope): boolean {
-  return writeList(specializationMeasurementsKeyBase, accountId, specializationMeasurementsEvent, [...entries].sort(byMeasuredAt));
+  const kept = unreadEntries(specializationMeasurementsKeyBase, accountId, parseStoredMeasurement);
+  return writeList(specializationMeasurementsKeyBase, accountId, specializationMeasurementsEvent, [...[...entries].sort(byMeasuredAt), ...kept]);
 }
 
 // ---------------------------------------------------------------- hooks
@@ -201,13 +233,17 @@ function useStoredList<T>(base: string, event: string, load: (accountId: Account
   return list;
 }
 
-/** The account's targets, kept current across screens and tabs, with checked writes. */
+/**
+ * The account's targets, kept current across screens and tabs, with checked writes. The page
+ * passes its scope (`goalScopeOf`) to `save`, so a new muscle target is held to the region's
+ * target muscles.
+ */
 export function useSpecializationGoals(accountId?: AccountScope) {
   const goals = useStoredList(specializationGoalsKeyBase, specializationGoalsEvent, loadSpecializationGoals, accountId);
-  const save = useCallback((goal: SpecializationGoal | readonly SpecializationGoal[]): StoreWrite => {
+  const save = useCallback((goal: SpecializationGoal | readonly SpecializationGoal[], scope?: GoalScope): StoreWrite => {
     let next = loadSpecializationGoals(accountId);
     for (const item of Array.isArray(goal) ? goal : [goal as SpecializationGoal]) {
-      const result = upsertGoal(next, item);
+      const result = upsertGoal(next, item, scope);
       if (!result.ok) return result;
       next = result.goals;
     }
@@ -221,7 +257,7 @@ export function useSpecializationGoals(accountId?: AccountScope) {
 export function useSpecializationMeasurements(accountId?: AccountScope) {
   const measurements = useStoredList(specializationMeasurementsKeyBase, specializationMeasurementsEvent, loadSpecializationMeasurements, accountId);
   const save = useCallback((entry: SpecializationMeasurement): StoreWrite => {
-    if (!parseStoredMeasurement(entry)) return { ok: false, reason: "Enter a value above zero, the arm, and where and how it was measured." };
+    if (!parseStoredMeasurement(entry)) return { ok: false, reason: "Enter a value above zero, the side for a measure taken on one side, and where and how it was measured." };
     const others = loadSpecializationMeasurements(accountId).filter((item) => item.id !== entry.id);
     return saveSpecializationMeasurements([...others, entry], accountId) ? { ok: true } : REFUSED;
   }, [accountId]);

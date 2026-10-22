@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
-import { forearmActionIds as a, forearmMuscleIds as m } from "@shared/specialization/ids";
+import { forearmActionIds as a, forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { categoryFor } from "@shared/specialization/rules";
 import { calendarWeekInterval, planWeekInterval } from "@shared/specialization/time";
@@ -28,12 +28,12 @@ const WEEK = calendarWeekInterval(NOW, "Europe/London");
 const names = new Map(exercises.map((exercise) => [exercise.id, exercise.name] as const));
 let sequence = 0;
 
-/** One completed work set: reps and a hold, so every metric can read it. */
-const bout = (catalogExerciseId: number, side: ExposureBout["side"] = "bilateral"): ExposureBout => {
+/** One completed work set: reps and a hold, so every metric can read it. Both arms recorded, one, or none. */
+const bout = (catalogExerciseId: number, arm: "both" | "left" | "right" | "none" = "both"): ExposureBout => {
   const id = `g${++sequence}`;
-  return { id, mode: "completed", performedAt: "2026-10-14T18:00:00.000Z", sessionId: "s", sessionLabel: "Week 1 · Day 01 · Pull", planWeek: null, dayKey: null, exerciseEntryId: `e${catalogExerciseId}`, catalogExerciseId, exerciseName: names.get(catalogExerciseId) ?? `#${catalogExerciseId}`, matchedBy: "id", side, sideSource: "recorded", straps: "no", warmup: false, effort: null, kind: "standard", segments: [{ id, reps: 12, loadKg: 20, holdSeconds: 30 }] };
+  return { id, mode: "completed", performedAt: "2026-10-14T18:00:00.000Z", sessionId: "s", sessionLabel: "Week 1 · Day 01 · Pull", planWeek: null, dayKey: null, exerciseEntryId: `e${catalogExerciseId}`, catalogExerciseId, exerciseName: names.get(catalogExerciseId) ?? `#${catalogExerciseId}`, matchedBy: "id", armSide: arm === "none" ? null : { side: arm, source: "recorded" }, legSide: null, straps: "no", warmup: false, effort: null, kind: "standard", segments: [{ id, reps: 12, loadKg: 20, holdSeconds: 30 }] };
 };
-const plannedBout = (catalogExerciseId: number): ExposureBout => ({ ...bout(catalogExerciseId), mode: "planned", performedAt: null, sessionId: null, planWeek: 1, dayKey: "0-Pull", sideSource: "structural" });
+const plannedBout = (catalogExerciseId: number): ExposureBout => ({ ...bout(catalogExerciseId), mode: "planned", performedAt: null, sessionId: null, planWeek: 1, dayKey: "0-Pull" });
 
 const goal = (over: Partial<SpecializationGoal>): SpecializationGoal => ({ id: "g", regionId: "forearm", nodeId: m.flexorCarpiRadialis, actionId: null, side: "left", metric: "direct_dynamic_bouts", target: 10, period: "calendar_week", startsOn: "2026-10-01", endsOn: null, timezone: "Europe/London", createdAt: "", updatedAt: "", ...over });
 
@@ -303,7 +303,7 @@ describe("a main action of the muscle with no direct work in the window comes fi
   });
 
   it("forearm: work with no arm recorded is not the arm's direct work, so no missing action is named beside 'it has no direct work'", () => {
-    const noSide = [bout(410, "unknown"), bout(410, "unknown")];
+    const noSide = [bout(410, "none"), bout(410, "none")];
     const result = recommend(forearmRegionData, { nodeId: m.flexorCarpiUlnaris }, { side: "right", summary: summary(forearmRegionData, noSide, "right") });
     expect(result.missingActions).toEqual([]);
     expect(result.candidates.every((candidate) => !candidate.why.includes(": no direct work"))).toBe(true);
@@ -316,13 +316,13 @@ describe("a main action of the muscle with no direct work in the window comes fi
   });
 
   it("forearm: work with no arm recorded on a main action still covers it", () => {
-    const result = recommend(forearmRegionData, { nodeId: m.flexorCarpiUlnaris }, { side: "right", summary: summary(forearmRegionData, [bout(139, "right"), bout(408, "unknown")], "right") });
+    const result = recommend(forearmRegionData, { nodeId: m.flexorCarpiUlnaris }, { side: "right", summary: summary(forearmRegionData, [bout(139, "right"), bout(408, "none")], "right") });
     expect(result.missingActions).toEqual([]);
     expect(result.candidates.every((candidate) => !candidate.why.includes(": no direct work"))).toBe(true);
     const lever = result.candidates.find((candidate) => candidate.catalogExerciseId === 408)!;
     expect(lever.why).toMatch(/Already logged in this window: 1 set with no arm recorded\.$/);
     // Some sets on the arm, some with no arm recorded: both counted, the second named.
-    const some = recommend(forearmRegionData, { nodeId: m.flexorCarpiUlnaris }, { side: "right", summary: summary(forearmRegionData, [bout(410, "right"), bout(410, "unknown")], "right") });
+    const some = recommend(forearmRegionData, { nodeId: m.flexorCarpiUlnaris }, { side: "right", summary: summary(forearmRegionData, [bout(410, "right"), bout(410, "none")], "right") });
     expect(some.alreadyCoveredBy.map((item) => [item.loggedBouts, item.days.map((day) => day.label)])).toEqual([[2, ["2 sets logged in this window, 1 with no arm recorded"]]]);
   });
 

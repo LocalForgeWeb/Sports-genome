@@ -5,9 +5,10 @@ import type { DaySlot, WeeklyDayStore } from "@/lib/trainingDayPlan";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
-import { exposureRuleV1 } from "@shared/specialization/rules";
+import { currentExposureRule } from "@shared/specialization/rules";
 import { calendarWeekInterval, customInterval, isDateKey, planWeekInterval, rolling7dInterval } from "@shared/specialization/time";
-import type { ArmSide, ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummaryInterval, SummaryMode, SummaryRequest, SummarySide } from "@shared/specialization/types";
+import type { ExerciseVariant, ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummaryInterval, SummaryMode, SummaryRequest, SummarySide } from "@shared/specialization/types";
+import { variantLibrary } from "@shared/specialization/variants";
 import { boutsFromSessions, excludedRecordsFromSessions } from "./bouts";
 import { boutsFromPlan } from "./planBouts";
 import { planRevision, sourceRevision, stableStringify } from "./revision";
@@ -23,7 +24,7 @@ import type { AccountScope } from "./stores";
  * the same summary, so there is never a request per muscle.
  *
  * A summary is memoized by everything it depends on (the cache key below), so switching
- * arms or windows back and forth reuses the earlier answer, and any change to the log or
+ * sides or windows back and forth reuses the earlier answer, and any change to the log or
  * the plan — a set logged, edited, removed or swapped, an offline record arriving late —
  * changes a revision and is recalculated.
  */
@@ -48,7 +49,7 @@ export type SummaryCacheKeyParts = {
   nowMinute: string;
 };
 
-/** The cache key: account, region, interval, zone, arm, mode, plan and source revisions, rule and mapping versions. */
+/** The cache key: account, region, interval, zone, side, mode, plan and source revisions, rule and mapping versions. */
 export function summaryCacheKey(parts: SummaryCacheKeyParts): string {
   return stableStringify({ ...parts, accountScope: parts.accountScope ?? null });
 }
@@ -89,6 +90,24 @@ export function catalogMusclesLookup(catalog: readonly Exercise[]): SummaryReque
   };
 }
 
+const planningLists = new WeakMap<readonly ExerciseVariant[], readonly ExerciseVariant[]>();
+/**
+ * The variants a region's page lays the plan out by: the region's own records, then the shared
+ * library's (`variantLibrary`) for every exercise the region has none of. Each exercise is read as
+ * the calculator reads it (the region's variant, else the library's), so the page's planned
+ * numbers and its add and swap preview are laid out alike, on every region that shares the
+ * library. One list per region, so lookups over it are built once.
+ */
+export function planningVariantsFor(region: Pick<SpecializationRegionData, "variants">): readonly ExerciseVariant[] {
+  let list = planningLists.get(region.variants);
+  if (!list) {
+    const own = new Set(region.variants.map((variant) => variant.catalogExerciseId));
+    list = [...region.variants, ...variantLibrary.filter((variant) => !own.has(variant.catalogExerciseId))];
+    planningLists.set(region.variants, list);
+  }
+  return list;
+}
+
 /** The window the page's controls describe. Planned mode always reads a plan week. */
 export function intervalForView(view: { mode: SummaryMode; window: "week" | "7d" | "custom"; from: string | null; to: string | null; planWeek: number | null }, nowIso: string, timeZone: string, defaultPlanWeek = 1): SummaryInterval {
   if (view.mode === "planned") return planWeekInterval(view.planWeek ?? defaultPlanWeek, timeZone);
@@ -114,7 +133,7 @@ export type SummaryInputs = {
 };
 
 /**
- * The pure core of the hook: one memoized summary for one arm, window and mode. A completed
+ * The pure core of the hook: one memoized summary for one side, window and mode. A completed
  * summary reads no plan and a planned one reads no workouts, so each carries (and is keyed
  * on) only the revision it reads: logging a set never recalculates the planned view, and
  * editing the plan never recalculates the completed one.
@@ -131,7 +150,7 @@ export function computeSpecializationSummary(inputs: SummaryInputs): Specializat
     mode: inputs.mode,
     planRevision: planRev,
     sourceRevision: sourceRev,
-    ruleVersion: exposureRuleV1.id,
+    ruleVersion: currentExposureRule.id,
     mappingVersion: inputs.region.mappingVersion.key,
     goalsRevision: planFingerprint(stableStringify(inputs.goals)),
     nowMinute: inputs.now.slice(0, 16),
@@ -191,16 +210,17 @@ export function useSpecializationSummary(input: UseSpecializationSummaryInput): 
   const sessions = useDeviceWorkoutSessions();
   const catalog = input.catalog ?? exerciseCatalog;
   const fallbackUnit = input.fallbackUnit ?? "lb";
-  const variants = input.region.variants;
+  // The plan is laid out as the calculator reads each exercise: the region's variant, else the shared library's.
+  const variants = planningVariantsFor(input.region);
   const source = useMemo(() => sourceRevision(sessions), [sessions]);
   const completedBouts = useMemo(
     () => {
-      const deps = { catalog, variants, fallbackUnit };
+      const deps = { catalog, fallbackUnit };
       return [...boutsFromSessions(sessions, deps), ...excludedRecordsFromSessions(sessions, deps)];
     },
     // The revision, not the array: a reload that read the same workouts keeps the same bouts.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [source, catalog, variants, fallbackUnit],
+    [source, catalog, fallbackUnit],
   );
   const plan = input.plan;
   const planRev = useMemo(() => (plan ? planRevision(plan.store, plan.slots, plan.week, plan.goal) : null), [plan]);

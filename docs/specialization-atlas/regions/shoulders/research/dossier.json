@@ -1,0 +1,2726 @@
+{
+ "region": "shoulders",
+ "preparedOn": "2026-10-19",
+ "counts": {
+  "nodes": 9,
+  "claimsByKind": {
+   "function": 9,
+   "appearance": 9,
+   "variation": 1,
+   "selectivity": 7
+  },
+  "claimsByStatus": {
+   "reviewed": 26
+  },
+  "claims": 26,
+  "sources": 42,
+  "citations": 80,
+  "nodeActions": 12,
+  "actions": 8,
+  "deviations": 1
+ },
+ "nodes": [
+  {
+   "id": "shoulders.deltoid",
+   "name": "Deltoid",
+   "shortName": "Deltoid",
+   "kind": "muscle",
+   "role": "group",
+   "parentId": null,
+   "layerFixed": "—",
+   "layerSuggestedForType": "surface",
+   "catalogMuscleKey": "shoulders",
+   "databaseMuscle": null,
+   "aliases": [
+    "deltoid muscle",
+    "delts",
+    "deltoids"
+   ],
+   "location": "Caps the shoulder at the front, outer side and back, from the collarbone and the shoulder blade down to the outer side of the upper arm.",
+   "whatItDoes": "Its front part raises your arm forward and turns it inward, its outer part raises the arm out to the side, and its back part moves the arm backward and turns it outward. It also helps hold the shoulder steady.",
+   "shapeNote": "Together its three parts make up most of the rounded outline of the shoulder. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "caveats": [
+    "A group, not a muscle: work is counted for its three parts.",
+    "The three parts are a teaching simplification: anatomy studies divide the deltoid into more segments, five to eight in one study of its nerve branches, and the count differs between people."
+   ],
+   "surfaceVisibility": "clear",
+   "surfaceVisibilityReason": "Superficial over the whole shoulder; references call it easily observed and palpated and say it gives the shoulder its rounded contour (kenhub.deltoid, elsevier.deltoid, statpearls.deltoid).",
+   "layerCheck": "Parent node, not drawn (layer '—' in §1.2). All three parts are surface muscles, so 'surface' is the honest value if the type needs one.",
+   "status": "reviewed"
+  },
+  {
+   "id": "shoulders.anterior_deltoid",
+   "name": "Anterior deltoid",
+   "shortName": "AntDelt",
+   "kind": "head",
+   "role": "target",
+   "parentId": "shoulders.deltoid",
+   "layerFixed": "surface",
+   "catalogMuscleKey": "frontDelts",
+   "databaseMuscle": "anterior_deltoid",
+   "aliases": [
+    "front delt",
+    "front deltoid",
+    "anterior delt",
+    "clavicular deltoid"
+   ],
+   "location": "Front of the shoulder, from the outer third of the collarbone down to the outer side of the upper arm.",
+   "whatItDoes": "Raises your arm forward and turns it inward. It also helps bring a raised arm across the front of the chest and helps raise the arm out to the side.",
+   "shapeNote": "May contribute to the front of the rounded shoulder outline, beside the upper chest, where a groove separates it from the pectoralis major. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "caveats": [
+    "Presses and front raises load it together with the upper chest; how the work splits between them changes with the exercise and the bench angle."
+   ],
+   "surfaceVisibility": "clear",
+   "surfaceVisibilityReason": "Just under the skin at the front of the shoulder and bounded from the chest by the deltopectoral groove (kenhub.deltoid, radiopaedia.deltopectoral_groove).",
+   "layerCheck": "Surface: supported (kenhub.deltoid, elsevier.deltoid).",
+   "status": "reviewed"
+  },
+  {
+   "id": "shoulders.lateral_deltoid",
+   "name": "Lateral deltoid",
+   "shortName": "LatDelt",
+   "kind": "head",
+   "role": "target",
+   "parentId": "shoulders.deltoid",
+   "layerFixed": "surface",
+   "catalogMuscleKey": "sideDelts",
+   "databaseMuscle": "middle_deltoid",
+   "aliases": [
+    "side delt",
+    "middle deltoid",
+    "middle delt",
+    "acromial deltoid"
+   ],
+   "location": "Outer side of the shoulder, from the outer edge of the bony tip of the shoulder (the acromion) down to the outer side of the upper arm.",
+   "whatItDoes": "Raises your arm out to the side, doing most of the lifting in that movement, with the supraspinatus working alongside it.",
+   "shapeNote": "May contribute to the outer curve of the shoulder. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "caveats": [
+    "Studies call this part the middle, lateral or medial deltoid; all three names mean the same part.",
+    "Raising the arm out to the side also works the supraspinatus, which lies under the trapezius and the bony tip of the shoulder."
+   ],
+   "surfaceVisibility": "clear",
+   "surfaceVisibilityReason": "Just under the skin on the outer side of the shoulder (kenhub.deltoid, elsevier.deltoid_acromial).",
+   "layerCheck": "Surface: supported (kenhub.deltoid, elsevier.deltoid).",
+   "status": "reviewed"
+  },
+  {
+   "id": "shoulders.posterior_deltoid",
+   "name": "Posterior deltoid",
+   "shortName": "PostDelt",
+   "kind": "head",
+   "role": "target",
+   "parentId": "shoulders.deltoid",
+   "layerFixed": "surface",
+   "catalogMuscleKey": "rearDelts",
+   "databaseMuscle": "posterior_deltoid",
+   "aliases": [
+    "rear delt",
+    "rear deltoid",
+    "posterior delt",
+    "spinal deltoid"
+   ],
+   "location": "Back of the shoulder, from the bony ridge of the shoulder blade (its spine) down to the outer side of the upper arm.",
+   "whatItDoes": "Moves a raised arm backward, brings the arm back and down from in front of the body, and turns the arm outward.",
+   "shapeNote": "May contribute to the back of the rounded shoulder outline, over parts of the infraspinatus and teres minor. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "caveats": [
+    "In one comparison it worked harder in a reverse fly than in a seated row or a pulldown.",
+    "Turning the arm outward loads it together with the infraspinatus and teres minor."
+   ],
+   "surfaceVisibility": "clear",
+   "surfaceVisibilityReason": "Just under the skin at the back of the shoulder; it covers parts of the infraspinatus and teres minor rather than being covered (kenhub.deltoid, kenhub.infraspinatus, kenhub.teres_minor).",
+   "layerCheck": "Surface: supported (kenhub.deltoid, elsevier.deltoid).",
+   "status": "reviewed"
+  },
+  {
+   "id": "shoulders.rotator_cuff",
+   "name": "Rotator cuff",
+   "shortName": "RotCuff",
+   "kind": "group",
+   "role": "group",
+   "parentId": null,
+   "layerFixed": "—",
+   "layerSuggestedForType": "deep",
+   "catalogMuscleKey": "rotatorCuff",
+   "databaseMuscle": null,
+   "aliases": [
+    "rotator cuff muscles",
+    "SITS muscles",
+    "rotator cuff group"
+   ],
+   "location": "Four muscles from the shoulder blade to the upper end of the upper-arm bone, wrapping the shoulder joint at the front, the top and the back.",
+   "whatItDoes": "Holds the ball of the upper-arm bone in its shallow socket while the arm moves, and turns the arm inward and outward.",
+   "shapeNote": "Mostly deep, under the deltoid and the trapezius, so as a group it has little or no contour of its own; only parts of the infraspinatus and teres minor reach the surface, on the back of the shoulder blade. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "caveats": [
+    "A group, not a muscle: work is counted for the four muscles inside it."
+   ],
+   "surfaceVisibility": "partial",
+   "surfaceVisibilityReason": "Supraspinatus and subscapularis are covered; parts of the infraspinatus and teres minor are not covered by other muscles (kenhub.infraspinatus, kenhub.teres_minor).",
+   "layerCheck": "Parent node, not drawn (layer '—' in §1.2). All four members are 'deep' in §1.2, so 'deep' is the honest value if the type needs one.",
+   "status": "reviewed"
+  },
+  {
+   "id": "shoulders.supraspinatus",
+   "name": "Supraspinatus",
+   "shortName": "SSP",
+   "kind": "muscle",
+   "role": "target",
+   "parentId": "shoulders.rotator_cuff",
+   "layerFixed": "deep",
+   "catalogMuscleKey": "rotatorCuff",
+   "databaseMuscle": "supraspinatus",
+   "aliases": [
+    "supraspinatus muscle"
+   ],
+   "location": "Top of the shoulder blade, above its bony ridge and under the trapezius; its tendon runs under the bony tip of the shoulder to the top of the upper-arm bone.",
+   "whatItDoes": "Helps raise your arm out to the side, working with the deltoid. It also helps hold the ball of the upper-arm bone in its socket.",
+   "shapeNote": "Lies under the trapezius and the bony tip of the shoulder, so it has little or no visible contour of its own.",
+   "caveats": [
+    "Raising the arm to the side works it together with the deltoid; testing studies found positions that raise its share relative to the deltoid, and none of them was an exercise.",
+    "Anatomy texts teach that it starts the movement, but in one muscle-activity study it switched on together with the deltoid, not before it. The deltoid does most of the lifting."
+   ],
+   "surfaceVisibility": "not_distinct",
+   "surfaceVisibilityReason": "Covered by the trapezius, with its tendon under the acromion (kenhub.supraspinatus, statpearls.supraspinatus).",
+   "layerCheck": "Deep: supported (under the trapezius; kenhub.supraspinatus). No outcrop claimed, none found.",
+   "status": "reviewed"
+  },
+  {
+   "id": "shoulders.infraspinatus",
+   "name": "Infraspinatus",
+   "shortName": "ISP",
+   "kind": "muscle",
+   "role": "target",
+   "parentId": "shoulders.rotator_cuff",
+   "layerFixed": "deep (surface outcrop, back view)",
+   "catalogMuscleKey": "rotatorCuff",
+   "databaseMuscle": "infraspinatus",
+   "aliases": [
+    "infraspinatus muscle"
+   ],
+   "location": "Back of the shoulder blade, below its bony ridge; its tendon crosses the back of the shoulder joint to the upper end of the upper-arm bone.",
+   "whatItDoes": "Turns your arm outward, and helps hold the ball of the upper-arm bone in its socket.",
+   "shapeNote": "Covers most of the back of the shoulder blade below its ridge. Parts of it lie under the trapezius, the back of the deltoid and the latissimus dorsi, so it has little separately visible contour of its own; where it is not covered it may contribute to the contour on the back of the shoulder blade. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "caveats": [
+    "Turning the arm outward works it together with the teres minor and the back of the deltoid; how the work splits between them changes with arm position and is not known exactly."
+   ],
+   "surfaceVisibility": "partial",
+   "surfaceVisibilityReason": "Kenhub places it deep to the trapezius and only parts of the deltoid and latissimus dorsi, which leaves part of it uncovered on the back of the shoulder blade (kenhub.infraspinatus).",
+   "layerCheck": "Deep with a back-view surface outcrop: supported by kenhub.infraspinatus ('deep to trapezius, and parts of the deltoid and latissimus dorsi'). elsevier.infraspinatus says deep to the trapezius and deltoid without saying 'parts of'; not a contradiction of the outcrop, but less specific.",
+   "status": "reviewed"
+  },
+  {
+   "id": "shoulders.teres_minor",
+   "name": "Teres minor",
+   "shortName": "TMinor",
+   "kind": "muscle",
+   "role": "target",
+   "parentId": "shoulders.rotator_cuff",
+   "layerFixed": "deep (surface outcrop, back view)",
+   "catalogMuscleKey": "rotatorCuff",
+   "databaseMuscle": "teres_minor",
+   "aliases": [
+    "teres minor muscle"
+   ],
+   "location": "Outer edge of the shoulder blade on the back, just below the infraspinatus and above the teres major; its tendon reaches the upper end of the upper-arm bone from behind.",
+   "whatItDoes": "Turns your arm outward, alongside the infraspinatus, and helps hold the ball of the upper-arm bone in its socket.",
+   "shapeNote": "Narrow, and partly covered by the back of the deltoid, so it has little separately visible contour of its own; it lies between the infraspinatus above and the teres major below. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "caveats": [
+    "It turns the arm outward together with the infraspinatus, so outward-turning work loads both.",
+    "Not the teres major, the muscle just below it, which belongs to the back."
+   ],
+   "surfaceVisibility": "partial",
+   "surfaceVisibilityReason": "Kenhub says the deltoid covers its upper outer part, leaving the rest near the surface; it is narrow and lies between the infraspinatus and teres major (kenhub.teres_minor, statpearls.teres_minor).",
+   "layerCheck": "Deep with a back-view surface outcrop: supported by kenhub.teres_minor (the deltoid covers its superolateral aspect). statpearls.teres_minor calls it 'located deep to the deltoid' without qualification; the two read differently, and the outcrop rests on Kenhub. §7.2 already allows it to be list-only if it cannot hold a 44 px square.",
+   "status": "reviewed"
+  },
+  {
+   "id": "shoulders.subscapularis",
+   "name": "Subscapularis",
+   "shortName": "SSC",
+   "kind": "muscle",
+   "role": "target",
+   "parentId": "shoulders.rotator_cuff",
+   "layerFixed": "deep",
+   "catalogMuscleKey": "rotatorCuff",
+   "databaseMuscle": "subscapularis",
+   "aliases": [
+    "subscapularis muscle"
+   ],
+   "location": "Front, rib-facing surface of the shoulder blade; its tendon crosses the front of the shoulder joint to the upper-arm bone.",
+   "whatItDoes": "Turns your arm inward, and helps hold the ball of the upper-arm bone in its socket. It is the largest muscle of the rotator cuff.",
+   "shapeNote": "Lies on the rib-facing side of the shoulder blade, under other structures, so it has little or no visible contour of its own.",
+   "caveats": [
+    "Its upper and lower parts can be recorded separately; in one exercise study arm position changed which part worked harder, while studies of clinical tests disagree on whether the two parts differ."
+   ],
+   "surfaceVisibility": "not_distinct",
+   "surfaceVisibilityReason": "On the costal surface of the scapula, behind the serratus anterior and the shoulder joint (elsevier.subscapularis, kenhub.subscapularis).",
+   "layerCheck": "Deep: supported. Drawing note (not a §1.2 change): from the front only its tendon and outer part cross in front of the joint (statpearls.subscapularis); the belly lies behind the rib cage in a front view.",
+   "status": "reviewed"
+  }
+ ],
+ "claims": [
+  {
+   "id": "shoulders.deltoid.function",
+   "key": "shoulders:shoulders.deltoid.function",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.deltoid",
+   "kind": "function",
+   "statement": "The deltoid's three parts act differently. The front (clavicular) part raises the arm forward and turns it inward, the outer (acromial) part raises it out to the side, and the back (spinal) part moves it backward and turns it outward. The front and back parts also help steady the shoulder while the arm is raised to the side.",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "kenhub.deltoid",
+     "locator": "Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "luc.deltoid",
+     "locator": "Action",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "statpearls.deltoid",
+     "locator": "Structure and Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.deltoid.appearance",
+   "key": "shoulders:shoulders.deltoid.appearance",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.deltoid",
+   "kind": "appearance",
+   "statement": "The deltoid is a thick triangular muscle lying just under the skin over the front, outer side and back of the shoulder joint, so it may contribute most of the shoulder's rounded contour. Visible shape also depends on neighbouring muscles, body fat and individual anatomy.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "elsevier.deltoid",
+     "locator": "Overview: shape and relations",
+     "qualification": "Describes the shape and says the deltoid gives the shoulder its rounded contour; the claim keeps that as 'may contribute', an anatomical inference."
+    },
+    {
+     "sourceId": "statpearls.deltoid",
+     "locator": "Introduction",
+     "qualification": "Describes the shape and says the deltoid gives the shoulder its rounded contour; the claim keeps that as 'may contribute', an anatomical inference."
+    },
+    {
+     "sourceId": "kenhub.deltoid",
+     "locator": "Relations and palpation",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.deltoid.variation.1",
+   "key": "shoulders:shoulders.deltoid.variation.1",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.deltoid",
+   "kind": "variation",
+   "statement": "The deltoid is usually taught as three parts, but its inner structure is finer and differs between people. A study of 60 cadaver shoulders divided it into seven segments by its internal tendons, and a study of 44 deltoids divided by their nerve branches found between five and eight main segments, seven in half of them. The three parts used here are a simplification.",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "pmid.21118198",
+     "locator": "Abstract",
+     "qualification": "Cadaver anatomy with imaging after one elevation task; abstract only."
+    },
+    {
+     "sourceId": "boneandjoint.deltoid_nerve_segments",
+     "locator": "Abstract: Results and Conclusion",
+     "qualification": "Conference abstract from embalmed cadavers; exact title and year not shown."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.anterior_deltoid.function",
+   "key": "shoulders:shoulders.anterior_deltoid.function",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.anterior_deltoid",
+   "kind": "function",
+   "statement": "The front (clavicular) part of the deltoid raises the arm forward (flexion) and turns it inward (internal rotation); one anatomy reference names it, with the upper (clavicular) part of the pectoralis major, as a prime mover in raising the arm forward. It also helps bring a raised arm forward across the chest (horizontal adduction) and helps steady the shoulder. Moment-arm studies, most of them in cadavers, find that it and the outer part have the most leverage of the shoulder muscles studied for raising the arm out to the side; leverage is not how hard a muscle works in an exercise.",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist. Reworded by an automated second review with the same tools on 19 Oct 2026.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "elsevier.deltoid_clavicular",
+     "locator": "Quick Facts: Action",
+     "qualification": null
+    },
+    {
+     "sourceId": "kenhub.shoulder_joint",
+     "locator": "Movements: flexion",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "luc.deltoid",
+     "locator": "Action",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "physiopedia.deltoid",
+     "locator": "Function",
+     "qualification": "Professional wiki, seen as excerpts; cited beside an anatomy reference for horizontal adduction only."
+    },
+    {
+     "sourceId": "janat.ackland2008_shoulder_moment_arms",
+     "locator": "Abstract: Results",
+     "qualification": "Cadaver moment arms; shows leverage, not how hard the muscle works in an exercise."
+    },
+    {
+     "sourceId": "janat.hik_ackland2019_moment_arms_review",
+     "locator": "Abstract: Results",
+     "qualification": "Systematic review of cadaver and imaging moment-arm studies; abstract only."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.anterior_deltoid.selectivity.1",
+   "key": "shoulders:shoulders.anterior_deltoid.selectivity.1",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.anterior_deltoid",
+   "kind": "selectivity",
+   "statement": "How hard the front of the deltoid works depends on the exercise. In ten competitive bodybuilders it was more active in a front raise than in four kinds of lateral raise; in 13 trained men it was more active in the shoulder press than in the bench press, the dumbbell fly or the lateral raise. Both are short-term surface-EMG findings; neither study measured growth.",
+   "basis": "experimental",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "pmid.32824894",
+     "locator": "Abstract: Results (concentric phase)",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Ten competitive bodybuilders; surface electrodes."
+    },
+    {
+     "sourceId": "johk.campos2020_deltoid",
+     "locator": "Abstract: Results",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. 13 trained men; one set of 12 repetitions per exercise."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.anterior_deltoid.selectivity.2",
+   "key": "shoulders:shoulders.anterior_deltoid.selectivity.2",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.anterior_deltoid",
+   "kind": "selectivity",
+   "statement": "In a surface-EMG study of 30 trained adults bench pressing at five bench angles, from flat to 60 degrees, front-deltoid activity was highest at the steepest angle, and the authors concluded that inclines steeper than 45 degrees give significantly higher front-deltoid activity and lower pectoralis major performance. The study measured short-term activity, not growth.",
+   "basis": "experimental",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist. Reworded by an automated second review with the same tools on 19 Oct 2026.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "pmid.33049982",
+     "locator": "Abstract: Results; Conclusions",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. One study; seen as the abstract and its conclusion."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.anterior_deltoid.appearance",
+   "key": "shoulders:shoulders.anterior_deltoid.appearance",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.anterior_deltoid",
+   "kind": "appearance",
+   "statement": "The front part of the deltoid lies just under the skin at the front of the shoulder, from the outer third of the collarbone, and a groove (the deltopectoral groove) separates it from the pectoralis major, so it may contribute to the front of the shoulder's rounded contour beside the upper chest.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "elsevier.deltoid_clavicular",
+     "locator": "Quick Facts: Origin and insertion",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "radiopaedia.deltopectoral_groove",
+     "locator": "Gross anatomy",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "kenhub.deltoid",
+     "locator": "Relations and palpation",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.lateral_deltoid.function",
+   "key": "shoulders:shoulders.lateral_deltoid.function",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.lateral_deltoid",
+   "kind": "function",
+   "statement": "The outer (acromial) part of the deltoid is the main muscle raising the arm out to the side (abduction). Anatomy references describe it doing most of the lifting once the movement has started and teach that the supraspinatus is needed to start it from the arm hanging at the side; in one muscle-activity study of 14 people, though, the supraspinatus switched on together with the deltoid, not before it.",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist. Reworded by an automated second review with the same tools on 19 Oct 2026.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "kenhub.deltoid",
+     "locator": "Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "elsevier.deltoid_acromial",
+     "locator": "Quick Facts: Action",
+     "qualification": null
+    },
+    {
+     "sourceId": "statpearls.deltoid",
+     "locator": "Structure and Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "jek.reed2013_supraspinatus_onset",
+     "locator": "Abstract: Results and Conclusions",
+     "qualification": "Short-term muscle-activity timing in 14 healthy volunteers; says when each muscle switched on, not how much it lifts. Another study reported the supraspinatus first."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.lateral_deltoid.selectivity.1",
+   "key": "shoulders:shoulders.lateral_deltoid.selectivity.1",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.lateral_deltoid",
+   "kind": "selectivity",
+   "statement": "In ten competitive bodybuilders, the outer deltoid was more active in a lateral raise with the arm in a neutral position than in the same raise with the arm turned out, with the elbow bent, or in a front raise. In 13 trained men it was more active in the lateral raise and the shoulder press than in the bench press or the dumbbell fly. Both are short-term surface-EMG findings, not measurements of growth.",
+   "basis": "experimental",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "pmid.32824894",
+     "locator": "Abstract: Results (concentric phase)",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Ten competitive bodybuilders; the study calls this part the medial deltoid. The abstract's own conclusion says turning the arm out raises medial-deltoid activity, which reads against this results line; the claim states the results line only."
+    },
+    {
+     "sourceId": "johk.campos2020_deltoid",
+     "locator": "Abstract: Results",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. 13 trained men; the study calls this part the medial deltoid."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.lateral_deltoid.appearance",
+   "key": "shoulders:shoulders.lateral_deltoid.appearance",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.lateral_deltoid",
+   "kind": "appearance",
+   "statement": "The outer part of the deltoid runs from the outer edge of the bony tip of the shoulder (the acromion) down the outer side of the upper arm, just under the skin, so it may contribute to the outer curve of the shoulder.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "elsevier.deltoid_acromial",
+     "locator": "Quick Facts: Origin and insertion",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "kenhub.deltoid",
+     "locator": "Relations and palpation",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.posterior_deltoid.function",
+   "key": "shoulders:shoulders.posterior_deltoid.function",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.posterior_deltoid",
+   "kind": "function",
+   "statement": "The back (spinal) part of the deltoid moves the arm backward (extension), turns it outward (external rotation) and moves a raised arm backward (horizontal abduction). It also helps steady the shoulder while the arm is raised to the side.",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist. Source added by an automated second review with the same tools on 19 Oct 2026.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "elsevier.deltoid_spinal",
+     "locator": "Quick Facts: Action",
+     "qualification": null
+    },
+    {
+     "sourceId": "luc.deltoid",
+     "locator": "Action",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "kenhub.deltoid",
+     "locator": "Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "physiopedia.shoulder_exercise",
+     "locator": "Deltoid",
+     "qualification": "Professional wiki, seen as excerpts; cited beside two anatomy references for horizontal abduction only."
+    },
+    {
+     "sourceId": "statpearls.deltoid",
+     "locator": "Structure and Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "txstate.deltoid",
+     "locator": "Posterior portion: actions",
+     "qualification": "Seen through a generated summary of web-search results, not the full text; cited for horizontal abduction beside an anatomy reference."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.posterior_deltoid.selectivity.1",
+   "key": "shoulders:shoulders.posterior_deltoid.selectivity.1",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.posterior_deltoid",
+   "kind": "selectivity",
+   "statement": "In a surface-EMG study of 12 trained men, the back of the deltoid was more active in a reverse fly machine, which moves the raised arm backward, than in a seated row or an inclined pulldown. In ten competitive bodybuilders doing lateral and front raises, it was most active in a lateral raise with the arm turned inward. These are short-term activity findings; neither study measured growth.",
+   "basis": "experimental",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "pmid.24947920",
+     "locator": "Abstract: Results",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. 12 trained men; authors and journal from a sports-science index record."
+    },
+    {
+     "sourceId": "pmid.32824894",
+     "locator": "Abstract: Results (concentric phase)",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Ten competitive bodybuilders; surface electrodes."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.posterior_deltoid.appearance",
+   "key": "shoulders:shoulders.posterior_deltoid.appearance",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.posterior_deltoid",
+   "kind": "appearance",
+   "statement": "The back part of the deltoid runs from the bony ridge of the shoulder blade (its spine) to the outer side of the upper arm, just under the skin, so it may contribute to the back of the shoulder's rounded contour. It lies over parts of the infraspinatus and teres minor.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "elsevier.deltoid_spinal",
+     "locator": "Quick Facts: Origin and insertion",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "kenhub.deltoid",
+     "locator": "Relations and palpation",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "kenhub.infraspinatus",
+     "locator": "Relations",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "kenhub.teres_minor",
+     "locator": "Relations",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.rotator_cuff.function",
+   "key": "shoulders:shoulders.rotator_cuff.function",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.rotator_cuff",
+   "kind": "function",
+   "statement": "The rotator cuff is four muscles, the supraspinatus, infraspinatus, teres minor and subscapularis, that run from the shoulder blade to the upper-arm bone. Working together they press the head of the bone into its shallow socket and keep it from sliding while the arm moves; separately they turn the arm outward (infraspinatus and teres minor) or inward (subscapularis) and help raise it to the side (supraspinatus).",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist. Source added by an automated second review with the same tools on 19 Oct 2026.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.rotator_cuff",
+     "locator": "Introduction; Structure and Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "elsevier.subscapularis",
+     "locator": "Overview: the rotator cuff",
+     "qualification": null
+    },
+    {
+     "sourceId": "kenhub.rotator_cuff",
+     "locator": "Function",
+     "qualification": "Attribution of the excerpt to this page is inferred from the result list."
+    },
+    {
+     "sourceId": "statpearls.infraspinatus",
+     "locator": "Structure and Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text; cited for the outward-turning line."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.rotator_cuff.appearance",
+   "key": "shoulders:shoulders.rotator_cuff.appearance",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.rotator_cuff",
+   "kind": "appearance",
+   "statement": "The rotator cuff lies mostly under the deltoid and the trapezius, and the subscapularis lies on the rib-facing side of the shoulder blade, so as a group it has little contour of its own. Only the infraspinatus and teres minor, on the back of the shoulder blade, are described as partly rather than wholly covered by other muscles.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "kenhub.supraspinatus",
+     "locator": "Relations",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "kenhub.infraspinatus",
+     "locator": "Relations",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "kenhub.teres_minor",
+     "locator": "Relations",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "elsevier.subscapularis",
+     "locator": "Overview: location",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.supraspinatus.function",
+   "key": "shoulders:shoulders.supraspinatus.function",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.supraspinatus",
+   "kind": "function",
+   "statement": "Supraspinatus helps raise the arm out to the side (abduction), working with the deltoid. Anatomy references describe it as starting the movement from the arm hanging at the side, though in one muscle-activity study of 14 people it switched on together with the deltoid, not before it. With the other three rotator cuff muscles it helps hold the head of the upper-arm bone in its shallow socket.",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist. Reworded by an automated second review with the same tools on 19 Oct 2026.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.supraspinatus",
+     "locator": "Introduction; Structure and Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "kenhub.supraspinatus",
+     "locator": "Key facts: Function",
+     "qualification": null
+    },
+    {
+     "sourceId": "kenhub.upper_limb_movements",
+     "locator": "Abduction; the rotator cuff",
+     "qualification": null
+    },
+    {
+     "sourceId": "elsevier.deltoid_acromial",
+     "locator": "Quick Facts: Action",
+     "qualification": null
+    },
+    {
+     "sourceId": "jek.reed2013_supraspinatus_onset",
+     "locator": "Abstract: Results and Conclusions",
+     "qualification": "Short-term muscle-activity timing in 14 healthy volunteers; says when each muscle switched on, not how much it lifts. Another study reported the supraspinatus first."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.supraspinatus.selectivity.1",
+   "key": "shoulders:shoulders.supraspinatus.selectivity.1",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.supraspinatus",
+   "kind": "selectivity",
+   "statement": "In two EMG studies of healthy adults (10 and 21 people), the supraspinatus's activity relative to the deltoid's was highest with the arm raised only about 30 degrees, slightly forward and turned out, and lowest, or nearly so, in the 'empty can' position used in clinical testing. In the first study its own activity was highest with the arm raised to 90 degrees; lowering the arm raised its share relative to the deltoid. These are short-term findings from testing positions, not exercises, and not measurements of growth.",
+   "basis": "experimental",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist. Reworded by an automated second review with the same tools on 19 Oct 2026.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "pmid.26443105",
+     "locator": "Abstract: Results and Conclusions",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. Ten healthy volunteers; examination positions, not training exercises."
+    },
+    {
+     "sourceId": "bmc.kijkunasathian2023_supraspinatus",
+     "locator": "Abstract: Results",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. 21 healthy young adults; resisted holds in testing positions."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.supraspinatus.appearance",
+   "key": "shoulders:shoulders.supraspinatus.appearance",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.supraspinatus",
+   "kind": "appearance",
+   "statement": "Supraspinatus fills the hollow above the bony ridge of the shoulder blade, under the trapezius, and its tendon passes under the bony tip of the shoulder, so it has little or no visible contour of its own.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.supraspinatus",
+     "locator": "Structure and Function: location and insertion",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "kenhub.supraspinatus",
+     "locator": "Relations",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.infraspinatus.function",
+   "key": "shoulders:shoulders.infraspinatus.function",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.infraspinatus",
+   "kind": "function",
+   "statement": "Infraspinatus turns the arm outward (external rotation), working with the teres minor. As part of the rotator cuff it presses the head of the upper-arm bone into its socket, balancing the pull of the subscapularis at the front.",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.infraspinatus",
+     "locator": "Structure and Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "elsevier.infraspinatus",
+     "locator": "Quick Facts: Action",
+     "qualification": null
+    },
+    {
+     "sourceId": "kenhub.infraspinatus",
+     "locator": "Key facts: Function",
+     "qualification": null
+    },
+    {
+     "sourceId": "janat.hik_ackland2019_moment_arms_review",
+     "locator": "Abstract",
+     "qualification": "Systematic review of moment-arm studies; abstract only. Cited for the force-couple line only, which another reference also states; summaries of its per-muscle rotation results disagreed with each other and were not relied on."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.infraspinatus.selectivity.1",
+   "key": "shoulders:shoulders.infraspinatus.selectivity.1",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.infraspinatus",
+   "kind": "selectivity",
+   "statement": "Turning the arm outward works the infraspinatus together with the back of the deltoid, and their shares change with position. In a surface-EMG study of 32 people with rounded shoulders, infraspinatus activity was highest in an exercise position the authors based on the muscle's architecture, while the side-lying version gave the highest ratio of infraspinatus to rear-deltoid activity. In another study, watching the EMG signal during side-lying external rotation lowered rear-deltoid activity and raised infraspinatus activity. Neither study measured growth.",
+   "basis": "experimental",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "mdpi.soylu2025_infraspinatus",
+     "locator": "Abstract: Results",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. People with rounded shoulder posture; surface electrodes; cross-sectional."
+    },
+    {
+     "sourceId": "johk.lim2014_biofeedback",
+     "locator": "Abstract: Results",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. 31 people without shoulder symptoms; biofeedback during one exercise."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.infraspinatus.appearance",
+   "key": "shoulders:shoulders.infraspinatus.appearance",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.infraspinatus",
+   "kind": "appearance",
+   "statement": "Infraspinatus is a thick triangular muscle covering most of the back of the shoulder blade below its ridge. It lies under the trapezius and parts of the deltoid and the latissimus dorsi, so it has little separately visible contour of its own; where it is not covered, it may contribute to the contour on the back of the shoulder blade.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "kenhub.infraspinatus",
+     "locator": "Overview and relations",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "elsevier.infraspinatus",
+     "locator": "Quick Facts: location",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.teres_minor.function",
+   "key": "shoulders:shoulders.teres_minor.function",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.teres_minor",
+   "kind": "function",
+   "statement": "Teres minor turns the arm outward (external rotation), working with the infraspinatus, and as part of the rotator cuff helps hold the head of the upper-arm bone in its socket. Some references also list a role in bringing the arm toward the body.",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.teres_minor",
+     "locator": "Introduction",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "kenhub.teres_minor",
+     "locator": "Key facts: Function",
+     "qualification": null
+    },
+    {
+     "sourceId": "elsevier.teres_minor",
+     "locator": "Quick Facts: Action",
+     "qualification": null
+    },
+    {
+     "sourceId": "statpearls.infraspinatus",
+     "locator": "Structure and Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.teres_minor.appearance",
+   "key": "shoulders:shoulders.teres_minor.appearance",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.teres_minor",
+   "kind": "appearance",
+   "statement": "Teres minor is a narrow muscle along the outer edge of the shoulder blade, just below the infraspinatus and above the teres major, and the back of the deltoid covers its upper outer part, so it has little separately visible contour of its own.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.teres_minor",
+     "locator": "Structure and Function: location",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "kenhub.teres_minor",
+     "locator": "Relations",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source. The teres major line was returned with this page and another reference; its attribution is inferred."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.subscapularis.function",
+   "key": "shoulders:shoulders.subscapularis.function",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.subscapularis",
+   "kind": "function",
+   "statement": "Subscapularis is the rotator cuff muscle that turns the arm inward (internal rotation); anatomy references call it the only one of the four that does, and the largest and strongest of them. It also helps hold the head of the upper-arm bone in its socket and can help bring the arm toward the body.",
+   "basis": "established_anatomy",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist. Reworded by an automated second review with the same tools on 19 Oct 2026.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.subscapularis",
+     "locator": "Introduction; Structure and Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    },
+    {
+     "sourceId": "elsevier.subscapularis",
+     "locator": "Quick Facts: Action",
+     "qualification": null
+    },
+    {
+     "sourceId": "kenhub.subscapularis",
+     "locator": "Function",
+     "qualification": "Seen through web-search excerpts of the page, not the full text."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.subscapularis.selectivity.1",
+   "key": "shoulders:shoulders.subscapularis.selectivity.1",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.subscapularis",
+   "kind": "selectivity",
+   "statement": "The upper and lower parts of the subscapularis can be recorded separately. In 15 healthy people doing seven shoulder exercises, the upper part was more active than the lower in every exercise except turning the arm inward with the arm at the side, the push-up plus and diagonal exercises activated both parts most, and the authors concluded that how far the arm was raised to the side strongly influenced which part worked harder. Studies of clinical tests disagree: in a study of 16 people one test favoured the upper part and another the lower, while a later study of 20 people found no difference between the two parts in three such tests. These are short-term activity findings, not growth.",
+   "basis": "experimental",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026; automated review, not a clinician or anatomist. Reworded by an automated second review with the same tools on 19 Oct 2026.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "pmid.12531769",
+     "locator": "Abstract: Results and Conclusions",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. 15 healthy subjects; fine-wire recordings of the two parts were not described in the excerpt."
+    },
+    {
+     "sourceId": "pmid.14564261",
+     "locator": "Abstract: Results",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. 16 healthy volunteers; clinical examination tests, not exercises. A later study of 20 people, also cited, found no difference between the two parts."
+    },
+    {
+     "sourceId": "ajsm.pennock2011_subscapularis_tests",
+     "locator": "Abstract: Results and Conclusion",
+     "qualification": "Short-term muscle activity in a controlled task; not a measurement of growth and not a set-credit weight. 20 healthy participants; clinical examination tests, not exercises."
+    }
+   ]
+  },
+  {
+   "id": "shoulders.subscapularis.appearance",
+   "key": "shoulders:shoulders.subscapularis.appearance",
+   "ownerRegionId": "shoulders",
+   "nodeId": "shoulders.subscapularis",
+   "kind": "appearance",
+   "statement": "Subscapularis covers the front, rib-facing surface of the shoulder blade, and its tendon crosses the front of the shoulder joint, so it lies under other structures and has little or no visible contour of its own.",
+   "basis": "anatomical_inference",
+   "reviewStatus": "reviewed",
+   "reviewedAt": "2026-10-19",
+   "reviewNote": "Checked against the cited sources through web search on 19 Oct 2026, as an anatomical inference from the muscle's cited location and depth; not a measured prediction. Automated review, not a clinician or anatomist.",
+   "draftReason": null,
+   "sources": [
+    {
+     "sourceId": "statpearls.subscapularis",
+     "locator": "Introduction; Structure: origin and insertion",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    },
+    {
+     "sourceId": "elsevier.subscapularis",
+     "locator": "Overview: location",
+     "qualification": "Gives location and layer only; the contour statement is inferred from them, not reported by the source."
+    }
+   ]
+  }
+ ],
+ "nodeActions": [
+  {
+   "nodeId": "shoulders.anterior_deltoid",
+   "actionId": "shoulder.flexion",
+   "role": "prime",
+   "claimId": "shoulders.anterior_deltoid.function",
+   "claimKey": "shoulders:shoulders.anterior_deltoid.function",
+   "basisInClaim": "Main action (elsevier.deltoid_clavicular; kenhub.shoulder_joint names it a prime flexor; luc.deltoid)."
+  },
+  {
+   "nodeId": "shoulders.anterior_deltoid",
+   "actionId": "shoulder.internal_rotation",
+   "role": "prime",
+   "claimId": "shoulders.anterior_deltoid.function",
+   "claimKey": "shoulders:shoulders.anterior_deltoid.function",
+   "basisInClaim": "Listed with flexion as its main action (elsevier.deltoid_clavicular, luc.deltoid, kenhub.deltoid)."
+  },
+  {
+   "nodeId": "shoulders.anterior_deltoid",
+   "actionId": "shoulder.horizontal_adduction",
+   "role": "assist",
+   "claimId": "shoulders.anterior_deltoid.function",
+   "claimKey": "shoulders:shoulders.anterior_deltoid.function",
+   "basisInClaim": "Elsevier: 'helps with transverse adduction of the flexed arm'; Physiopedia lists it."
+  },
+  {
+   "nodeId": "shoulders.anterior_deltoid",
+   "actionId": "shoulder.abduction",
+   "role": "assist",
+   "claimId": "shoulders.anterior_deltoid.function",
+   "claimKey": "shoulders:shoulders.anterior_deltoid.function",
+   "basisInClaim": "Moment-arm studies rank it among the most effective abductors; StatPearls says the outer part does most of the lifting."
+  },
+  {
+   "nodeId": "shoulders.lateral_deltoid",
+   "actionId": "shoulder.abduction",
+   "role": "prime",
+   "claimId": "shoulders.lateral_deltoid.function",
+   "claimKey": "shoulders:shoulders.lateral_deltoid.function",
+   "basisInClaim": "The main abductor (kenhub.deltoid, elsevier.deltoid_acromial, statpearls.deltoid)."
+  },
+  {
+   "nodeId": "shoulders.posterior_deltoid",
+   "actionId": "shoulder.extension",
+   "role": "prime",
+   "claimId": "shoulders.posterior_deltoid.function",
+   "claimKey": "shoulders:shoulders.posterior_deltoid.function",
+   "basisInClaim": "Main action (elsevier.deltoid_spinal, luc.deltoid, kenhub.deltoid)."
+  },
+  {
+   "nodeId": "shoulders.posterior_deltoid",
+   "actionId": "shoulder.horizontal_abduction",
+   "role": "prime",
+   "claimId": "shoulders.posterior_deltoid.function",
+   "claimKey": "shoulders:shoulders.posterior_deltoid.function",
+   "basisInClaim": "Listed as its own action (elsevier.deltoid_spinal 'transversely abducts'; physiopedia.shoulder_exercise)."
+  },
+  {
+   "nodeId": "shoulders.posterior_deltoid",
+   "actionId": "shoulder.external_rotation",
+   "role": "prime",
+   "claimId": "shoulders.posterior_deltoid.function",
+   "claimKey": "shoulders:shoulders.posterior_deltoid.function",
+   "basisInClaim": "Listed as its own action (elsevier.deltoid_spinal 'laterally rotates', luc.deltoid, kenhub.deltoid)."
+  },
+  {
+   "nodeId": "shoulders.supraspinatus",
+   "actionId": "shoulder.abduction",
+   "role": "prime",
+   "claimId": "shoulders.supraspinatus.function",
+   "claimKey": "shoulders:shoulders.supraspinatus.function",
+   "basisInClaim": "Main action (statpearls.supraspinatus, kenhub.supraspinatus, kenhub.upper_limb_movements)."
+  },
+  {
+   "nodeId": "shoulders.infraspinatus",
+   "actionId": "shoulder.external_rotation",
+   "role": "prime",
+   "claimId": "shoulders.infraspinatus.function",
+   "claimKey": "shoulders:shoulders.infraspinatus.function",
+   "basisInClaim": "Main action (statpearls.infraspinatus, elsevier.infraspinatus, kenhub.infraspinatus)."
+  },
+  {
+   "nodeId": "shoulders.teres_minor",
+   "actionId": "shoulder.external_rotation",
+   "role": "prime",
+   "claimId": "shoulders.teres_minor.function",
+   "claimKey": "shoulders:shoulders.teres_minor.function",
+   "basisInClaim": "Main action (statpearls.teres_minor, kenhub.teres_minor, elsevier.teres_minor)."
+  },
+  {
+   "nodeId": "shoulders.subscapularis",
+   "actionId": "shoulder.internal_rotation",
+   "role": "prime",
+   "claimId": "shoulders.subscapularis.function",
+   "claimKey": "shoulders:shoulders.subscapularis.function",
+   "basisInClaim": "Main action (statpearls.subscapularis, elsevier.subscapularis, kenhub.subscapularis)."
+  }
+ ],
+ "actions": [
+  {
+   "id": "shoulder.flexion",
+   "joint": "Shoulder",
+   "label": "Shoulder flexion",
+   "plainDescription": "Raises the arm forward and up in front of the body.",
+   "definedIn": "shared/specialization/actions/joints.ts"
+  },
+  {
+   "id": "shoulder.abduction",
+   "joint": "Shoulder",
+   "label": "Shoulder abduction",
+   "plainDescription": "Raises the arm out to the side.",
+   "definedIn": "shared/specialization/actions/joints.ts"
+  },
+  {
+   "id": "shoulder.extension",
+   "joint": "Shoulder",
+   "label": "Shoulder extension",
+   "plainDescription": "Brings the arm down and back from in front of the body, and on behind it.",
+   "definedIn": "shared/specialization/actions/joints.ts"
+  },
+  {
+   "id": "shoulder.horizontal_adduction",
+   "joint": "Shoulder",
+   "label": "Horizontal adduction",
+   "plainDescription": "Moves an arm held out at shoulder height forward and across the chest.",
+   "definedIn": "shared/specialization/actions/joints.ts"
+  },
+  {
+   "id": "shoulder.horizontal_abduction",
+   "joint": "Shoulder",
+   "label": "Horizontal abduction",
+   "plainDescription": "Moves an arm held out in front at shoulder height back and out to the side.",
+   "definedIn": "shared/specialization/actions/joints.ts"
+  },
+  {
+   "id": "shoulder.external_rotation",
+   "joint": "Shoulder",
+   "label": "Shoulder external rotation",
+   "plainDescription": "Turns the upper arm outward on its long axis: with the elbow bent, the hand swings away from the belly.",
+   "definedIn": "shared/specialization/actions/joints.ts"
+  },
+  {
+   "id": "shoulder.internal_rotation",
+   "joint": "Shoulder",
+   "label": "Shoulder internal rotation",
+   "plainDescription": "Turns the upper arm inward on its long axis: with the elbow bent, the hand swings toward the belly.",
+   "definedIn": "shared/specialization/actions/joints.ts"
+  },
+  {
+   "id": "scapula.upward_rotation",
+   "joint": "Shoulder blade",
+   "label": "Scapular upward rotation",
+   "plainDescription": "Turns the shoulder blade so the shoulder socket faces up, as the arm rises overhead.",
+   "definedIn": "shared/specialization/actions/joints.ts"
+  }
+ ],
+ "sources": [
+  {
+   "key": "statpearls.deltoid",
+   "url": "https://www.ncbi.nlm.nih.gov/books/NBK537056/",
+   "title": "StatPearls: Anatomy, Shoulder and Upper Limb, Deltoid Muscle (Elzanie and Varacallo)",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (introduction and part of the function section): a large triangular muscle that forms the shoulder's rounded contour and is a key player in shoulder stability and motion; its three parts together help raise the arm past about 15 degrees, but the deltoid cannot start abduction because its fibres run parallel to the humerus; the anterior and posterior parts stabilise the arm during abduction while the lateral part does most of the lifting from about 15 to 100 degrees. Listed as updated 30 Jan 2024. The fibre-by-fibre flexion, rotation and extension actions were not seen in this article's visible text; the point-of-care copy (statpearls.com/point-of-care/20331) is behind a login."
+  },
+  {
+   "key": "kenhub.deltoid",
+   "url": "https://www.kenhub.com/en/library/anatomy/the-deltoid-muscle",
+   "title": "Kenhub: deltoid muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: the clavicular part (anterior fibres) can act as a flexor and internal rotator of the arm; the acromial part (middle fibres) abducts the arm and is the principal abductor at the glenohumeral joint; the scapular spinal part (posterior fibres) can extend and externally rotate the arm; the clavicular and spinal parts play a significant role in stabilisation; the muscle surrounds the glenohumeral joint on all sides and, being superficial, can be easily observed and palpated."
+  },
+  {
+   "key": "kenhub.shoulder_joint",
+   "url": "https://www.kenhub.com/en/library/anatomy/the-shoulder-joint",
+   "title": "Kenhub: glenohumeral (shoulder) joint",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: the prime flexors of the glenohumeral joint are the deltoid (anterior fibres) and pectoralis major (clavicular fibres). No passage on horizontal adduction or abduction was returned from this page."
+  },
+  {
+   "key": "elsevier.deltoid",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb-left/deltoid-muscle-left/19926",
+   "title": "Elsevier Complete Anatomy, Quick Facts: deltoid muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: the thick triangular muscle that gives the shoulder its rounded contour; superficial to the glenohumeral joint, the proximal tendons of biceps brachii and triceps brachii, and the axillary nerve; flexes and medially rotates the arm when the clavicular part contracts on its own. The page is the entry for the left-side model, as its URL says; the side word was dropped from the title, which names no side."
+  },
+  {
+   "key": "elsevier.deltoid_clavicular",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb/clavicular-part-of-deltoid-muscle/22661",
+   "title": "Elsevier Complete Anatomy, Quick Facts: clavicular part of deltoid muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: from the lateral third of the clavicle to the deltoid tuberosity of the humerus; its main actions at the glenohumeral joint are flexion and medial rotation of the arm; it helps with transverse adduction of the flexed arm and helps stabilise the shoulder joint."
+  },
+  {
+   "key": "elsevier.deltoid_acromial",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb/acromial-part-of-deltoid-muscle/16918",
+   "title": "Elsevier Complete Anatomy, Quick Facts: acromial part of deltoid muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: arises from the lateral aspect of the acromion; the acromial, clavicular and scapular spinal parts converge on a short, thick tendon to the deltoid tuberosity; it is the abductor of the arm at the shoulder joint, and simultaneous contraction of supraspinatus is needed to initiate abduction from the anatomical position; axillary nerve (C5-C6)."
+  },
+  {
+   "key": "elsevier.deltoid_spinal",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb/scapular-spinal-part-of-deltoid-muscle/21230",
+   "title": "Elsevier Complete Anatomy, Quick Facts: scapular spinal part of deltoid muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: from the spine of the scapula to the deltoid tuberosity; 'Extends, laterally rotates and transversely abducts arm at glenohumeral (shoulder) joint'; axillary nerve (C5-C6). An Elsevier sample chapter in the same results says the spinal part helps initiate abduction, which the muscle page does not say; not used."
+  },
+  {
+   "key": "luc.deltoid",
+   "url": "https://www.meddean.luc.edu/lumen/meded/grossanatomy/dissector/mml/delt.htm",
+   "title": "Loyola University Chicago, Lumen gross anatomy dissector: deltoid",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: 'Abducts arm, anterior fibers flex and medial rotate, posterior fibers extend and lateral rotate'; axillary nerve (C5, C6). A university teaching page; only this action line was seen. The second review's results gave the same page at www.lumen.luc.edu/lumen/meded/grossanatomy/dissector/mml/delt.htm."
+  },
+  {
+   "key": "physiopedia.deltoid",
+   "url": "https://www.physio-pedia.com/Deltoid",
+   "title": "Physiopedia: deltoid",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (excerpts only): 'The primary function of the anterior deltoid is flexion, internal rotation, and horizontal adduction'; manual muscle testing resists horizontal adduction for the anterior fibres and horizontal abduction for the posterior fibres. Physiopedia is a professional wiki written by physiotherapists, below the evidence standard's listed reference types; it is cited only beside an Elsevier reference for the same action."
+  },
+  {
+   "key": "physiopedia.shoulder_exercise",
+   "url": "https://www.physio-pedia.com/Therapeutic_Exercise_for_the_Shoulder",
+   "title": "Physiopedia: therapeutic exercise for the shoulder",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (the result's URL carried a language parameter): 'The anterior portion is a prime motor during shoulder flexion and horizontal adduction of the shoulder, while the lateral/middle portion acts during abduction and horizontal abduction and the posterior portion is recruited during horizontal abduction.' Professional wiki; cited only beside an Elsevier reference for the same action."
+  },
+  {
+   "key": "radiopaedia.deltopectoral_groove",
+   "url": "https://radiopaedia.org/articles/deltopectoral-groove",
+   "title": "Radiopaedia: deltopectoral groove",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: the deltopectoral groove (Mohrenheim's groove) lies between the superolateral aspect of the pectoral region and the deltoid muscle and contains the cephalic vein."
+  },
+  {
+   "key": "janat.ackland2008_shoulder_moment_arms",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2644775/",
+   "title": "Ackland, Pak, Richardson and Pandy, Moment arms of the muscles crossing the anatomical shoulder (Journal of Anatomy, 2008)",
+   "doi": null,
+   "evidenceType": "biomechanics",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (abstract): tendon-excursion moment arms for 18 muscle sub-regions in eight entire upper-limb cadaver specimens during coronal-plane abduction and sagittal-plane flexion; significant differences across deltoid sub-regions; the middle and anterior deltoid sub-regions were the most effective abductors. Horizontal movements were not measured. DOI and volume not shown."
+  },
+  {
+   "key": "janat.hik_ackland2019_moment_arms_review",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6284439/",
+   "title": "Hik and Ackland, The moment arms of the muscles spanning the glenohumeral joint: a systematic review (Journal of Anatomy 234(1):1-15)",
+   "doi": "10.1111/joa.12903",
+   "evidenceType": "systematic_review",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (abstract): pooled moment arms of the deltoid, pectoralis major, latissimus dorsi, teres major and the four rotator cuff muscles during abduction, flexion and axial rotation; the anterior and middle deltoid sub-regions had the largest humeral elevator moment arms of all muscles during coronal- and scapular-plane abduction and during flexion; the posterior deltoid and teres minor can act as abductors or adductors depending on arm position; infraspinatus and teres minor oppose subscapularis in a transverse-plane force couple that compresses the humeral head into the glenoid. PMC gives 8 Nov 2018 online; the University of Melbourne record gives 2019. Its rotation results were not seen. Second review: the abstract says the rotator cuff muscles had the largest axial rotation moment arms whatever the humerus's axial position. Two generated summaries of its per-muscle rotation results contradicted each other and the anatomy references (one called the teres minor an internal rotator, another listed the posterior deltoid and supraspinatus among internal rotators in neutral); neither was relied on."
+  },
+  {
+   "key": "pmid.21118198",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/21118198/",
+   "title": "Sakoma et al., Anatomical and functional segments of the deltoid muscle (Journal of Anatomy, 2011)",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (abstract, also PMC3042752): in 60 cadaver shoulders the deltoid divided into seven segments by the distribution of its intramuscular tendons; FDG-PET uptake after scapular-plane elevation was uneven and matched the segments, which the authors took to be the muscle's functional units. Authors after the first were not confirmed."
+  },
+  {
+   "key": "boneandjoint.deltoid_nerve_segments",
+   "url": "https://boneandjoint.org.uk/Article/10.1302/0301-620X.91BSUPP_III.0910464d",
+   "title": "Deltoid segments defined by axillary nerve branching (Journal of Bone and Joint Surgery, British volume, supplement abstract; authors not confirmed)",
+   "doi": "10.1302/0301-620X.91BSUPP_III.0910464d",
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (conference abstract): 44 deltoids from 22 embalmed adult cadavers divided by the axillary nerve branch supplying each portion: eight major divisions in 3, seven in 22 of 44, six in 14 and five in 5; the authors conclude that a segmentation into five to eight major segments is found, and cite mechanomyographic work describing at least seven functional segments in a muscle usually taught as three. Exact title, year and authors not shown: the second review saw the abstract's counts again but no author names, and a search under Audenaert and Barbaix did not find it. Audenaert and Barbaix wrote a 2008 commentary, 'Separate segments within the deltoid muscle: anatomical variants or wishful thinking?' (International Journal of Shoulder Surgery, PMC2840820), which says dissection of the bundles is largely a matter of interpretation; whether they also wrote this abstract is unconfirmed, so the title no longer names them."
+  },
+  {
+   "key": "pmid.32824894",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7503819/",
+   "title": "Coratella et al., An Electromyographic Analysis of Lateral Raise Variations and Frontal Raise in Competitive Bodybuilders (International Journal of Environmental Research and Public Health 17(17):6015, 2020)",
+   "doi": null,
+   "evidenceType": "emg",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (abstract, two searches): ten competitive bodybuilders; surface EMG of the anterior, medial (lateral) and posterior deltoid, pectoralis major, upper trapezius and triceps brachii during lateral raises with the humerus externally rotated, neutral and internally rotated, a lateral raise with the elbow flexed, and a frontal raise. Concentric phase: anterior deltoid greater in the frontal raise than in all others; medial deltoid greater in the neutral lateral raise than in the externally rotated, frontal and flexed-elbow versions; posterior deltoid greater in the internally rotated lateral raise than in all others; similar patterns in the eccentric phase. The abstract's conclusion also says humeral external rotation increases anterior and medial deltoid activation, which reads against the medial result unless it compares with internal rotation; the claims rely only on the results lines. The PubMed id is read from an index record (OLB-PM-32824894), not from PubMed itself; the DOI was not shown. Acute activity, not growth."
+  },
+  {
+   "key": "johk.campos2020_deltoid",
+   "url": "https://johk.pl/?p=5707",
+   "title": "Campos, Vianna, Guimaraes, Oliveira, Hernandez-Mosqueira, da Silva and Marchetti, Different Shoulder Exercises Affect the Activation of Deltoid Portions in Resistance-Trained Individuals (Journal of Human Kinetics 75:5-14, 2020)",
+   "doi": null,
+   "evidenceType": "emg",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (abstract and library records, bibliorepositorio.unach.cl): 13 resistance-trained men; one set of 12 repetitions at 60 percent of one-repetition maximum per exercise; surface EMG normalised to maximal isometric contractions. Anterior deltoid highest in the shoulder press (bench press, lateral raise and dumbbell fly did not differ from one another); medial deltoid higher in the lateral raise and shoulder press than in the bench press and dumbbell fly; posterior deltoid highest in the lateral raise, and higher in the shoulder press than in the bench press and fly. The second review saw the anterior deltoid result as 'significantly higher level of activation when compared to other exercises' and a full text at PMC7706677; DOI and PubMed id not shown. Acute activity, not growth."
+  },
+  {
+   "key": "pmid.24947920",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/24947920/",
+   "title": "de Azevedo Franke, Botton, Rodrigues, Silveira Pinto and Silveira Lima, Analysis of anterior, middle and posterior deltoid activation during single and multijoint exercises (Journal of Sports Medicine and Physical Fitness 55(7-8):714-721, 2015)",
+   "doi": null,
+   "evidenceType": "emg",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (abstract): 12 men (23.4 +/- 1.6 years) with at least one year of strength training; inclined lat pulldown, reverse peck deck and seated row; no difference for the anterior portion, greater middle-portion activation in the reverse peck deck and seated row than in the pulldown, and the greatest posterior activation in the reverse peck deck. The second review found the journal, volume, pages and authors in a sports-science database record (bisp-surf PU201602000372); the PubMed page itself was not opened. Acute activity, not growth."
+  },
+  {
+   "key": "pmid.33049982",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/33049982/",
+   "title": "Rodriguez-Ridao et al., Effect of Five Bench Inclinations on the Electromyographic Activity of the Pectoralis Major, Anterior Deltoid, and Triceps Brachii during the Bench Press Exercise (International Journal of Environmental Research and Public Health 17(19):7339, 2020)",
+   "doi": null,
+   "evidenceType": "emg",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (abstract and conclusion, also PMC7579505): 30 trained adults at 60 percent of one-repetition maximum on benches at 0, 15, 30, 45 and 60 degrees; anterior deltoid EMG highest at 60 degrees; inclinations greater than 45 degrees produce significantly higher anterior deltoid activation and decrease the muscular performance of the pectoralis major; triceps similar at all angles. The abstract's overall conclusion also says the horizontal bench press produces similar activity for the pectoralis major and the anterior deltoid. Acute activity, not growth."
+  },
+  {
+   "key": "pmid.26443105",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/26443105/",
+   "title": "Chalmers et al., The champagne toast position isolates the supraspinatus better than the Jobe test (Journal of Shoulder and Elbow Surgery 25(2):322-329, 2016)",
+   "doi": null,
+   "evidenceType": "emg",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (abstract): EMG of the supraspinatus, anterior deltoid and middle deltoid in 10 normal volunteers across examination positions; the greatest supraspinatus-to-deltoid ratio was at the 'champagne toast' position (30 degrees of abduction, mild external rotation, 30 degrees of flexion, elbow bent to 90 degrees) and the smallest at Jobe's position. The full title may carry a subtitle that was not shown. A clinical testing study in healthy volunteers, not exercise or growth. Second review: the abstract gives the ratios as 4.6 +/- 3.4 (champagne toast, standardized load) and 0.8 +/- 0.6 (Jobe), and says supraspinatus activity itself was maximal at 90 degrees of abduction, with lower abduction raising the ratio."
+  },
+  {
+   "key": "bmc.kijkunasathian2023_supraspinatus",
+   "url": "https://bmcmusculoskeletdisord.biomedcentral.com/articles/10.1186/s12891-023-06372-3",
+   "title": "Kijkunasathian, Niyomkha, Woratanarat and Vijittrakarnrung, The preferable shoulder position can isolate supraspinatus activity superior to the classic empty can test: an electromyographic study (BMC Musculoskeletal Disorders 24:255, 2023)",
+   "doi": "10.1186/s12891-023-06372-3",
+   "evidenceType": "emg",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (abstract): 21 healthy adults; EMG of seven periscapular muscles during resisted abduction at combinations of abduction, horizontal flexion and humeral rotation; the supraspinatus-to-middle-deltoid ratio rose at lower abduction and horizontal-flexion angles and with external rather than internal rotation; highest (3.4) at 30 degrees abduction, 30 degrees horizontal flexion and external rotation; the classic empty can position gave nearly the smallest ratio (0.8). Healthy young adults only; a testing study, not exercise or growth. The second review found the four authors and PubMed id 37013546; it saw the highest-ratio position again only through a secondary summary and did not see the empty-can value again."
+  },
+  {
+   "key": "mdpi.soylu2025_infraspinatus",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11857205/",
+   "title": "Soylu et al., Selective Activation of the Infraspinatus During External Rotation Exercises in Participants with Rounded Shoulder Posture: Comparison of Three Common Exercises and Muscle Architecture-Based Exercise (Medicina 61(2):203, 2025)",
+   "doi": null,
+   "evidenceType": "emg",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (abstract): prospective cross-sectional study of 32 people (17 men, 15 women) with rounded shoulder posture; surface EMG of the middle trapezius, posterior deltoid and infraspinatus in four external-rotation positions (standing, side-lying, scapular plane and a muscle-architecture-based position, MABER); infraspinatus activity highest in MABER and lowest in the scapular-plane version; posterior deltoid highest standing; the infraspinatus-to-posterior-deltoid ratio highest side-lying. Authors after the first not shown. Acute activity, not growth. The second review confirmed the results and found that the trial registry entry (NCT06070909) lists 15 participants against the paper's 32; the paper's count is used."
+  },
+  {
+   "key": "johk.lim2014_biofeedback",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4327383/",
+   "title": "Lim et al., Effect of Selective Muscle Training Using Visual EMG Biofeedback on Infraspinatus and Posterior Deltoid (Journal of Human Kinetics 44:83-90, 2014)",
+   "doi": null,
+   "evidenceType": "emg",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: during side-lying shoulder external rotation with visual EMG biofeedback, posterior deltoid activity decreased significantly and infraspinatus activity and the infraspinatus-to-posterior-deltoid ratio increased significantly. The second review found 31 asymptomatic subjects, the volume and pages, and that the biofeedback threshold was set to prevent excessive posterior deltoid contraction; authors after the first not shown. Acute activity, not growth."
+  },
+  {
+   "key": "pmid.12531769",
+   "url": "https://utsouthwestern.elsevierpure.com/en/publications/subscapularis-muscle-activity-during-selected-rehabilitation-exer",
+   "title": "Decker et al., Subscapularis muscle activity during selected rehabilitation exercises (American Journal of Sports Medicine 31(1):126-134, 2003)",
+   "doi": null,
+   "evidenceType": "emg",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (abstract, two searches): controlled laboratory study; 15 healthy subjects, seven shoulder-strengthening exercises; EMG of latissimus dorsi, teres major, pectoralis major, infraspinatus, supraspinatus and upper and lower subscapularis; upper subscapularis activity greater than lower in all exercises except internal rotation with 0 degrees of humeral abduction; push-up plus and diagonal exercises activated both portions most, more than traditional internal rotation exercises; humeral abduction strongly influenced which portion was selectively activated. The PubMed id is read from an Orthobullets evidence page (orthobullets.com/evidence/12531769); the first author is from one summary only. Acute activity, not growth. The second review saw the same results and the plural 'push-up plus and diagonal exercises'."
+  },
+  {
+   "key": "pmid.14564261",
+   "url": "https://orthobullets.com/evidence/14564261",
+   "title": "Tokish, Decker, Ellis, Torry and Hawkins, The belly-press test for the physical examination of the subscapularis muscle: electromyographic validation and comparison to the lift-off test (Journal of Shoulder and Elbow Surgery 12(5):427-430, 2003)",
+   "doi": null,
+   "evidenceType": "emg",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (abstract as reproduced by Orthobullets): EMG of seven muscles in 16 healthy volunteers; both the belly-press and lift-off tests activated the subscapularis more than the other muscles tested; the belly-press activated the upper subscapularis more than the lift-off, and the lift-off loaded the lower subscapularis more. A later study (Pennock et al., 2011) found no difference between the upper and lower subscapularis in three such tests; the second review cites it (ajsm.pennock2011_subscapularis_tests). A clinical testing study, not exercise or growth."
+  },
+  {
+   "key": "statpearls.rotator_cuff",
+   "url": "https://www.ncbi.nlm.nih.gov/books/NBK441844/",
+   "title": "StatPearls: Anatomy, Rotator Cuff",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: subscapularis, infraspinatus, teres minor and supraspinatus ('SITS') arise from the scapula and insert on the humerus; compression is the core function, pressing the humeral head into the glenoid, and the cuff contracts during arm movements to keep the head from sliding; the tendons blend with the capsule at the back, top and front of the joint, leaving the bottom open; static and dynamic stabilisers (the cuff and the long head of biceps); supraspinatus primarily starts abduction and subscapularis medially rotates, with infraspinatus and teres minor listed for lateral rotation (that line was not captured verbatim). Versions dated 2023 and 2026 appeared."
+  },
+  {
+   "key": "kenhub.rotator_cuff",
+   "url": "https://www.kenhub.com/en/library/anatomy/the-rotator-cuff",
+   "title": "Kenhub: rotator cuff muscles",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: the main function of the rotator cuff is to stabilise and centre the humeral head in the glenoid cavity; key facts list infraspinatus and teres minor as external rotators that also stabilise the humeral head; one list gives supraspinatus roots as C4-C6. The 'main function' excerpt was returned in a result list that included this page; its attribution to this page is inferred."
+  },
+  {
+   "key": "statpearls.supraspinatus",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/30725887/",
+   "title": "StatPearls: Anatomy, Shoulder and Upper Limb, Arm Supraspinatus Muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: the most superior rotator cuff muscle, in the supraspinous fossa above the scapular spine; its tendon passes under the acromion and over the humeral head to the superior facet of the greater tuberosity; main action abduction of the humerus, with a possible weak contribution to lateral rotation; 'initiates and aids the deltoid in abduction of the arm'; with the other three cuff muscles forms part of the dynamic stabilisation of the glenohumeral joint; the most frequently torn cuff muscle. NCBI Bookshelf id NBK557880 appeared in the same results but was not matched to this article."
+  },
+  {
+   "key": "kenhub.supraspinatus",
+   "url": "https://www.kenhub.com/en/library/anatomy/supraspinatus-muscle",
+   "title": "Kenhub: supraspinatus muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: lies in the posterior scapular region under the trapezius, from the supraspinous fossa to the proximal humerus; assists the deltoid in abduction of the arm at the glenohumeral joint."
+  },
+  {
+   "key": "kenhub.upper_limb_movements",
+   "url": "https://www.kenhub.com/en/library/anatomy/upper-limb-muscles-and-movements",
+   "title": "Kenhub: upper limb muscles and movements",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: supraspinatus is essential for initiating abduction over its early range and helps hold the humeral head in the glenoid cavity, keeping it from sliding downward; tears of its tendon, which passes under the acromion, are the most common rotator cuff injury."
+  },
+  {
+   "key": "statpearls.infraspinatus",
+   "url": "https://www.ncbi.nlm.nih.gov/books/NBK513255/",
+   "title": "StatPearls: Anatomy, Shoulder and Upper Limb, Infraspinatus Muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026 (snippets; full text behind registration on statpearls.com): fills most of the infraspinous fossa; one of the four rotator cuff muscles; its tendon crosses the back of the shoulder to the middle facet of the greater tuberosity; 'the infraspinatus and teres minor act synergistically as external rotators of the shoulder'; 'The rotator cuff applies compression upon the head of the humerus that allows for the stabilization of the humeral head during shoulder abduction'; it supplies the posterior counterforce to the subscapularis's anterior pull; suprascapular nerve."
+  },
+  {
+   "key": "kenhub.infraspinatus",
+   "url": "https://www.kenhub.com/en/library/anatomy/infraspinatus-muscle",
+   "title": "Kenhub: infraspinatus muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: 'lies on the dorsal surface of the scapula, deep to trapezius, and parts of the deltoid and latissimus dorsi muscles'; a thick triangular muscle that occupies the majority of the dorsal surface of the scapula; above teres minor and teres major, separated from them by thick fascia; a lateral (external) rotator of the shoulder; suprascapular nerve."
+  },
+  {
+   "key": "elsevier.infraspinatus",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb/infraspinatus-muscle/20380",
+   "title": "Elsevier Complete Anatomy, Quick Facts: infraspinatus muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: from the infraspinous fossa to the greater tubercle of the humerus; located anterior (deep) to the trapezius and deltoid muscles and the infraspinous fascia; laterally rotates the arm and transversely abducts it at the glenohumeral joint; suprascapular nerve (C5-C6). The location line was returned beside the Kenhub page; its attribution to this page is inferred from its wording."
+  },
+  {
+   "key": "statpearls.teres_minor",
+   "url": "https://www.ncbi.nlm.nih.gov/books/NBK513324/",
+   "title": "StatPearls: Anatomy, Shoulder and Upper Limb, Teres Minor Muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: 'As a rotator cuff muscle, the teres minor stabilizes the ball-and-socket glenohumeral joint by helping hold the humeral head (ball) into the shallow glenoid cavity of the scapula (socket). The teres minor also laterally or externally rotates the arm at the shoulder joint.'; positioned immediately inferior to the infraspinatus at the lateral border of the scapula; a narrow, elongated muscle located deep to the deltoid; axillary nerve (C5, C6)."
+  },
+  {
+   "key": "kenhub.teres_minor",
+   "url": "https://www.kenhub.com/en/library/anatomy/teres-minor-muscle",
+   "title": "Kenhub: teres minor muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: key facts give 'external rotation and adduction of arm at glenohumeral joint; stabilization of the humeral head in glenoid cavity'; from the lateral border of the scapula to the greater tubercle; the deltoid covers its superolateral aspect; teres major lies beneath it."
+  },
+  {
+   "key": "elsevier.teres_minor",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb/teres-minor-muscle/19335",
+   "title": "Elsevier Complete Anatomy, Quick Facts: teres minor muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: 'Laterally rotates, transversely abducts and stabilizes arm at glenohumeral (shoulder) joint'; assists in adduction of the arm at the glenohumeral joint."
+  },
+  {
+   "key": "statpearls.subscapularis",
+   "url": "https://www.ncbi.nlm.nih.gov/books/NBK513344/",
+   "title": "StatPearls: Anatomy, Shoulder and Upper Limb, Subscapularis Muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: a large, powerful triangular muscle from the subscapular fossa to the lesser tubercle of the humerus, named for its position under the scapula; 'The subscapularis muscle's primary function is internal rotation but can also aid in adducting the humerus'; 'the largest, strongest muscle of the rotator cuff'; its tendon inserts on the lesser tubercle in front of the joint capsule; loss of function produces weakness in internal rotation. Last updated 28 Aug 2023. The second review saw the Bookshelf title 'Anatomy, Shoulder and Upper Limb, Subscapularis Muscle' with id NBK513344."
+  },
+  {
+   "key": "elsevier.subscapularis",
+   "url": "https://www.elsevier.com/resources/anatomy/muscular-system/muscles-of-upper-limb/subscapularis-muscle/16597",
+   "title": "Elsevier Complete Anatomy, Quick Facts: subscapularis muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: from the subscapular fossa to the lesser tubercle; 'Medially rotates and stabilizes arm at glenohumeral (shoulder) joint'; lies deep, on the anterior side of the scapula, behind the glenohumeral joint and the serratus anterior; the four rotator cuff muscles work together to stabilise the glenohumeral joint by holding the head of the humerus in the glenoid fossa during its movements; upper and lower subscapular nerves (C5-C7)."
+  },
+  {
+   "key": "kenhub.subscapularis",
+   "url": "https://www.kenhub.com/en/library/anatomy/subscapularis-muscle",
+   "title": "Kenhub: subscapularis muscle",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Checked via web-search results on 19 Oct 2026: the only medial rotator among the rotator cuff muscles; arises from the costal surface of the scapula (subscapular fossa), posterolateral to the thoracic cage; also tightens the joint capsule during movement."
+  },
+  {
+   "key": "jek.reed2013_supraspinatus_onset",
+   "url": "https://acuresearchbank.acu.edu.au/item/87zw0/does-supraspinatus-initiate-shoulder-abduction",
+   "title": "Reed, Cathers, Halaki and Ginn, Does supraspinatus initiate shoulder abduction? (Journal of Electromyography and Kinesiology 23(2):425-429, 2013)",
+   "doi": null,
+   "evidenceType": "emg",
+   "retrievedOn": "2026-10-19",
+   "notes": "Added by the second review. Checked via web-search results on 19 Oct 2026 (abstract, as listed by the Australian Catholic University repository): EMG of seven shoulder muscles in 14 volunteers during abduction in three planes at 25, 50 and 75 percent of maximum load; all muscles were activated before movement onset; supraspinatus, infraspinatus, upper and lower trapezius, serratus anterior and deltoid had similar initial activation times and subscapularis was later; the authors conclude that the supraspinatus is recruited before abduction but not earlier than the deltoid, and that the statement that it initiates abduction is misleading. A 2018 biomechanics review agrees. One other study, not identified by the search, reported the supraspinatus switching on before the middle deltoid in dumbbell movements. PubMed id and DOI not shown. Muscle-activity timing, not how much each muscle lifts."
+  },
+  {
+   "key": "txstate.deltoid",
+   "url": "https://hper-server.its.txstate.edu/hper/faculty/pankey/3320/4325tut/shld/delt.html",
+   "title": "Texas State University, kinesiology tutorial: deltoid, anterior, middle and posterior portions",
+   "doi": null,
+   "evidenceType": "anatomy",
+   "retrievedOn": "2026-10-19",
+   "notes": "Added by the second review. Checked via web-search results on 19 Oct 2026: a university course page listing the posterior portion's actions as extension, horizontal abduction and outward rotation. Only that line was seen, as a generated summary; a second search restricted to the site did not return the page, so its other lines (the anterior portion's) were not seen."
+  },
+  {
+   "key": "ajsm.pennock2011_subscapularis_tests",
+   "url": "https://drmillett.com/influence-arm-shoulder-position-bear-hug-belly-press-lift-off-tests/",
+   "title": "Pennock, Pennington, Torry, Decker, Vaishnav, Provencher, Millett and Hackett, The influence of arm and shoulder position on the bear-hug, belly-press, and lift-off tests: an electromyographic study (American Journal of Sports Medicine 39(11):2338-2346, 2011)",
+   "doi": null,
+   "evidenceType": "emg",
+   "retrievedOn": "2026-10-19",
+   "notes": "Added by the second review. Checked via web-search results on 19 Oct 2026 (abstract, as hosted on a co-author's page and on shoulderdoc.co.uk): controlled laboratory study; 20 healthy participants; EMG of the upper and lower subscapularis and six other muscles in three clinical tests at set arm positions; both subscapularis divisions were more active than every other muscle in every test; upper and lower subscapularis activity did not differ significantly at any position or across the three tests. PubMed id and DOI not shown. A clinical testing study, not exercise or growth."
+  }
+ ],
+ "citations": [
+  {
+   "claimId": "shoulders.deltoid.function",
+   "sourceKey": "kenhub.deltoid",
+   "query": "deltoid muscle anterior part flexion internal rotation posterior part extension external rotation [allowed_domains: kenhub.com]",
+   "queryRef": "Q3",
+   "excerpt": "The clavicular part (anterior fibers) can act as a flexor and internal rotator of the arm. ... Posterior (spinal) fibers: These fibers can extend and externally rotate the arm ... Acromial part (middle fibres) abducts the arm, while the clavicular and scapular spinal parts play a significant role in stabilization.",
+   "locator": "Function"
+  },
+  {
+   "claimId": "shoulders.deltoid.function",
+   "sourceKey": "luc.deltoid",
+   "query": "Loyola University dissector deltoid muscle action anterior fibers flex medially rotate posterior fibers extend laterally rotate [allowed_domains: luc.edu]",
+   "queryRef": "Q12",
+   "excerpt": "ACTION Abducts arm, anterior fibers flex and medial rotate, posterior fibers extend and lateral rotate",
+   "locator": "Action"
+  },
+  {
+   "claimId": "shoulders.deltoid.function",
+   "sourceKey": "statpearls.deltoid",
+   "query": "StatPearls Anatomy, Shoulder and Upper Limb, Deltoid Muscle anterior middle posterior fibers function",
+   "queryRef": "Q1",
+   "excerpt": "The anterior and posterior parts stabilize the arm during abduction, while the lateral segment does most of the lifting from about 15° to 100° ([index 2-5]).",
+   "locator": "Structure and Function"
+  },
+  {
+   "claimId": "shoulders.deltoid.appearance",
+   "sourceKey": "elsevier.deltoid",
+   "query": "deltoid surface anatomy rounded contour of the shoulder covers glenohumeral joint deltopectoral groove anterior border palpable [allowed_domains: kenhub.com, radiopaedia.org, ncbi.nlm.nih.gov, elsevier.com]",
+   "queryRef": "Q40",
+   "excerpt": "Elsevier's anatomy entry describes the deltoid as the thick triangular muscle that gives the shoulder its rounded contour (The deltoid muscle is the thick triangular muscle that gives the shoulder its rounded contour.). ... Elsevier places it superficial to the joint, the biceps and triceps tendons, and the axillary nerve",
+   "locator": "Overview: shape and relations"
+  },
+  {
+   "claimId": "shoulders.deltoid.appearance",
+   "sourceKey": "statpearls.deltoid",
+   "query": "StatPearls deltoid NBK537056 \"gives the shoulder\" rounded contour anterior fibers flexion medial rotation posterior fibers extension lateral rotation",
+   "queryRef": "Q4",
+   "excerpt": "The article describes the deltoid as a large triangular shoulder muscle, named because its shape resembles the inverted Greek letter delta. It forms the shoulder's rounded contour, being thick and spread out anteroposteriorly.",
+   "locator": "Introduction"
+  },
+  {
+   "claimId": "shoulders.deltoid.appearance",
+   "sourceKey": "kenhub.deltoid",
+   "query": "deltoid surface anatomy rounded contour of the shoulder covers glenohumeral joint deltopectoral groove anterior border palpable [allowed_domains: kenhub.com, radiopaedia.org, ncbi.nlm.nih.gov, elsevier.com]",
+   "queryRef": "Q40",
+   "excerpt": "Kenhub describes the muscle as wrapping around the joint on all sides (It passes inferiorly surrounding the glenohumeral joint on all sides and inserts onto the humerus.). ... (Due to its superficial nature, the deltoid can be easily observed and palpated.)",
+   "locator": "Relations and palpation"
+  },
+  {
+   "claimId": "shoulders.deltoid.variation.1",
+   "sourceKey": "pmid.21118198",
+   "query": "deltoid muscle segments neuromuscular partitioning seven segments Brown 2007 Sakoma 2011 anatomical functional segments deltoid",
+   "queryRef": "Q41",
+   "excerpt": "The anatomical study demonstrated that the deltoid muscle was divided into seven segments based on the distribution of its intramuscular tendons. We conclude that the deltoid muscle has seven anatomical segments, which seem to represent the functional units of this muscle. [Working from 60 cadaveric shoulders]",
+   "locator": "Abstract"
+  },
+  {
+   "claimId": "shoulders.deltoid.variation.1",
+   "sourceKey": "boneandjoint.deltoid_nerve_segments",
+   "query": "deltoid axillary nerve branches 44 deltoids seven principal branches segments Journal of Bone and Joint Surgery British supplement abstract; \"Separate segments within the deltoid muscle\" Audenaert Barbaix",
+   "queryRef": "Q42",
+   "excerpt": "The authors dissected 44 deltoids from 22 embalmed adult cadavers and split each muscle into portions according to the axillary nerve branch supplying it. Their results were 8 major divisions in 3 cases, 7 principal parts in 22 of 44 cases (50%), 6 divisions in 14 cases, and 5 branches in 5 specimens. ... They concluded that the innervation pattern supports a segmentation into 5 to 8 major segments. ... the deltoid muscle, commonly described as having three anatomical segments",
+   "locator": "Abstract: Results and Conclusion"
+  },
+  {
+   "claimId": "shoulders.anterior_deltoid.function",
+   "sourceKey": "elsevier.deltoid_clavicular",
+   "query": "Elsevier Complete Anatomy clavicular part of deltoid muscle action flexes medially rotates transversely flexes arm [allowed_domains: elsevier.com]",
+   "queryRef": "Q10",
+   "excerpt": "Its main actions at the glenohumeral joint are flexion and medial rotation of the arm. The entry also says it helps with transverse adduction of the flexed arm and helps stabilize the shoulder joint.",
+   "locator": "Quick Facts: Action"
+  },
+  {
+   "claimId": "shoulders.anterior_deltoid.function",
+   "sourceKey": "kenhub.shoulder_joint",
+   "query": "deltoid muscle anterior part flexion internal rotation posterior part extension external rotation [allowed_domains: kenhub.com]",
+   "queryRef": "Q3",
+   "excerpt": "The prime flexors of the glenohumeral joint are the deltoid (anterior fibers) and pectoralis major (clavicular fibers) muscles.",
+   "locator": "Movements: flexion"
+  },
+  {
+   "claimId": "shoulders.anterior_deltoid.function",
+   "sourceKey": "luc.deltoid",
+   "query": "Loyola University dissector deltoid muscle action anterior fibers flex medially rotate posterior fibers extend laterally rotate [allowed_domains: luc.edu]",
+   "queryRef": "Q12",
+   "excerpt": "ACTION Abducts arm, anterior fibers flex and medial rotate, posterior fibers extend and lateral rotate",
+   "locator": "Action"
+  },
+  {
+   "claimId": "shoulders.anterior_deltoid.function",
+   "sourceKey": "physiopedia.deltoid",
+   "query": "Physiopedia Deltoid article function anterior fibres horizontal adduction posterior fibres horizontal abduction [allowed_domains: physio-pedia.com]",
+   "queryRef": "Q48",
+   "excerpt": "The primary function of the anterior deltoid is flexion, internal rotation, and horizontal adduction.",
+   "locator": "Function"
+  },
+  {
+   "claimId": "shoulders.anterior_deltoid.function",
+   "sourceKey": "janat.ackland2008_shoulder_moment_arms",
+   "query": "moment arms shoulder muscles horizontal flexion horizontal extension anterior deltoid posterior deltoid Ackland Pandy 2008 cadaver",
+   "queryRef": "Q49",
+   "excerpt": "It reported significant differences across deltoid sub-regions. The most effective abductors were the middle and anterior deltoid sub-regions.",
+   "locator": "Abstract: Results"
+  },
+  {
+   "claimId": "shoulders.anterior_deltoid.function",
+   "sourceKey": "janat.hik_ackland2019_moment_arms_review",
+   "query": "moment arms shoulder muscles horizontal flexion horizontal extension anterior deltoid posterior deltoid Ackland Pandy 2008 cadaver",
+   "queryRef": "Q49",
+   "excerpt": "It found that the anterior and middle sub-regions of the deltoid had the largest humeral elevator moment arm values of all muscles during coronal- and scapular-plane abduction, as well as during flexion.",
+   "locator": "Abstract: Results"
+  },
+  {
+   "claimId": "shoulders.anterior_deltoid.selectivity.1",
+   "sourceKey": "pmid.32824894",
+   "query": "Coratella 2020 electromyographic analysis lateral raise variations frontal raise competitive bodybuilders anterior medial posterior deltoid results",
+   "queryRef": "Q13",
+   "excerpt": "Anterior deltoid: Highest activation came from the frontal raise. Anterior deltoid output was greater in the frontal raise than in all other exercises.",
+   "locator": "Abstract: Results (concentric phase)"
+  },
+  {
+   "claimId": "shoulders.anterior_deltoid.selectivity.1",
+   "sourceKey": "johk.campos2020_deltoid",
+   "query": "Campos 2020 Journal of Sports Science and Medicine \"Different Shoulder Exercises Affect the Activation of Deltoid Portions in Resistance-Trained Individuals\"",
+   "queryRef": "Q15",
+   "excerpt": "Anterior deltoid: The shoulder press produced the highest activation, at 33.3% MVIC. The bench press, lateral raise, and dumbbell fly did not differ significantly from one another.",
+   "locator": "Abstract: Results"
+  },
+  {
+   "claimId": "shoulders.anterior_deltoid.selectivity.2",
+   "sourceKey": "pmid.33049982",
+   "query": "\"Effect of Five Bench Inclinations on the Electromyographic Activity of the Pectoralis Major, Anterior Deltoid, and Triceps Brachii\" abstract results anterior deltoid 45 60 degrees",
+   "queryRef": "Q53",
+   "excerpt": "Anterior deltoid: AD had the highest EMG activity at 60°. The full-text conclusion says inclinations greater than 45° produce significantly higher activation of the anterior deltoid and decrease the muscular performance of the pectoralis major.",
+   "locator": "Abstract: Results; Conclusions"
+  },
+  {
+   "claimId": "shoulders.anterior_deltoid.appearance",
+   "sourceKey": "elsevier.deltoid_clavicular",
+   "query": "Elsevier Complete Anatomy clavicular part of deltoid muscle action flexes medially rotates transversely flexes arm [allowed_domains: elsevier.com]",
+   "queryRef": "Q10",
+   "excerpt": "The Elsevier Complete Anatomy entry for the clavicular part of the deltoid lists it as originating on the lateral third of the clavicle and inserting on the deltoid tuberosity of the humerus.",
+   "locator": "Quick Facts: Origin and insertion"
+  },
+  {
+   "claimId": "shoulders.anterior_deltoid.appearance",
+   "sourceKey": "radiopaedia.deltopectoral_groove",
+   "query": "deltoid surface anatomy rounded contour of the shoulder covers glenohumeral joint deltopectoral groove anterior border palpable [allowed_domains: kenhub.com, radiopaedia.org, ncbi.nlm.nih.gov, elsevier.com]",
+   "queryRef": "Q40",
+   "excerpt": "The deltopectoral groove (also known as Mohrenheim's groove) is located between the superolateral aspect of the pectoral region and the deltoid muscle.",
+   "locator": "Gross anatomy"
+  },
+  {
+   "claimId": "shoulders.anterior_deltoid.appearance",
+   "sourceKey": "kenhub.deltoid",
+   "query": "deltoid surface anatomy rounded contour of the shoulder covers glenohumeral joint deltopectoral groove anterior border palpable [allowed_domains: kenhub.com, radiopaedia.org, ncbi.nlm.nih.gov, elsevier.com]",
+   "queryRef": "Q40",
+   "excerpt": "(Due to its superficial nature, the deltoid can be easily observed and palpated.)",
+   "locator": "Relations and palpation"
+  },
+  {
+   "claimId": "shoulders.lateral_deltoid.function",
+   "sourceKey": "kenhub.deltoid",
+   "query": "deltoid muscle anterior part flexion internal rotation posterior part extension external rotation [allowed_domains: kenhub.com]",
+   "queryRef": "Q3",
+   "excerpt": "Acromial (middle) part: This part is the main abductor. Acromial part (middle fibres) abducts the arm",
+   "locator": "Function"
+  },
+  {
+   "claimId": "shoulders.lateral_deltoid.function",
+   "sourceKey": "elsevier.deltoid_acromial",
+   "query": "Elsevier acromial part of deltoid muscle abducts arm glenohumeral joint quick facts [allowed_domains: elsevier.com]",
+   "queryRef": "Q11",
+   "excerpt": "Action: It is the abductor of the arm at the shoulder joint, and the page notes that simultaneous contraction of the supraspinatus muscle is necessary to initiate abduction from the anatomical position.",
+   "locator": "Quick Facts: Action"
+  },
+  {
+   "claimId": "shoulders.lateral_deltoid.function",
+   "sourceKey": "statpearls.deltoid",
+   "query": "StatPearls Anatomy, Shoulder and Upper Limb, Deltoid Muscle anterior middle posterior fibers function",
+   "queryRef": "Q1",
+   "excerpt": "Its function section says the three parts together can help raise the arm past 15°, but the deltoid cannot start abduction because its fibers run parallel to the humerus ([index 2-3:2-4]). The anterior and posterior parts stabilize the arm during abduction, while the lateral segment does most of the lifting from about 15° to 100° ([index 2-5]).",
+   "locator": "Structure and Function"
+  },
+  {
+   "claimId": "shoulders.lateral_deltoid.selectivity.1",
+   "sourceKey": "pmid.32824894",
+   "query": "Coratella lateral raise \"medial deltoid\" neutral humerus rotation greater than external rotation frontal raise flexed elbow concentric phase IJERPH 2020 6015",
+   "queryRef": "Q54",
+   "excerpt": "For the medial deltoid, the neutral-rotation lateral raise produced greater activation than the external-rotation version, the frontal raise, and the flexed-elbow version during the concentric phase.",
+   "locator": "Abstract: Results (concentric phase)"
+  },
+  {
+   "claimId": "shoulders.lateral_deltoid.selectivity.1",
+   "sourceKey": "johk.campos2020_deltoid",
+   "query": "Campos 2020 Journal of Sports Science and Medicine \"Different Shoulder Exercises Affect the Activation of Deltoid Portions in Resistance-Trained Individuals\"",
+   "queryRef": "Q15",
+   "excerpt": "Medial deltoid: The lateral raise (30.3% MVIC) and shoulder press (27.9% MVIC) produced more activity than the bench press and dumbbell fly.",
+   "locator": "Abstract: Results"
+  },
+  {
+   "claimId": "shoulders.lateral_deltoid.appearance",
+   "sourceKey": "elsevier.deltoid_acromial",
+   "query": "Elsevier acromial part of deltoid muscle abducts arm glenohumeral joint quick facts [allowed_domains: elsevier.com]",
+   "queryRef": "Q11",
+   "excerpt": "(The acromial part of the deltoid muscle originates from the lateral aspect of the acromion of the scapula.) ... (The muscle bellies of the acromial, clavicular, and scapular spinal parts of the deltoid muscle travel inferolaterally and converge to a single tendon. This tendon is short, thick and inserts onto the deltoid tuberosity of the humerus.)",
+   "locator": "Quick Facts: Origin and insertion"
+  },
+  {
+   "claimId": "shoulders.lateral_deltoid.appearance",
+   "sourceKey": "kenhub.deltoid",
+   "query": "deltoid surface anatomy rounded contour of the shoulder covers glenohumeral joint deltopectoral groove anterior border palpable [allowed_domains: kenhub.com, radiopaedia.org, ncbi.nlm.nih.gov, elsevier.com]",
+   "queryRef": "Q40",
+   "excerpt": "(Due to its superficial nature, the deltoid can be easily observed and palpated.)",
+   "locator": "Relations and palpation"
+  },
+  {
+   "claimId": "shoulders.posterior_deltoid.function",
+   "sourceKey": "elsevier.deltoid_spinal",
+   "query": "Elsevier acromial part of deltoid muscle abducts arm glenohumeral joint quick facts [allowed_domains: elsevier.com]",
+   "queryRef": "Q11",
+   "excerpt": "Action: Extends, laterally rotates and transversely abducts arm at glenohumeral (shoulder) joint.",
+   "locator": "Quick Facts: Action"
+  },
+  {
+   "claimId": "shoulders.posterior_deltoid.function",
+   "sourceKey": "luc.deltoid",
+   "query": "Loyola University dissector deltoid muscle action anterior fibers flex medially rotate posterior fibers extend laterally rotate [allowed_domains: luc.edu]",
+   "queryRef": "Q12",
+   "excerpt": "ACTION Abducts arm, anterior fibers flex and medial rotate, posterior fibers extend and lateral rotate",
+   "locator": "Action"
+  },
+  {
+   "claimId": "shoulders.posterior_deltoid.function",
+   "sourceKey": "kenhub.deltoid",
+   "query": "deltoid muscle anterior part flexion internal rotation posterior part extension external rotation [allowed_domains: kenhub.com]",
+   "queryRef": "Q3",
+   "excerpt": "Posterior (spinal) fibers: These fibers can extend and externally rotate the arm ... Acromial part (middle fibres) abducts the arm, while the clavicular and scapular spinal parts play a significant role in stabilization.",
+   "locator": "Function"
+  },
+  {
+   "claimId": "shoulders.posterior_deltoid.function",
+   "sourceKey": "physiopedia.shoulder_exercise",
+   "query": "Physiopedia Deltoid article function anterior fibres horizontal adduction posterior fibres horizontal abduction [allowed_domains: physio-pedia.com]",
+   "queryRef": "Q48",
+   "excerpt": "The anterior portion is a prime motor during shoulder flexion and horizontal adduction of the shoulder, while the lateral/middle portion acts during abduction and horizontal abduction and the posterior portion is recruited during horizontal abduction.",
+   "locator": "Deltoid"
+  },
+  {
+   "claimId": "shoulders.posterior_deltoid.function",
+   "sourceKey": "statpearls.deltoid",
+   "query": "StatPearls Anatomy, Shoulder and Upper Limb, Deltoid Muscle anterior middle posterior fibers function",
+   "queryRef": "Q1",
+   "excerpt": "The anterior and posterior parts stabilize the arm during abduction, while the lateral segment does most of the lifting from about 15° to 100° ([index 2-5]).",
+   "locator": "Structure and Function"
+  },
+  {
+   "claimId": "shoulders.posterior_deltoid.selectivity.1",
+   "sourceKey": "pmid.24947920",
+   "query": "Botton \"Analysis of anterior, middle and posterior deltoid activation during single and multijoint exercises\" results lateral raise shoulder press",
+   "queryRef": "Q14",
+   "excerpt": "Its exercises were inclined lat pull-down, reverse peck deck, and seated row. Twelve male participants (23.4±1.6 years) with at least one year of strength training experience were assessed on those three. ... (no difference for the anterior portion, greater middle-portion activation in the reverse peck deck and seated row, and greater posterior activation in the reverse peck deck).",
+   "locator": "Abstract: Results"
+  },
+  {
+   "claimId": "shoulders.posterior_deltoid.selectivity.1",
+   "sourceKey": "pmid.32824894",
+   "query": "Coratella 2020 electromyographic analysis lateral raise variations frontal raise competitive bodybuilders anterior medial posterior deltoid results",
+   "queryRef": "Q13",
+   "excerpt": "Posterior deltoid: The internally rotated lateral raise produced the most activity. Posterior deltoid output was greater in the internally rotated lateral raise than in all other exercises.",
+   "locator": "Abstract: Results (concentric phase)"
+  },
+  {
+   "claimId": "shoulders.posterior_deltoid.appearance",
+   "sourceKey": "elsevier.deltoid_spinal",
+   "query": "Elsevier Complete Anatomy quick facts spinal part of deltoid muscle action extends laterally rotates arm [allowed_domains: elsevier.com]",
+   "queryRef": "Q9",
+   "excerpt": "Its origin is the spine of the scapula, and it inserts on the deltoid tuberosity of the humerus.",
+   "locator": "Quick Facts: Origin and insertion"
+  },
+  {
+   "claimId": "shoulders.posterior_deltoid.appearance",
+   "sourceKey": "kenhub.deltoid",
+   "query": "deltoid surface anatomy rounded contour of the shoulder covers glenohumeral joint deltopectoral groove anterior border palpable [allowed_domains: kenhub.com, radiopaedia.org, ncbi.nlm.nih.gov, elsevier.com]",
+   "queryRef": "Q40",
+   "excerpt": "(Due to its superficial nature, the deltoid can be easily observed and palpated.)",
+   "locator": "Relations and palpation"
+  },
+  {
+   "claimId": "shoulders.posterior_deltoid.appearance",
+   "sourceKey": "kenhub.infraspinatus",
+   "query": "infraspinatus muscle relations lies deep to trapezius parts of deltoid latissimus dorsi thick triangular muscle infraspinous fossa [allowed_domains: kenhub.com]",
+   "queryRef": "Q45",
+   "excerpt": "lies on the dorsal surface of the scapula, deep to trapezius, and parts of the deltoid and latissimus dorsi muscles.",
+   "locator": "Relations"
+  },
+  {
+   "claimId": "shoulders.posterior_deltoid.appearance",
+   "sourceKey": "kenhub.teres_minor",
+   "query": "teres minor muscle narrow elongated lateral border of scapula below infraspinatus above teres major covered by deltoid relations [allowed_domains: kenhub.com, ncbi.nlm.nih.gov, statpearls.com, radiopaedia.org]",
+   "queryRef": "Q46",
+   "excerpt": "Kenhub notes that deltoid covers its superolateral aspect",
+   "locator": "Relations"
+  },
+  {
+   "claimId": "shoulders.rotator_cuff.function",
+   "sourceKey": "statpearls.rotator_cuff",
+   "query": "StatPearls Anatomy, Shoulder and Upper Limb, Arm Rotator Cuff function compress humeral head glenoid stability supraspinatus infraspinatus teres minor subscapularis",
+   "queryRef": "Q16",
+   "excerpt": "Muscles: The group is subscapularis, infraspinatus, teres minor, and supraspinatus, remembered as \"SITS.\" The four muscles arise from the scapula and insert into the humerus. Main function: The article identifies compression as the core job. The cuff holds the glenohumeral joint steady by pressing the humeral head into the glenoid. It also notes that the rotator muscles contract during arm movements to keep the humeral head from sliding ... Individual actions: Supraspinatus primarily starts arm abduction, and subscapularis handles medial rotation. The page also lists infraspinatus and teres minor for lateral rotation, though I didn't capture those lines verbatim.",
+   "locator": "Introduction; Structure and Function"
+  },
+  {
+   "claimId": "shoulders.rotator_cuff.function",
+   "sourceKey": "elsevier.subscapularis",
+   "query": "Elsevier subscapularis muscle quick facts action medially rotates arm glenohumeral joint holds head of humerus in glenoid [allowed_domains: elsevier.com]",
+   "queryRef": "Q30",
+   "excerpt": "Elsevier says that these muscles work together to stabilize the glenohumeral joint, by holding the head of the humerus in the glenoid fossa of the scapula, during its movements.",
+   "locator": "Overview: the rotator cuff"
+  },
+  {
+   "claimId": "shoulders.rotator_cuff.function",
+   "sourceKey": "kenhub.rotator_cuff",
+   "query": "teres minor muscle key facts function external rotation adduction stabilizes humeral head location inferior to infraspinatus covered by deltoid [allowed_domains: kenhub.com, elsevier.com, radiopaedia.org, imaios.com, ncbi.nlm.nih.gov]",
+   "queryRef": "Q26",
+   "excerpt": "The main function of the rotator cuff is to stabilize and center the humeral head in the joint socket, the glenoid cavity.",
+   "locator": "Function"
+  },
+  {
+   "claimId": "shoulders.rotator_cuff.appearance",
+   "sourceKey": "kenhub.supraspinatus",
+   "query": "supraspinatus muscle key facts function abduction of the arm stabilizes humeral head lies deep to trapezius [allowed_domains: kenhub.com, elsevier.com, imaios.com, radiopaedia.org]",
+   "queryRef": "Q19",
+   "excerpt": "The muscle sits in the posterior scapular region, under the trapezius, running from the scapula to the proximal humerus",
+   "locator": "Relations"
+  },
+  {
+   "claimId": "shoulders.rotator_cuff.appearance",
+   "sourceKey": "kenhub.infraspinatus",
+   "query": "infraspinatus muscle relations lies deep to trapezius parts of deltoid latissimus dorsi thick triangular muscle infraspinous fossa [allowed_domains: kenhub.com]",
+   "queryRef": "Q45",
+   "excerpt": "lies on the dorsal surface of the scapula, deep to trapezius, and parts of the deltoid and latissimus dorsi muscles.",
+   "locator": "Relations"
+  },
+  {
+   "claimId": "shoulders.rotator_cuff.appearance",
+   "sourceKey": "kenhub.teres_minor",
+   "query": "teres minor muscle narrow elongated lateral border of scapula below infraspinatus above teres major covered by deltoid relations [allowed_domains: kenhub.com, ncbi.nlm.nih.gov, statpearls.com, radiopaedia.org]",
+   "queryRef": "Q46",
+   "excerpt": "Kenhub notes that deltoid covers its superolateral aspect",
+   "locator": "Relations"
+  },
+  {
+   "claimId": "shoulders.rotator_cuff.appearance",
+   "sourceKey": "elsevier.subscapularis",
+   "query": "subscapularis muscle function medial rotation adduction anterior surface of scapula against ribs deep not palpable key facts [allowed_domains: kenhub.com, elsevier.com, radiopaedia.org]",
+   "queryRef": "Q29",
+   "excerpt": "The muscle lies deep, on the anterior side of the scapula, behind the glenohumeral joint and the serratus anterior ([1-1], [1-10]).",
+   "locator": "Overview: location"
+  },
+  {
+   "claimId": "shoulders.supraspinatus.function",
+   "sourceKey": "statpearls.supraspinatus",
+   "query": "StatPearls supraspinatus muscle anatomy function abduction first 15 degrees supraspinous fossa greater tubercle covered by trapezius",
+   "queryRef": "Q18",
+   "excerpt": "(With innervation from the suprascapular nerve, the supraspinatus initiates and aids the deltoid in abduction of the arm and acts in synergy with the rotator cuff muscles.) ... (In conjunction with the other three rotator cuff muscles, infraspinatus, teres minor, and subscapularis, the supraspinatus forms part of the dynamic stabilization for the glenohumeral joint. These four muscles act in a coordinated fashion to stabilize the head of the humerus on the shallow glenoid fossa)",
+   "locator": "Introduction; Structure and Function"
+  },
+  {
+   "claimId": "shoulders.supraspinatus.function",
+   "sourceKey": "kenhub.supraspinatus",
+   "query": "supraspinatus muscle key facts function abduction of the arm stabilizes humeral head lies deep to trapezius [allowed_domains: kenhub.com, elsevier.com, imaios.com, radiopaedia.org]",
+   "queryRef": "Q19",
+   "excerpt": "One Kenhub page notes it assists the deltoid in abduction ([Kenhub](https://www.kenhub.com/en/library/anatomy/supraspinatus-muscle)).",
+   "locator": "Key facts: Function"
+  },
+  {
+   "claimId": "shoulders.supraspinatus.function",
+   "sourceKey": "kenhub.upper_limb_movements",
+   "query": "supraspinatus muscle key facts function abduction of the arm stabilizes humeral head lies deep to trapezius [allowed_domains: kenhub.com, elsevier.com, imaios.com, radiopaedia.org]",
+   "queryRef": "Q19",
+   "excerpt": "Another says it is essential for initiating that early range ([Kenhub upper-limb-muscles-and-movements]). Stabilization: It helps hold the humeral head in the glenoid cavity and keeps it from sliding downward",
+   "locator": "Abduction; the rotator cuff"
+  },
+  {
+   "claimId": "shoulders.supraspinatus.function",
+   "sourceKey": "elsevier.deltoid_acromial",
+   "query": "Elsevier acromial part of deltoid muscle abducts arm glenohumeral joint quick facts [allowed_domains: elsevier.com]",
+   "queryRef": "Q11",
+   "excerpt": "the page notes that simultaneous contraction of the supraspinatus muscle is necessary to initiate abduction from the anatomical position.",
+   "locator": "Quick Facts: Action"
+  },
+  {
+   "claimId": "shoulders.supraspinatus.selectivity.1",
+   "sourceKey": "pmid.26443105",
+   "query": "pubmed 26443105 champagne toast position supraspinatus deltoid EMG Jobe test",
+   "queryRef": "Q22",
+   "excerpt": "The authors recorded EMG from the supraspinatus, anterior deltoid, and middle deltoid in 10 normal volunteers. The main result: the greatest supraspinatus-to-deltoid ratio appeared at the \"champagne toast\" position, meaning 30° of abduction, mild external rotation, 30° of flexion, and 90° of elbow flexion. The smallest ratio was seen at Jobe's position.",
+   "locator": "Abstract: Results and Conclusions"
+  },
+  {
+   "claimId": "shoulders.supraspinatus.selectivity.1",
+   "sourceKey": "bmc.kijkunasathian2023_supraspinatus",
+   "query": "supraspinatus to deltoid activation ratio shoulder abduction angle horizontal flexion humeral rotation BMC Musculoskeletal Disorders 2023",
+   "queryRef": "Q21",
+   "excerpt": "The S:D ratio rose at lower abduction angles and lower horizontal flexion angles, and with external rotation compared with internal rotation. The highest ratio, 3.4, occurred at 30° abduction, 30° horizontal flexion, and external humeral rotation. The classic empty can position produced nearly the smallest ratio, at 0.8.",
+   "locator": "Abstract: Results"
+  },
+  {
+   "claimId": "shoulders.supraspinatus.appearance",
+   "sourceKey": "statpearls.supraspinatus",
+   "query": "StatPearls supraspinatus muscle anatomy function abduction first 15 degrees supraspinous fossa greater tubercle covered by trapezius",
+   "queryRef": "Q18",
+   "excerpt": "(The supraspinatus muscle, the most superiorly located of the rotator cuff muscles, resides in the supraspinous fossa of the scapula, superior to the scapular spine.) ... (The tendon of the muscle extends laterally, passing under the acromion process and over the head of the humerus, blending into the glenohumeral joint capsule to insert onto the superior facet of the greater tuberosity of the humerus.)",
+   "locator": "Structure and Function: location and insertion"
+  },
+  {
+   "claimId": "shoulders.supraspinatus.appearance",
+   "sourceKey": "kenhub.supraspinatus",
+   "query": "supraspinatus muscle key facts function abduction of the arm stabilizes humeral head lies deep to trapezius [allowed_domains: kenhub.com, elsevier.com, imaios.com, radiopaedia.org]",
+   "queryRef": "Q19",
+   "excerpt": "The muscle sits in the posterior scapular region, under the trapezius, running from the scapula to the proximal humerus",
+   "locator": "Relations"
+  },
+  {
+   "claimId": "shoulders.infraspinatus.function",
+   "sourceKey": "statpearls.infraspinatus",
+   "query": "StatPearls infraspinatus muscle anatomy function external rotation infraspinous fossa posterior stability glenohumeral",
+   "queryRef": "Q23",
+   "excerpt": "It works with teres minor, since the infraspinatus and teres minor act synergistically as external rotators of the shoulder. ... The rotator cuff applies compression upon the head of the humerus that allows for the stabilization of the humeral head during shoulder abduction. StatPearls also notes that the infraspinatus supplies the posterior counterforce to the subscapularis's anterior pull (3-15).",
+   "locator": "Structure and Function"
+  },
+  {
+   "claimId": "shoulders.infraspinatus.function",
+   "sourceKey": "elsevier.infraspinatus",
+   "query": "infraspinatus muscle covered by deltoid and trapezius partly superficial lateral rotation of arm key facts [allowed_domains: kenhub.com, elsevier.com, radiopaedia.org, imaios.com]",
+   "queryRef": "Q24",
+   "excerpt": "Actions: It laterally rotates the arm and transversely abducts it at the glenohumeral joint (laterally rotates the arm at the glenohumeral (shoulder) joint; transversely abducts the arm at the glenohumeral joint).",
+   "locator": "Quick Facts: Action"
+  },
+  {
+   "claimId": "shoulders.infraspinatus.function",
+   "sourceKey": "kenhub.infraspinatus",
+   "query": "infraspinatus muscle relations lies deep to trapezius parts of deltoid latissimus dorsi thick triangular muscle infraspinous fossa [allowed_domains: kenhub.com]",
+   "queryRef": "Q45",
+   "excerpt": "Function and innervation: It is a lateral (external) rotator of the shoulder, and it is supplied by the suprascapular nerve (Kenhub, items 1 and 5).",
+   "locator": "Key facts: Function"
+  },
+  {
+   "claimId": "shoulders.infraspinatus.function",
+   "sourceKey": "janat.hik_ackland2019_moment_arms_review",
+   "query": "teres minor muscle key facts function external rotation adduction stabilizes humeral head location inferior to infraspinatus covered by deltoid [allowed_domains: kenhub.com, elsevier.com, radiopaedia.org, imaios.com, ncbi.nlm.nih.gov]",
+   "queryRef": "Q26",
+   "excerpt": "Their opposing action forms a transverse plane force couple that generates compressive joint loading to stabilise the humeral head in the glenoid fossa.",
+   "locator": "Abstract"
+  },
+  {
+   "claimId": "shoulders.infraspinatus.selectivity.1",
+   "sourceKey": "mdpi.soylu2025_infraspinatus",
+   "query": "Medicina 2025 61 203 infraspinatus posterior deltoid activity ratio external rotation positions side-lying MABER",
+   "queryRef": "Q34",
+   "excerpt": "Infraspinatus activity: MABER produced the highest infraspinatus activity (p < 0.001), while the lowest activity was observed during SPER (p < 0.001). ... Infraspinatus/posterior deltoid ratio: The side-lying position, not MABER, had the best ratio. The SDER position demonstrated the highest infraspinatus/posterior deltoid activity ratio (p < 0.001).",
+   "locator": "Abstract: Results"
+  },
+  {
+   "claimId": "shoulders.infraspinatus.selectivity.1",
+   "sourceKey": "johk.lim2014_biofeedback",
+   "query": "\"side-lying external rotation\" exercise produced the greatest EMG infraspinatus teres minor MVIC Reinold Wilk Fleisig JOSPT 2004 abstract",
+   "queryRef": "Q33",
+   "excerpt": "A Journal of Human Kinetics study found that visual EMG biofeedback during side-lying external rotation significantly decreased posterior deltoid activity and significantly increased infraspinatus activity.",
+   "locator": "Abstract: Results"
+  },
+  {
+   "claimId": "shoulders.infraspinatus.appearance",
+   "sourceKey": "kenhub.infraspinatus",
+   "query": "infraspinatus muscle relations lies deep to trapezius parts of deltoid latissimus dorsi thick triangular muscle infraspinous fossa [allowed_domains: kenhub.com]",
+   "queryRef": "Q45",
+   "excerpt": "lies on the dorsal surface of the scapula, deep to trapezius, and parts of the deltoid and latissimus dorsi muscles. Another Kenhub article calls it a thick triangular muscle that fills most of the scapula's back surface occupies the majority of the dorsal surface of the scapula.",
+   "locator": "Overview and relations"
+  },
+  {
+   "claimId": "shoulders.infraspinatus.appearance",
+   "sourceKey": "elsevier.infraspinatus",
+   "query": "infraspinatus muscle covered by deltoid and trapezius partly superficial lateral rotation of arm key facts [allowed_domains: kenhub.com, elsevier.com, radiopaedia.org, imaios.com]",
+   "queryRef": "Q24",
+   "excerpt": "Position: It is located: anterior (deep) to the trapezius and deltoid muscles, and the infraspinous fascia.",
+   "locator": "Quick Facts: location"
+  },
+  {
+   "claimId": "shoulders.teres_minor.function",
+   "sourceKey": "statpearls.teres_minor",
+   "query": "\"main lateral rotators are the infraspinatus and teres minor\" posterior fibers of the deltoid",
+   "queryRef": "Q25",
+   "excerpt": "As a rotator cuff muscle, the teres minor stabilizes the ball-and-socket glenohumeral joint by helping hold the humeral head (ball) into the shallow glenoid cavity of the scapula (socket). The teres minor also laterally or externally rotates the arm at the shoulder joint.",
+   "locator": "Introduction"
+  },
+  {
+   "claimId": "shoulders.teres_minor.function",
+   "sourceKey": "kenhub.teres_minor",
+   "query": "teres minor muscle key facts function external rotation adduction stabilizes humeral head location inferior to infraspinatus covered by deltoid [allowed_domains: kenhub.com, elsevier.com, radiopaedia.org, imaios.com, ncbi.nlm.nih.gov]",
+   "queryRef": "Q26",
+   "excerpt": "Function: external rotation and adduction of arm at glenohumeral joint; stabilization of the humeral head in glenoid cavity.",
+   "locator": "Key facts: Function"
+  },
+  {
+   "claimId": "shoulders.teres_minor.function",
+   "sourceKey": "elsevier.teres_minor",
+   "query": "Elsevier quick facts teres minor muscle action laterally rotates arm; supraspinatus muscle action abducts arm stabilizes glenohumeral [allowed_domains: elsevier.com]",
+   "queryRef": "Q31",
+   "excerpt": "Action: Laterally rotates, transversely abducts and stabilizes arm at glenohumeral (shoulder) joint. The same page adds that it assists in adduction of the arm at the glenohumeral joint.",
+   "locator": "Quick Facts: Action"
+  },
+  {
+   "claimId": "shoulders.teres_minor.function",
+   "sourceKey": "statpearls.infraspinatus",
+   "query": "StatPearls infraspinatus muscle anatomy function external rotation infraspinous fossa posterior stability glenohumeral",
+   "queryRef": "Q23",
+   "excerpt": "It works with teres minor, since the infraspinatus and teres minor act synergistically as external rotators of the shoulder.",
+   "locator": "Structure and Function"
+  },
+  {
+   "claimId": "shoulders.teres_minor.appearance",
+   "sourceKey": "statpearls.teres_minor",
+   "query": "teres minor muscle narrow elongated lateral border of scapula below infraspinatus above teres major covered by deltoid relations [allowed_domains: kenhub.com, ncbi.nlm.nih.gov, statpearls.com, radiopaedia.org]",
+   "queryRef": "Q46",
+   "excerpt": "StatPearls places it directly below the infraspinatus. The teres minor muscle is positioned immediately inferior to the infraspinatus, originating at the inferior aspect of the dorsal scapula at the lateral border of the scapula. ... StatPearls describes it as a narrow, elongated muscle located deep to the deltoid",
+   "locator": "Structure and Function: location"
+  },
+  {
+   "claimId": "shoulders.teres_minor.appearance",
+   "sourceKey": "kenhub.teres_minor",
+   "query": "teres minor muscle narrow elongated lateral border of scapula below infraspinatus above teres major covered by deltoid relations [allowed_domains: kenhub.com, ncbi.nlm.nih.gov, statpearls.com, radiopaedia.org]",
+   "queryRef": "Q46",
+   "excerpt": "Inferior neighbour: Teres major lies beneath it ... Kenhub notes that deltoid covers its superolateral aspect",
+   "locator": "Relations"
+  },
+  {
+   "claimId": "shoulders.subscapularis.function",
+   "sourceKey": "statpearls.subscapularis",
+   "query": "StatPearls subscapularis muscle anatomy function internal rotation subscapular fossa lesser tubercle anterior stability largest rotator cuff",
+   "queryRef": "Q28",
+   "excerpt": "(The subscapularis muscle's primary function is internal rotation but can also aid in adducting the humerus.) ... (The subscapularis is the largest, strongest muscle of the rotator cuff. The rotator cuff muscles are essential in shoulder movement and help maintain glenohumeral joint stability.)",
+   "locator": "Introduction; Structure and Function"
+  },
+  {
+   "claimId": "shoulders.subscapularis.function",
+   "sourceKey": "elsevier.subscapularis",
+   "query": "Elsevier subscapularis muscle quick facts action medially rotates arm glenohumeral joint holds head of humerus in glenoid [allowed_domains: elsevier.com]",
+   "queryRef": "Q30",
+   "excerpt": "Its listed action is medial rotation plus stabilization at the shoulder Medially rotates and stabilizes arm at glenohumeral (shoulder) joint.",
+   "locator": "Quick Facts: Action"
+  },
+  {
+   "claimId": "shoulders.subscapularis.function",
+   "sourceKey": "kenhub.subscapularis",
+   "query": "subscapularis muscle function medial rotation adduction anterior surface of scapula against ribs deep not palpable key facts [allowed_domains: kenhub.com, elsevier.com, radiopaedia.org]",
+   "queryRef": "Q29",
+   "excerpt": "Main action: It medially (internally) rotates the arm ([1-12]). Sources note it is the only medial rotator among the rotator cuff muscles ([3-1]).",
+   "locator": "Function"
+  },
+  {
+   "claimId": "shoulders.subscapularis.selectivity.1",
+   "sourceKey": "pmid.12531769",
+   "query": "\"Subscapularis muscle activity during selected rehabilitation exercises\" Am J Sports Med 2003 abstract results conclusions",
+   "queryRef": "Q36",
+   "excerpt": "(Upper subscapularis muscle activity was greater than lower subscapularis muscle activity for all exercises except for internal rotation with 0° of humeral abduction.) Push-up plus and diagonal exercises produced the highest activation in both portions. Conclusions: The authors concluded that humeral abduction had a strong influence on selectively activating the upper versus lower subscapularis",
+   "locator": "Abstract: Results and Conclusions"
+  },
+  {
+   "claimId": "shoulders.subscapularis.selectivity.1",
+   "sourceKey": "pmid.14564261",
+   "query": "Tokish Decker 2003 belly-press test physical examination subscapularis electromyographic validation lift-off test J Shoulder Elbow Surg abstract",
+   "queryRef": "Q38",
+   "excerpt": "The study recorded EMG from seven muscles in 16 healthy volunteers. Its main finding was that both tests activated the subscapularis more than the other muscles tested ... The belly-press produced greater upper subscapularis activation than the lift-off, while the lift-off placed a greater load on the lower subscapularis.",
+   "locator": "Abstract: Results"
+  },
+  {
+   "claimId": "shoulders.subscapularis.appearance",
+   "sourceKey": "statpearls.subscapularis",
+   "query": "StatPearls subscapularis muscle anatomy function internal rotation subscapular fossa lesser tubercle anterior stability largest rotator cuff",
+   "queryRef": "Q28",
+   "excerpt": "(The subscapularis muscle is a large and powerful triangle-shaped muscle originating at the subscapular fossa and inserting at the lesser tubercle of the humerus.) The name refers to its position beneath the scapula. ... (The muscles transition to a tendon, which inserts on the lesser tubercle of the humerus in front of the joint capsule.)",
+   "locator": "Introduction; Structure: origin and insertion"
+  },
+  {
+   "claimId": "shoulders.subscapularis.appearance",
+   "sourceKey": "elsevier.subscapularis",
+   "query": "subscapularis muscle function medial rotation adduction anterior surface of scapula against ribs deep not palpable key facts [allowed_domains: kenhub.com, elsevier.com, radiopaedia.org]",
+   "queryRef": "Q29",
+   "excerpt": "The muscle lies deep, on the anterior side of the scapula, behind the glenohumeral joint and the serratus anterior ([1-1], [1-10]). Its origin is the costal (rib-facing) surface of the scapula, known as the subscapular fossa",
+   "locator": "Overview: location"
+  },
+  {
+   "claimId": "shoulders.lateral_deltoid.function",
+   "sourceKey": "jek.reed2013_supraspinatus_onset",
+   "query": "\"Does supraspinatus initiate shoulder abduction\" Reed electromyography 14 volunteers Journal of Electromyography and Kinesiology 2013",
+   "queryRef": "R16",
+   "excerpt": "All muscles tested were activated prior to movement onset ... supraspinatus, infraspinatus, upper trapezius, lower trapezius, serratus anterior and deltoid all had similar initial activation times ... The authors say supraspinatus is recruited before humeral abduction but not earlier than infraspinatus, deltoid, and axioscapular muscles, and they call the common claim that it initiates abduction misleading.",
+   "locator": "Abstract: Results and Conclusions",
+   "addedBy": "secondReview"
+  },
+  {
+   "claimId": "shoulders.posterior_deltoid.function",
+   "sourceKey": "txstate.deltoid",
+   "query": "posterior deltoid horizontal abduction extension external rotation action anatomy StatPearls OR university anatomy",
+   "queryRef": "R17",
+   "excerpt": "One is a Texas State University (HPER) page, which gives those three actions for the posterior portion in a short list covering extension, horizontal abduction and outward rotation.",
+   "locator": "Posterior portion: actions",
+   "addedBy": "secondReview"
+  },
+  {
+   "claimId": "shoulders.rotator_cuff.function",
+   "sourceKey": "statpearls.infraspinatus",
+   "query": "StatPearls infraspinatus muscle anatomy function external rotation infraspinous fossa posterior stability glenohumeral",
+   "queryRef": "Q23",
+   "excerpt": "It works with teres minor, since the infraspinatus and teres minor act synergistically as external rotators of the shoulder.",
+   "locator": "Structure and Function",
+   "addedBy": "secondReview"
+  },
+  {
+   "claimId": "shoulders.supraspinatus.function",
+   "sourceKey": "jek.reed2013_supraspinatus_onset",
+   "query": "supraspinatus initiates abduction myth deltoid active from onset of abduction EMG supraspinatus and deltoid both active throughout range",
+   "queryRef": "R15",
+   "excerpt": "A 2013 EMG study of 14 volunteers found that all muscles tested were activated prior to movement onset. The supraspinatus was not activated earlier than the deltoid, and the authors concluded that the common statement that supraspinatus initiates abduction is therefore, misleading.",
+   "locator": "Abstract: Results and Conclusions",
+   "addedBy": "secondReview"
+  },
+  {
+   "claimId": "shoulders.supraspinatus.selectivity.1",
+   "sourceKey": "pmid.26443105",
+   "query": "Chalmers champagne toast position supraspinatus Jobe test electromyography healthy volunteers results ratio",
+   "queryRef": "R5",
+   "excerpt": "Our study confirmed Jobe's findings of maximal supraspinatus activity at 90 degrees of abduction. However, decreasing abduction significantly increased S:D for both resisted manual testing and testing against a standardized load.",
+   "locator": "Abstract: Results and Conclusions",
+   "addedBy": "secondReview"
+  },
+  {
+   "claimId": "shoulders.subscapularis.selectivity.1",
+   "sourceKey": "ajsm.pennock2011_subscapularis_tests",
+   "query": "Pennock 2011 \"The influence of arm and shoulder position on the bear-hug, belly-press, and lift-off tests\" electromyographic study American Journal of Sports Medicine abstract upper lower subscapularis",
+   "queryRef": "R26",
+   "excerpt": "Both subscapularis divisions showed significantly greater activity than all other muscles in every test, regardless of arm position. Upper and lower subscapularis activity did not differ significantly at any position or across the three tests.",
+   "locator": "Abstract: Results and Conclusion",
+   "addedBy": "secondReview"
+  }
+ ],
+ "deviations": [
+  {
+   "id": "D1",
+   "kind": "proposed_addition (not applied)",
+   "subject": "§1.2 shoulders region actions",
+   "finding": "The evidence names holding the head of the upper-arm bone in its socket as the rotator cuff's core function, and §1.2 lists no action for it, so the cuff's node actions can show only rotation and abduction. The forearm modelled the same kind of role as an action (forearm.distal_radioulnar_stabilization, PQ, assist).",
+   "evidence": [
+    "statpearls.rotator_cuff (Introduction: 'compression as the core job')",
+    "elsevier.subscapularis ('these muscles work together to stabilize the glenohumeral joint, by holding the head of the humerus in the glenoid fossa')",
+    "kenhub.rotator_cuff ('main function ... stabilize and center the humeral head')",
+    "statpearls.supraspinatus, statpearls.infraspinatus, statpearls.teres_minor (each names stabilisation)"
+   ],
+   "proposal": "If the adversarial review accepts it: add 'shoulder.humeral_head_stabilization' (joint 'Shoulder', label 'Steadies the ball of the shoulder in its socket', plain description 'Helps keep the ball of the upper-arm bone pressed into its shallow socket while the arm moves.') to the shoulders' region actions, with assist rows for the four cuff muscles resting on their function claims. Not applied in this dossier: §1.2 is unchanged and no node action uses it.",
+   "contradictsSection12": false,
+   "secondReview": "The second review agrees that the sources name holding the humeral head in its socket as the cuff's core function and that the forearm modelled such a role as an assist action. Adding it is a model decision, not an evidence one: steadying credit is counted apart from direct work in every version's methodNotes, so the mappings lane would need rules for when a press or row earns it. Left to the adversarial review."
+  }
+ ],
+ "notes": {
+  "singleSourceFunctionClaims": "None at claim level: every function claim cites two or more references. Sentences resting on one reference: the anterior deltoid named with the clavicular pectoralis major as a prime flexor (kenhub.shoulder_joint; the claim now says 'one anatomy reference'); subscapularis as the only cuff muscle that turns the arm inward (kenhub.subscapularis, consistent with statpearls.rotator_cuff's individual actions; now attributed to anatomy references); horizontal adduction for the anterior deltoid rests on Elsevier plus a Physiopedia page, a professional wiki below the listed reference types. Horizontal abduction for the posterior deltoid now rests on Elsevier and a university page (txstate.deltoid) as well as Physiopedia (second review).",
+  "unconfirmedBibliography": [
+   "statpearls.supraspinatus: cited by its PubMed record 30725887; NBK557880 appeared in the results but was not matched to it.",
+   "statpearls.rotator_cuff: two versions (2023 and 2026 updates) appeared; locator taken from the visible introduction.",
+   "pmid.32824894 (Coratella 2020): PubMed id read from an index record id, not PubMed; DOI not shown; full author list not shown.",
+   "johk.campos2020_deltoid: DOI and PubMed id not shown (PMC7706677 seen on second review).",
+   "pmid.24947920: authors and journal from a sports-science index record (second review), not from PubMed.",
+   "pmid.12531769 (Decker 2003): PubMed id read from an Orthobullets evidence page; the first author from summaries only.",
+   "pmid.26443105 (Chalmers 2016): a subtitle may be missing from the title.",
+   "boneandjoint.deltoid_nerve_segments: exact title, year and authors not shown; the title no longer names authors (second review).",
+   "johk.lim2014_biofeedback: authors after the first not shown.",
+   "mdpi.soylu2025_infraspinatus, pmid.21118198: authors after the first not shown.",
+   "janat.ackland2008_shoulder_moment_arms: DOI and volume not shown; janat.hik_ackland2019_moment_arms_review: 2018 online, 2019 print; its per-muscle rotation results were not seen.",
+   "kenhub.rotator_cuff 'main function' line and elsevier.infraspinatus location line: attribution to the page inferred from the result list and wording.",
+   "jek.reed2013_supraspinatus_onset, ajsm.pennock2011_subscapularis_tests: PubMed id and DOI not shown; txstate.deltoid: only the posterior-portion line seen (second review)."
+  ],
+  "disagreements": [
+   "Starting abduction. StatPearls (deltoid) says the deltoid cannot start abduction and Elsevier (acromial part) says the supraspinatus is needed to start it; Kenhub says the supraspinatus is essential for the early range. The second review found an EMG study of 14 people (Reed et al. 2013) in which the supraspinatus switched on together with the deltoid and other shoulder muscles, not before them; its authors call the textbook statement misleading, while one other study (not identified) reported the supraspinatus first. Wording: the lateral deltoid and supraspinatus function claims and the supraspinatus caveat state the textbook teaching, attributed, beside that EMG finding; the node copy no longer says the supraspinatus starts the movement.",
+   "Teres minor cover. StatPearls: 'located deep to the deltoid'; Kenhub: the deltoid covers its superolateral aspect. The appearance claim says the deltoid covers its upper outer part (Kenhub) and the outcrop in §1.2 rests on Kenhub.",
+   "Infraspinatus as a rotator. A 2024 case report's introduction (PMC11013571, 'Novel Muscle in Infraspinous Fossa') says it makes only a minor contribution to lateral rotation and mainly stabilises; StatPearls, Elsevier and Kenhub list external rotation as its action. Not cited; the claim keeps the reference texts' action and also states the stabilising role.",
+   "Coratella 2020. The results lines say the medial deltoid was more active in the neutral lateral raise than the externally rotated one; the conclusion line says external rotation increases anterior and medial deltoid activation (probably against internal rotation). The lateral-deltoid selectivity claim uses only the results lines.",
+   "Rodriguez-Ridao 2020. The abstract's overall conclusion says the flat bench gives similar pectoralis and anterior deltoid activity, while the conclusion quoted from the full text says inclines above 45 degrees raise anterior deltoid activity. The claim states the incline finding and the authors' conclusion only.",
+   "Anterior deltoid at low abduction angles. Physiopedia says the clavicular and spinal parts adduct below about 60 degrees and abduct above it; the moment-arm studies rank the anterior part among the most effective abductors. The anterior deltoid's abduction row is 'assist', and no abduction row is given to the posterior part.",
+   "Subscapularis tests. Tokish 2003 found the belly-press and lift-off tests favoured different parts; Pennock 2011 (20 people) found no difference between the two parts in three tests. The second review cites both and the claim says they disagree.",
+   "A generated summary (Q25) said the posterior deltoid's external rotation was found only on a flashcard site, while Elsevier, Loyola and Kenhub each list it. The specific references are cited; this is an example of the summaries' limits.",
+   "Supraspinatus testing positions. Both studies' titles say a position 'isolates' the supraspinatus, but what they measured is its activity relative to the deltoid's, and Chalmers 2016 found its own activity highest at 90 degrees. The claim and caveat say 'share relative to the deltoid', not 'isolate'.",
+   "Moment-arm summaries. Generated summaries of the Hik and Ackland review gave the teres minor as an internal rotator, and the posterior deltoid and supraspinatus as internal rotators in neutral; Ackland and Pandy 2011 and Kuechle et al. (PubMed 10758292) found the infraspinatus and teres minor the main external rotators and the subscapularis the main internal rotator. The review is cited only for its force-couple line; 'only internal rotator of the cuff' is attributed to anatomy references.",
+   "Soylu 2025. The paper reports 32 participants; its trial registry entry lists 15. The claim uses the paper's count."
+  ],
+  "deliberatelyNotClaimed": [
+   "Horizontal abduction for the infraspinatus and teres minor: Elsevier lists it ('transversely abducts') and nothing else seen does; left out of node actions, as the forearm left out minor actions.",
+   "Weak external rotation by the supraspinatus (StatPearls 'possible weak contribution'): left out.",
+   "Adduction by the teres minor and subscapularis: said in their function claims, but shoulder.adduction is not a shoulders region action (it belongs to the chest and back).",
+   "Horizontal abduction by the lateral deltoid (Physiopedia; Botton found more middle-deltoid activity in the reverse peck deck than the pulldown): not claimed.",
+   "Variation claims for the rotator cuff: infraspinatus and teres minor fusion and accessory subscapularis slips were found only as single-specimen case reports (Wikipedia read, not cited).",
+   "A teres minor selectivity claim: no study recording it on its own was seen with results (Reinold 2004's results were not shown; a physiotherapy blog's account was not used).",
+   "Trebs 2010 (incline bench): seen only secondhand; not cited.",
+   "IMAIOS deltoid: its lines were merged with other sites in the summary, so they were not attributed or cited.",
+   "No clinical content: tear rates and testing accuracy are not stated as claims; the testing studies are cited only for what they measured in healthy people.",
+   "Second review: the sentence 'Bench angle therefore belongs in how a press is described' was taken out of shoulders.anterior_deltoid.selectivity.2; it is a recommendation for the variants lane (record bench angle on presses), not a finding.",
+   "Second review: horizontal abduction for the infraspinatus now has a second source in principle (Kuechle et al. 1997, J Shoulder Elbow Surg 6(5):429-439: the posterior deltoid and infraspinatus had the largest horizontal extension moment arms), but no stable URL or PubMed id was found, so it is not cited and no row is added; the anatomy lane may add an assist row if it can cite it.",
+   "Second review: a teres minor selectivity claim could rest on Reinold et al. 2004 (PubMed 15296366: side-lying external rotation gave the most infraspinatus and teres minor activity of seven exercises), seen only as a search summary; not added."
+  ],
+  "section12Checks": [
+   "Every node's §1.2 layer is supported; infraspinatus and teres minor outcrops are supported by Kenhub's relations text (see each node's layerCheck).",
+   "scapula.upward_rotation is a shoulders region action that no shoulders node performs; only the externals chest.serratus_anterior and back.upper_trapezius do (Physiopedia: the serratus anterior works with the upper and lower trapezius). Not a contradiction: §1.2 lists those externals for this reason.",
+   "shoulder.extension and shoulder.horizontal_adduction each have one own node (posterior deltoid prime; anterior deltoid assist); their main other movers are the externals (latissimus dorsi, teres major; pectoralis major).",
+   "databaseMuscle: the canonical name for the lateral deltoid is middle_deltoid (shared/capabilityRank.ts, server/fixtures/liveMuscleAggregation.ts), not lateral_deltoid. The groups have no canonical name.",
+   "Group layers: §1.2 gives '—'; AnatomicalLayer needs a value; suggested deltoid 'surface', rotator cuff 'deep'.",
+   "Role 'prime' is used where the references list the action as one of the part's own actions without 'helps' or 'assists'; it does not mean the main mover of that joint action across all muscles (for example, the anterior deltoid's internal rotation). The mappings lane should read it that way.",
+   "Second review: all eight region actions are already defined in shared/specialization/actions/joints.ts by wave 0; the dossier's actions[] now repeats the library's wording and the lane should not add actions/shoulders.ts for them.",
+   "Second review: every muscle node keeps a prime row, which regionContent.test.ts requires ('gives every muscle a main action'); demoting the supraspinatus's only row to assist, as Kenhub's 'assists the deltoid' would suggest, would fail that test.",
+   "Second review: shoulders.deltoid is kind 'muscle' with role 'group' (§1.2) and has no node actions, as a parent should not; but regionContent.test.ts 'gives every muscle a main action' filters on kind 'muscle' and role not 'adjacent', so as written it would fail on the deltoid (and on chest.pec_major, back.trapezius and upper_arm.triceps). The fix belongs in the test (skip role 'group', or any node that is a parent), not in the content; giving the deltoid prime rows would credit the parent beside its heads."
+  ],
+  "aliasesNotAdded": "'medial deltoid' (used by Coratella 2020 and Campos 2020 for the lateral part) is said in a caveat rather than added as an alias, because 'medial' reads as the opposite direction.",
+  "externals": "chest.pec_major_clavicular, chest.pec_major_sternocostal, chest.serratus_anterior, back.upper_trapezius, back.latissimus_dorsi, back.teres_major were not researched; their home lanes own their claims.",
+  "method": "Web search only, on 19 Oct 2026; page fetches were not attempted beyond the known proxy refusal. 54 searches; every citation records the query and the excerpt relied on, copied from the search tool's generated summaries. An automated second review on 19 Oct 2026 ran 28 further searches with its own wording (secondReview.queries) and recorded each change it made (secondReview.changes)."
+ },
+ "secondReview": {
+  "date": "2026-10-19",
+  "reviewer": "Automated second review (an AI agent) with the same tools and limits as the first: web search only, page fetches refused, generated summaries that can misquote. Not peer review, and not a clinician or anatomist.",
+  "scope": "Every claim's sentences against its recorded excerpts; independent searches, in the reviewer's own words, for every selectivity and variation claim and for 7 of the 9 function claims (anterior, lateral and posterior deltoid, supraspinatus, infraspinatus, teres minor, subscapularis); source keys, URLs, titles, types and notes; node fields, node actions, roles, layers and outcrops against 10-multi-region.md §1.2.",
+  "claimsReSearched": [
+   "shoulders.anterior_deltoid.function",
+   "shoulders.lateral_deltoid.function",
+   "shoulders.posterior_deltoid.function",
+   "shoulders.supraspinatus.function",
+   "shoulders.infraspinatus.function",
+   "shoulders.teres_minor.function",
+   "shoulders.subscapularis.function",
+   "shoulders.anterior_deltoid.selectivity.1",
+   "shoulders.anterior_deltoid.selectivity.2",
+   "shoulders.lateral_deltoid.selectivity.1",
+   "shoulders.posterior_deltoid.selectivity.1",
+   "shoulders.supraspinatus.selectivity.1",
+   "shoulders.infraspinatus.selectivity.1",
+   "shoulders.subscapularis.selectivity.1",
+   "shoulders.deltoid.variation.1"
+  ],
+  "claimsToDraft": [],
+  "draftNote": "No claim went to draft: every sentence the excerpts did not support was rewritten to what they support, and every disagreement found was stated in the wording with its source.",
+  "queries": [
+   {
+    "ref": "R1",
+    "query": "Coratella 2020 lateral raise variations frontal raise bodybuilders medial deltoid internally rotated externally rotated results abstract",
+    "checks": [
+     "shoulders.anterior_deltoid.selectivity.1",
+     "shoulders.lateral_deltoid.selectivity.1",
+     "shoulders.posterior_deltoid.selectivity.1"
+    ],
+    "outcome": "agrees",
+    "excerpt": "Ten competitive bodybuilders. Concentric phase: 'Medial deltoid showed greater sEMG RMS in LR-neutral than LR-external, frontal raise, and LR-flexed'; 'The anterior deltoid showed greater sEMG RMS in the frontal raise, versus all other exercises'; 'The posterior deltoid showed greater sEMG RMS in LR-internal versus all other exercises.' The authors' conclusion says external humerus rotation increases anterior and medial deltoid activation, so the conflict between results and conclusion is in the abstract itself."
+   },
+   {
+    "ref": "R2",
+    "query": "\"Different Shoulder Exercises Affect the Activation of Deltoid Portions\" Journal of Human Kinetics anterior deltoid shoulder press results",
+    "checks": [
+     "shoulders.anterior_deltoid.selectivity.1",
+     "shoulders.lateral_deltoid.selectivity.1"
+    ],
+    "outcome": "agrees",
+    "excerpt": "Campos et al., Journal of Human Kinetics 75:5-14, 2020; 13 men experienced in strength training; one set of 12 at 60 percent of 1RM. Anterior deltoid: the shoulder press 'showed significantly higher level of activation when compared to other exercises'; bench press, lateral raise and fly did not differ. Medial deltoid: lateral raise and shoulder press significantly higher than bench press and fly. Full text at PMC7706677."
+   },
+   {
+    "ref": "R3",
+    "query": "Rodriguez-Ridao 2020 five bench inclinations pectoralis major anterior deltoid triceps EMG participants 60 degrees conclusion",
+    "checks": [
+     "shoulders.anterior_deltoid.selectivity.2"
+    ],
+    "outcome": "agrees",
+    "excerpt": "Thirty trained adults at 0, 15, 30, 45 and 60 degrees, 60 percent of 1RM. Anterior deltoid highest at 60 degrees; inclines above 45 degrees increased its activation and reduce pectoralis performance; the abstract's headline conclusion (flat bench gives similar pectoralis and anterior deltoid activity) sits awkwardly with the results."
+   },
+   {
+    "ref": "R4",
+    "query": "\"Analysis of anterior, middle and posterior deltoid activation during single and multijoint exercises\" reverse peck deck seated row lat pulldown authors journal",
+    "checks": [
+     "shoulders.posterior_deltoid.selectivity.1"
+    ],
+    "outcome": "agrees",
+    "excerpt": "Journal of Sports Medicine and Physical Fitness 2015, 55(7-8):714-721; authors per the BISp record: R. de Azevedo Franke, C. E. Botton, R. Rodrigues, R. Silveira Pinto, C. Silveira Lima. 12 men with at least a year of training; posterior deltoid activation greater during the reverse peck deck than the seated row and the inclined lat pulldown."
+   },
+   {
+    "ref": "R5",
+    "query": "Chalmers champagne toast position supraspinatus Jobe test electromyography healthy volunteers results ratio",
+    "checks": [
+     "shoulders.supraspinatus.selectivity.1"
+    ],
+    "outcome": "agrees, with a point added",
+    "excerpt": "10 normal volunteers; greatest supraspinatus-to-deltoid ratio (4.6 +/- 3.4, standardized load) at the champagne toast position, smallest (0.8 +/- 0.6) at Jobe's position. 'Our study confirmed Jobe's findings of maximal supraspinatus activity at 90 degrees of abduction. However, decreasing abduction significantly increased S:D.'"
+   },
+   {
+    "ref": "R6",
+    "query": "Kijkunasathian supraspinatus empty can test electromyographic study BMC Musculoskeletal Disorders 2023 ratio 30 degrees abduction external rotation",
+    "checks": [
+     "shoulders.supraspinatus.selectivity.1"
+    ],
+    "outcome": "agrees in part",
+    "excerpt": "Kijkunasathian, Niyomkha, Woratanarat and Vijittrakarnrung; PMID 37013546; 21 healthy adults, seven periscapular muscles, supraspinatus-to-middle-deltoid ratio. The highest ratio at 30 degrees abduction, 30 degrees horizontal flexion and external rotation came from a secondary summary; the empty-can value (0.8) was not seen again."
+   },
+   {
+    "ref": "R7",
+    "query": "Medicina 2025 selective activation infraspinatus external rotation rounded shoulder posture muscle architecture-based exercise side-lying ratio posterior deltoid",
+    "checks": [
+     "shoulders.infraspinatus.selectivity.1"
+    ],
+    "outcome": "agrees",
+    "excerpt": "32 participants (17 men, 15 women); MABER gave the highest infraspinatus activity and the scapular-plane position the lowest; standing external rotation the most posterior deltoid activity; side-lying the highest infraspinatus-to-posterior-deltoid ratio. The trial registry entry (NCT06070909) lists 15 participants, which the paper's 32 does not match."
+   },
+   {
+    "ref": "R8",
+    "query": "Lim 2014 visual EMG biofeedback infraspinatus posterior deltoid side-lying external rotation Journal of Human Kinetics subjects",
+    "checks": [
+     "shoulders.infraspinatus.selectivity.1"
+    ],
+    "outcome": "agrees",
+    "excerpt": "Journal of Human Kinetics 44:83-90, 2014; 31 asymptomatic subjects; side-lying external rotation with and without visual EMG biofeedback set to prevent excessive posterior deltoid contraction; posterior deltoid activity fell and infraspinatus activity and the ratio rose significantly."
+   },
+   {
+    "ref": "R9",
+    "query": "Decker Tokish 2003 subscapularis muscle activity selected rehabilitation exercises upper lower subscapularis push-up plus diagonal results",
+    "checks": [
+     "shoulders.subscapularis.selectivity.1"
+    ],
+    "outcome": "agrees",
+    "excerpt": "15 healthy subjects, seven exercises; upper greater than lower in all exercises except internal rotation at 0 degrees of abduction; 'The push-up plus and diagonal exercises consistently stressed the upper and lower subscapularis muscles to the greatest extent'; humeral abduction strongly influences which portion is activated."
+   },
+   {
+    "ref": "R10",
+    "query": "Tokish belly-press test lift-off test electromyographic validation upper subscapularis lower subscapularis 16 volunteers results",
+    "checks": [
+     "shoulders.subscapularis.selectivity.1"
+    ],
+    "outcome": "agrees, with a disagreeing later study",
+    "excerpt": "Tokish 2003: 16 healthy volunteers; belly-press gave significantly more upper subscapularis activation than lift-off, lift-off significantly more lower. A later study (Pennock et al., 2011, 20 participants) found no significant difference between the two subscapularis divisions in three tests."
+   },
+   {
+    "ref": "R11",
+    "query": "Sakoma anatomical and functional segments of the deltoid muscle seven segments intramuscular tendons FDG PET Journal of Anatomy 2011",
+    "checks": [
+     "shoulders.deltoid.variation.1"
+    ],
+    "outcome": "agrees",
+    "excerpt": "Journal of Anatomy 218(2):185-190 (online 30 Nov 2010); 60 cadaveric shoulders; 'the deltoid muscle was divided into seven segments based on the distribution of its intramuscular tendons'; PET uptake matched the segments."
+   },
+   {
+    "ref": "R12",
+    "query": "deltoid muscle segments axillary nerve branches cadaver dissection 44 deltoids five to eight segments Audenaert Barbaix",
+    "checks": [
+     "shoulders.deltoid.variation.1"
+    ],
+    "outcome": "not found",
+    "excerpt": "The search did not find a study of 44 deltoids under these author names; it returned other innervation studies (23, 50 and 20 cadavers) about axillary nerve branching, none on segment counts."
+   },
+   {
+    "ref": "R13",
+    "query": "\"Separate segments within the deltoid muscle\" anatomical variants or wishful thinking authors conclusion",
+    "checks": [
+     "shoulders.deltoid.variation.1"
+    ],
+    "outcome": "context",
+    "excerpt": "Audenaert and Barbaix's 2008 commentary in the International Journal of Shoulder Surgery (PMC2840820): dissection of the bundles is 'to a large extent a matter of interpretation'; its conclusion was not shown."
+   },
+   {
+    "ref": "R14",
+    "query": "boneandjoint.org.uk 0301-620X.91BSUPP_III deltoid axillary nerve segmentation embalmed cadavers major divisions",
+    "checks": [
+     "shoulders.deltoid.variation.1"
+    ],
+    "outcome": "agrees",
+    "excerpt": "The Bone & Joint abstract: 44 deltoids from 22 embalmed adult cadavers divided by axillary nerve branching; 8 major divisions in 3, 7 in 22 of 44 (50 percent), 6 in 14, 5 in 5; 'a segmentation in 5 up to 8 major segments seems to be found'. Its authors were not shown."
+   },
+   {
+    "ref": "R15",
+    "query": "supraspinatus initiates abduction myth deltoid active from onset of abduction EMG supraspinatus and deltoid both active throughout range",
+    "checks": [
+     "shoulders.supraspinatus.function",
+     "shoulders.lateral_deltoid.function"
+    ],
+    "outcome": "disagrees with the textbook wording",
+    "excerpt": "A 2013 EMG study of 14 volunteers: all muscles were activated before movement onset and the supraspinatus was not activated earlier than the deltoid; the authors call the common statement that it initiates abduction misleading. A 2018 biomechanics review agrees. One other study (not identified) reported the supraspinatus switching on before the middle deltoid."
+   },
+   {
+    "ref": "R16",
+    "query": "\"Does supraspinatus initiate shoulder abduction\" Reed electromyography 14 volunteers Journal of Electromyography and Kinesiology 2013",
+    "checks": [
+     "shoulders.supraspinatus.function",
+     "shoulders.lateral_deltoid.function"
+    ],
+    "outcome": "source for the disagreement",
+    "excerpt": "Reed, Cathers, Halaki and Ginn, Journal of Electromyography and Kinesiology 23(2):425-429, 2013: seven shoulder muscles, 14 volunteers, three planes, three loads; supraspinatus, infraspinatus, upper and lower trapezius, serratus anterior and deltoid had similar initial activation times; supraspinatus 'recruited before humeral abduction but not earlier than infraspinatus, deltoid' and the axioscapular muscles."
+   },
+   {
+    "ref": "R17",
+    "query": "posterior deltoid horizontal abduction extension external rotation action anatomy StatPearls OR university anatomy",
+    "checks": [
+     "shoulders.posterior_deltoid.function"
+    ],
+    "outcome": "agrees",
+    "excerpt": "Two university-hosted pages, one Texas State University (HPER) tutorial, list the posterior portion's actions as extension, horizontal abduction and outward (external) rotation."
+   },
+   {
+    "ref": "R18",
+    "query": "teres minor muscle action external rotation adduction stabilizes humeral head anatomy reference [allowed_domains: ncbi.nlm.nih.gov, radiopaedia.org, imaios.com, teachmeanatomy.info, med.umich.edu, luc.edu]",
+    "checks": [
+     "shoulders.teres_minor.function",
+     "shoulders.infraspinatus.function"
+    ],
+    "outcome": "agrees, one outlier",
+    "excerpt": "StatPearls and IMAIOS: external rotation and stabilising the humeral head; a PMC review: infraspinatus and teres minor produce the external rotation that occurs during elevation. One summary said the Hik and Ackland review found the teres minor an internal rotator; that line was not confirmed (see R19, R20)."
+   },
+   {
+    "ref": "R19",
+    "query": "Hik Ackland 2019 moment arms glenohumeral systematic review teres minor infraspinatus subscapularis axial rotation force couple abstract results",
+    "checks": [
+     "shoulders.infraspinatus.function",
+     "shoulders.anterior_deltoid.function"
+    ],
+    "outcome": "agrees in part",
+    "excerpt": "Abstract: 'The rotator cuff muscles had the largest axial rotation moment arms regardless of the axial position of the humerus'; the cuff functions as humeral rotators and weak depressors or elevators, the three deltoid sub-regions as substantial elevators throughout the range. Per-muscle rotation values and the force-couple line were not shown."
+   },
+   {
+    "ref": "R20",
+    "query": "\"moment arms of the muscles spanning the glenohumeral joint\" abstract \"internal rotators\" \"external rotators\" neutrally aligned humerus deltoid",
+    "checks": [
+     "shoulders.infraspinatus.function",
+     "shoulders.teres_minor.function",
+     "shoulders.subscapularis.function"
+    ],
+    "outcome": "agrees",
+    "excerpt": "Ackland and Pandy (2011, J Orthop Res, eight cadavers): the inferior subscapularis was the largest internal rotator and the inferior infraspinatus and teres minor the greatest external rotators. PubMed 10758292 (same group as Kuechle): teres minor and infraspinatus had the largest external rotation moment arms and subscapularis the largest internal rotation moment arm."
+   },
+   {
+    "ref": "R21",
+    "query": "subscapularis largest strongest rotator cuff muscle internal rotation only internal rotator of rotator cuff anatomy [allowed_domains: ncbi.nlm.nih.gov, radiopaedia.org, imaios.com, teachmeanatomy.info, physio-pedia.com, orthobullets.com]",
+    "checks": [
+     "shoulders.subscapularis.function"
+    ],
+    "outcome": "agrees, with one qualification",
+    "excerpt": "Largest and most powerful cuff muscle; an imaging review: its mass exceeds the other three combined (another figure: 53 percent of cuff mass); primary function internal rotation. A summary of the Hik and Ackland review said the anterior, middle and posterior deltoid, the supraspinatus and the subscapularis were internal rotators with the humerus in neutral, which questions 'only'."
+   },
+   {
+    "ref": "R22",
+    "query": "anterior deltoid clavicular fibers medial rotation of humerus weak or strong internal rotator moment arm",
+    "checks": [
+     "shoulders.anterior_deltoid.function"
+    ],
+    "outcome": "agrees on the action, silent on its size",
+    "excerpt": "Anatomy references (Loyola, IMAIOS, Elsevier) list medial rotation for the clavicular part; no moment-arm or EMG result ranking it was returned (Wikipedia was among the results; read, not cited)."
+   },
+   {
+    "ref": "R23",
+    "query": "infraspinatus partly superficial subcutaneous inferolateral part not covered by trapezius deltoid latissimus surface anatomy palpation",
+    "checks": [
+     "shoulders.infraspinatus.appearance",
+     "layer: infraspinatus outcrop"
+    ],
+    "outcome": "agrees (low-tier source, not cited)",
+    "excerpt": "A massage-therapy magazine: 'The majority of the infraspinatus is framed by the posterior edge of the deltoid, the lateral edge of the lower trapezius, and the superior edge of the latissimus dorsi'; the lateral portion is obscured by the deltoid. Supports a back-view outcrop; below the evidence standard, so not cited."
+   },
+   {
+    "ref": "R24",
+    "query": "Kuechle shoulder muscle moment arms during horizontal flexion and elevation anterior deltoid posterior deltoid horizontal flexion extension results",
+    "checks": [
+     "shoulders.posterior_deltoid.function",
+     "shoulders.anterior_deltoid.function"
+    ],
+    "outcome": "agrees",
+    "excerpt": "Kuechle et al., J Shoulder Elbow Surg 6(5):429-439, 1997: with the humerus elevated 90 degrees the pectoralis major had the largest horizontal flexion moment arm, and the posterior deltoid and infraspinatus the largest horizontal extension moment arms. Nothing on the anterior deltoid in horizontal flexion."
+   },
+   {
+    "ref": "R25",
+    "query": "Kuechle Newman Itoi Morrey An 1997 \"Shoulder muscle moment arms during horizontal flexion and elevation\" J Shoulder Elbow Surg PubMed",
+    "checks": [
+     "shoulders.posterior_deltoid.function"
+    ],
+    "outcome": "not found",
+    "excerpt": "The 1997 paper's PubMed record was not returned, so it is not added to the sources; it is recorded here as corroboration only."
+   },
+   {
+    "ref": "R26",
+    "query": "Pennock 2011 \"The influence of arm and shoulder position on the bear-hug, belly-press, and lift-off tests\" electromyographic study American Journal of Sports Medicine abstract upper lower subscapularis",
+    "checks": [
+     "shoulders.subscapularis.selectivity.1"
+    ],
+    "outcome": "disagrees with Tokish 2003",
+    "excerpt": "Pennock, Pennington, Torry, Decker, Vaishnav, Provencher, Millett and Hackett, Am J Sports Med 39(11):2338-2346, 2011; 20 healthy participants; both subscapularis divisions more active than all other muscles in every test; 'Upper and lower subscapularis activity did not differ significantly at any position or across the three tests.'"
+   },
+   {
+    "ref": "R27",
+    "query": "Texas State pankey deltoid anterior middle posterior portions actions horizontal adduction horizontal abduction [allowed_domains: txstate.edu]",
+    "checks": [
+     "shoulders.anterior_deltoid.function",
+     "shoulders.posterior_deltoid.function"
+    ],
+    "outcome": "not found",
+    "excerpt": "The Texas State page was not returned again; no second non-wiki source was found for the anterior deltoid's horizontal adduction."
+   },
+   {
+    "ref": "R28",
+    "query": "teres minor relations covered by posterior deltoid partly subcutaneous lower part superficial fascia back of shoulder [allowed_domains: kenhub.com, ncbi.nlm.nih.gov, radiopaedia.org, imaios.com, teachmeanatomy.info]",
+    "checks": [
+     "shoulders.teres_minor.appearance",
+     "layer: teres minor outcrop"
+    ],
+    "outcome": "agrees",
+    "excerpt": "Kenhub: 'trapezius partially covers its medial surface, while deltoid covers its superolateral aspect'; StatPearls: deep to the deltoid. Partial cover, as the outcrop assumes."
+   }
+  ],
+  "changes": [
+   {
+    "what": "Added three sources: jek.reed2013_supraspinatus_onset, txstate.deltoid, ajsm.pennock2011_subscapularis_tests.",
+    "why": "Independent searches found a study that disagrees with the textbook 'supraspinatus starts abduction', a university page giving a second non-wiki reference for the posterior deltoid's horizontal abduction, and a later study that disagrees with Tokish 2003 on the subscapularis's two parts. Each disagreement is now stated in the wording rather than left out.",
+    "evidence": "R16, R17, R26"
+   },
+   {
+    "what": "shoulders.anterior_deltoid.function: 'anatomy references name it ... as a main forward raiser' became 'one anatomy reference names it ... as a prime mover'; 'Moment-arm studies in cadavers rank it ... among the most effective lifters' became leverage wording, 'most of them in cadavers', with 'leverage is not how hard a muscle works in an exercise'.",
+    "why": "The plural rested on one excerpt (kenhub.shoulder_joint). 'Most effective lifters' read as work done, while the excerpts report moment arms (leverage), and the Hik and Ackland review pools imaging as well as cadaver studies.",
+    "evidence": "Citations kenhub.shoulder_joint (Q3), janat.ackland2008_shoulder_moment_arms and janat.hik_ackland2019_moment_arms_review (Q49); R19."
+   },
+   {
+    "what": "shoulders.anterior_deltoid.selectivity.2: removed 'Bench angle therefore belongs in how a press is described'; 'reduce the pectoralis major's contribution' became the authors' 'lower pectoralis major performance'.",
+    "why": "The removed sentence is the lane's recommendation for the variants lane, not a finding of the study, so no excerpt supports it as a claim; it moves to the open issues. 'Contribution' went beyond the excerpt's 'decrease the muscular performance of the pectoralis major'.",
+    "evidence": "Citation pmid.33049982 (Q53); R3 confirms the 30 adults, the 60-degree peak and the above-45-degree conclusion."
+   },
+   {
+    "what": "shoulders.lateral_deltoid.function: added that in one muscle-activity study the supraspinatus switched on together with the deltoid, not before it; cites jek.reed2013_supraspinatus_onset.",
+    "why": "The 'supraspinatus starts abduction' teaching is disputed by EMG; the claim already attributed it to anatomy references, but stated alone it would mislead. The disagreement is resolved in the wording.",
+    "evidence": "R15, R16 (Reed et al. 2013)."
+   },
+   {
+    "what": "shoulders.lateral_deltoid.selectivity.1: the Coratella qualification now says the abstract's conclusion reads against the results line the claim uses.",
+    "why": "The second search confirmed that the conflict is in the abstract itself; a reader of the claim should see it, not only the dossier's notes.",
+    "evidence": "R1."
+   },
+   {
+    "what": "shoulders.posterior_deltoid.function: added txstate.deltoid (university page) for horizontal abduction; the two Physiopedia qualifications no longer name a publisher.",
+    "why": "Horizontal abduction (a prime node action) rested on Elsevier plus a professional wiki; a university page now stands beside them, and a cadaver moment-arm study (Kuechle 1997, R24) agrees but had no stable URL, so it is recorded, not cited. Qualifications are copy the page can show, so they say 'an anatomy reference' rather than a publisher name.",
+    "evidence": "R17, R24."
+   },
+   {
+    "what": "pmid.24947920: title and qualification now carry the authors and journal (Journal of Sports Medicine and Physical Fitness 55(7-8):714-721, 2015).",
+    "why": "The second search found them in the BISp index record; the PubMed page itself was not opened.",
+    "evidence": "R4."
+   },
+   {
+    "what": "shoulders.rotator_cuff.function: added statpearls.infraspinatus as a source.",
+    "why": "The sentence that the infraspinatus and teres minor turn the arm outward rested on a summary that said StatPearls lists it 'though I didn't capture those lines verbatim'; the dossier already held a verbatim excerpt for it (Q23).",
+    "evidence": "Citation statpearls.infraspinatus (Q23)."
+   },
+   {
+    "what": "shoulders.supraspinatus.function: added that in one muscle-activity study it switched on together with the deltoid, not before it; cites jek.reed2013_supraspinatus_onset.",
+    "why": "Same disagreement as the lateral deltoid's: the textbook statement is kept, attributed, beside the EMG finding that questions it.",
+    "evidence": "R15, R16."
+   },
+   {
+    "what": "shoulders.supraspinatus.selectivity.1: removed 'The supraspinatus works together with the deltoid whenever the arm is raised to the side'; added that its own activity was highest at 90 degrees and that the low positions raised its share relative to the deltoid.",
+    "why": "No excerpt cited on this claim says 'whenever'. The independent search showed that Chalmers 2016 found the supraspinatus's own activity highest at 90 degrees; without that, 'highest at 30 degrees' could be read as the most supraspinatus work.",
+    "evidence": "R5 (Chalmers 2016 abstract); citations pmid.26443105 (Q22) and bmc.kijkunasathian2023_supraspinatus (Q21)."
+   },
+   {
+    "what": "shoulders.subscapularis.function: 'the only rotator cuff muscle that turns the arm inward' is now attributed to anatomy references.",
+    "why": "A summary of the Hik and Ackland moment-arm review said the supraspinatus also has inward-turning leverage with the arm in neutral; the per-muscle results were not seen, so the claim keeps the textbook statement but no longer states 'only' as settled.",
+    "evidence": "R21, R19; citations kenhub.subscapularis (Q29), statpearls.subscapularis (Q28)."
+   },
+   {
+    "what": "shoulders.subscapularis.selectivity.1: 'arm position changes which works harder' is now the Decker authors' conclusion; 'a diagonal exercise' became 'diagonal exercises'; the clinical-test sentence now states that a later study of 20 people found no difference between the two parts; cites ajsm.pennock2011_subscapularis_tests.",
+    "why": "Pennock 2011 disagrees with Tokish 2003 and with the general 'arm position changes which part works harder'; the dossier had recorded it only in a source note. The Decker abstract says 'diagonal exercises'.",
+    "evidence": "R9, R10, R26."
+   },
+   {
+    "what": "johk.lim2014_biofeedback: sample size (31), volume and pages (Journal of Human Kinetics 44:83-90) added to the title and qualification.",
+    "why": "Found by the independent search; the dossier said the sample size was not seen.",
+    "evidence": "R8."
+   },
+   {
+    "what": "shoulders.infraspinatus.function: the Hik and Ackland qualification now limits it to the force-couple line.",
+    "why": "One independent summary said this review found the teres minor an internal rotator and another listed the posterior deltoid among internal rotators in neutral; two other moment-arm studies (Ackland and Pandy 2011; PubMed 10758292) found the infraspinatus and teres minor the main external rotators. The review's per-muscle rotation results are unverified; the sentence it supports also rests on statpearls.infraspinatus.",
+    "evidence": "R18, R19, R20."
+   },
+   {
+    "what": "shoulders.deltoid.appearance: the elsevier.deltoid and statpearls.deltoid qualifications no longer say the source gives location and layer only.",
+    "why": "Both excerpts state the rounded contour directly ('gives the shoulder its rounded contour', 'forms the shoulder's rounded contour'); the qualification misdescribed them.",
+    "evidence": "Citations elsevier.deltoid (Q40), statpearls.deltoid (Q4)."
+   },
+   {
+    "what": "shoulders.teres_minor.appearance: the kenhub.teres_minor qualification no longer names another publisher.",
+    "why": "Qualifications are copy the page may show; publisher names stay in the source list.",
+    "evidence": "Copy check of every node field, statement, locator and qualification."
+   },
+   {
+    "what": "Lateral deltoid and supraspinatus node copy (whatItDoes, two supraspinatus caveats): 'the supraspinatus helps start it' and 'anatomy texts describe it as starting the movement' replaced; the testing-study caveat no longer says the positions do not isolate it.",
+    "why": "The start-of-abduction teaching is disputed (Reed 2013) and the node copy stated it without the disagreement. The old caveat contradicted the two studies' own titles ('isolates', 'can isolate'); what they measured is a ratio, so the caveat now says that. The dossier's note claimed the caveat said 'references differ on its role beyond the start', which it did not; the note is corrected too.",
+    "evidence": "R5, R6, R15, R16."
+   },
+   {
+    "what": "Rotator cuff, infraspinatus and teres minor locations: 'the top of the upper-arm bone' became 'the upper end of the upper-arm bone'.",
+    "why": "The excerpts place the infraspinatus and teres minor insertions on the middle and lower facets of the greater tuberosity and the subscapularis on the lesser tubercle at the front, not on the top; only the supraspinatus inserts on the top (superior facet).",
+    "evidence": "statpearls.infraspinatus, kenhub.teres_minor, statpearls.subscapularis, statpearls.supraspinatus source notes."
+   },
+   {
+    "what": "Shape notes: teres minor's 'hard to tell apart from the infraspinatus and the teres major' replaced by its position between them; infraspinatus's 'Much of it lies under' became 'Parts of it lie under'.",
+    "why": "No excerpt says the teres minor is hard to tell apart from its neighbours. Kenhub says the infraspinatus lies deep to 'parts of' the deltoid and latissimus dorsi, and an independent (uncited, low-tier) surface-anatomy source says most of it is framed by, not under, the deltoid, trapezius and latissimus; 'much of it' overstated the cover.",
+    "evidence": "Citations kenhub.infraspinatus (Q45), kenhub.teres_minor (Q46), statpearls.teres_minor (Q46); R23, R28."
+   },
+   {
+    "what": "Subscapularis caveat now says studies of clinical tests disagree.",
+    "why": "Matches the corrected selectivity claim (Pennock 2011).",
+    "evidence": "R26."
+   },
+   {
+    "what": "actions[]: the eight joint actions now carry the wording already in shared/specialization/actions/joints.ts (wave 0), with definedIn; five labels or descriptions differed.",
+    "why": "§1.3 says wave 0 adds every region action and a region lane may add an action only in actions/<region>.ts; all eight already exist in the shared library, and the registry test requires the region's actions to be the library's own records. The dossier's alternative wording would have been a second definition.",
+    "evidence": "shared/specialization/actions/joints.ts lines 16-29 (read in the repository, read-only); client/src/lib/specialization/regionContent.test.ts 'lists the library's own action and variant records'."
+   },
+   {
+    "what": "Source wording: elsevier.deltoid's title loses '(left)'; kenhub.rotator_cuff's note says 'list' instead of 'table'.",
+    "why": "The evidence standard bars 'table' and left/right words; '(left)' here meant the left-side model, not screen left, but a title that names no side is clearer and passes the copy checks.",
+    "evidence": "10-multi-region.md §8; regionContent.test.ts copy checks."
+   },
+   {
+    "what": "Source records: authors, journals, ids or sample sizes added or corrected for pmid.24947920, johk.campos2020_deltoid, johk.lim2014_biofeedback, bmc.kijkunasathian2023_supraspinatus, statpearls.subscapularis; boneandjoint.deltoid_nerve_segments no longer names authors in its title; notes added for mdpi.soylu2025_infraspinatus (registry count), janat.hik_ackland2019_moment_arms_review (contradictory summaries), pmid.26443105, pmid.14564261, pmid.12531769, luc.deltoid.",
+    "why": "Independent searches confirmed some unconfirmed details and failed to confirm one the title asserted (the abstract's authors); each note now says what the second search showed.",
+    "evidence": "R2, R4, R6, R7, R8, R12-R14, R19-R21."
+   }
+  ],
+  "openForAnatomyLane": [
+   "The registry test 'gives every muscle a main action' (regionContent.test.ts) would fail on shoulders.deltoid, a kind-'muscle' parent with role 'group' and, rightly, no node actions; the test should skip parents. Raise it with the wave-0 owner before nodes.ts lands; do not add rows to the deltoid.",
+   "Supraspinatus and the start of abduction: keep the attributed textbook sentence beside Reed 2013, or drop the 'starts the movement' teaching altogether.",
+   "Anterior deltoid internal rotation as prime: textbooks list it as a main action; no moment-arm or EMG result ranking it was found. Prime is defensible on the dossier's own rule; the mappings lane should not read it as a main internal rotator.",
+   "Posterior deltoid external rotation as prime: textbooks agree; one unverified summary of a moment-arm review put it among internal rotators in neutral. Check the Hik and Ackland full text.",
+   "Supraspinatus abduction stays prime: the registry test needs a prime row per muscle, and StatPearls calls abduction its main action, though Kenhub says it 'assists the deltoid'.",
+   "Infraspinatus horizontal abduction (assist): Elsevier plus Kuechle 1997's moment arms; add only if Kuechle can be cited with a stable record.",
+   "D1 (humeral-head stabilisation action): evidence supports the premise; it is a model and mapping decision for the adversarial review.",
+   "Bench angle on presses: a recommendation for the variants lane, now outside the claim.",
+   "Physiopedia remains the second source for the anterior deltoid's horizontal adduction (an assist row); if a professional wiki is not accepted, name it a single-source sentence."
+  ]
+ }
+}

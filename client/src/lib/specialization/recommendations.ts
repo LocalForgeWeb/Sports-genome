@@ -1,11 +1,10 @@
 import { equipmentMatchesProfile, type AthleteEquipmentProfile } from "@/lib/equipmentProfile";
 import type { Exercise } from "@/lib/exerciseCatalog";
-import { getSpecializationSummary, indexRegion, sharedPartnersOf } from "@shared/specialization/exposure";
+import { getSpecializationSummary, indexRegion, mappingKeyIn, sharedPartnersOf } from "@shared/specialization/exposure";
 import { categoryFor } from "@shared/specialization/rules";
 import { planWeekInterval } from "@shared/specialization/time";
 import type {
   ActionId,
-  ArmSide,
   ExerciseVariant,
   ExposureBout,
   ExposureCategory,
@@ -19,8 +18,10 @@ import type {
   SpecializationRegionData,
   SpecializationSummary,
   SummaryRequest,
+  SummarySide,
   VariantId,
-  VariantMapping, SummarySide } from "@shared/specialization/types";
+  VariantMapping,
+} from "@shared/specialization/types";
 import type { PlannedExercise } from "./planBouts";
 
 /**
@@ -50,7 +51,7 @@ import type { PlannedExercise } from "./planBouts";
  * 4. equipment the athlete has;
  * 5. overlap: an exercise already in the plan week, or in completed mode already logged in the
  *    window, ranks lower and is listed under "Already covered by";
- * 6. one-arm work first when the selected arm is behind the other;
+ * 6. one-sided work first when the selected side is behind the other;
  * 7. name.
  * Exercises or equipment the athlete excluded are removed.
  */
@@ -61,9 +62,9 @@ export type RecommendationRequest = {
   region: SpecializationRegionData;
   target: RecommendationTarget;
   side: SummarySide;
-  /** The summary on screen, for the selected arm. In completed mode its ledger says what was already logged. */
+  /** The summary on screen, for the selected side. In completed mode its ledger says what was already logged. */
   summary: SpecializationSummary;
-  /** The other arm, same window, when the page has it: a trailing arm prefers one-arm work. */
+  /** The other side, same window, when the page has it: a trailing side prefers one-sided work. A midline region has none. */
   otherSideSummary?: SpecializationSummary | null;
   /** Exercises already in the chosen plan week. */
   plannedExercises: readonly PlannedExercise[];
@@ -86,6 +87,7 @@ export type RecommendationCandidate = {
   mappingIds: string[];
   equipmentAvailable: boolean;
   alreadyPlanned: boolean;
+  /** Whether it is done with both sides of the region's limb, one side at a time, or either way (the variant's laterality for that limb). */
   laterality: Laterality;
   /** One plain sentence: what it trains for this muscle or movement, and the gap it answers. */
   why: string;
@@ -95,7 +97,7 @@ export type RecommendationCandidate = {
   targetGap?: GoalProgress | null;
   /** The muscle's main actions with no direct work in the window that it trains directly. Always set by `recommendFor`. */
   missingActions?: ActionId[];
-  /** Completed mode: already logged in the window on this arm (or with no arm recorded), so it ranks lower like a planned one. Always set by `recommendFor`. */
+  /** Completed mode: already logged in the window on this side (or with no side recorded), so it ranks lower like a planned one. Always set by `recommendFor`. */
   alreadyLogged?: boolean;
   /** Sets of it logged in the window that loaded the target (0 when none). Always set by `recommendFor`. */
   loggedBouts?: number;
@@ -104,7 +106,7 @@ export type RecommendationCandidate = {
 export type AlreadyCovered = {
   catalogExerciseId: number;
   name: string;
-  /** Its days in the plan week, then, when it was logged in the window, one "N sets logged in this window" entry (key "logged"; it says how many had no arm recorded). */
+  /** Its days in the plan week, then, when it was logged in the window, one "N sets logged in this window" entry (key "logged"; it says how many had no side recorded). */
   days: PlannedExercise["days"];
   category: ExposureCategory;
   /** Sets logged in the window that loaded the target; present only when it was logged (completed mode). */
@@ -188,13 +190,15 @@ function nodeRow(summary: SpecializationSummary | null | undefined, nodeId: Node
   return summary?.nodes.find((node) => node.nodeId === nodeId) ?? null;
 }
 
-/** Whether the selected arm is behind the other on what the athlete measures (their goal's metric, else direct bouts). */
-function armTrails(request: RecommendationRequest): boolean {
+/**
+ * Whether the selected side is behind the other on what the athlete measures (their goal's metric,
+ * else direct bouts). Per-side capability, dormant: a midline region has no other side, and both
+ * sides counted as one (the page's `both`, owner 20 Oct 2026) have no other side to trail.
+ */
+function sideTrails(request: RecommendationRequest): boolean {
   const other = request.otherSideSummary;
-  if (!other) return false;
+  if (!other || request.side === "midline" || request.side === "both") return false;
   const mine = goalsFor(request.summary, request.target, request.side)[0];
-  // Both arms as one have no other arm to trail.
-  if (request.side === "both") return false;
   const theirs = goalsFor(other, request.target, request.side === "left" ? "right" : "left").find((progress) => !mine || progress.goal.metric === mine.goal.metric);
   if (mine && theirs) return mine.value < theirs.value;
   if (request.target.nodeId === undefined) return false;
@@ -243,9 +247,9 @@ function creditedBy(mappings: readonly VariantMapping[], variant: ExerciseVarian
 type Logged = { catalogExerciseId: number; name: string; bouts: Set<string>; unknownSide: Set<string>; categories: Set<ExposureCategory> };
 
 /**
- * Completed mode: the exercises logged in the window, on this arm or with no arm recorded,
+ * Completed mode: the exercises logged in the window, on this side or with no side recorded,
  * whose credited work loads the target. They overlap exactly as a planned exercise does. Sets
- * with no arm recorded are not in the arm's totals, so they are named as such. Incidental
+ * with no side recorded are not in the side's totals, so they are named as such. Incidental
  * holding is not "covered", for the same reason it is not a suggestion.
  */
 function loggedFor(request: RecommendationRequest, names: ReadonlyMap<number, string>): Map<number, Logged> {
@@ -264,8 +268,7 @@ function loggedFor(request: RecommendationRequest, names: ReadonlyMap<number, st
       const id = contribution.catalogExerciseId;
       const entry = out.get(id) ?? { catalogExerciseId: id, name: names.get(id) ?? contribution.exerciseName, bouts: new Set<string>(), unknownSide: new Set<string>(), categories: new Set<ExposureCategory>() };
       entry.bouts.add(contribution.boutId);
-      // Named as "no arm recorded" only by a one-arm summary; for both arms it is just a set.
-      if (contribution.side === "unknown" && summary.side !== "both") entry.unknownSide.add(contribution.boutId);
+      if (contribution.countedSide === "unknown") entry.unknownSide.add(contribution.boutId);
       if (target.nodeId !== undefined) entry.categories.add(contribution.category);
       else for (const part of parts) entry.categories.add(part.category);
       out.set(id, entry);
@@ -283,7 +286,7 @@ function missingPrimeActions(request: RecommendationRequest): ActionId[] {
   const { region, summary, target } = request;
   if (target.nodeId === undefined) return [];
   const row = nodeRow(summary, target.nodeId);
-  // "Had direct work" is the arm's own count, the one the gap clause reads. Work whose side was
+  // "Had direct work" is the side's own count, the one the gap clause reads. Work whose side was
   // not recorded, or a set counted as mixed, is not in that count: naming a missing action then
   // would sit beside "it has no direct work in this window" and contradict it.
   if (!row || row.directDynamicBouts + row.deliberateHoldBouts === 0) return [];
@@ -300,6 +303,7 @@ function missingPrimeActions(request: RecommendationRequest): ActionId[] {
 export function recommendFor(request: RecommendationRequest): Recommendations {
   const { region, target, side, summary } = request;
   const index = indexRegion(region);
+  const sideWord = sideWordOf(region);
   const nodeName = target.nodeId !== undefined ? index.nodeById.get(target.nodeId)?.name ?? target.nodeId : null;
   const actionLabel = (actionId: ActionId | null) => (actionId ? region.actions.find((action) => action.id === actionId)?.label ?? actionId : null);
   const subject = nodeName ?? lowerFirst(actionLabel(target.actionId ?? null) ?? "this movement");
@@ -346,7 +350,7 @@ export function recommendFor(request: RecommendationRequest): Recommendations {
     coveredBy.set(entry.catalogExerciseId, {
       catalogExerciseId: entry.catalogExerciseId,
       name: existing?.name ?? entry.name,
-      days: [...(existing?.days ?? []), { key: "logged", label: `${plural(count, "set")} logged in this window${noSideWords(count, entry.unknownSide.size)}` }],
+      days: [...(existing?.days ?? []), { key: "logged", label: `${plural(count, "set")} logged in this window${noSideWords(count, entry.unknownSide.size, sideWord)}` }],
       category: mergeCategories([...Array.from(entry.categories), ...(existing ? [existing.category] : [])]),
       loggedBouts: count,
     });
@@ -399,7 +403,7 @@ export function recommendFor(request: RecommendationRequest): Recommendations {
     byVariant.set(entry.variant.id, { variant: entry.variant, mappings: usable, relevance, credits, answers });
   }
 
-  const trailing = armTrails(request);
+  const trailing = sideTrails(request);
   const excludedIds = new Set(request.exclusions?.catalogExerciseIds ?? []);
   const excludedEquipment = new Set(request.exclusions?.equipment ?? []);
   const allReviewed = reviewedMappingsOf(region);
@@ -430,10 +434,10 @@ export function recommendFor(request: RecommendationRequest): Recommendations {
       variantId: variant.id,
       equipment,
       relevance,
-      mappingIds: mappings.map((mapping) => mapping.id).sort(),
+      mappingIds: mappings.map((mapping) => mappingKeyIn(region, mapping)).sort(),
       equipmentAvailable,
       alreadyPlanned,
-      laterality: variant.laterality,
+      laterality: lateralityOf(region, variant),
       why: whySentence({
         relevance,
         actions,
@@ -442,8 +446,9 @@ export function recommendFor(request: RecommendationRequest): Recommendations {
         missing: missingActions.map((actionId) => actionLabel(actionId) ?? actionId),
         where,
         shared: shared.map((nodeId) => index.nodeById.get(nodeId)?.name ?? nodeId),
-        trailing: trailing && variant.laterality !== "bilateral",
+        trailing: trailing && lateralityOf(region, variant) !== "bilateral",
         side,
+        sideWord,
         alreadyPlanned,
         loggedBouts,
         loggedNoSide: loggedEntry?.unknownSide.size ?? 0,
@@ -483,10 +488,23 @@ export function recommendFor(request: RecommendationRequest): Recommendations {
   };
 }
 
-/** Logged sets with no arm recorded are not in the arm's totals: " with no arm recorded", ", 1 with no arm recorded" or nothing. */
-function noSideWords(sets: number, noSide: number): string {
+/** The region's word for a side, from the limb the logger asks about ("leg", "side"); "side" where it has none. */
+const sideWordOf = (region: SpecializationRegionData) => region.region.wording.sideWord ?? "side";
+
+/**
+ * Whether an exercise is done with both sides of the region's limb, one side at a time, or either
+ * way: the variant's laterality for that limb. A leg variant with no leg laterality is read as
+ * two-sided, so it is never put forward as one-sided work.
+ */
+function lateralityOf(region: SpecializationRegionData, variant: ExerciseVariant): Laterality {
+  const sides = region.region.sides;
+  return sides.model === "paired" && sides.limb === "leg" ? variant.legLaterality ?? "bilateral" : variant.laterality;
+}
+
+/** Logged sets with no side recorded are not in the side's totals: " with no leg recorded", ", 1 with no leg recorded" or nothing. */
+function noSideWords(sets: number, noSide: number, sideWord: string): string {
   if (!noSide) return "";
-  return noSide === sets ? " with no arm recorded" : `, ${noSide} with no arm recorded`;
+  return noSide === sets ? ` with no ${sideWord} recorded` : `, ${noSide} with no ${sideWord} recorded`;
 }
 
 /**
@@ -551,7 +569,7 @@ function gapClause(input: { request: RecommendationRequest; nodeName: string | n
   return `${row.directDynamicBouts} direct dynamic and ${row.deliberateHoldBouts} hold bouts ${where}, no target set`;
 }
 
-function whySentence(input: { relevance: Relevance; actions: string[]; nodeName: string | null; gap: string; missing: string[]; where: string; shared: string[]; trailing: boolean; side: SummarySide; alreadyPlanned: boolean; loggedBouts: number; loggedNoSide: number; equipmentAvailable: boolean; equipment: string | null }): string {
+function whySentence(input: { relevance: Relevance; actions: string[]; nodeName: string | null; gap: string; missing: string[]; where: string; shared: string[]; trailing: boolean; side: SummarySide; sideWord: string; alreadyPlanned: boolean; loggedBouts: number; loggedNoSide: number; equipmentAvailable: boolean; equipment: string | null }): string {
   const what = input.actions.length ? listWords(input.actions) : "work";
   const lead = input.relevance === "direct_dynamic" ? `Direct ${what}` : input.relevance === "direct_isometric" ? `Direct ${what} hold` : `Helps with ${what}`;
   const sentences: string[] = [];
@@ -559,9 +577,9 @@ function whySentence(input: { relevance: Relevance; actions: string[]; nodeName:
   if (input.missing.length) sentences.push(`${listWords(input.missing.map((label, position) => (position ? lowerFirst(label) : label)))}: no direct work ${input.where}.`);
   sentences.push(`${lead}${input.nodeName ? ` for ${lowerFirst(input.nodeName)}` : ""}; ${input.gap}.`);
   if (input.shared.length) sentences.push(`The work is shared with ${listWords(input.shared.map(lowerFirst))}; the evidence does not split it between them.`);
-  if (input.trailing && input.side !== "both") sentences.push(`Done one arm at a time, so the ${input.side} arm can be trained on its own.`);
+  if (input.trailing) sentences.push(`Done one ${input.sideWord} at a time, so the ${input.side} ${input.sideWord} can be trained on its own.`);
   if (input.alreadyPlanned) sentences.push("Already in this plan week.");
-  if (input.loggedBouts) sentences.push(`Already logged in this window: ${plural(input.loggedBouts, "set")}${noSideWords(input.loggedBouts, input.loggedNoSide)}.`);
+  if (input.loggedBouts) sentences.push(`Already logged in this window: ${plural(input.loggedBouts, "set")}${noSideWords(input.loggedBouts, input.loggedNoSide, input.sideWord)}.`);
   if (!input.equipmentAvailable) sentences.push(input.equipment ? `Needs ${input.equipment.toLowerCase()}, which is not in your equipment.` : "Its equipment is not listed.");
   return sentences.join(" ");
 }
@@ -582,7 +600,7 @@ const plannedFields: (keyof PlannedValues)[] = ["directDynamicBouts", "contribut
 const valuesOf = (node: NodeExposure): PlannedValues => Object.fromEntries(plannedFields.map((field) => [field, node[field]])) as PlannedValues;
 
 /**
- * Planned totals before and after a proposed add or swap, for one arm and one plan week.
+ * Planned totals before and after a proposed add or swap, for one side and one plan week.
  * Completed work is not read at all: a preview can only ever change what is planned
  * (brief §7, §11 "Add exercise preview").
  */

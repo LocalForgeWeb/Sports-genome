@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { goalsForBothArms } from "@shared/specialization/goals";
 import type { SpecializationGoal, SpecializationMeasurement } from "@shared/specialization/types";
 import {
   collapseArmPairs,
@@ -145,11 +144,13 @@ describe("goal writes and the region check", () => {
 
 describe("useSpecializationGoals", () => {
   it("reads a target saved once per arm as one, refuses an overlap, removes, and keeps every reader current", () => {
+    // The old "Both arms" choice stored two copies before 20 Oct 2026; both arms now count as one.
+    saveSpecializationGoals((["left", "right"] as const).map((side) => goal({ id: `pair:${side}`, side })), "a");
     const writer = renderHook(() => useSpecializationGoals("a"));
     const reader = renderHook(() => useSpecializationGoals("a"));
-    // The old "Both arms" choice stored two copies; both arms now count as one (20 Oct 2026).
-    const { side: _side, ...draft } = goal({ id: "pair" });
-    act(() => { expect(writer.result.current.save(goalsForBothArms(draft))).toEqual({ ok: true }); });
+    expect(reader.result.current.goals.map((item) => item.id)).toEqual(["pair:right"]);
+    // Nothing writes such a pair now: its second copy is the same target as the first.
+    act(() => { expect(writer.result.current.save([goal({ id: "twice:left", side: "left", nodeId: "forearm.fcu" }), goal({ id: "twice:right", side: "right", nodeId: "forearm.fcu" })]).ok).toBe(false); });
     expect(reader.result.current.goals.map((item) => item.id)).toEqual(["pair:right"]);
     act(() => { expect(writer.result.current.save(goal({ id: "again", side: "right", startsOn: "2026-10-30" })).ok).toBe(false); });
     act(() => { expect(writer.result.current.remove("pair:right")).toEqual({ ok: true }); });
@@ -214,5 +215,46 @@ describe("measurements", () => {
     expect(result.current.measurements.map((item) => item.id)).toEqual(["m2"]);
     expect(saveSpecializationMeasurements([measurement()], "b")).toBe(true);
     expect(loadSpecializationMeasurements("a").map((item) => item.id)).toEqual(["m2"]);
+  });
+});
+
+describe("what a later version writes survives this one (10-multi-region.md §2.1)", () => {
+  const stored = (base: string) => JSON.parse(localStorage.getItem(`${base}::a`) ?? "[]") as unknown[];
+  // Shapes this version cannot read: a later version's, and plain damage.
+  const unreadGoals = [{ ...goal({ id: "future" }), metric: "girth_targets" }, { ...goal({ id: "both" }), side: "both" }, null, 7, "text"];
+
+  it("reads a midline target, and keeps every stored target it cannot read, written back untouched by every save and removal", () => {
+    localStorage.setItem(`${specializationGoalsKeyBase}::a`, JSON.stringify([goal({ id: "kept" }), goal({ id: "core", regionId: "core", nodeId: "core.rectus_abdominis", side: "midline" }), ...unreadGoals]));
+    expect(loadSpecializationGoals("a").map((item) => [item.id, item.side])).toEqual([["kept", "left"], ["core", "midline"]]);
+    expect(saveSpecializationGoals([...loadSpecializationGoals("a"), goal({ id: "added", side: "right" })], "a")).toBe(true);
+    expect(stored(specializationGoalsKeyBase)).toEqual([goal({ id: "kept" }), goal({ id: "core", regionId: "core", nodeId: "core.rectus_abdominis", side: "midline" }), goal({ id: "added", side: "right" }), ...unreadGoals]);
+    const { result } = renderHook(() => useSpecializationGoals("a"));
+    act(() => { expect(result.current.remove("kept")).toEqual({ ok: true }); });
+    act(() => { expect(result.current.save(goal({ id: "fcu", nodeId: "forearm.fcu" }))).toEqual({ ok: true }); });
+    expect(stored(specializationGoalsKeyBase).slice(-unreadGoals.length)).toEqual(unreadGoals);
+    expect(result.current.goals.map((item) => item.id)).toEqual(["core", "added", "fcu"]);
+  });
+
+  it("holds a new muscle target to the page's targets when the page passes its scope", () => {
+    const scope = { region: { id: "forearm", sides: { model: "paired" as const, limb: "arm" as const }, wording: { externalGroup: "", externalHeading: "", incidentalWork: "grip", progressSubtitle: "", sideWord: "arm", sideWordPlural: "arms", onSideTemplate: "your {side} forearm" } }, targetNodeIds: new Set(["forearm.fcr"]) };
+    expect(upsertGoal([], goal(), scope).ok).toBe(true);
+    expect(upsertGoal([], goal({ nodeId: "upper_arm.biceps" }), scope)).toEqual({ ok: false, reason: "Targets are for this region's target muscles. You can end or remove this one." });
+    const { result } = renderHook(() => useSpecializationGoals("a"));
+    act(() => { expect(result.current.save(goal({ nodeId: "forearm.anconeus" }), scope).ok).toBe(false); });
+    expect(result.current.goals).toEqual([]);
+  });
+
+  it("reads a girth around the trunk on the midline, and keeps measurements it cannot read", () => {
+    const girth = measurement({ id: "girth", regionId: "chest", side: "midline", metric: "girth_cm", value: 104, protocol: { ...measurement().protocol, landmark: "Under the arms", posture: "standing_relaxed" } });
+    const flexed = measurement({ id: "flexed", protocol: { ...measurement().protocol, posture: "arm_flexed" } });
+    const unread = [{ ...measurement({ id: "limb-midline" }), side: "midline" }, { ...girth, id: "girth-left", side: "left" }, { ...measurement({ id: "skinfold" }), metric: "skinfold_mm" }];
+    localStorage.setItem(`${specializationMeasurementsKeyBase}::a`, JSON.stringify([girth, flexed, ...unread]));
+    expect(loadSpecializationMeasurements("a").map((item) => item.id)).toEqual(["flexed", "girth"]);
+    expect(parseStoredMeasurement(girth)).toEqual(girth);
+    expect(saveSpecializationMeasurements([girth], "a")).toBe(true);
+    expect(stored(specializationMeasurementsKeyBase)).toEqual([girth, ...unread]);
+    const { result } = renderHook(() => useSpecializationMeasurements("a"));
+    act(() => { expect(result.current.save(measurement({ id: "m3" }))).toEqual({ ok: true }); });
+    expect(stored(specializationMeasurementsKeyBase).slice(-unread.length)).toEqual(unread);
   });
 });

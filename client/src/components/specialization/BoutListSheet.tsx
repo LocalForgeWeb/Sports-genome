@@ -5,16 +5,20 @@ import { BoutItem, boutDay } from "./BoutItem";
 import { ledgerByExercise } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
 
-/** One list in the sheet: the bouts behind one total, with what that total is, and what to say when it is 0. */
-export type BoutList = { key: string; heading: string | null; note: string | null; rows: readonly RegionBoutRow[]; empty?: string };
+/**
+ * One list in the sheet: the bouts behind one total, with what that total is, and what to say when
+ * it is 0. `reasons` says, per exercise (the ledger's exercise key), why its sets are listed: an
+ * exercise the region leaves unmapped, with its listed reason (10-multi-region.md §8).
+ */
+export type BoutList = { key: string; heading: string | null; note: string | null; rows: readonly RegionBoutRow[]; empty?: string; reasons?: ReadonlyMap<string, string> };
 
 /**
  * The set records behind a region-level total (brief §1, "Every total opens the contributing
- * exercises and actual set records"): the region's distinct bouts on this arm, the sets with
- * no arm recorded, the work tagged with the region and mapped to no muscle, one day's bouts
- * (a bar in "Exercises in this window"), or this week's logged bouts beside the plan week's
- * (the pair in the window line). Exercise → bout → segment, as the muscle sheet's ledger
- * reads, each logged bout with "Open this workout".
+ * exercises and actual set records"): the region's distinct bouts, the work tagged with the
+ * region and mapped to no muscle, the sets it does not count although their exercise tags it, one
+ * day's bouts (a bar in "Exercises in this window"), or
+ * this week's logged bouts beside the plan week's (the pair in the window line). Exercise → bout →
+ * segment, as the muscle sheet's ledger reads, each logged bout with "Open this workout".
  */
 export function BoutListSheet({ eyebrow, title, intro, lists, weightUnit, onOpenSession, onInspectExercise, onOpenMethod, onClose }: {
   eyebrow: string;
@@ -36,6 +40,7 @@ export function BoutListSheet({ eyebrow, title, intro, lists, weightUnit, onOpen
         {groups.length ? <div className="spz-ledger">
           {groups.map((group) => <details key={group.key} className="spz-disclosure" open={groups.length === 1 || undefined}>
             <summary><span><b>{group.name}</b><small>{group.rows.length} set{group.rows.length === 1 ? "" : "s"}{group.matchedBy === "name" ? " · matched by name" : ""}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+            {list.reasons?.get(group.key) && <p className="spz-note">{list.reasons.get(group.key)}</p>}
             <ol className="spz-bouts">
               {group.rows.map((row) => {
                 const day = boutDay(row.performedAt);

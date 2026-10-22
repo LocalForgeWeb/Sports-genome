@@ -1,0 +1,169 @@
+{
+  "wrist": {
+    "hypertrophy_reps": [
+      10,
+      25
+    ],
+    "strength_practice_reps": [
+      6,
+      12
+    ],
+    "evidence_status": "practical_starting_range_not_muscle_specific_optimum",
+    "sources": [
+      "S09",
+      "S10",
+      "S11",
+      "S14",
+      "S18"
+    ],
+    "default_rir_for_controlled_dynamic": [
+      1,
+      3
+    ],
+    "rir_status": "configurable_coaching_default_not_a_validated_conversion_factor",
+    "weekly_set_target": null,
+    "maximum_safe_sets": null
+  },
+  "rotation": {
+    "hypertrophy_reps": [
+      10,
+      20
+    ],
+    "strength_practice_reps": [
+      6,
+      12
+    ],
+    "evidence_status": "practical_starting_range_not_muscle_specific_optimum",
+    "sources": [
+      "S09",
+      "S10",
+      "S11",
+      "S14",
+      "S18"
+    ],
+    "default_rir_for_controlled_dynamic": [
+      1,
+      3
+    ],
+    "rir_status": "configurable_coaching_default_not_a_validated_conversion_factor",
+    "weekly_set_target": null,
+    "maximum_safe_sets": null
+  },
+  "elbow": {
+    "hypertrophy_reps": [
+      6,
+      20
+    ],
+    "strength_practice_reps": [
+      3,
+      6
+    ],
+    "evidence_status": "practical_starting_range_not_muscle_specific_optimum",
+    "sources": [
+      "S09",
+      "S10",
+      "S11",
+      "S14",
+      "S18"
+    ],
+    "default_rir_for_controlled_dynamic": [
+      1,
+      3
+    ],
+    "rir_status": "configurable_coaching_default_not_a_validated_conversion_factor",
+    "weekly_set_target": null,
+    "maximum_safe_sets": null
+  },
+  "finger": {
+    "hypertrophy_reps": [
+      10,
+      25
+    ],
+    "strength_practice_reps": [
+      5,
+      10
+    ],
+    "evidence_status": "practical_starting_range_not_muscle_specific_optimum",
+    "sources": [
+      "S09",
+      "S10",
+      "S11",
+      "S14",
+      "S18"
+    ],
+    "default_rir_for_controlled_dynamic": [
+      1,
+      3
+    ],
+    "rir_status": "configurable_coaching_default_not_a_validated_conversion_factor",
+    "weekly_set_target": null,
+    "maximum_safe_sets": null
+  },
+  "thumb": {
+    "hypertrophy_reps": [
+      12,
+      25
+    ],
+    "strength_practice_reps": null,
+    "evidence_status": "practical_starting_range_not_muscle_specific_optimum",
+    "sources": [
+      "S09",
+      "S10",
+      "S11",
+      "S14",
+      "S18"
+    ],
+    "default_rir_for_controlled_dynamic": [
+      1,
+      3
+    ],
+    "rir_status": "configurable_coaching_default_not_a_validated_conversion_factor",
+    "weekly_set_target": null,
+    "maximum_safe_sets": null
+  },
+  "isometric_grip": {
+    "hypertrophy_hold_seconds": [
+      10,
+      30
+    ],
+    "strength_practice_hold_seconds": [
+      3,
+      10
+    ],
+    "reps": null,
+    "evidence_status": "practical_starting_range_not_muscle_specific_optimum",
+    "sources": [
+      "S09",
+      "S10",
+      "S11",
+      "S14",
+      "S18"
+    ],
+    "default_rir_for_controlled_dynamic": [
+      1,
+      3
+    ],
+    "rir_status": "configurable_coaching_default_not_a_validated_conversion_factor",
+    "weekly_set_target": null,
+    "maximum_safe_sets": null
+  },
+  "ballistic_or_mixed": {
+    "hypertrophy_reps": null,
+    "strength_practice_reps": null,
+    "evidence_status": "practical_starting_range_not_muscle_specific_optimum",
+    "sources": [
+      "S09",
+      "S10",
+      "S11",
+      "S14",
+      "S18"
+    ],
+    "default_rir_for_controlled_dynamic": [
+      1,
+      3
+    ],
+    "rir_status": "configurable_coaching_default_not_a_validated_conversion_factor",
+    "weekly_set_target": null,
+    "maximum_safe_sets": null
+  }
+}

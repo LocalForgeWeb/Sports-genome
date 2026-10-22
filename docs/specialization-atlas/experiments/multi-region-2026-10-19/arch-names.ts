@@ -1,0 +1,2 @@
+import { exercises } from "/home/user/Sports-genome/client/src/lib/exerciseCatalog";
+for (const id of [46, 169, 170, 171, 172, 173, 188, 190, 194, 195, 196, 200, 201, 217, 222, 224, 247, 264, 351, 356, 357, 358, 367, 368, 371, 372, 373, 386, 302, 409]) { const e = exercises.find((x) => x.id === id); console.log(id, e?.name, "|", e?.equipment ?? "", "| p:", e?.primaryMuscles.join(","), "| s:", e?.secondaryMuscles.join(",")); }

@@ -1,0 +1,33 @@
+{
+ "label": "merged-161b86a",
+ "figureAsked": "3D model (WebGL)",
+ "runs": 3,
+ "sameEveryRun": true,
+ "figure": "3D model (ready)",
+ "specialize": [
+  {
+   "file": "index-DaeUMW5j.js",
+   "bytes": 227024
+  },
+  {
+   "file": "index-CwB7Ep0o.js",
+   "bytes": 20836
+  },
+  {
+   "file": "SpecializationPanel-c3jhKB8n.js",
+   "bytes": 205570
+  },
+  {
+   "file": "ForearmModelView-CJNojfJx.js",
+   "bytes": 613722
+  },
+  {
+   "file": "/draco/draco_wasm_wrapper.js",
+   "bytes": 58456
+  }
+ ],
+ "total": 1125608,
+ "model": 672178,
+ "page": 453430,
+ "filesBeforeTheTap": 9
+}

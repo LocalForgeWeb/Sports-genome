@@ -4,12 +4,13 @@ import type { Exercise } from "@/lib/exerciseCatalog";
 import { applyPlanChangeToRecord } from "@/lib/specialization/planChange";
 import { boutsFromPlan, plannedExercisesInWeek, prescriptionOf } from "@/lib/specialization/planBouts";
 import { previewPlannedChange, type PlannedValues, type RecommendationCandidate } from "@/lib/specialization/recommendations";
+import { planningVariantsFor } from "@/lib/specialization/useSpecializationSummary";
 import type { SpecializationPlanChange, SpecializationPlanChangeResult } from "@/lib/specialization/viewState";
 import { commitDay, emptyDayStore, loadDay, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { catalogIdOf } from "@/lib/workoutSwap";
-import { variantForCatalogId } from "@shared/specialization/exposure";
-import type { ArmSide, SpecializationRegionData, SummarySide } from "@shared/specialization/types";
+import { creditedMappingsFor, variantForCatalogId } from "@shared/specialization/exposure";
+import type { SpecializationRegionData, SummarySide } from "@shared/specialization/types";
 import { holdTime } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
 
@@ -31,6 +32,7 @@ type Placement = "first" | "end" | number;
  */
 export function PlanChangeSheet({ data, side, nodeId, candidates, initialExerciseId, catalog, plan, goal, onApply, onClose }: {
   data: SpecializationRegionData;
+  /** The summary's side: `both` on a paired region (both sides as one), `midline` on a midline one. */
   side: SummarySide;
   /** The muscle the change is for; its row leads the preview. */
   nodeId: string;
@@ -80,15 +82,16 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
 
   const preview = useMemo(() => {
     if (!outcome?.ok || !slot) return null;
-    const before = boutsFromPlan({ week, slots: plan.slots, store, variants: data.variants, goal });
-    const after = boutsFromPlan({ week, slots: plan.slots, store: commitDay(store, slot.key, outcome.record), variants: data.variants, goal });
+    const before = boutsFromPlan({ week, slots: plan.slots, store, variants: planningVariantsFor(data), goal });
+    const after = boutsFromPlan({ week, slots: plan.slots, store: commitDay(store, slot.key, outcome.record), variants: planningVariantsFor(data), goal });
     return previewPlannedChange({ region: data, before, after, side, planWeek: week });
   }, [outcome, slot, week, plan.slots, store, data, goal, side]);
 
   // What already in that day loads the same muscle: overlap said plainly, not scored.
   const loadsFocus = (catalogExerciseId: number) => {
     const variant = variantForCatalogId(data, catalogExerciseId);
-    return Boolean(variant && data.mappings.some((mapping) => mapping.variantId === variant.id && mapping.nodeId === nodeId && mapping.reviewStatus === "reviewed" && mapping.versionKey === data.mappingVersion.key));
+    // As the muscle is credited here: an external member by its home's version once that region has one.
+    return Boolean(variant && creditedMappingsFor(data, nodeId).some((mapping) => mapping.variantId === variant.id && mapping.reviewStatus === "reviewed"));
   };
   const overlapping = dayExercises.filter((entry) => loadsFocus(catalogIdOf(entry)));
 
@@ -163,7 +166,7 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
 
   return <SpecializationSheet
     id="spz-change"
-    eyebrow={side === "both" ? `For ${nodeName}` : `For ${nodeName} · ${side} arm`}
+    eyebrow={`For ${nodeName}`}
     title={swapping ? "Swap into your plan" : "Add to your plan"}
     // The muscle is the subject; rewording the title for a swap keeps focus where it was.
     focusKey={nodeId}
@@ -247,7 +250,7 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
     </fieldset>}
 
     <section className="spz-preview" aria-live="polite" aria-labelledby="spz-preview-title">
-      <h3 id="spz-preview-title">Planned totals, Week {week}{side === "both" ? "" : `, ${side} arm`}</h3>
+      <h3 id="spz-preview-title">Planned totals, Week {week}</h3>
       {!slot && <p className="spz-note">Choose a day to see what changes.</p>}
       {outcome && !outcome.ok && <p className="spz-error">{outcome.reason}</p>}
       {slot && swapping && replaceEntryId === null && <p className="spz-note">Choose the exercise to swap out to see the change.</p>}

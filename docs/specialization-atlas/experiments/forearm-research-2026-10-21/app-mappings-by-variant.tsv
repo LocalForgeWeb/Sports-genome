@@ -1,0 +1,127 @@
+mappings 418 reviewed 413 draft 5 variants 119
+forearm-node mappings 365 reviewed 360
+cat-121	Barbell Curl	Barbell	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-122	EZ-Bar Curl	Free weights	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-123	Dumbbell Curl	Dumbbells	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-124	Alternating Dumbbell Curl	Dumbbells	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-125	Incline Dumbbell Curl	Dumbbells	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-126	Preacher Curl	Free weights	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-127	Machine Preacher Curl	Machine	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-128	Cable Curl	Cable	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-129	Bayesian Cable Curl	Cable	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-130	Spider Curl	Free weights	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-131	Concentration Curl	Free weights	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-137	Drag Curl	Free weights	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-336	Cable Biceps Curl	Cable	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-338	Incline Cable Curl	Cable	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-339	High Cable Curl	Cable	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-340	Cable Concentration Curl	Cable	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-341	Cable Spider Curl	Cable	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii fdp:ii
+cat-138	Chin-Up Curl	Free weights	Elbow flexion	UA.biceps:dd UA.brachialis:dd br:cd fds:ii!s fdp:ii!s
+cat-132	Hammer Curl	Free weights	Elbow flexion	br:dd UA.brachialis:dd UA.biceps:cd fds:ii fdp:ii
+cat-133	Cross-Body Hammer Curl	Free weights	Elbow flexion	br:dd UA.brachialis:dd UA.biceps:cd fds:ii fdp:ii
+cat-134	Rope Hammer Curl	Free weights	Elbow flexion	br:dd UA.brachialis:dd UA.biceps:cd fds:ii fdp:ii
+cat-337	Rope Hammer Cable Curl	Cable	Elbow flexion	br:dd UA.brachialis:dd UA.biceps:cd fds:ii fdp:ii
+cat-342	Cross-Body Cable Curl	Cable	Elbow flexion	br:dd UA.brachialis:dd UA.biceps:cd fds:ii fdp:ii
+cat-135	Reverse Curl	Free weights	Elbow flexion	br:dd UA.brachialis:dd UA.biceps:cd ecrl:si ecrb:si ecu:si fds:ii fdp:ii
+cat-136	Zottman Curl	Free weights	Elbow flexion	br:dd UA.biceps:dd UA.brachialis:dd ecrl:si ecrb:si ecu:si fds:ii fdp:ii
+cat-139	Wrist Curl	Free weights	Wrist flexion	fcr:dd fcu:dd pl:cd fds:ii fdp:ii
+cat-410	One-Arm Dumbbell Wrist Curl	Dumbbells	Wrist flexion	fcr:dd fcu:dd pl:cd fds:ii fdp:ii
+cat-140	Reverse Wrist Curl	Free weights	Wrist extension	ecrl:dd ecrb:dd ecu:dd ed:cd fds:ii fdp:ii
+cat-411	One-Arm Dumbbell Reverse Wrist Curl	Dumbbells	Wrist extension	ecrl:dd ecrb:dd ecu:dd ed:cd fds:ii fdp:ii
+cat-350	Cable Wrist Extension	Cable	Wrist extension	ecrl:dd ecrb:dd ecu:dd ed:cd fds:ii fdp:ii
+cat-141	Wrist Roller	Free weights	Wrist flexion and extension	fcr:cd fcu:cd ecrl:cd ecrb:cd ecu:cd fds:ii fdp:ii
+cat-415	Wrist Roller, Extension Wind	Free weights	Wrist extension	fcr:cd fcu:cd ecrl:dd ecrb:dd ecu:dd fds:ii fdp:ii
+cat-416	Wrist Roller, Flexion Wind	Free weights	Wrist flexion	fcr:dd fcu:dd ecrl:cd ecrb:cd ecu:cd fds:ii fdp:ii
+cat-407	Lever Radial Deviation	Dumbbells	Wrist radial deviation	fcr:dd ecrl:dd ecrb:dd fds:ii fdp:ii
+cat-408	Lever Ulnar Deviation	Dumbbells	Wrist ulnar deviation	fcu:dd ecu:dd fds:ii fdp:ii
+cat-405	Lever Pronation	Dumbbells	Forearm pronation	pt:dd pq:dd fds:ii fdp:ii
+cat-406	Lever Supination	Dumbbells	Forearm supination	supinator:dd UA.biceps:cd fds:ii fdp:ii
+cat-401	Finger Curl	Barbell	Finger flexion	fds:dd fdp:dd
+cat-402	Gripper Close	Free weights	Finger flexion	fds:dd fdp:dd
+cat-403	Gripper Hold	Free weights	Grip isometric	fds:di fdp:di
+cat-404	Band Finger Extension	Band	Finger extension	ed:dd edm:cd ei:cd
+cat-412	Band Thumb Flexion	Band	Thumb flexion	fpl:dd
+cat-413	Band Thumb Extension	Band	Thumb extension	epl:dd epb:dd
+cat-414	Band Thumb Abduction	Band	Thumb abduction	apl:dd
+cat-142	Plate Pinch	Free weights	Grip isometric	fds:di fdp:di fpl:di
+cat-143	Dead Hang	Bodyweight	Grip isometric	fds:di!s fdp:di!s
+cat-144	Towel Dead Hang	Bodyweight	Grip isometric	fds:di!s fdp:di!s fpl:ci*DRAFT
+cat-145	Farmer Hold	Free weights	Grip isometric	fds:di!s fdp:di!s fpl:ci*DRAFT ecrl:si ecrb:si ecu:si
+cat-299	Farmer’s Walk	Free weights	Loaded carry	fds:di!s fdp:di!s fpl:ci*DRAFT ecrl:si ecrb:si ecu:si
+cat-409	Suitcase Carry	Free weights	Loaded carry	fds:di!s fdp:di!s fpl:ci*DRAFT ecrl:si ecrb:si ecu:si
+cat-300	Zercher Carry	Barbell	Loaded carry	br:ci UA.biceps:ci UA.brachialis:ci
+cat-43	Barbell Bent-Over Row	Barbell	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-44	Pendlay Row	Barbell	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-45	Underhand Barbell Row	Barbell	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-46	Dumbbell Row	Dumbbells	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-47	Chest-Supported Dumbbell Row	Dumbbells	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-48	Seal Row	Free weights	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-49	Meadows Row	Free weights	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-50	T-Bar Row	Free weights	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-51	Chest-Supported T-Bar Row	Free weights	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-52	Machine High Row	Machine	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-53	Machine Low Row	Machine	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-54	Seated Cable Row	Cable	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-55	Wide-Grip Cable Row	Cable	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-56	Single-Arm Cable Row	Cable	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-57	Lat Pulldown	Free weights	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-58	Wide-Grip Lat Pulldown	Free weights	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-59	Neutral-Grip Lat Pulldown	Free weights	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-60	Underhand Lat Pulldown	Free weights	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-61	Single-Arm Lat Pulldown	Free weights	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-66	Pull-Up	Bodyweight	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-67	Chin-Up	Free weights	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-68	Neutral-Grip Pull-Up	Bodyweight	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-69	Wide-Grip Pull-Up	Bodyweight	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-70	Weighted Pull-Up	Bodyweight	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-71	Weighted Chin-Up	Free weights	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-72	Commando Pull-Up	Bodyweight	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-73	Archer Pull-Up	Bodyweight	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-74	L-Sit Pull-Up	Bodyweight	Trunk flexion / anti-extension	br:cd fds:ii!s fdp:ii!s
+cat-75	Inverted Row	Bodyweight	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-76	Feet-Elevated Inverted Row	Bodyweight	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-77	Ring Row	Bodyweight	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-256	Landmine Row	Landmine	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-257	Meadows Landmine Row	Landmine	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-258	Landmine T-Bar Row	Landmine	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-327	Wide-Grip Cable Lat Pulldown	Cable	Vertical pull	br:cd fds:ii!s fdp:ii!s
+cat-331	Low Cable Row	Cable	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-332	Rope Cable Row	Cable	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-379	Cable Rotational Row	Cable	Rotation	br:cd fds:ii!s fdp:ii!s
+cat-383	Chest-Supported Landmine Row	Landmine	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-384	Offset Landmine Row	Landmine	Horizontal pull	br:cd fds:ii!s fdp:ii!s
+cat-78	Towel Pull-Up	Bodyweight	Vertical pull	br:cd fds:ci!s fdp:ci!s
+cat-80	Rope Climb	Bodyweight	Vertical pull	br:cd fds:ci!s fdp:ci!s
+cat-62	Straight-Arm Cable Pulldown	Cable	Vertical pull	fds:ii!s fdp:ii!s
+cat-79	Scapular Pull-Up	Bodyweight	Vertical pull	fds:ii!s fdp:ii!s
+cat-317	Cable Upright Row	Cable	Vertical pull	br:cd*DRAFT fds:ii!s fdp:ii!s
+cat-41	Conventional Deadlift	Free weights	Hip hinge	fds:ii!s fdp:ii!s
+cat-42	Romanian Deadlift	Free weights	Hip hinge	fds:ii!s fdp:ii!s
+cat-186	Romanian Deadlift	Free weights	Hip hinge	fds:ii!s fdp:ii!s
+cat-187	Stiff-Leg Deadlift	Free weights	Hip hinge	fds:ii!s fdp:ii!s
+cat-188	Single-Leg Romanian Deadlift	Free weights	Hip hinge	fds:ii!s fdp:ii!s
+cat-189	Dumbbell Romanian Deadlift	Dumbbells	Hip hinge	fds:ii!s fdp:ii!s
+cat-202	Cable Pull-Through	Cable	Hip hinge	fds:ii!s fdp:ii!s
+cat-203	Kettlebell Swing	Kettlebell	Hip hinge	fds:ii!s fdp:ii!s
+cat-204	Barbell Hip Hinge	Barbell	Hip hinge or knee flexion	fds:ii!s fdp:ii!s
+cat-205	B-Stance Romanian Deadlift	Free weights	Hip hinge	fds:ii!s fdp:ii!s
+cat-263	Landmine Romanian Deadlift	Landmine	Hip hinge	fds:ii!s fdp:ii!s
+cat-264	Landmine Single-Leg Romanian Deadlift	Landmine	Hip hinge	fds:ii!s fdp:ii!s
+cat-81	Barbell Shrug	Barbell	Scapular elevation	fds:ii!s fdp:ii!s
+cat-82	Dumbbell Shrug	Dumbbells	Scapular elevation	fds:ii!s fdp:ii!s
+cat-83	Trap-Bar Shrug	Free weights	Scapular elevation	fds:ii!s fdp:ii!s
+cat-84	Cable Shrug	Cable	Scapular elevation	fds:ii!s fdp:ii!s
+cat-85	Machine Shrug	Machine	Scapular elevation	fds:ii!s fdp:ii!s
+cat-86	Incline Dumbbell Shrug	Dumbbells	Scapular elevation	fds:ii!s fdp:ii!s
+cat-231	Hanging Leg Raise	Free weights	Trunk flexion / anti-extension	fds:ii!s fdp:ii!s
+cat-232	Hanging Knee Raise	Free weights	Trunk flexion / anti-extension	fds:ii!s fdp:ii!s
+cat-234	Toes-to-Bar	Free weights	Trunk flexion, rotation or anti-rotation	fds:ii!s fdp:ii!s
+cat-399	Battle Rope Slams	Battle ropes	Overhead slam	fds:ii fdp:ii
+cat-400	Battle Rope Alternating Waves	Battle ropes	Alternating arm drive	fds:ii fdp:ii
+DRAFTS:
+cat-144:forearm.fpl contributing isometric inference
+cat-145:forearm.fpl contributing isometric inference
+cat-299:forearm.fpl contributing isometric inference
+cat-409:forearm.fpl contributing isometric inference
+cat-317:forearm.br contributing dynamic inference

@@ -4,10 +4,13 @@ import { buildDaySlots, emptyDayStore, type WeeklyDayStore } from "@/lib/trainin
 import { getGoalPrescription } from "@/lib/workoutPlanner";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
-import { forearmMuscleIds } from "@shared/specialization/ids";
+import { forearmMuscleIds } from "@shared/specialization/regions/forearm/ids";
 import { planWeekInterval } from "@shared/specialization/time";
+import { variantLibrary } from "@shared/specialization/variants";
+import { variantLookup } from "./bouts";
 import { boutsFromPlan, holdDefaultPrescription, plannedTarget, prescriptionOf } from "./planBouts";
-import { catalogMusclesLookup } from "./useSpecializationSummary";
+import { catalogMusclesLookup, planningVariantsFor } from "./useSpecializationSummary";
+import { fxThigh } from "./__fixtures__/multiRegion";
 
 /**
  * One reading of a bare target for the set card and the plan, by the exercise's measure (R1). The
@@ -25,7 +28,7 @@ const day = (entries: { id: number; prescription?: string }[]): WeeklyDayStore =
   prescriptions: { [slots[0].key]: Object.fromEntries(entries.filter((entry) => entry.prescription).map((entry) => [entry.id, entry.prescription!])) },
 });
 const plan = (store: WeeklyDayStore) => boutsFromPlan({ week: 1, slots, store, variants: forearmRegionData.variants, goal: "Muscle growth" });
-const plannedSummary = (store: WeeklyDayStore, side: "left" | "right") => getSpecializationSummary({
+const plannedSummary = (store: WeeklyDayStore, side: "left" | "right" | "both") => getSpecializationSummary({
   region: forearmRegionData, bouts: plan(store), interval: planWeekInterval(1, "UTC"), side, mode: "planned", goals: [],
   catalogMusclesFor: catalogMusclesLookup(exercises), sourceRevision: "s", planRevision: "p", now: "2026-10-16T12:00:00.000Z",
 });
@@ -102,9 +105,35 @@ describe("a hold never gets a rep default", () => {
     expect(plannedSummary(day([{ id: deadHang.id }]), "left").nodes.find((node) => node.nodeId === forearmMuscleIds.flexorDigitorumSuperficialis)!.deliberateHoldSeconds).toBe(90);
   });
 
-  it("still plans a one-arm exercise's sets once for each arm", () => {
+  it("plans a one-arm exercise's set as one bout, assumed on both arms: planned equals logged, one row per set (both arms as one, owner 20 Oct 2026)", () => {
     const bouts = plan(day([{ id: oneArmCurl.id, prescription: "3 × 12" }]));
-    expect(bouts).toHaveLength(3);
-    expect(bouts.every((bout) => bout.side === "bilateral" && bout.sideSource === "plan_assumption" && bout.segments[0].reps === 12)).toBe(true);
+    expect(bouts.map((bout) => bout.id)).toEqual([1, 2, 3].map((n) => `plan/1/${slots[0].key}/410/${n}`));
+    expect(bouts.every((bout) => bout.armSide?.side === "both" && bout.armSide.source === "plan_assumption" && bout.legSide === null && bout.segments[0].reps === 12 && bout.segments[0].id === bout.id)).toBe(true);
+    // The page's summary, both arms as one: 3 for "3 × 12", as three rows logged give.
+    expect(plannedSummary(day([{ id: oneArmCurl.id, prescription: "3 × 12" }]), "both").regionDistinctBouts).toBe(3);
+    // A per-arm summary (dormant) still gives each arm 3, as the forearm first shipped it (6738eeb).
+    for (const side of ["left", "right"] as const) {
+      const summary = plannedSummary(day([{ id: oneArmCurl.id, prescription: "3 × 12" }]), side);
+      expect(summary.regionDistinctBouts, side).toBe(3);
+      expect(summary.regionBoutRows!.every((row) => row.countedSide === side), side).toBe(true);
+    }
+  });
+});
+
+describe("the variants a region's page lays the plan out by (planningVariantsFor)", () => {
+  it("are the region's own, then the shared library's for every exercise the region has none of, one list per region", () => {
+    const list = planningVariantsFor(fxThigh);
+    // The thigh's single-leg RDL is its own record, one leg at a time; the library's (the forearm's, either arm) would win a lookup over both, as a default id.
+    expect(variantLookup(list)(188)?.id).toBe("fx-188");
+    expect(variantLookup([...fxThigh.variants, ...variantLibrary])(188)?.id).toBe("cat-188");
+    expect(variantLookup(list)(410)?.id).toBe("cat-410");
+    expect(planningVariantsFor(fxThigh)).toBe(list);
+    // The forearm's own are the library's 119 through wave 0: its plan is laid out as it shipped.
+    expect(planningVariantsFor(forearmRegionData).map((variant) => variant.id)).toEqual(forearmRegionData.variants.map((variant) => variant.id));
+  });
+
+  it("so the thigh's page plans a single-leg RDL by its own variant: one bout per planned set, assumed on both legs, as the tracker lays it out", () => {
+    const bouts = boutsFromPlan({ week: 1, slots, store: day([{ id: 188, prescription: "3 × 10" }]), variants: planningVariantsFor(fxThigh) });
+    expect(bouts.map((bout) => [bout.legSide, bout.armSide])).toEqual([1, 2, 3].map(() => [{ side: "both", source: "plan_assumption" }, null]));
   });
 });

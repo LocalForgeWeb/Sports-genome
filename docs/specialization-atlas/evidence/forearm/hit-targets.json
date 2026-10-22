@@ -1,0 +1,378 @@
+{
+  "note": "Headless Chromium emulating a phone (viewport, isMobile, hasTouch, deviceScaleFactor 3): not an iPhone, not Safari. Each figure on an evidence card. A muscle's square is the largest square of screen shown to select it and nothing else, rounded down to 0.1 px: its own tap square (the renderer's rect, measured exactly) where every point inside it read with elementFromPoint every 1.5 px selects it and no other muscle's square overlaps it, or else, if larger, the span between the outermost points of the largest square of points that all select it.",
+  "gatePx": 44,
+  "generated": {
+    "file": "shared/specialization/regions/forearm/diagram.generated.ts",
+    "sha256": "19edab6d804d4731d667e3bbf60438c7b219d5e65352c239f90ad444b2daa3eb"
+  },
+  "widths": {
+    "375": {
+      "viewport": {
+        "width": 375,
+        "height": 667
+      },
+      "smallest": 44.8,
+      "figures": {
+        "palm-surface-right": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.br": 58.5,
+            "upper_arm.biceps": 57,
+            "forearm.pt": 44.8,
+            "forearm.fcu": 44.8,
+            "forearm.pl": 44.8,
+            "forearm.fcr": 45
+          }
+        },
+        "palm-surface-left": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.biceps": 57,
+            "forearm.br": 58.5,
+            "forearm.pt": 44.8,
+            "forearm.fcu": 44.8,
+            "forearm.pl": 44.8,
+            "forearm.fcr": 45
+          }
+        },
+        "palm-intermediate-right": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.fds": 117
+          }
+        },
+        "palm-intermediate-left": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.fds": 117
+          }
+        },
+        "palm-deep-right": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.brachialis": 67.5,
+            "forearm.supinator": 57,
+            "forearm.fdp": 85.5,
+            "forearm.fpl": 44.8,
+            "forearm.pq": 60
+          }
+        },
+        "palm-deep-left": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.brachialis": 67.5,
+            "forearm.supinator": 57,
+            "forearm.fdp": 85.5,
+            "forearm.fpl": 44.8,
+            "forearm.pq": 60
+          }
+        },
+        "back-surface-right": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.br": 44.8,
+            "forearm.ecrl": 44.8,
+            "forearm.anconeus": 44.8,
+            "forearm.fcu": 49.5,
+            "forearm.edm": 44.8,
+            "forearm.ecu": 44.8,
+            "forearm.ed": 44.8,
+            "forearm.ecrb": 44.8,
+            "forearm.apl": 44.8,
+            "forearm.epb": 44.8
+          }
+        },
+        "back-surface-left": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.br": 44.8,
+            "forearm.ecrl": 44.8,
+            "forearm.anconeus": 44.8,
+            "forearm.fcu": 49.5,
+            "forearm.edm": 44.8,
+            "forearm.ecrb": 44.8,
+            "forearm.ed": 44.8,
+            "forearm.ecu": 44.8,
+            "forearm.apl": 44.8,
+            "forearm.epb": 44.8
+          }
+        },
+        "back-deep-right": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.supinator": 69,
+            "forearm.apl": 44.8,
+            "forearm.epl": 44.8,
+            "forearm.epb": 44.8,
+            "forearm.ei": 44.8
+          }
+        },
+        "back-deep-left": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.supinator": 69,
+            "forearm.apl": 44.8,
+            "forearm.epl": 44.8,
+            "forearm.epb": 44.8,
+            "forearm.ei": 44.8
+          }
+        },
+        "thumb-surface-right": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.br": 55.5,
+            "upper_arm.biceps": 44.8,
+            "forearm.ecrl": 44.8,
+            "forearm.anconeus": 45,
+            "forearm.ecrb": 44.8,
+            "forearm.ed": 44.8,
+            "forearm.fcr": 44.8,
+            "forearm.apl": 45,
+            "forearm.epb": 44.8
+          }
+        },
+        "thumb-surface-left": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.biceps": 44.8,
+            "forearm.br": 55.5,
+            "forearm.ecrl": 44.8,
+            "forearm.anconeus": 45,
+            "forearm.ecrb": 44.8,
+            "forearm.ed": 44.8,
+            "forearm.fcr": 44.8,
+            "forearm.apl": 45,
+            "forearm.epb": 44.8
+          }
+        },
+        "thumb-deep-right": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.brachialis": 63,
+            "forearm.supinator": 57,
+            "forearm.fpl": 45,
+            "forearm.apl": 44.8,
+            "forearm.epl": 44.8,
+            "forearm.epb": 44.8
+          }
+        },
+        "thumb-deep-left": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.brachialis": 63,
+            "forearm.supinator": 57,
+            "forearm.fpl": 45,
+            "forearm.apl": 44.8,
+            "forearm.epl": 44.8,
+            "forearm.epb": 44.8
+          }
+        },
+        "fills-at-rest": {
+          "svgWidth": 309,
+          "squares": {
+            "forearm.br": 58.5,
+            "upper_arm.biceps": 57,
+            "forearm.pt": 44.8,
+            "forearm.fcu": 44.8,
+            "forearm.pl": 44.8,
+            "forearm.fcr": 45
+          }
+        },
+        "not-on-layer": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.brachialis": 67.5,
+            "forearm.supinator": 57,
+            "forearm.fdp": 85.5,
+            "forearm.fpl": 44.8,
+            "forearm.pq": 60
+          }
+        }
+      }
+    },
+    "390": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "smallest": 46.9,
+      "figures": {
+        "palm-surface-right": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.br": 61.5,
+            "upper_arm.biceps": 58.5,
+            "forearm.pt": 46.9,
+            "forearm.fcu": 46.9,
+            "forearm.pl": 46.9,
+            "forearm.fcr": 46.9
+          }
+        },
+        "palm-surface-left": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.biceps": 58.5,
+            "forearm.br": 61.5,
+            "forearm.pt": 46.9,
+            "forearm.fcu": 46.9,
+            "forearm.pl": 46.9,
+            "forearm.fcr": 46.9
+          }
+        },
+        "palm-intermediate-right": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.fds": 123
+          }
+        },
+        "palm-intermediate-left": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.fds": 123
+          }
+        },
+        "palm-deep-right": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.brachialis": 70.5,
+            "forearm.supinator": 60,
+            "forearm.fdp": 90,
+            "forearm.fpl": 46.9,
+            "forearm.pq": 63
+          }
+        },
+        "palm-deep-left": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.brachialis": 70.5,
+            "forearm.supinator": 60,
+            "forearm.fdp": 90,
+            "forearm.fpl": 46.9,
+            "forearm.pq": 63
+          }
+        },
+        "back-surface-right": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.br": 46.9,
+            "forearm.ecrl": 46.9,
+            "forearm.anconeus": 46.9,
+            "forearm.fcu": 52.5,
+            "forearm.edm": 46.9,
+            "forearm.ecu": 46.9,
+            "forearm.ed": 46.9,
+            "forearm.ecrb": 46.9,
+            "forearm.apl": 46.9,
+            "forearm.epb": 46.9
+          }
+        },
+        "back-surface-left": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.br": 46.9,
+            "forearm.ecrl": 46.9,
+            "forearm.anconeus": 46.9,
+            "forearm.fcu": 52.5,
+            "forearm.edm": 46.9,
+            "forearm.ecrb": 46.9,
+            "forearm.ed": 46.9,
+            "forearm.ecu": 46.9,
+            "forearm.apl": 46.9,
+            "forearm.epb": 46.9
+          }
+        },
+        "back-deep-right": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.supinator": 73.5,
+            "forearm.apl": 46.9,
+            "forearm.epl": 46.9,
+            "forearm.epb": 46.9,
+            "forearm.ei": 46.9
+          }
+        },
+        "back-deep-left": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.supinator": 73.5,
+            "forearm.apl": 46.9,
+            "forearm.epl": 46.9,
+            "forearm.epb": 46.9,
+            "forearm.ei": 46.9
+          }
+        },
+        "thumb-surface-right": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.br": 57,
+            "upper_arm.biceps": 46.9,
+            "forearm.ecrl": 46.9,
+            "forearm.anconeus": 46.9,
+            "forearm.ecrb": 46.9,
+            "forearm.ed": 46.9,
+            "forearm.fcr": 46.9,
+            "forearm.apl": 46.9,
+            "forearm.epb": 46.9
+          }
+        },
+        "thumb-surface-left": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.biceps": 46.9,
+            "forearm.br": 57,
+            "forearm.ecrl": 46.9,
+            "forearm.anconeus": 46.9,
+            "forearm.ecrb": 46.9,
+            "forearm.ed": 46.9,
+            "forearm.fcr": 46.9,
+            "forearm.apl": 46.9,
+            "forearm.epb": 46.9
+          }
+        },
+        "thumb-deep-right": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.brachialis": 66,
+            "forearm.supinator": 60,
+            "forearm.fpl": 46.9,
+            "forearm.apl": 46.9,
+            "forearm.epl": 46.9,
+            "forearm.epb": 46.9
+          }
+        },
+        "thumb-deep-left": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.brachialis": 66,
+            "forearm.supinator": 60,
+            "forearm.fpl": 46.9,
+            "forearm.apl": 46.9,
+            "forearm.epl": 46.9,
+            "forearm.epb": 46.9
+          }
+        },
+        "fills-at-rest": {
+          "svgWidth": 324,
+          "squares": {
+            "forearm.br": 61.5,
+            "upper_arm.biceps": 58.5,
+            "forearm.pt": 46.9,
+            "forearm.fcu": 46.9,
+            "forearm.pl": 46.9,
+            "forearm.fcr": 46.9
+          }
+        },
+        "not-on-layer": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.brachialis": 70.5,
+            "forearm.supinator": 60,
+            "forearm.fdp": 90,
+            "forearm.fpl": 46.9,
+            "forearm.pq": 63
+          }
+        }
+      }
+    }
+  }
+}

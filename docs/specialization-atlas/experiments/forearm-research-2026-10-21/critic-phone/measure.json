@@ -1,0 +1,501 @@
+{
+  "note": "Headless Chromium emulating an iPhone (viewport, isMobile, hasTouch, deviceScaleFactor 3); not an iPhone, not Safari. Stack section mocked with the page's own CSS classes.",
+  "scenes": [
+    {
+      "viewport": "390x844",
+      "mode": "planned",
+      "dockTop": 774,
+      "mapBottom": 1393,
+      "muscleListTop": 1480,
+      "muscleListHeight": 1651,
+      "findingsTop": 3143,
+      "findingsHeight": 124,
+      "firstDisclosureTop": 3279,
+      "disclosureContentWidth": 321,
+      "documentHeight": 3845,
+      "findingTitles": [],
+      "stackMock": {
+        "sectionTop": 3289,
+        "sectionHeight": 3678,
+        "totalControlTop": 3596,
+        "addButtonTop": 6606,
+        "totalToAddPx": 3010,
+        "rowControlLines": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "rowControlsOnOneLine": false,
+        "rowHeight": 186,
+        "leaveOutButton": [
+          101,
+          44
+        ],
+        "horizontalOverflowPx": 0
+      },
+      "dayCells": null,
+      "shotFile": "stack-mock-total-390.png"
+    },
+    {
+      "viewport": "390x844",
+      "mode": "completed",
+      "dockTop": 774,
+      "mapBottom": 1393,
+      "muscleListTop": 1480,
+      "muscleListHeight": 1651,
+      "findingsTop": 3143,
+      "findingsHeight": 124,
+      "firstDisclosureTop": 3279,
+      "disclosureContentWidth": 321,
+      "documentHeight": 3845,
+      "findingTitles": [],
+      "stackMock": {
+        "sectionTop": 3289,
+        "sectionHeight": 3678,
+        "totalControlTop": 3596,
+        "addButtonTop": 6606,
+        "totalToAddPx": 3010,
+        "rowControlLines": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "rowControlsOnOneLine": false,
+        "rowHeight": 186,
+        "leaveOutButton": [
+          101,
+          44
+        ],
+        "horizontalOverflowPx": 0
+      },
+      "dayCells": [
+        [
+          47.2,
+          101.4,
+          "BUTTON"
+        ],
+        [
+          47.2,
+          101.4,
+          "BUTTON"
+        ],
+        [
+          47.2,
+          101.4,
+          "SPAN"
+        ],
+        [
+          47.2,
+          101.4,
+          "SPAN"
+        ],
+        [
+          47.2,
+          101.4,
+          "SPAN"
+        ],
+        [
+          47.2,
+          101.4,
+          "SPAN"
+        ],
+        [
+          47.2,
+          101.4,
+          "SPAN"
+        ]
+      ],
+      "shotFile": null
+    },
+    {
+      "viewport": "375x667",
+      "mode": "planned",
+      "dockTop": 597,
+      "mapBottom": 1358,
+      "muscleListTop": 1437,
+      "muscleListHeight": 1675,
+      "findingsTop": 3120,
+      "findingsHeight": 124,
+      "firstDisclosureTop": 3252,
+      "disclosureContentWidth": 307,
+      "documentHeight": 3818,
+      "findingTitles": [],
+      "stackMock": {
+        "sectionTop": 3262,
+        "sectionHeight": 3678,
+        "totalControlTop": 3570,
+        "addButtonTop": 6579,
+        "totalToAddPx": 3010,
+        "rowControlLines": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "rowControlsOnOneLine": false,
+        "rowHeight": 186,
+        "leaveOutButton": [
+          101,
+          44
+        ],
+        "horizontalOverflowPx": 0
+      },
+      "dayCells": null,
+      "shotFile": "stack-mock-total-375.png"
+    },
+    {
+      "viewport": "375x667",
+      "mode": "completed",
+      "dockTop": 597,
+      "mapBottom": 1358,
+      "muscleListTop": 1437,
+      "muscleListHeight": 1675,
+      "findingsTop": 3120,
+      "findingsHeight": 124,
+      "firstDisclosureTop": 3252,
+      "disclosureContentWidth": 307,
+      "documentHeight": 3818,
+      "findingTitles": [],
+      "stackMock": {
+        "sectionTop": 3262,
+        "sectionHeight": 3678,
+        "totalControlTop": 3570,
+        "addButtonTop": 6579,
+        "totalToAddPx": 3010,
+        "rowControlLines": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "rowControlsOnOneLine": false,
+        "rowHeight": 186,
+        "leaveOutButton": [
+          101,
+          44
+        ],
+        "horizontalOverflowPx": 0
+      },
+      "dayCells": [
+        [
+          45.3,
+          101.4,
+          "BUTTON"
+        ],
+        [
+          45.3,
+          101.4,
+          "BUTTON"
+        ],
+        [
+          45.3,
+          101.4,
+          "SPAN"
+        ],
+        [
+          45.3,
+          101.4,
+          "SPAN"
+        ],
+        [
+          45.3,
+          101.4,
+          "SPAN"
+        ],
+        [
+          45.3,
+          101.4,
+          "SPAN"
+        ],
+        [
+          45.3,
+          101.4,
+          "SPAN"
+        ]
+      ],
+      "shotFile": null
+    },
+    {
+      "viewport": "430x932",
+      "mode": "planned",
+      "dockTop": 862,
+      "mapBottom": 1454,
+      "muscleListTop": 1541,
+      "muscleListHeight": 1481,
+      "findingsTop": 3034,
+      "findingsHeight": 103,
+      "firstDisclosureTop": 3149,
+      "disclosureContentWidth": 357,
+      "documentHeight": 3697,
+      "findingTitles": [],
+      "stackMock": {
+        "sectionTop": 3159,
+        "sectionHeight": 2970,
+        "totalControlTop": 3424,
+        "addButtonTop": 5810,
+        "totalToAddPx": 2386,
+        "rowControlLines": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "rowControlsOnOneLine": true,
+        "rowHeight": 134,
+        "leaveOutButton": [
+          101,
+          44
+        ],
+        "horizontalOverflowPx": 0
+      },
+      "dayCells": null,
+      "shotFile": null
+    },
+    {
+      "viewport": "430x932",
+      "mode": "completed",
+      "dockTop": 862,
+      "mapBottom": 1454,
+      "muscleListTop": 1541,
+      "muscleListHeight": 1481,
+      "findingsTop": 3034,
+      "findingsHeight": 103,
+      "firstDisclosureTop": 3149,
+      "disclosureContentWidth": 357,
+      "documentHeight": 3697,
+      "findingTitles": [],
+      "stackMock": {
+        "sectionTop": 3159,
+        "sectionHeight": 2970,
+        "totalControlTop": 3424,
+        "addButtonTop": 5810,
+        "totalToAddPx": 2386,
+        "rowControlLines": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "rowControlsOnOneLine": true,
+        "rowHeight": 134,
+        "leaveOutButton": [
+          101,
+          44
+        ],
+        "horizontalOverflowPx": 0
+      },
+      "dayCells": [
+        [
+          52.4,
+          101.4,
+          "BUTTON"
+        ],
+        [
+          52.4,
+          101.4,
+          "BUTTON"
+        ],
+        [
+          52.4,
+          101.4,
+          "SPAN"
+        ],
+        [
+          52.4,
+          101.4,
+          "SPAN"
+        ],
+        [
+          52.4,
+          101.4,
+          "SPAN"
+        ],
+        [
+          52.4,
+          101.4,
+          "SPAN"
+        ],
+        [
+          52.4,
+          101.4,
+          "SPAN"
+        ]
+      ],
+      "shotFile": null
+    },
+    {
+      "viewport": "320x568",
+      "mode": "planned",
+      "dockTop": 498,
+      "mapBottom": 1405,
+      "muscleListTop": 1484,
+      "muscleListHeight": 1987,
+      "findingsTop": 3480,
+      "findingsHeight": 124,
+      "firstDisclosureTop": 3612,
+      "disclosureContentWidth": 254,
+      "documentHeight": 4178,
+      "findingTitles": [],
+      "stackMock": {
+        "sectionTop": 3622,
+        "sectionHeight": 3858,
+        "totalControlTop": 3968,
+        "addButtonTop": 7056,
+        "totalToAddPx": 3088,
+        "rowControlLines": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "rowControlsOnOneLine": false,
+        "rowHeight": 186,
+        "leaveOutButton": [
+          101,
+          44
+        ],
+        "horizontalOverflowPx": 0
+      },
+      "dayCells": null,
+      "shotFile": null
+    },
+    {
+      "viewport": "320x568",
+      "mode": "completed",
+      "dockTop": 498,
+      "mapBottom": 1403,
+      "muscleListTop": 1482,
+      "muscleListHeight": 1963,
+      "findingsTop": 3453,
+      "findingsHeight": 124,
+      "firstDisclosureTop": 3586,
+      "disclosureContentWidth": 254,
+      "documentHeight": 4151,
+      "findingTitles": [],
+      "stackMock": {
+        "sectionTop": 3596,
+        "sectionHeight": 3858,
+        "totalControlTop": 3942,
+        "addButtonTop": 7029,
+        "totalToAddPx": 3088,
+        "rowControlLines": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "rowControlsOnOneLine": false,
+        "rowHeight": 186,
+        "leaveOutButton": [
+          101,
+          44
+        ],
+        "horizontalOverflowPx": 0
+      },
+      "dayCells": [
+        [
+          67.7,
+          101.4,
+          "BUTTON"
+        ],
+        [
+          67.7,
+          101.4,
+          "BUTTON"
+        ],
+        [
+          67.7,
+          101.4,
+          "SPAN"
+        ],
+        [
+          67.7,
+          101.4,
+          "SPAN"
+        ],
+        [
+          67.7,
+          101.4,
+          "SPAN"
+        ],
+        [
+          67.7,
+          101.4,
+          "SPAN"
+        ],
+        [
+          67.7,
+          101.4,
+          "SPAN"
+        ]
+      ],
+      "shotFile": null
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+before regionDistinctBouts right 21 direct 3 fds incidental 21 br contributing 12
+after regionDistinctBouts right 34 direct 16 fds incidental 28 br contributing 12
+applied equals designer's storeAfter: true
+undo restores the plan exactly: true
+plan's own entries untouched: true
+prescriptions written: {"0-Push":{"140":"3 × 10–25","401":"2 × 10–25","405":"2 × 10–20"},"1-Pull":{"139":"2 × 10–25","404":"2 × 10–25","413":"2 × 12–25"},"2-Legs":{}}

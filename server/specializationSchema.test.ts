@@ -1,13 +1,16 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import type { PGlite } from "@electric-sql/pglite";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { goalsForBothArms } from "@shared/specialization/goals";
+import type { SpecializationGoal } from "@shared/specialization/types";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
+import { registeredRegionContents } from "@shared/specialization/registry";
 import { emitSeedSql, productionSeedInput } from "../scripts/specialization/emit-seed";
 import {
+  MIGRATION_STEPS,
   SCHEMA_MIGRATION_PATH,
+  SCHEMA_V2_MIGRATION_PATH,
   SEED_MIGRATION_PATH,
+  SEED_V1_MIGRATION_PATH,
   USER_A,
   USER_B,
   applyMigration,
@@ -15,20 +18,22 @@ import {
   as,
   asDoBlock,
   count,
-  createSeededDb,
+  createReleaseDb,
   createSupabaseLikeDb,
   failure,
   readMigration,
   rows,
   scriptFailure,
+  snapshot,
 } from "./fixtures/specializationPg";
 
 /**
- * Schema `specialization` in real Postgres (PGlite, Postgres 17): the migration applied
- * twice, the seed on top, then every grant, policy, constraint and trigger exercised as
- * the caller it is meant for — anon, two signed-in users, the service role — switching
- * identity the way the API does (JWT subject, then SET ROLE). The design is
- * docs/specialization-atlas/04-database.md.
+ * Schema `specialization` in real Postgres (PGlite, Postgres 17): the migrations replayed in
+ * production's order (each schema file twice, schema v2 included, the current seed last),
+ * then every grant, policy, constraint and trigger exercised as the caller it is meant for —
+ * anon, two signed-in users, the service role — switching identity the way the API does (JWT
+ * subject, then SET ROLE). The design is docs/specialization-atlas/04-database.md; what
+ * schema v2 adds is tested on its own in server/specializationSchemaV2.test.ts.
  */
 
 const SETUP = 120_000;
@@ -37,6 +42,8 @@ const REFERENCE_TABLES = [
   "regions", "actions", "nodes", "sources", "claims", "claim_sources", "node_actions",
   "diagram_assets", "diagram_views", "diagram_paths", "diagram_labels", "catalog_exercises", "exercise_variants",
   "mapping_versions", "variant_mappings", "mapping_sources", "rule_versions",
+  // Schema v2.
+  "region_nodes", "region_actions", "variant_dimensions", "variant_dimension_values", "variant_attributes",
 ];
 const PERSONAL_TABLES = ["goals", "measurements"];
 const ALL_TABLES = [...REFERENCE_TABLES, ...PERSONAL_TABLES];
@@ -47,6 +54,7 @@ const UPDATABLE: Record<string, string> = {
   node_actions: "role", diagram_assets: "license_note", diagram_views: "label", diagram_paths: "d", diagram_labels: "label_text",
   catalog_exercises: "name", exercise_variants: "notes", mapping_versions: "method_notes", variant_mappings: "rationale",
   mapping_sources: "locator", rule_versions: "notes",
+  region_nodes: "role", region_actions: "region_id", variant_dimensions: "label", variant_dimension_values: "label", variant_attributes: "notes",
 };
 
 const userA = { user: USER_A };
@@ -55,15 +63,23 @@ const userB = { user: USER_B };
 // Counts from the content itself, so a content change only needs the seed regenerated.
 const reviewedMappingCount = forearmRegionData.mappings.filter((mapping) => mapping.reviewStatus === "reviewed").length;
 const draftMappingCount = forearmRegionData.mappings.filter((mapping) => mapping.reviewStatus === "draft").length;
-const catalogCount = new Set(forearmRegionData.variants.map((variant) => variant.catalogExerciseId)).size;
+/** Records the seed writes once each, however many regions list them. */
+const distinctIn = (ids: (number | string)[]) => new Set(ids).size;
+const sourceCount = distinctIn(registeredRegionContents.flatMap((content) => content.sources.map((source) => source.id)));
+const actionCount = distinctIn(registeredRegionContents.flatMap((content) => content.actions.map((action) => action.id)));
+const variantCount = distinctIn(registeredRegionContents.flatMap((content) => content.variants.map((variant) => variant.id)));
+const catalogCount = distinctIn(registeredRegionContents.flatMap((content) => content.variants.map((variant) => variant.catalogExerciseId)));
 
 /** Tables holding what a published or retired mapping version rests on (refuse TRUNCATE while one exists). */
-const FROZEN_TABLES = ["mapping_versions", "variant_mappings", "mapping_sources", "rule_versions", "exercise_variants", "nodes", "node_actions", "claims", "claim_sources", "sources"];
+const FROZEN_TABLES = ["mapping_versions", "variant_mappings", "mapping_sources", "rule_versions", "exercise_variants", "nodes", "node_actions", "claims", "claim_sources", "sources", "region_nodes", "variant_attributes"];
 
-let db: Awaited<ReturnType<typeof createSeededDb>>;
+/** What a production or fixture region needs since schema v2: a complete side model. */
+const PAIRED_BY_ARM = { side_model: "paired", side_limb: "arm", side_word: "arm", side_word_plural: "arms", on_side_template: "your {side} arm" };
+
+let db: Awaited<ReturnType<typeof createReleaseDb>>;
 
 beforeAll(async () => {
-  db = await createSeededDb();
+  db = await createReleaseDb();
 }, SETUP);
 
 afterAll(async () => {
@@ -108,6 +124,28 @@ async function addMapping(
 }
 
 const publish = (key: string) => failure(db, "update specialization.mapping_versions set state = 'published' where version_key = $1", [key]);
+
+/**
+ * Schema v2's rule 11: a version is published only when its variants carry the counting
+ * attributes its region reads, sided_by for the forearm. The seed writes them for the content's
+ * variants (the dimension and its values too); this writes them for a variant a test maps.
+ */
+async function giveSidedBy(...variants: string[]) {
+  await db.exec(`
+    insert into specialization.variant_dimensions (id, label, sort_order, kind) values ('sided_by', 'Side recorded for', 0, 'counting') on conflict (id) do nothing;
+    insert into specialization.variant_dimension_values (dimension_id, value, label, sort_order) values ('sided_by', 'arm', 'Arm', 0), ('sided_by', 'leg', 'Leg', 1), ('sided_by', 'none', 'Neither', 2)
+      on conflict (dimension_id, value) do nothing;
+  `);
+  for (const variant of variants) {
+    await db.query(
+      "insert into specialization.variant_attributes (variant_key, dimension_id, value) select variant_key, 'sided_by', case laterality when 'bilateral' then 'none' else 'arm' end from specialization.exercise_variants where variant_key = $1 on conflict do nothing",
+      [variant],
+    );
+  }
+}
+
+/** Schema v2's rule 10: a version maps only muscles its region lists. The seed lists the content's; this lists a test muscle. */
+const listInForearm = (nodeId: string) => db.query("insert into specialization.region_nodes (region_id, node_id, role) values ('forearm', $1, 'target') on conflict do nothing", [nodeId]);
 
 // ---------------------------------------------------------------- structure and privileges
 
@@ -220,8 +258,12 @@ describe("function privileges", () => {
 
 describe("CHECK vocabularies match shared/specialization/types.ts", () => {
   const typesSource = readFileSync(resolve(process.cwd(), "shared/specialization/types.ts"), "utf8");
-  const literals = (text: string) => [...text.matchAll(/"([^"]+)"/g)].map((match) => match[1]).sort();
-  const union = (name: string) => {
+  // A type's string literals, with those of any union it names (`SummarySide = BodySide | "midline"`).
+  const literals = (text: string): string[] => {
+    const named = [...text.matchAll(/\b([A-Z][A-Za-z]*)\b/g)].map((match) => match[1]).filter((name) => new RegExp(`export type ${name} =`).test(typesSource));
+    return [...new Set([...[...text.matchAll(/"([^"]+)"/g)].map((match) => match[1]), ...named.flatMap((name) => union(name))])].sort();
+  };
+  const union = (name: string): string[] => {
     const match = new RegExp(`export type ${name} =([^;]+);`).exec(typesSource);
     if (!match) throw new Error(`No type ${name} in types.ts`);
     return literals(match[1]);
@@ -232,6 +274,8 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     if (!line) throw new Error(`No ${iface}.${prop} in types.ts`);
     return literals(line);
   };
+  /** The side models a region record can name: `model` in each member of RegionSides. */
+  const sideModels = () => [...(/export type RegionSides = (.+);$/m.exec(typesSource)?.[1] ?? "").matchAll(/model: "([^"]+)"/g)].map((match) => match[1]).sort();
 
   const expected: [table: string, column: string, values: () => string[]][] = [
     ["nodes", "kind", () => union("NodeKind")],
@@ -262,13 +306,23 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
     // Diagram view and layer ids are the drawing's own: a shape, not a list (tested below).
     ["diagram_paths", "kind", () => union("DiagramPathKind")],
     ["diagram_labels", "anchor", () => property("DiagramLabel", "anchor")],
-    ["goals", "side", () => union("ArmSide")],
+    // Schema v2: one side drawn and mirrored, or both drawn (null reads as one side).
+    ["diagram_assets", "sides", () => union("DiagramSides")],
+    // A goal's or measurement's stored side (`StoredSide`): left or right in a paired region, midline in a midline region or for a girth.
+    // Never `both`: that is a summary's side (`SummarySide`), counting both sides as one (owner, 20 Oct 2026); nothing stores it.
+    ["goals", "side", () => union("StoredSide")],
     ["goals", "metric", () => union("GoalMetric")],
     ["goals", "period", () => union("GoalPeriod")],
-    ["measurements", "side", () => union("ArmSide")],
+    ["measurements", "side", () => union("StoredSide")],
     ["measurements", "metric", () => union("MeasurementMetric")],
-    // `reference` is the database's own: a region that only holds external contributors.
-    ["regions", "status", () => [...property("SpecializationRegion", "status"), "reference"].sort()],
+    // `reference`: a region that only holds other regions' external members.
+    ["regions", "status", () => union("RegionStatus")],
+    // Schema v2.
+    ["regions", "side_model", sideModels],
+    ["regions", "side_limb", () => union("Limb")],
+    ["regions", "region_only_tag_scope", () => union("RegionOnlyTagScope")],
+    ["variant_mappings", "side_relation", () => union("SideRelation")],
+    ["region_nodes", "role", () => union("NodeRole")],
   ];
 
   it.each(expected)("%s.%s", async (table, column, values) => {
@@ -345,7 +399,7 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
         const names = Object.keys(columns);
         return failure(db, `insert into specialization.regions (id, label, status, ${names.join(", ")}) values ($1, 'Test', $2, ${names.map((_, index) => `$${index + 3}`).join(", ")})`, [id, status, ...Object.values(columns)]);
       };
-      const page = { heading: "Test specialization", entry_label: "Explore test coverage", external_group: "Other muscles credited here", incidental_work: "bracing", progress_subtitle: "Circumference, by arm" };
+      const page = { heading: "Test specialization", entry_label: "Explore test coverage", external_group: "Other muscles credited here", incidental_work: "bracing", progress_subtitle: "Circumference", ...PAIRED_BY_ARM };
       expect(await insert("zz_page", "fixture", { ...page, measurement_metrics: ["circumference_cm"] })).toBeNull();
       for (const missing of ["external_group", "incidental_work", "progress_subtitle"]) {
         expect(await insert(`zz_no_${missing}`, "fixture", { ...page, [missing]: null }), missing).toMatch(/regions_page_copy/);
@@ -388,7 +442,8 @@ describe("reference content, as a signed-in user", () => {
     // Rows that must stay hidden, next to the seeded ones.
     await as(db, "service_role", async () => {
       await db.exec(`
-        insert into specialization.regions (id, label, heading, status, entry_label, external_group, incidental_work, progress_subtitle) values ('zz_fixture', 'Fixture', 'Fixture', 'fixture', 'Fixture', 'Other muscles', 'bracing', 'Circumference, by arm');
+        insert into specialization.regions (id, label, heading, status, entry_label, external_group, incidental_work, progress_subtitle, side_model, side_limb, side_word, side_word_plural, on_side_template)
+          values ('zz_fixture', 'Fixture', 'Fixture', 'fixture', 'Fixture', 'Other muscles', 'bracing', 'Circumference', 'paired', 'arm', 'arm', 'arms', 'your {side} arm');
         insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status) values ('test:fcu.draft', 'forearm.fcu', 'selectivity', 'Draft claim.', 'unknown', 'draft');
         insert into specialization.claim_sources (claim_id, source_id, locator) select c.id, s.id, 'Test' from specialization.claims c, specialization.sources s where c.claim_key = 'test:fcu.draft' and s.source_key = 'S2';
         insert into specialization.rule_versions (id, specification, published_at, notes) values ('zz_rule_draft', '{}', null, 'Unpublished rule.');
@@ -452,7 +507,7 @@ describe("reference content, as a signed-in user", () => {
                 (select count(*)::int from specialization.exercise_variants) as variants, (select count(*)::int from specialization.catalog_exercises) as catalog`,
       ),
     );
-    expect(seen[0]).toEqual({ rules: ["specialization_exposure_v1"], sources: forearmRegionData.sources.length, actions: forearmRegionData.actions.length, variants: forearmRegionData.variants.length, catalog: catalogCount });
+    expect(seen[0]).toEqual({ rules: ["specialization_exposure_v1"], sources: sourceCount, actions: actionCount, variants: variantCount, catalog: catalogCount });
   });
 
   it("cannot insert, update, delete or truncate any reference table", async () => {
@@ -476,7 +531,7 @@ describe("reference content, as a signed-in user", () => {
 // ---------------------------------------------------------------- goals and measurements
 
 const goalColumns = "id, region_id, node_id, action_id, side, metric, target, period, starts_on, ends_on, timezone, created_at, updated_at";
-const goalValues = (goal: ReturnType<typeof goalsForBothArms>[number]) => [
+const goalValues = (goal: SpecializationGoal) => [
   goal.id, goal.regionId, goal.nodeId, goal.actionId, goal.side, goal.metric, goal.target, goal.period, goal.startsOn, goal.endsOn, goal.timezone, goal.createdAt, goal.updatedAt,
 ];
 /** Reads a row back in the device's own shape (SpecializationGoal). */
@@ -486,11 +541,13 @@ const goalAsDevice = `select id, region_id as "regionId", node_id as "nodeId", a
   from specialization.goals`;
 
 describe("goals: owner-only, and a straight copy of the device record", () => {
-  const [left, right] = goalsForBothArms({
+  /** A target as the page saves it since 20 Oct 2026: once, its side `right` a placeholder (both sides count as one). */
+  const saved: SpecializationGoal = {
     id: "goal-rls-1",
     regionId: "forearm",
     nodeId: "forearm.fcu",
     actionId: null,
+    side: "right",
     metric: "direct_dynamic_bouts",
     target: 20,
     period: "calendar_week",
@@ -499,46 +556,52 @@ describe("goals: owner-only, and a straight copy of the device record", () => {
     timezone: "Europe/London",
     createdAt: "2026-10-16T09:30:00.000Z",
     updatedAt: "2026-10-16T09:30:00.000Z",
-  });
+  };
+  /**
+   * A target saved for the left arm before 20 Oct, on another measure of the same muscle, so another
+   * target: it stays as it was stored. (The same target saved for the other arm is refused, as one
+   * target: `goal rules` below.)
+   */
+  const earlier: SpecializationGoal = { ...saved, id: "goal-rls-2", side: "left", metric: "deliberate_hold_bouts", target: 4 };
   const insert = `insert into specialization.goals (${goalColumns}) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`;
 
-  it("user A stores both arms' goals as they are on the device, and reads them back unchanged", async () => {
+  it("user A stores a target as the page saves it and one saved for the left arm before 20 Oct, as they are on the device, and reads them back unchanged", async () => {
     await as(db, userA, async () => {
-      expect(await failure(db, insert, goalValues(left))).toBeNull();
-      expect(await failure(db, insert, goalValues(right))).toBeNull();
-      const back = await rows(db, `${goalAsDevice} where id like 'goal-rls-1:%' order by id`);
-      expect(back).toEqual([left, right]);
+      expect(await failure(db, insert, goalValues(saved))).toBeNull();
+      expect(await failure(db, insert, goalValues(earlier))).toBeNull();
+      const back = await rows(db, `${goalAsDevice} where id like 'goal-rls-%' order by id`);
+      expect(back).toEqual([saved, earlier]);
     });
-    expect(await count(db, "select 1 from specialization.goals where id like 'goal-rls-1:%' and user_id = $1", [USER_A])).toBe(2);
+    expect(await count(db, "select 1 from specialization.goals where id like 'goal-rls-%' and user_id = $1", [USER_A])).toBe(2);
   });
 
   it("user B cannot read, change or delete A's goals, nor write one in A's name", async () => {
     await as(db, userB, async () => {
-      expect(await count(db, "select 1 from specialization.goals where id like 'goal-rls-1:%'")).toBe(0);
-      expect(await affected("update specialization.goals set target = 1 where id = 'goal-rls-1:left'")).toBe(0);
-      expect(await affected("delete from specialization.goals where id = 'goal-rls-1:left'")).toBe(0);
-      expect(await failure(db, `insert into specialization.goals (user_id, ${goalColumns}) values ($14, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`, [...goalValues({ ...left, id: "goal-forged" }), USER_A])).toMatch(/row-level security/);
+      expect(await count(db, "select 1 from specialization.goals where id like 'goal-rls-%'")).toBe(0);
+      expect(await affected("update specialization.goals set target = 1 where id = 'goal-rls-1'")).toBe(0);
+      expect(await affected("delete from specialization.goals where id = 'goal-rls-1'")).toBe(0);
+      expect(await failure(db, `insert into specialization.goals (user_id, ${goalColumns}) values ($14, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`, [...goalValues({ ...saved, id: "goal-forged", nodeId: "forearm.ecu" }), USER_A])).toMatch(/row-level security/);
     });
-    expect(await rows(db, "select target::float8 as target from specialization.goals where id = 'goal-rls-1:left'")).toEqual([{ target: 20 }]);
+    expect(await rows(db, "select target::float8 as target from specialization.goals where id = 'goal-rls-1'")).toEqual([{ target: 20 }]);
   });
 
   it("user A cannot hand a goal to B, but can change and delete their own", async () => {
     await as(db, userA, async () => {
-      expect(await failure(db, "update specialization.goals set user_id = $1 where id = 'goal-rls-1:left'", [USER_B])).toMatch(/row-level security/);
-      expect(await affected("update specialization.goals set target = 40 where id = 'goal-rls-1:left'")).toBe(1);
-      const [touched] = await rows<{ updatedAt: string; target: number }>(db, `${goalAsDevice} where id = 'goal-rls-1:left'`);
+      expect(await failure(db, "update specialization.goals set user_id = $1 where id = 'goal-rls-1'", [USER_B])).toMatch(/row-level security/);
+      expect(await affected("update specialization.goals set target = 40 where id = 'goal-rls-1'")).toBe(1);
+      const [touched] = await rows<{ updatedAt: string; target: number }>(db, `${goalAsDevice} where id = 'goal-rls-1'`);
       expect(touched.target).toBe(40);
-      expect(touched.updatedAt).not.toBe(left.updatedAt);
+      expect(touched.updatedAt).not.toBe(saved.updatedAt);
       // A sync that carries the device's own time keeps it.
-      await db.query("update specialization.goals set target = 41, updated_at = '2026-10-17T08:00:00Z' where id = 'goal-rls-1:left'");
-      expect((await rows<{ updatedAt: string }>(db, `${goalAsDevice} where id = 'goal-rls-1:left'`))[0].updatedAt).toBe("2026-10-17T08:00:00.000Z");
-      expect(await affected("delete from specialization.goals where id = 'goal-rls-1:right'")).toBe(1);
+      await db.query("update specialization.goals set target = 41, updated_at = '2026-10-17T08:00:00Z' where id = 'goal-rls-1'");
+      expect((await rows<{ updatedAt: string }>(db, `${goalAsDevice} where id = 'goal-rls-1'`))[0].updatedAt).toBe("2026-10-17T08:00:00.000Z");
+      expect(await affected("delete from specialization.goals where id = 'goal-rls-2'")).toBe(1);
     });
   });
 
   it("a signed-in role with no user id writes nothing", async () => {
     await as(db, { user: "" }, async () => {
-      expect(await failure(db, insert, goalValues({ ...left, id: "goal-nobody" }))).toMatch(/row-level security|null value in column "user_id"/);
+      expect(await failure(db, insert, goalValues({ ...saved, id: "goal-nobody", nodeId: "forearm.ecu" }))).toMatch(/row-level security|null value in column "user_id"/);
     });
   });
 
@@ -548,8 +611,8 @@ describe("goals: owner-only, and a straight copy of the device record", () => {
 
   it("the service role reads every user's goals and can write for any user", async () => {
     await as(db, "service_role", async () => {
-      expect(await failure(db, `insert into specialization.goals (user_id, ${goalColumns}) values ($14, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`, [...goalValues({ ...right, id: "goal-service-b" }), USER_B])).toBeNull();
-      const owners = await rows<{ user_id: string }>(db, "select distinct user_id from specialization.goals where id in ('goal-rls-1:left', 'goal-service-b') order by 1");
+      expect(await failure(db, `insert into specialization.goals (user_id, ${goalColumns}) values ($14, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`, [...goalValues({ ...saved, id: "goal-service-b" }), USER_B])).toBeNull();
+      const owners = await rows<{ user_id: string }>(db, "select distinct user_id from specialization.goals where id in ('goal-rls-1', 'goal-service-b') order by 1");
       expect(owners.map((row) => row.user_id)).toEqual([USER_A, USER_B]);
       expect(await affected("update specialization.goals set target = 12 where id = 'goal-service-b'")).toBe(1);
       expect(await affected("delete from specialization.goals where id = 'goal-service-b'")).toBe(1);
@@ -890,6 +953,7 @@ describe("what a published mapping version rests on is frozen with it", () => {
         insert into specialization.exercise_variants (variant_key, catalog_id, organization, forearm_orientation, wrist_position, grip_type, straps, laterality, phase, measure, deliberate_hold)
           values ('zz-variant', 9001, 'single_joint', 'neutral', 'neutral', 'overhand', 'no', 'bilateral', 'concentric_eccentric', 'reps', false);
       `);
+      await giveSidedBy("zz-variant");
       await newDraftVersion("zz_variant_v1");
       await addMapping("zz_variant_v1", "zz:variant", { variant: "zz-variant", node: "forearm.fcu", action: "wrist.flexion", sources: [{ key: "S4", locator: "Table" }] });
       expect(await failure(db, "update specialization.exercise_variants set deliberate_hold = true where variant_key = 'zz-variant'")).toBeNull();
@@ -924,6 +988,10 @@ describe("truncate", () => {
 });
 
 describe("publishing a mapping version", () => {
+  beforeAll(async () => {
+    await as(db, "service_role", () => giveSidedBy("cat-139", "cat-140", "cat-408"));
+  });
+
   const problemsOf = async (key: string) =>
     (await rows<{ problems: string | null }>(db, "select specialization.mapping_version_problems(id) as problems from specialization.mapping_versions where version_key = $1", [key]))[0].problems;
 
@@ -978,6 +1046,8 @@ describe("publishing a mapping version", () => {
     await as(db, "service_role", async () => {
       await insertTestNode("forearm.zz_claims", "forearm.anterior", "reviewed");
       await insertTestNode("forearm.zz_draftnode", "forearm.anterior", "draft");
+      await listInForearm("forearm.zz_claims");
+      await listInForearm("forearm.zz_draftnode");
       await db.exec(`
         insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status, reviewed_on) values
           ('test:zz_claims.function', 'forearm.zz_claims', 'function', 'Reviewed and sourced.', 'established_anatomy', 'reviewed', '2026-10-16'),
@@ -1108,9 +1178,12 @@ describe("goal rules", () => {
     expect(await tryGoal({ id: "ov-4", from: "2026-10-10", to: "2026-10-12" })).toMatch(/goals_no_overlap/);
   });
 
-  it("allows the next period, the other arm, another measure or period, a movement target, and another user", async () => {
+  it("refuses the same target saved for the other arm: both sides count as one (schema v2)", async () => {
+    expect(await tryGoal({ id: "ov-right", side: "right", from: "2026-10-01", to: "2026-10-31" })).toMatch(/goals_no_overlap/);
+  });
+
+  it("allows the next period, another measure or period, a movement target, and another user", async () => {
     expect(await tryGoal({ id: "ok-next", from: "2026-11-01" })).toBeNull();
-    expect(await tryGoal({ id: "ok-right", side: "right", from: "2026-10-01", to: "2026-10-31" })).toBeNull();
     expect(await tryGoal({ id: "ok-holds", metric: "deliberate_hold_seconds", target: 600, from: "2026-10-01", to: "2026-10-31" })).toBeNull();
     expect(await tryGoal({ id: "ok-rolling", period: "rolling_7d", from: "2026-10-01", to: "2026-10-31" })).toBeNull();
     expect(await tryGoal({ id: "ok-action", node: null, action: "wrist.extension", from: "2026-10-01", to: "2026-10-31" })).toBeNull();
@@ -1136,7 +1209,9 @@ describe("goal rules", () => {
 // ---------------------------------------------------------------- rollback
 
 describe("rollback", () => {
-  it("drops cleanly with the header's SQL, and the schema and seed apply again", async () => {
+  // Schema v1's header line, on the pair it was written for (seed v1). Every later file is
+  // forward-only: after schema v2 this line would destroy published history (04-database.md §10).
+  it("drops cleanly with schema v1's header SQL, and schema v1 and seed v1 apply again", async () => {
     const fresh = await createSupabaseLikeDb();
     try {
       await applyMigration(fresh, SCHEMA_MIGRATION_PATH);
@@ -1147,7 +1222,7 @@ describe("rollback", () => {
       `);
       expect(await scriptFailure(fresh, "truncate specialization.mapping_versions, specialization.rule_versions cascade")).toBeNull();
       expect(await scriptFailure(fresh, "delete from specialization.regions where id = 'zz_region'")).toBeNull();
-      await applyMigration(fresh, SEED_MIGRATION_PATH);
+      await applyMigration(fresh, SEED_V1_MIGRATION_PATH);
       await fresh.query("select set_config('request.jwt.claim.sub', $1, false)", [USER_A]);
       await fresh.exec("set role authenticated");
       await fresh.query("insert into specialization.goals (id, region_id, node_id, side, metric, target, period, starts_on, timezone) values ('rollback-goal', 'forearm', 'forearm.br', 'left', 'direct_dynamic_bouts', 8, 'calendar_week', '2026-10-12', 'UTC')");
@@ -1160,7 +1235,7 @@ describe("rollback", () => {
       expect((await fresh.query<{ n: number }>("select count(*)::int as n from pg_extension where extname = 'btree_gist'")).rows[0].n).toBe(1);
 
       await applyMigration(fresh, SCHEMA_MIGRATION_PATH);
-      await applyMigration(fresh, SEED_MIGRATION_PATH);
+      await applyMigration(fresh, SEED_V1_MIGRATION_PATH);
       const [after] = (await fresh.query<{ mappings: number; goals: number }>("select (select count(*)::int from specialization.variant_mappings) as mappings, (select count(*)::int from specialization.goals) as goals")).rows;
       expect(after).toEqual({ mappings: forearmRegionData.mappings.length, goals: 0 });
     } finally {
@@ -1171,47 +1246,9 @@ describe("rollback", () => {
 
 // ---------------------------------------------------------------- how it reaches production
 
-/** Everything the migrations decide, comparable across two databases: random uuids become the keys of the rows they name. */
-async function snapshot(database: PGlite) {
-  const q = <T = Record<string, unknown>>(sql: string) => rows<T>(database, sql);
-  const ns = "n.nspname = 'specialization'";
-  const catalog = {
-    schema: await q("select nspacl::text as acl, obj_description(oid, 'pg_namespace') as comment from pg_namespace where nspname = 'specialization'"),
-    relations: await q<{ relname: string; relkind: string }>(
-      `select c.relname, c.relkind::text as relkind, c.relrowsecurity, c.relforcerowsecurity, c.relacl::text as acl, obj_description(c.oid, 'pg_class') as comment
-       from pg_class c join pg_namespace n on n.oid = c.relnamespace where ${ns} order by 1`,
-    ),
-    columns: await q(
-      `select table_name, column_name, ordinal_position, data_type, is_nullable, column_default, is_generated, generation_expression,
-              col_description(format('specialization.%I', table_name)::regclass, ordinal_position) as comment
-       from information_schema.columns where table_schema = 'specialization' order by 1, 3`,
-    ),
-    constraints: await q(`select t.relname, c.conname, pg_get_constraintdef(c.oid) as def from pg_constraint c join pg_class t on t.oid = c.conrelid join pg_namespace n on n.oid = t.relnamespace where ${ns} order by 1, 2`),
-    indexes: await q("select tablename, indexname, indexdef from pg_indexes where schemaname = 'specialization' order by 1, 2"),
-    triggers: await q(`select c.relname, t.tgname, pg_get_triggerdef(t.oid) as def, t.tgenabled::text as enabled from pg_trigger t join pg_class c on c.oid = t.tgrelid join pg_namespace n on n.oid = c.relnamespace where ${ns} and not t.tgisinternal order by 1, 2`),
-    functions: await q(`select p.oid::regprocedure::text as fn, pg_get_functiondef(p.oid) as def, p.proacl::text as acl, obj_description(p.oid, 'pg_proc') as comment from pg_proc p join pg_namespace n on n.oid = p.pronamespace where ${ns} order by 1`),
-    policies: await q("select tablename, policyname, permissive, roles::text as roles, cmd, qual, with_check from pg_policies where schemaname = 'specialization' order by 1, 2"),
-    defaultAcls: await q("select defaclrole::regrole::text as role, defaclnamespace::regnamespace::text as schema, defaclobjtype::text as kind, defaclacl::text as acl from pg_default_acl order by 1, 2, 3"),
-    extensions: await q("select extname, extnamespace::regnamespace::text as schema from pg_extension order by 1"),
-  };
-  const tables = catalog.relations.filter((relation) => relation.relkind === "r").map((relation) => relation.relname);
-  const raw: Record<string, Record<string, unknown>[]> = {};
-  for (const table of tables) raw[table] = (await q<{ row: Record<string, unknown> }>(`select to_jsonb(t) as row from specialization.${table} t`)).map((entry) => entry.row);
-  const names = new Map<unknown, string>();
-  for (const row of raw.sources) names.set(row.id, `source ${row.source_key}`);
-  for (const row of raw.claims) names.set(row.id, `claim ${row.claim_key}`);
-  for (const row of raw.diagram_assets) names.set(row.id, `asset ${row.asset_key} v${row.version}`);
-  for (const row of raw.mapping_versions) names.set(row.id, `version ${row.version_key}`);
-  for (const row of raw.variant_mappings) names.set(row.id, `mapping ${names.get(row.version_id)} ${row.mapping_key}`);
-  const data = Object.fromEntries(
-    tables.map((table) => [table, raw[table].map((row) => JSON.stringify(Object.fromEntries(Object.entries(row).map(([key, value]) => [key, names.get(value) ?? value])))).sort()]),
-  );
-  return { catalog, data };
-}
-
 describe("applied as one DO block per file, the way it reaches production", () => {
   it("wraps a file as exactly one statement, with quote tags the file does not contain", () => {
-    for (const path of [SCHEMA_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+    for (const path of [SCHEMA_MIGRATION_PATH, SEED_V1_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
       const text = readMigration(path);
       const block = asDoBlock(text);
       expect(block.startsWith("do $outer$ declare body text := $body$")).toBe(true);
@@ -1225,10 +1262,11 @@ describe("applied as one DO block per file, the way it reaches production", () =
   });
 
   /**
-   * The runbook (04-database.md §9) names every existing table the two files lock, so the
-   * owner can choose the moment to apply them. The schema's foreign keys take SHARE ROW
+   * The runbook (04-database.md §9) names every existing table the files lock, so the
+   * owner can choose the moment to apply them. Schema v1's foreign keys take SHARE ROW
    * EXCLUSIVE on what they reference, which blocks writes there (sign-ups, sign-ins and
-   * account deletions on auth.users) until it commits; the seed only reads and key-shares.
+   * account deletions on auth.users) until it commits; a seed only reads and key-shares.
+   * Schema v2 locks nothing outside the schema (server/specializationSchemaV2.test.ts).
    */
   it("locks only the existing tables the runbook names: auth.users, public.muscles and public.exercises", async () => {
     const fresh = await createSupabaseLikeDb();
@@ -1248,21 +1286,30 @@ describe("applied as one DO block per file, the way it reaches production", () =
         ["auth.users", "public.exercises", "public.muscles"].flatMap((relation) => [{ relation, mode: "AccessShareLock" }, { relation, mode: "ShareRowExclusiveLock" }]),
       );
       await fresh.exec("commit");
+      // Each seed over the files production applies before it. It reads public.exercises for the
+      // catalog links, and foreign-key checks key-share the rows they name. Neither blocks ordinary writes.
+      const seedLocks = [{ relation: "public.exercises", mode: "AccessShareLock" }, { relation: "public.exercises", mode: "RowShareLock" }, { relation: "public.muscles", mode: "RowShareLock" }];
+      await fresh.exec("begin");
+      await applyMigration(fresh, SEED_V1_MIGRATION_PATH);
+      expect(await held()).toEqual(seedLocks);
+      await fresh.exec("commit");
+      await applyMigration(fresh, SCHEMA_V2_MIGRATION_PATH);
       await fresh.exec("begin");
       await applyMigration(fresh, SEED_MIGRATION_PATH);
-      // Reads public.exercises for the catalog links; foreign-key checks key-share the rows they name. Neither blocks ordinary writes.
-      expect(await held()).toEqual([{ relation: "public.exercises", mode: "AccessShareLock" }, { relation: "public.exercises", mode: "RowShareLock" }, { relation: "public.muscles", mode: "RowShareLock" }]);
+      const current = await held();
+      expect(current).toContainEqual({ relation: "public.exercises", mode: "AccessShareLock" });
+      expect(seedLocks).toEqual(expect.arrayContaining(current));
       await fresh.exec("rollback");
     } finally {
       await fresh.close();
     }
   }, SETUP);
 
-  it("gives the same database as applying the files directly, and refuses a changed seed the same way, applying none of it", async () => {
+  it("gives the same database as applying the files directly, every file in production's order, and refuses a changed seed the same way, applying none of it", async () => {
     const direct = await createSupabaseLikeDb();
     const wrapped = await createSupabaseLikeDb();
     try {
-      for (const path of [SCHEMA_MIGRATION_PATH, SCHEMA_MIGRATION_PATH, SEED_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+      for (const path of [...MIGRATION_STEPS.map((entry) => entry.path), SEED_MIGRATION_PATH]) {
         await applyMigration(direct, path);
         await applyMigrationAsDoBlock(wrapped, path);
       }
@@ -1273,7 +1320,7 @@ describe("applied as one DO block per file, the way it reaches production", () =
 
       const changed = emitSeedSql({
         ...productionSeedInput(),
-        regions: [{ ...forearmRegionData, variants: forearmRegionData.variants.map((variant) => (variant.id === "cat-403" ? { ...variant, deliberateHold: !variant.deliberateHold } : variant)) }],
+        regions: registeredRegionContents.map((content) => ({ ...content, variants: content.variants.map((variant) => (variant.id === "cat-403" ? { ...variant, deliberateHold: !variant.deliberateHold } : variant)) })),
       });
       const refusal = /variant cat-403 is used by mapping version forearm_mappings_v1 \(published\)/;
       expect(await scriptFailure(direct, changed)).toMatch(refusal);

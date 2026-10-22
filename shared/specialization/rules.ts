@@ -1,4 +1,4 @@
-import type { ExposureCategory, MuscleMode, Relationship, RuleVersion } from "./types";
+import type { ExposureCategory, ExposureRuleSpec, Limb, MuscleMode, RegionWording, Relationship, RuleVersion } from "./types";
 import { EXPOSURE_RULE_VERSION } from "./ids";
 
 /**
@@ -78,3 +78,117 @@ export const exposureCategoryLabels: Record<ExposureCategory, string> = {
   mixed: "Mixed",
   unknown: "Unclassified",
 };
+
+/**
+ * The category labels in a region's words: incidental work is named by the region's
+ * `wording.incidentalWork` ("Incidental bracing / stabilization"), so the forearm's "grip" gives
+ * `exposureCategoryLabels` exactly (10-multi-region.md §4.3).
+ */
+export function exposureCategoryLabelsFor(wording: Pick<RegionWording, "incidentalWork">): Record<ExposureCategory, string> {
+  return { ...exposureCategoryLabels, incidental_isometric: `Incidental ${wording.incidentalWork} / stabilization` };
+}
+
+// ---------------------------------------------------------------- published versions and their clauses
+
+/**
+ * The published rules, oldest first (10-multi-region.md §4.3). A rule is added here by the release
+ * whose regions first use its clauses; each is a superset of the one before. A clause no
+ * production region rests on yet waits in `ruleClauses` under the version that will publish it.
+ */
+export const publishedExposureRules: readonly RuleVersion[] = [exposureRuleV1];
+
+/** The rule every page reads: the latest published one. A summary records its id (`ruleVersion`). */
+export const currentExposureRule: RuleVersion = publishedExposureRules[publishedExposureRules.length - 1];
+
+/** The rule versions 10-multi-region.md §4.3 plans, published or not. */
+export const exposureRuleIds = {
+  v1: EXPOSURE_RULE_VERSION,
+  v2: "specialization_exposure_v2",
+  v3: "specialization_exposure_v3",
+  v4: "specialization_exposure_v4",
+  v5: "specialization_exposure_v5",
+} as const;
+
+/** How `nodeSideFor` (exposure.ts) decided a side within a paired region's limb: its rules 2 to 6. */
+export type PairedSideBranch = "relation_both" | "structural" | "recorded" | "recorded_opposite" | "not_applicable" | "unknown";
+
+/**
+ * Every branch of the calculator that decides what is counted, each answered by one clause of a
+ * rule (`ruleClauses`):
+ * - `side.*`: `nodeSideFor`'s rules, per limb (`side.midline` is its rule 1);
+ * - `plan.*`: a planned one-sided set, on its limb: one bout per planned set, read as done with
+ *   both sides (`boutsFromPlan`; both sides are counted as one, owner 20 Oct 2026, so the plan
+ *   counts what the logger builds, one row per planned set);
+ * - `version.*`: the version `indexRegion` credits a node by: the region's own, the node's home
+ *   region's, or the listing region's own rows where the home has published none;
+ * - `class.*`: how a bout is classified by the region's own muscles (10-multi-region.md §4.2);
+ * - `scope.*`: which catalog tags put unmapped work in the region-only bucket.
+ */
+export type RuleBranch =
+  | "side.midline"
+  | `side.${Limb}.${PairedSideBranch}`
+  | `plan.${Limb}.one_bout`
+  | "version.own"
+  | "version.home"
+  | "version.listing_fallback"
+  | "class.mapped"
+  | "class.region_only"
+  | "class.region_only_external"
+  | "class.external_only"
+  | "class.unrelated"
+  | "scope.any"
+  | "scope.primary";
+
+/**
+ * The clause of a rule that answers a branch: a key of the rule's published specification, or,
+ * for a rule not yet published, the words 10-multi-region.md §4.3 gives it.
+ */
+export type RuleClause = { rule: string; clause: string };
+
+const v1 = (clause: keyof ExposureRuleSpec): RuleClause => ({ rule: exposureRuleIds.v1, clause });
+const draft = (rule: string, clause: string): RuleClause => ({ rule, clause });
+const RELATIONS = "side relations: a mapping's muscle is loaded on the recorded side, the opposite side, or both";
+const MIDLINE = "midline: a midline region counts every bout once and has no sides";
+const LIMB = "the leg limb: a leg's side is the anchor leg's; a limb the exercise does not use gives no side; a planned one-sided set counts once, as done with both sides";
+const BY_HOME = "a muscle of another region is credited as its home region's current mapping version credits it";
+const OWN_MUSCLES = "a bout is classified by the page's own muscles";
+
+/**
+ * Each branch and the clause that publishes it. A test maps every branch the calculator takes to an
+ * entry here, and refuses production data that reaches a branch whose rule is not in
+ * `publishedExposureRules`: no midline production region before v4, no leg one before v5. Each
+ * later release adds its rule to the published list; its entries are already here.
+ */
+export const ruleClauses: Record<RuleBranch, RuleClause> = {
+  "side.midline": draft(exposureRuleIds.v4, MIDLINE),
+  "side.arm.relation_both": draft(exposureRuleIds.v3, RELATIONS),
+  "side.arm.structural": v1("sides"),
+  "side.arm.recorded": v1("sides"),
+  "side.arm.recorded_opposite": draft(exposureRuleIds.v3, RELATIONS),
+  "side.arm.not_applicable": draft(exposureRuleIds.v5, LIMB),
+  "side.arm.unknown": v1("sides"),
+  "side.leg.relation_both": draft(exposureRuleIds.v5, LIMB),
+  "side.leg.structural": draft(exposureRuleIds.v5, LIMB),
+  "side.leg.recorded": draft(exposureRuleIds.v5, LIMB),
+  "side.leg.recorded_opposite": draft(exposureRuleIds.v5, LIMB),
+  "side.leg.not_applicable": draft(exposureRuleIds.v5, LIMB),
+  "side.leg.unknown": draft(exposureRuleIds.v5, LIMB),
+  "plan.arm.one_bout": v1("sides"),
+  "plan.leg.one_bout": draft(exposureRuleIds.v5, LIMB),
+  "version.own": v1("categories"),
+  "version.listing_fallback": v1("categories"),
+  "version.home": draft(exposureRuleIds.v2, BY_HOME),
+  "class.mapped": v1("categories"),
+  "class.region_only": v1("unmapped"),
+  "class.region_only_external": draft(exposureRuleIds.v2, OWN_MUSCLES),
+  "class.external_only": draft(exposureRuleIds.v2, OWN_MUSCLES),
+  "class.unrelated": v1("unmapped"),
+  "scope.any": v1("unmapped"),
+  "scope.primary": draft(exposureRuleIds.v2, "catalog keys and their tag scope named per region"),
+};
+
+/** Of the branches given, those whose clause no published rule holds, in order. */
+export function unpublishedBranches(branches: Iterable<RuleBranch>, published: readonly RuleVersion[] = publishedExposureRules): RuleBranch[] {
+  const ids = new Set(published.map((rule) => rule.id));
+  return Array.from(new Set(branches)).filter((branch) => !ids.has(ruleClauses[branch].rule)).sort();
+}

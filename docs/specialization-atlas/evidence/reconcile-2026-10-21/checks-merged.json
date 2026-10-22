@@ -1,0 +1,149 @@
+{
+ "note": "Headless Chromium emulating an iPhone (viewport, isMobile, hasTouch, deviceScaleFactor 3, en-US, UTC, SwiftShader WebGL); not an iPhone, not Safari. Build: merged. Device stores seeded (this week: Hammer Curl x3 and One-Arm Dumbbell Wrist Curl twice on the right, once on the left and once with no arm on Monday; Wrist Curl x3 on Tuesday; a forearm target, FCR 8 a week; a 4-day plan whose first day holds 410 and 132). Run on 2026-10-21, UTC. Coordinates are CSS px.",
+ "scenes": [
+  {
+   "scene": "specialize-model",
+   "width": 390,
+   "height": 844,
+   "modelStatus": "ready",
+   "figureToggle": true,
+   "below": "What these numbers meanOne bout per set, per muscle",
+   "sideSwitchGroups": [],
+   "sideWords": [],
+   "lede": "Each set counts once per muscle, from your logged workouts. Holds stay in seconds and never become sets.",
+   "overflowX": 0,
+   "address": "?workspace=specialization&region=forearm&node=forearm.fcr&fig=model",
+   "failedRequests": []
+  },
+  {
+   "scene": "specialize-drawing",
+   "width": 390,
+   "height": 844,
+   "modelStatus": null,
+   "figureToggle": true,
+   "below": "Each set counts once per muscle, from your logged workouts. Holds stay in seconds and never become sets.",
+   "sideSwitchGroups": [],
+   "sideWords": [],
+   "lede": "Each set counts once per muscle, from your logged workouts. Holds stay in seconds and never become sets.",
+   "overflowX": 0,
+   "address": "?workspace=specialization&region=forearm&node=forearm.fcr&fig=drawing",
+   "failedRequests": []
+  },
+  {
+   "scene": "live-set-card",
+   "width": 390,
+   "height": 844,
+   "prestart": {
+    "counts": "2 exercises · 6 sets",
+    "rows": [
+     "One-Arm Dumbbell Wrist Curl3 × 6–15",
+     "Hammer Curl3 × 6–15"
+    ]
+   },
+   "card": {
+    "exercise": "One-Arm Dumbbell Wrist Curl",
+    "prescription": "Set 1 of 36–15 reps",
+    "top": 223,
+    "bottom": 898
+   },
+   "stored": [
+    {
+     "name": "One-Arm Dumbbell Wrist Curl",
+     "perArm": null,
+     "rows": 3,
+     "sides": [
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "name": "Hammer Curl",
+     "perArm": null,
+     "rows": 3,
+     "sides": [
+      null,
+      null,
+      null
+     ]
+    }
+   ],
+   "sideSwitchGroups": [],
+   "sideWords": [],
+   "overflowX": 0,
+   "failedRequests": []
+  },
+  {
+   "scene": "specialize-model",
+   "width": 375,
+   "height": 667,
+   "modelStatus": "ready",
+   "figureToggle": true,
+   "below": "What these numbers meanOne bout per set, per muscle",
+   "sideSwitchGroups": [],
+   "sideWords": [],
+   "lede": "Each set counts once per muscle, from your logged workouts. Holds stay in seconds and never become sets.",
+   "overflowX": 0,
+   "address": "?workspace=specialization&region=forearm&node=forearm.fcr&fig=model",
+   "failedRequests": []
+  },
+  {
+   "scene": "specialize-drawing",
+   "width": 375,
+   "height": 667,
+   "modelStatus": null,
+   "figureToggle": true,
+   "below": "Each set counts once per muscle, from your logged workouts. Holds stay in seconds and never become sets.",
+   "sideSwitchGroups": [],
+   "sideWords": [],
+   "lede": "Each set counts once per muscle, from your logged workouts. Holds stay in seconds and never become sets.",
+   "overflowX": 0,
+   "address": "?workspace=specialization&region=forearm&node=forearm.fcr&fig=drawing",
+   "failedRequests": []
+  },
+  {
+   "scene": "live-set-card",
+   "width": 375,
+   "height": 667,
+   "prestart": {
+    "counts": "2 exercises · 6 sets",
+    "rows": [
+     "One-Arm Dumbbell Wrist Curl3 × 6–15",
+     "Hammer Curl3 × 6–15"
+    ]
+   },
+   "card": {
+    "exercise": "One-Arm Dumbbell Wrist Curl",
+    "prescription": "Set 1 of 36–15 reps",
+    "top": 223,
+    "bottom": 896
+   },
+   "stored": [
+    {
+     "name": "One-Arm Dumbbell Wrist Curl",
+     "perArm": null,
+     "rows": 3,
+     "sides": [
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "name": "Hammer Curl",
+     "perArm": null,
+     "rows": 3,
+     "sides": [
+      null,
+      null,
+      null
+     ]
+    }
+   ],
+   "sideSwitchGroups": [],
+   "sideWords": [],
+   "overflowX": 0,
+   "failedRequests": []
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+cases 34 changed (besides version key) 34
+top-level fields changed: {'goals': 20}
+  e.g. goals completed/one-week-4/calendar-week/left 
+    v1: [['forearm.br', 'direct_dynamic_bouts', 7], ['forearm.fcu', 'direct_dynamic_bouts', 1], ['forearm.fds', 'deliberate_hold_seconds', 240], ['forearm.fdp', 'deliberate_hold_bouts', 6], ['wrist.flexion', 'direct_dynamic_bouts', 4], ['fingers.pip_flexion', 'deliberate_hold_seconds', 240], ['elbow.flexion', 'direct_dynamic_bouts', 7], ['upper_arm.biceps', 'direct_dynamic_bouts', 3], ['forearm.anconeus', 'direct_dynamic_bouts', 0]] 
+    v2: [['forearm.br', 'direct_dynamic_bouts', 7], ['forearm.fcu', 'direct_dynamic_bouts', 1], ['forearm.fds', 'deliberate_hold_seconds', 240], ['forearm.fdp', 'deliberate_hold_bouts', 6], ['wrist.flexion', 'direct_dynamic_bouts', 4], ['fingers.pip_flexion', 'deliberate_hold_seconds', 240], ['elbow.flexion', 'direct_dynamic_bouts', 7], ['upper_arm.biceps', 'direct_dynamic_bouts', 0], ['forearm.anconeus', 'direct_dynamic_bouts', 0]]
+node fields changed (cases):
+  forearm.fpl              holdBouts     26  e.g. ('completed/one-week-4/calendar-week/left', '0', '3')
+  forearm.fpl              holdSec       26  e.g. ('completed/one-week-4/calendar-week/left', '0', '120')
+  forearm.fpl              pending       26  e.g. ('completed/one-week-4/calendar-week/left', '3', '0')
+  forearm.fpl              unknownSide    6  e.g. ('completed/edge-week/calendar-week/left', '0', '1')
+  upper_arm.biceps         contribDyn    34  e.g. ('completed/one-week-4/calendar-week/left', '7', '0')
+  upper_arm.biceps         coverage      34  e.g. ('completed/one-week-4/calendar-week/left', 'reviewed', 'none')
+  upper_arm.biceps         direct        20  e.g. ('completed/one-week-4/calendar-week/left', '3', '0')
+  upper_arm.brachialis     coverage      34  e.g. ('completed/one-week-4/calendar-week/left', 'reviewed', 'none')
+  upper_arm.brachialis     direct        34  e.g. ('completed/one-week-4/calendar-week/left', '10', '0')

@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { coreForearmMuscleIds, forearmAdjacentIds, forearmMuscleIds as m } from "@shared/specialization/ids";
+import { coreForearmMuscleIds, forearmAdjacentIds, forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { regionDataFor } from "@shared/specialization/registry";
 import { selectableNodes } from "../model";
 import { anatomyModelFor, canonicalForModelSource, forearmModelCanonicalIds, forearmModelSourceToCanonical, modelSourceForCanonical } from "./modelIdentity";

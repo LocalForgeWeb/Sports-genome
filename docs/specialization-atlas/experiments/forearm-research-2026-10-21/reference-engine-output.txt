@@ -1,0 +1,7 @@
+tissue_regions (groups only): [('deep-digital-flexors', 2), ('lateral-extensor-origin', 1), ('medial-flexor-origin', 2), ('radial-wrist-extensors', 1), ('thumb-flexor', 2)]
+limb_bouts 2 unresolved 0 reps [{'session_id': 'example-session', 'parent_bout_id': 'drop-parent', 'known_reps': 21.0}]
+(8, [5, 5, 5, 5]) {'state': 'comparison', 'current': 8, 'baseline_median': 5.0, 'absolute_change': 3.0, 'percent_change': 60.0, 'injury_probability': None}
+(8, [0, 0, 0]) {'state': 'new_exposure', 'current': 8, 'baseline_median': 0, 'absolute_change': 8, 'percent_change': None, 'injury_probability': None}
+(8, [1, 2]) {'state': 'building_baseline', 'injury_probability': None}
+(0, [0, 0, 0]) {'state': 'comparison', 'current': 0, 'baseline_median': 0, 'absolute_change': 0, 'percent_change': None, 'injury_probability': None}
+(3, [1, 1, 1, 9, 9]) {'state': 'comparison', 'current': 3, 'baseline_median': 5.0, 'absolute_change': -2.0, 'percent_change': -40.0, 'injury_probability': None}

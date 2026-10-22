@@ -1,5 +1,6 @@
 import { displayWeightToKilograms, kilogramsToDisplayWeight, type DisplayWeightUnit } from "./weightUnits";
 import { isSetEffort, type SetEffort } from "@shared/setEffort";
+import type { Limb } from "@shared/specialization/types";
 
 export type DeviceSetLog = {
   weight: string;
@@ -45,6 +46,13 @@ export type DeviceSetLog = {
    */
   side?: SetSide;
   /**
+   * Which leg did the set, named by the exercise's side anchor (front leg on a split squat,
+   * standing leg on a single-leg hinge; 10-multi-region.md §2.1). Kept apart from `side`, which
+   * stays the arm's, so a reader that drops this field leaves the set with no leg side rather
+   * than turning it into an arm side. Absent means not asked or not said.
+   */
+  legSide?: SetSide;
+  /**
    * How long a hold lasted, in whole seconds as typed, on exercises measured in seconds (dead
    * hangs, farmer holds, pinches). A hold set has no reps: `reps` stays empty, so every reader
    * of reps reads it as "no reps" rather than a number, and none of them turns seconds into
@@ -59,9 +67,11 @@ export type DeviceSetLog = {
   warmup?: boolean;
 };
 
-/** Which arm a set was done with. */
+/** Which arm (`side`) or which leg (`legSide`) a set was done with. */
 export type SetSide = "left" | "right" | "both";
 const isSetSide = (value: unknown): value is SetSide => value === "left" || value === "right" || value === "both";
+/** Where a set stores the side of a limb: the arm's in `side`, the leg's in `legSide`. */
+export const sideFieldOf = (limb: Limb): "side" | "legSide" => (limb === "leg" ? "legSide" : "side");
 /** Whether straps were used on an exercise in a workout: recorded only when the athlete said. */
 export type StrapsUsed = "yes" | "no";
 const isStrapsUsed = (value: unknown): value is StrapsUsed => value === "yes" || value === "no";
@@ -93,10 +103,13 @@ export type DeviceWorkoutExercise = {
   plannedPrescription: string;
   sets: DeviceSetLog[];
   /**
-   * The rows were built per arm: a one-arm exercise planned for an athlete with a specialization
-   * target, where "3 × 12" is three sets for each arm, so each planned set is two rows, Right then
-   * Left (components/DeviceWorkoutTracker.tsx `perArmSets`). Row `n` follows planned set
-   * `floor(n / 2)`. Absent on every other exercise, and on workouts from before it existed.
+   * The rows were built per side: an exercise done one arm (or one leg) at a time, planned for an
+   * athlete with a specialization target, where "3 × 12" was three sets for each side, so each
+   * planned set is two rows, Right then Left, each with its side on that limb. Row `n` follows
+   * planned set `floor(n / 2)`. Nothing builds such rows since both sides were counted as one
+   * (owner, 20 Oct 2026); a workout left open from before then, or written by another release,
+   * still holds them, and they are read and logged as stored. Absent on every other exercise. The
+   * name is the one stored since 17 Oct, when only arms were split.
    */
   perArm?: boolean;
   /** This exercise took over the rest of another one's work mid-workout. */
@@ -114,8 +127,9 @@ export type DeviceWorkoutExercise = {
   skippedSets?: number;
   /**
    * Straps on this exercise in this workout, when the athlete said (02-design.md §6). Asked only
-   * where a grip mapping is not earned by a strapped set, and only once the athlete has a forearm
-   * goal. Absent is "not recorded", which is not the same as "no".
+   * where a grip mapping is not earned by a strapped set, and only of an athlete with an active
+   * target in a region that has such a mapping of it (lib/specialization/loggerGates.ts). Absent
+   * is "not recorded", which is not the same as "no".
    */
   straps?: StrapsUsed;
 };
@@ -176,18 +190,46 @@ export type DeviceWorkoutSession = {
 
 const isWeightUnit = (value: unknown): value is DisplayWeightUnit => value === "lb" || value === "kg";
 
+/** The set fields this code reads and validates; `normalizeSet` keeps every other field as stored. */
+const knownSetFields: ReadonlySet<string> = new Set(["weight", "reps", "unit", "height", "completed", "skipped", "id", "type", "stages", "effort", "side", "legSide", "holdSeconds", "warmup"]);
+
+/**
+ * A set type a later release added: a name other than "standard" and "drop". Every reader here
+ * asks `type === "drop"`, so such a set reads as the standard set its weight and reps give.
+ */
+const isLaterSetType = (type: unknown) => typeof type === "string" && type !== "standard" && type !== "drop";
+
+/**
+ * What a stored set holds that this code does not understand, exactly as stored: every field it
+ * does not know, and a later release's set type with its stages (a list). Loading, saving and
+ * logging the set all keep these (10-multi-region.md §2.1), so a later release's data survives
+ * this one, a rollback to it or a second tab open on it.
+ */
+export function unknownSetFields(set: DeviceSetLog): Record<string, unknown> {
+  const laterType = isLaterSetType(set.type);
+  return Object.fromEntries(Object.entries(set).filter(([field, value]) => !knownSetFields.has(field)
+    || (laterType && (field === "type" || (field === "stages" && Array.isArray(value))))));
+}
+
 /**
  * Keeps a set's unit only when it is one the app knows, and a drop set's stages only when they
  * are stages: anything else stored there is dropped rather than read as load. The atlas's set
- * fields are kept the same way: a side only when it is one of the three, hold seconds only when
- * they are a whole number, and a warm-up mark only when it is `true`.
+ * fields are kept the same way: a side (the arm's in `side`, the leg's in `legSide`) only when it
+ * is one of the three, hold seconds only when they are a whole number, and a warm-up mark only
+ * when it is `true`.
+ *
+ * What this code does not understand is kept exactly as stored (`unknownSetFields`), and so is a
+ * drop stage's field it does not know. Every save rewrites the whole history through here, so a
+ * field a later release adds to a set survives a save by this one; before 20 Oct such fields
+ * were dropped on the next save.
  */
 function normalizeSet(set: DeviceSetLog): DeviceSetLog {
-  const normalized: DeviceSetLog = { weight: String(set.weight || ""), reps: String(set.reps || ""), height: String(set.height || ""), completed: Boolean(set.completed), skipped: Boolean(set.skipped) };
+  const normalized: DeviceSetLog = { weight: String(set.weight || ""), reps: String(set.reps || ""), height: String(set.height || ""), completed: Boolean(set.completed), skipped: Boolean(set.skipped), ...unknownSetFields(set) };
   if (isWeightUnit(set.unit)) normalized.unit = set.unit;
   if (typeof set.id === "string" && set.id) normalized.id = set.id;
   if (isSetEffort(set.effort)) normalized.effort = set.effort;
   if (isSetSide(set.side)) normalized.side = set.side;
+  if (isSetSide(set.legSide)) normalized.legSide = set.legSide;
   const seconds = holdSecondsText(set.holdSeconds);
   if (seconds) normalized.holdSeconds = seconds;
   if (set.warmup === true) normalized.warmup = true;
@@ -196,8 +238,9 @@ function normalizeSet(set: DeviceSetLog): DeviceSetLog {
     normalized.stages = (Array.isArray(set.stages) ? set.stages : [])
       .filter((stage): stage is DropStage => typeof stage === "object" && stage !== null)
       .map((stage, index) => {
-        const kept: DropStage = { id: typeof stage.id === "string" && stage.id ? stage.id : `${normalized.id ?? "set"}-stage-${index + 1}`, weight: String(stage.weight || ""), reps: String(stage.reps || "") };
-        if (isWeightUnit(stage.unit)) kept.unit = stage.unit;
+        const { unit, ...stored } = stage;
+        const kept: DropStage = { ...stored, id: typeof stage.id === "string" && stage.id ? stage.id : `${normalized.id ?? "set"}-stage-${index + 1}`, weight: String(stage.weight || ""), reps: String(stage.reps || "") };
+        if (isWeightUnit(unit)) kept.unit = unit;
         return kept;
       });
   }

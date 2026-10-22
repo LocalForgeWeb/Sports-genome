@@ -13,36 +13,28 @@ vi.mock("sonner", () => {
 });
 
 /**
- * The atlas's variant data, injected through the logger's light region list (the logger never
- * reads the full registry). Here a dead hang and a farmer hold are measured in seconds; a hammer
- * curl may be done with one arm or two; a single-arm cable row is one arm at a time; the hold and
- * the row carry a grip mapping that a strapped set does not earn. The bench press is not mapped
- * at all.
+ * The atlas's logging table, injected (the logger reads nothing else of the atlas). Here a dead
+ * hang and a farmer hold are measured in seconds; a hammer curl may be done with one arm or two; a
+ * single-arm cable row is one arm at a time; the hold and the row carry a grip mapping that a
+ * strapped set does not earn. All are the forearm's. The bench press is not mapped at all.
  */
-vi.mock("@shared/specialization/loggingRegions", () => {
-  const variant = (catalogExerciseId: number, catalogName: string, measure: string, laterality: string, deliberateHold: boolean) => ({
-    id: `cat-${catalogExerciseId}`, catalogExerciseId, catalogName, organization: "task", forearmOrientation: "neutral", wristPosition: "neutral",
-    gripType: "neutral", straps: "unknown", laterality, phase: "unspecified", measure, deliberateHold, elbowAngleDeg: null, notes: null,
+vi.mock("@shared/specialization/loggingTable.generated", () => {
+  const row = (measure: string, laterality: string, straps: boolean) => ({
+    measure, laterality, sidedBy: laterality === "bilateral" ? "none" : "arm", sideCounted: laterality !== "bilateral", strapsBy: straps ? ["forearm"] : [], mappedBy: ["forearm"],
   });
-  const grip = (variantId: string) => ({
-    id: `${variantId}-grip`, versionKey: "test", variantId, nodeId: "forearm.fds", actionId: "fingers.pip_flexion", relationship: "direct",
-    muscleMode: "isometric", evidenceBasis: "inference", allocation: "shared", requiresNoStraps: true, rationale: "test", reviewStatus: "reviewed", sources: [],
-  });
-  const region = {
-    region: { id: "forearm", label: "Forearms", heading: "Forearm specialization", sortOrder: 10, status: "production" },
-    variants: [
-      variant(143, "Dead Hang", "seconds", "bilateral", true),
-      variant(145, "Farmer Hold", "seconds", "either", true),
-      variant(132, "Hammer Curl", "reps", "either", false),
-      variant(56, "Single-Arm Cable Row", "reps", "unilateral", false),
-      variant(142, "Plate Pinch", "seconds", "unilateral", true),
-    ],
-    mappings: [grip("cat-145"), grip("cat-56")],
+  return {
+    loggingTable: new Map([
+      [143, row("seconds", "bilateral", false)], // Dead Hang
+      [145, row("seconds", "either", true)], // Farmer Hold
+      [132, row("reps", "either", false)], // Hammer Curl
+      [56, row("reps", "unilateral", true)], // Single-Arm Cable Row
+      [142, row("seconds", "unilateral", false)], // Plate Pinch
+    ]),
   };
-  return { specializationLoggingRegions: [region] };
 });
 
 import { DeviceWorkoutTracker } from "./DeviceWorkoutTracker";
+import { loggerGatesForRegions } from "@/lib/specialization/loggerGates";
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
 
@@ -60,9 +52,10 @@ const log = () => fireEvent.click(within(card()).getByRole("button", { name: /^L
 const arm = () => within(card()).queryByRole("group", { name: /^Arm for set/ });
 const pressed = (group: HTMLElement) => within(group).getAllByRole("button").filter((button) => button.getAttribute("aria-pressed") === "true").map((button) => button.textContent);
 
-function start(workout: typeof exercises, options: { prescription?: string; askStraps?: boolean } = {}) {
+/** `forearmTarget`: an athlete with an active forearm target, through the gates Home builds. */
+function start(workout: typeof exercises, options: { prescription?: string; forearmTarget?: boolean } = {}) {
   const prescriptions = Object.fromEntries(workout.map((exercise) => [exercise.id, options.prescription ?? "3 × 30"]));
-  render(createElement(DeviceWorkoutTracker, { workout, prescriptions, settings: {}, goal: "Athleticism", dayLabel: "Week 1 · Day 01 · Pull", weightUnit: "lb", askStraps: options.askStraps }));
+  render(createElement(DeviceWorkoutTracker, { workout, prescriptions, settings: {}, goal: "Athleticism", dayLabel: "Week 1 · Day 01 · Pull", weightUnit: "lb", loggerGates: options.forearmTarget ? loggerGatesForRegions(["forearm"]) : undefined }));
   fireEvent.click(screen.getByRole("button", { name: /start workout/i }));
 }
 
@@ -202,12 +195,12 @@ describe("Straps, only for a forearm goal and a grip that needs a bare hand", ()
   });
 
   it("is not asked of an exercise whose credit does not depend on straps", () => {
-    start([hammerCurl], { askStraps: true });
+    start([hammerCurl], { forearmTarget: true });
     expect(within(card()).queryByRole("group", { name: /^Straps/ })).toBeNull();
   });
 
   it("records Used or Not used on the exercise, and a second tap takes it back to not recorded", () => {
-    start([cableRow], { askStraps: true });
+    start([cableRow], { forearmTarget: true });
     const group = within(card()).getByRole("group", { name: "Straps on Single-Arm Cable Row" });
     expect(pressed(group)).toEqual([]);
     fireEvent.click(within(group).getByRole("button", { name: "Used" }));
@@ -233,7 +226,7 @@ describe("Set ids", () => {
 
 describe("The saved workout shows what was recorded", () => {
   it("shows the hold in seconds and the straps", () => {
-    start([farmerHold], { prescription: "1 × 40", askStraps: true });
+    start([farmerHold], { prescription: "1 × 40", forearmTarget: true });
     expect(arm()).toBeNull();
     fireEvent.click(within(card()).getByRole("button", { name: "Used" }));
     type(/^Weight/, "70");

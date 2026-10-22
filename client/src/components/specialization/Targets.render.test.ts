@@ -2,8 +2,8 @@
 import React, { createElement } from "react";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { goalProgressLabel, goalsForBothArms, isGoalActive } from "@shared/specialization/goals";
-import { forearmActionIds, forearmMuscleIds } from "@shared/specialization/ids";
+import { goalProgressLabel, isGoalActive } from "@shared/specialization/goals";
+import { forearmActionIds, forearmMuscleIds } from "@shared/specialization/regions/forearm/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import type { ArmSide, SummarySide, GoalProgress, SpecializationGoal, SpecializationSummary } from "@shared/specialization/types";
 import { loadSpecializationGoals, saveSpecializationGoals, useSpecializationGoals } from "@/lib/specialization/stores";
@@ -56,7 +56,7 @@ function EditorHarness({ side = "both" as SummarySide }) {
   const { goals, save, remove } = useSpecializationGoals(null);
   const mine = goals.filter((item) => item.nodeId === BR);
   const progress = summaryFor(goals, side).goals.filter((item) => item.goal.nodeId === BR);
-  return createElement(TargetsEditor, { regionId: "forearm", nodeId: BR, nodeName: "Brachioradialis", side, goals: mine, progress, timeZone: ZONE, todayKey: TODAY, onSave: save, onRemove: remove });
+  return createElement(TargetsEditor, { region: forearmRegionData.region, nodeId: BR, nodeName: "Brachioradialis", canSet: true, side, goals: mine, progress, timeZone: ZONE, todayKey: TODAY, onSave: save, onRemove: remove });
 }
 
 function OverviewHarness({ side = "both" as SummarySide, onOpenMuscle = (() => {}) as (nodeId: string) => void, onOpenMovement = undefined as ((actionId: string) => void) | undefined, summaryOf = ((goals, arm) => summaryFor(goals, arm)) as (goals: readonly SpecializationGoal[], arm: SummarySide) => SpecializationSummary | null }) {
@@ -100,7 +100,8 @@ describe("the muscle sheet's targets", () => {
   });
 
   it("reads an old target saved once per arm as one, and removes and restores it as one", async () => {
-    const [left, right] = goalsForBothArms(goal({ id: "pair" }));
+    // What the old "Both arms" choice stored before 20 Oct 2026: two copies, one per arm.
+    const [left, right] = (["left", "right"] as const).map((side) => goal({ id: `pair:${side}`, side }));
     seed(left, right);
     render(createElement(EditorHarness));
     expect(screen.getAllByRole("button", { name: /^Remove the target/ })).toHaveLength(1);
@@ -298,13 +299,17 @@ describe("the Targets overview", () => {
     expect(onOpenMovement).toHaveBeenCalledWith(ELBOW_FLEXION);
   });
 
-  it("says Not targeted on an arm without a target, and opens the muscle", async () => {
+  // Main (4dac1ae) kept this case for a one-arm overview it no longer shows ("Not targeted on the
+  // right arm."). The reconciliation removes that sentence with every side word (10-multi-region.md,
+  // appendix "Both sides as one"), so the case is what the page does: a target saved earlier for
+  // one arm is the muscle's target, read for both, naming no arm.
+  it("reads a target saved earlier for one arm as the muscle's, names no arm, and opens the muscle", async () => {
     const onOpenMuscle = vi.fn();
     seed(goal({ side: "left" }));
-    render(createElement(OverviewHarness, { side: "right", onOpenMuscle }));
+    render(createElement(OverviewHarness, { onOpenMuscle }));
     const group = screen.getByText("Brachioradialis").closest("li")!;
-    expect(within(group).getByText("Not targeted on the right arm.")).not.toBeNull();
-    expect(within(group).queryByText(/of your/)).toBeNull();
+    expect(within(group).getByText(/3 of your 20/)).not.toBeNull();
+    expect(group.textContent).not.toMatch(/\b(left|right)\b|Not targeted/i);
     await click(within(group).getByRole("button", { name: "Open Brachioradialis" }));
     expect(onOpenMuscle).toHaveBeenCalledWith(BR);
   });

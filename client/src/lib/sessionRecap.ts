@@ -57,6 +57,21 @@ export function sideLabel(side: SetSide | undefined): string | null {
   return side ? sideLabels[side] ?? null : null;
 }
 
+/** "Left", "Right" or "Both legs" for a leg's recorded side (`legSide`); null when none was recorded. */
+export function legSideLabel(side: SetSide | undefined): string | null {
+  return side === "both" ? "Both legs" : sideLabel(side);
+}
+
+/**
+ * A set's recorded side in words, wherever the set is read back (the recap after Finish, a
+ * workout opened from Progress, an exercise's history): the arm's (`side`), else the leg's
+ * (`legSide`, 07-logger.md); null when neither was recorded. The live set card reads the one
+ * its exercise is sided by (DeviceWorkoutTracker `sideWordsOf`).
+ */
+export function setSideLabel(set: Pick<DeviceSetLog, "side" | "legSide">): string | null {
+  return sideLabel(set.side) ?? legSideLabel(set.legSide);
+}
+
 /** What an exercise's straps record says, or null when nothing was recorded. */
 export function strapsLabel(straps: StrapsUsed | undefined): string | null {
   return straps === "yes" ? "Straps used" : straps === "no" ? "Straps not used" : null;
@@ -146,7 +161,7 @@ export function sessionRecap(session: DeviceWorkoutSession, fallbackUnit: Displa
         const unit = setWeightUnit(set, session, fallbackUnit);
         const drop = isDropSet(set);
         const volume = drop ? setVolume(set, unit, convention, fallbackUnit) : null;
-        const side = sideLabel(set.side);
+        const side = setSideLabel(set);
         const hold = isHoldOn(set, measure);
         // A hold logged with no seconds says so, rather than "— lb × —"; Correct a set adds them.
         // Reps logged before the exercise was measured in seconds say "reps".

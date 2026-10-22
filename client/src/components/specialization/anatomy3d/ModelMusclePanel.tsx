@@ -23,13 +23,20 @@ function TargetLine({ target }: { target: ViewerTarget }) {
   return <p className="sg-anatomy3d-target">{target.label} {target.metric === "direct_dynamic_bouts" ? "direct dynamic bouts" : target.metric === "deliberate_hold_bouts" ? "hold bouts" : "seconds of holds"} {periodWords[target.period]}</p>;
 }
 
-export function ModelMusclePanel({ data, mode, windowLabel, regionLine, onViewContributions, onAddExercise, onViewExercise, onOpenMethod, onSeeRegionSets, credits }: {
+export function ModelMusclePanel({ data, mode, windowLabel, regionLine, bothSides, countedTogether, onViewContributions, onAddExercise, onViewExercise, onOpenMethod, onSeeRegionSets, credits }: {
   /** The selected muscle; null for the whole forearm (Overview). */
   data: ViewerMuscleData | null;
   mode: "planned" | "completed";
   windowLabel: string;
-  /** With nothing selected: the region's distinct bouts on this arm, the page's own line. */
+  /** With nothing selected: the region's distinct bouts, the page's own line. */
   regionLine: string;
+  /**
+   * "both arms": the numbers count both sides as one (owner, 20 Oct 2026), said in the region's
+   * words (`sideWordsFor`); null for a region with no sides.
+   */
+  bothSides: string | null;
+  /** How both sides are counted, in the region's words (`sideWordsFor(...).countedOnce`: "Both arms count together: a set counts once, whichever arm or arms did it."). */
+  countedTogether: string;
   onViewContributions: () => void;
   onAddExercise: () => void;
   onViewExercise: (catalogExerciseId: number | null, name: string) => void;
@@ -67,7 +74,7 @@ export function ModelMusclePanel({ data, mode, windowLabel, regionLine, onViewCo
 
     <div className="sg-anatomy3d-lead">
       <p className="sg-anatomy3d-lead-number"><b>{direct ? direct.bouts : unknown}</b><span>direct dynamic bout{direct?.bouts === 1 ? "" : "s"}{direct && direct.reps > 0 ? ` · ${direct.reps} reps` : ""}</span></p>
-      <p className="sg-anatomy3d-small">{planned ? "Planned" : "Completed"} · {windowLabel} · both arms</p>
+      <p className="sg-anatomy3d-small">{[planned ? "Planned" : "Completed", windowLabel, bothSides].filter(Boolean).join(" · ")}</p>
       {data.targetSets && <>
         <TargetLine target={data.targetSets} />
         <span className="sg-anatomy3d-meter" role="img" aria-label={`${Math.round(Math.min(data.targetSets.fraction, 9.99) * 100)}% of your target`}><i style={{ width: `${Math.min(100, data.targetSets.fraction * 100)}%` }} /></span>
@@ -110,9 +117,9 @@ export function ModelMusclePanel({ data, mode, windowLabel, regionLine, onViewCo
       {data.visibleShapeContribution.caveats.length > 0 && <ul className="spz-caveats">{data.visibleShapeContribution.caveats.map((caveat) => <li key={caveat}>{caveat}</li>)}</ul>}
     </details>
     <details className="spz-disclosure">
-      <summary><span><b>What these numbers mean</b><small>One bout per set, per muscle, per arm</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+      <summary><span><b>What these numbers mean</b><small>One bout per set, per muscle</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
       <div className="sg-anatomy3d-credits">
-        <p>A direct dynamic bout is a set in which this muscle is a main mover; a drop set counts once. Supporting work, deliberate holds and incidental grip are counted apart and never added to it. Both arms count together: a set counts once, whichever arm or arms did it.</p>
+        <p>A direct dynamic bout is a set in which this muscle is a main mover; a drop set counts once. Supporting work, deliberate holds and incidental grip are counted apart and never added to it. {countedTogether}</p>
         <p>The numbers are the same ones the list and the muscle's sheet show, from your {planned ? "plan as written" : "logged workouts"}.</p>
         <button type="button" className="spz-link" onClick={onOpenMethod}>How this is counted <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
       </div>

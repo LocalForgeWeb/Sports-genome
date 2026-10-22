@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
 import { recommendFor, type RecommendationRequest } from "@/lib/specialization/recommendations";
 import { catalogMusclesLookup } from "@/lib/specialization/useSpecializationSummary";
-import { getSpecializationSummary } from "@shared/specialization/exposure";
-import { forearmActionIds as a, forearmMuscleIds as m, externalContributorIds as ext } from "@shared/specialization/ids";
+import { creditedMappingsFor, getSpecializationSummary } from "@shared/specialization/exposure";
+import { fx, fxBack, fxBackBeforeShoulder } from "@/lib/specialization/__fixtures__/multiRegion";
+import { forearmActionIds as a, forearmMuscleIds as m, externalContributorIds as ext } from "@shared/specialization/regions/forearm/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { calendarWeekInterval, localDateKey, planWeekInterval } from "@shared/specialization/time";
 import type { ArmSide, ExposureBout, SpecializationGoal, SpecializationSummary } from "@shared/specialization/types";
@@ -21,14 +22,16 @@ const NOW = "2026-10-16T12:00:00.000Z";
 const ZONE = "Europe/London";
 const names = new Map(exercises.map((exercise) => [exercise.id, exercise.name] as const));
 let sequence = 0;
-const bout = (catalogExerciseId: number, side: ExposureBout["side"] = "bilateral", performedAt = "2026-10-14T18:00:00.000Z"): ExposureBout => {
+const bout = (catalogExerciseId: number, side: "left" | "right" | "bilateral" | "unknown" = "bilateral", performedAt = "2026-10-14T18:00:00.000Z"): ExposureBout => {
   const id = `t${++sequence}`;
-  return { id, mode: "completed", performedAt, sessionId: `s-${performedAt.slice(0, 10)}`, sessionLabel: "Week 1 · Day 01 · Pull", planWeek: null, dayKey: null, exerciseEntryId: `e${catalogExerciseId}`, catalogExerciseId, exerciseName: names.get(catalogExerciseId) ?? `#${catalogExerciseId}`, matchedBy: "id", side, sideSource: "recorded", straps: "no", warmup: false, effort: null, kind: "standard", segments: [{ id, reps: 12, loadKg: 20, holdSeconds: null }] };
+  // The arm as the set recorded it (lane 0b: a bout carries the raw side; "bilateral" is Both, "unknown" none).
+  const armSide: ExposureBout["armSide"] = side === "unknown" ? null : { side: side === "bilateral" ? "both" : side, source: "recorded" };
+  return { id, mode: "completed", performedAt, sessionId: `s-${performedAt.slice(0, 10)}`, sessionLabel: "Week 1 · Day 01 · Pull", planWeek: null, dayKey: null, exerciseEntryId: `e${catalogExerciseId}`, catalogExerciseId, exerciseName: names.get(catalogExerciseId) ?? `#${catalogExerciseId}`, matchedBy: "id", armSide, legSide: null, straps: "no", warmup: false, effort: null, kind: "standard", segments: [{ id, reps: 12, loadKg: 20, holdSeconds: null }] };
 };
 const summary = (bouts: ExposureBout[], side: ArmSide = "right", goals: SpecializationGoal[] = []): SpecializationSummary =>
   getSpecializationSummary({ region: forearmRegionData, bouts, interval: calendarWeekInterval(NOW, ZONE), side, mode: "completed", goals, catalogMusclesFor: catalogMusclesLookup(exercises), sourceRevision: "", planRevision: null, now: NOW });
 const plannedSummary = (bouts: ExposureBout[]): SpecializationSummary =>
-  getSpecializationSummary({ region: forearmRegionData, bouts: bouts.map((item) => ({ ...item, mode: "planned", performedAt: null, sessionId: null, planWeek: 1, dayKey: "0-Pull", sideSource: "structural" })), interval: planWeekInterval(1), side: "right", mode: "planned", goals: [], catalogMusclesFor: catalogMusclesLookup(exercises), sourceRevision: "", planRevision: null, now: NOW });
+  getSpecializationSummary({ region: forearmRegionData, bouts: bouts.map((item) => ({ ...item, mode: "planned", performedAt: null, sessionId: null, planWeek: 1, dayKey: "0-Pull" })), interval: planWeekInterval(1), side: "right", mode: "planned", goals: [], catalogMusclesFor: catalogMusclesLookup(exercises), sourceRevision: "", planRevision: null, now: NOW });
 
 function candidatesFor(nodeId: string, over: Partial<RecommendationRequest>) {
   const result = recommendFor({ region: forearmRegionData, target: { nodeId }, side: "right", summary: summary([]), plannedExercises: [], catalog: exercises, equipmentProfile: null, ...over });
@@ -134,11 +137,13 @@ describe("Already covered by, in words", () => {
   });
 
   it("reads the recommender's own entries that way", () => {
+    // A one-arm exercise: a two-handed one with no arm recorded counts on both arms (as the adapter always read it), so only a one-arm set lacks an arm.
+    const ONE_ARM_WRIST_CURL = 410;
     const result = candidatesFor(m.flexorCarpiUlnaris, {
-      summary: summary([bout(WRIST_CURL, "right"), bout(WRIST_CURL, "unknown")]),
-      plannedExercises: [{ catalogExerciseId: WRIST_CURL, name: "Wrist Curl", days: [{ key: "0-Pull", label: "Day 01 · Pull" }] }],
+      summary: summary([bout(ONE_ARM_WRIST_CURL, "right"), bout(ONE_ARM_WRIST_CURL, "unknown")]),
+      plannedExercises: [{ catalogExerciseId: ONE_ARM_WRIST_CURL, name: "One-Arm Dumbbell Wrist Curl", days: [{ key: "0-Pull", label: "Day 01 · Pull" }] }],
     });
-    expect(result.alreadyCoveredBy.map(coveredWords)).toEqual(["Wrist Curl: planned on Day 01 · Pull; 2 sets logged in this window, 1 with no arm recorded"]);
+    expect(result.alreadyCoveredBy.map(coveredWords)).toEqual(["One-Arm Dumbbell Wrist Curl: planned on Day 01 · Pull; 2 sets logged in this window, 1 with no arm recorded"]);
   });
 });
 
@@ -146,7 +151,8 @@ describe("a bar of bouts per day opens the bouts it counts", () => {
   it("lists, for each local day, exactly the distinct bouts on this arm the bar counts", () => {
     const tuesday = "2026-10-13T17:00:00.000Z";
     const thursday = "2026-10-15T07:30:00.000Z";
-    const result = summary([bout(WRIST_CURL, "right", tuesday), bout(132, "bilateral", tuesday), bout(140, "left", tuesday), bout(WRIST_CURL, "unknown", thursday), bout(132, "bilateral", thursday)]);
+    // The set with no arm recorded is a one-arm wrist curl (410): a two-handed one with no arm recorded counts on both arms.
+    const result = summary([bout(WRIST_CURL, "right", tuesday), bout(132, "bilateral", tuesday), bout(140, "left", tuesday), bout(410, "unknown", thursday), bout(132, "bilateral", thursday)]);
     const dayKeyOf = (iso: string) => localDateKey(iso, ZONE);
     const counts = boutsByDay(result, forearmRegionData, dayKeyOf);
     expect(Array.from(counts.entries()).sort()).toEqual([["2026-10-13", 2], ["2026-10-15", 1]]);
@@ -154,5 +160,26 @@ describe("a bar of bouts per day opens the bouts it counts", () => {
     // The left-arm set and the set with no arm recorded are in neither bar.
     expect(regionBoutRowsOnDay(result, "2026-10-13", dayKeyOf).map((row) => row.exerciseName).sort()).toEqual(["Hammer Curl", "Wrist Curl"]);
     expect(regionBoutRowsOnDay(result, "2026-10-14", dayKeyOf)).toEqual([]);
+  });
+});
+
+describe("an external muscle is judged by what credits it on the page (10-multi-region.md §4.2)", () => {
+  // The fixture back lists the shoulder's rear deltoid; its own row for it is contributing work, the shoulder's direct.
+  const extension = fxBack.actions.find((action) => action.id.endsWith(".extension") && action.id.startsWith("shoulder"))!.id;
+  const nothingSuggested = { candidates: [], missingActions: [extension], excludedCount: 0, skippedAtTarget: 0 };
+
+  it("reads the home's mappings once the home has a version, and the page's own rows for it until then", () => {
+    expect(new Set(creditedMappingsFor(fxBack, fx.rearDelt).map((mapping) => mapping.versionKey))).toEqual(new Set(["fx_shoulder_mappings_v1"]));
+    expect(creditedMappingsFor(fxBack, fx.rearDelt).map((mapping) => mapping.relationship)).toEqual(["direct"]);
+    expect(new Set(creditedMappingsFor(fxBackBeforeShoulder, fx.rearDelt).map((mapping) => mapping.versionKey))).toEqual(new Set(["fx_back_mappings_v1"]));
+    // The page's own muscles are credited by its own version either way.
+    expect(new Set(creditedMappingsFor(fxBack, fx.lat).map((mapping) => mapping.versionKey))).toEqual(new Set(["fx_back_mappings_v1"]));
+  });
+
+  it("says why a movement of it has no suggestion from the home's direct exercises, not the page's fallback rows", () => {
+    // Credited by the shoulder: the one-arm row trains the movement directly, so nothing suggested means it answers a met target.
+    expect(missingActionNote({ data: fxBack, nodeId: fx.rearDelt, result: nothingSuggested, mode: "completed" })).toMatch(/the exercises that train it directly answer a target you have already met, so none is suggested\.$/);
+    // Before the shoulder publishes, the back's own row only helps: no reviewed exercise trains it directly.
+    expect(missingActionNote({ data: fxBackBeforeShoulder, nodeId: fx.rearDelt, result: nothingSuggested, mode: "completed" })).toMatch(/no reviewed exercise trains it directly yet\.$/);
   });
 });

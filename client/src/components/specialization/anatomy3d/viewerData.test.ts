@@ -6,7 +6,7 @@ import { exercises } from "@/lib/exerciseCatalog";
 import { exercise, finished, workSet } from "@/lib/specialization/__fixtures__/syntheticForearm";
 import { clearSummaryCache, useSpecializationSummary, type SpecializationPlanInput } from "@/lib/specialization/useSpecializationSummary";
 import { buildDaySlots, emptyDayStore, type WeeklyDayStore } from "@/lib/trainingDayPlan";
-import { forearmAdjacentIds, forearmMuscleIds as m } from "@shared/specialization/ids";
+import { forearmAdjacentIds, forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { regionDataFor } from "@shared/specialization/registry";
 import { calendarWeekInterval, planWeekInterval, rolling7dInterval } from "@shared/specialization/time";
 import type { ArmSide, SpecializationGoal, SpecializationSummary, SummaryInterval, SummaryMode } from "@shared/specialization/types";

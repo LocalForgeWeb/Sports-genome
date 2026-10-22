@@ -1,5 +1,6 @@
 import type { Exercise } from "./exerciseCatalog";
-import { isCompletedSet, isDraftSet, isDropInProgress, settleDropSet, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession, type SetSide } from "./deviceWorkoutLog";
+import { isCompletedSet, isDraftSet, isDropInProgress, settleDropSet, sideFieldOf, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession, type SetSide } from "./deviceWorkoutLog";
+import type { Limb } from "@shared/specialization/types";
 import { renderableSetCount } from "./setPrescription";
 import { setEntryFieldsFor, type SetDoseMeasure } from "./setEntryFields";
 import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
@@ -17,11 +18,13 @@ import { loadConventionFor, type LoadConvention } from "@shared/loadConventions"
  *   typed seconds carry only to another hold, and reps only to an exercise logged in reps.
  * - A drop set under way: its added stages stay with the original as the set they were.
  * - Every set done: nothing is left to hand on, so the choice is to add the new exercise.
- * - Sets laid out per arm (`perArm`, for an athlete tracking per-arm totals): a planned set of a
- *   one-arm exercise is two rows, Right then Left. A swap counts in planned sets, so the plan's
- *   work stays the same whichever exercise does it (`swapSets`): two one-arm rows left become one
- *   set of a two-handed exercise, a two-handed set left becomes a Right and a Left row of a
- *   one-arm exercise, and one-arm rows passed to another one-arm exercise keep their arms.
+ * - Sets laid out per side (`perArm`, for an athlete tracking per-side totals): a planned set of
+ *   an exercise done one arm, or one leg, at a time is two rows, Right then Left, each with its
+ *   side on that limb (the arm's in `side`, the leg's in `legSide`). A swap counts in planned
+ *   sets, so the plan's work stays the same whichever exercise does it (`swapSets`): two one-side
+ *   rows left become one set of a two-sided exercise, a two-sided set left becomes a Right and a
+ *   Left row of a one-side exercise, and one-side rows passed to another one-side exercise keep
+ *   their sides, moved to the new exercise's limb when it is split on the other one.
  *
  * Load never crosses exercises - 40 lb on a sissy squat says nothing about a barbell squat - and
  * the rest timer is not touched. The new exercise's "last logged" comes from its own history,
@@ -78,11 +81,17 @@ export type SwapOptions = {
    */
   measureOf?: (target: SwapTarget) => SetDoseMeasure;
   /**
-   * Lay the new exercise's sets out per arm, two rows per planned set (the tracker passes it for a
-   * one-arm exercise when the athlete tracks per-arm totals, as it builds a planned one). Off by
-   * default: every set is one row, as before.
+   * Lay the new exercise's sets out per side, two rows per planned set (the tracker passes it for
+   * a one-side exercise when the athlete tracks per-side totals, as it builds a planned one). Off
+   * by default: every set is one row, as before.
    */
   perArm?: boolean;
+  /**
+   * The limb an exercise's rows laid out per side are split on (the atlas's logging policy, which
+   * the tracker passes): each row's side is stored on that limb. Null, or not said, is the arm,
+   * except for the original's rows, which say their own limb where they can (`rowsLimbOf`).
+   */
+  sideLimbOf?: (target: SwapTarget) => Limb | null;
   /** The new exercise's planned prescription, as its own measure reads it; the original's text when not given. */
   prescription?: string;
 };
@@ -103,11 +112,37 @@ const emptySet = (): DeviceSetLog => ({ weight: "", reps: "", completed: false }
 const newSetWith = (newSetId: (() => string) | undefined) => (): DeviceSetLog => (newSetId ? { id: newSetId(), ...emptySet() } : emptySet());
 
 /**
- * Planned sets as rows per arm: Right then Left for each, as the tracker lays out a planned
- * one-arm exercise for an athlete tracking per-arm totals (DeviceWorkoutTracker `perArmSets`).
+ * Planned sets as rows per side: Right then Left for each, as the tracker laid out a planned
+ * one-side exercise for an athlete tracking per-side totals before both sides were counted as one
+ * (owner, 20 Oct 2026). The tracker builds no such rows now; main keeps this, and the swap's
+ * `perArm` option, for the rows a workout left open from before then still holds.
  */
 export function perArmRowSides(plannedSets: number): SetSide[] {
   return Array.from({ length: Math.max(0, plannedSets) * 2 }, (_, row) => (row % 2 === 0 ? "right" : "left"));
+}
+
+/** A row's recorded sides: the arm's, the leg's, or neither. */
+export type RowSides = Pick<DeviceSetLog, "side" | "legSide">;
+
+/** A side on a limb, as a row stores it. */
+export const rowSidesOn = (side: SetSide, limb: Limb): RowSides => (limb === "leg" ? { legSide: side } : { side });
+
+/** The sides a row already holds, the arm's and the leg's, copied together. */
+const sidesOf = (set: DeviceSetLog): RowSides => ({ ...(set.side ? { side: set.side } : {}), ...(set.legSide ? { legSide: set.legSide } : {}) });
+
+/**
+ * The limb an exercise's rows laid out per side were built on, read from the rows: each was built
+ * with its side on that limb, and a row may also hold the other limb's side, picked on the card,
+ * so it is the limb more of the rows hold a side on. Null for rows not laid out per side, or as
+ * many on each. The rows answer before the logging policy does: a workout left open across a
+ * release can hold rows built per leg on an exercise this release does not know, or sides on
+ * another limb than this release asks about, and their sides must stay on the leg.
+ */
+export function rowsLimbOf(exercise: Pick<DeviceWorkoutExercise, "perArm" | "sets">): Limb | null {
+  if (!exercise.perArm) return null;
+  const arm = exercise.sets.filter((set) => set.side).length;
+  const leg = exercise.sets.filter((set) => set.legSide).length;
+  return leg > arm ? "leg" : arm > leg ? "arm" : null;
 }
 
 /** The original's sets that stay with it, the ones that move on, and a typed set to reuse. */
@@ -128,20 +163,28 @@ function partitionSets(original: DeviceWorkoutExercise, draft: DraftChoice, part
 }
 
 /**
- * The arm of each row the new exercise gets for the rows that move on, counted in planned sets:
- * - one-arm rows to a one-arm exercise laid out per arm: the same rows, each with its arm;
- * - one-arm rows to anything else: one set for each two rows (an odd one left rounds up);
- * - sets of anything else to a one-arm exercise laid out per arm: a Right and a Left row each;
+ * The sides of each row the new exercise gets for the rows that move on, counted in planned sets:
+ * - one-side rows to a one-side exercise laid out per side: the same rows, each with its side
+ *   (the arm's and the leg's copied together; to an exercise split on the other limb, the side
+ *   moves to that limb);
+ * - one-side rows to anything else: one set for each two rows (an odd one left rounds up);
+ * - sets of anything else to a one-side exercise laid out per side: a Right and a Left row each;
  * - otherwise one set for each, as before.
  * A swap always leaves something to do: with no row moving, the new exercise gets one planned set.
  */
-function movedRowSides(original: DeviceWorkoutExercise, moved: readonly DeviceSetLog[], toPerArm: boolean): (SetSide | undefined)[] {
+function movedRowSides(original: DeviceWorkoutExercise, moved: readonly DeviceSetLog[], toPerArm: boolean, fromLimb: Limb = "arm", toLimb: Limb = "arm"): RowSides[] {
   const fromPerArm = Boolean(original.perArm);
-  if (!moved.length) return toPerArm ? perArmRowSides(1) : [undefined];
-  if (fromPerArm && toPerArm) return moved.map((set) => set.side);
-  if (fromPerArm) return Array.from({ length: Math.ceil(moved.length / 2) }, () => undefined);
-  if (toPerArm) return perArmRowSides(moved.length);
-  return moved.map(() => undefined);
+  if (!moved.length) return toPerArm ? perArmRowSides(1).map((side) => rowSidesOn(side, toLimb)) : [{}];
+  if (fromPerArm && toPerArm) {
+    return moved.map((set) => {
+      if (fromLimb === toLimb) return sidesOf(set);
+      const side = set[sideFieldOf(fromLimb)];
+      return side ? rowSidesOn(side, toLimb) : {};
+    });
+  }
+  if (fromPerArm) return Array.from({ length: Math.ceil(moved.length / 2) }, () => ({}));
+  if (toPerArm) return perArmRowSides(moved.length).map((side) => rowSidesOn(side, toLimb));
+  return moved.map(() => ({}));
 }
 
 /** What a swap gives the new exercise, for the sheet to say before the confirm: the very count `applySwap` makes. */
@@ -150,9 +193,9 @@ export type SwapSets = {
   moving: number;
   /** Rows the new exercise gets. */
   sets: number;
-  /** The planned sets those rows are: half of them when laid out per arm. */
+  /** The planned sets those rows are: half of them when laid out per side. */
   plannedSets: number;
-  /** The new exercise's rows are laid out per arm. */
+  /** The new exercise's rows are laid out per side. */
   perArm: boolean;
 };
 
@@ -163,7 +206,7 @@ export function swapSets(original: DeviceWorkoutExercise, options: { draft?: Dra
   return { moving: moved.length, sets: sides.length, plannedSets: perArm ? Math.ceil(sides.length / 2) : sides.length, perArm };
 }
 
-/** What an add gives the new exercise: one row per planned set of the prescription, two when laid out per arm. */
+/** What an add gives the new exercise: one row per planned set of the prescription, two when laid out per side. */
 export function addSets(prescription: string, perArm = false): { sets: number; plannedSets: number; perArm: boolean } {
   const plannedSets = renderableSetCount(prescription);
   return { sets: perArm ? plannedSets * 2 : plannedSets, plannedSets, perArm };
@@ -201,7 +244,9 @@ export function applySwap(session: DeviceWorkoutSession, exerciseId: string, tar
   const completedOnOriginal = kept.filter(isCompletedSet).length;
   // Every slot not kept by the original moves on, counted in planned sets (`movedRowSides`).
   const newSet = newSetWith(options.newSetId);
-  const sets = movedRowSides(original, moved, Boolean(options.perArm)).map((side) => (side ? { ...newSet(), side } : newSet()));
+  const sideLimbOf = options.sideLimbOf ?? (() => null);
+  const fromLimb = rowsLimbOf(original) ?? sideLimbOf(from) ?? "arm";
+  const sets = movedRowSides(original, moved, Boolean(options.perArm), fromLimb, sideLimbOf(target) ?? "arm").map((sides) => ({ ...newSet(), ...sides }));
   if (reused) sets[0] = { ...sets[0], reps: reused.reps, ...(reused.holdSeconds ? { holdSeconds: reused.holdSeconds } : {}), ...(reused.height ? { height: reused.height } : {}) };
   const replacement: DeviceWorkoutExercise = {
     id: options.newExerciseId,
@@ -226,10 +271,11 @@ export function applySwap(session: DeviceWorkoutSession, exerciseId: string, tar
 /**
  * Adds an exercise straight after another - Add exercise, or the "nothing left to swap" case -
  * with that exercise's prescription as its starting point: one row per planned set, or a Right
- * and a Left row per planned set when `perArm` lays a one-arm exercise out per arm, exactly as a
- * planned one is built. An anchor laid out per arm passes on its planned sets, not its rows.
+ * and a Left row per planned set when `perArm` lays a one-side exercise out per side (each row's
+ * side on `sideLimb`, the arm when not said), exactly as a planned one is built. An anchor laid
+ * out per side passes on its planned sets, not its rows.
  */
-export function addAfter(session: DeviceWorkoutSession, exerciseId: string, target: SwapTarget, options: { newExerciseId: string; at: string; newSetId?: () => string; perArm?: boolean; prescription?: string }): DeviceWorkoutSession {
+export function addAfter(session: DeviceWorkoutSession, exerciseId: string, target: SwapTarget, options: { newExerciseId: string; at: string; newSetId?: () => string; perArm?: boolean; sideLimb?: Limb; prescription?: string }): DeviceWorkoutSession {
   if (session.exercises.some((exercise) => exercise.id === options.newExerciseId)) return session;
   const index = session.exercises.findIndex((exercise) => exercise.id === exerciseId);
   if (index < 0) return session;
@@ -243,7 +289,7 @@ export function addAfter(session: DeviceWorkoutSession, exerciseId: string, targ
     ...(target.id !== undefined ? { catalogId: target.id } : {}),
     plannedPrescription,
     ...(options.perArm ? { perArm: true } : {}),
-    sets: options.perArm ? perArmRowSides(plannedSets).map((side) => ({ ...newSet(), side })) : Array.from({ length: plannedSets }, newSet),
+    sets: options.perArm ? perArmRowSides(plannedSets).map((side) => ({ ...newSet(), ...rowSidesOn(side, options.sideLimb ?? "arm") })) : Array.from({ length: plannedSets }, newSet),
     addedDuringWorkout: { at: options.at, afterExerciseName: anchor.exerciseName },
   };
   const exercises = [...session.exercises];

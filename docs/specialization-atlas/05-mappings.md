@@ -2,9 +2,10 @@
 
 Which catalog exercises the forearm atlas maps, how each is done, and which forearm muscles it works and in what way. The brief is `brief-2026-10-16.md` (§4 exercise coverage, §5 counting, §11 release gates); the binding design is `02-design.md`. The data:
 
-- `shared/specialization/regions/forearm/variants.ts`: one default variant per mapped catalog exercise, plus the two lists of exercises deliberately left unmapped.
+- `shared/specialization/variants/forearm.ts`: one default variant per mapped catalog exercise, in the shared variant library since wave 0 (`regions/forearm/variants.ts` selects the ones the forearm's version maps).
+- `shared/specialization/regions/forearm/unmapped.ts`: the exercises deliberately left unmapped, each with its reason.
 - `shared/specialization/regions/forearm/mappings.ts`: the mappings and the published mapping version `forearm_mappings_v1`.
-- `shared/specialization/regions/forearm/mappingSources.ts`: sources M1-M8 added for the mappings.
+- `shared/specialization/sources/forearmMappings.ts`: sources M1-M8 added for the mappings, in the shared source library since wave 0.
 - `client/src/lib/exerciseCatalogForearm.ts`: the 16 new catalog rows (ids 401-416).
 - `client/src/lib/specialization/forearmMappings.test.ts`: the rules below, as tests.
 

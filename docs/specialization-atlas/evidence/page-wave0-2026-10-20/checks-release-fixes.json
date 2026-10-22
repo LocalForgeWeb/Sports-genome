@@ -1,0 +1,283 @@
+{
+ "note": "Headless Chromium emulating an iPhone (viewport, isMobile, hasTouch, deviceScaleFactor 3, en-US, UTC); not an iPhone, not Safari. Production build. Device stores seeded (this week: Hammer Curl x3 and One-Arm Dumbbell Wrist Curl three times on the right, once on the left and once with no arm on Monday; Wrist Curl x3 on Tuesday; targets: FCR right 8, and saved earlier, biceps right 5 and anconeus right 3; a 4-day Upper/Lower plan). Run on 2026-10-20, UTC. Coordinates are CSS px.",
+ "scenes": [
+  {
+   "scene": "coverage-to-review",
+   "viewport": "390x844",
+   "findings": [
+    {
+     "title": "Flexor carpi radialis: 6 of your 8",
+     "detail": "Direct dynamic bouts, right arm, this calendar week. The target is yours, not a prescription.",
+     "action": "See exercises for it",
+     "actionBox": [
+      150.3,
+      44
+     ]
+    },
+    {
+     "title": "1 set with no arm recorded",
+     "detail": "They are kept apart and counted for neither arm. One-arm work logged from now on asks which arm.",
+     "action": "See these sets",
+     "actionBox": [
+      121,
+      44
+     ]
+    },
+    {
+     "title": "Flexor carpi radialis: 6 direct bouts on the right arm, 4 on the left",
+     "detail": "1 more muscle differ by two or more bouts. Two-handed sets count for both arms; only one-arm sets make the arms differ.",
+     "action": "Inspect coverage",
+     "actionBox": [
+      139.2,
+      44
+     ]
+    },
+    {
+     "title": "Biceps brachii: a target saved earlier",
+     "detail": "Targets are for this region's target muscles. You can end or remove this one.",
+     "action": "End or remove it",
+     "actionBox": [
+      132.3,
+      44
+     ]
+    },
+    {
+     "title": "Anconeus: a target saved earlier",
+     "detail": "Targets are for this region's target muscles. You can end or remove this one.",
+     "action": "End or remove it",
+     "actionBox": [
+      132.3,
+      44
+     ]
+    }
+   ],
+   "readOnlyLast": [
+    "Biceps brachii: a target saved earlier",
+    "Anconeus: a target saved earlier"
+   ],
+   "seeExercisesFor": [
+    "Flexor carpi radialis: 6 of your 8"
+   ],
+   "anconeusActionOpens": {
+    "sheet": "Anconeus",
+    "readOnlyNote": true,
+    "nothingCounted": true,
+    "zeroOfTarget": false
+   },
+   "horizontalOverflowPx": 0,
+   "file": "release-findings-390.png"
+  },
+  {
+   "scene": "coverage-to-review",
+   "viewport": "375x667",
+   "findings": [
+    {
+     "title": "Flexor carpi radialis: 6 of your 8",
+     "detail": "Direct dynamic bouts, right arm, this calendar week. The target is yours, not a prescription.",
+     "action": "See exercises for it",
+     "actionBox": [
+      150.3,
+      44
+     ]
+    },
+    {
+     "title": "1 set with no arm recorded",
+     "detail": "They are kept apart and counted for neither arm. One-arm work logged from now on asks which arm.",
+     "action": "See these sets",
+     "actionBox": [
+      121,
+      44
+     ]
+    },
+    {
+     "title": "Flexor carpi radialis: 6 direct bouts on the right arm, 4 on the left",
+     "detail": "1 more muscle differ by two or more bouts. Two-handed sets count for both arms; only one-arm sets make the arms differ.",
+     "action": "Inspect coverage",
+     "actionBox": [
+      139.2,
+      44
+     ]
+    },
+    {
+     "title": "Biceps brachii: a target saved earlier",
+     "detail": "Targets are for this region's target muscles. You can end or remove this one.",
+     "action": "End or remove it",
+     "actionBox": [
+      132.3,
+      44
+     ]
+    },
+    {
+     "title": "Anconeus: a target saved earlier",
+     "detail": "Targets are for this region's target muscles. You can end or remove this one.",
+     "action": "End or remove it",
+     "actionBox": [
+      132.3,
+      44
+     ]
+    }
+   ],
+   "readOnlyLast": [
+    "Biceps brachii: a target saved earlier",
+    "Anconeus: a target saved earlier"
+   ],
+   "seeExercisesFor": [
+    "Flexor carpi radialis: 6 of your 8"
+   ],
+   "anconeusActionOpens": {
+    "sheet": "Anconeus",
+    "readOnlyNote": true,
+    "nothingCounted": true,
+    "zeroOfTarget": false
+   },
+   "horizontalOverflowPx": 0,
+   "file": "release-findings-375.png"
+  },
+  {
+   "scene": "anconeus-strip",
+   "viewport": "390x844",
+   "line": "No exercise is mapped to this muscle yet, so nothing can be counted for it.",
+   "goal": "Direct bouts: cannot be counted yet",
+   "bottom": 581,
+   "dockTop": 774,
+   "stripWhole": true,
+   "horizontalOverflowPx": 0,
+   "file": "release-anconeus-strip-390.png"
+  },
+  {
+   "scene": "anconeus-strip",
+   "viewport": "375x667",
+   "line": "No exercise is mapped to this muscle yet, so nothing can be counted for it.",
+   "goal": "Direct bouts: cannot be counted yet",
+   "bottom": 566,
+   "dockTop": 597,
+   "stripWhole": true,
+   "horizontalOverflowPx": 0,
+   "file": "release-anconeus-strip-375.png"
+  },
+  {
+   "scene": "progress-date-time",
+   "viewport": "320x568",
+   "fields": [
+    {
+     "type": "date",
+     "left": 33,
+     "right": 287,
+     "top": 84,
+     "width": 254,
+     "height": 44,
+     "fontSize": "16px",
+     "value": "2026-08-08"
+    },
+    {
+     "type": "time",
+     "left": 33,
+     "right": 287,
+     "top": 162,
+     "width": 254,
+     "height": 44,
+     "fontSize": "16px",
+     "value": "19:46"
+    }
+   ],
+   "sameRow": false,
+   "gapPx": null,
+   "overlap": false,
+   "horizontalOverflowPx": 0,
+   "file": "release-progress-when-320.png"
+  },
+  {
+   "scene": "progress-date-time",
+   "viewport": "375x667",
+   "fields": [
+    {
+     "type": "date",
+     "left": 33.9,
+     "right": 181.9,
+     "top": 84,
+     "width": 148,
+     "height": 44,
+     "fontSize": "16px",
+     "value": "2026-08-08"
+    },
+    {
+     "type": "time",
+     "left": 193.1,
+     "right": 341.1,
+     "top": 84,
+     "width": 148,
+     "height": 44,
+     "fontSize": "16px",
+     "value": "19:46"
+    }
+   ],
+   "sameRow": true,
+   "gapPx": 11.2,
+   "overlap": false,
+   "horizontalOverflowPx": 0,
+   "file": "release-progress-when-375.png"
+  },
+  {
+   "scene": "progress-date-time",
+   "viewport": "390x844",
+   "fields": [
+    {
+     "type": "date",
+     "left": 34.5,
+     "right": 189.4,
+     "top": 83,
+     "width": 154.9,
+     "height": 44,
+     "fontSize": "16px",
+     "value": "2026-08-08"
+    },
+    {
+     "type": "time",
+     "left": 200.6,
+     "right": 355.5,
+     "top": 83,
+     "width": 154.9,
+     "height": 44,
+     "fontSize": "16px",
+     "value": "19:46"
+    }
+   ],
+   "sameRow": true,
+   "gapPx": 11.2,
+   "overlap": false,
+   "horizontalOverflowPx": 0,
+   "file": "release-progress-when-390.png"
+  },
+  {
+   "scene": "progress-date-time",
+   "viewport": "430x932",
+   "fields": [
+    {
+     "type": "date",
+     "left": 36.3,
+     "right": 209.4,
+     "top": 83,
+     "width": 173.1,
+     "height": 44,
+     "fontSize": "16px",
+     "value": "2026-08-08"
+    },
+    {
+     "type": "time",
+     "left": 220.6,
+     "right": 393.7,
+     "top": 83,
+     "width": 173.1,
+     "height": 44,
+     "fontSize": "16px",
+     "value": "19:47"
+    }
+   ],
+   "sameRow": true,
+   "gapPx": 11.2,
+   "overlap": false,
+   "horizontalOverflowPx": 0,
+   "file": "release-progress-when-430.png"
+  }
+ ]
+}

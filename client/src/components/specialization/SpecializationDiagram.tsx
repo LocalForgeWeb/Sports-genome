@@ -1,7 +1,7 @@
 import { useId, useMemo, useState, type KeyboardEvent } from "react";
 import type { DiagramAsset, DiagramLabel, DiagramLayerId, DiagramPath, DiagramViewId } from "@shared/specialization/types";
 import type { DiagramFill } from "./model";
-import { drawnNodes, placementsOf, type DrawnNode, type Point } from "./diagramGeometry";
+import { drawableNodeIds, drawnNodes, placementsOf, type DiagramNode, type DrawnNode, type Point } from "./diagramGeometry";
 import "./specialization-diagram.css";
 
 /**
@@ -12,8 +12,13 @@ export type SpecializationDiagramProps = {
   asset: DiagramAsset;
   view: DiagramViewId;
   layer: DiagramLayerId;
-  /** The left arm: the drawing flips, its text does not. */
+  /** The left side of a drawing of one side: the drawing flips, its text does not. */
   mirrored: boolean;
+  /**
+   * The region's members. When given, a path of a member that is not drawable (a group, a
+   * compartment, or any node's parent: `drawableNodeIds`) is neither drawn nor chosen.
+   */
+  nodes?: readonly DiagramNode[];
   fillFor: (nodeId: string) => DiagramFill;
   selectedNodeId: string | null;
   onSelect: (nodeId: string) => void;
@@ -87,10 +92,10 @@ function focusVisible(element: Element): boolean {
   }
 }
 
-/** Text width estimate for the label pill (no DOM measuring, so tests and phones agree). */
-const textWidth = (text: string, size: number) => text.length * size * 0.6;
+/** Text width estimate for the label pill and the anatomy labels (no DOM measuring, so tests and phones agree). */
+export const textWidth = (text: string, size: number) => text.length * size * 0.6;
 
-export function SpecializationDiagram({ asset, view, layer, mirrored, fillFor, selectedNodeId, onSelect, labelFor, describeFor, caption }: SpecializationDiagramProps) {
+export function SpecializationDiagram({ asset, view, layer, mirrored, nodes: members, fillFor, selectedNodeId, onSelect, labelFor, describeFor, caption }: SpecializationDiagramProps) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const hatchId = `${uid}-hatch`;
   const noteId = `${uid}-note`;
@@ -101,7 +106,19 @@ export function SpecializationDiagram({ asset, view, layer, mirrored, fillFor, s
   const [rovingNodeId, setRovingNodeId] = useState<string | null>(null);
   const { width, height } = asset.viewBox;
   const drawn = asset.views[view]?.[layer] ?? null;
-  const paths = drawn?.paths ?? [];
+  // Members that are never drawn (10-multi-region.md §7.3). The contract test keeps them out of
+  // every asset; this keeps the renderer to the rule for any asset it is handed.
+  const hidden = useMemo(() => {
+    if (!members) return null;
+    const drawable = drawableNodeIds(members);
+    const out = new Set(members.filter((node) => !drawable.has(node.id)).map((node) => node.id));
+    return out.size ? out : null;
+  }, [members]);
+  const paths = useMemo(() => {
+    const all = drawn?.paths ?? [];
+    // The same array when nothing is left out, so the layer's placements stay cached with it.
+    return hidden && all.some((path) => path.nodeId && hidden.has(path.nodeId)) ? all.filter((path) => !path.nodeId || !hidden.has(path.nodeId)) : all;
+  }, [drawn, hidden]);
 
   const nodes = useMemo(() => drawnNodes(paths, { square: HIT_SQUARE_SHARE * width, canvas: { width, height } }), [paths, width, height]);
   // Tap order: largest first, so the smaller muscle's target is painted, and hit, on top.
@@ -141,11 +158,11 @@ export function SpecializationDiagram({ asset, view, layer, mirrored, fillFor, s
     if (!selectedNodeId || selected) return null;
     const name = labelFor(selectedNodeId);
     const ghost = paths.some((path) => path.kind === "ghost" && path.nodeId === selectedNodeId);
-    const elsewhere = placementsOf(asset, selectedNodeId).map((place) => `${viewLabelOf(asset, place.view)} · ${LAYER_NAMES[place.layer]}`);
+    const elsewhere = hidden?.has(selectedNodeId) ? [] : placementsOf(asset, selectedNodeId).map((place) => `${viewLabelOf(asset, place.view)} · ${LAYER_NAMES[place.layer]}`);
     if (ghost) return `${name} lies above this layer; its outline is dashed here. It is drawn in ${elsewhere.join(", ")}.`;
     if (elsewhere.length) return `${name} is not drawn on this layer. It is drawn in ${elsewhere.join(", ")}.`;
     return `${name} is not part of this drawing.`;
-  }, [selectedNodeId, selected, paths, asset, labelFor]);
+  }, [selectedNodeId, selected, paths, asset, labelFor, hidden]);
 
   if (!drawn) {
     return <figure className="spz-diagram"><figcaption className="spz-diagram-caption">{caption ? `${caption}. ` : ""}This view is not drawn.</figcaption></figure>;

@@ -1,0 +1,82 @@
+[
+ {
+  "scene": "draft row + side words",
+  "viewport": "390x844",
+  "state": "FCU",
+  "words": "Left arm · Right arm",
+  "stripBottom": 555,
+  "dock": 774,
+  "drawingOnFirstScreenPx": 213,
+  "stripWhole": true
+ },
+ {
+  "scene": "draft row + side words",
+  "viewport": "390x844",
+  "state": "FCU",
+  "words": "Left shoulder · Right shoulder",
+  "stripBottom": 609,
+  "dock": 774,
+  "drawingOnFirstScreenPx": 159,
+  "stripWhole": true
+ },
+ {
+  "scene": "draft row + side words",
+  "viewport": "390x844",
+  "state": "FCU, target",
+  "words": "Left arm · Right arm",
+  "stripBottom": 580,
+  "dock": 774,
+  "drawingOnFirstScreenPx": 188,
+  "stripWhole": true
+ },
+ {
+  "scene": "draft row + side words",
+  "viewport": "390x844",
+  "state": "FCU, target",
+  "words": "Left shoulder · Right shoulder",
+  "stripBottom": 634,
+  "dock": 774,
+  "drawingOnFirstScreenPx": 134,
+  "stripWhole": true
+ },
+ {
+  "scene": "draft row + side words",
+  "viewport": "375x667",
+  "state": "FCU",
+  "words": "Left arm · Right arm",
+  "stripBottom": 541,
+  "dock": 597,
+  "drawingOnFirstScreenPx": 52,
+  "stripWhole": true
+ },
+ {
+  "scene": "draft row + side words",
+  "viewport": "375x667",
+  "state": "FCU",
+  "words": "Left shoulder · Right shoulder",
+  "stripBottom": 593,
+  "dock": 597,
+  "drawingOnFirstScreenPx": 0,
+  "stripWhole": true
+ },
+ {
+  "scene": "draft row + side words",
+  "viewport": "375x667",
+  "state": "FCU, target",
+  "words": "Left arm · Right arm",
+  "stripBottom": 566,
+  "dock": 597,
+  "drawingOnFirstScreenPx": 27,
+  "stripWhole": true
+ },
+ {
+  "scene": "draft row + side words",
+  "viewport": "375x667",
+  "state": "FCU, target",
+  "words": "Left shoulder · Right shoulder",
+  "stripBottom": 618,
+  "dock": 597,
+  "drawingOnFirstScreenPx": -25,
+  "stripWhole": false
+ }
+]

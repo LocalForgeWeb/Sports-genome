@@ -5,7 +5,7 @@ import { buildDaySlots, emptyDayStore, type WeeklyDayStore } from "@/lib/trainin
 import { applySwap } from "@/lib/workoutSwap";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { validateGoal } from "@shared/specialization/goals";
-import { externalContributorIds as ext, forearmGroupIds as g, forearmMuscleIds as m } from "@shared/specialization/ids";
+import { externalContributorIds as ext, forearmGroupIds as g, forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { calendarWeekInterval, customInterval, planWeekInterval, rolling7dInterval } from "@shared/specialization/time";
 import type { ArmSide, ExposureBout, SpecializationGoal, SpecializationSummary, SummaryInterval } from "@shared/specialization/types";
 import { boutsFromSessions, excludedRecordsFromSessions } from "./bouts";

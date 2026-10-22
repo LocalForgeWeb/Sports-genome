@@ -1,0 +1,121 @@
+version forearm_mappings_v1 published mappings 418 variants 119 external versions 
+status {"reviewed":413,"draft":5}
+41	Conventional Deadlift	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+42	Romanian Deadlift	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+43	Barbell Bent-Over Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+44	Pendlay Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+45	Underhand Barbell Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+46	Dumbbell Row	unilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+47	Chest-Supported Dumbbell Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+48	Seal Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+49	Meadows Row	unilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+50	T-Bar Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+51	Chest-Supported T-Bar Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+52	Machine High Row	either	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+53	Machine Low Row	either	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+54	Seated Cable Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+55	Wide-Grip Cable Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+56	Single-Arm Cable Row	unilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+57	Lat Pulldown	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+58	Wide-Grip Lat Pulldown	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+59	Neutral-Grip Lat Pulldown	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+60	Underhand Lat Pulldown	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+61	Single-Arm Lat Pulldown	unilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+62	Straight-Arm Cable Pulldown	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+66	Pull-Up	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+67	Chin-Up	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+68	Neutral-Grip Pull-Up	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+69	Wide-Grip Pull-Up	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+70	Weighted Pull-Up	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+71	Weighted Chin-Up	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+72	Commando Pull-Up	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+73	Archer Pull-Up	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+74	L-Sit Pull-Up	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+75	Inverted Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+76	Feet-Elevated Inverted Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+77	Ring Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+78	Towel Pull-Up	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+79	Scapular Pull-Up	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+80	Rope Climb	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+81	Barbell Shrug	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+82	Dumbbell Shrug	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+83	Trap-Bar Shrug	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+84	Cable Shrug	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+85	Machine Shrug	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+86	Incline Dumbbell Shrug	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+121	Barbell Curl	bilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+122	EZ-Bar Curl	bilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+123	Dumbbell Curl	bilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+124	Alternating Dumbbell Curl	bilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+125	Incline Dumbbell Curl	bilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+126	Preacher Curl	bilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+127	Machine Preacher Curl	either	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+128	Cable Curl	bilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+129	Bayesian Cable Curl	unilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+130	Spider Curl	bilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+131	Concentration Curl	unilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+132	Hammer Curl	bilateral	reps	hold=false	straps=not_applicable	br:DD UA.brachialis:DD UA.biceps:CD fds:INC fdp:INC
+133	Cross-Body Hammer Curl	bilateral	reps	hold=false	straps=not_applicable	br:DD UA.brachialis:DD UA.biceps:CD fds:INC fdp:INC
+134	Rope Hammer Curl	bilateral	reps	hold=false	straps=not_applicable	br:DD UA.brachialis:DD UA.biceps:CD fds:INC fdp:INC
+135	Reverse Curl	bilateral	reps	hold=false	straps=not_applicable	br:DD UA.brachialis:DD UA.biceps:CD ecrl:INC ecrb:INC ecu:INC fds:INC fdp:INC
+136	Zottman Curl	bilateral	reps	hold=false	straps=not_applicable	br:DD UA.biceps:DD UA.brachialis:DD ecrl:INC ecrb:INC ecu:INC fds:INC fdp:INC
+137	Drag Curl	bilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+138	Chin-Up Curl	bilateral	reps	hold=false	straps=unknown	UA.biceps:DD UA.brachialis:DD br:CD fds:INC* fdp:INC*
+139	Wrist Curl	bilateral	reps	hold=false	straps=not_applicable	fcr:DD fcu:DD pl:CD fds:INC fdp:INC
+140	Reverse Wrist Curl	bilateral	reps	hold=false	straps=not_applicable	ecrl:DD ecrb:DD ecu:DD ed:CD fds:INC fdp:INC
+141	Wrist Roller	bilateral	reps	hold=false	straps=not_applicable	fcr:CD fcu:CD ecrl:CD ecrb:CD ecu:CD fds:INC fdp:INC
+142	Plate Pinch	unilateral	seconds	hold=true	straps=not_applicable	fds:HOLD fdp:HOLD fpl:HOLD
+143	Dead Hang	bilateral	seconds	hold=true	straps=unknown	fds:HOLD* fdp:HOLD*
+144	Towel Dead Hang	bilateral	seconds	hold=true	straps=unknown	fds:HOLD* fdp:HOLD* fpl:HOLD(draft)
+145	Farmer Hold	bilateral	seconds	hold=true	straps=unknown	fds:HOLD* fdp:HOLD* fpl:HOLD(draft) ecrl:INC ecrb:INC ecu:INC
+186	Romanian Deadlift	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+187	Stiff-Leg Deadlift	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+188	Single-Leg Romanian Deadlift	either	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+189	Dumbbell Romanian Deadlift	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+202	Cable Pull-Through	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+203	Kettlebell Swing	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+204	Barbell Hip Hinge	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+205	B-Stance Romanian Deadlift	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+231	Hanging Leg Raise	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+232	Hanging Knee Raise	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+234	Toes-to-Bar	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+256	Landmine Row	unilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+257	Meadows Landmine Row	unilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+258	Landmine T-Bar Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+263	Landmine Romanian Deadlift	bilateral	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+264	Landmine Single-Leg Romanian Deadlift	either	reps	hold=false	straps=unknown	fds:INC* fdp:INC*
+299	Farmer’s Walk	bilateral	seconds	hold=true	straps=unknown	fds:HOLD* fdp:HOLD* fpl:HOLD(draft) ecrl:INC ecrb:INC ecu:INC
+300	Zercher Carry	bilateral	seconds	hold=true	straps=not_applicable	br:HOLD UA.biceps:HOLD UA.brachialis:HOLD
+317	Cable Upright Row	bilateral	reps	hold=false	straps=unknown	br:CD(draft) fds:INC* fdp:INC*
+327	Wide-Grip Cable Lat Pulldown	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+331	Low Cable Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+332	Rope Cable Row	bilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+336	Cable Biceps Curl	bilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+337	Rope Hammer Cable Curl	bilateral	reps	hold=false	straps=not_applicable	br:DD UA.brachialis:DD UA.biceps:CD fds:INC fdp:INC
+338	Incline Cable Curl	either	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+339	High Cable Curl	bilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+340	Cable Concentration Curl	unilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+341	Cable Spider Curl	bilateral	reps	hold=false	straps=not_applicable	UA.biceps:DD UA.brachialis:DD br:CD fds:INC fdp:INC
+342	Cross-Body Cable Curl	unilateral	reps	hold=false	straps=not_applicable	br:DD UA.brachialis:DD UA.biceps:CD fds:INC fdp:INC
+350	Cable Wrist Extension	either	reps	hold=false	straps=not_applicable	ecrl:DD ecrb:DD ecu:DD ed:CD fds:INC fdp:INC
+379	Cable Rotational Row	unilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+383	Chest-Supported Landmine Row	either	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+384	Offset Landmine Row	unilateral	reps	hold=false	straps=unknown	br:CD fds:INC* fdp:INC*
+399	Battle Rope Slams	bilateral	reps	hold=false	straps=not_applicable	fds:INC fdp:INC
+400	Battle Rope Alternating Waves	bilateral	seconds	hold=false	straps=not_applicable	fds:INC fdp:INC
+401	Finger Curl	bilateral	reps	hold=false	straps=not_applicable	fds:DD fdp:DD
+402	Gripper Close	unilateral	reps	hold=false	straps=not_applicable	fds:DD fdp:DD
+403	Gripper Hold	unilateral	seconds	hold=true	straps=not_applicable	fds:HOLD fdp:HOLD
+404	Band Finger Extension	unilateral	reps	hold=false	straps=not_applicable	ed:DD edm:CD ei:CD
+405	Lever Pronation	unilateral	reps	hold=false	straps=not_applicable	pt:DD pq:DD fds:INC fdp:INC
+406	Lever Supination	unilateral	reps	hold=false	straps=not_applicable	supinator:DD UA.biceps:CD fds:INC fdp:INC
+407	Lever Radial Deviation	unilateral	reps	hold=false	straps=not_applicable	fcr:DD ecrl:DD ecrb:DD fds:INC fdp:INC
+408	Lever Ulnar Deviation	unilateral	reps	hold=false	straps=not_applicable	fcu:DD ecu:DD fds:INC fdp:INC
+409	Suitcase Carry	unilateral	seconds	hold=true	straps=unknown	fds:HOLD* fdp:HOLD* fpl:HOLD(draft) ecrl:INC ecrb:INC ecu:INC
+410	One-Arm Dumbbell Wrist Curl	unilateral	reps	hold=false	straps=not_applicable	fcr:DD fcu:DD pl:CD fds:INC fdp:INC
+411	One-Arm Dumbbell Reverse Wrist Curl	unilateral	reps	hold=false	straps=not_applicable	ecrl:DD ecrb:DD ecu:DD ed:CD fds:INC fdp:INC
+412	Band Thumb Flexion	unilateral	reps	hold=false	straps=not_applicable	fpl:DD
+413	Band Thumb Extension	unilateral	reps	hold=false	straps=not_applicable	epl:DD epb:DD
+414	Band Thumb Abduction	unilateral	reps	hold=false	straps=not_applicable	apl:DD
+415	Wrist Roller, Extension Wind	bilateral	reps	hold=false	straps=not_applicable	fcr:CD fcu:CD ecrl:DD ecrb:DD ecu:DD fds:INC fdp:INC
+416	Wrist Roller, Flexion Wind	bilateral	reps	hold=false	straps=not_applicable	fcr:DD fcu:DD ecrl:CD ecrb:CD ecu:CD fds:INC fdp:INC

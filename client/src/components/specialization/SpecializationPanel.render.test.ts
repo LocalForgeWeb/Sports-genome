@@ -2,10 +2,11 @@
 import { readFileSync } from "node:fs";
 import React, { createElement, useState } from "react";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { SpecializationPanel, type SpecializationPanelProps } from "./SpecializationPanel";
 import { exercises } from "@/lib/exerciseCatalog";
 import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
+import { loadRegionData } from "@/lib/specialization/loadRegion";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { saveSpecializationGoals, specializationGoalsKeyBase } from "@/lib/specialization/stores";
 import type { SpecializationGoal } from "@shared/specialization/types";
@@ -55,6 +56,8 @@ function Harness(props: { initial?: Partial<SpecializationViewState>; onApply?: 
   });
 }
 
+// The region's data loads on its own (loadRegion.ts); loaded once, the page draws it at once, as on a return visit.
+beforeAll(async () => { await loadRegionData("forearm"); });
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date("2026-10-16T12:00:00.000Z"));
@@ -72,7 +75,7 @@ describe("the specialization page", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Forearm specialization" })).not.toBeNull();
     // Three two-handed hammer curls: three direct bouts, never six (both arms are counted as one).
     expect(row(/^Brachioradialis, Surface\. 3 direct dynamic bouts/)).not.toBeNull();
-    expect(screen.getByText(/3 distinct bouts touched the forearms\./)).not.toBeNull();
+    expect(within(screen.getByRole("group", { name: "Selected muscle" })).getByText(/3 distinct bouts touched the forearms\./)).not.toBeNull();
     expect(screen.queryByRole("group", { name: "Arm" })).toBeNull();
   });
 
