@@ -52,15 +52,15 @@ import type { AnatomyNode, Claim, ExerciseVariant, JointAction, RegionContent, R
 
 const here = dirname(fileURLToPath(import.meta.url));
 /**
- * Where the seed is written. The two migration files keep their names until the first
- * production apply, then take the versions Supabase records (04-database.md §9 lists every
- * place that names them; server/specializationSeed.test.ts fails on any reference to a file
- * that is not there). The seed's own text names neither file by version, so renaming it
- * after the apply does not change what production ran.
+ * Where the seed is written. Production records each file under its own version and name, so
+ * a file keeps its name (04-database.md §9 lists every place that names the files;
+ * server/specializationSeed.test.ts fails on any reference to a file that is not there). The
+ * seed's own text names no file by version.
  */
-// The seed this content is written to. Seed v1 (…_seed_v1.sql) was applied to production on 18 Oct 2026 and is
-// history: never written again (server/specializationHistory.test.ts pins it). Each release gets the next file.
-export const CURRENT_SEED_MIGRATION_PATH = resolve(here, "../../supabase/migrations/20261019120100_specialization_atlas_seed_v2.sql");
+// The seed this content is written to. Seed v1 (…_seed_v1.sql, applied to production on 18 Oct 2026) and seed v2
+// (…_seed_v2.sql, 22 Oct 2026) are history: never written again (server/specializationHistory.test.ts pins them).
+// Each release gets the next file.
+export const CURRENT_SEED_MIGRATION_PATH = resolve(here, "../../supabase/migrations/20261022120100_specialization_atlas_seed_v3.sql");
 
 /** public.exercises rows carry the app catalog's id under this repository name. */
 export const CATALOG_REPOSITORY = "LocalForgeWeb/Sports-genome";

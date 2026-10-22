@@ -30,14 +30,15 @@ import { btree_gist } from "@electric-sql/pglite/contrib/btree_gist";
 // Applied to production on 18 Oct 2026 and history from then: never edited (server/specializationHistory.test.ts pins them).
 export const SCHEMA_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261016120000_specialization_atlas_schema.sql");
 export const SEED_V1_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261016120100_specialization_atlas_seed_v1.sql");
-/** Schema v2 (10-multi-region.md §5.1): written for wave 0, not yet recorded by production. */
+// Applied to production on 22 Oct 2026 (wave 0, 10-multi-region.md §5) and history from then: never edited (server/specializationHistory.test.ts pins them).
 export const SCHEMA_V2_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261019120000_specialization_atlas_schema_v2.sql");
+export const SEED_V2_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261019120100_specialization_atlas_seed_v2.sql");
 /** The seed the emitter writes from the current content (scripts/specialization/emit-seed.ts), applied after every applied file. */
-export const SEED_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261019120100_specialization_atlas_seed_v2.sql");
+export const SEED_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261022120100_specialization_atlas_seed_v3.sql");
 /** Every specialization migration production has recorded, in the order it applied them (04-database.md §9). */
-export const APPLIED_MIGRATION_PATHS = [SCHEMA_MIGRATION_PATH, SEED_V1_MIGRATION_PATH] as const;
-/** Schema files written since, not yet recorded by production, in the order they will apply, before the current seed. */
-export const PENDING_MIGRATION_PATHS = [SCHEMA_V2_MIGRATION_PATH] as const;
+export const APPLIED_MIGRATION_PATHS = [SCHEMA_MIGRATION_PATH, SEED_V1_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH] as const;
+/** Schema files written since, not yet recorded by production, in the order they will apply, before the current seed. None since wave 0. */
+export const PENDING_MIGRATION_PATHS: readonly string[] = [];
 
 /**
  * Production's order, one named step per application (10-multi-region.md §5.2): every schema
@@ -49,6 +50,7 @@ export const MIGRATION_STEPS = [
   { step: "seed v1", path: SEED_V1_MIGRATION_PATH },
   { step: "schema v2", path: SCHEMA_V2_MIGRATION_PATH },
   { step: "schema v2 again", path: SCHEMA_V2_MIGRATION_PATH },
+  { step: "seed v2", path: SEED_V2_MIGRATION_PATH },
   { step: "current seed", path: SEED_MIGRATION_PATH },
 ] as const;
 export type MigrationStep = (typeof MIGRATION_STEPS)[number]["step"];
