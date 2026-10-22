@@ -221,6 +221,7 @@ const stated: { why: string; was: RegExp; now: string }[] = [
   { why: "09 item 8; appendix 'Both sides as one', §4.4: the Progress subtitle says no side", was: /^Circumference and grip, by arm$/, now: "Circumference and grip" },
   { why: "09 item 9; appendix 'Both sides as one': the 3D model's panel counts a set once per muscle, not per arm", was: /^One bout per set, per muscle, per arm$/, now: "One bout per set, per muscle" },
   { why: "09 item 10; appendix 'Both sides as one': a movement's ledger row says no side for a planned one-arm set", was: /^(By [^.]+\.) Each side assumed\.$/, now: "$1" },
+  { why: "09 item 11; appendix 'Both sides as one': the 3D model's credits name no side and claim no mirror image (the model is never mirrored)", was: /^It is one model of a right arm; the left arm is shown as its mirror image, not a separate model\. /, now: "It is one model of one arm, never mirrored. " },
 ];
 /** Runs of the reference's lines, one after another, gone from the sheets `in` names. */
 const gone: { why: string; in: Where; lines: RegExp[] }[] = [

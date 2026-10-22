@@ -99,7 +99,9 @@ const regionLineOf = (data: SpecializationRegionData, mode: "completed" | "plann
 
 const BLOCKS = "p, li, h1, h2, h3, dt, dd, summary, legend, figcaption, label > span, button, option, small, strong, b";
 /** Region content the page shows but does not write: anatomy, claims and sources, rationales, method notes, and the published rule. */
-const CONTENT = ".spz-rule-text, .spz-method-notes, #spz-does ~ *, [aria-labelledby='spz-does'], [aria-labelledby='spz-shape'], [aria-labelledby='spz-sources'], .spz-why-rationale, .spz-sources, .spz-sheet-subtitle, .spz-actions-list small";
+const CONTENT = ".spz-rule-text, .spz-method-notes, #spz-does ~ *, [aria-labelledby='spz-does'], [aria-labelledby='spz-shape'], [aria-labelledby='spz-sources'], .spz-why-rationale, .spz-sources, .spz-sheet-subtitle, .spz-actions-list small"
+  // The same anatomy in the 3D model's panel: what the muscle does, and how it contributes to shape with its caveats.
+  + ", .sg-anatomy3d-detail .sg-anatomy3d-function, .sg-anatomy3d-detail .spz-caveats";
 
 /** Every piece of text on screen, innermost block by block, and every accessible name and description. */
 function pageTexts(): string[] {
@@ -189,6 +191,28 @@ async function readEverything(data: SpecializationRegionData, mode: "completed" 
   return seen;
 }
 
+/**
+ * The 3D model, which a phone shows by default where a region has one (the forearm): the page with
+ * the model's row of muscles and its Overview, then each muscle of the row chosen in turn with the
+ * model's panel and its disclosures open. jsdom has no WebGL, so the stage shows its fallback.
+ */
+async function readModel(data: SpecializationRegionData, mode: "completed" | "planned"): Promise<string[]> {
+  render(createElement(Harness, { initial: { ...defaultSpecializationState(data.region.id), mode, figure: "model" } }));
+  await act(async () => {});
+  const openPanel = () => document.querySelectorAll<HTMLDetailsElement>(".sg-anatomy3d details").forEach((details) => { details.open = true; });
+  openPanel();
+  const seen = [...pageTexts()];
+  const chips = () => Array.from(document.querySelectorAll<HTMLElement>(".sg-anatomy3d-rail-chip"));
+  expect(chips().length).toBeGreaterThan(1);
+  for (let index = 1; index < chips().length; index += 1) {
+    await click(chips()[index]);
+    openPanel();
+    seen.push(...pageTexts());
+  }
+  cleanup();
+  return seen;
+}
+
 beforeAll(async () => { await loadRegionData("forearm"); });
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
@@ -209,6 +233,16 @@ describe("every page sentence that names a region, for every region shape", () =
         expect(problems(data, texts)).toEqual([]);
       }, 60000);
     }
+  }
+
+  for (const mode of ["completed", "planned"] as const) {
+    it(`forearm, ${mode}, the 3D model's row and panel for each of its muscles`, async () => {
+      const texts = await readModel(forearmRegionData, mode);
+      // It reached the panel of a chosen muscle, and the model's credits.
+      expect(texts).toContain("One bout per set, per muscle");
+      expect(texts.some((text) => text.startsWith("It is one model of one arm"))).toBe(true);
+      expect(problems(forearmRegionData, texts)).toEqual([]);
+    }, 60000);
   }
 
   it("finds what it is looking for: each rule catches the sentence it is there for", () => {
