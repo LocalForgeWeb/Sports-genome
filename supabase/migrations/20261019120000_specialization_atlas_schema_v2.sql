@@ -315,6 +315,25 @@ comment on table specialization.variant_attributes is
 alter table specialization.goals drop constraint if exists goals_side_check;
 alter table specialization.goals add constraint goals_side_check check (side in ('left', 'right', 'midline'));
 
+-- Both sides as one (the owner, 20 Oct 2026, 10-multi-region.md appendix "Both sides as one"): a
+-- target names no side. A paired region's goal stores 'right' as a placeholder (the app's stores
+-- since 20 Oct, which a rollback can still read), a midline region's 'midline', so within one region
+-- the side says nothing and the overlap rule no longer keys on it: a target saved earlier for the
+-- left arm and a new one on the same muscle, measure and period are the same target.
+alter table specialization.goals drop constraint if exists goals_no_overlap;
+alter table specialization.goals add constraint goals_no_overlap exclude using gist (
+  user_id with =,
+  region_id with =,
+  (coalesce('node:' || node_id, 'action:' || action_id)) with =,
+  metric with =,
+  period with =,
+  daterange(starts_on, ends_on, '[]') with &&
+);
+comment on column specialization.goals.side is
+  'left or right before 20 Oct 2026; since then right is a placeholder on a paired region (both sides count as one), midline on a midline region. Not part of what a target is (goals_no_overlap).';
+comment on column specialization.measurements.side is
+  'left or right before 20 Oct 2026; since then right is a placeholder on a paired region (one series, both sides as one), midline for a girth or a midline region.';
+
 -- A goal names a muscle or movement its region lists, as a key, so a membership a goal points at
 -- cannot be deleted (the seed unlists it instead).
 alter table specialization.goals drop constraint if exists goals_node_in_region;

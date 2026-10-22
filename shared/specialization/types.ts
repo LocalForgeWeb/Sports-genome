@@ -124,7 +124,7 @@ export interface RegionWording {
    * "Incidental grip" in the key and "3 grip" on a bar.
    */
   incidentalWork: string;
-  /** The line under "Progress": "Circumference and grip, by arm". */
+  /** The line under "Progress": "Circumference and grip". */
   progressSubtitle: string;
   /**
    * A paired region's word for one side and for both, from the limb the logger asks about:

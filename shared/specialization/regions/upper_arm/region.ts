@@ -30,7 +30,7 @@ export const upperArmRegion: SpecializationRegion = {
     externalGroup: "Forearm muscles credited here",
     externalHeading: "Upper-arm muscles credited here",
     incidentalWork: "steadying",
-    progressSubtitle: "Arm circumference, by arm",
+    progressSubtitle: "Arm circumference",
     sideWord: "arm",
     sideWordPlural: "arms",
     onSideTemplate: "your {side} upper arm",

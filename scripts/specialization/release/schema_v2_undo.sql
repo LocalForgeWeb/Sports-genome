@@ -294,6 +294,18 @@ $fn$;
     check (wrist_position in ('flexed', 'neutral', 'extended', 'changing', 'unknown'));
   alter table specialization.goals drop constraint if exists goals_side_check;
   alter table specialization.goals add constraint goals_side_check check (side in ('left', 'right'));
+  alter table specialization.goals drop constraint if exists goals_no_overlap;
+  alter table specialization.goals add constraint goals_no_overlap exclude using gist (
+    user_id with =,
+    region_id with =,
+    (coalesce('node:' || node_id, 'action:' || action_id)) with =,
+    side with =,
+    metric with =,
+    period with =,
+    daterange(starts_on, ends_on, '[]') with &&
+  );
+  comment on column specialization.goals.side is null;
+  comment on column specialization.measurements.side is null;
   alter table specialization.measurements drop constraint if exists measurements_side_metric;
   alter table specialization.measurements drop constraint if exists measurements_side_check;
   alter table specialization.measurements add constraint measurements_side_check check (side in ('left', 'right'));

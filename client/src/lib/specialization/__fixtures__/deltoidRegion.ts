@@ -113,7 +113,7 @@ export const fixtureArmRegion: SpecializationRegion = {
   regionOnlyTagScope: "primary",
   entryLabel: "Explore fixture arm coverage",
   wording: {
-    externalGroup: "Other muscles credited here", externalHeading: "Fixture arm muscles credited here", incidentalWork: "steadying", progressSubtitle: "Circumference, by arm",
+    externalGroup: "Other muscles credited here", externalHeading: "Fixture arm muscles credited here", incidentalWork: "steadying", progressSubtitle: "Circumference",
     sideWord: "arm", sideWordPlural: "arms", onSideTemplate: "your {side} fixture arm",
   },
   measurementMetrics: [],
@@ -149,7 +149,7 @@ export const deltoidContent: RegionContent = {
     entryLabel: "Explore deltoid coverage",
     // Its own words, so a test can tell them from the forearm's.
     wording: {
-      externalGroup: "Other muscles credited here", externalHeading: "Deltoid muscles credited here", incidentalWork: "bracing", progressSubtitle: "Circumference, by arm",
+      externalGroup: "Other muscles credited here", externalHeading: "Deltoid muscles credited here", incidentalWork: "bracing", progressSubtitle: "Circumference",
       sideWord: "arm", sideWordPlural: "arms", onSideTemplate: "your {side} shoulder",
     },
     measurementMetrics: ["circumference_cm"],

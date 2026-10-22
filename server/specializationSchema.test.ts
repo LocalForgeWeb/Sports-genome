@@ -1170,9 +1170,12 @@ describe("goal rules", () => {
     expect(await tryGoal({ id: "ov-4", from: "2026-10-10", to: "2026-10-12" })).toMatch(/goals_no_overlap/);
   });
 
-  it("allows the next period, the other arm, another measure or period, a movement target, and another user", async () => {
+  it("refuses the same target saved for the other arm: both sides count as one (schema v2)", async () => {
+    expect(await tryGoal({ id: "ov-right", side: "right", from: "2026-10-01", to: "2026-10-31" })).toMatch(/goals_no_overlap/);
+  });
+
+  it("allows the next period, another measure or period, a movement target, and another user", async () => {
     expect(await tryGoal({ id: "ok-next", from: "2026-11-01" })).toBeNull();
-    expect(await tryGoal({ id: "ok-right", side: "right", from: "2026-10-01", to: "2026-10-31" })).toBeNull();
     expect(await tryGoal({ id: "ok-holds", metric: "deliberate_hold_seconds", target: 600, from: "2026-10-01", to: "2026-10-31" })).toBeNull();
     expect(await tryGoal({ id: "ok-rolling", period: "rolling_7d", from: "2026-10-01", to: "2026-10-31" })).toBeNull();
     expect(await tryGoal({ id: "ok-action", node: null, action: "wrist.extension", from: "2026-10-01", to: "2026-10-31" })).toBeNull();

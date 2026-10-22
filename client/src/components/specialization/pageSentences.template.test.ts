@@ -137,6 +137,8 @@ function problems(data: SpecializationRegionData, texts: readonly string[]): str
       if (side.test(said)) out.push(`a side named: ${sentence}`);
       if (foreign.test(said)) out.push(`limb not the region's: ${sentence}`);
       if (/kept apart|counted for neither/i.test(said)) out.push(`a side kept apart: ${sentence}`);
+      // Both sides as one: nothing is read, measured or counted per arm or leg.
+      if (/\b(by|per|each)\s+(arm|leg|side)s?\b/i.test(said)) out.push(`counted per side: ${sentence}`);
     }
   }
   return out;

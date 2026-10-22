@@ -59,13 +59,15 @@ function rangesOverlap(a: Pick<SpecializationGoal, "startsOn" | "endsOn">, b: Pi
 }
 
 /**
- * Same muscle (or the same region's movement), same side, same measure and same period. A muscle
- * has one home region, so a muscle target is compared by the muscle alone: a target re-homed to the
- * muscle's home and one saved there are the same target (10-multi-region.md §2.2).
+ * Same muscle (or the same region's movement), same measure and same period. A muscle has one home
+ * region, so a muscle target is compared by the muscle alone: a target re-homed to the muscle's home
+ * and one saved there are the same target (10-multi-region.md §2.2). The side is not compared: both
+ * sides count as one (the owner, 20 Oct 2026), so a target saved earlier for one arm and a new one
+ * are the same target, as the database's goals_no_overlap holds them.
  */
 export function sameGoalTarget(a: SpecializationGoal, b: SpecializationGoal): boolean {
   const subject = a.nodeId !== null ? a.nodeId === b.nodeId : b.nodeId === null && a.regionId === b.regionId && a.actionId === b.actionId;
-  return subject && a.side === b.side && a.metric === b.metric && a.period === b.period;
+  return subject && a.metric === b.metric && a.period === b.period;
 }
 
 type SideWording = Pick<SpecializationRegion, "sides" | "wording">;
