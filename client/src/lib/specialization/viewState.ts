@@ -1,6 +1,10 @@
+import { constraintChoices } from "@/lib/areaQuestion";
+import { capacityTargetForMuscle } from "@/lib/capacityTargets";
 import { scopedKey } from "@/lib/deviceStorageScope";
+import type { ConstraintType } from "@shared/resilienceContext";
+import { regionIndexEntry } from "@shared/specialization/regionIndex";
 import { isDateKey } from "@shared/specialization/time";
-import type { DiagramLayerId, DiagramViewId, RegionId, SummaryMode } from "@shared/specialization/types";
+import type { DiagramLayerId, DiagramViewId, RegionId, SpecializationRegion, SummaryMode } from "@shared/specialization/types";
 
 /**
  * What the specialization page is showing, kept in the URL so Back, a reload and a
@@ -20,6 +24,12 @@ export type SpecializationMapMode = "volume" | "target";
  * names a figure only when the athlete chose one.
  */
 export type SpecializationFigure = "model" | "drawing";
+/**
+ * A part of the page an entry point from elsewhere asks to open: the stack card, from Plan's
+ * "Week N generated" notice (the stack design note, docs/specialization-atlas/11, §3.2, "Plan says so too"). The page
+ * opens it and brings it into view; absent, the page opens as it was left.
+ */
+export type SpecializationSection = "stack";
 
 export type SpecializationViewState = {
   regionId: RegionId;
@@ -40,6 +50,8 @@ export type SpecializationViewState = {
   figure: SpecializationFigure | null;
   /** The plan week planned exposure reads; null = the week Home trains from. */
   planWeek: number | null;
+  /** A section an entry point asked the page to open (`open=stack`); absent when none was. */
+  open?: SpecializationSection;
 };
 
 /**
@@ -47,7 +59,7 @@ export type SpecializationViewState = {
  * are counted as one (owner, 20 Oct 2026). It stays in this list so an old address loses it on
  * the page's first rewrite, and so every other page strips it.
  */
-export const specializationParamNames = ["region", "node", "limb", "window", "from", "to", "mode", "view", "layer", "map", "fig", "pweek"] as const;
+export const specializationParamNames = ["region", "node", "limb", "window", "from", "to", "mode", "view", "layer", "map", "fig", "pweek", "open"] as const;
 
 /** A view id's shape (the database checks the same): which views exist is the drawing's business. */
 const VIEW_ID = /^[a-z][a-z0-9_]*$/;
@@ -87,16 +99,19 @@ export function specializationStateFromParams(params: URLSearchParams, defaultRe
     map: map === "target" ? "target" : "volume",
     figure: figure === "model" || figure === "drawing" ? figure : null,
     planWeek: Number.isInteger(planWeek) && planWeek > 0 ? planWeek : null,
+    ...(params.get("open") === "stack" ? { open: "stack" as const } : {}),
   };
 }
 
 /**
  * Another region, picked on the page (10-multi-region.md §6.1): its muscle (none, unless one is
  * named) and its first view and surface layer, since those were the old region's; the mode, the
- * window and its dates, the plan week, what the map shows and the figure carry over.
+ * window and its dates, the plan week, what the map shows and the figure carry over. A section the
+ * old region was asked to open does not: it was asked of that region.
  */
 export function withRegion(state: SpecializationViewState, regionId: RegionId, nodeId: string | null = null): SpecializationViewState {
-  return { ...state, regionId, nodeId, view: null, layer: "surface" };
+  const { open: _open, ...rest } = state;
+  return { ...rest, regionId, nodeId, view: null, layer: "surface" };
 }
 
 /** Writes the page state into URL params, leaving every other param untouched. */
@@ -113,6 +128,7 @@ export function writeSpecializationParams(params: URLSearchParams, state: Specia
   if (state.map !== base.map) params.set("map", state.map);
   if (state.figure) params.set("fig", state.figure);
   if (state.planWeek !== null) params.set("pweek", String(state.planWeek));
+  if (state.open) params.set("open", state.open);
 }
 
 /**
@@ -172,3 +188,150 @@ export type SpecializationPlanChange = {
 };
 
 export type SpecializationPlanChangeResult = { ok: true; undo: () => void } | { ok: false; reason: string };
+
+/**
+ * An entry already in the plan that a batch change acts on: the day it is in, the entry's own id
+ * in that day (`Exercise.id` there, as `replaceEntryId`; a duplicated entry has one of its own),
+ * and the catalog exercise it is. A change whose entry is gone, or is another exercise by now,
+ * refuses the batch.
+ */
+export type SpecializationPlannedEntry = {
+  dayKey: string;
+  entryId: number;
+  catalogExerciseId: number;
+};
+
+/**
+ * One change in a batch (the stack design note, §3.7). Every change is on the batch's
+ * week and names its day by its key (`DaySlot.key`); each carries its `prescription`:
+ * - `add`: an add, or a swap when `replaceEntryId` is set, exactly as a single change from the page
+ *   (`SpecializationPlanChange`): `prescription` is written as the incoming entry's own; absent, it
+ *   has none and reads as the goal's default for its position. Never into a day that already holds
+ *   the exercise.
+ * - `remove`: takes an entry out, only while it is still as written: the same exercise with the same
+ *   prescription of its own (`prescription`; absent when it had none). For the stack's Change the
+ *   total and Take it out, and the tendon section's Take out.
+ * - `sets`: the entry's set count, `sets` (1 to 12). `prescription` is the entry's prescription as the
+ *   page reads it (its own, or the default it reads as); the count is written into the entry's own
+ *   prescription when it has one, else into this one, and the result becomes its own. For the
+ *   tendon section's −1 set.
+ * - `move`: the entry to another day of the week (`toDayKey`, at `insertAt` as an add places it, the
+ *   end when absent), as a remove and an add in one: with its settings, and its own prescription, or
+ *   `prescription` when it has none of its own, so its sets do not change with its position. Never
+ *   into a day that already holds the exercise.
+ */
+export type SpecializationPlanBatchChange =
+  | ({ kind: "add" } & Omit<SpecializationPlanChange, "week" | "slotIndex">)
+  | ({ kind: "remove"; prescription?: string } & SpecializationPlannedEntry)
+  | ({ kind: "sets"; sets: number; prescription: string } & SpecializationPlannedEntry)
+  | ({ kind: "move"; toDayKey: string; insertAt?: number; prescription?: string } & SpecializationPlannedEntry);
+
+/**
+ * Several changes to one plan week, applied together or not at all (lib/specialization/planChange
+ * `applyPlanBatch`): the stack's Add, Change the total and Take it out, and the tendon section's
+ * planned-entry actions. Home applies it and offers one Undo for all of it.
+ */
+export type SpecializationPlanBatch = { week: number; changes: SpecializationPlanBatchChange[] };
+
+/**
+ * Home's answer to a batch. Applied: `undo` takes every change back (newest first, on the days as
+ * they stand when it is pressed; a second press does nothing), and `message` is the toast's own
+ * words ("Added 11 sets: 11 exercises on Day 01, Day 02, Day 03 of Week 1"), for the page to say the
+ * same. Refused: nothing was written, and `reason` says why.
+ */
+export type SpecializationPlanBatchResult = { ok: true; undo: () => void; message: string } | { ok: false; reason: string };
+
+/**
+ * About me's answer to its area question ("How is your … feeling?") for the page's region:
+ * the answer's identifier and its words as About me shows them ("Bothering me now"). The page says
+ * it once and changes nothing because of it (the stack design note, §3.2 item 10).
+ */
+export type SpecializationAreaReport = { constraintType: ConstraintType; answer: string };
+
+/**
+ * What Home hands the page for the stack (lane S3 → S4): the batch apply and About me's answer for
+ * the page's region. The page's props take these beside `SpecializationPanelProps`.
+ */
+export type SpecializationStackProps = {
+  onApplyPlanChanges: (batch: SpecializationPlanBatch) => SpecializationPlanBatchResult;
+  /** Null when About me has no answer for this region's area, or says "Feels fine". */
+  aboutMeArea: SpecializationAreaReport | null;
+};
+
+/**
+ * About me's answer for a region, when its area is the region's: one of the region's body-map keys
+ * names that area in About me's catalog (`capacityTargetForMuscle`), and the answer is anything but
+ * "Feels fine". About me holds one area at a time, and no side is read (both sides are one, owner,
+ * 20 Oct 2026).
+ */
+export function areaReportForRegion(
+  constraint: { targetKey: string; constraintType: ConstraintType } | null | undefined,
+  bodyMapKeys: readonly string[],
+): SpecializationAreaReport | null {
+  if (!constraint || constraint.constraintType === "proactive_none") return null;
+  if (!bodyMapKeys.some((key) => capacityTargetForMuscle[key]?.targetKey === constraint.targetKey)) return null;
+  const answer = constraintChoices.find((choice) => choice.value === constraint.constraintType)?.label;
+  return answer ? { constraintType: constraint.constraintType, answer } : null;
+}
+
+/**
+ * The device record of the athlete's stacks (the stack design note §3.9, `stackStore.ts`).
+ * Plan reads only which plan weeks hold one, by the record's per-stack fields (`regionId`,
+ * `planWeek`, `entries`), wherever the record keeps its stacks, so this agrees with the store's own
+ * reader whatever its container. Storage that is missing, refused or corrupt reads as no stack.
+ */
+export const specializationStacksKeyBase = "sports-genome-specialization-stacks-v1";
+
+export type StackOnDevice = { regionId: RegionId; planWeek: number };
+
+const isPlainRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+
+export function readStacksOnDevice(accountId: string | number | null | undefined): StackOnDevice[] {
+  try {
+    if (typeof window === "undefined") return [];
+    const raw = window.localStorage.getItem(scopedKey(specializationStacksKeyBase, accountId));
+    if (!raw) return [];
+    const found: StackOnDevice[] = [];
+    const visit = (value: unknown, depth: number) => {
+      if (depth > 4) return;
+      if (Array.isArray(value)) { value.forEach((item) => visit(item, depth + 1)); return; }
+      if (!isPlainRecord(value)) return;
+      const { regionId, planWeek, entries } = value;
+      if (typeof regionId === "string" && regionId && typeof planWeek === "number" && Number.isInteger(planWeek) && planWeek > 0 && Array.isArray(entries)) {
+        if (entries.length) found.push({ regionId, planWeek });
+        return;
+      }
+      Object.values(value).forEach((item) => visit(item, depth + 1));
+    };
+    visit(JSON.parse(raw), 0);
+    return found;
+  } catch {
+    return [];
+  }
+}
+
+/** The region as a word before "stack": its heading's first words ("Hip specialization" → "hip"), else its label. */
+function regionStackWord(region: Pick<SpecializationRegion, "heading" | "label">): string {
+  const named = /^(.+?)\s+specialization$/i.exec(region.heading ?? "")?.[1] ?? region.label;
+  return named.charAt(0).toLowerCase() + named.slice(1);
+}
+
+export type StackNote = { regionId: RegionId; fromWeek: number; sentence: string };
+
+/**
+ * Plan says so too (the stack design note, §3.2): Plan builds each week fresh and never
+ * copies a stack, so when a new week is generated and an earlier week holds a region's stack, the
+ * notice says the new week does not have it: "Your {region} stack from Week 1 is not in it; design
+ * one on Specialize." One note per region with a page, naming its latest earlier week.
+ */
+export function stackNotesForNewWeek(stacks: readonly StackOnDevice[], newWeek: number): StackNote[] {
+  const latest = new Map<RegionId, number>();
+  for (const stack of stacks) {
+    if (stack.planWeek >= newWeek) continue;
+    latest.set(stack.regionId, Math.max(latest.get(stack.regionId) ?? 0, stack.planWeek));
+  }
+  return Array.from(latest, ([regionId, fromWeek]) => ({ regionId, fromWeek, region: regionIndexEntry(regionId) }))
+    .filter((note): note is { regionId: RegionId; fromWeek: number; region: SpecializationRegion } => note.region !== null && note.region.status === "production")
+    .sort((left, right) => left.region.sortOrder - right.region.sortOrder)
+    .map(({ regionId, fromWeek, region }) => ({ regionId, fromWeek, sentence: `Your ${regionStackWord(region)} stack from Week ${fromWeek} is not in it; design one on Specialize.` }));
+}

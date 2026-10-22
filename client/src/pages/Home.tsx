@@ -103,8 +103,8 @@ import { buildStampLabel } from "@/lib/buildStamp";
 import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 import { preloadRegionData, regionLoadsSettled } from "@/lib/specialization/loadRegion";
-import { clearSpecializationParams, defaultSpecializationState, readRememberedRegion, specializationStateFromParams, withRegion, writeSpecializationParams, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationViewState } from "@/lib/specialization/viewState";
-import { applyPlanChangeToRecord } from "@/lib/specialization/planChange";
+import { areaReportForRegion, clearSpecializationParams, defaultSpecializationState, readRememberedRegion, readStacksOnDevice, specializationStateFromParams, stackNotesForNewWeek, withRegion, writeSpecializationParams, type SpecializationPlanBatch, type SpecializationPlanBatchResult, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationStackProps, type SpecializationViewState } from "@/lib/specialization/viewState";
+import { applyPlanBatch, applyPlanChangeToRecord } from "@/lib/specialization/planChange";
 import { useSpecializationGoals } from "@/lib/specialization/stores";
 import { loggerGatesFor } from "@/lib/specialization/loggerGates";
 import { catalogMeasureOf } from "@shared/specialization/holdCatalogIds";
@@ -1340,6 +1340,9 @@ export default function Home() {
     const next = { ...defaultSpecializationState(partial.regionId), ...partial };
     navigateWorkspace("specialization", { specialization: next, specializationFrom: workspace });
   };
+  /** For a notice's action, pressed renders later: it opens the page from wherever the athlete is then. */
+  const openSpecializationRef = useRef(openSpecialization);
+  openSpecializationRef.current = openSpecialization;
   /** A change made on the page itself (muscle, arm, window, view): the same entry, its address rewritten. */
   const updateSpecializationState = (next: SpecializationViewState) => {
     setSpecializationState(next);
@@ -1570,6 +1573,44 @@ export default function Home() {
       cancel: { label: "Undo", onClick: undo },
     });
     return { ok: true, undo };
+  };
+  /**
+   * Several changes to one plan week from the specialization page, together or not at all
+   * (11-forearm-research-and-stack.md §3.7): the stack's Add, Change the total and Take it out, the
+   * tendon section's planned-entry actions. The same pure batch the page previewed
+   * (lib/specialization/planChange `applyPlanBatch`), on the week as Home holds it now; refused with
+   * a reason, and nothing written, while the plan is loading, when the week is not built, or when
+   * any one change cannot apply. Otherwise each touched day is written once, and one notice says
+   * what changed, with one Undo for all of it: every day's revert, newest day first, on the days as
+   * they stand when it is pressed, through the ref, as the single change's Undo is. No confirm step
+   * (CLAUDE.md: Undo over confirm).
+   */
+  const applySpecializationChanges = (batch: SpecializationPlanBatch): SpecializationPlanBatchResult => {
+    if (!planReadyForEdits({ quiet: true }) || !profileHydrated) return { ok: false, reason: "Your plan is still loading, so nothing was changed. Try again in a moment." };
+    const isActive = batch.week === activeWeek;
+    if (!isActive && !planWeeks[batch.week]) return { ok: false, reason: `Week ${batch.week} is not built yet. Build it in Plan first.` };
+    const store = isActive ? commitDay(dayStore, draftDayKeyRef.current, activeDraft()) : planWeeks[batch.week].days;
+    const outcome = applyPlanBatch(store, batch, { slots: daySlots, catalog: exercises });
+    if (!outcome.ok) return { ok: false, reason: outcome.reason };
+    for (const day of outcome.days) editDayInWeek(batch.week, day.slot.key, () => day.record);
+    let undone = false;
+    const undo = () => {
+      if (undone) return;
+      undone = true;
+      for (const day of [...outcome.days].reverse()) editDayInWeekRef.current(batch.week, day.slot.key, day.revert);
+    };
+    // Every option named: sonner merges a notice into the one showing with the same id.
+    toast(outcome.message.title, { id: "plan-add", description: outcome.message.description, action: undefined, cancel: { label: "Undo", onClick: undo } });
+    return { ok: true, undo, message: outcome.message.title };
+  };
+  /**
+   * What the page takes for the stack, beside its own props: the batch apply, and About me's answer
+   * to its area question when that area is the page region's and the answer is anything but "Feels
+   * fine" (11-forearm-research-and-stack.md §3.2 item 10; the page says it and changes nothing).
+   */
+  const specializationStackProps: SpecializationStackProps = {
+    onApplyPlanChanges: applySpecializationChanges,
+    aboutMeArea: areaReportForRegion(capacityFocus.constraint, regionIndexEntry(specializationState.regionId)?.bodyMapKeys ?? []),
   };
   const toggleFavorite = (exercise: Exercise) => {
     const currentlyFavorite = favoriteIds.has(exercise.id);
@@ -1996,7 +2037,17 @@ export default function Home() {
     const generated: WeekSnapshot = { days: generatedDays, activeDayIndex: 0 };
     setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot(), [nextWeek]: generated }));
     applyWeek(nextWeek, generated);
-    toast(`Week ${nextWeek} generated`, { description: `${splitDays.length} training days were built around your ${goal.toLowerCase()} goal and ${gymTimeBudget.label.toLowerCase()} budget.` });
+    const built = `${splitDays.length} training days were built around your ${goal.toLowerCase()} goal and ${gymTimeBudget.label.toLowerCase()} budget.`;
+    // The new week is built fresh from the split pool and never copies a stack, so a stack in an
+    // earlier week is said here, with the way to design one for this week
+    // (11-forearm-research-and-stack.md §3.2, "Plan says so too").
+    const stackNotes = stackNotesForNewWeek(readStacksOnDevice(accountId), nextWeek);
+    if (!stackNotes.length) { toast(`Week ${nextWeek} generated`, { description: built }); return; }
+    const [first] = stackNotes;
+    toast(`Week ${nextWeek} generated`, {
+      description: `${built} ${stackNotes.map((note) => note.sentence).join(" ")}`,
+      action: { label: `Design for Week ${nextWeek}`, onClick: () => openSpecializationRef.current({ regionId: first.regionId, mode: "planned", planWeek: nextWeek, open: "stack" }) },
+    });
   };
   /**
    * The overlay is a history entry of its own, so Back closes it and leaves the
@@ -2636,6 +2687,7 @@ export default function Home() {
           goal={goal}
           weightUnit={athleteBaseline.weightUnit}
           onApplyPlanChange={applySpecializationChange}
+          {...specializationStackProps}
           onInspectExercise={inspectExercise}
           onOpenSession={(id) => navigateWorkspace("progress", { session: id })}
           backLabel={specializationOrigin ? shortTitleOf(specializationOrigin) : null}
