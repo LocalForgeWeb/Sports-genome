@@ -317,7 +317,7 @@ describe("no region is named in the page's components", () => {
     },
     {
       file: "StackDesigner.tsx",
-      code: '<button type="button" className="spz-link spz-link-box" aria-label={`Bring back ${movement.label}`} onClick={() => onBringBack(movement.key)}>Bring back</button>',
+      code: '<button type="button" className="spz-button" aria-label={`Bring back ${movement.label}`} onClick={() => onBringBack(movement.key)}>Bring back</button>',
       why: "The stack card's Bring back for a movement the athlete left out (11-forearm-research-and-stack.md §3.2 item 9, §3.6): the verb, not the back region; the movement's label is the region's data.",
     },
   ];

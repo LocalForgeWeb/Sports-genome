@@ -918,7 +918,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           {stackFinding.length > 0 && <li key="stack" className="spz-finding">
             <strong>{plural(stackFinding.length, "movement")} {stackFinding.length === 1 ? "has" : "have"} no direct moving work in Plan Week {planWeek}</strong>
             <p>{stackFinding.slice(0, 3).map((movement, index) => (index ? lowerFirst(movement.label) : movement.label)).join(", ")}{stackFinding.length > 3 ? ` and ${stackFinding.length - 3} more` : ""}.</p>
-            <button type="button" className="spz-link" onClick={openStack}>Design a stack <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+            <button type="button" className="spz-button" onClick={openStack}>Design a stack</button>
           </li>}
           {shownFindings.map((finding) => <li key={finding.id} className="spz-finding">
             <strong>{finding.title}</strong>

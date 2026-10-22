@@ -182,7 +182,7 @@
 .spz-finding { display: grid; gap: .2rem; border-left: 2px solid var(--sg-control-border-on-dark); padding-left: .75rem; }
 .spz-finding strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 700; line-height: var(--sg-leading-body); }
 .spz-finding p { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
-.spz-finding .spz-link { justify-self: start; }
+.spz-finding .spz-link, .spz-finding .spz-button { justify-self: start; }
 
 /* -- Disclosures ------------------------------------------------------------------ */
 .spz-disclosures { display: grid; gap: .75rem; }

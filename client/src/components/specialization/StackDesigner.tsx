@@ -337,7 +337,7 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
   const completedNote = mode === "completed" ? <p className="spz-note">Built from your plan as written; sets you logged are not counted here.</p> : null;
   const doneLine = done && <p className="spz-inline-status spz-stack-done" role="status" ref={done.kind === "undone" ? (element) => { doneRef.current = element; } : undefined} tabIndex={done.kind === "undone" ? -1 : undefined}>
     <span id={`${ids}-done`}>{done.text}</span>
-    {done.kind !== "undone" && <button ref={(element) => { doneRef.current = element; }} type="button" className="spz-link spz-link-box" aria-describedby={`${ids}-done`} onClick={undoDone}>Undo</button>}
+    {done.kind !== "undone" && <button ref={(element) => { doneRef.current = element; }} type="button" className="spz-button" aria-describedby={`${ids}-done`} onClick={undoDone}>Undo</button>}
   </p>;
   const doneDetail = done && done.kind !== "undone" ? <p className="spz-note">{done.detail}</p> : null;
 
@@ -361,7 +361,9 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
       {doneDetail}
       <p className="spz-stack-status"><b>Your stack: {plural(pageCountOn(store), "direct moving set")} in Week {week}</b></p>
       {byDay.length > 0 && <ul className="spz-stack-entries">
-        {byDay.map((group) => <li key={group.slot.key}><b>{group.slot.label}</b><span>{group.items.map((entry) => `${nameOf(entry.catalogExerciseId)} ${entry.prescription}`).join(" · ")}</span></li>)}
+        {byDay.map((group) => <li key={group.slot.key}><b>{group.slot.label}</b>
+          <ul>{group.items.map((entry) => <li key={entry.catalogExerciseId}>{nameOf(entry.catalogExerciseId)} · <span className="spz-stack-nowrap">{entry.prescription}</span></li>)}</ul>
+        </li>)}
       </ul>}
       {current && current.changed.length > 0 && <p className="spz-note">Changed since the stack added {current.changed.length === 1 ? "it" : "them"}, so counted as your plan's own: {listWords(current.changed.map((entry) => `${nameOf(entry.catalogExerciseId)} (${dayOf(entry.dayKey)})`))}.</p>}
       {current && current.missing.length > 0 && <p className="spz-note">No longer in your plan: {listWords(current.missing.map((entry) => `${nameOf(entry.catalogExerciseId)} (${dayOf(entry.dayKey)})`))}.</p>}
@@ -457,7 +459,7 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
         <h4>{day.label}</h4>
         {leftOut?.dayKey === day.dayKey && <p className="spz-inline-status" role="status">
           <span id={`${ids}-left`}>{leftOut.text}</span>
-          <button ref={leftRef} type="button" className="spz-link spz-link-box" aria-describedby={`${ids}-left`} onClick={undoLeaveOut}>Undo</button>
+          <button ref={leftRef} type="button" className="spz-button" aria-describedby={`${ids}-left`} onClick={undoLeaveOut}>Undo</button>
         </p>}
         {rows.length > 0 && <ul className="spz-stack-rows">
           {rows.map((row) => <StackRowItem
@@ -738,7 +740,7 @@ function NotInThisStack({ data, design, noun, nodeName, catalog, onBringBack }: 
 
   for (const movement of design.movements.filter((item) => item.status === "left_out")) {
     items.push({ key: `left:${movement.key}`, node: <><span>{movement.label}: left out by you.</span>
-      <button type="button" className="spz-link spz-link-box" aria-label={`Bring back ${movement.label}`} onClick={() => onBringBack(movement.key)}>Bring back</button>
+      <button type="button" className="spz-button" aria-label={`Bring back ${movement.label}`} onClick={() => onBringBack(movement.key)}>Bring back</button>
     </> });
   }
   const { byTotal, byRoom, holdsNoRoom } = design.cut;

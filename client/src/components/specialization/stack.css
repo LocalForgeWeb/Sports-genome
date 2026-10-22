@@ -67,5 +67,7 @@
 .spz-stack-out li { line-height: var(--sg-leading-body); }
 .spz-stack-entries { display: grid; gap: .35rem; padding: 0; list-style: none; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-stack-entries > li { display: grid; gap: .1rem; }
+.spz-stack-entries ul { display: grid; gap: .1rem; padding: 0; list-style: none; }
+.spz-stack-nowrap { white-space: nowrap; }
 .spz-stack-entries b { color: var(--sg-text-on-dark); }
 .spz-stack-about { border-left: 2px solid var(--sg-control-border-on-dark); padding-left: .6rem; }

@@ -87,10 +87,11 @@ describe("the stack, from Planned mode through Home and back", () => {
     await act(async () => { fireEvent.click(add); });
     await tick();
 
-    // Home wrote one batch: every day once, one notice with Undo.
-    const notices = toasts.filter((item) => item.options?.id === "plan-add");
-    expect(notices.map((item) => item.title)).toEqual(["Added 11 sets: 11 exercises on Day 01, Day 02, Day 03 of Week 1"]);
-    expect(notices[0].options).toMatchObject({ description: "Your own exercises are unchanged.", cancel: { label: "Undo" } });
+    // Home wrote one batch (once its batch code has arrived): every day once, one notice with Undo.
+    const notices = () => toasts.filter((item) => item.options?.id === "plan-add");
+    await waitFor(() => expect(notices().map((item) => item.title)).toEqual(["Added 11 sets: 11 exercises on Day 01, Day 02, Day 03 of Week 1"]), { timeout: 10000 });
+    await tick();
+    expect(notices()[0].options).toMatchObject({ description: "Your own exercises are unchanged.", cancel: { label: "Undo" } });
     const after = storedWeek();
     const count = (week: { weeklyPlanEntries: Record<string, unknown[]> }) => Object.values(week.weeklyPlanEntries).reduce((total, entries) => total + entries.length, 0);
     expect(count(after)).toBe(count(before) + 11);
