@@ -204,16 +204,6 @@ export const upperArmClaims: Claim[] = [
     ],
   }),
 
-  select({
-    nodeId: m.tricepsMedial,
-    n: 1,
-    statement: "Both the medial and the lateral head start on the back of the upper-arm bone, end on the point of the elbow and cross only the elbow, so they share every action; this review found no study showing an ordinary exercise that works one of them without the other. In one study of ten adults, a computer model driven by surface EMG estimated more force from the medial head than from the lateral head with the arm at shoulder height or higher; that is short-term modelled force in one small study, not growth.",
-    sources: [
-      src("aott.triceps_heads", "Abstract: Results", MODELLED_FORCE),
-      src("elsevier.triceps_lateral_head", "Quick Facts: Origin and Insertion", SEARCH_EXCERPT),
-      src("elsevier.triceps_medial_head", "Quick Facts: Origin and Insertion", GARBLED_SUMMARY),
-    ],
-  }),
   fn({
     nodeId: m.tricepsMedial,
     statement: "The medial head straightens the elbow. It starts on the back of the upper-arm bone below the groove for the radial nerve, ends on the point of the elbow with the other two heads and does not cross the shoulder. Some of its deepest fibres attach to the capsule at the back of the elbow joint; an anatomy teaching reference says they draw the capsule back as the elbow straightens, but a dissection study of 18 elbows found that pulling on them pressed the capsule rather than drawing it back.",
@@ -233,6 +223,16 @@ export const upperArmClaims: Claim[] = [
       src("pmid.16735585", "Abstract: Results", "Dissection of eight cadaver elbows; location only. Abstract only."),
       src("loyola.triceps_brachii", "Origin: medial head deep on the lower half of the back of the humerus", LOCATION_ONLY),
       src("kenhub.triceps_brachii", "Medial head: overlapped by the long and lateral heads", LOCATION_ONLY),
+    ],
+  }),
+  select({
+    nodeId: m.tricepsMedial,
+    n: 1,
+    statement: "Both the medial and the lateral head start on the back of the upper-arm bone, end on the point of the elbow and cross only the elbow, so they share every action; this review found no study showing an ordinary exercise that works one of them without the other. In one study of ten adults, a computer model driven by surface EMG estimated more force from the medial head than from the lateral head with the arm at shoulder height or higher; that is short-term modelled force in one small study, not growth.",
+    sources: [
+      src("aott.triceps_heads", "Abstract: Results", MODELLED_FORCE),
+      src("elsevier.triceps_lateral_head", "Quick Facts: Origin and Insertion", SEARCH_EXCERPT),
+      src("elsevier.triceps_medial_head", "Quick Facts: Origin and Insertion", GARBLED_SUMMARY),
     ],
   }),
 

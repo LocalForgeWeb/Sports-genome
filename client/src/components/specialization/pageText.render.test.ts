@@ -17,7 +17,8 @@ import { NOW, goals, sessions, slots, store, storeWithOneArm } from "./__fixture
  * The forearm page says what main says (4dac1ae: both arms counted as one, owner 20 Oct 2026; the
  * athlete's current reality), apart from the changes wave 0 states (docs/specialization-atlas/
  * 09-page.md, "What wave 0 changes on the forearm page"; 10-multi-region.md §9.1, §11 decision 11(a)
- * and the appendix "Both sides as one"). The week of __fixtures__/forearmWeek.ts is rendered, both
+ * and the appendix "Both sides as one"), and the biceps' and brachialis' words wave A moves to the forearm's
+ * membership of them (10-multi-region.md §1.3). The week of __fixtures__/forearmWeek.ts is rendered, both
  * arms as one, for three windows and the plan week; the page is read with every disclosure open and
  * every finding shown, and so are five muscles' sheets with their ledgers open (one target muscle
  * with two-handed, one-arm and no-arm rows; one with holds and strapped sets; the adjacent anconeus
@@ -204,7 +205,7 @@ describe.runIf(out)("reading the page's text", () => {
   }, 300000);
 });
 
-// ---------------------------------------------------------------- what wave 0 changes, each where it is stated
+// ---------------------------------------------------------------- what wave 0 and wave A change, each where it is stated
 
 /** A sheet of the reading, by its key ("page" for the page itself). */
 type Where = RegExp;
@@ -222,6 +223,12 @@ const stated: { why: string; was: RegExp; now: string }[] = [
   { why: "09 item 9; appendix 'Both sides as one': the 3D model's panel counts a set once per muscle, not per arm", was: /^One bout per set, per muscle, per arm$/, now: "One bout per set, per muscle" },
   { why: "09 item 10; appendix 'Both sides as one': a movement's ledger row says no side for a planned one-arm set", was: /^(By [^.]+\.) Each side assumed\.$/, now: "$1" },
   { why: "09 item 11; appendix 'Both sides as one': the 3D model's credits name no side and claim no mirror image (the model is never mirrored)", was: /^It is one model of a right arm; the left arm is shown as its mirror image, not a separate model\. /, now: "It is one model of one arm, never mirrored. " },
+  // Wave A (10-multi-region.md §1.3): the biceps and brachialis keep neutral anatomy text in their home, the upper arm.
+  { why: "wave A, §1.3: the biceps' location is its home's neutral text", was: /^Front of the upper arm, crossing the elbow to the radius\.$/, now: "Front of the upper arm, at the surface: its two heads start on the shoulder blade, and it crosses the elbow to the radius." },
+  { why: "wave A, §1.3: what the biceps does is its home's text, which adds its weak help at the shoulder", was: /^Bends your elbow and turns your palm up; with the elbow bent it is the strongest palm-up muscle\.$/, now: "Bends your elbow and turns your palm up; with the elbow bent it is the strongest palm-up muscle. It also crosses the shoulder, where references describe only weak help raising the arm forward." },
+  { why: "wave A, §1.3: the biceps' shape note is neutral anatomy; its forearm words are the forearm's caveat", was: /^Shapes the front of the upper arm\. It is an upper-arm muscle and does not add forearm size\.$/, now: "May contribute most of the front contour of the upper arm above the elbow crease, since it is the surface muscle there. Visible shape also depends on neighbouring muscles, body fat and individual anatomy." },
+  { why: "wave A, §1.3: the brachialis' location is its home's neutral text", was: /^Front of the lower upper arm, under the biceps, crossing the elbow to the ulna\.$/, now: "Front of the lower half of the upper arm, under the biceps, crossing the elbow to the ulna." },
+  { why: "wave A, §1.3: the brachialis' shape note is neutral anatomy, its outer edge the one the sources confirm; its forearm words are the forearm's caveat", was: /^Mostly covered by the biceps; may show at the sides of the lower upper arm\. It is not a forearm muscle\.$/, now: "Mostly covered by the biceps, so most of it has little or no contour of its own. Its outer edge and lower end lie close to the surface and may add to the outer side of the lower upper arm, beside the biceps. Visible shape also depends on neighbouring muscles, body fat and individual anatomy." },
 ];
 /** Runs of the reference's lines, one after another, gone from the sheets `in` names. */
 const gone: { why: string; in: Where; lines: RegExp[] }[] = [
@@ -240,6 +247,22 @@ const added: { why: string; in: Where; lines: RegExp[] }[] = [
   { why: "09 item 2; §2.2, §6.2: an external muscle's sheet says where its targets are set", in: /^muscle: (Biceps brachii|Brachialis)$/, lines: [/^Targets for this muscle are set on the upper arm page, which is not available yet\.$/] },
   { why: "09 item 3; §8: the plain statement about automated review, under How this is counted", in: /^page$/, lines: [/^“Reviewed” means an automated agent checked each sentence/] },
   { why: "09 item 6; §8: How this is counted names the sets of exercises the forearm leaves unmapped, and opens them", in: /^page$/, lines: [/^\d+ sets? of exercises left unmapped here (is|are) not counted, each for the reason given with it\.$/, /^See (this set|these sets) and why$/] },
+  // Wave A (§1.3): the node's own caveats, then the forearm's caveats on its membership; the last of those is the caveat the node said before.
+  {
+    why: "wave A, §1.3: the biceps' own caveats, then the forearm's words on it, moved from its shape note",
+    in: /^muscle: Biceps brachii$/,
+    lines: [
+      /^Its two heads are counted as one muscle here; anatomy references describe their elbow and forearm actions together\.$/,
+      /^Its help raising the arm forward is weak, and studies disagree on whether its long head works in shoulder movement at all, so it is listed only as helping there\.$/,
+      /^Some people have an extra head; it usually causes no symptoms\.$/,
+      /^It is an upper-arm muscle and does not add forearm size\.$/,
+    ],
+  },
+  {
+    why: "wave A, §1.3: the brachialis' own caveat, then the forearm's words on it, moved from its shape note",
+    in: /^muscle: Brachialis$/,
+    lines: [/^It bends the elbow whatever the grip, so curls with the palm down or the thumb up load it too\.$/, /^It is not a forearm muscle\.$/],
+  },
 ];
 /** Sheets new with wave 0. */
 const addedSheets: { why: string; key: RegExp }[] = [
@@ -260,7 +283,7 @@ function withoutRuns(lines: string[], rules: { why: string; lines: RegExp[] }[],
   return result;
 }
 
-describe.skipIf(out)("the forearm page says what main says (4dac1ae, both arms as one), apart from wave 0's stated changes", () => {
+describe.skipIf(out)("the forearm page says what main says (4dac1ae, both arms as one), apart from wave 0's and wave A's stated changes", () => {
   it("reads the same lines, in the same order, in every state and every sheet", async () => {
     const reference = JSON.parse(readFileSync(join(process.cwd(), "client/src/components/specialization/__fixtures__/pageText.4dac1ae.json"), "utf8")) as Record<string, Reading>;
     const read = await readAll();

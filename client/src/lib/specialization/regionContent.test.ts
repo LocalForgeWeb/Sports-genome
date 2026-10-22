@@ -129,9 +129,32 @@ function withSubtitle(at6738eeb: ReturnType<typeof asAt6738eeb>, was: string, no
   return { ...at6738eeb, region: { ...at6738eeb.region, wording: { ...at6738eeb.region.wording, progressSubtitle: now } } };
 }
 
+/**
+ * The words of the biceps and brachialis that moved since 6738eeb (wave A; 10-multi-region.md
+ * §1.3): their home, the upper arm, keeps neutral anatomy text on the nodes, and the sentences that
+ * spoke from the forearm's page are the forearm's caveats on its membership of them, said after the
+ * node's own. Each such caveat is checked to be the forearm's old words on the node before the
+ * node's text is set to its home's, so nothing else of the two nodes, or of any other, may differ.
+ */
+function withMovedWords(at6738eeb: ReturnType<typeof asAt6738eeb>): ReturnType<typeof asAt6738eeb> {
+  const moved = new Map(forearmContent.members.filter((member) => member.caveats?.length).map((member) => [member.nodeId, member.caveats!]));
+  expect(Array.from(moved.keys())).toEqual(["upper_arm.biceps", "upper_arm.brachialis"]);
+  return {
+    ...at6738eeb,
+    nodes: at6738eeb.nodes.map((node) => {
+      const caveats = moved.get(node.id);
+      if (!caveats) return node;
+      const said = [node.shapeNote, ...node.caveats].join(" ");
+      for (const caveat of caveats) expect(said, node.id).toContain(caveat);
+      const home = upperArmContent.nodes.find((item) => item.id === node.id)!;
+      return { ...node, location: home.location, whatItDoes: home.whatItDoes, shapeNote: home.shapeNote, caveats: [...home.caveats, ...caveats] };
+    }),
+  };
+}
+
 describe("nothing moved: the forearm and the deltoid fixture as composed", () => {
-  it("gives the forearm page the data it read at 6738eeb, record for record, apart from the fields the model added and the subtitle that said \"by arm\"", () => {
-    expect(asAt6738eeb(forearmRegionData)).toEqual(withSubtitle(fixture("forearmRegionData.6738eeb.json"), "Circumference and grip, by arm", "Circumference and grip"));
+  it("gives the forearm page the data it read at 6738eeb, record for record, apart from the fields the model added, the subtitle that said \"by arm\" and the biceps' and brachialis' words (§1.3)", () => {
+    expect(asAt6738eeb(forearmRegionData)).toEqual(withMovedWords(withSubtitle(fixture("forearmRegionData.6738eeb.json"), "Circumference and grip, by arm", "Circumference and grip")));
   });
 
   it("fills the forearm's added fields with what it did before: arm sides, the forearms key from any tag, no external version", () => {
