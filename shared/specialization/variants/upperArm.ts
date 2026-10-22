@@ -19,7 +19,7 @@ import type { VariantDimensions } from "./dimensions";
  *   machine with handles that may move apart, a landmine or cable press done with one hand or two).
  * - The forearm columns are filled honestly, never defaulted: `gripType` `none` where the hands
  *   are flat supports (push-ups) or hold nothing (the Zercher squat), `open_hand` where open hands
- *   hold a ball or plates; `wristPosition` `extended` where flat hands bear weight, `neutral` on
+ *   hold a ball, plates or a dumbbell by its end; `wristPosition` `extended` where flat hands bear weight, `neutral` on
  *   single-joint arm work, `unknown` on presses and pulls, which do not define it; `straps`
  *   `unknown` on pulls (straps can be used), `not_applicable` on pushes, throws and arm isolation.
  *   No exercise here leaves the hands with nothing to do, so no `laterality` is `not_applicable`.
@@ -175,7 +175,7 @@ export const upperArmVariants: ExerciseVariant[] = [
   variant(346, "Single-Arm Cable Pressdown", "arm", isolation("supinated", "underhand", "unilateral", "One handle on a high pulley, palm up, elbow at the side (as photographed)."), armAtSide),
   variant(154, "Overhead Cable Triceps Extension", "none", isolation("neutral", "neutral", "bilateral", "Facing away from the pulley, a rope behind the head, upper arms overhead (as photographed)."), armOverhead),
   variant(349, "Cable Overhead Triceps Extension", "none", isolation("neutral", "neutral", "bilateral", "Facing away from the pulley, a rope behind the head, upper arms overhead (as photographed)."), armOverhead),
-  variant(155, "Dumbbell Overhead Triceps Extension", "none", isolation("unknown", "unknown", "bilateral", "Standing, one dumbbell held overhead in both hands, cupped under its top end, and lowered behind the head (as photographed)."), armOverhead),
+  variant(155, "Dumbbell Overhead Triceps Extension", "none", isolation("unknown", "open_hand", "bilateral", "Standing, one dumbbell held overhead in both hands, cupped under its top end, and lowered behind the head (as photographed)."), armOverhead),
   variant(156, "Single-Arm Dumbbell Triceps Extension", "arm", isolation("unknown", "unknown", "unilateral", "One dumbbell held overhead and lowered behind the head (as photographed)."), armOverhead),
   variant(157, "Machine Triceps Extension", "arm", isolation("unknown", "unknown", "either", "Seated, upper arms on a pad raised in front (as photographed); machines differ: one bar, or handles that allow one arm."), { torso: "upright", shoulder: "flexed" }),
   variant(160, "Bodyweight Triceps Extension", "none", isolation("unknown", "unknown", "bilateral", "Leaning into a bar or straps held in both hands, the head lowered toward the hands by bending the elbows; the catalog gives no set-up beyond the name.", { wristPosition: "unknown" }), { torso: "inclined", shoulder: "flexed" }),

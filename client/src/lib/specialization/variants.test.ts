@@ -138,6 +138,13 @@ describe("the forearm columns, filled honestly", () => {
     }
   });
 
+  it("cite a photograph only where the catalog has one for that exercise", () => {
+    const photos: Record<string, unknown> = JSON.parse(readFileSync(join(__dirname, "../../../src/data/exercisePhotos.json"), "utf8"));
+    for (const variant of upperArmVariants) {
+      if (/photograph/.test(variant.notes ?? "")) expect(photos[String(variant.catalogExerciseId)], variant.id).toBeDefined();
+    }
+  });
+
   it("time no new exercise and invent no elbow angle; each says how it is done", () => {
     for (const variant of upperArmVariants) {
       expect(variant.measure, variant.id).toBe("reps");
