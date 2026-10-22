@@ -169,8 +169,8 @@ describe("Body Lab architecture mechanics disclosure", () => {
     // and the row's dot is that same fill.
     // (The obliques are on the front view this renders; the glutes and hamstrings are drawn on the back.)
     expect(markup).toMatch(/data-muscle="obliques" data-role="stabilizing"/);
-    expect(ranking).toContain("background:var(--sg-role-stabilizing-1)");
-    expect(ranking).toContain("background:var(--sg-role-supporting-1)");
+    expect(ranking).toContain("background:var(--sg-role-stabilizing)");
+    expect(ranking).toContain("background:var(--sg-role-supporting)");
     // A muscle with no role recorded is missing data, never "not used".
     expect(markup).not.toContain("Not used here");
     expect(markup).not.toContain("Stabilizer · Strong indirect evidence");

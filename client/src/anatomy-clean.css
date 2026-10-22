@@ -279,9 +279,9 @@
 .atlas-ranking .atlas-role-row-copy strong{color:var(--sg-text-on-light);font-size:var(--sg-text-lg);font-weight:600;line-height:1.2}
 .atlas-ranking .atlas-role-row-copy small{color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-base);line-height:var(--sg-leading-snug)}
 .atlas-ranking .atlas-role-tag{font-size:var(--sg-text-base);font-weight:600;letter-spacing:0;text-transform:none;white-space:nowrap}
-.atlas-role-tag-primary{color:var(--sg-action)}
-.atlas-role-tag-stabilizer{color:#b8891c}
-.atlas-role-tag-synergist{color:#4f7ea8}
+/* Colour lives on the row's dot, the figure's own red; the tag says the role in words, readable on any surface. */
+.atlas-role-tag-primary{color:var(--sg-text-on-light)}
+.atlas-role-tag-stabilizer,.atlas-role-tag-synergist{color:var(--sg-text-muted-on-light)}
 .atlas-role-tag-unrecorded{color:var(--sg-text-subtle-on-light)}
 .atlas-role-row-unrecorded{opacity:.82}
 .atlas-ranking .atlas-ranking-toggle{gap:.3rem;min-height:44px;font-size:var(--sg-text-lg);font-weight:600;letter-spacing:0;text-transform:none}

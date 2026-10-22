@@ -45,39 +45,68 @@ function deltaE(one: string, two: string) {
 }
 
 const ranks = ["prospect", "jv", "varsity", "regional", "state", "national", "world-stage"].map((rank) => [rank, token(rankCss, `--sg-rank-${rank}-color`)!] as const);
-const roles = ["--sg-role-primary-1", "--sg-role-primary-2", "--sg-role-supporting-1", "--sg-role-supporting-2", "--sg-role-stabilizing-1", "--sg-role-stabilizing-2"].map((name) => [name, token(figureCss, name)!] as const);
+const role = (name: string) => token(figureCss, `--sg-role-${name}`)!;
+const chroma = (hex: string) => { const [, a, b] = lab(hex); return Math.hypot(a, b); };
+const lightness = (hex: string) => lab(hex)[0];
 
-describe("role colours and rank colours", () => {
+/**
+ * October 21 (owner, "Red muscle palette"): the roles are one red family on the navy, primary the
+ * vivid red, supporting the muted red, stabilizing the dusty rose, "No role recorded" slate.
+ */
+describe("role colours", () => {
   it("measures a known pair the way the diagnosis did", () => {
-    // The old supporting gold against State: the collision that started this.
+    // The old supporting gold against State: the collision that started the rank guard.
     expect(deltaE("#e9be55", "#DCAF3C")).toBeCloseTo(4.0, 0);
   });
 
-  it("keeps every role stop at least 15 from every rank colour", () => {
+  it("are the owner's palette", () => {
+    expect([role("primary"), role("supporting"), role("stabilizing"), role("neutral-on-dark")].map((hex) => hex.toLowerCase())).toEqual(["#ff364a", "#cd6570", "#956570", "#34465a"]);
+  });
+
+  it("step down from primary: each role less saturated, and none lighter, than the one before", () => {
+    const [primary, supporting, stabilizing, none] = [role("primary"), role("supporting"), role("stabilizing"), role("neutral-on-dark")];
+    expect(chroma(primary)).toBeGreaterThan(chroma(supporting));
+    expect(chroma(supporting)).toBeGreaterThan(chroma(stabilizing));
+    expect(lightness(primary)).toBeGreaterThanOrEqual(lightness(supporting));
+    expect(lightness(supporting)).toBeGreaterThan(lightness(stabilizing));
+    expect(lightness(stabilizing)).toBeGreaterThan(lightness(none));
+  });
+
+  it("keeps the three reds and the slate apart from one another", () => {
+    // One hue family, so the reds are told apart by saturation and lightness; each pair is still a
+    // clear step (ΔE00 above 10), and "No role recorded" is nowhere near a red.
+    const [primary, supporting, stabilizing, none] = [role("primary"), role("supporting"), role("stabilizing"), role("neutral-on-dark")];
+    expect(deltaE(primary, supporting)).toBeGreaterThanOrEqual(10);
+    expect(deltaE(supporting, stabilizing)).toBeGreaterThanOrEqual(10);
+    expect(deltaE(primary, stabilizing)).toBeGreaterThanOrEqual(20);
+    for (const red of [primary, supporting, stabilizing]) expect(deltaE(red, none)).toBeGreaterThanOrEqual(25);
+  });
+
+  it("stays at least 15 from every rank colour but National's crimson, which it sits near by choice", () => {
+    // Sep 28 regression brief §10 kept every role 15 from every rank. A red family cannot clear
+    // National's crimson by that much (primary 12.3, supporting 10.5, stabilizing 15.3); the owner
+    // chose these reds and kept the rank palette as it is. Role views draw no rank colours, and
+    // every role is named beside its colour, so the floor for National is a clear 10.
     expect(ranks.every(([, hex]) => hex)).toBe(true);
-    for (const [role, hex] of roles) {
-      expect(hex, role).toBeTruthy();
-      for (const [rank, rankHex] of ranks) expect(deltaE(hex, rankHex), `${role} vs ${rank}`).toBeGreaterThanOrEqual(15);
+    for (const name of ["primary", "supporting", "stabilizing"]) {
+      for (const [rank, rankHex] of ranks) expect(deltaE(role(name), rankHex), `${name} vs ${rank}`).toBeGreaterThanOrEqual(rank === "national" ? 10 : 15);
     }
   });
 
-  it("keeps the three role fills apart from one another", () => {
-    // Stabilizing shared supporting's teal, so "2 stabilizing" in the count line
-    // pointed at nothing the body drew. Each state now has its own hue family.
-    const [primary, supporting, stabilizing] = ["primary", "supporting", "stabilizing"].map((role) => token(figureCss, `--sg-role-${role}-1`)!);
-    expect(deltaE(primary, supporting)).toBeGreaterThanOrEqual(30);
-    expect(deltaE(primary, stabilizing)).toBeGreaterThanOrEqual(30);
-    expect(deltaE(supporting, stabilizing)).toBeGreaterThanOrEqual(30);
+  it("has one owner: the figure, the legend and the row dots all read the tokens, flat", () => {
+    expect(figureCss).toContain("--anatomy-primary-1: var(--sg-role-primary);");
+    expect(figureCss).toContain("--anatomy-primary-2: var(--sg-role-primary);");
+    expect(figureCss).toContain("--anatomy-supporting-1: var(--sg-role-supporting);");
+    expect(figureCss).toContain("--anatomy-stabilizing-1: var(--sg-role-stabilizing);");
+    for (const name of ["primary", "supporting", "stabilizing"]) expect(mapSource).toContain(`style={{ background: "var(--sg-role-${name})" }}`);
+    expect(mapSource).toContain('Primary: "var(--sg-role-primary)", Stabilizer: "var(--sg-role-stabilizing)", Synergist: "var(--sg-role-supporting)"');
+    // No gradient swatches, and none of the old orange, teal or champagne anywhere it could leak back.
+    expect(mapSource).not.toContain("linear-gradient(180deg,var(--sg-role-");
+    expect(`${figureCss}\n${mapSource}`).not.toMatch(/#ff783d|#f06c35|#25bcc3|#1e9ea6|#fce3a8|#f4deaa|#e9be55|#c08f24|#d5ad43|#7791a8/i);
   });
 
-  it("has one owner: the figure, the legend and the row dots all read the tokens", () => {
-    expect(figureCss).toContain("--anatomy-supporting-1: var(--sg-role-supporting-1);");
-    expect(figureCss).toContain("--anatomy-stabilizing-1: var(--sg-role-stabilizing-1);");
-    expect(figureCss).toContain("--anatomy-primary-1: var(--sg-role-primary-1);");
-    expect(mapSource).toContain("linear-gradient(180deg,var(--sg-role-primary-1),var(--sg-role-primary-2))");
-    expect(mapSource).toContain("linear-gradient(180deg,var(--sg-role-supporting-1),var(--sg-role-supporting-2))");
-    expect(mapSource).toContain("linear-gradient(180deg,var(--sg-role-stabilizing-1),var(--sg-role-stabilizing-2))");
-    expect(mapSource).toContain('Primary: "var(--sg-role-primary-1)", Stabilizer: "var(--sg-role-stabilizing-1)", Synergist: "var(--sg-role-supporting-1)"');
-    expect(mapSource).not.toMatch(/#e9be55|#c08f24|#d5ad43|#7791a8/i);
+  it("never repaints a focused or selected muscle: both are outlines, so its colour keeps its meaning", () => {
+    expect(figureCss).not.toMatch(/data-focused="true"\]\s*>\s*path\s*\{[^}]*fill/);
+    expect(figureCss).not.toMatch(/data-selected="true"\]\s*>\s*path\s*\{[^}]*fill/);
   });
 });
