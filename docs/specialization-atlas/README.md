@@ -145,7 +145,7 @@ Wave 0 of [10-multi-region.md](10-multi-region.md) (§9.1): the platform for nin
 - New columns: the regions' side model, words, side sentence, catalog keys, tag scope, external heading and measure defaults; `variant_mappings.side_relation` (`same` on all 418 forearm rows); `diagram_assets.sides`.
 - Widened checks: `not_applicable` laterality, the `midline` side, the `girth_cm` metric, two postures.
 - Restated publication rule (rules 10 to 13, freezing attributes at publish) and new guards; one tested undo, valid until seed v3.
-- Rows changed in what production holds: the forearm's region row (schema v2's columns) and the reference upper arm's (seed v2, schema v2's columns only); and any `catalog_exercises` link `public.exercises` has gained since 18 Oct.
+- Rows changed in what production holds: the forearm's region row (schema v2's columns; seed v2, its progress subtitle without "by arm") and the reference upper arm's (seed v2, schema v2's columns only); and any `catalog_exercises` link `public.exercises` has gained since 18 Oct.
 - Nothing an athlete reads comes from the database yet; the rule stays `specialization_exposure_v1`.
 
 **Releasing it** (10-multi-region.md §9.4, 04-database.md §10):

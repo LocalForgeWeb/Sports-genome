@@ -60,7 +60,7 @@ describe("the deltoid fixture is data, over real catalog exercises", () => {
   });
 
   it("has its own page words and offers circumference only, where the forearm offers grip too", () => {
-    expect(deltoidRegionData.region.wording).toEqual({ externalGroup: "Other muscles credited here", externalHeading: "Deltoid muscles credited here", incidentalWork: "bracing", progressSubtitle: "Circumference, by arm", sideWord: "arm", sideWordPlural: "arms", onSideTemplate: "your {side} shoulder" });
+    expect(deltoidRegionData.region.wording).toEqual({ externalGroup: "Other muscles credited here", externalHeading: "Deltoid muscles credited here", incidentalWork: "bracing", progressSubtitle: "Circumference", sideWord: "arm", sideWordPlural: "arms", onSideTemplate: "your {side} shoulder" });
     expect(deltoidRegionData.region.measurementMetrics).toEqual(["circumference_cm"]);
     expect(forearmRegionData.region.measurementMetrics).toEqual(["circumference_cm", "grip_force_n"]);
     expect(forearmRegionData.diagram!.viewOrder.map((view) => view.label)).toEqual(["Palm", "Back", "Thumb side"]);

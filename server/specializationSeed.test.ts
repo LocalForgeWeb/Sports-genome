@@ -341,7 +341,7 @@ describe("over what production holds: seed v1's rows stay as they were", () => {
    * and the upper arm's two shoulder actions), and applied a second time it touches no row. xmin
    * and ctid compared on every table.
    */
-  it("changes only the upper arm's new region columns, adds only new rows, and applied again touches nothing; forearm_mappings_v1 still passes its publication rule", async () => {
+  it("changes only the upper arm's new region columns and the forearm's progress subtitle, adds only new rows, and applied again touches nothing; forearm_mappings_v1 still passes its publication rule", async () => {
     const fresh = await freshDb("schema v2 again");
     try {
       const regionRows = async () => {
@@ -352,12 +352,18 @@ describe("over what production holds: seed v1's rows stay as they were", () => {
       const regionsBefore = await regionRows();
       await applyMigration(fresh, SEED_MIGRATION_PATH);
       const after = await rowVersions(fresh);
-      const allowedChanges: Record<string, number> = { regions: 1 };
+      const allowedChanges: Record<string, number> = { regions: 2 };
       const changed = Object.fromEntries(Object.keys(prior).map((table) => [table, prior[table].filter((version) => !after[table].includes(version)).length]).filter(([, n]) => n));
       expect(changed).toEqual(allowedChanges);
-      // That row is the upper arm's: schema v1's columns exactly as seed v1 wrote them, schema v2's from its record. The forearm's is untouched.
+      // Those rows are the forearm's, in exactly one column, its Progress subtitle, which no longer says "by arm" (both sides as one,
+      // owner 20 Oct 2026), and the upper arm's: schema v1's columns exactly as seed v1 wrote them, schema v2's from its record.
       const regionsAfter = await regionRows();
-      expect(regionsAfter.forearm.v).toBe(regionsBefore.forearm.v);
+      expect(regionsAfter.forearm.v).not.toBe(regionsBefore.forearm.v);
+      expect(regionsBefore.forearm.row.progress_subtitle).toBe("Circumference and grip, by arm");
+      expect(regionsAfter.forearm.row).toEqual({ ...regionsBefore.forearm.row, progress_subtitle: "Circumference and grip" });
+      expect(regionsAfter.forearm.row.progress_subtitle).toBe(forearmContent.region.wording.progressSubtitle);
+      // The upper arm's subtitle is a v1 column of a reference region: null, as seed v1 wrote it, until its promotion.
+      expect(regionsAfter.upper_arm.row.progress_subtitle).toBeNull();
       const v2Columns = ["side_model", "side_limb", "side_word", "side_word_plural", "catalog_keys", "region_only_tag_scope", "external_heading", "measurement_defaults", "on_side_template"];
       const v1Part = (row: Record<string, unknown>) => Object.fromEntries(Object.entries(row).filter(([column]) => !v2Columns.includes(column)));
       expect(v1Part(regionsAfter.upper_arm.row)).toEqual(v1Part(regionsBefore.upper_arm.row));

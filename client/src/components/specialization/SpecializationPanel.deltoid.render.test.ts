@@ -174,7 +174,7 @@ describe("the specialization page on the deltoid fixture", () => {
   it("offers circumference only under Progress, with the region's own subtitle", async () => {
     render(createElement(Harness));
     const summary = screen.getByText("Progress").closest("summary")!;
-    expect(summary.textContent).toBe("ProgressCircumference, by arm");
+    expect(summary.textContent).toBe("ProgressCircumference");
     const details = summary.closest("details")!;
     await act(async () => { details.open = true; fireEvent(details, new Event("toggle")); });
     await act(async () => { fireEvent.click(within(details).getByRole("button", { name: "Add a reading" })); });
@@ -193,7 +193,7 @@ describe("the same page on the forearm, for contrast", () => {
     expect(viewButtons().map((button) => button.textContent)).toEqual(["Palm", "Back", "Thumb side"]);
     expect(screen.getByRole("heading", { level: 3, name: "Upper-arm muscles credited here" })).not.toBeNull();
     expect(document.querySelector(".spz-legend-line")!.textContent).toMatch(/Incidental grip · bar full at/);
-    expect(screen.getByText("Progress").closest("summary")!.textContent).toBe("ProgressCircumference and grip, by arm");
+    expect(screen.getByText("Progress").closest("summary")!.textContent).toBe("ProgressCircumference and grip");
     await act(async () => { fireEvent.click(viewButtons()[2]); });
     expect(lastState?.view).toBe("thumb");
     expect(within(mapCard()).getByRole("group", { name: /^Forearms, thumb side view, surface layer\./ })).not.toBeNull();

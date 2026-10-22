@@ -399,7 +399,7 @@ describe("CHECK vocabularies match shared/specialization/types.ts", () => {
         const names = Object.keys(columns);
         return failure(db, `insert into specialization.regions (id, label, status, ${names.join(", ")}) values ($1, 'Test', $2, ${names.map((_, index) => `$${index + 3}`).join(", ")})`, [id, status, ...Object.values(columns)]);
       };
-      const page = { heading: "Test specialization", entry_label: "Explore test coverage", external_group: "Other muscles credited here", incidental_work: "bracing", progress_subtitle: "Circumference, by arm", ...PAIRED_BY_ARM };
+      const page = { heading: "Test specialization", entry_label: "Explore test coverage", external_group: "Other muscles credited here", incidental_work: "bracing", progress_subtitle: "Circumference", ...PAIRED_BY_ARM };
       expect(await insert("zz_page", "fixture", { ...page, measurement_metrics: ["circumference_cm"] })).toBeNull();
       for (const missing of ["external_group", "incidental_work", "progress_subtitle"]) {
         expect(await insert(`zz_no_${missing}`, "fixture", { ...page, [missing]: null }), missing).toMatch(/regions_page_copy/);
@@ -443,7 +443,7 @@ describe("reference content, as a signed-in user", () => {
     await as(db, "service_role", async () => {
       await db.exec(`
         insert into specialization.regions (id, label, heading, status, entry_label, external_group, incidental_work, progress_subtitle, side_model, side_limb, side_word, side_word_plural, on_side_template)
-          values ('zz_fixture', 'Fixture', 'Fixture', 'fixture', 'Fixture', 'Other muscles', 'bracing', 'Circumference, by arm', 'paired', 'arm', 'arm', 'arms', 'your {side} arm');
+          values ('zz_fixture', 'Fixture', 'Fixture', 'fixture', 'Fixture', 'Other muscles', 'bracing', 'Circumference', 'paired', 'arm', 'arm', 'arms', 'your {side} arm');
         insert into specialization.claims (claim_key, node_id, kind, statement, basis, review_status) values ('test:fcu.draft', 'forearm.fcu', 'selectivity', 'Draft claim.', 'unknown', 'draft');
         insert into specialization.claim_sources (claim_id, source_id, locator) select c.id, s.id, 'Test' from specialization.claims c, specialization.sources s where c.claim_key = 'test:fcu.draft' and s.source_key = 'S2';
         insert into specialization.rule_versions (id, specification, published_at, notes) values ('zz_rule_draft', '{}', null, 'Unpublished rule.');

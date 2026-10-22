@@ -467,14 +467,24 @@ describe("regions", () => {
     expect(await promote(", side_model = 'paired', side_limb = 'arm', side_word = 'arm', side_word_plural = 'arms', on_side_template = 'your {side} arm'")).toBeNull();
   });
 
-  it("is checked on the stored row, so seed v1's upsert of the forearm row, which names none of these columns, passes and touches nothing", async () => {
+  it("is checked on the stored row, so seed v1's upsert of the forearm row, which names none of these columns, passes, changing only the one v1 column seed v2 rewords", async () => {
     const seedV1 = readMigration(SEED_V1_MIGRATION_PATH);
     const start = seedV1.indexOf("insert into specialization.regions as t");
     const upsert = seedV1.slice(start, seedV1.indexOf(";\n", start) + 1);
     expect(upsert).not.toMatch(/side_model/);
-    const before = await rows(db, "select id, xmin::text || '@' || ctid::text as v from specialization.regions where id in ('forearm', 'upper_arm') order by 1");
+    const regionRows = () => rows<{ id: string; row: Record<string, unknown>; v: string }>(db, "select id, to_jsonb(r) as row, xmin::text || '@' || ctid::text as v from specialization.regions r where id in ('forearm', 'upper_arm') order by id");
+    const [forearm, upperArm] = await regionRows();
+    // Seed v2 rewords the forearm's Progress subtitle (both sides as one: no "by arm"), so seed v1's
+    // upsert really writes the row, and the side model it does not name is read from the stored row.
+    expect(forearm.row.progress_subtitle).toBe("Circumference and grip");
     expect(await scriptFailure(db, upsert)).toBeNull();
-    expect(await rows(db, "select id, xmin::text || '@' || ctid::text as v from specialization.regions where id in ('forearm', 'upper_arm') order by 1")).toEqual(before);
+    const [forearmAfter, upperArmAfter] = await regionRows();
+    expect(forearmAfter.v).not.toBe(forearm.v);
+    expect(forearmAfter.row).toEqual({ ...forearm.row, progress_subtitle: "Circumference and grip, by arm" });
+    expect(upperArmAfter.v).toBe(upperArm.v);
+    // As seed v2 wrote it again, for the cases after this one.
+    await db.query("update specialization.regions set progress_subtitle = $1 where id = 'forearm'", [forearm.row.progress_subtitle]);
+    expect((await regionRows())[0].row).toEqual(forearm.row);
   });
 
   it("a region with a published version keeps its status, side model, limb, catalog keys and tag scope, and stays; its words, order and measures may change", async () => {
@@ -1067,7 +1077,7 @@ describe("the prototype experiment's cases", () => {
     await as(db, "service_role", async () => {
       await db.exec(`
         update specialization.regions set status = 'production', heading = 'Upper-arm specialization', entry_label = 'Explore upper-arm coverage',
-          external_group = 'Forearm muscles credited here', incidental_work = 'steadying', progress_subtitle = 'Arm circumference, by arm',
+          external_group = 'Forearm muscles credited here', incidental_work = 'steadying', progress_subtitle = 'Arm circumference',
           measurement_metrics = array['circumference_cm'], body_map_keys = array['biceps', 'brachialis', 'triceps'], sort_order = 8,
           side_model = 'paired', side_limb = 'arm', side_word = 'arm', side_word_plural = 'arms', catalog_keys = array['biceps', 'brachialis', 'triceps'],
           region_only_tag_scope = 'primary', external_heading = 'Upper-arm muscles credited here'
@@ -1163,7 +1173,7 @@ describe("the prototype experiment's cases", () => {
 // ---------------------------------------------------------------- how it reaches production
 
 describe("applied over what production holds", () => {
-  it("writes the forearm region row's new columns and its own tables' rows, and touches no other existing row; applied again, nothing; the current seed after it, one existing row, the upper arm's region row in schema v2's columns", async () => {
+  it("writes the forearm region row's new columns and its own tables' rows, and touches no other existing row; applied again, nothing; the current seed after it, two existing rows: the upper arm's region row in schema v2's columns and the forearm's progress subtitle", async () => {
     const fresh = await createSupabaseLikeDb();
     try {
       await replayMigrations(fresh, "seed v1");
@@ -1184,13 +1194,16 @@ describe("applied over what production holds", () => {
       await applyMigration(fresh, SCHEMA_V2_MIGRATION_PATH);
       expect(await rowVersions(fresh)).toEqual(after);
 
-      // The current seed after it: one existing row changes, the upper arm's, in the columns schema v2 added (server/specializationSeed.test.ts holds the rest).
-      const upperArmBefore = await regionRow("upper_arm");
+      // The current seed after it: two existing rows change, both region rows: the upper arm's in the columns schema v2 added, and the
+      // forearm's in one v1 column, its Progress subtitle, which no longer says "by arm" (both sides as one; server/specializationSeed.test.ts holds the rest).
+      const [upperArmBefore, forearmBefore] = [await regionRow("upper_arm"), await regionRow("forearm")];
       await applyMigration(fresh, SEED_MIGRATION_PATH);
       const seeded = await rowVersions(fresh);
-      for (const table of Object.keys(after)) expect(after[table].filter((version) => !seeded[table].includes(version)), table).toEqual(table === "regions" ? [upperArmBefore.v] : []);
+      for (const table of Object.keys(after)) expect(after[table].filter((version) => !seeded[table].includes(version)).sort(), table).toEqual(table === "regions" ? [forearmBefore.v, upperArmBefore.v].sort() : []);
       const upperArmAfter = (await regionRow("upper_arm")).row;
       expect(Object.fromEntries(Object.entries(upperArmAfter).filter(([column]) => !REGION_COLUMNS.includes(column)))).toEqual(upperArm.row);
+      expect(forearmBefore.row.progress_subtitle).toBe("Circumference and grip, by arm");
+      expect((await regionRow("forearm")).row).toEqual({ ...forearmBefore.row, progress_subtitle: "Circumference and grip" });
     } finally {
       await fresh.close();
     }
@@ -1276,7 +1289,7 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
     expect(readdirSync(resolve(process.cwd(), "supabase/migrations")).filter((name) => name.includes("undo"))).toEqual([]);
   });
 
-  it("after schema v2 and the current seed gives the database schema v1 and seed v1 gave, plus the rows the seed added to v1's tables and the goals kept; both then apply again; it refuses after seed v3, after a publish under schema v2, while a goal names what schema v2 would not list, and while a variant uses not_applicable", async () => {
+  it("after schema v2 and the current seed gives the database schema v1 and seed v1 gave (goals_no_overlap keyed on the side again), plus what the seed wrote to v1's tables and the goals kept; both then apply again; it refuses after seed v3, after a publish under schema v2, while a goal names what schema v2 would not list, and while a variant uses not_applicable", async () => {
     const target = await createSupabaseLikeDb();
     const release = await createReleaseDb();
     try {
@@ -1305,22 +1318,47 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
         );
       });
       const beforeUndo = await rowVersions(target);
-      // The undo's limit (its header, 04-database.md §10): a row the seed added to a table of v1's stays.
-      // In this release those are the upper arm's two shoulder actions; every other row it wrote is in schema v2's tables. The goals stay too.
+      // The undo's limit (its header, 04-database.md §10): what the seed wrote to a table of v1's stays. In this release that is
+      // the upper arm's two shoulder actions, added, and one value rewritten, the forearm's Progress subtitle, which no longer says
+      // "by arm" (both sides as one); every other row it wrote is in schema v2's tables. The goals stay too.
       const seeded = await snapshot(target);
       const v1Columns = (table: string) => new Set(v1.catalog.columns.filter((column) => column.table_name === table).map((column) => column.column_name as string));
       const asV1Row = (table: string, row: string) => JSON.stringify(Object.fromEntries(Object.entries(JSON.parse(row) as Record<string, unknown>).filter(([column]) => v1Columns(table).has(column))));
-      const added = Object.fromEntries(Object.keys(v1.data).map((table) => [table, seeded.data[table].map((row) => asV1Row(table, row)).filter((row) => !v1.data[table].includes(row))]));
-      expect(Object.fromEntries(Object.entries(added).filter(([, extra]) => extra.length).map(([table, extra]) => [table, extra.map((row) => (JSON.parse(row) as { id: string }).id)]))).toEqual({
+      const idOf = (row: string) => (JSON.parse(row) as { id?: string }).id;
+      const v1Ids = (table: string) => new Set(v1.data[table].map(idOf).filter((id) => id !== undefined));
+      const notInV1 = Object.fromEntries(Object.keys(v1.data).map((table) => [table, seeded.data[table].map((row) => asV1Row(table, row)).filter((row) => !v1.data[table].includes(row))]));
+      const added = Object.fromEntries(Object.entries(notInV1).map(([table, extra]) => [table, extra.filter((row) => !v1Ids(table).has(idOf(row)!))]));
+      const rewritten = Object.fromEntries(Object.entries(notInV1).map(([table, extra]) => [table, extra.filter((row) => v1Ids(table).has(idOf(row)!))]));
+      const idsOf = (byTable: Record<string, string[]>) => Object.fromEntries(Object.entries(byTable).filter(([, extra]) => extra.length).map(([table, extra]) => [table, extra.map(idOf)]));
+      expect(idsOf(added)).toEqual({
         actions: ["shoulder.extension", "shoulder.flexion"],
         goals: ["undo-fcu", "undo-wrist"],
       });
+      expect(idsOf(rewritten)).toEqual({ regions: ["forearm"] });
+      const forearmIn = (list: string[]) => JSON.parse(list.find((row) => idOf(row) === "forearm")!) as Record<string, unknown>;
+      expect(forearmIn(rewritten.regions)).toEqual({ ...forearmIn(v1.data.regions), progress_subtitle: "Circumference and grip" });
+      expect(forearmIn(v1.data.regions).progress_subtitle).toBe("Circumference and grip, by arm");
+      // goals_no_overlap: schema v2 keys a target without its side, and the side columns' comments say `right` is a placeholder.
+      const overlapRule = (state: Awaited<ReturnType<typeof snapshot>>) => ({
+        constraint: state.catalog.constraints.filter((row) => row.relname === "goals" && row.conname === "goals_no_overlap"),
+        index: state.catalog.indexes.filter((row) => row.indexname === "goals_no_overlap"),
+        sideComments: state.catalog.columns.filter((row) => (row.table_name === "goals" || row.table_name === "measurements") && row.column_name === "side").map((row) => row.comment),
+      });
+      expect(overlapRule(v1).constraint).toEqual([{ relname: "goals", conname: "goals_no_overlap", def: expect.stringMatching(/\bside WITH =/) }]);
+      expect(overlapRule(v1).sideComments).toEqual([null, null]);
+      expect(overlapRule(seeded).constraint).toEqual([{ relname: "goals", conname: "goals_no_overlap", def: expect.not.stringMatching(/\bside\b/) }]);
+      expect(overlapRule(seeded).sideComments).toEqual([expect.stringMatching(/right is a placeholder/), expect.stringMatching(/right is a placeholder/)]);
 
       expect(await scriptFailure(target, undo)).toBeNull();
       // Catalog (tables, columns, constraints, indexes, triggers, functions with their bodies, policies, grants, comments) and rows, table by table.
       const undone = await snapshot(target);
+      // v1's goals_no_overlap again, its definition and index as v1 wrote them (the side a key again), and v1's comments, none.
+      expect(overlapRule(undone)).toEqual(overlapRule(v1));
       expect(undone.catalog).toEqual(v1.catalog);
-      for (const table of Object.keys(v1.data)) expect(undone.data[table], table).toEqual([...v1.data[table], ...added[table]].sort());
+      for (const table of Object.keys(v1.data)) {
+        const kept = v1.data[table].filter((row) => !rewritten[table].some((now) => idOf(now) === idOf(row)));
+        expect(undone.data[table], table).toEqual([...kept, ...added[table], ...rewritten[table]].sort());
+      }
       expect(Object.keys(undone.data)).toEqual(Object.keys(v1.data));
       expect(await recorded(target)).toEqual(v1Recorded);
       // It wrote no row of v1's tables.
