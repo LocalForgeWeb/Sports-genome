@@ -1,0 +1,21 @@
+{
+ "label": "main-4dac1ae",
+ "figureAsked": "drawing (3D APIs off)",
+ "runs": 3,
+ "sameEveryRun": true,
+ "figure": "Drawing",
+ "specialize": [
+  {
+   "file": "SpecializationPanel-kR618p1Z.js",
+   "bytes": 384883
+  },
+  {
+   "file": "mappings-BixpmbJA.js",
+   "bytes": 43740
+  }
+ ],
+ "total": 428623,
+ "model": 0,
+ "page": 428623,
+ "filesBeforeTheTap": 9
+}
