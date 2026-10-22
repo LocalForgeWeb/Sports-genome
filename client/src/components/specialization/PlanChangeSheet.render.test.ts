@@ -3,10 +3,11 @@ import React, { createElement } from "react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
 import { applyPlanChangeToRecord } from "@/lib/specialization/planChange";
 import type { RecommendationCandidate } from "@/lib/specialization/recommendations";
+import { loadRegionExtras } from "@/lib/specialization/regionExtras";
 import type { SpecializationPlanChange } from "@/lib/specialization/viewState";
 import { buildDaySlots, commitDay, emptyDayStore, loadDay, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import { getGoalPrescription } from "@/lib/workoutPlanner";
@@ -18,7 +19,9 @@ import { SpecializationSheet } from "./SpecializationSheet";
  * The add-or-swap sheet (brief §7, "Choose exact week/day and exercise slot before save"):
  * the athlete chooses the day before Save, the slot of an add reaches Home, "already in"
  * names the week chosen here, rewording the title keeps focus where it was, and Save hands
- * Home exactly the change the preview ran.
+ * Home exactly the change the preview ran. Since F1 (11-forearm-research-and-stack.md §5.2) an add of
+ * an exercise with a rep profile carries its starting range in a 16 px field the athlete can change,
+ * and Save writes what the field holds; one with no profile writes none, as before.
  */
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
@@ -56,6 +59,8 @@ const save = (sheet: HTMLElement) => within(sheet).getByRole("button", { name: /
 const where = (sheet: HTMLElement) => sheet.querySelector(".spz-change-where")!.textContent;
 const detailOf = (sheet: HTMLElement, name: string) => within(sheet).getAllByRole("radio").map((radio) => radio.closest("label")!).find((label) => label.querySelector("b")?.textContent === name)!.querySelector("small")?.textContent ?? "";
 
+// The region's rep profiles arrive before the sheet opens, so nothing here waits on "Loading starting ranges…".
+beforeAll(async () => { await loadRegionExtras("forearm"); });
 afterEach(() => { cleanup(); });
 
 describe("the add-or-swap sheet", () => {
@@ -77,15 +82,17 @@ describe("the add-or-swap sheet", () => {
     expect(where(sheet)).toBe("Week 2 · Day 02 · Pull · At the end");
   });
 
-  it("hands Home exactly the change it previewed: the week and day chosen, no slot for the end, and no prescription", async () => {
+  it("hands Home exactly the change it previewed: the week and day chosen, no slot for the end, and the starting range the field holds", async () => {
     const { sheet, onApply, onClose } = open();
     await click(within(sheet).getByRole("button", { name: /Day 03 · Legs/ }));
     // An empty day: the add is its only exercise, so there is no slot to choose.
     expect(within(sheet).queryByRole("group", { name: "Where it goes" })).toBeNull();
     expect(within(sheet).getByText("Day 03 · Legs is empty, so this adds it as the day's only exercise.")).not.toBeNull();
+    // The goal's sets for the first place × the wrist family's growth range (Athleticism is not Max strength).
+    expect((within(sheet).getByRole("textbox", { name: /^Sets × reps/ }) as HTMLInputElement).value).toBe(`${getGoalPrescription("Athleticism", 0).split(" × ")[0]} × 10–25`);
     await click(save(sheet));
     expect(onApply).toHaveBeenCalledTimes(1);
-    expect(onApply.mock.calls[0][0]).toEqual({ week: 1, slotIndex: 2, dayKey: slots[2].key, catalogExerciseId: 140 });
+    expect(onApply.mock.calls[0][0]).toEqual({ week: 1, slotIndex: 2, dayKey: slots[2].key, catalogExerciseId: 140, prescription: `${getGoalPrescription("Athleticism", 0).split(" × ")[0]} × 10–25` });
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
@@ -104,21 +111,22 @@ describe("the add-or-swap sheet", () => {
       cleanup();
       return { sent, ...shown };
     };
+    // The slot sets the starting prescription: the goal's sets for that place × the exercise's starting range.
+    const atPlace = (index: number) => `${getGoalPrescription("Athleticism", index).split(" × ")[0]} × 10–25`;
     const first = await choose("First");
-    expect(first.sent).toEqual({ week: 1, slotIndex: 1, dayKey: slots[1].key, catalogExerciseId: 140, insertAt: 0 });
+    expect(first.sent).toEqual({ week: 1, slotIndex: 1, dayKey: slots[1].key, catalogExerciseId: 140, insertAt: 0, prescription: atPlace(0) });
     expect(first.where).toBe("Week 1 · Day 02 · Pull · First");
-    // The slot sets what it is planned as: the goal's default for that place, pinned by nothing.
-    expect(first.plannedAs).toBe(`Planned as ${getGoalPrescription("Athleticism", 0)}, the default for that place in the day.`);
+    expect(first.plannedAs).toBe(`Planned as ${atPlace(0)}.`);
     // Hammer Curl, with no prescription of its own, moves from the second place to the third, whose default differs: said, not hidden.
     const moved = `Hammer Curl moves down a place, so it is planned as ${getGoalPrescription("Athleticism", 2)} instead of ${getGoalPrescription("Athleticism", 1)}.`;
     expect(first.moved).toEqual([moved]);
     const middle = await choose("After Underhand Barbell Row");
-    expect(middle.sent).toEqual({ week: 1, slotIndex: 1, dayKey: slots[1].key, catalogExerciseId: 140, insertAt: 1 });
+    expect(middle.sent).toEqual({ week: 1, slotIndex: 1, dayKey: slots[1].key, catalogExerciseId: 140, insertAt: 1, prescription: atPlace(1) });
     expect(middle.where).toBe("Week 1 · Day 02 · Pull · After Underhand Barbell Row");
     expect(middle.moved).toEqual([moved]);
     const end = await choose(null);
-    expect(end.sent).toEqual({ week: 1, slotIndex: 1, dayKey: slots[1].key, catalogExerciseId: 140 });
-    expect(end.plannedAs).toBe(`Planned as ${getGoalPrescription("Athleticism", 2)}, the default for that place in the day.`);
+    expect(end.sent).toEqual({ week: 1, slotIndex: 1, dayKey: slots[1].key, catalogExerciseId: 140, prescription: atPlace(2) });
+    expect(end.plannedAs).toBe(`Planned as ${atPlace(2)}.`);
     expect(end.moved).toEqual([]);
   });
 

@@ -103,8 +103,10 @@ import { buildStampLabel } from "@/lib/buildStamp";
 import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 import { preloadRegionData, regionLoadsSettled } from "@/lib/specialization/loadRegion";
-import { areaReportForRegion, clearSpecializationParams, defaultSpecializationState, readRememberedRegion, readStacksOnDevice, specializationStateFromParams, stackNotesForNewWeek, withRegion, writeSpecializationParams, type SpecializationPlanBatch, type SpecializationPlanBatchResult, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationStackProps, type SpecializationViewState } from "@/lib/specialization/viewState";
-import { applyPlanBatch, applyPlanChangeToRecord } from "@/lib/specialization/planChange";
+import { areaReportForRegion, clearSpecializationParams, defaultSpecializationState, readRememberedRegion, specializationStateFromParams, stackNotesForNewWeek, withRegion, writeSpecializationParams, type SpecializationPlanBatch, type SpecializationPlanBatchResult, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationStackProps, type SpecializationViewState } from "@/lib/specialization/viewState";
+import { applyPlanChangeToRecord } from "@/lib/specialization/planChange";
+import type { applyPlanBatch } from "@/lib/specialization/planBatch";
+import { stacksOnDevice } from "@/lib/specialization/stackStore";
 import { useSpecializationGoals } from "@/lib/specialization/stores";
 import { loggerGatesFor } from "@/lib/specialization/loggerGates";
 import { catalogMeasureOf } from "@shared/specialization/holdCatalogIds";
@@ -1578,19 +1580,23 @@ export default function Home() {
    * Several changes to one plan week from the specialization page, together or not at all
    * (11-forearm-research-and-stack.md §3.7): the stack's Add, Change the total and Take it out, the
    * tendon section's planned-entry actions. The same pure batch the page previewed
-   * (lib/specialization/planChange `applyPlanBatch`), on the week as Home holds it now; refused with
+   * (lib/specialization/planBatch `applyPlanBatch`), on the week as Home holds it now; refused with
    * a reason, and nothing written, while the plan is loading, when the week is not built, or when
    * any one change cannot apply. Otherwise each touched day is written once, and one notice says
    * what changed, with one Undo for all of it: every day's revert, newest day first, on the days as
-   * they stand when it is pressed, through the ref, as the single change's Undo is. No confirm step
-   * (CLAUDE.md: Undo over confirm).
+   * they stand when it is pressed, through the ref, as the single change's Undo is; then the page's
+   * `onUndo`, once, from either Undo. No confirm step (CLAUDE.md: Undo over confirm).
+   *
+   * The batch code is fetched only when a batch arrives (§3.10, §7.5): the page's stack card has
+   * already loaded it, so the import resolves at once, and Home's own chunk never carries it. The
+   * write runs through a ref after the import, so it reads the plan as it stands then.
    */
-  const applySpecializationChanges = (batch: SpecializationPlanBatch): SpecializationPlanBatchResult => {
+  const applyBatchNow = (apply: typeof applyPlanBatch, batch: SpecializationPlanBatch, options?: { onUndo?: () => void }): SpecializationPlanBatchResult => {
     if (!planReadyForEdits({ quiet: true }) || !profileHydrated) return { ok: false, reason: "Your plan is still loading, so nothing was changed. Try again in a moment." };
     const isActive = batch.week === activeWeek;
     if (!isActive && !planWeeks[batch.week]) return { ok: false, reason: `Week ${batch.week} is not built yet. Build it in Plan first.` };
     const store = isActive ? commitDay(dayStore, draftDayKeyRef.current, activeDraft()) : planWeeks[batch.week].days;
-    const outcome = applyPlanBatch(store, batch, { slots: daySlots, catalog: exercises });
+    const outcome = apply(store, batch, { slots: daySlots, catalog: exercises });
     if (!outcome.ok) return { ok: false, reason: outcome.reason };
     for (const day of outcome.days) editDayInWeek(batch.week, day.slot.key, () => day.record);
     let undone = false;
@@ -1598,10 +1604,22 @@ export default function Home() {
       if (undone) return;
       undone = true;
       for (const day of [...outcome.days].reverse()) editDayInWeekRef.current(batch.week, day.slot.key, day.revert);
+      options?.onUndo?.();
     };
     // Every option named: sonner merges a notice into the one showing with the same id.
     toast(outcome.message.title, { id: "plan-add", description: outcome.message.description, action: undefined, cancel: { label: "Undo", onClick: undo } });
     return { ok: true, undo, message: outcome.message.title };
+  };
+  const applyBatchNowRef = useRef(applyBatchNow);
+  applyBatchNowRef.current = applyBatchNow;
+  const applySpecializationChanges = async (batch: SpecializationPlanBatch, options?: { onUndo?: () => void }): Promise<SpecializationPlanBatchResult> => {
+    let batchCode: typeof import("@/lib/specialization/planBatch");
+    try {
+      batchCode = await import("@/lib/specialization/planBatch");
+    } catch {
+      return { ok: false, reason: "The plan change could not be loaded, so nothing was changed. Reloading usually fixes this." };
+    }
+    return applyBatchNowRef.current(batchCode.applyPlanBatch, batch, options);
   };
   /**
    * What the page takes for the stack, beside its own props: the batch apply, and About me's answer
@@ -2041,7 +2059,7 @@ export default function Home() {
     // The new week is built fresh from the split pool and never copies a stack, so a stack in an
     // earlier week is said here, with the way to design one for this week
     // (11-forearm-research-and-stack.md §3.2, "Plan says so too").
-    const stackNotes = stackNotesForNewWeek(readStacksOnDevice(accountId), nextWeek);
+    const stackNotes = stackNotesForNewWeek(stacksOnDevice(accountId), nextWeek);
     if (!stackNotes.length) { toast(`Week ${nextWeek} generated`, { description: built }); return; }
     const [first] = stackNotes;
     toast(`Week ${nextWeek} generated`, {
@@ -2686,6 +2704,7 @@ export default function Home() {
           accountId={accountId}
           goal={goal}
           weightUnit={athleteBaseline.weightUnit}
+          gymMinutes={gymMinutes}
           onApplyPlanChange={applySpecializationChange}
           {...specializationStackProps}
           onInspectExercise={inspectExercise}

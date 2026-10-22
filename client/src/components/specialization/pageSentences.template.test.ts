@@ -5,6 +5,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 import { exercises } from "@/lib/exerciseCatalog";
 import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
 import { loadRegionData } from "@/lib/specialization/loadRegion";
+import { loadRegionExtras } from "@/lib/specialization/regionExtras";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { buildDaySlots, emptyDayStore } from "@/lib/trainingDayPlan";
@@ -187,7 +188,8 @@ async function readEverything(data: SpecializationRegionData, mode: "completed" 
   return seen;
 }
 
-beforeAll(async () => { await loadRegionData("forearm"); });
+// The forearm's rep profiles too (F1, §5.2), so its muscle sheet's starting ranges are read with everything else.
+beforeAll(async () => { await loadRegionData("forearm"); await loadRegionExtras("forearm"); });
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date("2026-10-16T12:00:00.000Z"));

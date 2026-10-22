@@ -2,13 +2,17 @@ import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import type { SpecializationExclusions } from "@/lib/specialization/exclusions";
 import type { Recommendations } from "@/lib/specialization/recommendations";
+import { useRegionExtras } from "@/lib/specialization/regionExtras";
 import type { StoreWrite } from "@/lib/specialization/stores";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
+import type { TrainingGoal } from "@/lib/workoutPlanner";
+import { variantForCatalogId } from "@shared/specialization/exposure";
+import { rangeText, repRangeFor } from "@shared/specialization/repProfiles";
 import { regionIndexEntry, specializationRegionIndex } from "@shared/specialization/regionIndex";
 import type { AnatomyNode, GoalProgress, NodeExposure, RegionId, SpecializationGoal, SpecializationRegionData, SummaryMode, SummarySide } from "@shared/specialization/types";
 import { ActionGlyph } from "./ActionGlyph";
 import { BoutItem, boutDay } from "./BoutItem";
-import { categoryLabel, formatSegment, holdTime, incidentalWords, layerLabels, ledgerByExercise } from "./model";
+import { REP_RANGE_SENTENCE, categoryLabel, formatSegment, holdRangeSentence, holdTimeOf, incidentalWords, layerLabels, ledgerByExercise, rangeWords } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
 import { Suggestions } from "./Suggestions";
 import { TargetsEditor } from "./TargetsEditor";
@@ -32,7 +36,7 @@ const basisLabels: Record<string, string> = {
  * region's muscle says where its targets are set, with a way there once that page exists; a target
  * already saved on a muscle that is not a target here is shown with End and Remove only.
  */
-export function MuscleSheet({ data, node, exposure, loading = false, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, initialSection, paired, pairNote = null, exclusions, equipmentOf, onSetExerciseExcluded, onSetEquipmentExcluded, onSaveGoals, onRestoreGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onOpenRegion, onClose }: {
+export function MuscleSheet({ data, node, exposure, loading = false, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, initialSection, paired, pairNote = null, exclusions, equipmentOf, trainingGoal, onSetExerciseExcluded, onSetEquipmentExcluded, onSaveGoals, onRestoreGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onOpenRegion, onClose }: {
   data: SpecializationRegionData;
   node: AnatomyNode;
   exposure: NodeExposure | null;
@@ -57,6 +61,8 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
   exclusions: SpecializationExclusions;
   /** An exercise's equipment, from the catalog the recommender read (why a main action has no suggestion). */
   equipmentOf?: (catalogExerciseId: number) => string | null;
+  /** The athlete's training goal: the starting range beside each suggestion is the strength range under Max strength, where it has one. */
+  trainingGoal?: TrainingGoal;
   onSetExerciseExcluded: (catalogExerciseId: number, excluded: boolean) => StoreWrite;
   onSetEquipmentExcluded: (equipment: string, excluded: boolean) => StoreWrite;
   onSaveGoals: (goals: SpecializationGoal[]) => StoreWrite;
@@ -88,6 +94,21 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
   if (goals.length && editorShownFor !== node.id) setEditorShownFor(node.id);
   const showEditor = node.role === "target" || goals.length > 0 || editorShownFor === node.id;
   const ledger = exposure ? ledgerByExercise(exposure.contributions) : [];
+  // The app's starting ranges beside the suggestions (11-forearm-research-and-stack.md §5.2), fetched when the sheet opens.
+  const extras = useRegionExtras(data.region.id);
+  const strength = trainingGoal === "Max strength";
+  const rangeFor = (catalogExerciseId: number) => {
+    const variant = variantForCatalogId(data, catalogExerciseId);
+    return variant && extras.status === "ready" ? repRangeFor(extras.extras, variant.id, strength) : null;
+  };
+  const candidateIds = recommendations?.kind === "candidates" ? recommendations.candidates.slice(0, 5).map((candidate) => candidate.catalogExerciseId) : [];
+  const shownRanges = candidateIds.map(rangeFor).filter((item): item is NonNullable<typeof item> => item !== null);
+  const holdRange = shownRanges.find((item) => item.profile.measure === "seconds");
+  const rangesNote = extras.status === "loading" && candidateIds.length ? <p className="spz-note spz-range-note" role="status">Loading starting ranges…</p>
+    : shownRanges.length ? <div className="spz-note spz-range-note">
+      {shownRanges.some((item) => item.profile.measure === "reps") && <p>{REP_RANGE_SENTENCE}</p>}
+      {holdRange && <p>{holdRangeSentence(rangeText(holdRange.range))}</p>}
+    </div> : null;
   const notCounted = exposure?.notCounted ?? [];
   useEffect(() => {
     if (!initialSection) return;
@@ -131,7 +152,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
         : <dl className="spz-numbers">
           <div><dt>Direct dynamic bouts</dt><dd>{exposure.directDynamicBouts}{exposure.directDynamicReps ? <small> · {exposure.directDynamicReps} reps</small> : null}</dd></div>
           <div><dt>Other dynamic bouts</dt><dd>{exposure.contributingDynamicBouts}{exposure.contributingDynamicReps ? <small> · {exposure.contributingDynamicReps} reps</small> : null}</dd></div>
-          <div><dt>Deliberate holds</dt><dd>{exposure.deliberateHoldBouts}{exposure.deliberateHoldBouts ? <small> · {holdTime(exposure.deliberateHoldSeconds)}</small> : null}</dd></div>
+          <div><dt>Deliberate holds</dt><dd>{exposure.deliberateHoldBouts}{exposure.deliberateHoldBouts ? <small> · {holdTimeOf(exposure)}</small> : null}</dd></div>
           <div><dt>Incidental {incidentalWords(wording.incidentalWork)}</dt><dd>{exposure.incidentalBouts}</dd></div>
           {exposure.mixedBouts > 0 && <div><dt>Mixed bouts</dt><dd>{exposure.mixedBouts}</dd></div>}
           {exposure.unknownBouts > 0 && <div><dt>Unclassified</dt><dd>{exposure.unknownBouts}</dd></div>}
@@ -188,7 +209,9 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
 
     <section className="spz-sheet-section" aria-labelledby="spz-exercises">
       <h3 id="spz-exercises">Exercises for this muscle</h3>
-      <Suggestions data={data} nodeId={node.id} mode={mode} equipmentOf={equipmentOf} recommendations={recommendations} exclusions={exclusions} onSetExerciseExcluded={onSetExerciseExcluded} onSetEquipmentExcluded={onSetEquipmentExcluded} onChooseExercise={onChooseExercise} onInspectExercise={onInspectExercise} />
+      <Suggestions data={data} nodeId={node.id} mode={mode} equipmentOf={equipmentOf} recommendations={recommendations} exclusions={exclusions} onSetExerciseExcluded={onSetExerciseExcluded} onSetEquipmentExcluded={onSetEquipmentExcluded} onChooseExercise={onChooseExercise} onInspectExercise={onInspectExercise}
+        rangeOf={(catalogExerciseId) => { const found = rangeFor(catalogExerciseId); return found ? rangeWords(found) : null; }}
+        rangesNote={rangesNote} />
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-sources">

@@ -3,7 +3,8 @@ import { exercises } from "@/lib/exerciseCatalog";
 import { buildDaySlots, commitDay, emptyDayStore, loadDay, type DayRecord, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import { getGoalPrescription } from "@/lib/workoutPlanner";
 import { prescriptionOf } from "./planBouts";
-import { applyPlanBatch, applyPlanChangeToRecord, describePlanBatch, insertionIndex, type PlanBatchOutcome } from "./planChange";
+import { applyPlanBatch, describePlanBatch, type PlanBatchOutcome } from "./planBatch";
+import { applyPlanChangeToRecord, insertionIndex } from "./planChange";
 import type { SpecializationPlanBatch, SpecializationPlanBatchChange, SpecializationPlanChange } from "./viewState";
 
 const byId = (id: number) => exercises.find((exercise) => exercise.id === id)!;

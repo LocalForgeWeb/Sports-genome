@@ -1,17 +1,21 @@
-import { useMemo, useState } from "react";
-import { ArrowRight, Check } from "lucide-react";
+import { useId, useMemo, useState } from "react";
+import { ArrowRight, Check, ChevronDown } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
-import { applyPlanChangeToRecord } from "@/lib/specialization/planChange";
+import { parseSetCount } from "@/lib/sessionVolume";
+import { maxEditableSets } from "@/lib/setPrescription";
+import { applyPlanChangeToRecord, insertionIndex } from "@/lib/specialization/planChange";
+import { useRegionExtras } from "@/lib/specialization/regionExtras";
 import { boutsFromPlan, plannedExercisesInWeek, prescriptionOf } from "@/lib/specialization/planBouts";
 import { previewPlannedChange, type PlannedValues, type RecommendationCandidate } from "@/lib/specialization/recommendations";
 import { planningVariantsFor } from "@/lib/specialization/useSpecializationSummary";
 import type { SpecializationPlanChange, SpecializationPlanChangeResult } from "@/lib/specialization/viewState";
 import { commitDay, emptyDayStore, loadDay, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
-import type { TrainingGoal } from "@/lib/workoutPlanner";
+import { getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
 import { catalogIdOf } from "@/lib/workoutSwap";
 import { creditedMappingsFor, variantForCatalogId } from "@shared/specialization/exposure";
+import { rangeText, repPrescriptionFor, repRangeFor } from "@shared/specialization/repProfiles";
 import type { SpecializationRegionData, SummarySide } from "@shared/specialization/types";
-import { holdTime } from "./model";
+import { REP_EFFORT_SENTENCE, REP_RANGE_SENTENCE, holdRangeShortSentence, holdTime } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
 
 /** Where an add goes in the day: first, after one of its exercises (that entry's id), or at the end. */
@@ -29,6 +33,15 @@ type Placement = "first" | "end" | number;
  * shows is what is written. Save writes that one day through Home (which shows Undo) and
  * leaves the page where it was. A swap changes the plan only: sets already logged keep the
  * exercise they were logged as.
+ *
+ * An add of an exercise with a rep profile (11-forearm-research-and-stack.md §5.2) shows its
+ * prescription in a 16 px field the athlete can change: the goal's set count for its place in the
+ * day × the profile's range for the goal ("3 × 10–25", a hold "3 × 30 sec"), said to be the app's
+ * starting range, not a tested one; Save writes what the field holds (left empty, nothing of its
+ * own: the plan's default for its place). The profiles are fetched when the sheet opens ("Loading
+ * starting ranges…" until they arrive, never a default in their place). A swap keeps the replaced
+ * entry's own prescription, and an exercise with no profile (a carry, a row) the plan's default, as
+ * before.
  */
 export function PlanChangeSheet({ data, side, nodeId, candidates, initialExerciseId, catalog, plan, goal, onApply, onClose }: {
   data: SpecializationRegionData;
@@ -55,6 +68,10 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
   const [placement, setPlacement] = useState<Placement>("end");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  /** What the athlete typed in "Sets and reps"; null follows the starting range for the entry's place. */
+  const [ownPrescription, setOwnPrescription] = useState<string | null>(null);
+  const prescriptionId = useId();
+  const extras = useRegionExtras(data.region.id);
 
   const store = useMemo(() => plan.weeks[week] ?? emptyDayStore(), [plan.weeks, week]);
   const incoming = useMemo(() => catalog.find((exercise) => exercise.id === exerciseId) ?? null, [catalog, exerciseId]);
@@ -71,12 +88,27 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
   const place: Placement = placement === "first" && dayExercises.length ? "first" : afterIndex >= 0 && afterIndex < dayExercises.length - 1 ? placement : "end";
   const insertAt = place === "first" ? 0 : typeof place === "number" ? afterIndex + 1 : undefined;
 
+  // The add's prescription (§5.2): the goal's sets for the entry's place × the profile's range for the goal.
+  const incomingVariant = incoming ? variantForCatalogId(data, incoming.id) : null;
+  const strength = goal === "Max strength";
+  const addIndex = slot && !swapping ? insertionIndex(dayExercises.length, insertAt) : null;
+  const rangesLoading = !swapping && extras.status === "loading";
+  const resolved = incomingVariant && extras.status === "ready" ? repRangeFor(extras.extras, incomingVariant.id, strength) : null;
+  const startingPrescription = addIndex !== null && incomingVariant && extras.status === "ready" ? repPrescriptionFor(extras.extras, incomingVariant.id, parseSetCount(getGoalPrescription(goal, addIndex)), { strength }) : null;
+  const prescriptionField = startingPrescription !== null ? ownPrescription ?? startingPrescription : null;
+  const typedParts = prescriptionField === null ? null : /^\s*(\d+)\s*(?:×|x)\s*(\S.*?)\s*$/i.exec(prescriptionField);
+  const prescriptionError = prescriptionField !== null && prescriptionField.trim() !== "" && (!typedParts || Number(typedParts[1]) < 1 || Number(typedParts[1]) > maxEditableSets)
+    ? `Write it as sets × ${resolved?.profile.measure === "seconds" ? "seconds" : "reps"}, like ${startingPrescription}, with 1 to ${maxEditableSets} sets.`
+    : null;
+  const writtenPrescription = typedParts && !prescriptionError ? `${Number(typedParts[1])} × ${typedParts[2]}` : undefined;
+
   const change = useMemo<SpecializationPlanChange | null>(() => {
     if (!slot || !incoming) return null;
     const base = { week, slotIndex: slot.index, dayKey: slot.key, catalogExerciseId: incoming.id };
     if (swapping) return replaceEntryId === null ? null : { ...base, replaceEntryId };
-    return insertAt === undefined ? base : { ...base, insertAt };
-  }, [slot, incoming, week, swapping, replaceEntryId, insertAt]);
+    const add = writtenPrescription ? { ...base, prescription: writtenPrescription } : base;
+    return insertAt === undefined ? add : { ...add, insertAt };
+  }, [slot, incoming, week, swapping, replaceEntryId, insertAt, writtenPrescription]);
   // The very edit Home makes on Save, on the same day, so the preview and the write agree.
   const outcome = useMemo(() => (change && dayRecord && incoming ? applyPlanChangeToRecord(dayRecord, change, incoming) : null), [change, dayRecord, incoming]);
 
@@ -108,7 +140,7 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
   };
 
   const save = () => {
-    if (!change || !outcome?.ok || saving) return;
+    if (!change || !outcome?.ok || saving || prescriptionError || rangesLoading) return;
     setSaving(true);
     const result = onApply(change);
     if (result.ok) { onClose(); return; }
@@ -150,7 +182,7 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
   ].filter(Boolean).join(" · ");
   // Beside a disabled Save, why it is disabled: the choice still to make, or why this change cannot be
   // saved (on a phone the preview's own line is often below the fold).
-  const hint = !slot ? "Choose a day" : swapping && replaceEntryId === null ? "Choose the exercise to swap out" : outcome && !outcome.ok ? outcome.reason : null;
+  const hint = !slot ? "Choose a day" : swapping && replaceEntryId === null ? "Choose the exercise to swap out" : outcome && !outcome.ok ? outcome.reason : rangesLoading ? "Loading starting ranges…" : prescriptionError;
   // Read with each exercise's measure, as the preview's planned bouts and Train read it: a hold's default is "4 × 30 sec".
   const measureOf = (catalogExerciseId: number) => variantForCatalogId(data, catalogExerciseId)?.measure;
   const plannedAs = outcome?.ok && !swapping && incoming ? prescriptionOf(outcome.record.prescriptions[incoming.id], outcome.index, goal, measureOf(incoming.id)) : undefined;
@@ -179,7 +211,7 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
       {error && <p className="spz-error" role="alert">{error}</p>}
       {hint && <p className="spz-change-hint" id="spz-change-hint">{hint}</p>}
       <div className="spz-actions">
-        <button type="button" className="spz-primary" onClick={save} disabled={!outcome?.ok || saving} aria-describedby={hint ? "spz-change-hint" : undefined}>{swapping ? "Save swap" : "Save to plan"}</button>
+        <button type="button" className="spz-primary" onClick={save} disabled={!outcome?.ok || saving || Boolean(prescriptionError) || rangesLoading} aria-describedby={hint ? "spz-change-hint" : undefined}>{swapping ? "Save swap" : "Save to plan"}</button>
         <button type="button" className="spz-button" onClick={onClose}>Cancel</button>
       </div>
     </>}
@@ -188,7 +220,7 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
       <legend>Exercise</legend>
       <div className="spz-choice-list">
         {shown.map((candidate) => <label key={candidate.catalogExerciseId} className="spz-choice">
-          <input type="radio" name="spz-change-exercise" checked={exerciseId === candidate.catalogExerciseId} onChange={() => { setExerciseId(candidate.catalogExerciseId); setError(null); }} />
+          <input type="radio" name="spz-change-exercise" checked={exerciseId === candidate.catalogExerciseId} onChange={() => { setExerciseId(candidate.catalogExerciseId); setOwnPrescription(null); setError(null); }} />
           <span><b>{candidate.name}</b>{candidate.why && <small>{candidate.why}</small>}</span>
         </label>)}
       </div>
@@ -249,12 +281,27 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
       <p className="spz-note">A swap changes the plan only. Sets you already logged keep the exercise they were logged as.</p>
     </fieldset>}
 
+    {slot && !swapping && rangesLoading && <p className="spz-note" role="status">Loading starting ranges…</p>}
+    {prescriptionField !== null && resolved && <fieldset className="spz-fieldset">
+      <legend>Sets and reps</legend>
+      <label className="spz-field spz-change-prescription"><span>{resolved.profile.measure === "seconds" ? "Sets × seconds held" : "Sets × reps"}, the app's starting range for its place in the day</span>
+        <input id={prescriptionId} type="text" inputMode="text" enterKeyHint="done" autoComplete="off" value={prescriptionField} aria-invalid={prescriptionError ? true : undefined} aria-describedby={`${prescriptionId}-about`} onChange={(event) => { setOwnPrescription(event.target.value); setError(null); }} />
+      </label>
+      <p className="spz-note" id={`${prescriptionId}-about`}>{resolved.profile.measure === "seconds" ? holdRangeShortSentence(rangeText(resolved.range)) : REP_RANGE_SENTENCE}</p>
+      {prescriptionField.trim() === "" && <p className="spz-note">Left empty, it takes the plan's default for its place in the day.</p>}
+      <details className="spz-disclosure">
+        <summary><span><b>About these ranges</b><small>Starting points, not tested ones</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+        <p className="spz-note">{REP_EFFORT_SENTENCE}</p>
+        <p className="spz-note">{resolved.profile.label}: {rangeText(resolved.profile.growth)}{resolved.profile.measure === "seconds" ? " s" : " reps"} for growth{resolved.profile.strength && resolved.assignment.strengthApplies ? `, ${rangeText(resolved.profile.strength)}${resolved.profile.measure === "seconds" ? " s" : " reps"} under Max strength` : ""}. A practical default, not measured for any one muscle.</p>
+      </details>
+    </fieldset>}
+
     <section className="spz-preview" aria-live="polite" aria-labelledby="spz-preview-title">
       <h3 id="spz-preview-title">Planned totals, Week {week}</h3>
       {!slot && <p className="spz-note">Choose a day to see what changes.</p>}
       {outcome && !outcome.ok && <p className="spz-error">{outcome.reason}</p>}
       {slot && swapping && replaceEntryId === null && <p className="spz-note">Choose the exercise to swap out to see the change.</p>}
-      {plannedAs && <p className="spz-note">Planned as {plannedAs}, the default for that place in the day.</p>}
+      {plannedAs && <p className="spz-note">{writtenPrescription ? `Planned as ${plannedAs}.` : `Planned as ${plannedAs}, the default for that place in the day.`}</p>}
       {shifted.map((item) => <p key={item.id} className="spz-note">{item.name} moves down a place, so it is planned as {item.now} instead of {item.was}.</p>)}
       {preview && (preview.nodes.length ? <ul className="spz-preview-list">
         {focusFirst.map((row) => <li key={row.nodeId} data-focus={row.nodeId === nodeId || undefined}>

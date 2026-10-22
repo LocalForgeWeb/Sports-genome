@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { scopedKey } from "@/lib/deviceStorageScope";
-import { areaReportForRegion, clearSpecializationParams, defaultSpecializationState, readStacksOnDevice, specializationStacksKeyBase, specializationStateFromParams, stackNotesForNewWeek, withRegion, writeSpecializationParams } from "./viewState";
+import { specializationStacksKeyBase, stacksOnDevice } from "./stackStore";
+import { areaReportForRegion, clearSpecializationParams, defaultSpecializationState, specializationStateFromParams, stackNotesForNewWeek, withRegion, writeSpecializationParams } from "./viewState";
 
 const regions = new Set(["forearm", "deltoid"]);
 
@@ -122,34 +123,28 @@ describe("Plan's note when a new week is generated and an earlier week holds a s
   const stack = (regionId: string, planWeek: number, entries: unknown[] = [{ dayKey: "0-Push", catalogExerciseId: 139, prescription: "1 × 10–25" }]) => ({ id: `${regionId}-${planWeek}`, regionId, planWeek, mappingVersion: "forearm_mappings_v1", total: 14, createdAt: "2026-10-21T10:00:00.000Z", settings: {}, entries });
   afterEach(() => { store.clear(); vi.unstubAllGlobals(); });
 
-  it("reads which weeks hold a stack by the record's per-stack fields, wherever the record keeps its stacks", () => {
+  // Plan reads the stack record with the store's own reader (stackStore.ts, `stacksOnDevice`), since S4 swapped S3's tolerant reader for it.
+  const stored = (planWeek: number, entries: unknown[] = [{ dayKey: "0-Push", catalogExerciseId: 139, prescription: "1 × 10–25" }]) => ({ kind: "stack", ...stack("forearm", planWeek, entries), settings: { days: null, perDay: 4, holds: null } });
+
+  it("reads which weeks hold a stack with the store's own reader, for this account only", () => {
     stubStorage();
-    const key = scopedKey(specializationStacksKeyBase, 7);
-    const containers = [
-      { regions: [{ regionId: "forearm", total: 14, settings: {}, updatedAt: "x" }], stacks: [stack("forearm", 1)] },
-      [stack("forearm", 1)],
-      { version: 1, stacks: { "forearm-1": stack("forearm", 1) } },
-      { version: 1, data: { stacks: [stack("forearm", 1)] } },
-    ];
-    for (const container of containers) {
-      store.set(key, JSON.stringify(container));
-      expect(readStacksOnDevice(7), JSON.stringify(container).slice(0, 40)).toEqual([{ regionId: "forearm", planWeek: 1 }]);
-    }
+    store.set(scopedKey(specializationStacksKeyBase, 7), JSON.stringify([{ kind: "choice", regionId: "forearm", total: 14, settings: { days: null, perDay: 4, holds: null }, updatedAt: "2026-10-21T10:00:00.000Z" }, stored(1)]));
+    expect(stacksOnDevice(7)).toEqual([{ regionId: "forearm", planWeek: 1 }]);
     // Another account's record is not this one's.
-    expect(readStacksOnDevice(8)).toEqual([]);
+    expect(stacksOnDevice(8)).toEqual([]);
   });
 
   it("reads a stack with no entries left, a malformed one, corrupt or missing storage, and refused storage as no stack", () => {
     stubStorage();
     const key = scopedKey(specializationStacksKeyBase, null);
-    store.set(key, JSON.stringify({ stacks: [stack("forearm", 1, []), { ...stack("forearm", 2), planWeek: 0 }, { ...stack("forearm", 2), regionId: "" }, { ...stack("forearm", 2), entries: "x" }] }));
-    expect(readStacksOnDevice(null)).toEqual([]);
+    store.set(key, JSON.stringify([stored(1, []), { ...stored(2), planWeek: 0 }, { ...stored(2), regionId: "" }, { ...stored(2), entries: "x" }, stack("forearm", 3)]));
+    expect(stacksOnDevice(null)).toEqual([]);
     store.set(key, "{not json");
-    expect(readStacksOnDevice(null)).toEqual([]);
+    expect(stacksOnDevice(null)).toEqual([]);
     store.delete(key);
-    expect(readStacksOnDevice(null)).toEqual([]);
+    expect(stacksOnDevice(null)).toEqual([]);
     stubStorage(() => { throw new Error("SecurityError"); });
-    expect(readStacksOnDevice(null)).toEqual([]);
+    expect(stacksOnDevice(null)).toEqual([]);
   });
 
   it("names the region's latest earlier week, in the design's words, for a region with a page only", () => {

@@ -3,14 +3,12 @@ import type { Exercise } from "@/lib/exerciseCatalog";
 import { commitDay, loadDay, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import { getGoalPrescription, getWorkoutDiagnostics, holdDefaultTarget, type TrainingGoal } from "@/lib/workoutPlanner";
 import { catalogIdOf } from "@/lib/workoutSwap";
-import { directWorkCount, isDirectHoldPart, isDirectMovingPart, ownTargetNodeIds, type DirectWorkCount } from "@shared/specialization/directWork";
-import { getSpecializationSummary, indexRegion } from "@shared/specialization/exposure";
+import { directWorkCount, type DirectWorkCount } from "@shared/specialization/directWork";
+import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { prescriptionText, repProfileOf, repTargetFor, type RepRangeKind } from "@shared/specialization/repProfiles";
-import { categoryFor } from "@shared/specialization/rules";
 import { planWeekInterval } from "@shared/specialization/time";
 import type {
   ActionId,
-  ExerciseVariant,
   ExposureBout,
   ExposureCategory,
   GoalMetric,
@@ -22,13 +20,20 @@ import type {
   SpecializationSummary,
   SummarySide,
   VariantId,
-  VariantMapping,
 } from "@shared/specialization/types";
 import type { SpecializationExclusions } from "./exclusions";
 import { boutsFromPlan } from "./planBouts";
 import { applyPlanChangeToRecord } from "./planChange";
+import { coveredSlots, slotKey, stackModelIndexFor, type StackCandidate, type StackGap, type StackMode, type StackModelIndex, type StackMovement } from "./stackModel";
+import { STACK_RULES } from "./stackRules";
 import { catalogMusclesLookup, planningVariantsFor } from "./useSpecializationSummary";
 import type { SpecializationPlanChange } from "./viewState";
+
+export { STACK_RULES } from "./stackRules";
+export { coveredSlots, movementsWithoutDirectWork, stackModelFor, type StackGap, type StackMode, type StackModel, type StackMovement } from "./stackModel";
+
+type Candidate = StackCandidate;
+const modelOf = (region: SpecializationRegionData): StackModelIndex => stackModelIndexFor(region);
 
 /**
  * The stack designer's core (docs/specialization-atlas, note 11, §3.3,
@@ -70,70 +75,11 @@ import type { SpecializationPlanChange } from "./viewState";
  *   `repProfileExtras`), loaded when the card opens; null designs with each goal's defaults.
  */
 
-// ---------------------------------------------------------------- rules (named scheduling choices, not doses)
-
-export const STACK_RULES = {
-  /** The smallest entry: one set, so the starting total reaches every movement. */
-  smallestEntry: 1,
-  /** Sets of one exercise in one session (the Plan's own accessory default is 3). */
-  maxSetsPerSession: 3,
-  /** Sessions of one exercise in a week. */
-  maxSessionsPerWeek: 2,
-  /** The region's exercises a day, the plan's own with direct work included: the athlete's setting. */
-  exercisesPerDay: { default: 4, min: 1, max: 6 },
-  /** A guard against typing errors, not a dose. */
-  maxTotal: 60,
-  /** The Plan's own minute estimate per set (getWorkoutDiagnostics): 1.05 min of work plus the default 90 s rest. */
-  minutesPerSet: 1.05,
-  restMinutes: 1.5,
-  /** A seconds target is filled in holds of this length, whatever the training goal. */
-  targetHoldSeconds: 30,
-  /** The seeded placement search stops after this many nodes, keeping any better placement it found. */
-  placementNodeLimit: 5000,
-  /** Above this many distinct cover patterns the exercise choice is greedy instead of exact. */
-  exactCoverPatterns: 20,
-} as const;
+// ---------------------------------------------------------------- rules (named scheduling choices, not doses: stackRules.ts)
 
 const MINUTES_PER_PLANNED_SET = STACK_RULES.minutesPerSet + STACK_RULES.restMinutes;
 
-// ---------------------------------------------------------------- public types
-
-export type StackMode = "moving" | "hold";
-
-/** Slots of one mode covered by exactly the same variants: shared rows stay together. */
-export interface StackMovement {
-  /** Stable, from the data: the mode and its slots. */
-  key: string;
-  mode: StackMode;
-  /** Its actions' labels, in the region's order; a hold movement says "(hold)". */
-  label: string;
-  actionIds: ActionId[];
-  /** The region's own target muscles this movement gives direct work to, in the region's order. */
-  nodeIds: NodeId[];
-  slots: { nodeId: NodeId; actionId: ActionId }[];
-  /** Every reviewed variant that covers it, before the athlete's equipment, exclusions or settings. */
-  variantIds: VariantId[];
-  /** The region's action order of its first action (lower first). */
-  actionOrder: number;
-}
-
-/** A main action of an own muscle that no reviewed exercise trains directly. */
-export interface StackGap {
-  nodeId: NodeId;
-  actionId: ActionId;
-  /** Reviewed exercises that credit the muscle as a helper (contributing work), by catalog id. */
-  helpers: { variantId: VariantId; catalogExerciseId: number }[];
-}
-
-export interface StackModel {
-  regionId: string;
-  mappingVersion: string;
-  ownTargets: NodeId[];
-  /** Prime node actions of the own target muscles, per mode (moving and hold). */
-  slotCount: { moving: number; hold: number };
-  movements: StackMovement[];
-  gaps: StackGap[];
-}
+// ---------------------------------------------------------------- public types (the model's are in stackModel.ts)
 
 export interface StackSettings {
   /** The plan days the stack may use, by day key; null allows every day of the week. */
@@ -367,185 +313,6 @@ export interface StackDesign {
   search: { coverPatterns: number; coverExact: boolean; placementCost: number; placementNodes: number; placementImproved: boolean };
 }
 
-// ---------------------------------------------------------------- the model (region data only; cached per region)
-
-type Candidate = {
-  variant: ExerciseVariant;
-  catalogExerciseId: number;
-  /** Movement keys it covers. */
-  covers: string[];
-  movingNodes: NodeId[];
-  holdNodes: NodeId[];
-  kind: StackMode;
-  oneSided: boolean;
-  /** The single category one set gives each own node it credits (`mixed` for two), as a target counts it. */
-  credits: Map<NodeId, ExposureCategory>;
-  /** Each own-node mapping's action and category, as a movement target counts it. */
-  actionCredits: { actionId: ActionId; category: ExposureCategory }[];
-  sharedGroups: NodeId[][];
-};
-
-type Model = StackModel & { candidates: Candidate[]; candidateByCatalogId: Map<number, Candidate>; actionIndex: Map<ActionId, number> };
-
-const modelCache = new WeakMap<SpecializationRegionData, Model>();
-
-const slotKey = (nodeId: NodeId, actionId: ActionId) => `${nodeId}|${actionId}`;
-const lowerFirst = (text: string) => (text ? text.charAt(0).toLowerCase() + text.slice(1) : text);
-
-/** Whether a variant is done one side at a time on the limb its sets record (`sidedBy`); two-sided and either-way work is not. */
-function oneSidedOf(variant: ExerciseVariant): boolean {
-  if (variant.sidedBy === "none") return false;
-  const laterality = variant.sidedBy === "arm" ? variant.laterality : variant.legLaterality;
-  return laterality === "unilateral";
-}
-
-function modeOfMapping(mapping: VariantMapping, variant: ExerciseVariant): StackMode | null {
-  const part = { relationship: mapping.relationship, category: categoryFor(mapping.relationship, mapping.muscleMode, variant.deliberateHold) };
-  if (isDirectMovingPart(part)) return "moving";
-  if (isDirectHoldPart(part)) return "hold";
-  return null;
-}
-
-/** The region's stack model: slots, movements, gaps and the reviewed variants that cover them. Cached per region data. */
-export function stackModelFor(region: SpecializationRegionData): StackModel {
-  return modelOf(region);
-}
-
-function modelOf(region: SpecializationRegionData): Model {
-  const cached = modelCache.get(region);
-  if (cached) return cached;
-  const index = indexRegion(region);
-  const own = ownTargetNodeIds(region);
-  const ownSet = new Set(own);
-  const nodeOrder = new Map(region.nodes.map((node, position) => [node.id, position] as const));
-  const actionIndex = new Map(region.actions.map((action, position) => [action.id, position] as const));
-  const actionLabel = (id: ActionId) => region.actions.find((action) => action.id === id)?.label ?? id;
-  const byNodeOrder = (a: NodeId, b: NodeId) => (nodeOrder.get(a) ?? 0) - (nodeOrder.get(b) ?? 0);
-  const primes = region.nodeActions.filter((row) => row.role === "prime" && ownSet.has(row.nodeId));
-  const slots: { nodeId: NodeId; actionId: ActionId }[] = [];
-  const seenSlots = new Set<string>();
-  for (const row of primes) {
-    const key = slotKey(row.nodeId, row.actionId);
-    if (seenSlots.has(key)) continue;
-    seenSlots.add(key);
-    slots.push({ nodeId: row.nodeId, actionId: row.actionId });
-  }
-  const primeKeys = new Set(slots.map((slot) => slotKey(slot.nodeId, slot.actionId)));
-
-  // The variant a plan entry of each catalog exercise is read as (the default `cat-<id>` one).
-  const variants = Array.from(index.variantByCatalogId.values()).sort((a, b) => a.catalogExerciseId - b.catalogExerciseId);
-  type Raw = { variant: ExerciseVariant; slotModes: Map<string, StackMode>; credits: Map<NodeId, Set<ExposureCategory>>; actionCredits: { actionId: ActionId; category: ExposureCategory }[]; shared: Map<string, NodeId[]> };
-  const raws: Raw[] = [];
-  for (const variant of variants) {
-    const mappings = (index.mappingsByVariant.get(variant.id) ?? []).filter((mapping) => mapping.reviewStatus === "reviewed");
-    const raw: Raw = { variant, slotModes: new Map(), credits: new Map(), actionCredits: [], shared: new Map() };
-    for (const mapping of mappings) {
-      // A strapped variant never earns the grip a bare hand would; the calculator withholds it.
-      if (mapping.requiresNoStraps && variant.straps === "yes") continue;
-      if (!index.regionNodeIds.has(mapping.nodeId)) continue;
-      const category = categoryFor(mapping.relationship, mapping.muscleMode, variant.deliberateHold);
-      const set = raw.credits.get(mapping.nodeId) ?? new Set<ExposureCategory>();
-      set.add(category);
-      raw.credits.set(mapping.nodeId, set);
-      if (mapping.actionId) raw.actionCredits.push({ actionId: mapping.actionId, category });
-      if (!ownSet.has(mapping.nodeId) || !mapping.actionId) continue;
-      const mode = modeOfMapping(mapping, variant);
-      if (!mode) continue;
-      const key = slotKey(mapping.nodeId, mapping.actionId);
-      if (!primeKeys.has(key)) continue;
-      raw.slotModes.set(`${mode}:${key}`, mode);
-      if (mapping.allocation === "shared") {
-        const group = raw.shared.get(`${mode}:${mapping.actionId}`) ?? [];
-        group.push(mapping.nodeId);
-        raw.shared.set(`${mode}:${mapping.actionId}`, group);
-      }
-    }
-    if (raw.slotModes.size) raws.push(raw);
-  }
-
-  // Movements: slots of one mode covered by exactly the same variants.
-  const coverersOf = new Map<string, VariantId[]>();
-  for (const raw of raws) for (const modeSlot of Array.from(raw.slotModes.keys())) {
-    const list = coverersOf.get(modeSlot) ?? [];
-    list.push(raw.variant.id);
-    coverersOf.set(modeSlot, list);
-  }
-  const groups = new Map<string, { mode: StackMode; slots: { nodeId: NodeId; actionId: ActionId }[]; variantIds: VariantId[] }>();
-  for (const mode of ["moving", "hold"] as const) {
-    for (const slot of slots) {
-      const variantIds = coverersOf.get(`${mode}:${slotKey(slot.nodeId, slot.actionId)}`);
-      if (!variantIds?.length) continue;
-      const signature = `${mode}#${variantIds.join(",")}`;
-      const group = groups.get(signature) ?? { mode, slots: [], variantIds };
-      group.slots.push(slot);
-      groups.set(signature, group);
-    }
-  }
-  const movements: StackMovement[] = Array.from(groups.values()).map((group) => {
-    const actionIds = Array.from(new Set(group.slots.map((slot) => slot.actionId))).sort((a, b) => (actionIndex.get(a) ?? Infinity) - (actionIndex.get(b) ?? Infinity));
-    const nodeIds = Array.from(new Set(group.slots.map((slot) => slot.nodeId))).sort(byNodeOrder);
-    const words = actionIds.map((id, position) => (position ? lowerFirst(actionLabel(id)) : actionLabel(id))).join(" and ");
-    const sortedSlots = [...group.slots].sort((a, b) => byNodeOrder(a.nodeId, b.nodeId) || (actionIndex.get(a.actionId) ?? 0) - (actionIndex.get(b.actionId) ?? 0));
-    return {
-      key: `${group.mode}:${sortedSlots.map((slot) => slotKey(slot.nodeId, slot.actionId)).join("+")}`,
-      mode: group.mode,
-      label: group.mode === "hold" ? `${words} (hold)` : words,
-      actionIds,
-      nodeIds,
-      slots: sortedSlots,
-      variantIds: group.variantIds,
-      actionOrder: Math.min(...actionIds.map((id) => actionIndex.get(id) ?? Number.MAX_SAFE_INTEGER)),
-    };
-  }).sort((a, b) => (a.mode === b.mode ? 0 : a.mode === "moving" ? -1 : 1) || a.actionOrder - b.actionOrder || a.key.localeCompare(b.key));
-
-  const movementOfSlot = new Map<string, string>();
-  for (const movement of movements) for (const slot of movement.slots) movementOfSlot.set(`${movement.mode}:${slotKey(slot.nodeId, slot.actionId)}`, movement.key);
-
-  const candidates: Candidate[] = raws.map((raw) => {
-    const covers = Array.from(new Set(Array.from(raw.slotModes.keys()).map((modeSlot) => movementOfSlot.get(modeSlot)!))).sort();
-    const nodesOf = (mode: StackMode) => Array.from(new Set(Array.from(raw.slotModes.keys()).filter((key) => key.startsWith(`${mode}:`)).map((key) => key.slice(mode.length + 1).split("|")[0]))).sort(byNodeOrder);
-    const movingNodes = nodesOf("moving");
-    const credits = new Map<NodeId, ExposureCategory>();
-    for (const [nodeId, set] of Array.from(raw.credits.entries())) credits.set(nodeId, set.size === 1 ? Array.from(set)[0] : "mixed");
-    return {
-      variant: raw.variant,
-      catalogExerciseId: raw.variant.catalogExerciseId,
-      covers,
-      movingNodes,
-      holdNodes: nodesOf("hold"),
-      kind: movingNodes.length ? "moving" : "hold",
-      oneSided: oneSidedOf(raw.variant),
-      credits,
-      actionCredits: raw.actionCredits,
-      sharedGroups: Array.from(raw.shared.values()).filter((group) => group.length > 1).map((group) => Array.from(new Set(group)).sort(byNodeOrder)),
-    };
-  });
-
-  const covered = new Set(movements.flatMap((movement) => movement.slots.filter(() => movement.mode === "moving").map((slot) => slotKey(slot.nodeId, slot.actionId))));
-  const gaps: StackGap[] = slots
-    .filter((slot) => !covered.has(slotKey(slot.nodeId, slot.actionId)))
-    .map((slot) => ({
-      ...slot,
-      helpers: variants
-        .filter((variant) => (index.mappingsByVariant.get(variant.id) ?? []).some((mapping) => mapping.reviewStatus === "reviewed" && mapping.nodeId === slot.nodeId && categoryFor(mapping.relationship, mapping.muscleMode, variant.deliberateHold) === "contributing_dynamic"))
-        .map((variant) => ({ variantId: variant.id, catalogExerciseId: variant.catalogExerciseId })),
-    }));
-
-  const model: Model = {
-    regionId: region.region.id,
-    mappingVersion: region.mappingVersion.key,
-    ownTargets: own,
-    slotCount: { moving: slots.length, hold: slots.length },
-    movements,
-    gaps,
-    candidates,
-    candidateByCatalogId: new Map(candidates.map((candidate) => [candidate.catalogExerciseId, candidate] as const)),
-    actionIndex,
-  };
-  modelCache.set(region, model);
-  return model;
-}
-
 // ---------------------------------------------------------------- the plan week as the page reads it
 
 type CachedSummary = { region: SpecializationRegionData; catalog: readonly Exercise[]; summary: SpecializationSummary };
@@ -587,24 +354,6 @@ export function plannedSummaryFor(input: Pick<StackInput, "region" | "catalog" |
   }
   byKey.set(key, { region: input.region, catalog: input.catalog, summary });
   return summary;
-}
-
-/** Own-muscle slot and mode pairs (`<mode>:<node>|<action>`) the summary gives direct work. */
-function coveredSlots(region: SpecializationRegionData, summary: SpecializationSummary): Set<string> {
-  const own = new Set(ownTargetNodeIds(region));
-  const out = new Set<string>();
-  for (const node of summary.nodes) {
-    if (!own.has(node.nodeId)) continue;
-    for (const contribution of node.contributions) {
-      if (contribution.countedSide === "unknown") continue;
-      for (const part of contribution.parts) {
-        if (!part.actionId) continue;
-        if (isDirectMovingPart(part)) out.add(`moving:${slotKey(node.nodeId, part.actionId)}`);
-        else if (isDirectHoldPart(part)) out.add(`hold:${slotKey(node.nodeId, part.actionId)}`);
-      }
-    }
-  }
-  return out;
 }
 
 // ---------------------------------------------------------------- needs

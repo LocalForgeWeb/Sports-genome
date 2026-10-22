@@ -227,7 +227,7 @@ export type SpecializationPlanBatchChange =
   | ({ kind: "move"; toDayKey: string; insertAt?: number; prescription?: string } & SpecializationPlannedEntry);
 
 /**
- * Several changes to one plan week, applied together or not at all (lib/specialization/planChange
+ * Several changes to one plan week, applied together or not at all (lib/specialization/planBatch
  * `applyPlanBatch`): the stack's Add, Change the total and Take it out, and the tendon section's
  * planned-entry actions. Home applies it and offers one Undo for all of it.
  */
@@ -253,7 +253,12 @@ export type SpecializationAreaReport = { constraintType: ConstraintType; answer:
  * the page's region. The page's props take these beside `SpecializationPanelProps`.
  */
 export type SpecializationStackProps = {
-  onApplyPlanChanges: (batch: SpecializationPlanBatch) => SpecializationPlanBatchResult;
+  /**
+   * Applies a batch (Home fetches the batch code, planBatch.ts, when one arrives, so the closed page
+   * never downloads it). `onUndo` runs once the batch is taken back, from the page's Undo or the
+   * notice's, so the page can forget a stack it recorded.
+   */
+  onApplyPlanChanges: (batch: SpecializationPlanBatch, options?: { onUndo?: () => void }) => Promise<SpecializationPlanBatchResult>;
   /** Null when About me has no answer for this region's area, or says "Feels fine". */
   aboutMeArea: SpecializationAreaReport | null;
 };
@@ -275,43 +280,13 @@ export function areaReportForRegion(
 }
 
 /**
- * The device record of the athlete's stacks (the stack design note §3.9, `stackStore.ts`).
- * Plan reads only which plan weeks hold one, by the record's per-stack fields (`regionId`,
- * `planWeek`, `entries`), wherever the record keeps its stacks, so this agrees with the store's own
- * reader whatever its container. Storage that is missing, refused or corrupt reads as no stack.
+ * A plan week of a region that holds the athlete's stack: what Plan reads of the stack record
+ * (`stackStore.ts`, `stacksOnDevice`) to say a newly generated week does not have it.
  */
-export const specializationStacksKeyBase = "sports-genome-specialization-stacks-v1";
-
 export type StackOnDevice = { regionId: RegionId; planWeek: number };
 
-const isPlainRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
-
-export function readStacksOnDevice(accountId: string | number | null | undefined): StackOnDevice[] {
-  try {
-    if (typeof window === "undefined") return [];
-    const raw = window.localStorage.getItem(scopedKey(specializationStacksKeyBase, accountId));
-    if (!raw) return [];
-    const found: StackOnDevice[] = [];
-    const visit = (value: unknown, depth: number) => {
-      if (depth > 4) return;
-      if (Array.isArray(value)) { value.forEach((item) => visit(item, depth + 1)); return; }
-      if (!isPlainRecord(value)) return;
-      const { regionId, planWeek, entries } = value;
-      if (typeof regionId === "string" && regionId && typeof planWeek === "number" && Number.isInteger(planWeek) && planWeek > 0 && Array.isArray(entries)) {
-        if (entries.length) found.push({ regionId, planWeek });
-        return;
-      }
-      Object.values(value).forEach((item) => visit(item, depth + 1));
-    };
-    visit(JSON.parse(raw), 0);
-    return found;
-  } catch {
-    return [];
-  }
-}
-
-/** The region as a word before "stack": its heading's first words ("Hip specialization" → "hip"), else its label. */
-function regionStackWord(region: Pick<SpecializationRegion, "heading" | "label">): string {
+/** The region as a word before "stack" or "sets": its heading's first words ("Hip specialization" → "hip"), else its label. */
+export function regionStackWord(region: Pick<SpecializationRegion, "heading" | "label">): string {
   const named = /^(.+?)\s+specialization$/i.exec(region.heading ?? "")?.[1] ?? region.label;
   return named.charAt(0).toLowerCase() + named.slice(1);
 }

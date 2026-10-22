@@ -82,8 +82,12 @@ const weekWith = (days: Record<string, number[]>) => ({ customWorkoutIds: [], we
 const week1 = weekWith({ "0-Push": [e0.id, e1.id], "1-Pull": [e2.id] });
 const week2 = weekWith({ "0-Push": [e2.id] });
 const plan = JSON.stringify({ version: 2, ...week1, weeks: { "1": week1, "2": week2 }, activeWeek: 1 });
-/** A stack the stack card added to Week 1, as its device record keeps it (§3.9). */
-const stackRecord = JSON.stringify({ regions: [{ regionId: "forearm", total: 14, settings: {}, updatedAt: "2026-10-21T10:00:00.000Z" }], stacks: [{ id: "stack-1", regionId: "forearm", planWeek: 1, mappingVersion: "forearm_mappings_v1", total: 14, createdAt: "2026-10-21T10:00:00.000Z", settings: {}, entries: [{ dayKey: "0-Push", catalogExerciseId: WRIST_CURL, prescription: "1 × 10–25" }] }] });
+/** A stack the stack card added to Week 1, as its device record keeps it (§3.9, stackStore.ts: one list, each entry with its kind). */
+const settings = { days: null, perDay: 4, holds: null };
+const stackRecord = JSON.stringify([
+  { kind: "choice", regionId: "forearm", total: 14, settings, updatedAt: "2026-10-21T10:00:00.000Z" },
+  { kind: "stack", id: "stack-1", regionId: "forearm", planWeek: 1, mappingVersion: "forearm_mappings_v1", total: 14, createdAt: "2026-10-21T10:00:00.000Z", settings, entries: [{ dayKey: "0-Push", catalogExerciseId: WRIST_CURL, prescription: "1 × 10–25" }] },
+]);
 
 const tick = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); });
 const storedWeek = (week: number) => JSON.parse(window.localStorage.getItem(PLAN_KEY) ?? "{}").weeks?.[String(week)] ?? {};
@@ -112,9 +116,10 @@ async function openPage(query = "region=forearm") {
   await tick();
 }
 
-async function apply(batch: SpecializationPlanBatch): Promise<SpecializationPlanBatchResult> {
+async function apply(batch: SpecializationPlanBatch, options?: { onUndo?: () => void }): Promise<SpecializationPlanBatchResult> {
   let result: SpecializationPlanBatchResult | undefined;
-  await act(async () => { result = props().onApplyPlanChanges!(batch); });
+  // Home fetches the batch code when a batch arrives (planBatch.ts, §3.10), so the answer is awaited.
+  await act(async () => { result = await props().onApplyPlanChanges!(batch, options); });
   await tick();
   return result!;
 }
@@ -127,7 +132,8 @@ describe("a batch from the specialization page, as Home writes it", () => {
     expect(dayIds(1, "1-Pull")).toEqual([e2.id]);
     expect(planAddToasts()).toEqual([]);
 
-    const result = await apply(stackBatch(1));
+    let undone = 0;
+    const result = await apply(stackBatch(1), { onUndo: () => { undone += 1; } });
     const title = "Added 5 sets: 3 exercises on Day 01, Day 02 of Week 1";
     expect(result).toMatchObject({ ok: true, message: title });
     // Day 01 is the day Plan has open (its working draft); Day 02 is stored: both are written, once each.
@@ -145,8 +151,11 @@ describe("a batch from the specialization page, as Home writes it", () => {
     expect(Object.prototype.hasOwnProperty.call(notice.options, "action")).toBe(true);
     expect(notice.options!.action).toBeUndefined();
 
+    expect(undone).toBe(0);
     await act(async () => { notice.options!.cancel!.onClick(); });
     await tick();
+    // The page hears the notice's Undo once, so it can forget the stack it recorded.
+    expect(undone).toBe(1);
     expect(dayIds(1, "0-Push")).toEqual([e0.id, e1.id]);
     expect(dayPrescriptions(1, "0-Push")).toEqual({});
     expect(dayIds(1, "1-Pull")).toEqual([e2.id]);
@@ -154,6 +163,7 @@ describe("a batch from the specialization page, as Home writes it", () => {
     // The page's own Undo after the notice's does nothing more.
     await act(async () => { if (result.ok) result.undo(); });
     await tick();
+    expect(undone).toBe(1);
     expect(dayIds(1, "0-Push")).toEqual([e0.id, e1.id]);
     expect(dayIds(1, "1-Pull")).toEqual([e2.id]);
   }, 30000);

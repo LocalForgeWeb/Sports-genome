@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { ChevronDown, Plus } from "lucide-react";
 import type { SpecializationExclusions } from "@/lib/specialization/exclusions";
 import type { Recommendations } from "@/lib/specialization/recommendations";
@@ -23,6 +23,13 @@ export type SuggestionsProps = {
   mode?: SummaryMode;
   /** An exercise's equipment, from the catalog the recommender read: tells an equipment the athlete left out apart from a target already met. */
   equipmentOf?: (catalogExerciseId: number) => string | null;
+  /**
+   * The app's starting range beside each suggested exercise ("10–25 reps", "10–30 s holds";
+   * 11-forearm-research-and-stack.md §5.2), null where it has none; absent where the sheet shows no ranges.
+   */
+  rangeOf?: (catalogExerciseId: number) => string | null;
+  /** Said once above the suggestions: what the ranges are, or that they are loading. */
+  rangesNote?: ReactNode;
 };
 
 /** How many suggestions a sheet lists. */
@@ -43,7 +50,7 @@ const SHOWN = 5;
  * goes back to the restored exercise's Not for me or, when it is no longer among those shown,
  * to a line saying it is suggested again.
  */
-export function Suggestions({ data, recommendations, exclusions, onSetExerciseExcluded, onSetEquipmentExcluded, onChooseExercise, onInspectExercise, nodeId = null, mode = "completed", equipmentOf }: SuggestionsProps) {
+export function Suggestions({ data, recommendations, exclusions, onSetExerciseExcluded, onSetEquipmentExcluded, onChooseExercise, onInspectExercise, nodeId = null, mode = "completed", equipmentOf, rangeOf, rangesNote = null }: SuggestionsProps) {
   const [excludedNow, setExcludedNow] = useState<{ id: number; name: string; index: number } | null>(null);
   const [restored, setRestored] = useState<{ id: number; name: string } | null>(null);
   const [exclusionError, setExclusionError] = useState<string | null>(null);
@@ -123,7 +130,7 @@ export function Suggestions({ data, recommendations, exclusions, onSetExerciseEx
     <button ref={undoRef} type="button" className="spz-link spz-link-box" aria-describedby={messageId} onClick={() => undo(pending)}>Undo</button>
   </p> : null;
   const rows = shown.map((candidate, index) => <li key={candidate.catalogExerciseId} className="spz-candidate">
-    <span><b>{candidate.name}</b><small>{candidate.why}</small>{candidate.alsoLoads.length > 0 && <small>Also loads {candidate.alsoLoads.slice(0, 4).map((item) => item.name).join(", ")}{candidate.alsoLoads.length > 4 ? ` and ${candidate.alsoLoads.length - 4} more` : ""}.</small>}</span>
+    <span><b>{candidate.name}</b><small>{candidate.why}</small>{rangeOf?.(candidate.catalogExerciseId) && <small className="spz-range">Starting range: {rangeOf(candidate.catalogExerciseId)}</small>}{candidate.alsoLoads.length > 0 && <small>Also loads {candidate.alsoLoads.slice(0, 4).map((item) => item.name).join(", ")}{candidate.alsoLoads.length > 4 ? ` and ${candidate.alsoLoads.length - 4} more` : ""}.</small>}</span>
     <span className="spz-candidate-actions">
       <button type="button" className="spz-button" onClick={() => onChooseExercise(candidate.catalogExerciseId)}><Plus className="h-4 w-4" aria-hidden="true" />Add or swap</button>
       <button type="button" className="spz-link" onClick={() => onInspectExercise(candidate.catalogExerciseId, candidate.name)}>About it</button>
@@ -136,6 +143,7 @@ export function Suggestions({ data, recommendations, exclusions, onSetExerciseEx
   return <>
     {targetNote && <p className="spz-note spz-suggest-note">{targetNote}</p>}
     {missingNote && <p className="spz-note spz-suggest-note">{missingNote}</p>}
+    {rows.length > 0 && rangesNote}
     {!recommendations ? <p className="spz-note">Exercises appear once your plan has loaded.</p>
       : recommendations.kind === "mapping_not_reviewed" ? <p className="spz-note">{recommendations.message}</p>
       : recommendations.kind === "at_target" ? <p className="spz-note">{recommendations.note}</p>

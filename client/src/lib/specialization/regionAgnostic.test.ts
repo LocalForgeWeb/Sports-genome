@@ -190,6 +190,11 @@ describe("no region is named in the calculator, the windows, the goals or the ad
     "shared/specialization/repProfiles.ts",
     "client/src/lib/specialization/stack.ts",
     "client/src/lib/specialization/stackStore.ts",
+    // The designer's model and rules, the batch apply and the extras loader, apart so the closed page does not load them (§3.10, §7.5).
+    "client/src/lib/specialization/stackModel.ts",
+    "client/src/lib/specialization/stackRules.ts",
+    "client/src/lib/specialization/planBatch.ts",
+    "client/src/lib/specialization/regionExtras.ts",
   ];
   /** Lines that must stay, by file and exact code, each with its reason. */
   const allowed: { file: string; code: string; why: string }[] = [
@@ -310,6 +315,11 @@ describe("no region is named in the page's components", () => {
       code: 'grip_force_n: { button: "Grip strength", instrument: "Dynamometer", noun: "grip reading", title: (units) => `Grip strength on a dynamometer (${units.force}; its own measure, not exercise load)`, field: (units) => `Grip (${units.force} on the dynamometer)`, best: "Highest grip reading so far" },',
       why: "The words of the grip-strength measure (`grip_force_n`, a dynamometer reading), offered only where a region's `measurementMetrics` lists it: a measure's name, not a region's.",
     },
+    {
+      file: "StackDesigner.tsx",
+      code: '<button type="button" className="spz-link spz-link-box" aria-label={`Bring back ${movement.label}`} onClick={() => onBringBack(movement.key)}>Bring back</button>',
+      why: "The stack card's Bring back for a movement the athlete left out (11-forearm-research-and-stack.md §3.2 item 9, §3.6): the verb, not the back region; the movement's label is the region's data.",
+    },
   ];
 
   it("finds the page's components, and reads strings and code but not comments", () => {
@@ -345,7 +355,7 @@ describe("no region is named in the page's components", () => {
   }
 
   it("keeps the allow-list short and true: every entry is still a line of its file", () => {
-    expect(allowed.length).toBeLessThanOrEqual(5);
+    expect(allowed.length).toBeLessThanOrEqual(6);
     for (const entry of allowed) {
       expect(entry.why.length, entry.code).toBeGreaterThan(40);
       const lines = codeLines(entry.file, readFileSync(join(process.cwd(), dir, entry.file), "utf8")).map((line) => line.trim());

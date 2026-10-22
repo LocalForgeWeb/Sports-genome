@@ -3,7 +3,8 @@ import { readScopedRecord, scopedKey } from "@/lib/deviceStorageScope";
 import { commitDay, loadDay, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import { catalogIdOf } from "@/lib/workoutSwap";
 import type { AccountScope, StoreWrite } from "./stores";
-import { STACK_RULES, type StackDesign, type StackSettings } from "./stack";
+import type { StackDesign, StackSettings } from "./stack";
+import { STACK_RULES } from "./stackRules";
 
 /**
  * The stack designer's record on the device (docs/specialization-atlas, note 11,
@@ -146,6 +147,15 @@ export function saveStackRecord(record: Omit<StackRecord, "kind">, accountId?: A
 export function removeStackRecord(id: string, accountId?: AccountScope): StoreWrite {
   const state = loadStackStore(accountId);
   return save(accountId, { ...state, stacks: state.stacks.filter((item) => item.id !== id) });
+}
+
+/**
+ * The plan weeks that hold one of this account's stacks, by region (Plan's "Week N generated" note,
+ * 11 §3.2): read by the store's own reader, so a record it cannot read, a stack with no entries, and
+ * storage that is missing, corrupt or refused are no stack.
+ */
+export function stacksOnDevice(accountId?: AccountScope): { regionId: string; planWeek: number }[] {
+  return loadStackStore(accountId).stacks.filter((stack) => stack.entries.length > 0).map(({ regionId, planWeek }) => ({ regionId, planWeek }));
 }
 
 /** The stack this account added to one plan week of a region, if any. */

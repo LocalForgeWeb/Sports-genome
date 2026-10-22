@@ -207,6 +207,8 @@
 .spz-candidate-why { flex: 1 1 100%; min-width: 0; }
 /* Said once above the suggestions: a target nothing can count toward, a main action nothing here trains. */
 .spz-suggest-note { border-left: 2px solid var(--sg-control-border-on-dark); padding-left: .6rem; }
+/* The app's starting ranges (11-forearm-research-and-stack.md §5.3), said once right above the suggestions. */
+.spz-range-note { display: grid; gap: .35rem; border-left: 2px solid var(--sg-control-border-on-dark); padding-left: .6rem; }
 .spz-covered { display: grid; gap: .25rem; }
 
 /* -- Why this counts: the mappings behind an exercise's credit, with their sources ------ */

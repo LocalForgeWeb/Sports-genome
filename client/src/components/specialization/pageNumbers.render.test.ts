@@ -127,6 +127,20 @@ function withWaveZero(reading: { findings: string[][] }) {
   return { ...reading, findings: [...kept, ...SAVED_EARLIER.map(() => [])] };
 }
 
+/**
+ * What F1 moves (11-forearm-research-and-stack.md §3.2, §3.3; lane S4), in Planned mode only: the
+ * window line says the plan week's direct moving sets where it said this week's logged bouts (the
+ * logged week stays in the sets the line opens): 9, three sets each of Wrist Curl, Reverse Wrist Curl
+ * and Hammer Curl, the plan's three exercises with direct moving work, each set counted once
+ * (`directWorkCount`). And "Coverage to review" leads with the movements the plan week gives no direct
+ * moving work, in Plan Week 1: 9 of the forearm's 12 moving movements (those three train wrist
+ * flexion, wrist extension and elbow flexion).
+ */
+function withF1(id: string, reading: { window: string[]; findings: string[][] }) {
+  if (id !== "planned") return reading;
+  return { ...reading, window: [...reading.window.slice(0, -1), "9"], findings: [["9", "1"], ...reading.findings] };
+}
+
 describe.skipIf(out)("the forearm page shows main's numbers (4dac1ae), both arms as one", () => {
   const reference = (out ? {} : JSON.parse(readFileSync(join(process.cwd(), "client/src/components/specialization/__fixtures__/pageNumbers.4dac1ae.json"), "utf8"))) as Record<string, { findings: string[][] }>;
 
@@ -140,7 +154,7 @@ describe.skipIf(out)("the forearm page shows main's numbers (4dac1ae), both arms
       // The reading reaches the page's numbers at all: rows with work, and the completeness counts.
       expect(read.rows.length).toBeGreaterThan(20);
       expect(read.completeness.length).toBeGreaterThan(5);
-      expect(read).toEqual(withWaveZero(reference[id]));
+      expect(read).toEqual(withF1(id, withWaveZero(reference[id] as { window: string[]; findings: string[][] })));
     }, 30000);
   }
 });
