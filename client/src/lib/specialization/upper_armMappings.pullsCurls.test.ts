@@ -35,13 +35,40 @@ const sources = new Map([...sourceLibrary, ...upperArmPullsCurlsSources].map((so
 const mappingsFor = (catalogId: number) => pullsCurlsMappings.filter((mapping) => mapping.variantId === variantIdFor(catalogId));
 const mappingOf = (catalogId: number, nodeId: string) => pullsCurlsMappings.find((mapping) => mapping.id === `${variantIdFor(catalogId)}:${nodeId}`);
 const nodesOf = (catalogId: number) => mappingsFor(catalogId).map((mapping) => mapping.nodeId).sort();
-const shape = (mapping: VariantMapping | undefined) => mapping && [mapping.actionId, mapping.relationship, mapping.muscleMode, mapping.reviewStatus];
+/** A row as the calculator and the page read it: everything but its words and sources. */
+const shape = (mapping: Pick<VariantMapping, "nodeId" | "actionId" | "relationship" | "muscleMode" | "evidenceBasis" | "allocation" | "reviewStatus"> | undefined) =>
+  mapping && [mapping.nodeId, mapping.actionId, mapping.relationship, mapping.muscleMode, mapping.evidenceBasis, mapping.allocation, mapping.reviewStatus].join(" ");
+const sorted = (list: number[]) => [...list].sort((x, y) => x - y);
 
 const ids = pullsCurlsCatalogIds;
 const curlIds = [...ids.supinatedCurls, ...ids.neutralCurls, ...ids.pronatedCurls, ...ids.zottmanCurls];
-const elbowPullIds = Object.values(ids.elbowPulls).flat();
-const familyIds = [...curlIds, ...elbowPullIds, ...ids.facePulls, ...ids.uprightPulls, ...ids.pullovers, ...ids.straightArmPulldowns];
+const elbowPullIds: number[] = Object.values(ids.elbowPulls).flat();
+const familyIds: number[] = [...curlIds, ...elbowPullIds, ...ids.facePulls, ...ids.uprightPulls, ...ids.pullovers, ...ids.straightArmPulldowns];
 const mappedCatalogIds = new Set(pullsCurlsMappings.map((mapping) => variantById.get(mapping.variantId)!.catalogExerciseId));
+const has = (list: readonly number[], id: number) => list.includes(id);
+
+// ---------------------------------------------------------------- every row's shape, by group
+
+const row = (nodeId: string, actionId: string, relationship: string, muscleMode: string, evidenceBasis: string, allocation: string, reviewStatus: string) =>
+  [nodeId, actionId, relationship, muscleMode, evidenceBasis, allocation, reviewStatus].join(" ");
+const flexors = (relationship: string, basis: string, status: string) => [m.biceps, m.brachialis].map((nodeId) => row(nodeId, "elbow.flexion", relationship, "dynamic", basis, "individual", status));
+const tricepsHold = [m.tricepsLateral, m.tricepsMedial].map((nodeId) => row(nodeId, "elbow.extension", "stabilizer", "isometric", "inference", "shared", "reviewed"));
+
+/** The rows each catalog id must have, exactly: the family's decisions, pinned. */
+function expectedRows(id: number): string[] {
+  if (has(ids.supinatedCurls, id) || has(ids.zottmanCurls, id)) return flexors("direct", "anatomy", "reviewed");
+  if (has(ids.neutralCurls, id)) return [row(m.biceps, "elbow.flexion", "contributing", "dynamic", "anatomy", "individual", "reviewed"), row(m.brachialis, "elbow.flexion", "direct", "dynamic", "anatomy", "individual", "reviewed")];
+  if (has(ids.pronatedCurls, id)) return [row(m.biceps, "elbow.flexion", "contributing", "dynamic", "emg", "individual", "reviewed"), row(m.brachialis, "elbow.flexion", "direct", "dynamic", "anatomy", "individual", "reviewed")];
+  if (has(elbowPullIds, id)) {
+    const longHead = has(ids.frontToBackPulls, id) ? [row(m.tricepsLong, "shoulder.extension", "contributing", "dynamic", "inference", "individual", "draft")] : [];
+    return [...flexors("contributing", "anatomy", "reviewed"), ...longHead];
+  }
+  if (has(ids.facePulls, id)) return flexors("contributing", "inference", "reviewed");
+  if (has(ids.uprightPulls, id)) return flexors("contributing", "inference", "draft");
+  if (id === 64) return [row(m.tricepsLong, "shoulder.extension", "contributing", "dynamic", "inference", "individual", "draft")];
+  if (has(ids.pullovers, id) || has(ids.straightArmPulldowns, id)) return [row(m.tricepsLong, "shoulder.extension", "contributing", "dynamic", "anatomy", "individual", "reviewed"), ...tricepsHold];
+  throw new Error(`${id} is in no group`);
+}
 
 describe("upper-arm pulls and curls: every row", () => {
   it("is a valid row of the upper arm's version, on a current library variant, for an own target muscle", () => {
@@ -61,8 +88,7 @@ describe("upper-arm pulls and curls: every row", () => {
       expect(mapping.sideRelation, mapping.id).toBe("same");
       expect(variant!.laterality, mapping.id).not.toBe("not_applicable");
       if (mapping.relationship === "stabilizer" || mapping.relationship === "incidental") expect(mapping.muscleMode, mapping.id).toBe("isometric");
-      const category = categoryFor(mapping.relationship, mapping.muscleMode, variant!.deliberateHold);
-      expect(category, mapping.id).not.toBe("unknown");
+      expect(categoryFor(mapping.relationship, mapping.muscleMode, variant!.deliberateHold), mapping.id).not.toBe("unknown");
     }
   });
 
@@ -71,25 +97,35 @@ describe("upper-arm pulls and curls: every row", () => {
     expect(new Set(keys).size).toBe(keys.length);
   });
 
-  it("is reviewed only with a rationale, a basis and a located, limited source; a draft says why", () => {
+  it("pins every row's full shape, group by group", () => {
+    for (const id of familyIds) expect(mappingsFor(id).map(shape).sort(), String(id)).toEqual(expectedRows(id).sort());
+    const expectedCount = familyIds.reduce((sum, id) => sum + expectedRows(id).length, 0);
+    expect(pullsCurlsMappings).toHaveLength(expectedCount);
+  });
+
+  it("is reviewed only with a rationale, a basis and located, limited sources; a draft says why", () => {
     for (const mapping of pullsCurlsMappings) {
       expect(mapping.rationale.trim().length, mapping.id).toBeGreaterThan(40);
       expect(mapping.sources.length, mapping.id).toBeGreaterThan(0);
       for (const ref of mapping.sources) expect(sources.has(ref.sourceId), `${mapping.id} → ${ref.sourceId}`).toBe(true);
       if (mapping.reviewStatus === "reviewed") {
-        expect(mapping.sources.some((ref) => Boolean(ref.locator?.trim()) && Boolean(ref.limitation?.trim())), mapping.id).toBe(true);
-        expect(["anatomy", "inference", "emg"], mapping.id).toContain(mapping.evidenceBasis);
+        for (const ref of mapping.sources) {
+          expect(ref.locator?.trim(), `${mapping.id} → ${ref.sourceId} locator`).toBeTruthy();
+          expect(ref.limitation?.trim(), `${mapping.id} → ${ref.sourceId} limitation`).toBeTruthy();
+        }
       } else {
         expect(mapping.rationale, mapping.id).toMatch(/not established/);
         expect(mapping.rationale, mapping.id).toMatch(/pending review/);
+        expect([mapping.relationship, mapping.muscleMode], mapping.id).toEqual(["contributing", "dynamic"]);
       }
       if (mapping.evidenceBasis === "emg") expect(mapping.sources.some((ref) => sources.get(ref.sourceId)?.evidenceType === "emg"), mapping.id).toBe(true);
+      if (mapping.evidenceBasis === "anatomy") expect(mapping.sources.some((ref) => sources.get(ref.sourceId)?.evidenceType === "anatomy"), mapping.id).toBe(true);
     }
   });
 
-  it("says nothing about growth, percentages or screen sides", () => {
+  it("says nothing about growth, size, percentages or screen sides", () => {
     for (const mapping of pullsCurlsMappings) {
-      expect(mapping.rationale, mapping.id).not.toMatch(/%|\bper ?cent\b|optimal|guarantee|\bwill (grow|get bigger|increase)\b|\btables?\b|\b(left|right)\b/i);
+      expect(mapping.rationale, mapping.id).not.toMatch(/%|\bper ?cent\b|optimal|guarantee|growth|\bgrows?\b|\bbuilds?\b|\bsize\b|hypertroph|\bwill (grow|get bigger|increase)\b|\btables?\b|\b(left|right)\b/i);
     }
   });
 
@@ -101,7 +137,7 @@ describe("upper-arm pulls and curls: every row", () => {
       if (!lateral || !medial) continue;
       expect(lateral.allocation, lateral.id).toBe("shared");
       expect(medial.allocation, medial.id).toBe("shared");
-      expect(shape(lateral), String(id)).toEqual(shape(medial));
+      expect(shape({ ...lateral, nodeId: "head" }), String(id)).toEqual(shape({ ...medial, nodeId: "head" }));
     }
   });
 
@@ -121,7 +157,7 @@ describe("upper-arm pulls and curls: every row", () => {
   });
 });
 
-describe("upper-arm pulls and curls: coverage", () => {
+describe("upper-arm pulls and curls: coverage and groups", () => {
   it("maps or lists every catalog row of the family in the upper arm's scope", () => {
     const listed = new Map(pullsCurlsUnmapped.map((entry) => [entry.catalogId, entry]));
     const family = exercises.filter((exercise) => tagsUpperArm(exercise) && inFamily(exercise)).map((exercise) => exercise.id);
@@ -134,8 +170,8 @@ describe("upper-arm pulls and curls: coverage", () => {
     }
     // The family as the file states it: the 78 tagged rows and the four untagged ones it maps, each once.
     expect(new Set(familyIds).size).toBe(familyIds.length);
-    expect([...familyIds].sort((x, y) => x - y)).toEqual([...family, ...pullsCurlsUntaggedMapped].sort((x, y) => x - y));
-    expect(Array.from(mappedCatalogIds).sort((x, y) => x - y)).toEqual([...familyIds].sort((x, y) => x - y));
+    expect(sorted(familyIds)).toEqual(sorted([...family, ...pullsCurlsUntaggedMapped]));
+    expect(sorted(Array.from(mappedCatalogIds))).toEqual(sorted(familyIds));
   });
 
   it("maps untagged rows only where the upper arm is really loaded, and says which", () => {
@@ -156,61 +192,70 @@ describe("upper-arm pulls and curls: coverage", () => {
     for (const id of ids.zottmanCurls) expect(variantFor(id)!.forearmOrientation, String(id)).toBe("changing");
     for (const id of curlIds) expect(catalogById.get(id)!.movement, String(id)).toBe("Elbow flexion");
     expect(curlIds).toHaveLength(25);
+    expect(elbowPullIds).toHaveLength(46);
+  });
+
+  it("ties every other group to its variants' records, so moving an exercise changes its rows", () => {
+    const familyVariants = familyIds.map((id) => variantFor(id)!);
+    const named = (pattern: RegExp) => sorted(familyVariants.filter((variant) => pattern.test(variant.catalogName)).map((variant) => variant.catalogExerciseId));
+    const noted = (pattern: RegExp) => sorted(familyVariants.filter((variant) => pattern.test(variant.notes ?? "")).map((variant) => variant.catalogExerciseId));
+    expect(sorted([...ids.facePulls])).toEqual(named(/face pull|rear-delt/i));
+    expect(sorted([...ids.uprightPulls])).toEqual(noted(/up the front of the body/i));
+    expect(sorted([...ids.pullovers])).toEqual(named(/pullover/i));
+    expect(sorted([...ids.straightArmPulldowns])).toEqual(named(/straight-arm/i));
+    for (const id of ids.straightArmPulldowns) expect(variantFor(id)!.notes, String(id)).toMatch(/straight/i);
+    // The long head's drafts sit on exactly the vertical pulls done palms in or up.
+    const frontToBack = elbowPullIds.filter((id) => catalogById.get(id)!.movement === "Vertical pull" && ["neutral", "supinated"].includes(variantFor(id)!.forearmOrientation));
+    expect(sorted([...ids.frontToBackPulls])).toEqual(sorted(frontToBack));
+    // No elbow pull is a straight-arm, face or upright pull.
+    for (const id of elbowPullIds) {
+      const variant = variantFor(id)!;
+      expect(variant.catalogName, String(id)).not.toMatch(/pullover|straight-arm|face pull|rear-delt|upright|high pull/i);
+      expect(variant.notes ?? "", String(id)).not.toMatch(/arms stay straight|up the front of the body/i);
+    }
   });
 });
 
 describe("upper-arm pulls and curls: the judgment calls", () => {
-  it("reads the biceps and brachialis in every curl exactly as the forearm's frozen rows do", () => {
+  /** Where a curl row is meant to read differently from the forearm's frozen row, by mapping id. None. */
+  const intendedCurlDifferences: string[] = [];
+
+  it("reads the biceps and brachialis in every curl as the forearm's frozen rows do, basis and allocation included", () => {
     for (const id of curlIds) {
       for (const nodeId of [m.biceps, m.brachialis]) {
         const frozen = forearmMappings.find((mapping) => mapping.id === `${variantIdFor(id)}:${nodeId}`);
         expect(frozen, `${id} ${nodeId}`).toBeDefined();
+        if (intendedCurlDifferences.includes(frozen!.id)) continue;
         expect(shape(mappingOf(id, nodeId)), `${id} ${nodeId}`).toEqual(shape(frozen));
       }
       expect(nodesOf(id), String(id)).toEqual([m.biceps, m.brachialis].sort());
     }
-    for (const id of [...ids.neutralCurls, ...ids.pronatedCurls]) expect(mappingOf(id, m.biceps)!.relationship, String(id)).toBe("contributing");
-    for (const id of curlIds) expect(mappingOf(id, m.brachialis)!.relationship, String(id)).toBe("direct");
   });
 
   it("never credits supination in this family: a curl's turn carries no load", () => {
     for (const mapping of pullsCurlsMappings) expect(mapping.actionId, mapping.id).not.toBe("forearm.supination");
   });
 
-  it("credits the elbow flexors in every row, pulldown and pull-up as contributing, dynamic and reviewed, whatever the grip", () => {
-    for (const id of elbowPullIds) {
-      expect(nodesOf(id), String(id)).toEqual([m.biceps, m.brachialis].sort());
-      for (const nodeId of [m.biceps, m.brachialis]) expect(shape(mappingOf(id, nodeId)), `${id} ${nodeId}`).toEqual(["elbow.flexion", "contributing", "dynamic", "reviewed"]);
-    }
-    expect(elbowPullIds).toHaveLength(46);
-  });
-
-  it("credits the long head only in straight-arm shoulder extension, never in pulls that bend the elbow", () => {
+  it("credits no triceps head on a pull that bends the elbow, apart from the long head's drafts", () => {
     for (const id of [...elbowPullIds, ...ids.facePulls, ...ids.uprightPulls, ...curlIds]) {
-      for (const head of [m.tricepsLong, m.tricepsLateral, m.tricepsMedial]) expect(mappingOf(id, head), `${id} ${head}`).toBeUndefined();
+      for (const head of [m.tricepsLateral, m.tricepsMedial]) expect(mappingOf(id, head), `${id} ${head}`).toBeUndefined();
+      const longHead = mappingOf(id, m.tricepsLong);
+      if (longHead) expect(longHead.reviewStatus, longHead.id).toBe("draft");
     }
     for (const id of [...ids.pullovers, ...ids.straightArmPulldowns]) {
       expect(mappingOf(id, m.biceps), String(id)).toBeUndefined();
       expect(mappingOf(id, m.brachialis), String(id)).toBeUndefined();
-      const longHead = mappingOf(id, m.tricepsLong)!;
-      expect([longHead.actionId, longHead.relationship, longHead.muscleMode], String(id)).toEqual(["shoulder.extension", "contributing", "dynamic"]);
     }
-    for (const id of ids.straightArmPulldowns) {
-      for (const head of [m.tricepsLateral, m.tricepsMedial]) expect(shape(mappingOf(id, head)), `${id} ${head}`).toEqual(["elbow.extension", "stabilizer", "isometric", "reviewed"]);
-    }
-    for (const id of ids.pullovers) expect(nodesOf(id), String(id)).toEqual([m.tricepsLong]);
   });
 
-  it("credits face pulls' elbow work from the joint's mechanics, and leaves the upright row and high pull pending review", () => {
-    for (const id of ids.facePulls) {
-      for (const nodeId of [m.biceps, m.brachialis]) {
-        const mapping = mappingOf(id, nodeId)!;
-        expect(shape(mapping), `${id} ${nodeId}`).toEqual(["elbow.flexion", "contributing", "dynamic", "reviewed"]);
-        expect(mapping.evidenceBasis, mapping.id).toBe("inference");
-      }
-    }
+  it("holds the drafts to the stated list", () => {
     const drafts = pullsCurlsMappings.filter((mapping) => mapping.reviewStatus === "draft").map((mapping) => mapping.id).sort();
-    expect(drafts).toEqual(["cat-317:upper_arm.biceps", "cat-317:upper_arm.brachialis", "cat-335:upper_arm.biceps", "cat-335:upper_arm.brachialis", "cat-64:upper_arm.triceps_long"].sort());
+    const expected = [
+      ...[317, 335].flatMap((id) => [`cat-${id}:${m.biceps}`, `cat-${id}:${m.brachialis}`]),
+      `cat-64:${m.tricepsLong}`,
+      ...ids.frontToBackPulls.map((id) => `cat-${id}:${m.tricepsLong}`),
+    ].sort();
+    expect(drafts).toEqual(expected);
     // The forearm leaves the same question open for its brachioradialis on the upright row.
     expect(forearmMappings.find((mapping) => mapping.id === "cat-317:forearm.br")!.reviewStatus).toBe("draft");
   });
@@ -224,11 +269,9 @@ describe("upper-arm pulls and curls: the judgment calls", () => {
   });
 
   it("describes where a curl holds the upper arm without changing its credit", () => {
-    const supinatedBiceps = (id: number) => shape(mappingOf(id, m.biceps));
     for (const id of [125, 126, 127, 129, 130, 131, 137, 338, 339, 340, 341]) {
       expect(mappingOf(id, m.biceps)!.rationale, String(id)).toMatch(/earns no extra credit/);
       expect(mappingOf(id, m.brachialis)!.rationale, String(id)).toMatch(/does not cross the shoulder/);
-      expect(supinatedBiceps(id), String(id)).toEqual(supinatedBiceps(121));
     }
   });
 });
@@ -241,7 +284,7 @@ describe("upper-arm pulls and curls: new sources", () => {
     for (const source of upperArmPullsCurlsSources) {
       expect(libraryIds.has(source.id), source.id).toBe(false);
       expect(libraryUrls.has(normal(source.url)), source.id).toBe(false);
-      expect(source.id).toMatch(/^[a-z][a-z0-9_]*\.[a-z0-9_]+$/);
+      expect(source.id).toMatch(/^([a-z][a-z0-9_]*\.[a-z0-9_]+|pmid\.\d+)$/);
       expect(source.notes?.length ?? 0, source.id).toBeGreaterThan(100);
     }
     const ownIds = upperArmPullsCurlsSources.map((source) => source.id);
