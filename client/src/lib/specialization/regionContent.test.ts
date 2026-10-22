@@ -11,6 +11,7 @@ import { upperArmContent } from "@shared/specialization/regions/upper_arm";
 import { categoryFor } from "@shared/specialization/rules";
 import { sourceLibrary } from "@shared/specialization/sources";
 import { isCurrentVariant, variantById, variantFor, variantLibrary, variantsMappedBy } from "@shared/specialization/variants";
+import { bothLimbCatalogIds as libraryBothLimbCatalogIds } from "@shared/specialization/variants/bothLimbs";
 import { countingDimensions, descriptiveDimensions } from "@shared/specialization/variants/dimensions";
 import { forearmV1Variants } from "@shared/specialization/variants/forearm";
 import type { AnatomyNode, Claim, ExerciseVariant, Limb, MappingVersion, RegionContent, SpecializationRegionData, VariantMapping } from "@shared/specialization/types";
@@ -825,7 +826,8 @@ describe("the source library", () => {
  * decision in docs/specialization-atlas/regions/variants.md (§3). 188 and 264, the single-leg
  * Romanian deadlifts, are read by the arm now and may move to the standing leg (§11 decision 9).
  */
-const bothLimbCatalogIds = new Set([188, 264]);
+// The list and each decision's reason are the variant library's (variants/bothLimbs.ts).
+const bothLimbCatalogIds = libraryBothLimbCatalogIds;
 
 const oneSided = (laterality: string | undefined) => laterality === "unilateral" || laterality === "either";
 
@@ -872,7 +874,8 @@ describe("the variant library", () => {
       if (isCurrentVariant(variant)) expect(variantFor(variant.catalogExerciseId)).toBe(variant);
     }
     expect(variantFor(null)).toBeNull();
-    expect(variantFor(1)).toBeNull();
+    // No catalog row has id 0; every catalog exercise may get a variant as the waves map them.
+    expect(variantFor(0)).toBeNull();
   });
 
   it("holds the forearm's 119 records as published, with sidedBy pinned: the arm where the arms are not bilateral", () => {
@@ -938,7 +941,7 @@ describe("the variant library", () => {
   });
 
   it("names its dimensions and values as the database stores them", () => {
-    expect(Object.keys(descriptiveDimensions)).toEqual(["knee", "hip", "torso", "bench", "plane", "grip_width", "stance", "range"]);
+    expect(Object.keys(descriptiveDimensions)).toEqual(["knee", "hip", "torso", "bench", "plane", "grip_width", "stance", "range", "shoulder"]);
     for (const [id, dimension] of Object.entries({ ...countingDimensions, ...descriptiveDimensions })) {
       expect(id).toMatch(/^[a-z][a-z0-9_]*$/);
       expect(dimension.label.trim(), id).not.toBe("");
