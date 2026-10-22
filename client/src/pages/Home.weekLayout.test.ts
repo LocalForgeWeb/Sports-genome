@@ -65,7 +65,9 @@ const tabLabels = () => dayTabs().map((tab) => tab.textContent);
 const names = () => [...document.querySelectorAll(".day-plan-list .custom-row-identity strong")].map((el) => el.firstChild!.textContent!.trim());
 const openDay = async (index: number) => { await act(async () => { fireEvent.click(dayTabs()[index]); }); await tick(); };
 const openWeek = async (label: RegExp) => { await act(async () => { fireEvent.click(within(screen.getByRole("group", { name: "Training week" })).getByRole("button", { name: label })); }); await tick(); };
-const editor = () => within(screen.getByRole("region", { name: "Your training days" }));
+const editor = () => within(screen.getByRole("region", { name: "Training days" }));
+/** What the editor says is on each day. */
+const dayCounts = () => [...document.querySelectorAll(".week-layout-pick small")].map((el) => el.textContent);
 const openEditor = async () => { await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Edit days" })); }); };
 const start = async () => {
   window.history.replaceState({}, "", "/?workspace=day-plan");
@@ -86,11 +88,11 @@ afterEach(() => { cleanup(); });
 describe("the week's days on the Plan", () => {
   it("changes one day's kind and keeps its exercises, in this week and the others", async () => {
     await start();
-    expect(tabLabels()).toEqual(["UpperDay 1 · 2", "LowerDay 2 · 1", "UpperDay 3 · 1", "LowerDay 4 · —"]);
+    expect(tabLabels()).toEqual(["UpperDay 1", "LowerDay 2", "UpperDay 3", "LowerDay 4"]);
     await openEditor();
     await act(async () => { fireEvent.change(editor().getByRole("combobox", { name: /Day 3/ }), { target: { value: "Push" } }); });
     await tick();
-    expect(tabLabels()[2]).toBe("PushDay 3 · 1");
+    expect(tabLabels()[2]).toBe("PushDay 3");
     await openDay(2);
     expect(names()).toEqual([d.name]);
     expect(savedWeeks()).toEqual({ "1": { "0-Upper": [a.id, b.id], "1-Lower": [c.id], "2-Push": [d.id] }, "2": { "2-Push": [c.id] } });
@@ -108,7 +110,8 @@ describe("the week's days on the Plan", () => {
     expect(dayTabs()).toHaveLength(5);
     // The suggestion for five days, each day's exercises carried to it (Day 3's Upper work to
     // the new Upper day), none lost.
-    expect(tabLabels()).toEqual(["PushDay 1 · 2", "PullDay 2 · 1", "LegsDay 3 · —", "UpperDay 4 · 1", "Sport TransferDay 5 · —"]);
+    expect(tabLabels()).toEqual(["PushDay 1", "PullDay 2", "LegsDay 3", "UpperDay 4", "Sport TransferDay 5"]);
+    expect(dayCounts()).toEqual(["2 exercises", "1 exercise", "No exercises yet", "1 exercise", "No exercises yet"]);
     await act(async () => { fireEvent.click(editor().getByRole("button", { name: /^Upper every day/ })); });
     await tick();
     expect(tabLabels().map((label) => label!.slice(0, 5))).toEqual(["Upper", "Upper", "Upper", "Upper", "Upper"]);
@@ -122,7 +125,8 @@ describe("the week's days on the Plan", () => {
     await act(async () => { message.options!.action!.onClick(); });
     await tick();
     // Back to the five days as they were before the split, every record where it was.
-    expect(tabLabels()).toEqual(["PushDay 1 · 2", "PullDay 2 · 1", "LegsDay 3 · —", "UpperDay 4 · 1", "Sport TransferDay 5 · —"]);
+    expect(tabLabels()).toEqual(["PushDay 1", "PullDay 2", "LegsDay 3", "UpperDay 4", "Sport TransferDay 5"]);
+    expect(dayCounts()).toEqual(["2 exercises", "1 exercise", "No exercises yet", "1 exercise", "No exercises yet"]);
     expect(savedWeeks()["1"]).toEqual({ "0-Push": [a.id, b.id], "1-Pull": [c.id], "3-Upper": [d.id] });
   });
 
@@ -133,7 +137,7 @@ describe("the week's days on the Plan", () => {
     await tick();
     view.unmount();
     await start();
-    expect(tabLabels()).toEqual(["UpperDay 1 · 2", "UpperDay 2 · 1", "UpperDay 3 · 1", "LowerDay 4 · —"]);
+    expect(tabLabels()).toEqual(["UpperDay 1", "UpperDay 2", "UpperDay 3", "LowerDay 4"]);
   });
 
   it("keeps each week's days apart when switching weeks from a day other than the first", async () => {

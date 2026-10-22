@@ -22,13 +22,14 @@ import { WeekLayoutEditor } from "./WeekLayoutEditor";
  * day on every change and has been for some time; the two Save buttons were
  * telling an athlete to do something the app had already done.
  *
- * The open week can be named ("Heavy", "Deload"). "Name week" sits at the end of the
- * week row and opens a one-line field right under it, in place: no dialog. A named
- * week's pill leads with its name and keeps its number under it.
+ * The open week can be named ("Heavy", "Deload"). "Name week", on the quiet line of
+ * actions under the weeks, opens a one-line field right under it, in place: no dialog.
+ * A named week's pill leads with its name and keeps its number under it.
  *
- * "Edit days" beside it opens the week's layout in the same place: how many days, a
- * ready-made split, and what each day is (WeekLayoutEditor). Each day tab carries its
- * number, because a split repeats its names: Upper, Lower, Upper, Lower.
+ * "Edit days" beside it opens the week's layout in the same place: how many days, what
+ * each day is, and ready-made splits (WeekLayoutEditor). Each day tab carries its
+ * number under its name, because a split repeats its names: Upper, Lower, Upper, Lower.
+ * How much is on a day is said once, on the line under the tabs, not as a bare count.
  */
 export function TrainingPlanHeader({
   weeks, activeWeek, onSelectWeek, onGenerateWeek, nextWeekToGenerate, onRenameWeek, layout,
@@ -91,27 +92,28 @@ export function TrainingPlanHeader({
       <h1>Training plan</h1>
     </div>
 
-    <div className="training-plan-week-bar">
-      <div className="training-plan-weeks" role="group" aria-label="Training week">
-        {weeks.map(({ week, ready, savedDays, name }) => {
-          const selected = week === activeWeek;
-          // An ungenerated week is not disabled: the pill is how you make it, which
-          // is what the separate "Generate the weeks" block was for. So the weeks are
-          // buttons, not tabs: a tab only shows a place, and this one builds a week.
-          const generates = !ready && week === nextWeekToGenerate;
-          return <button
-            key={week}
-            type="button"
-            aria-current={selected ? "true" : undefined}
-            disabled={!ready && !generates}
-            onClick={ready ? () => onSelectWeek(week) : generates ? onGenerateWeek : undefined}
-            className={`training-plan-week${selected ? " training-plan-week-active" : ""}`}
-          >
-            {name ? <span className="training-plan-week-name">{name}</span> : <>Week {week}</>}
-            <small>{name ? `Week ${week} · ` : ""}{ready ? (savedDays ? `${savedDays} saved` : "Empty") : generates ? "Generate" : "Locked"}</small>
-          </button>;
-        })}
-      </div>
+    <div className="training-plan-weeks" role="group" aria-label="Training week">
+      {weeks.map(({ week, ready, savedDays, name }) => {
+        const selected = week === activeWeek;
+        // An ungenerated week is not disabled: the pill is how you make it, which
+        // is what the separate "Generate the weeks" block was for. So the weeks are
+        // buttons, not tabs: a tab only shows a place, and this one builds a week.
+        const generates = !ready && week === nextWeekToGenerate;
+        return <button
+          key={week}
+          type="button"
+          aria-current={selected ? "true" : undefined}
+          disabled={!ready && !generates}
+          onClick={ready ? () => onSelectWeek(week) : generates ? onGenerateWeek : undefined}
+          className={`training-plan-week${selected ? " training-plan-week-active" : ""}`}
+        >
+          {name ? <span className="training-plan-week-name">{name}</span> : <>Week {week}</>}
+          <small>{name ? `Week ${week} · ` : ""}{ready ? (savedDays ? `${savedDays} saved` : "Empty") : generates ? "Generate" : "Locked"}</small>
+        </button>;
+      })}
+    </div>
+
+    {(onRenameWeek || layout) && <div className="training-plan-actions">
       {onRenameWeek && <button
         ref={nameButtonRef}
         type="button"
@@ -133,7 +135,7 @@ export function TrainingPlanHeader({
       >
         <CalendarDays className="h-4 w-4" aria-hidden="true" />Edit days
       </button>}
-    </div>
+    </div>}
 
     {layout && editingDays && <WeekLayoutEditor
       split={slots.map((slot) => slot.day)}
@@ -171,7 +173,6 @@ export function TrainingPlanHeader({
       {slots.map((slot, index) => {
         const selected = index === activeIndex;
         const trained = trainingStateFor?.(index) || null;
-        const planned = exerciseCountFor(slot);
         return <button
           key={slot.key}
           type="button"
@@ -181,7 +182,7 @@ export function TrainingPlanHeader({
           className={`training-plan-day${selected ? " training-plan-day-active" : ""}${trained ? ` training-plan-day-${trained}` : ""}`}
         >
           {slot.day}
-          <small>{trained === "live" ? "Training now" : trained === "trained" ? "Done this week" : `Day ${index + 1} · ${planned || "—"}`}</small>
+          <small>{trained === "live" ? "Training now" : trained === "trained" ? "Done this week" : `Day ${index + 1}`}</small>
         </button>;
       })}
     </div>

@@ -223,7 +223,7 @@ describe("the week's days", () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     render(React.createElement(TrainingPlanHeader, props()));
     const tabs = within(screen.getByRole("tablist", { name: "Day of the week" })).getAllByRole("tab").map((tab) => tab.textContent);
-    expect(tabs).toEqual(["UpperDay 1 · 2", "LowerDay 2 · —", "UpperDay 3 · —", "LowerDay 4 · —"]);
+    expect(tabs).toEqual(["UpperDay 1", "LowerDay 2", "UpperDay 3", "LowerDay 4"]);
   });
 
   it("opens the layout in place, with every option on the page, and hands each choice on", () => {
@@ -235,7 +235,7 @@ describe("the week's days", () => {
     fireEvent.click(edit);
     expect(edit.getAttribute("aria-expanded")).toBe("true");
     expect(screen.queryByRole("dialog")).toBeNull();
-    const editor = within(screen.getByRole("region", { name: "Your training days" }));
+    const editor = within(screen.getByRole("region", { name: "Training days" }));
 
     expect(editor.getByRole("button", { name: "4 days a week" }).getAttribute("aria-pressed")).toBe("true");
     fireEvent.click(editor.getByRole("button", { name: "5 days a week" }));
@@ -256,7 +256,7 @@ describe("the week's days", () => {
     expect(handlers.onPreset).toHaveBeenCalledWith(["Upper", "Upper", "Upper", "Upper"], "Upper every day");
 
     fireEvent.click(editor.getByRole("button", { name: "Done" }));
-    expect(screen.queryByRole("region", { name: "Your training days" })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Training days" })).toBeNull();
     expect(document.activeElement).toBe(edit);
   });
 
@@ -265,7 +265,7 @@ describe("the week's days", () => {
     render(React.createElement(TrainingPlanHeader, props({ layout: layout(), onRenameWeek: vi.fn() })));
     fireEvent.click(screen.getByRole("button", { name: "Edit days" }));
     fireEvent.click(screen.getByRole("button", { name: "Name Week 1" }));
-    expect(screen.queryByRole("region", { name: "Your training days" })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Training days" })).toBeNull();
     expect(screen.getByRole("textbox", { name: "Name for Week 1" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Edit days" }));
     expect(screen.queryByRole("textbox")).toBeNull();
