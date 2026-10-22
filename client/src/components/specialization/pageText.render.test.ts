@@ -4,7 +4,7 @@ import { join } from "node:path";
 import React, { createElement, useState } from "react";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { SpecializationPanel } from "./SpecializationPanel";
+import { SpecializationPanel, preloadStackModel } from "./SpecializationPanel";
 import { exercises } from "@/lib/exerciseCatalog";
 import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
 import { loadRegionData } from "@/lib/specialization/loadRegion";
@@ -140,7 +140,7 @@ const states: [string, Partial<SpecializationViewState>, unknown[]][] = [
 ];
 
 // The region's rep profiles too (F1, §5.2): a muscle sheet shows the starting ranges once they arrive, so they are here before any sheet opens.
-beforeAll(async () => { await loadRegionData("forearm"); await loadRegionExtras("forearm"); });
+beforeAll(async () => { await loadRegionData("forearm"); await loadRegionExtras("forearm"); await preloadStackModel(); });
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date(NOW));

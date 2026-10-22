@@ -9,7 +9,6 @@ import { recommendFor, type RecommendationCandidate } from "@/lib/specialization
 import { useSpecializationGoals, useSpecializationMeasurements } from "@/lib/specialization/stores";
 import { useSpecializationExclusions } from "@/lib/specialization/exclusions";
 import { planRevision } from "@/lib/specialization/revision";
-import { movementsWithoutDirectWork } from "@/lib/specialization/stackModel";
 import { stackEntriesState, stackForWeek, useSpecializationStacks } from "@/lib/specialization/stackStore";
 import { catalogMusclesLookup, computeSpecializationSummary, intervalForView, planningVariantsFor, useDeviceWorkoutSessions, useSpecializationSummary, type SpecializationPlanInput } from "@/lib/specialization/useSpecializationSummary";
 import { rememberRegion, withRegion, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationStackProps, type SpecializationViewState } from "@/lib/specialization/viewState";
@@ -85,6 +84,28 @@ export type SpecializationPanelProps = {
  * the batch apply are fetched when the card first opens (or a way in is tapped), never with the page.
  */
 const StackDesigner = lazy(() => import("./StackDesigner").then((module) => ({ default: module.StackDesigner })));
+
+/**
+ * The stack's model of a region (`stackModel.ts`), for one line of Planned mode's "Coverage to
+ * review": fetched in Planned mode only, so the page as it opens (Completed mode) downloads none of
+ * it (11 §7.5). Kept once loaded; the designer's chunk shares it.
+ */
+type StackModelModule = typeof import("@/lib/specialization/stackModel");
+let stackModelModule: StackModelModule | null = null;
+export function preloadStackModel(): Promise<StackModelModule> {
+  return import("@/lib/specialization/stackModel").then((module) => (stackModelModule = module));
+}
+function useStackModel(wanted: boolean): StackModelModule | null {
+  const [loaded, setLoaded] = useState<StackModelModule | null>(stackModelModule);
+  useEffect(() => {
+    if (!wanted || loaded) return;
+    let live = true;
+    // A failed fetch leaves the line out; nothing else on the page depends on it.
+    preloadStackModel().then((module) => { if (live) setLoaded(module); }, () => {});
+    return () => { live = false; };
+  }, [wanted, loaded]);
+  return loaded ?? stackModelModule;
+}
 
 const layerControlLabels: Record<DiagramLayerId, string> = { surface: "Surface", intermediate: "Middle", deep: "Deep" };
 const SHOWN_FINDINGS = 3;
@@ -734,7 +755,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.open]);
   /** Planned mode's "Coverage to review" (11 §3.2): the movements the plan week gives no direct moving work, the ones a stack fills. */
-  const stackFinding = useMemo(() => (stackSection && state.mode === "planned" && summary && planInput ? movementsWithoutDirectWork(data, summary) : []), [stackSection, state.mode, summary, planInput, data]);
+  const stackModel = useStackModel(stackSection && state.mode === "planned");
+  const stackFinding = useMemo(() => (stackModel && stackSection && state.mode === "planned" && summary && planInput ? stackModel.movementsWithoutDirectWork(data, summary) : []), [stackModel, stackSection, state.mode, summary, planInput, data]);
   const designerProps: StackDesignerProps = {
     data, week: cardWeek, mode: state.mode, plan: { ready: plan.ready, slots: plan.slots, weeks: plan.weeks }, catalog, equipmentProfile, exclusions,
     goals: regionGoals, goal, gymMinutes: gymMinutes ?? 60, accountId, nowIso, timeZone, stacks, onApplyPlanChanges, aboutMeArea: aboutMeArea ?? null, announce,

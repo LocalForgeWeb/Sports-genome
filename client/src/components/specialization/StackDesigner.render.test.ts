@@ -4,7 +4,7 @@ import { join } from "node:path";
 import React, { createElement, useRef, useState } from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { SpecializationPanel, type SpecializationPanelProps } from "./SpecializationPanel";
+import { SpecializationPanel, preloadStackModel, type SpecializationPanelProps } from "./SpecializationPanel";
 import { ModelMusclePanel } from "./anatomy3d/ModelMusclePanel";
 import { exercises } from "@/lib/exerciseCatalog";
 import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
@@ -107,7 +107,7 @@ const rowNamed = (name: RegExp) => rowButtons().find((row) => name.test(row.text
 const directIn = (store: WeeklyDayStore) => slots.flatMap((slot) => loadDay(store, slot.key).workout.map((entry) => catalogIdOf(entry)));
 const windowLine = () => document.querySelector(".spz-window")!.textContent;
 
-beforeAll(async () => { await loadRegionData("forearm"); await loadRegionExtras("forearm"); });
+beforeAll(async () => { await loadRegionData("forearm"); await loadRegionExtras("forearm"); await preloadStackModel(); });
 beforeEach(() => {
   window.localStorage.clear();
   clearSummaryCache();
