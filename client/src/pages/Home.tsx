@@ -90,6 +90,7 @@ import { getSplitExercisePool } from "@/lib/splitAssignment";
 import { browseAction, browseMovement, browseSport, followProfileSport, isBrowsingOtherSport, referenceMovementId, referenceSportId, type SportBrowseState } from "@/lib/sportBrowsing";
 import { buildVariedLoadout } from "@/lib/loadoutTemplates";
 import { cycleSplitIndex, splitDaysForFrequency } from "@/lib/splitCycle";
+import { describeDays, readDayLayout, resolveSplit, withDayType } from "@/lib/weekLayout";
 import { buildDaySlots, commitDay, dayExerciseCount, emptyDayRecord, emptyDayStore, loadDay, moveTo, moveWithin, remapDaysForFrequency, resolveActiveSlot, sameSplit, slotForKey, visibleDayPlan, type DayRecord, type DaySettings, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import { toast } from "sonner";
 import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";
@@ -113,7 +114,7 @@ import { defaultSpecializationRegionId, regionForBodyMapKey, specializationRegio
 
 type Workspace = "command" | "profile" | "progress" | "recommended" | "review" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "strength" | "specialization";
 type Goal = TrainingGoal;
-type StoredAthleteProfile = { version: 1 | 2 | 3; sportId: string; sportContextMode?: SportContextMode; capacityFocus?: CapacityFocusState; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number; baseline?: AthleteBaseline };
+type StoredAthleteProfile = { version: 1 | 2 | 3; sportId: string; sportContextMode?: SportContextMode; capacityFocus?: CapacityFocusState; goal: Goal; trainingDays: number; dayLayout?: SplitDay[]; movementId: string; gymMinutes?: number; baseline?: AthleteBaseline };
 type StoredWorkoutEntry = { entryId: number; catalogExerciseId: number };
 type WorkoutEntry = Exercise & { catalogExerciseId?: number };
 /**
@@ -436,6 +437,8 @@ export default function Home() {
   const [sportId, setSportId] = useState("");
   const [goal, setGoal] = useState<Goal>("Athleticism");
   const [trainingDays, setTrainingDays] = useState(3);
+  // What each training day is, when the athlete chose (lib/weekLayout.ts); null keeps the suggested split.
+  const [dayLayout, setDayLayout] = useState<SplitDay[] | null>(null);
   const [capacityFocus, setCapacityFocus] = useState<CapacityFocusState>({ reportedSignals: [] });
   const [athleteBaseline, setAthleteBaseline] = useState<AthleteBaseline>({ experience: "Intermediate", weightUnit: "lb", equipment: defaultEquipmentProfile });
   const [gymMinutes, setGymMinutes] = useState(60);
@@ -643,7 +646,7 @@ export default function Home() {
   const addedCatalogIds = useMemo(() => new Set(customWorkout.map(catalogExerciseIdFor)), [customWorkout]);
   const movementRecommendations = useMemo(() => getMovementRecommendations(selectedMovement, 6, athleteBaseline.sportModifierId, registryEvidenceMap, athleteBaseline.equipment), [selectedMovement, athleteBaseline.sportModifierId, registryEvidenceMap, athleteBaseline.equipment]);
   const sportProgrammingContext = useMemo(() => getSportProgrammingContext(activeSportId, athleteBaseline.sportModifierId), [activeSportId, athleteBaseline.sportModifierId]);
-  const splitDays = useMemo(() => splitDaysForFrequency(trainingDays), [trainingDays]);
+  const splitDays = useMemo(() => resolveSplit(trainingDays, dayLayout), [trainingDays, dayLayout]);
   const daySlots = useMemo(() => buildDaySlots(splitDays), [splitDays]);
   /**
    * The active day, resolved rather than remembered.
@@ -712,6 +715,8 @@ export default function Home() {
   /** The day the working draft belongs to, so an edit can never be filed against another day. */
   const draftDayKeyRef = useRef(activeSlot.key);
   const splitDaysRef = useRef(splitDays);
+  /** Set when the split reconciliation has already opened the day this render's marker points at. */
+  const slotChangeHandledRef = useRef<string | null>(null);
   const activeDraft = (): DayRecord => ({ workout: customWorkout, prescriptions, settings: exerciseSettings, context: dayStore.context[draftDayKeyRef.current] || [] });
   const adoptActiveDay = (slot: DaySlot, record: DayRecord) => {
     draftDayKeyRef.current = slot.key;
@@ -793,7 +798,12 @@ export default function Home() {
     const { store, moved } = remapDaysForFrequency(committed, previous, splitDays);
     const carried = moved[draftDayKeyRef.current];
     const slot = (carried && slotForKey(splitDays, carried)) || resolveActiveSlot(splitDays, activeSplitDayIndex, activeSplitDay);
+    // The other weeks follow the same days, or a changed day would read as empty in them.
+    setPlanWeeks((current) => Object.fromEntries(Object.entries(current).map(([week, snapshot]) => [week, { ...snapshot, days: remapDaysForFrequency(snapshot.days, previous, splitDays).store }])));
     setDayStore(store);
+    // The day marker below sees this render's day change too. It is handled here, with the
+    // records already moved, so the marker must not write the old week back over them.
+    slotChangeHandledRef.current = activeSlot.key;
     adoptActiveDay(slot, loadDay(store, slot.key));
   }, [splitDays, profileHydrated, planHydrated]);
 
@@ -806,6 +816,9 @@ export default function Home() {
    * only its own.
    */
   useEffect(() => {
+    const handled = slotChangeHandledRef.current === activeSlot.key;
+    slotChangeHandledRef.current = null;
+    if (handled) return;
     const departing = draftDayKeyRef.current;
     if (departing === activeSlot.key) return;
     const carried = commitDay(dayStore, departing, activeDraft());
@@ -935,6 +948,7 @@ export default function Home() {
       setSportId("");
       setGoal("Athleticism");
       setTrainingDays(3);
+      setDayLayout(null);
       setGymMinutes(60);
       setCapacityFocus({ reportedSignals: [] });
       setAthleteBaseline({ experience: "Intermediate", weightUnit: "lb", equipment: defaultEquipmentProfile });
@@ -954,6 +968,7 @@ export default function Home() {
           setSportId(storedMode === "sport" ? profile.sportId : "");
           setGoal(isTrainingGoal(profile.goal) ? profile.goal : "Athleticism");
           setTrainingDays(Number.isFinite(profile.trainingDays) ? Math.max(1, Math.min(7, Math.round(profile.trainingDays))) : 3);
+          setDayLayout(readDayLayout(profile.dayLayout));
           setGymMinutes(Math.max(30, Math.min(90, profile.gymMinutes || 60)));
           if (profile.baseline) {
             setAthleteBaseline({ ...profile.baseline, equipment: profile.baseline.equipment || defaultEquipmentProfile });
@@ -1058,9 +1073,9 @@ export default function Home() {
     // Only sport mode needs a sport id. Requiring one here is what used to drop a general
     // athlete's profile on every reload.
     if (sportContextMode === "sport" && !sportId) return;
-    const profile: StoredAthleteProfile = { version: 3, sportId, sportContextMode, capacityFocus, goal, trainingDays, gymMinutes, movementId: selectedMovement.id, baseline: athleteBaseline };
+    const profile: StoredAthleteProfile = { version: 3, sportId, sportContextMode, capacityFocus, goal, trainingDays, ...(dayLayout ? { dayLayout } : {}), gymMinutes, movementId: selectedMovement.id, baseline: athleteBaseline };
     try { window.localStorage.setItem(athleteProfileKey, JSON.stringify(profile)); } catch { /* Persistence is optional. */ }
-  }, [profileHydrated, onboardingComplete, athleteProfileKey, sportId, sportContextMode, capacityFocus, goal, trainingDays, gymMinutes, movementId, selectedMovement.id, athleteBaseline]);
+  }, [profileHydrated, onboardingComplete, athleteProfileKey, sportId, sportContextMode, capacityFocus, goal, trainingDays, dayLayout, gymMinutes, movementId, selectedMovement.id, athleteBaseline]);
 
   /**
    * Workouts logged before set units were stored are given one, once, from the profile's
@@ -1589,7 +1604,8 @@ export default function Home() {
       const open = daySlots.find((slot) => slot.key === draftDayKeyRef.current) ?? activeSlot;
       adoptActiveDay(open, loadDay(store, open.key));
     } else {
-      setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot(), [request.week]: { days: store, activeDayIndex: current[request.week]?.activeDayIndex ?? landed[0].index } }));
+      const leaving = createWeekSnapshot();
+      setPlanWeeks((current) => ({ ...current, [activeWeek]: leaving, [request.week]: { days: store, activeDayIndex: current[request.week]?.activeDayIndex ?? landed[0].index } }));
     }
     const destination = `Week ${request.week} · ${landed.map((slot) => `${slot.ordinal} · ${slot.day}`).join(", ")}`;
     if (shareToken) rememberSavedShare({ token: shareToken, savedAt: new Date().toISOString(), destination, week: request.week, slotIndex: landed[0].index });
@@ -1898,7 +1914,8 @@ export default function Home() {
    */
   const openPlannedWorkout = (week: number, index: number, target: "tracker" | "day-plan") => {
     if (week !== activeWeek && planWeeks[week]) {
-      setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot() }));
+      const leaving = createWeekSnapshot();
+      setPlanWeeks((current) => ({ ...current, [activeWeek]: leaving }));
       applyWeek(week, { ...planWeeks[week], activeDayIndex: index }, { navigate: false });
     } else selectTrainingDay(index);
     navigateWorkspace(target);
@@ -1910,7 +1927,8 @@ export default function Home() {
    */
   const openWeekReview = (week: number) => {
     if (week !== activeWeek && planWeeks[week]) {
-      setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot() }));
+      const leaving = createWeekSnapshot();
+      setPlanWeeks((current) => ({ ...current, [activeWeek]: leaving }));
       applyWeek(week, planWeeks[week], { navigate: false });
     }
     navigateWorkspace("review", { reviewScope: "week" });
@@ -1934,12 +1952,55 @@ export default function Home() {
       cancel: undefined,
     });
   };
+  /**
+   * The week's days, set on the Plan (owner, 22 Oct 2026: any split, five Upper days if you
+   * like). Every change runs through the split reconciliation above, so each day keeps its
+   * exercises in every week. A new number of days or a ready-made split can move days around,
+   * so it offers Undo, which puts back the days and every week's records exactly as they were.
+   */
+  const layoutUndo = () => {
+    const before = { trainingDays, dayLayout, split: splitDays, store: commitDay(dayStore, draftDayKeyRef.current, activeDraft()), planWeeks, index: activeSlot.index, trainChoice };
+    return () => {
+      // Already the split these records are filed under: nothing to reconcile.
+      splitDaysRef.current = before.split;
+      setTrainingDays(before.trainingDays);
+      setDayLayout(before.dayLayout);
+      setDayStore(before.store);
+      setPlanWeeks(before.planWeeks);
+      setTrainChoice(before.trainChoice);
+      const slot = resolveActiveSlot(before.split, before.index, before.split[before.index] ?? before.split[0]);
+      adoptActiveDay(slot, loadDay(before.store, slot.key));
+    };
+  };
+  const changeTrainingDays = (days: number) => {
+    if (days === trainingDays || !planReadyForEdits()) return;
+    const undo = layoutUndo();
+    setTrainingDays(days);
+    toast(`${days} ${days === 1 ? "day" : "days"} a week`, { id: "week-layout", description: describeDays(resolveSplit(days, dayLayout)), action: { label: "Undo", onClick: undo }, cancel: undefined });
+  };
+  const applySplitPreset = (days: SplitDay[], name: string) => {
+    if (!planReadyForEdits()) return;
+    if (sameSplit(days, splitDays)) return;
+    const undo = layoutUndo();
+    setTrainingDays(days.length);
+    // A ready-made week that is the suggestion is no choice to keep: the suggestion follows the days.
+    setDayLayout(sameSplit(days, splitDaysForFrequency(days.length)) ? null : days);
+    toast(name, { id: "week-layout", description: describeDays(days), action: { label: "Undo", onClick: undo }, cancel: undefined });
+  };
+  /** One day's type, changed in place: that day keeps its exercises, and nothing else moves. */
+  const changeDayType = (index: number, type: SplitDay) => {
+    if (!planReadyForEdits() || splitDays[index] === type) return;
+    setDayLayout(withDayType(splitDays, dayLayout, index, type));
+  };
   const chooseDayToTrain = (slot: DaySlot) => setTrainChoice({ week: activeWeek, index: slot.index, day: slot.day, madeAt: new Date().toISOString() });
   const selectWeek = (week: number, { navigate = true }: { navigate?: boolean } = {}) => {
     if (week === activeWeek) return;
     const snapshot = planWeeks[week];
     if (!snapshot) return;
-    setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot() }));
+    // Taken now, not inside the updater: React may run that later, after applyWeek has
+    // moved the draft to the arriving week's day, and file this week's open day under it.
+    const leaving = createWeekSnapshot();
+    setPlanWeeks((current) => ({ ...current, [activeWeek]: leaving }));
     // No toast: switching weeks changes nothing, and the selected pill and the plan's
     // identity line (a polite status region) already say which week is open (Sep 30 brief §8).
     // Review's week pills switch the week where they are; Plan's go to Plan.
@@ -1957,7 +2018,8 @@ export default function Home() {
       generatedDays = commitDay(generatedDays, slot.key, { workout: rotated, prescriptions: Object.fromEntries(rotated.map((exercise, index) => [exercise.id, getGoalPrescription(goal, index)])), settings: {}, context: [] });
     });
     const generated: WeekSnapshot = { days: generatedDays, activeDayIndex: 0 };
-    setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot(), [nextWeek]: generated }));
+    const leaving = createWeekSnapshot();
+    setPlanWeeks((current) => ({ ...current, [activeWeek]: leaving, [nextWeek]: generated }));
     applyWeek(nextWeek, generated);
     toast(`Week ${nextWeek} generated`, { description: `${splitDays.length} training days were built around your ${goal.toLowerCase()} goal and ${gymTimeBudget.label.toLowerCase()} budget.` });
   };
@@ -2210,6 +2272,7 @@ export default function Home() {
   const completeOnboarding = ({ goal: selectedGoal, trainingDays: selectedDays, sportId: selectedSportId, sportContextMode: selectedMode, focus, constraint, reportedSignals, stackMode, baseline }: AthleteQuizSelection) => {
     setGoal(selectedGoal);
     setTrainingDays(selectedDays);
+    setDayLayout(null);
     setAthleteBaseline(baseline);
     // The quiz weight is a measurement taken today. Record it now rather than waiting for the
     // next launch's seed, so a lift finished in this first session is saved with it.
@@ -2241,6 +2304,7 @@ export default function Home() {
     setPlanWeeks({});
     setActiveWeek(1);
     setWeekNames({});
+    setDayLayout(null);
     setTrainChoice(null);
     setOnboardingComplete(false);
   };
@@ -2459,6 +2523,7 @@ export default function Home() {
             activeWeek={activeWeek}
             onSelectWeek={selectWeek}
             onRenameWeek={renameWeek}
+            layout={{ onDays: changeTrainingDays, onPreset: applySplitPreset, onDayType: changeDayType }}
             onGenerateWeek={generateWeek}
             nextWeekToGenerate={[1, 2, 3].find((week) => !visibleWeeks(Object.keys(planWeeks).map(Number), activeWeek).includes(week)) ?? null}
             slots={daySlots}

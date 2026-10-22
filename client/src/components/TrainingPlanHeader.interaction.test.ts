@@ -190,3 +190,90 @@ describe("naming the open week", () => {
     expect(screen.queryByRole("button", { name: /Name Week|Rename Week/ })).toBeNull();
   });
 });
+
+/**
+ * "I'm struggling to switch the workout days in a week; I should be able to have 5 Upper days
+ * or whatever" (owner, 22 Oct 2026). The day tabs carry their numbers, since a split repeats
+ * its names, and "Edit days" opens the week's layout in place.
+ */
+describe("the week's days", () => {
+  afterEach(() => { cleanup(); });
+
+  const fourDays = [
+    { key: "0-Upper", ordinal: "Day 01", day: "Upper", index: 0 },
+    { key: "1-Lower", ordinal: "Day 02", day: "Lower", index: 1 },
+    { key: "2-Upper", ordinal: "Day 03", day: "Upper", index: 2 },
+    { key: "3-Lower", ordinal: "Day 04", day: "Lower", index: 3 },
+  ] as unknown as DaySlot[];
+  const layout = () => ({ onDays: vi.fn(), onPreset: vi.fn(), onDayType: vi.fn() });
+  const props = (extra: Record<string, unknown> = {}) => ({
+    weeks: [{ week: 1, ready: true, savedDays: 2 }, { week: 2, ready: false, savedDays: 0 }, { week: 3, ready: false, savedDays: 0 }],
+    activeWeek: 1,
+    onSelectWeek: () => undefined,
+    onGenerateWeek: () => undefined,
+    nextWeekToGenerate: 2,
+    slots: fourDays,
+    activeIndex: 0,
+    exerciseCountFor: (slot: DaySlot) => (slot.index === 0 ? 2 : 0),
+    onChooseDay: () => undefined,
+    ...extra,
+  });
+
+  it("numbers each day tab, so two Upper days are told apart", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    render(React.createElement(TrainingPlanHeader, props()));
+    const tabs = within(screen.getByRole("tablist", { name: "Day of the week" })).getAllByRole("tab").map((tab) => tab.textContent);
+    expect(tabs).toEqual(["UpperDay 1 · 2", "LowerDay 2 · —", "UpperDay 3 · —", "LowerDay 4 · —"]);
+  });
+
+  it("opens the layout in place, with every option on the page, and hands each choice on", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    const handlers = layout();
+    render(React.createElement(TrainingPlanHeader, props({ layout: handlers, onRenameWeek: vi.fn() })));
+    const edit = screen.getByRole("button", { name: "Edit days" });
+    expect(edit.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(edit);
+    expect(edit.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.queryByRole("dialog")).toBeNull();
+    const editor = within(screen.getByRole("region", { name: "Your training days" }));
+
+    expect(editor.getByRole("button", { name: "4 days a week" }).getAttribute("aria-pressed")).toBe("true");
+    fireEvent.click(editor.getByRole("button", { name: "5 days a week" }));
+    expect(handlers.onDays).toHaveBeenCalledWith(5);
+
+    // Each day's kind, with what is on it.
+    const third = editor.getByRole("combobox", { name: /Day 3/ }) as HTMLSelectElement;
+    expect([...third.options].map((option) => option.value)).toEqual(["Upper", "Lower", "Push", "Pull", "Legs", "Full Body", "Sport Transfer"]);
+    expect(third.value).toBe("Upper");
+    expect(editor.getByText("2 exercises")).toBeTruthy();
+    fireEvent.change(third, { target: { value: "Push" } });
+    expect(handlers.onDayType).toHaveBeenCalledWith(2, "Push");
+
+    // The ready-made weeks, the current one pressed and the suggestion marked.
+    const upperLower = editor.getByRole("button", { name: /^Upper \/ LowerSuggested/ });
+    expect(upperLower.getAttribute("aria-pressed")).toBe("true");
+    fireEvent.click(editor.getByRole("button", { name: /^Upper every day/ }));
+    expect(handlers.onPreset).toHaveBeenCalledWith(["Upper", "Upper", "Upper", "Upper"], "Upper every day");
+
+    fireEvent.click(editor.getByRole("button", { name: "Done" }));
+    expect(screen.queryByRole("region", { name: "Your training days" })).toBeNull();
+    expect(document.activeElement).toBe(edit);
+  });
+
+  it("shows one of naming the week and editing its days at a time", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    render(React.createElement(TrainingPlanHeader, props({ layout: layout(), onRenameWeek: vi.fn() })));
+    fireEvent.click(screen.getByRole("button", { name: "Edit days" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name Week 1" }));
+    expect(screen.queryByRole("region", { name: "Your training days" })).toBeNull();
+    expect(screen.getByRole("textbox", { name: "Name for Week 1" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Edit days" }));
+    expect(screen.queryByRole("textbox")).toBeNull();
+  });
+
+  it("offers no editing where nothing saves it", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    render(React.createElement(TrainingPlanHeader, props()));
+    expect(screen.queryByRole("button", { name: "Edit days" })).toBeNull();
+  });
+});

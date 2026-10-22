@@ -57,11 +57,17 @@ const saved = () => JSON.parse(window.localStorage.getItem(PLAN_KEY) || "{}");
 const tick = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); });
 const weekRow = async () => within(await screen.findByRole("group", { name: "Training week" }, { timeout: 15000 }));
 
+/**
+ * Each control is waited for, not expected at once: under a loaded test run a lazy part of the
+ * page can suspend for a moment, and Suspense hides what is already shown until it is ready.
+ */
 const nameOpenWeek = async (button: RegExp, name: string) => {
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: button })); });
-  const field = screen.getByRole("textbox", { name: /^Name for Week \d$/ });
+  const open = await screen.findByRole("button", { name: button }, { timeout: 5000 });
+  await act(async () => { fireEvent.click(open); });
+  const field = await screen.findByRole("textbox", { name: /^Name for Week \d$/ }, { timeout: 5000 });
   await act(async () => { fireEvent.change(field, { target: { value: name } }); });
-  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Save" })); });
+  const save = await screen.findByRole("button", { name: "Save" }, { timeout: 5000 });
+  await act(async () => { fireEvent.click(save); });
   await tick();
 };
 

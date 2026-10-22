@@ -930,12 +930,12 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .training-plan-week:disabled { opacity: .45; }
 .training-plan-week-active { border-color: var(--sg-selected-on-dark); background: rgb(255 255 255 / .1); color: var(--sg-text-on-dark); }
 .training-plan-week-active small { color: var(--sg-text-muted-on-dark); }
-/* Naming a week: the button closes the week row, and the field opens under it, in place. */
+/* Naming a week and editing its days: the buttons close the week row, and what they open sits under it, in place. */
 .training-plan-week-bar { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .4rem; }
 .training-plan-week-name { max-width: 9.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.training-plan-rename { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: 0 .95rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
-.training-plan-rename[aria-expanded="true"] { border-color: var(--sg-selected-on-dark); background: rgb(255 255 255 / .1); }
-.training-plan-rename:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.training-plan-setup { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: 0 .95rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.training-plan-setup[aria-expanded="true"] { border-color: var(--sg-selected-on-dark); background: rgb(255 255 255 / .1); }
+.training-plan-setup:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 .training-plan-naming { display: grid; grid-template-columns: minmax(0, 1fr); gap: .4rem; }
 .training-plan-naming label { color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
 .training-plan-naming small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 600; }
@@ -947,6 +947,31 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .training-plan-naming-save { background: var(--sg-action-fill); color: var(--sg-action-on); }
 .training-plan-naming-cancel { border: 1px solid var(--sg-control-border-on-dark); color: var(--sg-text-on-dark); }
 .training-plan-naming-save:focus-visible, .training-plan-naming-cancel:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+/* The week's days (WeekLayoutEditor): how many, a ready-made split, and what each day is. */
+.week-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 14px; background: rgb(255 255 255 / .04); padding: .9rem; }
+.week-layout-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.week-layout-head h2 { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 800; }
+.week-layout-done { min-width: 4.5rem; min-height: 2.75rem; border-radius: 12px; background: var(--sg-action-fill); padding: 0 1rem; color: var(--sg-action-on); font-size: var(--sg-text-base); font-weight: 800; }
+.week-layout-field { display: grid; min-width: 0; gap: .5rem; margin: 0; border: 0; padding: 0; }
+.week-layout-field legend { margin-bottom: .45rem; padding: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.week-layout-count { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .3rem; }
+.week-layout-count button { min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 700; font-variant-numeric: tabular-nums; }
+.week-layout-count button[aria-pressed="true"], .week-layout-presets button[aria-pressed="true"] { border-color: var(--sg-selected-on-dark); background: rgb(242 193 77 / .14); }
+.week-layout-presets { display: grid; gap: .4rem; }
+.week-layout-presets button { display: grid; min-height: 2.75rem; gap: .1rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; padding: .55rem .8rem; text-align: left; }
+.week-layout-presets b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; }
+.week-layout-presets b em { margin-left: .45rem; border-radius: 999px; background: rgb(242 193 77 / .16); padding: .05rem .45rem; color: var(--sg-selected-on-dark); font-size: var(--sg-text-xs); font-style: normal; font-weight: 700; }
+.week-layout-presets small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+.week-layout-days { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.week-layout-days li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); align-items: center; gap: .6rem; }
+.week-layout-days label { display: grid; gap: .05rem; }
+.week-layout-days label b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; }
+.week-layout-days label small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+.week-layout-days select { min-width: 0; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; background-color: var(--sg-surface-raised); padding: 0 .7rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.week-layout :is(.week-layout-done, .week-layout-count button, .week-layout-presets button, .week-layout-days select):focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.week-layout-note { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; line-height: var(--sg-leading-body); }
+/* On a phone the editor runs edge to edge, so seven day buttons are each a full 44 px thumb target at 375 px. */
+@media (max-width: 480px) { .week-layout { border-width: 1px 0; border-radius: 0; background: none; padding: .9rem 0; } }
 
 /* The day row scrolls rather than wrapping: five names on one line is the whole
    point, and a wrapped second line reads as a second group. */

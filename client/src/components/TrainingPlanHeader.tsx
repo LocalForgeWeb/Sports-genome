@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Check, Pencil } from "lucide-react";
+import { CalendarDays, Check, Pencil } from "lucide-react";
 import type { DaySlot } from "@/lib/trainingDayPlan";
 import type { DayTrainingState } from "@/lib/liveSession";
+import type { SplitDay } from "@/lib/splitCycle";
 import { weekNameMaxLength } from "@/lib/weekNames";
+import { WeekLayoutEditor } from "./WeekLayoutEditor";
 
 /**
  * Which week, which day, and what that day is — in three rows.
@@ -23,9 +25,13 @@ import { weekNameMaxLength } from "@/lib/weekNames";
  * The open week can be named ("Heavy", "Deload"). "Name week" sits at the end of the
  * week row and opens a one-line field right under it, in place: no dialog. A named
  * week's pill leads with its name and keeps its number under it.
+ *
+ * "Edit days" beside it opens the week's layout in the same place: how many days, a
+ * ready-made split, and what each day is (WeekLayoutEditor). Each day tab carries its
+ * number, because a split repeats its names: Upper, Lower, Upper, Lower.
  */
 export function TrainingPlanHeader({
-  weeks, activeWeek, onSelectWeek, onGenerateWeek, nextWeekToGenerate, onRenameWeek,
+  weeks, activeWeek, onSelectWeek, onGenerateWeek, nextWeekToGenerate, onRenameWeek, layout,
   slots, activeIndex, exerciseCountFor, trainingStateFor, onChooseDay,
 }: {
   weeks: { week: number; ready: boolean; savedDays: number; name?: string }[];
@@ -33,6 +39,12 @@ export function TrainingPlanHeader({
   onSelectWeek: (week: number) => void;
   /** Saves the open week's name; a blank name removes it. Without it, weeks cannot be named here. */
   onRenameWeek?: (week: number, name: string) => void;
+  /** Changing the week's days. Without it, the days are shown and not edited here. */
+  layout?: {
+    onDays: (days: number) => void;
+    onPreset: (days: SplitDay[], name: string) => void;
+    onDayType: (index: number, type: SplitDay) => void;
+  };
   onGenerateWeek: () => void;
   nextWeekToGenerate: number | null;
   slots: DaySlot[];
@@ -54,7 +66,9 @@ export function TrainingPlanHeader({
 
   const activeName = weeks.find((option) => option.week === activeWeek)?.name ?? "";
   const [naming, setNaming] = useState(false);
+  const [editingDays, setEditingDays] = useState(false);
   const [draft, setDraft] = useState("");
+  const daysButtonRef = useRef<HTMLButtonElement>(null);
   const nameButtonRef = useRef<HTMLButtonElement>(null);
   const nameFieldRef = useRef<HTMLInputElement>(null);
   // The field names the open week, so another week closes it rather than renaming that one.
@@ -101,15 +115,34 @@ export function TrainingPlanHeader({
       {onRenameWeek && <button
         ref={nameButtonRef}
         type="button"
-        className="training-plan-rename"
+        className="training-plan-setup"
         aria-expanded={naming}
         aria-controls="training-plan-naming"
         aria-label={activeName ? `Rename Week ${activeWeek}, ${activeName}` : `Name Week ${activeWeek}`}
-        onClick={() => { if (naming) { closeNaming(); return; } setDraft(activeName); setNaming(true); }}
+        onClick={() => { if (naming) { closeNaming(); return; } setEditingDays(false); setDraft(activeName); setNaming(true); }}
       >
         <Pencil className="h-4 w-4" aria-hidden="true" />{activeName ? "Rename" : "Name week"}
       </button>}
+      {layout && <button
+        ref={daysButtonRef}
+        type="button"
+        className="training-plan-setup"
+        aria-expanded={editingDays}
+        aria-controls="training-plan-layout"
+        onClick={() => { if (editingDays) { setEditingDays(false); return; } setNaming(false); setEditingDays(true); }}
+      >
+        <CalendarDays className="h-4 w-4" aria-hidden="true" />Edit days
+      </button>}
     </div>
+
+    {layout && editingDays && <WeekLayoutEditor
+      split={slots.map((slot) => slot.day)}
+      exerciseCountFor={(index) => (slots[index] ? exerciseCountFor(slots[index]) : 0)}
+      onDays={layout.onDays}
+      onPreset={layout.onPreset}
+      onDayType={layout.onDayType}
+      onDone={() => { setEditingDays(false); daysButtonRef.current?.focus(); }}
+    />}
 
     {onRenameWeek && naming && <form id="training-plan-naming" className="training-plan-naming" onSubmit={saveName}>
       <label htmlFor="training-plan-week-name">Name for Week {activeWeek}</label>
@@ -148,7 +181,7 @@ export function TrainingPlanHeader({
           className={`training-plan-day${selected ? " training-plan-day-active" : ""}${trained ? ` training-plan-day-${trained}` : ""}`}
         >
           {slot.day}
-          <small>{trained === "live" ? "Training now" : trained === "trained" ? "Done this week" : planned ? `${planned}` : "—"}</small>
+          <small>{trained === "live" ? "Training now" : trained === "trained" ? "Done this week" : `Day ${index + 1} · ${planned || "—"}`}</small>
         </button>;
       })}
     </div>
