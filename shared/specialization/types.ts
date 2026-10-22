@@ -774,7 +774,7 @@ export interface Contribution {
   segments: ContributionSegment[];
   reps: number;
   holdSeconds: number;
-  /** "Strapped: grip not counted", "Straps not recorded", "Each side assumed" ... */
+  /** "Strapped: grip not counted", "Straps not recorded", "Matched by name"; never a side (both sides as one). */
   notes: string[];
   /** Mapping allocation is shared with these nodes (FDS with FDP). */
   sharedWith: NodeId[];
