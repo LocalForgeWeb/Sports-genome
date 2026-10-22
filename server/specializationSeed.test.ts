@@ -475,7 +475,7 @@ describe("the seeded database", () => {
       { id: "leg_laterality", kind: "counting", values: ["bilateral", "unilateral", "either", "not_applicable"] },
       { id: "side_anchor", kind: "counting", values: ["working_leg", "front_leg", "stance_leg", "top_leg", "bottom_leg"] },
     ]);
-    expect(dimensions.slice(3).map((dimension) => [dimension.id, dimension.kind])).toEqual(["knee", "hip", "torso", "bench", "plane", "grip_width", "stance", "range"].map((id) => [id, "descriptive"]));
+    expect(dimensions.slice(3).map((dimension) => [dimension.id, dimension.kind])).toEqual(["knee", "hip", "torso", "bench", "plane", "grip_width", "stance", "range", "shoulder"].map((id) => [id, "descriptive"]));
     expect(dimensions.slice(3).map((dimension) => dimension.values)).toEqual(Object.values(descriptiveDimensions).map((dimension) => Object.keys(dimension.values)));
   });
 
