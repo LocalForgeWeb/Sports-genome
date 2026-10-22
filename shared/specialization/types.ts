@@ -8,8 +8,10 @@
  * can be generated from the TypeScript content rather than written twice.
  */
 import type { VariantDimensions } from "./variants/dimensions";
+import type { RepGuidanceCitations, RepProfile, RepProfileAssignment, UnprofiledVariant } from "./repProfiles";
 
 export type { VariantDimensions };
+export type { RepGuidanceCitations, RepProfile, RepProfileAssignment, UnprofiledVariant };
 
 // ---------------------------------------------------------------- reference content
 
@@ -546,6 +548,39 @@ export interface RegionContent {
   mappingVersion: MappingVersion | null;
   unmappedTagged: UnmappedTaggedExercise[];
   diagram: DiagramAsset | null;
+  /** The page's optional sections this region opts into (11-forearm-research-and-stack.md §3.10); absent opts into none. */
+  sections?: RegionSections;
+}
+
+/**
+ * The optional sections of a region's page, by data (11-forearm-research-and-stack.md §3.10): the
+ * page renders a section's closed card only for a region that sets its flag, and fetches the
+ * section's code and the region's extras (`RegionExtras`) when the card is first opened.
+ */
+export interface RegionSections {
+  /** The stack designer, which reads the region's rep profiles. */
+  stack?: true;
+  /** Tendon exposure, which reads the region's tendon areas. */
+  tendonExposure?: true;
+}
+
+/**
+ * A region's data that is loaded only when a section opens (`regions/<region>/repProfiles.ts`),
+ * never with the page: so the closed page downloads what it did before (11 §3.10). Every field is
+ * optional, so each file adds its own part.
+ */
+export interface RegionExtras {
+  regionId: RegionId;
+  /** Rep profiles by task family (11 §5.1), in the order the stack lists their exercises within a day. */
+  repProfiles?: RepProfile[];
+  /** One per profiled variant: its profile, whether the strength range applies, whether it is for coverage only. */
+  repProfileAssignments?: RepProfileAssignment[];
+  /** Variants with direct work on the region that take no profile (a carry, a multi-joint lift), each with its reason. */
+  unprofiledVariants?: UnprofiledVariant[];
+  /** The library sources behind each sentence of the rep guidance. */
+  repGuidanceCitations?: RepGuidanceCitations;
+  /** Sources cited only by these extras: library records the seed never writes (no region lists them in `sources`). */
+  referenceSources?: Source[];
 }
 
 /**
@@ -577,6 +612,8 @@ export interface SpecializationRegionData {
   /** Catalog exercises tagged with the region's keys and deliberately left unmapped, each with its reason (§3). */
   unmappedTagged: UnmappedTaggedExercise[];
   diagram: DiagramAsset | null;
+  /** The optional sections the region opts into, from its content (`RegionSections`); absent opts into none. */
+  sections?: RegionSections;
 }
 
 // ---------------------------------------------------------------- calculator input

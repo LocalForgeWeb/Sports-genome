@@ -191,6 +191,8 @@ const added: { why: string; in: Where; lines: RegExp[] }[] = [
   { why: "09 item 2; §2.2, §6.2: an external muscle's sheet says where its targets are set", in: /^muscle: (Biceps brachii|Brachialis)$/, lines: [/^Targets for this muscle are set on the upper arm page, which is not available yet\.$/] },
   { why: "09 item 3; §8: the plain statement about automated review, under How this is counted", in: /^page$/, lines: [/^“Reviewed” means an automated agent checked each sentence/] },
   { why: "09 item 6; §8: How this is counted names the sets of exercises the forearm leaves unmapped, and opens them", in: /^page$/, lines: [/^\d+ sets? of exercises left unmapped here (is|are) not counted, each for the reason given with it\.$/, /^See (this set|these sets) and why$/] },
+  // F1, not wave 0 (11-forearm-research-and-stack.md §8.2, lane S2; 10-multi-region.md decision 6).
+  { why: "F1 S2: 139 Wrist Curl and 140 Reverse Wrist Curl are filed as Barbell, as their variants and photos define them, so the suggestions' equipment list names Barbell", in: /^movement: Wrist flexion$/, lines: [/^Barbell$/, /^Suggested$/] },
 ];
 /** Sheets new with wave 0. */
 const addedSheets: { why: string; key: RegExp }[] = [

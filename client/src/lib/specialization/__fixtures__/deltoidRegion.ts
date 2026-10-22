@@ -1,7 +1,7 @@
 import { actionsFor } from "@shared/specialization/actions";
 import { forearmActionIds, shoulderActionIds } from "@shared/specialization/actions/ids";
 import { composeRegionData } from "@shared/specialization/compose";
-import type { AnatomyNode, ExerciseVariant, RegionContent, SpecializationRegion, SpecializationRegionData, VariantMapping } from "@shared/specialization/types";
+import type { AnatomyNode, ExerciseVariant, RegionContent, RegionExtras, SpecializationRegion, SpecializationRegionData, VariantMapping } from "@shared/specialization/types";
 
 /**
  * A deltoid region for tests only (brief §1 "Deltoid specialization can be added without a
@@ -242,6 +242,31 @@ export const deltoidContent: RegionContent = {
     },
     licenseNote: "Drawn for this test fixture.",
   },
+  // The stack designer, with the profiles below (`deltoidRepProfiles`), so the page's card renders on a second region.
+  sections: { stack: true },
 };
 
 export const deltoidRegionData: SpecializationRegionData = composeRegionData(deltoidContent, [fixtureArmContent]);
+
+/**
+ * The deltoid's rep profiles (11-forearm-research-and-stack.md §3.10: "the deltoid fixture, which
+ * gains two rep profiles"), so the stack designer runs on a second region with no deltoid code.
+ * Test numbers, not guidance. The press keeps its whole-exercise prescription (no profile), so the
+ * designer's no-profile path runs too; the one-arm fly is marked for coverage only, as a reviewed
+ * family would mark a drill, so the coverage-only rule runs on a region other than the forearm.
+ */
+export const deltoidRepProfiles: RegionExtras = {
+  regionId: REGION,
+  repProfiles: [
+    { id: "deltoid.raise", label: "Raise", measure: "reps", growth: [12, 20], strength: [8, 12], evidence: "starting_default", origin: { family: "fixture_raise", status: "fixture" }, note: "Test fixture: not guidance." },
+    { id: "deltoid.rear_fly", label: "Rear fly", measure: "reps", growth: [12, 25], strength: null, evidence: "starting_default", origin: { family: "fixture_rear_fly", status: "fixture" }, note: "Test fixture: not guidance." },
+  ],
+  repProfileAssignments: [
+    { variantId: "fx-111", profileId: "deltoid.raise", strengthApplies: true, coverageOnly: false },
+    { variantId: "fx-90", profileId: "deltoid.rear_fly", strengthApplies: false, coverageOnly: false },
+    { variantId: "fx-93", profileId: "deltoid.rear_fly", strengthApplies: false, coverageOnly: true, coverageNote: "Test fixture: a drill marked for coverage, not volume." },
+  ],
+  unprofiledVariants: [{ variantId: "fx-101", reason: "Test fixture: a press keeps its whole-exercise prescription." }],
+  repGuidanceCitations: { general: ["F1"], effort: ["F1"], holds: ["F1"] },
+  referenceSources: [],
+};
