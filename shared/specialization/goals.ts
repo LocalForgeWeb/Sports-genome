@@ -1,4 +1,4 @@
-import type { BodySide, GoalMetric, GoalPeriod, NodeId, RegionId, SpecializationGoal, SpecializationRegion, SpecializationRegionData, StoredSide, SummaryInterval } from "./types";
+import type { GoalMetric, GoalPeriod, NodeId, RegionId, SpecializationGoal, SpecializationRegion, SpecializationRegionData, StoredSide, SummaryInterval } from "./types";
 import { regionIndexEntry } from "./regionIndex";
 import { calendarWeekInterval, isDateKey, isValidTimeZone, localDateKey, rolling7dInterval } from "./time";
 
@@ -74,8 +74,9 @@ type SideWording = Pick<SpecializationRegion, "sides" | "wording">;
 
 /**
  * Whether a goal may be saved beside the ones that exist. Editing a goal passes its own id, so it
- * is never compared with its earlier self. The database refuses the same overlap with an exclusion
- * constraint; this says why before anything is written.
+ * is never compared with its earlier self, and an edit that only ends it is never refused for an
+ * overlap. The database refuses the same overlap with an exclusion constraint (goals_no_overlap,
+ * which since schema v2 does not key on the side either); this says why before anything is written.
  *
  * The side must fit the region: left or right in a paired region, `midline` in a midline one. Since
  * both sides are counted as one (owner, 20 Oct 2026) a paired region's new target stores `right` as
@@ -106,12 +107,16 @@ export function validateGoal(goal: SpecializationGoal, existing: readonly Specia
   if (goal.endsOn !== null && !isDateKey(goal.endsOn)) return { ok: false, reason: "Enter a valid end date, or leave it open." };
   if (goal.endsOn !== null && goal.endsOn < goal.startsOn) return { ok: false, reason: "The end date is before the start date." };
 
-  if (scope && goal.nodeId !== null && !scope.targetNodeIds.has(goal.nodeId)) {
-    const earlier = existing.find((other) => other.id === goal.id);
-    if (!earlier || !onlyEnds(earlier, goal)) return { ok: false, reason: "Targets are for this region's target muscles. You can end or remove this one." };
+  const earlier = existing.find((other) => other.id === goal.id);
+  const onlyEnding = earlier !== undefined && onlyEnds(earlier, goal);
+  if (scope && goal.nodeId !== null && !scope.targetNodeIds.has(goal.nodeId) && !onlyEnding) {
+    return { ok: false, reason: "Targets are for this region's target muscles. You can end or remove this one." };
   }
 
-  const clash = existing.find((other) => other.id !== goal.id && sameGoalTarget(goal, other) && rangesOverlap(goal, other));
+  // Ending a target saved earlier only narrows its dates, so it is never refused for an overlap it
+  // already had: two targets saved before 20 Oct for the left and the right arm with different
+  // numbers are one target now (`sameGoalTarget`), and either can still be ended.
+  const clash = onlyEnding ? undefined : existing.find((other) => other.id !== goal.id && sameGoalTarget(goal, other) && rangesOverlap(goal, other));
   if (clash) {
     const from = shortDate(clash.startsOn);
     const until = clash.endsOn === null ? "with no end date" : `until ${shortDate(clash.endsOn)}`;
@@ -131,22 +136,6 @@ function onlyEnds(before: SpecializationGoal, after: SpecializationGoal): boolea
   const unchanged = (Object.keys(restBefore) as (keyof typeof restBefore)[]).every((key) => restBefore[key] === restAfter[key]) && Object.keys(restAfter).length === Object.keys(restBefore).length;
   return unchanged && after.endsOn !== null && (before.endsOn === null || after.endsOn <= before.endsOn);
 }
-
-/**
- * The old "Both arms" choice: two explicit goals, one per side (brief §7, as first built). Since
- * both sides are counted as one (owner, 20 Oct 2026) the page saves a new target once and reads a
- * pair saved before as one (`collapseArmPairs`, stores.ts; the summary reads a `both` side the same
- * way); this stays for the pairs already on devices and their tests. A midline region's target has
- * one side, `midline`, and never comes through here.
- */
-export function goalsForBothSides(draft: Omit<SpecializationGoal, "side">): [SpecializationGoal, SpecializationGoal] {
-  const sides: BodySide[] = ["left", "right"];
-  const [left, right] = sides.map((side) => ({ ...draft, id: `${draft.id}:${side}`, side }));
-  return [left, right];
-}
-
-/** The name `goalsForBothSides` had when every region was paired by the arm. */
-export const goalsForBothArms = goalsForBothSides;
 
 /** A node's home region, from its id: `<region>.<slug>` (10-multi-region.md §1.2); null for an id without one. */
 export function nodeHomeRegionId(nodeId: NodeId): RegionId | null {

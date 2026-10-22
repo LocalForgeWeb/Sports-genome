@@ -2,7 +2,7 @@
 import React, { createElement } from "react";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { goalProgressLabel, goalsForBothArms, isGoalActive } from "@shared/specialization/goals";
+import { goalProgressLabel, isGoalActive } from "@shared/specialization/goals";
 import { forearmActionIds, forearmMuscleIds } from "@shared/specialization/regions/forearm/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import type { ArmSide, SummarySide, GoalProgress, SpecializationGoal, SpecializationSummary } from "@shared/specialization/types";
@@ -100,7 +100,8 @@ describe("the muscle sheet's targets", () => {
   });
 
   it("reads an old target saved once per arm as one, and removes and restores it as one", async () => {
-    const [left, right] = goalsForBothArms(goal({ id: "pair" }));
+    // What the old "Both arms" choice stored before 20 Oct 2026: two copies, one per arm.
+    const [left, right] = (["left", "right"] as const).map((side) => goal({ id: `pair:${side}`, side }));
     seed(left, right);
     render(createElement(EditorHarness));
     expect(screen.getAllByRole("button", { name: /^Remove the target/ })).toHaveLength(1);

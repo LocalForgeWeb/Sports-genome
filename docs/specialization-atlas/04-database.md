@@ -145,7 +145,7 @@ The columns are `SpecializationGoal` and `SpecializationMeasurement` field for f
 | `notes` | `text` |
 | — | `user_id` (default `auth.uid()`, → `auth.users`, cascades on account deletion); measurements also get `created_at` and `updated_at` for sync bookkeeping. |
 
-`updated_at` follows the last write unless the write sets it itself, so a sync can carry the device's own time. A stored goal whose `createdAt` is empty (the device reader tolerates that) takes the column default. The tests insert goals made by the device's own `goalsForBothArms` and a device-shaped measurement, read them back in the device's shape, and compare them whole.
+`updated_at` follows the last write unless the write sets it itself, so a sync can carry the device's own time. A stored goal whose `createdAt` is empty (the device reader tolerates that) takes the column default. The tests insert device-shaped goals (one as the page saves it since 20 Oct 2026, side `right` as a placeholder, and one saved for the left arm before, on another measure) and a device-shaped measurement, read them back in the device's shape, and compare them whole.
 
 ## 7. The seed and its drift guard
 

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { goalsForBothArms } from "@shared/specialization/goals";
+import type { SpecializationGoal } from "@shared/specialization/types";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { registeredRegionContents } from "@shared/specialization/registry";
 import { emitSeedSql, productionSeedInput } from "../scripts/specialization/emit-seed";
@@ -531,7 +531,7 @@ describe("reference content, as a signed-in user", () => {
 // ---------------------------------------------------------------- goals and measurements
 
 const goalColumns = "id, region_id, node_id, action_id, side, metric, target, period, starts_on, ends_on, timezone, created_at, updated_at";
-const goalValues = (goal: ReturnType<typeof goalsForBothArms>[number]) => [
+const goalValues = (goal: SpecializationGoal) => [
   goal.id, goal.regionId, goal.nodeId, goal.actionId, goal.side, goal.metric, goal.target, goal.period, goal.startsOn, goal.endsOn, goal.timezone, goal.createdAt, goal.updatedAt,
 ];
 /** Reads a row back in the device's own shape (SpecializationGoal). */
@@ -541,11 +541,13 @@ const goalAsDevice = `select id, region_id as "regionId", node_id as "nodeId", a
   from specialization.goals`;
 
 describe("goals: owner-only, and a straight copy of the device record", () => {
-  const [left, right] = goalsForBothArms({
+  /** A target as the page saves it since 20 Oct 2026: once, its side `right` a placeholder (both sides count as one). */
+  const saved: SpecializationGoal = {
     id: "goal-rls-1",
     regionId: "forearm",
     nodeId: "forearm.fcu",
     actionId: null,
+    side: "right",
     metric: "direct_dynamic_bouts",
     target: 20,
     period: "calendar_week",
@@ -554,46 +556,52 @@ describe("goals: owner-only, and a straight copy of the device record", () => {
     timezone: "Europe/London",
     createdAt: "2026-10-16T09:30:00.000Z",
     updatedAt: "2026-10-16T09:30:00.000Z",
-  });
+  };
+  /**
+   * A target saved for the left arm before 20 Oct, on another measure of the same muscle, so another
+   * target: it stays as it was stored. (The same target saved for the other arm is refused, as one
+   * target: `goal rules` below.)
+   */
+  const earlier: SpecializationGoal = { ...saved, id: "goal-rls-2", side: "left", metric: "deliberate_hold_bouts", target: 4 };
   const insert = `insert into specialization.goals (${goalColumns}) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`;
 
-  it("user A stores both arms' goals as they are on the device, and reads them back unchanged", async () => {
+  it("user A stores a target as the page saves it and one saved for the left arm before 20 Oct, as they are on the device, and reads them back unchanged", async () => {
     await as(db, userA, async () => {
-      expect(await failure(db, insert, goalValues(left))).toBeNull();
-      expect(await failure(db, insert, goalValues(right))).toBeNull();
-      const back = await rows(db, `${goalAsDevice} where id like 'goal-rls-1:%' order by id`);
-      expect(back).toEqual([left, right]);
+      expect(await failure(db, insert, goalValues(saved))).toBeNull();
+      expect(await failure(db, insert, goalValues(earlier))).toBeNull();
+      const back = await rows(db, `${goalAsDevice} where id like 'goal-rls-%' order by id`);
+      expect(back).toEqual([saved, earlier]);
     });
-    expect(await count(db, "select 1 from specialization.goals where id like 'goal-rls-1:%' and user_id = $1", [USER_A])).toBe(2);
+    expect(await count(db, "select 1 from specialization.goals where id like 'goal-rls-%' and user_id = $1", [USER_A])).toBe(2);
   });
 
   it("user B cannot read, change or delete A's goals, nor write one in A's name", async () => {
     await as(db, userB, async () => {
-      expect(await count(db, "select 1 from specialization.goals where id like 'goal-rls-1:%'")).toBe(0);
-      expect(await affected("update specialization.goals set target = 1 where id = 'goal-rls-1:left'")).toBe(0);
-      expect(await affected("delete from specialization.goals where id = 'goal-rls-1:left'")).toBe(0);
-      expect(await failure(db, `insert into specialization.goals (user_id, ${goalColumns}) values ($14, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`, [...goalValues({ ...left, id: "goal-forged" }), USER_A])).toMatch(/row-level security/);
+      expect(await count(db, "select 1 from specialization.goals where id like 'goal-rls-%'")).toBe(0);
+      expect(await affected("update specialization.goals set target = 1 where id = 'goal-rls-1'")).toBe(0);
+      expect(await affected("delete from specialization.goals where id = 'goal-rls-1'")).toBe(0);
+      expect(await failure(db, `insert into specialization.goals (user_id, ${goalColumns}) values ($14, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`, [...goalValues({ ...saved, id: "goal-forged", nodeId: "forearm.ecu" }), USER_A])).toMatch(/row-level security/);
     });
-    expect(await rows(db, "select target::float8 as target from specialization.goals where id = 'goal-rls-1:left'")).toEqual([{ target: 20 }]);
+    expect(await rows(db, "select target::float8 as target from specialization.goals where id = 'goal-rls-1'")).toEqual([{ target: 20 }]);
   });
 
   it("user A cannot hand a goal to B, but can change and delete their own", async () => {
     await as(db, userA, async () => {
-      expect(await failure(db, "update specialization.goals set user_id = $1 where id = 'goal-rls-1:left'", [USER_B])).toMatch(/row-level security/);
-      expect(await affected("update specialization.goals set target = 40 where id = 'goal-rls-1:left'")).toBe(1);
-      const [touched] = await rows<{ updatedAt: string; target: number }>(db, `${goalAsDevice} where id = 'goal-rls-1:left'`);
+      expect(await failure(db, "update specialization.goals set user_id = $1 where id = 'goal-rls-1'", [USER_B])).toMatch(/row-level security/);
+      expect(await affected("update specialization.goals set target = 40 where id = 'goal-rls-1'")).toBe(1);
+      const [touched] = await rows<{ updatedAt: string; target: number }>(db, `${goalAsDevice} where id = 'goal-rls-1'`);
       expect(touched.target).toBe(40);
-      expect(touched.updatedAt).not.toBe(left.updatedAt);
+      expect(touched.updatedAt).not.toBe(saved.updatedAt);
       // A sync that carries the device's own time keeps it.
-      await db.query("update specialization.goals set target = 41, updated_at = '2026-10-17T08:00:00Z' where id = 'goal-rls-1:left'");
-      expect((await rows<{ updatedAt: string }>(db, `${goalAsDevice} where id = 'goal-rls-1:left'`))[0].updatedAt).toBe("2026-10-17T08:00:00.000Z");
-      expect(await affected("delete from specialization.goals where id = 'goal-rls-1:right'")).toBe(1);
+      await db.query("update specialization.goals set target = 41, updated_at = '2026-10-17T08:00:00Z' where id = 'goal-rls-1'");
+      expect((await rows<{ updatedAt: string }>(db, `${goalAsDevice} where id = 'goal-rls-1'`))[0].updatedAt).toBe("2026-10-17T08:00:00.000Z");
+      expect(await affected("delete from specialization.goals where id = 'goal-rls-2'")).toBe(1);
     });
   });
 
   it("a signed-in role with no user id writes nothing", async () => {
     await as(db, { user: "" }, async () => {
-      expect(await failure(db, insert, goalValues({ ...left, id: "goal-nobody" }))).toMatch(/row-level security|null value in column "user_id"/);
+      expect(await failure(db, insert, goalValues({ ...saved, id: "goal-nobody", nodeId: "forearm.ecu" }))).toMatch(/row-level security|null value in column "user_id"/);
     });
   });
 
@@ -603,8 +611,8 @@ describe("goals: owner-only, and a straight copy of the device record", () => {
 
   it("the service role reads every user's goals and can write for any user", async () => {
     await as(db, "service_role", async () => {
-      expect(await failure(db, `insert into specialization.goals (user_id, ${goalColumns}) values ($14, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`, [...goalValues({ ...right, id: "goal-service-b" }), USER_B])).toBeNull();
-      const owners = await rows<{ user_id: string }>(db, "select distinct user_id from specialization.goals where id in ('goal-rls-1:left', 'goal-service-b') order by 1");
+      expect(await failure(db, `insert into specialization.goals (user_id, ${goalColumns}) values ($14, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`, [...goalValues({ ...saved, id: "goal-service-b" }), USER_B])).toBeNull();
+      const owners = await rows<{ user_id: string }>(db, "select distinct user_id from specialization.goals where id in ('goal-rls-1', 'goal-service-b') order by 1");
       expect(owners.map((row) => row.user_id)).toEqual([USER_A, USER_B]);
       expect(await affected("update specialization.goals set target = 12 where id = 'goal-service-b'")).toBe(1);
       expect(await affected("delete from specialization.goals where id = 'goal-service-b'")).toBe(1);
