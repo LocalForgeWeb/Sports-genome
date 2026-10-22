@@ -125,11 +125,11 @@ describe("the add-or-swap sheet", () => {
   it("says what is already planned in the week chosen in the sheet, not the page's week", async () => {
     const { sheet } = open({ initialExerciseId: 141 });
     expect(detailOf(sheet, "Hammer Curl")).toBe("Free weights · already in Week 1 (Day 02 · Pull)");
-    expect(detailOf(sheet, "Reverse Wrist Curl")).toBe("Free weights");
+    expect(detailOf(sheet, "Reverse Wrist Curl")).toBe("Barbell");
     await click(within(sheet).getByRole("button", { name: "Week 2" }));
     // Hammer Curl is not in week 2 (the candidate's own flag still says the page's week has it).
     expect(detailOf(sheet, "Hammer Curl")).toBe("Free weights");
-    expect(detailOf(sheet, "Reverse Wrist Curl")).toBe("Free weights · already in Week 2 (Day 03 · Legs)");
+    expect(detailOf(sheet, "Reverse Wrist Curl")).toBe("Barbell · already in Week 2 (Day 03 · Legs)");
     expect(where(sheet)).toBe("Week 2 · Choose a day");
   });
 

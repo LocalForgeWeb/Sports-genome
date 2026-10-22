@@ -185,6 +185,11 @@ describe("no region is named in the calculator, the windows, the goals or the ad
     "client/src/lib/specialization/stores.ts",
     "client/src/lib/specialization/recommendations.ts",
     "client/src/lib/specialization/useSpecializationSummary.ts",
+    // The stack designer's core and its shared count and rep profiles (11-forearm-research-and-stack.md §3.10).
+    "shared/specialization/directWork.ts",
+    "shared/specialization/repProfiles.ts",
+    "client/src/lib/specialization/stack.ts",
+    "client/src/lib/specialization/stackStore.ts",
   ];
   /** Lines that must stay, by file and exact code, each with its reason. */
   const allowed: { file: string; code: string; why: string }[] = [
