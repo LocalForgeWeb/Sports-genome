@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import React, { createElement } from "react";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
  * One whole journey through the atlas (Oct 16 forearm brief §11: "coverage gap → relevant
@@ -35,6 +35,7 @@ vi.mock("@/lib/trpc", () => {
 });
 
 import Home from "@/pages/Home";
+import { loadRegionExtras } from "@/lib/specialization/regionExtras";
 import { exercises } from "@/lib/exerciseCatalog";
 import { deviceWorkoutHistoryKey } from "@/lib/deviceWorkoutLog";
 
@@ -57,6 +58,8 @@ const brRow = () => screen.getByRole("button", { name: /^Brachioradialis, Surfac
 const brFills = () => Array.from(document.querySelectorAll<SVGPathElement>('.spz-diagram-belly[data-node="forearm.br"]')).map((path) => path.dataset.fill);
 const dock = (name: string) => within(screen.getByRole("navigation", { name: "Primary mobile navigation" })).getByRole("button", { name });
 
+// The add sheet shows the app's starting range once the region's profiles arrive (11-forearm-research-and-stack.md §5.2); loaded first, so Save never waits on them here.
+beforeAll(async () => { await loadRegionExtras("forearm"); });
 beforeEach(() => {
   toasts.length = 0;
   window.localStorage.clear();

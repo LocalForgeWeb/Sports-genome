@@ -397,6 +397,7 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
   return <div className="spz-stack-body">
     {completedNote}
     {doneLine}
+    {doneDetail}
     <p className="spz-stack-lede">Pick a weekly number; the app chooses the exercises and puts them on your plan days.</p>
     {changing && <p className="spz-note">Designing again on Plan Week {week} as it is without your stack. Adding replaces the stack's own entries; anything you changed stays.</p>}
 
