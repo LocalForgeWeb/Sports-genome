@@ -1,0 +1,196 @@
+{
+  "note": "Headless Chromium emulating a phone (viewport, isMobile, hasTouch, deviceScaleFactor 3): not an iPhone, not Safari. Each figure on an evidence card. A muscle's square is the largest square of screen shown to select it and nothing else, rounded down to 0.1 px: its own tap square (the renderer's rect, measured exactly) where every point inside it read with elementFromPoint every 1.5 px selects it and no other muscle's square overlaps it, or else, if larger, the span between the outermost points of the largest square of points that all select it.",
+  "gatePx": 44,
+  "generated": {
+    "file": "shared/specialization/regions/upper_arm/diagram.generated.ts",
+    "sha256": "aa0f52eeea3266b267db6f53f5b5311330855873c299eb6bc3b5e3fb80224b22"
+  },
+  "widths": {
+    "375": {
+      "viewport": {
+        "width": 375,
+        "height": 667
+      },
+      "smallest": 44.8,
+      "figures": {
+        "front-surface-right": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.biceps": 117,
+            "upper_arm.brachialis": 44.8,
+            "forearm.br": 58.5
+          }
+        },
+        "front-deep-right": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.coracobrachialis": 45,
+            "upper_arm.brachialis": 114
+          }
+        },
+        "back-surface-right": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.triceps_lateral": 78,
+            "upper_arm.triceps_long": 93,
+            "upper_arm.triceps_medial": 44.8
+          }
+        },
+        "back-deep-right": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.triceps_medial": 121.5
+          }
+        },
+        "front-surface-brachialis": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.biceps": 117,
+            "upper_arm.brachialis": 44.8,
+            "forearm.br": 58.5
+          }
+        },
+        "front-surface-br": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.biceps": 117,
+            "upper_arm.brachialis": 44.8,
+            "forearm.br": 58.5
+          }
+        },
+        "front-deep-cb": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.coracobrachialis": 45,
+            "upper_arm.brachialis": 114
+          }
+        },
+        "back-surface-trilat": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.triceps_lateral": 78,
+            "upper_arm.triceps_long": 93,
+            "upper_arm.triceps_medial": 44.8
+          }
+        },
+        "back-surface-trimed": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.triceps_lateral": 78,
+            "upper_arm.triceps_long": 93,
+            "upper_arm.triceps_medial": 44.8
+          }
+        },
+        "fills-at-rest": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.biceps": 117,
+            "upper_arm.brachialis": 44.8,
+            "forearm.br": 58.5
+          }
+        },
+        "not-on-layer": {
+          "svgWidth": 309,
+          "squares": {
+            "upper_arm.biceps": 117,
+            "upper_arm.brachialis": 44.8,
+            "forearm.br": 58.5
+          }
+        }
+      }
+    },
+    "390": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "smallest": 46.9,
+      "figures": {
+        "front-surface-right": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.biceps": 121.5,
+            "upper_arm.brachialis": 46.9,
+            "forearm.br": 61.5
+          }
+        },
+        "front-deep-right": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.coracobrachialis": 46.9,
+            "upper_arm.brachialis": 120
+          }
+        },
+        "back-surface-right": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.triceps_lateral": 82.5,
+            "upper_arm.triceps_long": 97.5,
+            "upper_arm.triceps_medial": 46.9
+          }
+        },
+        "back-deep-right": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.triceps_medial": 127.5
+          }
+        },
+        "front-surface-brachialis": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.biceps": 121.5,
+            "upper_arm.brachialis": 46.9,
+            "forearm.br": 61.5
+          }
+        },
+        "front-surface-br": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.biceps": 121.5,
+            "upper_arm.brachialis": 46.9,
+            "forearm.br": 61.5
+          }
+        },
+        "front-deep-cb": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.coracobrachialis": 46.9,
+            "upper_arm.brachialis": 120
+          }
+        },
+        "back-surface-trilat": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.triceps_lateral": 82.5,
+            "upper_arm.triceps_long": 97.5,
+            "upper_arm.triceps_medial": 46.9
+          }
+        },
+        "back-surface-trimed": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.triceps_lateral": 82.5,
+            "upper_arm.triceps_long": 97.5,
+            "upper_arm.triceps_medial": 46.9
+          }
+        },
+        "fills-at-rest": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.biceps": 121.5,
+            "upper_arm.brachialis": 46.9,
+            "forearm.br": 61.5
+          }
+        },
+        "not-on-layer": {
+          "svgWidth": 324,
+          "squares": {
+            "upper_arm.biceps": 121.5,
+            "upper_arm.brachialis": 46.9,
+            "forearm.br": 61.5
+          }
+        }
+      }
+    }
+  }
+}
