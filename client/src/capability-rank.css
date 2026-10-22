@@ -1,5 +1,5 @@
 /**
- * Capability rank tokens - sg_capability_rank_v1, palette sg_rank_palette_v2.
+ * Capability rank tokens - sg_capability_rank_v1, palette sg_rank_palette_v3.
  *
  * One colour per rank, used by the map, the legend, the badges and the detail alike. Every hex
  * here is held to `RANKS` in shared/capabilityRank.ts by capabilityRankTokens.test.ts.
@@ -11,7 +11,7 @@
   --sg-rank-prospect-color: #8290A3;
   --sg-rank-jv-color: #38B879;
   --sg-rank-varsity-color: #397FE7;
-  --sg-rank-regional-color: #B385E5;
+  --sg-rank-regional-color: #9332F7;
   --sg-rank-state-color: #DCAF3C;
   --sg-rank-national-color: #C93650;
   --sg-rank-world-stage-color: #171B24;

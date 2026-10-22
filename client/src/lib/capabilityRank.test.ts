@@ -39,9 +39,10 @@ describe("The rank table", () => {
    * carries the rank now - so what is pinned is identity and order.
    */
   it("uses the competitive-progression palette, in order", () => {
-    expect(RANKS.map((rank) => rank.color)).toEqual(["#8290A3", "#38B879", "#397FE7", "#B385E5", "#DCAF3C", "#C93650", "#171B24"]);
-    expect(RANKS.map((rank) => rank.specifiedColor)).toEqual(["#8290A3", "#38B879", "#4285E8", "#A36CE0", "#DCAF3C", "#C93650", "#171B24"]);
-    expect(RANK_PALETTE_VERSION).toBe("sg_rank_palette_v2");
+    // Regional is the owner's #9332F7 (22 Oct 2026); the palette is v3 for that alone.
+    expect(RANKS.map((rank) => rank.color)).toEqual(["#8290A3", "#38B879", "#397FE7", "#9332F7", "#DCAF3C", "#C93650", "#171B24"]);
+    expect(RANKS.map((rank) => rank.specifiedColor)).toEqual(["#8290A3", "#38B879", "#4285E8", "#9332F7", "#DCAF3C", "#C93650", "#171B24"]);
+    expect(RANK_PALETTE_VERSION).toBe("sg_rank_palette_v3");
   });
 
   /** Only World Stage's obsidian needs a light edge to be seen on navy. */

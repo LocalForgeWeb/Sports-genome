@@ -31,8 +31,9 @@ export type RankId = "prospect" | "jv" | "varsity" | "regional" | "state" | "nat
  * v2 is the competitive-progression palette: slate, green, blue, purple, gold, crimson, and
  * obsidian at the top. It replaced v1's blue-to-yellow ramp, and with it the rule that each
  * rank be lighter than the last; identity now comes from hue, with name and emblem alongside.
+ * v3 (22 Oct 2026) is v2 with Regional's purple set by the owner to #9332F7.
  */
-export const RANK_PALETTE_VERSION = "sg_rank_palette_v2" as const;
+export const RANK_PALETTE_VERSION = "sg_rank_palette_v3" as const;
 
 export type BadgeMetal = "silver" | "gold";
 
@@ -83,16 +84,22 @@ export const RANKS: readonly RankDefinition[] = [
   /*
    * Varsity and Regional are neighbours, and at the brief's hexes (#4285E8, #A36CE0) they had
    * the same luminance to three places: indistinguishable in grayscale (dL 0.1) and nearly so
-   * under protanopia (dE 3.7). The smallest move that separates them - blue a shade darker,
-   * purple a shade lighter - takes that to dL 9.5 and protan dE 12.0; both stay blue and purple.
+   * under protanopia (dE 3.7). The smallest move that separated them - blue a shade darker,
+   * purple a shade lighter (#B385E5) - took that to dL 9.5 and protan dE 12.0.
+   *
+   * On 22 Oct 2026 the owner set Regional to #9332F7, a deeper, more saturated purple. Measured
+   * against Varsity it sits further apart than before (dL 7.9, protan dE 30.9, deutan 19.1,
+   * tritan 44.6); the keyline is 3.4:1 on it and white 5.2:1, so the map edge and the selection
+   * ring still read. Its badge gem is cut from the same purple, with a white mark (4.2:1 at the
+   * gem's light top, 7.5:1 at its foot), where the old light gem took a dark one.
    */
   { id: "varsity", minInclusive: 40, maxExclusive: 60, shortName: "Varsity", fullName: "Varsity",
     color: "#397FE7", specifiedColor: "#4285E8", mapOutline: "keyline",
     badge: { plateTop: "#508EEA", plateBottom: "#175CC1", rim: "silver", glyph: "#FFFFFF" },
     iconSrc: "/rank-icons/varsity.webp", sortOrder: 2 },
   { id: "regional", minInclusive: 60, maxExclusive: 80, shortName: "Regional", fullName: "Regional Circuit",
-    color: "#B385E5", specifiedColor: "#A36CE0", mapOutline: "keyline",
-    badge: { plateTop: "#C5A2EB", plateBottom: "#8E4AD8", rim: "silver", glyph: "#26104A" },
+    color: "#9332F7", specifiedColor: "#9332F7", mapOutline: "keyline",
+    badge: { plateTop: "#A24FF8", plateBottom: "#7327C1", rim: "silver", glyph: "#FFFFFF" },
     iconSrc: "/rank-icons/regional.webp", sortOrder: 3 },
   { id: "state", minInclusive: 80, maxExclusive: 95, shortName: "State", fullName: "State Circuit",
     color: "#DCAF3C", specifiedColor: "#DCAF3C", mapOutline: "keyline",

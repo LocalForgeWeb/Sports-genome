@@ -12,7 +12,7 @@ Assigned by what the artwork is, never by the order it was supplied in.
 | `prospect`    | Prospect    | 0 ≤ p < 20  | `#8290A3`  | `source/prospect.png`     | Slate-gray open angular gate around a triangular centre                                              |
 | `jv`          | JV          | 20 ≤ p < 40 | `#38B879`  | `source/jv.png`           | One uninterrupted faceted emerald, silver border, small side accents; no internal metal chevron bars |
 | `varsity`     | Varsity     | 40 ≤ p < 60 | `#397FE7`  | `source/varsity.png`      | One uninterrupted faceted blue gem, silver border, layered side accents; no internal chevron bars    |
-| `regional`    | Regional    | 60 ≤ p < 80 | `#B385E5`  | `source/regional.png`     | Elongated purple gem, silver V frame, one shorter wing per side                                      |
+| `regional`    | Regional    | 60 ≤ p < 80 | `#9332F7`  | `source/regional.png`     | Elongated purple gem, silver V frame, one shorter wing per side                                      |
 | `state`       | State       | 80 ≤ p < 95 | `#DCAF3C`  | `source/state.png`        | Gold central summit, three-point crown, two upward-sweeping wing layers per side                     |
 | `national`    | National    | 95 ≤ p < 99 | `#C93650`  | `source/national.png`     | Tall crimson central summit, dark metal/silver frame, multiple swept wing layers                     |
 | `world_stage` | World Stage | 99 ≤ p ≤ 100| `#171B24`  | `source/world-stage.png`  | Black central gem and wings, silver edges, gold accents and orbital gate                             |
