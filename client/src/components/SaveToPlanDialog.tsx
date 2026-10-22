@@ -9,7 +9,8 @@ import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 import { trapTabWithin } from "@/lib/modalBackground";
 import "../save-to-plan.css";
 
-export type SaveWeekOption = { week: number; exists: boolean; current: boolean; dayCounts: Record<string, number> };
+/** `name`: what the athlete called the week, when they named it. */
+export type SaveWeekOption = { week: number; exists: boolean; current: boolean; dayCounts: Record<string, number>; name?: string };
 export type SaveRequest = { week: number; mode: DayWriteMode; writes: { slotIndex: number; day: IncomingDay }[] };
 export type SaveOutcome =
   | { ok: true; week: number; slotIndex: number; destination: string; added: number; alreadyThere: string[] }
@@ -127,7 +128,7 @@ export function SaveToPlanDialog({ heading, sourceTitle, sourceLine, attribution
             <legend>Week</legend>
             <div className="stp-chips">{weeks.map((option) => {
               const planned = Object.values(option.dayCounts).filter(Boolean).length;
-              return <label key={option.week} className={`stp-chip ${option.week === week ? "is-on" : ""}`}><input type="radio" name="stp-week" checked={option.week === week} onChange={() => setWeek(option.week)} /><span>Week {option.week}</span><small>{!option.exists ? "new, empty" : option.current ? `this week · ${planned ? `${planned} day${planned === 1 ? "" : "s"} planned` : "empty"}` : planned ? `${planned} day${planned === 1 ? "" : "s"} planned` : "empty"}</small></label>;
+              return <label key={option.week} className={`stp-chip ${option.week === week ? "is-on" : ""}`}><input type="radio" name="stp-week" checked={option.week === week} onChange={() => setWeek(option.week)} /><span>Week {option.week}{option.name ? `: ${option.name}` : ""}</span><small>{!option.exists ? "new, empty" : option.current ? `this week · ${planned ? `${planned} day${planned === 1 ? "" : "s"} planned` : "empty"}` : planned ? `${planned} day${planned === 1 ? "" : "s"} planned` : "empty"}</small></label>;
             })}</div>
           </fieldset>
 

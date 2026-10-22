@@ -32,15 +32,16 @@ export function ReviewHead({ eyebrow = "Review", title, detail, scope, onScope, 
   </header>;
 }
 
-export type ReviewWeekOption = { week: number; ready: boolean; savedDays: number };
+/** `name`: what the athlete called the week, when they named it. */
+export type ReviewWeekOption = { week: number; ready: boolean; savedDays: number; name?: string };
 
 /** The week pills, as Plan draws them, selecting a week without leaving Review. */
 export function ReviewWeekPills({ weeks, activeWeek, onSelect }: { weeks: readonly ReviewWeekOption[]; activeWeek: number; onSelect: (week: number) => void }) {
   const ready = weeks.filter((option) => option.ready);
   if (ready.length < 2) return null;
   return <div className="training-plan-weeks wr-weeks" role="group" aria-label="Review week">
-    {ready.map(({ week, savedDays }) => <button key={week} type="button" aria-current={week === activeWeek ? "true" : undefined} onClick={() => onSelect(week)} className={`training-plan-week${week === activeWeek ? " training-plan-week-active" : ""}`}>
-      Week {week}<small>{savedDays ? `${savedDays} saved` : "Empty"}</small>
+    {ready.map(({ week, savedDays, name }) => <button key={week} type="button" aria-current={week === activeWeek ? "true" : undefined} onClick={() => onSelect(week)} className={`training-plan-week${week === activeWeek ? " training-plan-week-active" : ""}`}>
+      {name ? <span className="training-plan-week-name">{name}</span> : <>Week {week}</>}<small>{name ? `Week ${week} · ` : ""}{savedDays ? `${savedDays} saved` : "Empty"}</small>
     </button>)}
   </div>;
 }
