@@ -55,8 +55,8 @@ export const upperArmNodes: AnatomyNode[] = [
     whatItDoes: "Bends your elbow and turns your palm up; with the elbow bent it is the strongest palm-up muscle. It also crosses the shoulder, where references describe only weak help raising the arm forward.",
     shapeNote: `May contribute most of the front contour of the upper arm above the elbow crease, since it is the surface muscle there. ${NEIGHBOURS}`,
     caveats: [
-      "Its two heads are counted as one muscle here; anatomy references describe their elbow and forearm actions together.",
-      "Its help raising the arm forward is weak, and studies disagree on whether its long head works in shoulder movement at all, so it is listed only as helping there.",
+      "Its two heads are counted as one muscle; anatomy references describe their elbow and forearm actions together.",
+      "Its help raising the arm forward is weak, and studies disagree on whether its long head works in shoulder movement at all.",
       "Some people have an extra head; it usually causes no symptoms.",
     ],
   }),
@@ -86,9 +86,9 @@ export const upperArmNodes: AnatomyNode[] = [
     name: "Triceps, long head", shortName: "TriLong", aliases: ["long head of triceps", "triceps long head"],
     layer: "surface", surfaceVisibility: "partial", catalogMuscleKey: "triceps", databaseMuscle: "triceps_brachii_long_head",
     status: "reviewed",
-    location: "Back of the upper arm, at the surface, from the shoulder blade just below the shoulder joint down to the common tendon at the point of the elbow.",
+    location: "Back of the upper arm, from the shoulder blade just below the shoulder joint to the common tendon at the point of the elbow; one of the two heads at the surface, from below the shoulder toward the elbow.",
     whatItDoes:
-      "Straightens your elbow with the other two heads. It is the only head that crosses the shoulder, where it helps move the arm down and back (some references add toward the body) and helps hold the top of the upper-arm bone in its socket.",
+      "Straightens your elbow with the other two heads. It is the only head that crosses the shoulder, where it helps move the arm down and back (some references add toward the body) and helps hold the top of the upper-arm bone in its socket (references differ on the arm position in which it does).",
     shapeNote: `May contribute to the back-of-arm contour from below the shoulder toward the elbow, as one of the two surface heads. ${NEIGHBOURS}`,
     caveats: [
       "Its actions at the shoulder are small next to its work at the elbow.",

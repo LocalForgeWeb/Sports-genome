@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { muscleCanonicalNameToRegionId } from "@shared/capabilityRank";
 import { claimKeyOf, composeRegionData, resolveMembers } from "@shared/specialization/compose";
+import { registeredRegionContents } from "@shared/specialization/registry";
 import { forearmContent } from "@shared/specialization/regions/forearm";
 import { forearmMuscleIds } from "@shared/specialization/regions/forearm/ids";
 import { upperArmContent } from "@shared/specialization/regions/upper_arm";
@@ -18,6 +19,7 @@ import {
 import { sourceById } from "@shared/specialization/sources";
 import { upperArmSources } from "@shared/specialization/sources/upper_arm";
 import type { AnatomyNode, Claim, MappingVersion } from "@shared/specialization/types";
+import { stubMuscles } from "../../../../server/fixtures/specializationPg";
 
 /**
  * The upper arm's anatomy content and its evidence (docs/specialization-atlas/10-multi-region.md
@@ -77,7 +79,10 @@ describe("the upper arm's rows, as §1.2 fixes them", () => {
       [7, "forearm.br", "external"],
     ]);
     expect(resolved.at(-1)!.node.shortName).toBe("BR");
-    expect(members.filter((member) => member.caveats?.length).map((member) => member.nodeId)).toEqual(["forearm.br"]);
+    expect(members.filter((member) => member.caveats?.length).map((member) => [member.nodeId, member.caveats])).toEqual([
+      ["upper_arm.biceps", ["Listed only as helping raise the arm forward."]],
+      ["forearm.br", ["A forearm muscle shown here because curls load it; it is credited as the forearm counts it."]],
+    ]);
   });
 
   it("names §1.1's catalog keys with the primary tag scope, §1.2's actions, and stays a reference region until the integration lane promotes it", () => {
@@ -116,15 +121,27 @@ describe("the two frozen muscles (§1.3, §10)", () => {
     ]);
   });
 
-  it("keep neutral anatomy text; the words that speak from the forearm's page are the forearm's membership caveats", () => {
-    const fromForearm = /forearm (size|target|muscle)/i;
+  it("keep neutral anatomy text; the words that speak from one page are that page's membership caveats", () => {
+    /**
+     * Words that speak from a page about its listing, never true of the node on every page that lists it: a region's
+     * size or targets, what a page lists, shows or credits, and "here" ("there" names a place on the arm as often as a
+     * page, so it is left to the words around it). The node's text is read on the forearm page and the upper arm's alike.
+     */
+    const pageWords = /\b(forearm|upper-arm) (size|targets?|muscles?)\b|\b(listed|lists?|shown|shows?|credited|targets?|here)\b/i;
+    // What the biceps once said, which the forearm page showed beside no shoulder action.
+    expect("Its help raising the arm forward is weak, and studies disagree on whether its long head works in shoulder movement at all, so it is listed only as helping there.").toMatch(pageWords);
+    const listedElsewhere = new Set(registeredRegionContents.filter((content) => content.region.id !== UPPER_ARM_REGION_ID).flatMap((content) => content.members.map((member) => member.nodeId)));
+    expect(nodes.filter((node) => listedElsewhere.has(node.id)).map((node) => node.id)).toEqual([m.biceps, m.brachialis]);
+    for (const node of nodes.filter((item) => listedElsewhere.has(item.id))) {
+      for (const text of [node.location, node.whatItDoes, node.shapeNote, ...node.caveats]) expect(text, node.id).not.toMatch(pageWords);
+    }
     for (const id of [m.biceps, m.brachialis]) {
       const node = nodeById.get(id)!;
-      for (const text of [node.location, node.whatItDoes, node.shapeNote, ...node.caveats]) expect(text, id).not.toMatch(fromForearm);
       const listed = forearmContent.members.find((member) => member.nodeId === id)!;
       expect(listed.caveats?.some((caveat) => /not a forearm target/.test(caveat)), id).toBe(true);
-      // The upper arm's page shows the node's own text, never the forearm's words on it.
-      expect(page.nodes.find((item) => item.id === id)!.caveats).toEqual(node.caveats);
+      // The upper arm's page shows the node's own text and its own words on it, never the forearm's.
+      const own = members.find((member) => member.nodeId === id)!.caveats ?? [];
+      expect(page.nodes.find((item) => item.id === id)!.caveats).toEqual([...node.caveats, ...own]);
     }
     expect(forearmContent.members.find((member) => member.nodeId === m.biceps)!.caveats).toContain("It is an upper-arm muscle and does not add forearm size.");
     expect(forearmContent.members.find((member) => member.nodeId === m.brachialis)!.caveats).toContain("It is not a forearm muscle.");
@@ -168,14 +185,24 @@ describe("upper-arm node actions", () => {
 });
 
 describe("upper-arm claims and the evidence standard (§8)", () => {
-  it("holds the review's twenty claims: 6 function, 7 appearance, 6 selectivity and 1 variation; 19 reviewed and 1 draft", () => {
-    expect(own).toHaveLength(20);
+  it("holds nineteen claims, every one reviewed: 6 function, 7 appearance, 5 selectivity and 1 variation; the dossier's training-study claim is left out", () => {
+    expect(own).toHaveLength(19);
     const count = (kind: Claim["kind"]) => own.filter((claim) => claim.kind === kind).length;
-    expect([count("function"), count("appearance"), count("selectivity"), count("variation")]).toEqual([6, 7, 6, 1]);
-    expect(own.filter((claim) => claim.reviewStatus === "draft").map((claim) => claim.id)).toEqual(["upper_arm.triceps_long.selectivity.2"]);
+    expect([count("function"), count("appearance"), count("selectivity"), count("variation")]).toEqual([6, 7, 5, 1]);
+    expect(own.every((claim) => claim.reviewStatus === "reviewed")).toBe(true);
+    expect(own.map((claim) => claim.id)).not.toContain("upper_arm.triceps_long.selectivity.2");
+    // Reviewed on 19 Oct; the five reworded or given a source in the fix round re-checked on 22 Oct, and say so.
+    expect(own.filter((claim) => claim.reviewedAt === "2026-10-22").map((claim) => claim.id)).toEqual([
+      "upper_arm.triceps_long.function",
+      "upper_arm.triceps_long.appearance",
+      "upper_arm.triceps_lateral.function",
+      "upper_arm.triceps_lateral.selectivity.1",
+      "upper_arm.triceps_medial.selectivity.1",
+    ]);
     for (const claim of own) {
       expect(claim.id).toMatch(new RegExp(`^${claim.nodeId.replace(".", "\\.")}\\.${claim.kind}(\\.\\d+)?$`));
-      if (claim.reviewStatus === "reviewed") expect(claim.reviewedAt, claim.id).toBe("2026-10-19");
+      expect(["2026-10-19", "2026-10-22"], claim.id).toContain(claim.reviewedAt);
+      if (claim.reviewedAt === "2026-10-22") expect(claim.reviewNote, claim.id).toMatch(/re-checked on 22 Oct 2026/);
     }
   });
 
@@ -200,17 +227,17 @@ describe("upper-arm claims and the evidence standard (§8)", () => {
     }
   });
 
-  it("keeps selectivity to short-term activity and modelled force, never growth and never a credit weight; the training studies stay a draft", () => {
+  it("keeps selectivity to short-term activity and modelled force, never growth and never a credit weight", () => {
+    // Said in so many words: "not growth", "neither study measured growth", "none of these studies measured growth".
+    const saysNotGrowth = /\bnot growth\b|\b(neither|none of these|no) stud(y|ies) measured growth\b/i;
+    expect("This study measured growth.").not.toMatch(saysNotGrowth);
+    const growthFinding = /hypertroph|muscle (volume|thickness|size)|\bgrew\b|\b(volume|thickness) rose\b/i;
+    // No claim of the upper arm's rests on a training study (the dossier's one is left out, §8).
+    for (const claim of own) for (const ref of claim.sources) expect(sourceById.get(ref.sourceId)!.evidenceType, `${claim.id} → ${ref.sourceId}`).not.toBe("longitudinal");
     for (const claim of own.filter((item) => item.kind === "selectivity")) {
       expect(claim.basis, claim.id).toBe("experimental");
-      const types = claim.sources.map((ref) => sourceById.get(ref.sourceId)!.evidenceType);
-      if (types.includes("longitudinal")) {
-        expect(claim.reviewStatus, claim.id).toBe("draft");
-        expect(claim.statement, claim.id).toMatch(/not a forecast/);
-        expect(claim.statement, claim.id).toMatch(/not used to weight credit/);
-        continue;
-      }
-      expect(claim.statement, claim.id).toMatch(/not growth|measured growth/);
+      expect(claim.statement, claim.id).toMatch(saysNotGrowth);
+      expect(claim.statement, claim.id).not.toMatch(growthFinding);
       for (const ref of claim.sources.filter((item) => sourceById.get(item.sourceId)!.evidenceType === "emg")) {
         expect(ref.qualification, `${claim.id} → ${ref.sourceId}`).toMatch(/not a measurement of growth and not a set-credit weight/);
       }
@@ -233,15 +260,16 @@ describe("upper-arm claims and the evidence standard (§8)", () => {
 
   it("cites its own library file and three of the forearm's sources, each with a note saying what the search showed", () => {
     const ownKeys = new Set(upperArmSources.map((source) => source.id));
-    expect(upperArmSources).toHaveLength(29);
+    expect(upperArmSources).toHaveLength(28);
+    for (const left of ["pmid.35819335", "mdpi.triceps_fascicle_length"]) expect(ownKeys.has(left), left).toBe(false);
     // The forearm's frozen claims kept here cite A50 and A51; the upper arm's own cite A51 and A4 (Kleiber 2015).
     const cited = new Set(claims.flatMap((claim) => claim.sources.map((ref) => ref.sourceId)));
     expect(Array.from(cited).filter((id) => !ownKeys.has(id)).sort()).toEqual(["A4", "A50", "A51"]);
     for (const id of Array.from(ownKeys)) expect(cited.has(id), `${id} is cited`).toBe(true);
     expect(sources.map((source) => source.id).sort()).toEqual([...Array.from(ownKeys), "A4", "A50", "A51"].sort());
     for (const source of upperArmSources) {
-      expect(source.retrievedOn, source.id).toBe("2026-10-19");
-      expect(source.notes, source.id).toMatch(/^(Checked via web-search|Added by the second review\. Checked via)/);
+      expect(["2026-10-19", "2026-10-22"], source.id).toContain(source.retrievedOn);
+      expect(source.notes, source.id).toMatch(/^(Checked via web-search|Added by the second review\. Checked via|Added in the fix round of 22 Oct 2026\. Checked via)/);
       // Wikipedia is read, never cited; a user-edited wiki likewise (the second review removed one).
       expect(source.url, source.id).not.toMatch(/wikipedia|doccheck|flexikon/i);
     }
@@ -272,8 +300,13 @@ describe("upper-arm node fields", () => {
       ["upper_arm.triceps_medial", "triceps_brachii_medial_head"],
       ["upper_arm.coracobrachialis", null],
     ]);
-    // Each is a canonical name the app knows (shared/capabilityRank.ts), drawn under the upper arm's own keys.
-    for (const node of nodes.filter((item) => item.databaseMuscle)) expect(["biceps", "triceps"], node.id).toContain(muscleCanonicalNameToRegionId[node.databaseMuscle!]);
+    // Each is a canonical name the app knows (shared/capabilityRank.ts), drawn under the upper arm's own keys, and a row
+    // of production's public.muscles (read-only check, 22 Oct 2026), which the test stub holds by the same name.
+    const stub = new Set<string>(stubMuscles.map((row) => row.canonical_name));
+    for (const node of nodes.filter((item) => item.databaseMuscle)) {
+      expect(["biceps", "triceps"], node.id).toContain(muscleCanonicalNameToRegionId[node.databaseMuscle!]);
+      expect(stub.has(node.databaseMuscle!), node.id).toBe(true);
+    }
   });
 
   it("gives the heads and the coracobrachialis names a reader searches by, unique on the page", () => {
@@ -299,7 +332,11 @@ describe("upper-arm anatomy copy", () => {
   });
 
   it("says inner and outer, front and back, in words, keeping lateral and medial for the heads' names and the bone's landmarks", () => {
-    // "the lateral head", "long, lateral and medial, end together", "the lateral intermuscular septum"; never "the medial side".
-    for (const { where, text } of copy) expect(text, where).not.toMatch(/\b(lateral|medial)\b(?! head| and |,| intermuscular)/i);
+    // Only these: "the lateral head(s)", "long, lateral and medial", "the lateral and (the) medial head", "the medial and the
+    // lateral head", "the lateral intermuscular septum". Taken out, no "lateral" or "medial" may remain ("the medial side").
+    const named = /\b(lateral|medial) heads?\b|\blong, lateral and medial\b|\blateral and (the )?medial heads?\b|\bmedial and (the )?lateral heads?\b|\blateral intermuscular septum\b/gi;
+    expect("the medial side of the arm".replace(named, "")).toMatch(/\b(lateral|medial)\b/i);
+    expect("the lateral and medial heads together".replace(named, "")).not.toMatch(/\b(lateral|medial)\b/i);
+    for (const { where, text } of copy) expect(text.replace(named, ""), `${where}: "${text}"`).not.toMatch(/\b(lateral|medial)\b/i);
   });
 });

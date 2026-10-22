@@ -9,7 +9,8 @@ import { upperArmAdjacentIds as adj, upperArmExternalIds as ext, upperArmGroupId
  * compose.ts). A membership's caveats are words for this page only, said after the node's own.
  */
 export const upperArmMembers: RegionMember[] = [
-  { nodeId: m.biceps },
+  // The page lists its shoulder flexion as help only (nodeActions.ts); the forearm's page lists no shoulder action.
+  { nodeId: m.biceps, caveats: ["Listed only as helping raise the arm forward."] },
   { nodeId: m.brachialis },
   { nodeId: grp.triceps },
   { nodeId: m.tricepsLong },
