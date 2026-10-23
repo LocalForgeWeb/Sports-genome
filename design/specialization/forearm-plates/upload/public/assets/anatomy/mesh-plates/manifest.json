@@ -1,0 +1,66 @@
+{
+  "width": 720,
+  "height": 980,
+  "passes": {
+    "anterior-surface": {
+      "title": "Palmar \u00b7 surface",
+      "muscles": [
+        "brachioradialis",
+        "flexor-digitorum-superficialis",
+        "flexor-carpi-ulnaris",
+        "flexor-carpi-radialis",
+        "palmaris-longus",
+        "pronator-teres"
+      ]
+    },
+    "posterior-surface": {
+      "title": "Dorsal \u00b7 surface",
+      "muscles": [
+        "brachioradialis",
+        "anconeus",
+        "extensor-digitorum",
+        "extensor-carpi-radialis-brevis",
+        "extensor-carpi-radialis-longus",
+        "extensor-carpi-ulnaris",
+        "extensor-digiti-minimi"
+      ]
+    },
+    "anterior-deep": {
+      "title": "Palmar \u00b7 deep",
+      "muscles": [
+        "flexor-digitorum-profundus",
+        "flexor-pollicis-longus",
+        "pronator-quadratus"
+      ]
+    },
+    "posterior-deep": {
+      "title": "Dorsal \u00b7 deep",
+      "muscles": [
+        "supinator",
+        "abductor-pollicis-longus",
+        "extensor-pollicis-brevis",
+        "extensor-pollicis-longus",
+        "extensor-indicis"
+      ]
+    },
+    "lateral-surface": {
+      "title": "Thumb side \u00b7 surface",
+      "muscles": [
+        "brachioradialis",
+        "flexor-carpi-radialis",
+        "extensor-carpi-radialis-longus",
+        "extensor-carpi-radialis-brevis"
+      ]
+    },
+    "lateral-deep": {
+      "title": "Thumb side \u00b7 deep",
+      "muscles": [
+        "supinator",
+        "flexor-pollicis-longus",
+        "abductor-pollicis-longus",
+        "extensor-pollicis-brevis",
+        "extensor-pollicis-longus"
+      ]
+    }
+  }
+}
