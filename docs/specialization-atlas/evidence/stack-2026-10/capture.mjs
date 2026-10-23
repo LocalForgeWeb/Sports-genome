@@ -16,8 +16,8 @@
  * tap Specialize, every .js file until the map is drawn); the first screen, 3D model and drawing,
  * before and after; the card closed; the card open with plans A and C and the §3.2 acceptance (the
  * total control just under the sticky row, then the control, What changes and Add above the dock);
- * a row open with its Change choices; Leave out's Undo line; after Add, with its Undo; Design for
- * Week 2; the add sheet's prescription field focused; the muscle sheet's ranges; 320 overflow; the
+ * a row open with its Change choices; Leave out's Undo line; after Add, with its Undo, and the
+ * notice gone after the card's Undo; Not in this stack's lines; Design for Week 2; the add sheet's prescription field focused; the muscle sheet's ranges; 320 overflow; the
  * 44 px sweep over every new control; the − / + to What changes time on a heavy plan.
  */
 import { createReadStream, existsSync, statSync, writeFileSync } from "node:fs";
@@ -323,6 +323,22 @@ for (const [width, height] of [[390, 844], [375, 667]]) {
     summary: await page.locator("details.spz-stack > summary").innerText(), windowLine: await page.locator(".spz-window").innerText(),
     sweep: await smallControls(page, ["details.spz-stack", "[data-sonner-toast]"]), file: `after-add-${width}.png`,
   });
+  // The card's Undo takes the notice away with it, so no Undo is left showing that does nothing.
+  await tap(page, added);
+  await page.waitForTimeout(900);
+  record({ scene: "after-add-card-undo", viewport: `${width}x${height}`, line: await page.locator(".spz-stack-done").innerText(), noticesShowing: await page.locator("[data-sonner-toast]").count(), summary: await page.locator("details.spz-stack > summary").innerText() });
+  await context.close();
+}
+
+// ---------------------------------------------------------------- Not in this stack: the muscles nothing trains directly, in the region's plain words
+
+{
+  const { context, page } = await open("after", 390, 844, { path: "/?workspace=specialization&region=forearm&mode=planned&fig=drawing", withSessions: false });
+  await pageReady(page, "drawing");
+  await openCard(page);
+  await underSticky(page, ".spz-stack-out");
+  await snap(page, shot("not-in-this-stack-390"));
+  record({ scene: "not-in-this-stack", viewport: "390x844", lines: await page.locator(".spz-stack-out li").allInnerTexts(), box: await rect(page, ".spz-stack-out"), ...(await bars(page)), controlsUnder44px: await smallControls(page, [".spz-stack-out"]), horizontalOverflowPx: await overflowX(page), file: "not-in-this-stack-390.png" });
   await context.close();
 }
 
