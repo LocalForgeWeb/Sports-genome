@@ -11,6 +11,7 @@ import { rangeText, repRangeFor } from "@shared/specialization/repProfiles";
 import { regionIndexEntry, specializationRegionIndex } from "@shared/specialization/regionIndex";
 import type { AnatomyNode, GoalProgress, NodeExposure, RegionId, SpecializationGoal, SpecializationRegionData, SummaryMode, SummarySide } from "@shared/specialization/types";
 import { ActionGlyph } from "./ActionGlyph";
+import { AttachesAtLine, type AttachesAt } from "./AttachesAt";
 import { BoutItem, boutDay } from "./BoutItem";
 import { REP_RANGE_SENTENCE, categoryLabel, formatSegment, holdRangeSentence, holdTimeOf, incidentalWords, layerLabels, ledgerByExercise, rangeWords } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
@@ -36,7 +37,7 @@ const basisLabels: Record<string, string> = {
  * region's muscle says where its targets are set, with a way there once that page exists; a target
  * already saved on a muscle that is not a target here is shown with End and Remove only.
  */
-export function MuscleSheet({ data, node, exposure, loading = false, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, initialSection, paired, pairNote = null, exclusions, equipmentOf, trainingGoal, onSetExerciseExcluded, onSetEquipmentExcluded, onSaveGoals, onRestoreGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onOpenRegion, onClose }: {
+export function MuscleSheet({ data, node, exposure, loading = false, side, mode, intervalLabel, weightUnit, goals, progress, timeZone, todayKey, recommendations, initialSection, paired, pairNote = null, exclusions, equipmentOf, trainingGoal, attachesAt = null, onSetExerciseExcluded, onSetEquipmentExcluded, onSaveGoals, onRestoreGoals, onRemoveGoal, onChooseExercise, onInspectExercise, onOpenSession, onOpenMethod, onOpenRegion, onClose }: {
   data: SpecializationRegionData;
   node: AnatomyNode;
   exposure: NodeExposure | null;
@@ -63,6 +64,8 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
   equipmentOf?: (catalogExerciseId: number) => string | null;
   /** The athlete's training goal: the starting range beside each suggestion is the strength range under Max strength, where it has one. */
   trainingGoal?: TrainingGoal;
+  /** Where the muscle attaches, by tendon area, and the way to tendon exposure (11 §4.3); null on a region without the section, or before its areas load. */
+  attachesAt?: AttachesAt | null;
   onSetExerciseExcluded: (catalogExerciseId: number, excluded: boolean) => StoreWrite;
   onSetEquipmentExcluded: (equipment: string, excluded: boolean) => StoreWrite;
   onSaveGoals: (goals: SpecializationGoal[]) => StoreWrite;
@@ -136,6 +139,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
           return <li key={item.actionId}><ActionGlyph actionId={item.actionId} /><span><b>{action.label}</b><small>{item.role === "prime" ? "Main action" : "Helps"} · {action.plainDescription}</small></span></li>;
         })}
       </ul>}
+      {attachesAt && <AttachesAtLine attachesAt={attachesAt} />}
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-shape">

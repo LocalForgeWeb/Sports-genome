@@ -581,6 +581,63 @@ export interface RegionExtras {
   repGuidanceCitations?: RepGuidanceCitations;
   /** Sources cited only by these extras: library records the seed never writes (no region lists them in `sources`). */
   referenceSources?: Source[];
+  /** Tendon exposure's attachment areas (`regions/<region>/tendonAreas.ts`, 11 §4.1), in the page's order. */
+  tendonAreas?: TendonArea[];
+  /** The region's own target nodes in no reviewed tendon group, each with why (11 §4.1, "Not placed"). */
+  tendonNotPlaced?: TendonNotPlaced[];
+  /**
+   * What tendon exposure's counts cover and leave out on this region, in its own words (11 §4.4, "What
+   * the counts cover"): said in the section's "How this is counted"; absent says nothing.
+   */
+  tendonCoverage?: string;
+}
+
+/**
+ * An attachment area of tendon exposure (11-forearm-research-and-stack.md §4.1): a muscle belongs
+ * to the area of each place it attaches, where it starts and where it ends, so areas overlap and
+ * their counts are never added together.
+ */
+export interface TendonArea {
+  id: string;
+  label: string;
+  description: string;
+  groups: TendonGroup[];
+}
+
+/** One attachment site inside an area (the package's regional group, or a part of one). */
+export interface TendonGroup {
+  id: string;
+  label: string;
+  members: TendonMember[];
+  /** What the group's sources disagree on or leave open, said on the page; null when nothing is. */
+  caveat: string | null;
+}
+
+/**
+ * One muscle's membership of one group. Review status sits on the (group, member) pair, so a
+ * draft membership keeps that muscle out of that group only, while the group's reviewed members count.
+ */
+export interface TendonMember {
+  nodeId: NodeId;
+  citations: TendonCitation[];
+  /** The package's `regional_groups` codes for this muscle (muscles.json), kept for traceability. */
+  packageGroups: string[];
+  reviewStatus: ReviewStatus;
+  reviewNote: string;
+  /** True when one source alone places the muscle here (named in regions/<region>/tendon-areas.md). */
+  singleSource: boolean;
+}
+
+export interface TendonCitation {
+  sourceId: SourceId;
+  locator: string;
+  /** What the source says that limits the membership, if anything. */
+  qualification: string | null;
+}
+
+export interface TendonNotPlaced {
+  nodeId: NodeId;
+  reason: string;
 }
 
 /**

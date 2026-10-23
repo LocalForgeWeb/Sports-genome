@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import type { GoalMetric, GoalPeriod } from "@shared/specialization/types";
+import { AttachesAtLine, type AttachesAt } from "../AttachesAt";
 import { formatSeconds, goalMetricLabels } from "../model";
 import type { ViewerMuscleData, ViewerTarget } from "./viewerData";
 
@@ -23,7 +24,7 @@ function TargetLine({ target }: { target: ViewerTarget }) {
   return <p className="sg-anatomy3d-target">{target.label} {target.metric === "direct_dynamic_bouts" ? "direct dynamic bouts" : target.metric === "deliberate_hold_bouts" ? "hold bouts" : "seconds of holds"} {periodWords[target.period]}</p>;
 }
 
-export function ModelMusclePanel({ data, mode, windowLabel, regionLine, bothSides, countedTogether, onViewContributions, onAddExercise, onViewExercise, onOpenMethod, onSeeRegionSets, onDesignStack = null, credits }: {
+export function ModelMusclePanel({ data, mode, windowLabel, regionLine, bothSides, countedTogether, onViewContributions, onAddExercise, onViewExercise, onOpenMethod, onSeeRegionSets, onDesignStack = null, attachesAt = null, credits }: {
   /** The selected muscle; null for the whole forearm (Overview). */
   data: ViewerMuscleData | null;
   mode: "planned" | "completed";
@@ -48,6 +49,8 @@ export function ModelMusclePanel({ data, mode, windowLabel, regionLine, bothSide
    * in), for a region that has one; null otherwise. Outlined, 44 px, beside See these sets.
    */
   onDesignStack?: (() => void) | null;
+  /** Where the selected muscle attaches, by tendon area, and the way to tendon exposure (11 §4.3); null on a region without the section. */
+  attachesAt?: AttachesAt | null;
   credits: ReactNode;
 }) {
   if (!data) {
@@ -89,6 +92,7 @@ export function ModelMusclePanel({ data, mode, windowLabel, regionLine, bothSide
       </>}
     </div>
     {data.dataNote && <p className="sg-anatomy3d-status" data-status={data.dataStatus}>{data.dataNote}</p>}
+    {attachesAt && <AttachesAtLine attachesAt={attachesAt} className="sg-anatomy3d-attaches" />}
 
     {numbersKnown && <dl className="sg-anatomy3d-metrics" aria-label="Other work, counted apart">
       <div><dt>Supporting dynamic work<small>Other dynamic bouts, where this muscle helps</small></dt><dd>{data.supportingExerciseExposure?.value ?? unknown} <small>bouts</small></dd></div>

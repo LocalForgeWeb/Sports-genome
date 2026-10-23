@@ -409,7 +409,7 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
       <p className="spz-stack-status"><b>Your stack: {plural(pageCountOn(store), "direct moving set")} in Week {week}</b></p>
       {byDay.length > 0 && <ul className="spz-stack-entries">
         {byDay.map((group) => <li key={group.slot.key}><b>{group.slot.label}</b>
-          <ul>{group.items.map((entry) => <li key={entry.catalogExerciseId}>{nameOf(entry.catalogExerciseId)} · <span className="spz-stack-nowrap">{entry.prescription}{eachSide(entry.catalogExerciseId)}</span></li>)}</ul>
+          <ul>{group.items.map((entry) => <li key={entry.catalogExerciseId} data-stack-entry={`${entry.dayKey}:${entry.catalogExerciseId}`}>{nameOf(entry.catalogExerciseId)} · <span className="spz-stack-nowrap">{entry.prescription}{eachSide(entry.catalogExerciseId)}</span></li>)}</ul>
         </li>)}
       </ul>}
       {current && current.changed.length > 0 && <p className="spz-note">Changed since the stack added {current.changed.length === 1 ? "it" : "them"}, so counted as your plan's own: {listWords(current.changed.map((entry) => `${nameOf(entry.catalogExerciseId)} (${dayOf(entry.dayKey)})`))}.</p>}

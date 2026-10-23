@@ -187,8 +187,9 @@ describe("the forearm's rep profiles against the package", () => {
   });
 
   it("are opted into by the content's section flag, and never loaded with the page", () => {
-    expect(forearmContent.sections).toEqual({ stack: true });
-    expect(forearmRegionData.sections).toEqual({ stack: true });
+    // Other sections (tendon exposure, F2) set their own flags beside this one.
+    expect(forearmContent.sections).toMatchObject({ stack: true });
+    expect(forearmRegionData.sections).toMatchObject({ stack: true });
     const content = readFileSync(join(process.cwd(), "shared/specialization/regions/forearm/content.ts"), "utf8");
     const index = readFileSync(join(process.cwd(), "shared/specialization/regions/forearm/index.ts"), "utf8");
     for (const text of [content, index]) expect(text).not.toMatch(/from "\.\/repProfiles"|sources\/training/);

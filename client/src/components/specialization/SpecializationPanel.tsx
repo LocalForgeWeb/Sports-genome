@@ -6,6 +6,7 @@ import { trainingWeekFor, type NextWorkoutChoice } from "@/lib/nextWorkout";
 import { loadedRegionData, loadRegionData } from "@/lib/specialization/loadRegion";
 import { boutsFromPlan, plannedExercisesInWeek } from "@/lib/specialization/planBouts";
 import { recommendFor, type RecommendationCandidate } from "@/lib/specialization/recommendations";
+import { useRegionExtras } from "@/lib/specialization/regionExtras";
 import { useSpecializationGoals, useSpecializationMeasurements } from "@/lib/specialization/stores";
 import { useSpecializationExclusions } from "@/lib/specialization/exclusions";
 import { planRevision } from "@/lib/specialization/revision";
@@ -19,8 +20,10 @@ import { directWorkCount } from "@shared/specialization/directWork";
 import { goalScopeOf } from "@shared/specialization/goals";
 import { regionIndexEntry, specializationRegionIndex } from "@shared/specialization/regionIndex";
 import { currentExposureRule, exposureCategoryLabelsFor } from "@shared/specialization/rules";
+import { tendonPlacesOf } from "@shared/specialization/tendonPlaces";
 import { addDaysToDateKey, calendarWeekInterval, isDateKey, localDateKey, planWeekInterval } from "@shared/specialization/time";
 import type { AnatomyNode, DiagramLayerId, ExposureCategory, NodeExposure, RegionId, SpecializationGoal, SpecializationRegion, SpecializationRegionData, SummaryCompleteness, SummaryMode, SummarySide } from "@shared/specialization/types";
+import type { AttachesAt } from "./AttachesAt";
 import { BoutListSheet, type BoutList } from "./BoutListSheet";
 import { MeasurementsPanel } from "./MeasurementsPanel";
 import { MovementSheet } from "./MovementSheet";
@@ -30,6 +33,7 @@ import { TargetsOverview } from "./TargetsOverview";
 import { PlanChangeSheet } from "./PlanChangeSheet";
 import { scrollToTopClear } from "./reveal";
 import type { StackDesignerProps } from "./StackDesigner";
+import type { TendonExposureProps } from "./TendonExposure";
 import { SpecializationDiagram } from "./SpecializationDiagram";
 import { AnatomyModelCredits } from "./anatomy3d/AnatomyModelCredits";
 import { AnatomyModelStage, webglAvailable } from "./anatomy3d/AnatomyModelStage";
@@ -84,6 +88,11 @@ export type SpecializationPanelProps = {
  * the batch apply are fetched when the card first opens (or a way in is tapped), never with the page.
  */
 const StackDesigner = lazy(() => import("./StackDesigner").then((module) => ({ default: module.StackDesigner })));
+/**
+ * Tendon exposure's content (11-forearm-research-and-stack.md §4.3, §7.5): its code, the region's
+ * attachment areas and the week summaries are fetched when the section first opens, never with the page.
+ */
+const TendonExposure = lazy(() => import("./TendonExposure").then((module) => ({ default: module.TendonExposure })));
 
 /**
  * The stack's model of a region (`stackModel.ts`), for one line of Planned mode's "Coverage to
@@ -734,15 +743,29 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   if (stackOpen && !stackOpened) setStackOpened(true);
   const stackRef = useRef<HTMLDetailsElement>(null);
   const [stackReveal, setStackReveal] = useState(0);
-  const openStack = () => { setSheet(null); setStackOpen(true); setStackReveal((count) => count + 1); };
+  /** An entry of the stack to bring into view once the card shows it (tendon exposure's "Added by your stack"). */
+  const stackEntryAsked = useRef<string | null>(null);
+  const revealStack = (entryKey: string | null) => { setSheet(null); setStackOpen(true); stackEntryAsked.current = entryKey; setStackReveal((count) => count + 1); };
+  const openStack = () => revealStack(null);
   useEffect(() => {
     if (!stackReveal) return;
+    const entryKey = stackEntryAsked.current;
+    let tries = 0;
+    let frame = 0;
+    // The card's content may still be arriving: look for the entry for a couple of seconds, then stop.
+    const findEntry = () => {
+      const entry = Array.from(stackRef.current?.querySelectorAll<HTMLElement>("[data-stack-entry]") ?? []).find((element) => element.dataset.stackEntry === entryKey);
+      if (entry) { scrollToTopClear(entry); return; }
+      tries += 1;
+      if (tries < 120) frame = window.requestAnimationFrame(findEntry);
+    };
     // After the card has opened: focus its summary without scrolling, then put its top just under the sticky row.
-    const frame = window.requestAnimationFrame(() => {
+    frame = window.requestAnimationFrame(() => {
       const details = stackRef.current;
       if (!details) return;
       details.querySelector<HTMLElement>(":scope > summary")?.focus({ preventScroll: true });
       scrollToTopClear(details);
+      if (entryKey) frame = window.requestAnimationFrame(findEntry);
     });
     return () => window.cancelAnimationFrame(frame);
   }, [stackReveal]);
@@ -760,6 +783,56 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const designerProps: StackDesignerProps = {
     data, week: cardWeek, mode: state.mode, plan: { ready: plan.ready, slots: plan.slots, weeks: plan.weeks }, catalog, equipmentProfile, exclusions,
     goals: regionGoals, goal, gymMinutes: gymMinutes ?? 60, accountId, nowIso, timeZone, stacks, onApplyPlanChanges, aboutMeArea: aboutMeArea ?? null, announce,
+  };
+
+  /**
+   * Tendon exposure (11-forearm-research-and-stack.md §4.3): a closed card after "Exercises in this
+   * window", for a region whose content opts in (`sections.tendonExposure`). Its content, the region's
+   * areas and the week summaries are fetched when it first opens and kept mounted from then on, as
+   * Progress is. A muscle's sheet and the 3D panel say where the muscle attaches ("Attaches at"), from
+   * the same areas, loaded when a muscle is shown there, and open the section on that area.
+   */
+  const tendonSection = Boolean(data.sections?.tendonExposure);
+  const [tendonOpen, setTendonOpen] = useState(false);
+  const [tendonOpened, setTendonOpened] = useState(false);
+  if (tendonOpen && !tendonOpened) setTendonOpened(true);
+  const tendonRef = useRef<HTMLDetailsElement>(null);
+  const [tendonFocus, setTendonFocus] = useState<{ areaId: string | null; n: number }>({ areaId: null, n: 0 });
+  const openTendon = (areaId: string | null) => { setSheet(null); setTendonOpen(true); setTendonFocus((current) => ({ areaId, n: current.n + 1 })); };
+  useEffect(() => {
+    if (!tendonFocus.n) return;
+    let tries = 0;
+    let frame = 0;
+    // On a first open the content is still arriving and the page may be too short to bring the section up:
+    // once it is there, the section is put under the sticky row again (for a couple of seconds at most).
+    const whenFilled = () => {
+      const details = tendonRef.current;
+      if (details?.querySelector(".spz-tendon")) { scrollToTopClear(details); return; }
+      tries += 1;
+      if (tries < 120) frame = window.requestAnimationFrame(whenFilled);
+    };
+    // After the sheet has closed and the section opened: focus its summary, then put its top just under the sticky row.
+    frame = window.requestAnimationFrame(() => {
+      const details = tendonRef.current;
+      if (!details) return;
+      details.querySelector<HTMLElement>(":scope > summary")?.focus({ preventScroll: true });
+      scrollToTopClear(details);
+      if (!details.querySelector(".spz-tendon")) frame = window.requestAnimationFrame(whenFilled);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [tendonFocus.n]);
+  const placesWanted = tendonSection && Boolean(selected) && (sheet?.kind === "muscle" || showModel);
+  const placesExtras = useRegionExtras(data.region.id, placesWanted);
+  const places = placesWanted && selected && placesExtras.status === "ready" && placesExtras.extras ? tendonPlacesOf(placesExtras.extras, selected.id) : [];
+  const attachesAt: AttachesAt | null = places.length ? { places, onOpen: () => openTendon(places[0].areaId) } : null;
+  const trainingStack = tendonSection && stackSection ? stackForWeek(stacks, data.region.id, trainingWeek) : null;
+  // Only the entries the stack wrote that are still as it wrote them: one changed since is the athlete's (11 §3.8), so no link.
+  const trainingStackEntries = useMemo(() => (trainingStack && trainingStore ? stackEntriesState(trainingStack, trainingStore).asWritten : []), [trainingStack, trainingStore]);
+  const tendonProps: TendonExposureProps = {
+    data, summary, waiting, window: state.window, trainingWeek, plan: { ready: plan.ready, slots: plan.slots, weeks: plan.weeks }, catalog, equipmentProfile, exclusions,
+    goals: regionGoals, goal, accountId, nowIso, timeZone, weightUnit, aboutMeArea: aboutMeArea ?? null, stackEntries: trainingStackEntries,
+    onApplyPlanChanges, onApplyPlanChange, onOpenStackEntry: stackSection ? (entry) => revealStack(`${entry.dayKey}:${entry.catalogExerciseId}`) : null,
+    onOpenSession: openSession, onInspectExercise: inspect, announce, focusArea: tendonFocus,
   };
 
   return <>
@@ -845,6 +918,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           onOpenMethod={openMethod}
           onSeeRegionSets={summary && regionBoutsBehind > 0 ? () => setSheet({ kind: "bouts", list: "region" }) : null}
           onDesignStack={stackSection ? openStack : null}
+          attachesAt={attachesAt}
           credits={<AnatomyModelCredits />}
         />
       </div> : <>
@@ -966,6 +1040,13 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
         </div>}
       </details>
 
+      {tendonSection && <details ref={tendonRef} className="spz-disclosure spz-card" id="spz-tendon" open={tendonOpen} onToggle={(event) => setTendonOpen(event.currentTarget.open)}>
+        <summary><span><b>Tendon exposure</b><small>Sets by attachment area{state.mode === "planned" ? `, Plan Week ${planWeek}, as written` : ""}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+        {tendonOpened && <Suspense fallback={<p className="spz-note" role="status">Loading tendon exposure…</p>}>
+          <TendonExposure key={data.region.id} {...tendonProps} />
+        </Suspense>}
+      </details>}
+
       <details className="spz-disclosure spz-card">
         <summary><span><b>Targets</b><small>{activeTargets ? `${activeTargets} active` : "None set"}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
         <TargetsOverview data={data} summary={summary} goals={regionGoals} side={side} timeZone={timeZone} todayKey={todayKey} onSave={saveGoals} onRestore={restoreGoals} onRemove={removeGoal} onOpenMuscle={(nodeId) => { select(nodeId); setSheet({ kind: "muscle" }); }} onOpenMovement={(actionId) => setSheet({ kind: "movement", actionId })} />
@@ -1029,6 +1110,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       exclusions={exclusions}
       equipmentOf={(catalogExerciseId) => equipmentById.get(catalogExerciseId) ?? null}
       trainingGoal={goal}
+      attachesAt={attachesAt}
       onSetExerciseExcluded={setExerciseExcluded}
       onSetEquipmentExcluded={setEquipmentExcluded}
       onSaveGoals={(next) => saveGoals(next)}

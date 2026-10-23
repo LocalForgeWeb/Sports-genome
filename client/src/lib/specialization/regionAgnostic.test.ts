@@ -195,6 +195,9 @@ describe("no region is named in the calculator, the windows, the goals or the ad
     "client/src/lib/specialization/stackRules.ts",
     "client/src/lib/specialization/planBatch.ts",
     "client/src/lib/specialization/regionExtras.ts",
+    // Tendon exposure's calculation (11-forearm-research-and-stack.md §4.2, §4.6), and its "Attaches at" reader in the page's chunk (§4.3).
+    "shared/specialization/tendonAreas.ts",
+    "shared/specialization/tendonPlaces.ts",
   ];
   /** Lines that must stay, by file and exact code, each with its reason. */
   const allowed: { file: string; code: string; why: string }[] = [
@@ -323,7 +326,8 @@ describe("no region is named in the page's components", () => {
   ];
 
   it("finds the page's components, and reads strings and code but not comments", () => {
-    expect(files).toEqual(expect.arrayContaining(["SpecializationPanel.tsx", "SpecializationDiagram.tsx", "MeasurementsPanel.tsx", "MuscleSheet.tsx", "model.ts", "diagramGeometry.ts", "sideWords.ts"]));
+    // Tendon exposure's section and its "Attaches at" line among them (11-forearm-research-and-stack.md §4.6).
+    expect(files).toEqual(expect.arrayContaining(["SpecializationPanel.tsx", "SpecializationDiagram.tsx", "MeasurementsPanel.tsx", "MuscleSheet.tsx", "model.ts", "diagramGeometry.ts", "sideWords.ts", "TendonExposure.tsx", "AttachesAt.tsx"]));
     expect(files.some((name) => name.includes(".test."))).toBe(false);
     const sample = 'const a = "Thumb side"; // forearm\n/** forearm */\nconst b = <p>{/* forearm */}upper-arm</p>;';
     expect(codeLines("sample.tsx", sample).map((line) => pageWords.test(line))).toEqual([true, false, true]);

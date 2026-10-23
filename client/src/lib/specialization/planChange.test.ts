@@ -423,6 +423,61 @@ describe("move: one entry to another day, as a remove and an add in one", () => 
   });
 });
 
+describe("remove and move keep the other entries as they read (F2 review): Max strength", () => {
+  const strength = { ...context, goal: "Max strength" as const };
+  /** Day 01 under Max strength: Back Squat, Bench Press and Bent-Over Row with no prescription of their own (4 × 3–5, 4 × 3–5, 3 × 6–8), and a Wrist Curl of its own. */
+  const strengthWeek = (): WeeklyDayStore => {
+    let store = emptyDayStore();
+    store = commitDay(store, push, { workout: [byId(161), byId(1), byId(43), byId(139)], prescriptions: { 139: "3 × 10–25" }, settings: {}, context: [] });
+    store = commitDay(store, pull, { workout: [byId(2), byId(41), byId(66)], prescriptions: {}, settings: {}, context: [] });
+    return store;
+  };
+  /** How every entry of a day reads, as Plan reads it. */
+  const readings = (record: DayRecord) => Object.fromEntries(record.workout.map((entry, index) => [entry.id, prescriptionOf(record.prescriptions[entry.id], index, "Max strength")]));
+  const without = (map: Record<string, string>, id: number) => Object.fromEntries(Object.entries(map).filter(([key]) => key !== String(id)));
+
+  it("Take out pins the later entry whose place default would change, so the notice's 'unchanged' is true, and Undo gives the day back exactly", () => {
+    const store = strengthWeek();
+    expect(readings(loadDay(store, push))).toEqual({ 161: "4 × 3–5", 1: "4 × 3–5", 43: "3 × 6–8", 139: "3 × 10–25" });
+    const outcome = applied(applyPlanBatch(store, batchOf({ kind: "remove", dayKey: push, entryId: 161, catalogExerciseId: 161 }), strength));
+    const after = recordOf(outcome, push).record;
+    // Bench Press moves to the first place, which reads the same: nothing to pin. The row would read 4 × 3–5 in second place: pinned to 3 × 6–8.
+    expect(after.prescriptions).toEqual({ 43: "3 × 6–8", 139: "3 × 10–25" });
+    expect(readings(after)).toEqual(without(readings(loadDay(store, push)), 161));
+    expect(outcome.message).toEqual({ title: "Back Squat taken out of Day 01 of Week 1", description: "Your other exercises are unchanged." });
+    expect(loadDay(undoAll(outcome, outcome.store), push)).toEqual(loadDay(store, push));
+    // Without the pin the row would have read 4 × 3–5: the case the review found.
+    expect(prescriptionOf(undefined, 1, "Max strength")).toBe("4 × 3–5");
+  });
+
+  it("Move pins the later entries on the day it leaves and, where it goes in early, on the day it joins; Undo gives both back exactly", () => {
+    const store = strengthWeek();
+    const outcome = applied(applyPlanBatch(store, batchOf({ kind: "move", dayKey: push, entryId: 161, catalogExerciseId: 161, toDayKey: pull, insertAt: 0, prescription: "4 × 3–5" }), strength));
+    expect(recordOf(outcome, push).record.prescriptions).toEqual({ 43: "3 × 6–8", 139: "3 × 10–25" });
+    // On Day 02 the squat goes first: Bench Press (second place, 4 × 3–5) would become third (3 × 6–8), so it is pinned; the row was third already.
+    const joined = recordOf(outcome, pull).record;
+    expect(ids(joined)).toEqual([161, 2, 41, 66]);
+    expect(joined.prescriptions).toEqual({ 161: "4 × 3–5", 41: "4 × 3–5" });
+    expect(readings(joined)).toEqual({ ...readings(loadDay(store, pull)), 161: "4 × 3–5" });
+    expect(readings(recordOf(outcome, push).record)).toEqual(without(readings(loadDay(store, push)), 161));
+    expect(outcome.message.description).toBe("Your other exercises are unchanged.");
+    const undone = undoAll(outcome, outcome.store);
+    for (const key of [push, pull]) expect(loadDay(undone, key), key).toEqual(loadDay(store, key));
+  });
+
+  it("a pin is taken back only while the entry still holds it: one changed since keeps the athlete's own", () => {
+    const store = strengthWeek();
+    const outcome = applied(applyPlanBatch(store, batchOf({ kind: "remove", dayKey: push, entryId: 161, catalogExerciseId: 161 }), strength));
+    const since = commitDay(outcome.store, push, { ...loadDay(outcome.store, push), prescriptions: { ...loadDay(outcome.store, push).prescriptions, 43: "5 × 5" } });
+    expect(loadDay(undoAll(outcome, since), push).prescriptions).toEqual({ 43: "5 × 5", 139: "3 × 10–25" });
+  });
+
+  it("under Muscle growth every place reads the same, so nothing is pinned", () => {
+    const outcome = applied(applyPlanBatch(strengthWeek(), batchOf({ kind: "remove", dayKey: push, entryId: 161, catalogExerciseId: 161 }), { ...context, goal: "Muscle growth" }));
+    expect(recordOf(outcome, push).record.prescriptions).toEqual({ 139: "3 × 10–25" });
+  });
+});
+
 describe("the batch's notice", () => {
   const notice = (changes: SpecializationPlanBatchChange[], week = 1) => applied(applyPlanBatch(weekStore(), { week, changes }, context)).message;
 

@@ -99,11 +99,12 @@ type Reading = Record<string, string[]>;
 const click = async (element: Element) => { await act(async () => { fireEvent.click(element); }); await act(async () => {}); };
 /**
  * Every disclosure, open; but the stack card (F1, 11-forearm-research-and-stack.md §3.2), whose
- * content is the stack designer's (StackDesigner.render.test.ts reads it). Its closed summary is read
- * here as a stated change.
+ * content is the stack designer's (StackDesigner.render.test.ts reads it), and tendon exposure (F2,
+ * §4.3), whose content TendonExposure.render.test.ts reads. Their closed summaries are read here as
+ * stated changes.
  */
 const openAll = async (root: ParentNode) => {
-  for (const details of Array.from(root.querySelectorAll("details:not(.spz-stack)"))) await act(async () => { (details as HTMLDetailsElement).open = true; fireEvent(details, new Event("toggle")); });
+  for (const details of Array.from(root.querySelectorAll("details:not(.spz-stack):not(#spz-tendon)"))) await act(async () => { (details as HTMLDetailsElement).open = true; fireEvent(details, new Event("toggle")); });
   await act(async () => {});
 };
 const dialog = () => screen.getByRole("dialog");
@@ -260,6 +261,10 @@ const added: { why: string; in: Where; lines: RegExp[] }[] = [
   { why: "F1 S4; 11 §5.2: each suggested exercise shows its starting range", in: /^muscle: /, lines: [/^Starting range: \d+–\d+ (reps|s holds)$/] },
   // F1, not wave 0 (11-forearm-research-and-stack.md §8.2, lane S2; 10-multi-region.md decision 6).
   { why: "F1 S2: 139 Wrist Curl and 140 Reverse Wrist Curl are filed as Barbell, as their variants and photos define them, so the suggestions' equipment list names Barbell", in: /^movement: Wrist flexion$/, lines: [/^Barbell$/, /^Suggested$/] },
+  // F2, lane T3 (11-forearm-research-and-stack.md §4.3): tendon exposure's closed card and its ways in.
+  { why: "F2 T3; 11 §4.3: tendon exposure, closed, after Exercises in this window: its two-line summary", in: /^page$/, lines: [/^Tendon exposure$/, /^Sets by attachment area(, Plan Week 1, as written)?$/] },
+  { why: "F2 T3; 11 §4.3: a muscle's sheet says where it attaches, by tendon area, and opens tendon exposure", in: /^muscle: /, lines: [/^Attaches at: [a-z].+\)\.$/, /^See tendon exposure$/] },
+  { why: "F2 T3; 11 §4.3: the 3D model's panel says where the chosen muscle attaches, and opens tendon exposure", in: /^model: /, lines: [/^Attaches at: [a-z].+\)\.$/, /^See tendon exposure$/] },
 ];
 /** Sheets new with wave 0. */
 const addedSheets: { why: string; key: RegExp }[] = [
