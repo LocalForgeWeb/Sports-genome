@@ -35,6 +35,8 @@ import { scrollToTopClear } from "./reveal";
 import type { StackDesignerProps } from "./StackDesigner";
 import type { TendonExposureProps } from "./TendonExposure";
 import { SpecializationDiagram } from "./SpecializationDiagram";
+import { PlateCredit, PlateDiagram } from "./PlateDiagram";
+import { plateLayers, plateViews } from "./plates";
 import { AnatomyModelCredits } from "./anatomy3d/AnatomyModelCredits";
 import { AnatomyModelStage, webglAvailable } from "./anatomy3d/AnatomyModelStage";
 import { ModelMuscleRail } from "./anatomy3d/ModelMuscleRail";
@@ -446,14 +448,17 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const findings = useMemo(() => (summary ? findingsFor({ data, summary }) : []), [data, summary]);
   const shownFindings = allFindings ? findings : findings.slice(0, SHOWN_FINDINGS);
 
-  // The drawing: only the views and layers the asset has, in its order and its words (no view is
+  // The drawing: only the views and layers the drawing has, in its order and its words (no view is
   // named here); the list stands in when there is none. No view in the address, or one this
-  // drawing does not have, is its first view.
+  // drawing does not have, is its first view. A region with rendered plates shows them as its
+  // drawing, with their views and layers; one without keeps its SVG drawing.
   const asset = data.diagram;
-  const views = (asset?.viewOrder ?? []).filter((item) => asset?.views[item.id]);
+  const plates = data.plates ?? null;
+  const hasDrawing = Boolean(plates || asset);
+  const views = plates ? plateViews(plates) : (asset?.viewOrder ?? []).filter((item) => asset?.views[item.id]);
   const shownView = views.find((item) => item.id === state.view) ?? views[0] ?? null;
   const view = shownView?.id ?? state.view ?? "";
-  const layers = (Object.keys(layerControlLabels) as DiagramLayerId[]).filter((layer) => asset?.views[view]?.[layer]);
+  const layers = plates ? plateLayers(plates, view) : (Object.keys(layerControlLabels) as DiagramLayerId[]).filter((layer) => asset?.views[view]?.[layer]);
   const layer: DiagramLayerId = layers.includes(state.layer) ? state.layer : layers[0] ?? state.layer;
   /**
    * The 3D model (SG-FOREARM-INTEGRATION-20261019): for a region that has one, the map card
@@ -486,6 +491,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const fillFor = (id: string): DiagramFill => (summary ? fillForNode(exposureOf(id), state.map, goalsForNode(summary, id)) : { kind: "none" });
   const sentenceFor = (id: string) => (summary ? exposureSentence(exposureOf(id), data.region.wording.incidentalWork) : waiting);
   const describeFor = (id: string) => `${nameOf(id)}. ${sentenceFor(id)}`;
+  /** The plates move to a view and layer that show a muscle chosen elsewhere: the page's own view and layer, so its controls follow. */
+  const showPass = (nextView: string, nextLayer: DiagramLayerId) => update({ view: nextView === views[0]?.id ? null : nextView, layer: nextLayer });
 
   const select = (nodeId: string | null) => {
     setDroppedNode(null);
@@ -880,7 +887,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           <button type="button" aria-pressed={showModel} onClick={() => update({ figure: "model" })}>3D model</button>
           <button type="button" aria-pressed={!showModel} onClick={() => update({ figure: "drawing" })}>Drawing</button>
         </div>}
-        {asset && !showModel && <div className="spz-segment" role="group" aria-label="View">
+        {hasDrawing && !showModel && <div className="spz-segment" role="group" aria-label="View">
           {views.map((item) => <button key={item.id} type="button" aria-pressed={item.id === view} onClick={() => update({ view: item.id === views[0].id ? null : item.id })}>{item.label}</button>)}
         </div>}
       </div>
@@ -915,7 +922,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           credits={<AnatomyModelCredits />}
         />
       </div> : <>
-      {asset && <div className="spz-diagram-controls">
+      {hasDrawing && <div className="spz-diagram-controls">
         {layers.length > 1 && <div className="spz-segment" role="group" aria-label="Layer">
           {layers.map((item) => <button key={item} type="button" aria-pressed={item === layer} onClick={() => update({ layer: item })}>{layerControlLabels[item]}</button>)}
         </div>}
@@ -940,14 +947,18 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
             <button type="button" className="spz-link spz-link-box" onClick={() => select(null)}>Clear</button>
           </div>
         </> : <>
-          <p className="spz-strip-line">{regionLine} Choose a muscle {asset ? "on the drawing or " : ""}in the list for its numbers.</p>
+          <p className="spz-strip-line">{regionLine} Choose a muscle {hasDrawing ? "on the drawing or " : ""}in the list for its numbers.</p>
           {(regionBoutsBehind > 0 || stackSection) && <div className="spz-actions">
             {regionBoutsBehind > 0 && <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "region" })}>See these sets <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
             {stackSection && <button type="button" className="spz-button" onClick={openStack}>Design a stack</button>}
           </div>}
         </>}
       </div>
-      {asset ? <>
+      {plates ? <>
+        <PlateDiagram plates={plates} view={view} layer={layer} fillFor={fillFor} selectedNodeId={selected?.id ?? null} onSelect={tapDrawing} onShowPass={showPass} labelFor={(id) => data.nodes.find((node) => node.id === id)?.shortName ?? id} describeFor={describeFor} caption={`${data.region.label}, ${(shownView?.label ?? view).toLowerCase()} view, ${layerControlLabels[layer].toLowerCase()} layer`} />
+        <MapLegend map={state.map} />
+        <PlateCredit plates={plates} />
+      </> : asset ? <>
         <SpecializationDiagram asset={asset} nodes={data.nodes} view={view} layer={layer} mirrored={false} fillFor={fillFor} selectedNodeId={selected?.id ?? null} onSelect={tapDrawing} labelFor={(id) => data.nodes.find((node) => node.id === id)?.shortName ?? id} describeFor={describeFor} caption={`${data.region.label}, ${(shownView?.label ?? view).toLowerCase()} view, ${layerControlLabels[layer].toLowerCase()} layer`} />
         <MapLegend map={state.map} />
       </> : <p className="spz-note">The drawing is not ready yet. Every muscle is in the list below, with the same numbers.</p>}
@@ -1081,7 +1092,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
             <div className="spz-actions"><button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "listed-unmapped" })}>See {listedUnmappedRows.length === 1 ? "this set" : "these sets"} and why <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>
           </>}
           <p className="spz-note spz-method-notes">{data.mappingVersion.methodNotes}</p>
-          <p className="spz-note">{REVIEW_STATEMENT}{asset ? ` ${DRAWING_STATEMENT}` : ""}</p>
+          <p className="spz-note">{REVIEW_STATEMENT}{plates ? ` ${plates.drawingStatement}` : asset ? ` ${DRAWING_STATEMENT}` : ""}</p>
         </div>
       </details>
     </div>

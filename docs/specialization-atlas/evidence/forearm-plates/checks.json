@@ -1,0 +1,1806 @@
+[
+ {
+  "scene": "opened on the 3D model, then Drawing",
+  "width": 390,
+  "requestsBeforeDrawing": [],
+  "requestsAfterDrawing": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png"
+  ]
+ },
+ {
+  "scene": "palm surface",
+  "width": 390,
+  "pass": "anterior-surface",
+  "canvas": {
+   "width": 224,
+   "height": 684
+  },
+  "chips": [
+   {
+    "node": "forearm.br",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 67.8,
+    "height": 44
+   },
+   {
+    "node": "forearm.pt",
+    "fill": "zero",
+    "pressed": false,
+    "width": 66.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.pl",
+    "fill": "zero",
+    "pressed": false,
+    "width": 66.4,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcr",
+    "fill": "bin-4",
+    "pressed": false,
+    "width": 76.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcu",
+    "fill": "bin-4",
+    "pressed": false,
+    "width": 77.7,
+    "height": 44
+   },
+   {
+    "node": "forearm.fds",
+    "fill": "bin-1",
+    "pressed": false,
+    "width": 76.1,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0
+ },
+ {
+  "scene": "Back surface",
+  "width": 390,
+  "pass": "posterior-surface",
+  "canvas": {
+   "width": 224,
+   "height": 684
+  },
+  "chips": [
+   {
+    "node": "forearm.anconeus",
+    "fill": "hatch",
+    "pressed": false,
+    "width": 80.4,
+    "height": 44
+   },
+   {
+    "node": "forearm.br",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 67.8,
+    "height": 44
+   },
+   {
+    "node": "forearm.ecrl",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 85.1,
+    "height": 44
+   },
+   {
+    "node": "forearm.ecu",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 78.1,
+    "height": 44
+   },
+   {
+    "node": "forearm.ecrb",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 86.2,
+    "height": 44
+   },
+   {
+    "node": "forearm.ed",
+    "fill": "zero",
+    "pressed": false,
+    "width": 68,
+    "height": 44
+   },
+   {
+    "node": "forearm.edm",
+    "fill": "zero",
+    "pressed": false,
+    "width": 80.4,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png",
+   "posterior-surface.webp",
+   "posterior-surface.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0
+ },
+ {
+  "scene": "Thumb side surface",
+  "width": 390,
+  "pass": "lateral-surface",
+  "canvas": {
+   "width": 224,
+   "height": 684
+  },
+  "chips": [
+   {
+    "node": "forearm.br",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 67.8,
+    "height": 44
+   },
+   {
+    "node": "forearm.ecrl",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 85.1,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcr",
+    "fill": "bin-4",
+    "pressed": false,
+    "width": 76.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.ecrb",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 86.2,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png",
+   "posterior-surface.webp",
+   "posterior-surface.labels.png",
+   "lateral-surface.webp",
+   "lateral-surface.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0
+ },
+ {
+  "scene": "palm deep",
+  "width": 390,
+  "pass": "anterior-deep",
+  "canvas": {
+   "width": 224,
+   "height": 684
+  },
+  "chips": [
+   {
+    "node": "forearm.fdp",
+    "fill": "bin-1",
+    "pressed": false,
+    "width": 76.3,
+    "height": 44
+   },
+   {
+    "node": "forearm.pq",
+    "fill": "zero",
+    "pressed": false,
+    "width": 69.5,
+    "height": 44
+   },
+   {
+    "node": "forearm.fpl",
+    "fill": "zero",
+    "pressed": false,
+    "width": 74.2,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png",
+   "posterior-surface.webp",
+   "posterior-surface.labels.png",
+   "lateral-surface.webp",
+   "lateral-surface.labels.png",
+   "anterior-deep.webp",
+   "anterior-deep.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0
+ },
+ {
+  "scene": "FCU chosen by a touch tap on the plate",
+  "width": 390,
+  "pass": "anterior-surface",
+  "canvas": {
+   "width": 224,
+   "height": 684
+  },
+  "chips": [
+   {
+    "node": "forearm.br",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 67.8,
+    "height": 44
+   },
+   {
+    "node": "forearm.pt",
+    "fill": "zero",
+    "pressed": false,
+    "width": 66.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.pl",
+    "fill": "zero",
+    "pressed": false,
+    "width": 66.4,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcr",
+    "fill": "bin-4",
+    "pressed": false,
+    "width": 76.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcu",
+    "fill": "bin-4",
+    "pressed": true,
+    "width": 77.7,
+    "height": 44
+   },
+   {
+    "node": "forearm.fds",
+    "fill": "bin-1",
+    "pressed": false,
+    "width": 76.1,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png",
+   "posterior-surface.webp",
+   "posterior-surface.labels.png",
+   "lateral-surface.webp",
+   "lateral-surface.labels.png",
+   "anterior-deep.webp",
+   "anterior-deep.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0,
+  "tappedAt": {
+   "x": 269.1285569105691,
+   "y": 222.81715425531914
+  }
+ },
+ {
+  "scene": "Target colouring, FCU selected",
+  "width": 390,
+  "pass": "anterior-surface",
+  "canvas": {
+   "width": 224,
+   "height": 684
+  },
+  "chips": [
+   {
+    "node": "forearm.br",
+    "fill": "none",
+    "pressed": false,
+    "width": 67.8,
+    "height": 44
+   },
+   {
+    "node": "forearm.pt",
+    "fill": "none",
+    "pressed": false,
+    "width": 66.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.pl",
+    "fill": "none",
+    "pressed": false,
+    "width": 66.4,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcr",
+    "fill": "none",
+    "pressed": false,
+    "width": 76.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcu",
+    "fill": "bin-3",
+    "pressed": true,
+    "width": 77.7,
+    "height": 44
+   },
+   {
+    "node": "forearm.fds",
+    "fill": "none",
+    "pressed": false,
+    "width": 76.1,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "true",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png",
+   "posterior-surface.webp",
+   "posterior-surface.labels.png",
+   "lateral-surface.webp",
+   "lateral-surface.labels.png",
+   "anterior-deep.webp",
+   "anterior-deep.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0
+ },
+ {
+  "scene": "FDP from the address (a deep muscle): the palm's deep pass",
+  "width": 390,
+  "pass": "anterior-deep",
+  "canvas": {
+   "width": 224,
+   "height": 684
+  },
+  "chips": [
+   {
+    "node": "forearm.fdp",
+    "fill": "bin-1",
+    "pressed": true,
+    "width": 76.3,
+    "height": 44
+   },
+   {
+    "node": "forearm.pq",
+    "fill": "zero",
+    "pressed": false,
+    "width": 69.5,
+    "height": 44
+   },
+   {
+    "node": "forearm.fpl",
+    "fill": "zero",
+    "pressed": false,
+    "width": 74.2,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-deep.webp",
+   "anterior-deep.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0,
+  "address": "?workspace=specialization&region=forearm&node=forearm.fdp&layer=deep&fig=drawing"
+ },
+ {
+  "scene": "nothing logged",
+  "width": 390,
+  "pass": "anterior-surface",
+  "canvas": {
+   "width": 224,
+   "height": 684
+  },
+  "chips": [
+   {
+    "node": "forearm.br",
+    "fill": "zero",
+    "pressed": false,
+    "width": 67.8,
+    "height": 44
+   },
+   {
+    "node": "forearm.pt",
+    "fill": "zero",
+    "pressed": false,
+    "width": 66.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.pl",
+    "fill": "zero",
+    "pressed": false,
+    "width": 66.4,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcr",
+    "fill": "zero",
+    "pressed": false,
+    "width": 76.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcu",
+    "fill": "zero",
+    "pressed": false,
+    "width": 77.7,
+    "height": 44
+   },
+   {
+    "node": "forearm.fds",
+    "fill": "zero",
+    "pressed": false,
+    "width": 76.1,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0
+ },
+ {
+  "scene": "opened on the 3D model, then Drawing",
+  "width": 375,
+  "requestsBeforeDrawing": [],
+  "requestsAfterDrawing": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png"
+  ]
+ },
+ {
+  "scene": "palm surface",
+  "width": 375,
+  "pass": "anterior-surface",
+  "canvas": {
+   "width": 166,
+   "height": 507
+  },
+  "chips": [
+   {
+    "node": "forearm.br",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 67.8,
+    "height": 44
+   },
+   {
+    "node": "forearm.pt",
+    "fill": "zero",
+    "pressed": false,
+    "width": 66.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.pl",
+    "fill": "zero",
+    "pressed": false,
+    "width": 66.4,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcr",
+    "fill": "bin-4",
+    "pressed": false,
+    "width": 76.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcu",
+    "fill": "bin-4",
+    "pressed": false,
+    "width": 77.7,
+    "height": 44
+   },
+   {
+    "node": "forearm.fds",
+    "fill": "bin-1",
+    "pressed": false,
+    "width": 76.1,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0
+ },
+ {
+  "scene": "Back surface",
+  "width": 375,
+  "pass": "posterior-surface",
+  "canvas": {
+   "width": 166,
+   "height": 507
+  },
+  "chips": [
+   {
+    "node": "forearm.anconeus",
+    "fill": "hatch",
+    "pressed": false,
+    "width": 80.4,
+    "height": 44
+   },
+   {
+    "node": "forearm.br",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 67.8,
+    "height": 44
+   },
+   {
+    "node": "forearm.ecrl",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 85.1,
+    "height": 44
+   },
+   {
+    "node": "forearm.ecu",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 78,
+    "height": 44
+   },
+   {
+    "node": "forearm.ecrb",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 86.2,
+    "height": 44
+   },
+   {
+    "node": "forearm.ed",
+    "fill": "zero",
+    "pressed": false,
+    "width": 68,
+    "height": 44
+   },
+   {
+    "node": "forearm.edm",
+    "fill": "zero",
+    "pressed": false,
+    "width": 80.4,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png",
+   "posterior-surface.webp",
+   "posterior-surface.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0
+ },
+ {
+  "scene": "Thumb side surface",
+  "width": 375,
+  "pass": "lateral-surface",
+  "canvas": {
+   "width": 166,
+   "height": 507
+  },
+  "chips": [
+   {
+    "node": "forearm.br",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 67.8,
+    "height": 44
+   },
+   {
+    "node": "forearm.ecrl",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 85.1,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcr",
+    "fill": "bin-4",
+    "pressed": false,
+    "width": 76.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.ecrb",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 86.2,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png",
+   "posterior-surface.webp",
+   "posterior-surface.labels.png",
+   "lateral-surface.webp",
+   "lateral-surface.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0
+ },
+ {
+  "scene": "palm deep",
+  "width": 375,
+  "pass": "anterior-deep",
+  "canvas": {
+   "width": 166,
+   "height": 507
+  },
+  "chips": [
+   {
+    "node": "forearm.fdp",
+    "fill": "bin-1",
+    "pressed": false,
+    "width": 76.3,
+    "height": 44
+   },
+   {
+    "node": "forearm.pq",
+    "fill": "zero",
+    "pressed": false,
+    "width": 69.5,
+    "height": 44
+   },
+   {
+    "node": "forearm.fpl",
+    "fill": "zero",
+    "pressed": false,
+    "width": 74.2,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png",
+   "posterior-surface.webp",
+   "posterior-surface.labels.png",
+   "lateral-surface.webp",
+   "lateral-surface.labels.png",
+   "anterior-deep.webp",
+   "anterior-deep.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0
+ },
+ {
+  "scene": "FCU chosen by a touch tap on the plate",
+  "width": 375,
+  "pass": "anterior-surface",
+  "canvas": {
+   "width": 166,
+   "height": 507
+  },
+  "chips": [
+   {
+    "node": "forearm.br",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 67.8,
+    "height": 44
+   },
+   {
+    "node": "forearm.pt",
+    "fill": "zero",
+    "pressed": false,
+    "width": 66.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.pl",
+    "fill": "zero",
+    "pressed": false,
+    "width": 66.4,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcr",
+    "fill": "bin-4",
+    "pressed": false,
+    "width": 76.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcu",
+    "fill": "bin-4",
+    "pressed": true,
+    "width": 77.7,
+    "height": 44
+   },
+   {
+    "node": "forearm.fds",
+    "fill": "bin-1",
+    "pressed": false,
+    "width": 76.1,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png",
+   "posterior-surface.webp",
+   "posterior-surface.labels.png",
+   "lateral-surface.webp",
+   "lateral-surface.labels.png",
+   "anterior-deep.webp",
+   "anterior-deep.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0,
+  "tappedAt": {
+   "x": 242.44416920731706,
+   "y": 185.0751329787234
+  }
+ },
+ {
+  "scene": "Target colouring, FCU selected",
+  "width": 375,
+  "pass": "anterior-surface",
+  "canvas": {
+   "width": 166,
+   "height": 507
+  },
+  "chips": [
+   {
+    "node": "forearm.br",
+    "fill": "none",
+    "pressed": false,
+    "width": 67.8,
+    "height": 44
+   },
+   {
+    "node": "forearm.pt",
+    "fill": "none",
+    "pressed": false,
+    "width": 66.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.pl",
+    "fill": "none",
+    "pressed": false,
+    "width": 66.4,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcr",
+    "fill": "none",
+    "pressed": false,
+    "width": 76.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcu",
+    "fill": "bin-3",
+    "pressed": true,
+    "width": 77.7,
+    "height": 44
+   },
+   {
+    "node": "forearm.fds",
+    "fill": "none",
+    "pressed": false,
+    "width": 76.1,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "true",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png",
+   "posterior-surface.webp",
+   "posterior-surface.labels.png",
+   "lateral-surface.webp",
+   "lateral-surface.labels.png",
+   "anterior-deep.webp",
+   "anterior-deep.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0
+ },
+ {
+  "scene": "FDP from the address (a deep muscle): the palm's deep pass",
+  "width": 375,
+  "pass": "anterior-deep",
+  "canvas": {
+   "width": 166,
+   "height": 507
+  },
+  "chips": [
+   {
+    "node": "forearm.fdp",
+    "fill": "bin-1",
+    "pressed": true,
+    "width": 76.3,
+    "height": 44
+   },
+   {
+    "node": "forearm.pq",
+    "fill": "zero",
+    "pressed": false,
+    "width": 69.5,
+    "height": 44
+   },
+   {
+    "node": "forearm.fpl",
+    "fill": "zero",
+    "pressed": false,
+    "width": 74.2,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-deep.webp",
+   "anterior-deep.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0,
+  "address": "?workspace=specialization&region=forearm&node=forearm.fdp&layer=deep&fig=drawing"
+ },
+ {
+  "scene": "nothing logged",
+  "width": 375,
+  "pass": "anterior-surface",
+  "canvas": {
+   "width": 166,
+   "height": 507
+  },
+  "chips": [
+   {
+    "node": "forearm.br",
+    "fill": "zero",
+    "pressed": false,
+    "width": 67.8,
+    "height": 44
+   },
+   {
+    "node": "forearm.pt",
+    "fill": "zero",
+    "pressed": false,
+    "width": 66.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.pl",
+    "fill": "zero",
+    "pressed": false,
+    "width": 66.4,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcr",
+    "fill": "zero",
+    "pressed": false,
+    "width": 76.9,
+    "height": 44
+   },
+   {
+    "node": "forearm.fcu",
+    "fill": "zero",
+    "pressed": false,
+    "width": 77.7,
+    "height": 44
+   },
+   {
+    "node": "forearm.fds",
+    "fill": "zero",
+    "pressed": false,
+    "width": 76.1,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "anterior-surface.webp",
+   "anterior-surface.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0
+ },
+ {
+  "scene": "320 × 568, ECRL",
+  "width": 320,
+  "pass": "posterior-surface",
+  "canvas": {
+   "width": 133,
+   "height": 408
+  },
+  "chips": [
+   {
+    "node": "forearm.anconeus",
+    "fill": "hatch",
+    "pressed": false,
+    "width": 80.4,
+    "height": 44
+   },
+   {
+    "node": "forearm.br",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 67.8,
+    "height": 44
+   },
+   {
+    "node": "forearm.ecrl",
+    "fill": "bin-3",
+    "pressed": true,
+    "width": 85.1,
+    "height": 44
+   },
+   {
+    "node": "forearm.ecu",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 78.1,
+    "height": 44
+   },
+   {
+    "node": "forearm.ecrb",
+    "fill": "bin-3",
+    "pressed": false,
+    "width": 86.2,
+    "height": 44
+   },
+   {
+    "node": "forearm.ed",
+    "fill": "zero",
+    "pressed": false,
+    "width": 68,
+    "height": 44
+   },
+   {
+    "node": "forearm.edm",
+    "fill": "zero",
+    "pressed": false,
+    "width": 80.4,
+    "height": 44
+   }
+  ],
+  "smallestChip": 44,
+  "controls": [
+   {
+    "text": "3D model",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Drawing",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Palm",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Back",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Thumb side",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Surface",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Deep",
+    "pressed": "false",
+    "height": 44
+   },
+   {
+    "text": "Volume",
+    "pressed": "true",
+    "height": 44
+   },
+   {
+    "text": "Target",
+    "pressed": "false",
+    "height": 44
+   }
+  ],
+  "plateRequests": [
+   "posterior-surface.webp",
+   "posterior-surface.labels.png"
+  ],
+  "note": null,
+  "overflowX": 0
+ }
+]

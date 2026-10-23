@@ -128,6 +128,14 @@ describe("the specialization page on the deltoid fixture", () => {
     expect(within(mapCard()).getByRole("group", { name: /^Deltoids, front view, surface layer\. 2 muscles to choose from\.$/ })).not.toBeNull();
   });
 
+  it("keeps its SVG drawing: a region without rendered plates draws its schematic, with no plate, chips or plate credit", () => {
+    expect(deltoidRegionData.plates).toBeUndefined();
+    render(createElement(Harness));
+    expect(mapCard().querySelector(".spz-diagram-svg")).not.toBeNull();
+    expect(mapCard().querySelector(".spz-plate, .spz-plate-chip, .spz-plate-credit, canvas")).toBeNull();
+    expect(mapCard().querySelector(".spz-diagram")!.getAttribute("data-view")).toBe("front");
+  });
+
   it("says nothing of the forearm: no forearm, grip, palm or thumb side anywhere on the page", () => {
     render(createElement(Harness));
     expect(document.getElementById("spz-method")).not.toBeNull();

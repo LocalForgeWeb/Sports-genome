@@ -81,7 +81,9 @@ function linesOf(root: Element): string[] {
     if (node.nodeType === Node.TEXT_NODE) { run += node.textContent ?? ""; return; }
     if (node.nodeType !== Node.ELEMENT_NODE) return;
     const element = node as Element;
-    if (element.tagName.toLowerCase() === "svg" || element.hasAttribute("aria-live")) return;
+    // The drawing itself: the SVG, or a rendered plate with its canvas and its row of muscles (the
+    // same muscles' buttons the SVG holds inside it, by the same names).
+    if (element.tagName.toLowerCase() === "svg" || element.classList.contains("spz-plate-group") || element.hasAttribute("aria-live")) return;
     const block = BLOCK.has(element.tagName);
     if (block) flush();
     const name = element.getAttribute("aria-label");
@@ -249,6 +251,7 @@ const gone: { why: string; in: Where; lines: RegExp[] }[] = [
   { why: "09 item 2: no target is offered on a muscle that is not a target here", in: MUSCLES_NOT_TARGETS, lines: [/^Set a target$/] },
   { why: "09 item 2: nor is it said to be untargeted, as if it could take one", in: MUSCLES_NOT_TARGETS, lines: [/^Not targeted\. Nothing here is behind: a muscle without a target has no gap to show\.$/] },
   { why: "09 item 10; appendix 'Both sides as one': a ledger row says no side for a planned one-arm set", in: ANYWHERE, lines: [/^Each side assumed$/] },
+  { why: "09 'The owner's plates' (23 Oct): the Drawing is the owner's rendered plates, a surface and a deep plate per view (FDS is on the palm's surface plate), so the layer choice has no Middle", in: /^page$/, lines: [/^\[name\] Layer$/, /^Surface$/, /^Middle$/, /^Deep$/] },
 ];
 /** Runs of lines new in the sheets `in` names (each run may stand anywhere in them). */
 const added: { why: string; in: Where; lines: RegExp[] }[] = [
@@ -275,6 +278,8 @@ const added: { why: string; in: Where; lines: RegExp[] }[] = [
     in: /^muscle: Brachialis$/,
     lines: [/^It bends the elbow whatever the grip, so curls with the palm down or the thumb up load it too\.$/, /^It is not a forearm muscle\.$/],
   },
+  { why: "09 'The owner's plates' (23 Oct): the plates' layers, surface and deep", in: /^page$/, lines: [/^\[name\] Layer$/, /^Surface$/, /^Deep$/] },
+  { why: "09 'The owner's plates' (23 Oct): the credit under the plates: the source model, its licences, and that the images are adapted renders", in: /^page$/, lines: [/^Images rendered from the Open3Dmodel upper-limb model, built on BodyParts3D \(.+CC BY-SA 2\.1 Japan\) and Z-Anatomy \(CC BY-SA 4\.0\)\. They are adapted renders: .+ shared under CC BY-SA 4\.0\. .+$/] },
   // F1, lane S4 (11-forearm-research-and-stack.md §3.2): the stack card under the map and its ways in. The finding's run first, then the card's, so the strip's one line is what is left.
   { why: "F1 S4; 11 §3.2: Planned mode's Coverage to review leads with the movements the plan week gives no direct moving work, and opens the stack card", in: /^page$/, lines: [/^9 movements have no direct moving work in Plan Week 1$/, /^Pronation, supination, radial deviation and 6 more\.$/, /^Design a stack$/] },
   { why: "F1 S4; 11 §3.2: the stack card, closed, right under the map: its two-line summary", in: /^page$/, lines: [/^Design a stack$/, /^Plan Week 1 · (9|12) direct moving sets now$/] },
