@@ -3335,7 +3335,8 @@ export const baseExercises: Exercise[] = [
     ],
     "secondaryMuscles": [
       "obliques",
-      "hipFlexors"
+      "hipFlexors",
+      "biceps"
     ],
     "qualities": [
       "strength",
@@ -4529,6 +4530,7 @@ export const baseExercises: Exercise[] = [
     ],
     "secondaryMuscles": [
       "triceps",
+      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -4573,6 +4575,7 @@ export const baseExercises: Exercise[] = [
     ],
     "secondaryMuscles": [
       "triceps",
+      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -4617,6 +4620,7 @@ export const baseExercises: Exercise[] = [
     ],
     "secondaryMuscles": [
       "triceps",
+      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -4661,6 +4665,7 @@ export const baseExercises: Exercise[] = [
     ],
     "secondaryMuscles": [
       "triceps",
+      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -4705,6 +4710,7 @@ export const baseExercises: Exercise[] = [
     ],
     "secondaryMuscles": [
       "triceps",
+      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -4749,6 +4755,7 @@ export const baseExercises: Exercise[] = [
     ],
     "secondaryMuscles": [
       "triceps",
+      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -4793,6 +4800,7 @@ export const baseExercises: Exercise[] = [
     ],
     "secondaryMuscles": [
       "triceps",
+      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -4837,6 +4845,7 @@ export const baseExercises: Exercise[] = [
     ],
     "secondaryMuscles": [
       "triceps",
+      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -4881,6 +4890,7 @@ export const baseExercises: Exercise[] = [
     ],
     "secondaryMuscles": [
       "triceps",
+      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -4925,6 +4935,7 @@ export const baseExercises: Exercise[] = [
     ],
     "secondaryMuscles": [
       "triceps",
+      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -5347,6 +5358,7 @@ export const baseExercises: Exercise[] = [
     ],
     "secondaryMuscles": [
       "triceps",
+      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -10991,7 +11003,7 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Abs & Core",
     "category": "Core",
     "equipment": "Cable",
-    "movement": "Anti-rotation press",
+    "movement": "Horizontal push",
     "primaryMuscles": [
       "abs",
       "obliques"

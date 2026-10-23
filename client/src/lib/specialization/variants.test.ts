@@ -6,6 +6,7 @@ import { isCurrentVariant, variantById, variantFor, variantLibrary } from "@shar
 import { bothLimbCatalogIds, bothLimbDecisions } from "@shared/specialization/variants/bothLimbs";
 import { countingDimensions, descriptiveDimensions } from "@shared/specialization/variants/dimensions";
 import { forearmV1Variants } from "@shared/specialization/variants/forearm";
+import { forearmDescriptiveAttributes } from "@shared/specialization/variants/forearmAttributes";
 import { upperArmVariants } from "@shared/specialization/variants/upperArm";
 import type { ExerciseVariant } from "@shared/specialization/types";
 
@@ -32,8 +33,8 @@ const oneSided = (laterality: ExerciseVariant["laterality"] | undefined) => late
 describe("wave A's new variants: which exercises", () => {
   it("are every upper-arm-tagged catalog row without a forearm variant, and the untagged rows that load the upper arm", () => {
     const tagged = exercises.filter(tagsUpperArm);
-    // 186 decisions after the catalog fixes below: 50 rows tag an upper-arm key as primary, 136 as secondary only.
-    expect(tagged).toHaveLength(186);
+    // 187 decisions after the catalog fixes below: 50 rows tag an upper-arm key as primary, 137 as secondary only.
+    expect(tagged).toHaveLength(187);
     expect(tagged.filter((exercise) => exercise.primaryMuscles.some((key) => UPPER_ARM_KEYS.includes(key)))).toHaveLength(50);
     const needed = tagged.filter((exercise) => !forearmIds.has(exercise.id)).map((exercise) => exercise.id);
     expect(needed).toHaveLength(114);
@@ -75,11 +76,29 @@ describe("the library's records", () => {
       expect(variantFor(variant.catalogExerciseId), variant.id).toBe(variant);
       // Wave 0's rule; 188 and 264 keep `arm` (11-forearm-research-and-stack.md §10 decision 4).
       expect(variant.sidedBy, variant.id).toBe(variant.laterality === "bilateral" ? "none" : "arm");
-      // Wave A writes nothing on them: their attributes are the leg waves' (and the forearm's) to add.
+      // Wave A adds only the curls' `shoulder` (forearmAttributes.ts); the leg attributes are the leg waves'.
       expect(variant.legLaterality, variant.id).toBeUndefined();
       expect(variant.sideAnchor, variant.id).toBeUndefined();
-      expect(variant.dimensions, variant.id).toBeUndefined();
+      expect(variant.dimensions, variant.id).toEqual(forearmDescriptiveAttributes[variant.catalogExerciseId]);
     }
+  });
+
+  it("add the curls' shoulder position as attributes beside the frozen records, changing no frozen field", () => {
+    expect(Object.fromEntries(Object.entries(forearmDescriptiveAttributes).map(([id, dims]) => [id, dims.shoulder]))).toEqual({
+      125: "extended", 129: "extended", 338: "extended", 137: "changing",
+      126: "flexed", 127: "flexed", 130: "flexed", 131: "flexed", 340: "flexed", 341: "flexed",
+    });
+    const published = new Map<number, ExerciseVariant>(JSON.parse(readFileSync(join(__dirname, "__fixtures__/forearmRegionData.6738eeb.json"), "utf8")).variants.map((variant: ExerciseVariant) => [variant.catalogExerciseId, variant]));
+    for (const id of Object.keys(forearmDescriptiveAttributes).map(Number)) {
+      const variant = variantFor(id)!;
+      expect(forearmIds.has(id), String(id)).toBe(true);
+      // Every field but the attributes is the published record's, value for value; nothing else is added.
+      const { dimensions, sidedBy: _sidedBy, ...frozen } = variant;
+      expect(frozen, variant.id).toEqual(published.get(id));
+      expect(Object.keys(dimensions ?? {}), variant.id).toEqual(["shoulder"]);
+    }
+    // 339 High Cable Curl: arms out to the sides, which the vocabulary has no value for.
+    expect(variantFor(339)?.dimensions).toBeUndefined();
   });
 });
 
@@ -138,6 +157,13 @@ describe("the forearm columns, filled honestly", () => {
     }
   });
 
+  it("cite a photograph only where the catalog has one for that exercise", () => {
+    const photos: Record<string, unknown> = JSON.parse(readFileSync(join(__dirname, "../../../src/data/exercisePhotos.json"), "utf8"));
+    for (const variant of upperArmVariants) {
+      if (/photograph/.test(variant.notes ?? "")) expect(photos[String(variant.catalogExerciseId)], variant.id).toBeDefined();
+    }
+  });
+
   it("time no new exercise and invent no elbow angle; each says how it is done", () => {
     for (const variant of upperArmVariants) {
       expect(variant.measure, variant.id).toBe("reps");
@@ -168,20 +194,13 @@ describe("catalog fixes (decision 6)", () => {
     63: { secondaryMuscles: ["triceps", "rearDelts", "forearms"] },
     64: { secondaryMuscles: ["triceps", "rearDelts", "forearms"] },
     65: { secondaryMuscles: ["triceps", "rearDelts", "forearms"] },
+    74: { secondaryMuscles: ["obliques", "hipFlexors", "biceps"] },
     79: { secondaryMuscles: ["rearDelts", "forearms"] },
     87: { equipment: "Cable" },
     88: { equipment: "Cable" },
-    101: { secondaryMuscles: ["triceps", "abs"] },
-    102: { secondaryMuscles: ["triceps", "abs"] },
-    103: { secondaryMuscles: ["triceps", "abs"] },
-    104: { secondaryMuscles: ["triceps", "abs"] },
-    105: { equipment: "Dumbbells", movement: "Vertical push", primaryMuscles: ["frontDelts", "sideDelts"], secondaryMuscles: ["triceps", "abs"] },
-    106: { secondaryMuscles: ["triceps", "abs"] },
-    107: { secondaryMuscles: ["triceps", "abs"] },
-    108: { secondaryMuscles: ["triceps", "abs"] },
-    109: { secondaryMuscles: ["triceps", "abs"] },
-    110: { equipment: "Barbell", movement: "Vertical push", primaryMuscles: ["frontDelts", "sideDelts"], secondaryMuscles: ["triceps", "abs"] },
-    120: { secondaryMuscles: ["triceps", "abs"] },
+    // 105 and 110 take the overhead presses' tags exactly, frontDelts kept in both lists as 101–104 have it.
+    105: { equipment: "Dumbbells", movement: "Vertical push", primaryMuscles: ["frontDelts", "sideDelts"], secondaryMuscles: ["triceps", "frontDelts", "abs"] },
+    110: { equipment: "Barbell", movement: "Vertical push", primaryMuscles: ["frontDelts", "sideDelts"], secondaryMuscles: ["triceps", "frontDelts", "abs"] },
     146: { equipment: "Barbell" },
     147: { equipment: "Barbell", primaryMuscles: ["triceps"], secondaryMuscles: ["chest", "frontDelts", "abs"] },
     150: { secondaryMuscles: [] },
@@ -192,7 +211,7 @@ describe("catalog fixes (decision 6)", () => {
     159: { movement: "Vertical push" },
     160: { equipment: "Bodyweight" },
     223: { equipment: "Machine", movement: "Ankle plantarflexion", primaryMuscles: ["calves"], secondaryMuscles: ["feet"] },
-    249: { equipment: "Cable", movement: "Anti-rotation press", primaryMuscles: ["abs", "obliques"], secondaryMuscles: ["chest", "triceps", "frontDelts"] },
+    249: { equipment: "Cable", movement: "Horizontal push", primaryMuscles: ["abs", "obliques"], secondaryMuscles: ["chest", "triceps", "frontDelts"] },
     251: { movement: "Diagonal push", primaryMuscles: ["frontDelts", "chest"], secondaryMuscles: ["triceps", "abs"] },
     252: { movement: "Diagonal push", primaryMuscles: ["frontDelts", "chest"], secondaryMuscles: ["triceps", "abs"] },
     253: { movement: "Diagonal push", primaryMuscles: ["frontDelts", "chest"], secondaryMuscles: ["triceps", "abs"] },
@@ -207,10 +226,4 @@ describe("catalog fixes (decision 6)", () => {
     for (const [id, fields] of Object.entries(fixed)) expect(catalogById.get(Number(id)), id).toMatchObject(fields);
   });
 
-  it("leave no row tagging one muscle as both primary and secondary among the rows wave A touched", () => {
-    for (const variant of upperArmVariants) {
-      const exercise = catalogById.get(variant.catalogExerciseId)!;
-      expect(exercise.primaryMuscles.filter((key) => exercise.secondaryMuscles.includes(key)), variant.id).toEqual([]);
-    }
-  });
 });

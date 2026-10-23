@@ -482,7 +482,7 @@ describe("the seeded database", () => {
   it("gives every variant its sided_by, written out, unfrozen: forearm_mappings_v1 was published before attributes existed", async () => {
     const attributes = await rows<{ variant_key: string; dimension_id: string; value: string; frozen: boolean }>(
       db,
-      "select variant_key, dimension_id, value, frozen_at is not null as frozen from specialization.variant_attributes where variant_key like 'cat-%' order by variant_key, dimension_id",
+      "select variant_key, dimension_id, value, frozen_at is not null as frozen from specialization.variant_attributes where variant_key like 'cat-%' and dimension_id = 'sided_by' order by variant_key, dimension_id",
     );
     expect(attributes).toHaveLength(119);
     expect(attributes).toEqual(allVariants.map((variant) => ({ variant_key: variant.id, dimension_id: "sided_by", value: variant.sidedBy, frozen: false })).sort((a, b) => a.variant_key.localeCompare(b.variant_key)));
