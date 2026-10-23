@@ -24,7 +24,7 @@ import { deltoidIds, deltoidRegionData, deltoidTendonAreas } from "./__fixtures_
 /** §4.4, "Never in the section": matched anywhere in a string, ignoring case, and "%". */
 const keptOut = ["risk", "safe", "unsafe", "danger", "injury", "injure", "tendonitis", "tendinitis", "tendinopathy", "overuse", "overload", "strain", "damage", "warning", "alert", "limit", "budget", "threshold", "zone", "spike", "red flag", "acwr", "acute:chronic", "push through", "%"];
 /** A side of the body or a limb counted on its own (both sides count as one, the owner's rule of 20 Oct 2026). */
-const sideWords = /\b(left|right)\b|\b(arms?|legs?)\b|\b(each|per|both|either|one|other) (arm|side|leg)s?\b/i;
+const sideWords = /\b(left|right)\b|\b(arms?|legs?)\b|\b(each|per|both|either|one|other) (arm|side|leg|hand|forearm|wrist)s?\b/i;
 
 const groupsOf = (extras: RegionExtras): TendonGroup[] => (extras.tendonAreas ?? []).flatMap((area) => area.groups);
 const pairsOf = (extras: RegionExtras): { areaLabel: string; group: TendonGroup; member: TendonMember }[] =>
@@ -158,7 +158,8 @@ describe("the forearm's tendon areas", () => {
         ["Front of the wrist", [m.flexorCarpiRadialis, m.flexorCarpiUlnaris, m.palmarisLongus]],
         ["Back of the wrist", [m.extensorCarpiRadialisLongus, m.extensorCarpiRadialisBrevis, m.extensorCarpiUlnaris]],
         ["Thumb side of the wrist", [m.abductorPollicisLongus, m.extensorPollicisBrevis]],
-        ["Thumb", [m.flexorPollicisLongus, m.extensorPollicisLongus]],
+        // EPB passes the wrist with APL and ends on the thumb, so it is in both (the attachment rule).
+        ["Thumb", [m.flexorPollicisLongus, m.extensorPollicisLongus, m.extensorPollicisBrevis]],
         ["Radial styloid", [m.brachioradialis]],
         ["Above the wrist, deep", [m.pronatorQuadratus]],
       ]],
@@ -214,7 +215,7 @@ describe("the forearm's tendon areas", () => {
     // The three pairs §4.1 held as drafts until a second source agreed say that one did.
     for (const [groupId, nodeId] of [["forearm.tendon.common_extensor_origin", m.extensorCarpiUlnaris], ["forearm.tendon.supinator", m.supinator], ["forearm.tendon.above_wrist_deep", m.pronatorQuadratus]] as const) {
       const member = groupById.get(groupId)!.members.find((item) => item.nodeId === nodeId)!;
-      if (member.reviewStatus === "reviewed") expect(member.reviewNote, `${groupId} → ${nodeId}`).toMatch(/until a second source agreed; (one|two) did/);
+      if (member.reviewStatus === "reviewed") expect(member.reviewNote, `${groupId} → ${nodeId}`).toMatch(/Held as a draft in the design until a second source agreed\./);
     }
   });
 
@@ -246,7 +247,32 @@ describe("the forearm's tendon areas", () => {
       expect(row, `${group.label} → ${shortName}`).toBeDefined();
       expect(row![3], `${group.label} → ${shortName}`).toBe(member.reviewStatus);
       expect(row![4], `${group.label} → ${shortName}`).toBe(member.singleSource ? "yes" : "no");
-      for (const ref of member.citations) expect(row![5], `${group.label} → ${shortName} cites ${ref.sourceId}`).toContain(ref.sourceId);
+      // The same sources, exactly, both ways: each id is written in backticks in the row.
+      const inDoc = Array.from(row![5].matchAll(/`([^`]+)`/g), (match) => match[1]).sort();
+      expect(inDoc, `${group.label} → ${shortName} sources`).toEqual(member.citations.map((ref) => ref.sourceId).sort());
+    }
+  });
+
+  it("name every cited source, by its id, in the pair's review note", () => {
+    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    for (const { group, member } of pairs) {
+      for (const ref of member.citations) {
+        // "A1:" never matches inside "A12:", and an id is never read as part of a longer one.
+        expect(member.reviewNote, `${group.id} → ${member.nodeId} names ${ref.sourceId}`).toMatch(new RegExp(`(^|[^A-Za-z0-9_.])${escape(ref.sourceId)}:`));
+      }
+    }
+  });
+
+  it("describe each area by naming only its groups' reviewed members, never a class of muscles", () => {
+    const muscles = forearmRegionData.nodes.filter((node) => node.kind === "muscle" && node.role !== "group");
+    const wordIn = (text: string, word: string, caseSensitive: boolean) => new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, caseSensitive ? "" : "i").test(text);
+    for (const area of forearm.tendonAreas ?? []) {
+      const reviewed = new Set(area.groups.flatMap((group) => group.members.filter((member) => member.reviewStatus === "reviewed").map((member) => member.nodeId)));
+      for (const node of muscles) {
+        const named = wordIn(area.description, node.shortName, true) || [node.name, ...node.aliases].some((form) => wordIn(area.description, form, false));
+        if (named) expect(reviewed.has(node.id), `${area.label} names ${node.shortName}, which it does not hold`).toBe(true);
+      }
+      expect(area.description, area.label).not.toMatch(/\b(flexors|extensors|wrist muscles|thumb muscles)\b/i);
     }
   });
 

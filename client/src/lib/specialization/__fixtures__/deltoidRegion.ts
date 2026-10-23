@@ -305,7 +305,7 @@ export const deltoidTendonAreas: RegionExtras = {
       id: "deltoid.tendon.outer",
       label: "Outer shoulder",
       description: "Test fixture: where the side head attaches on the outside.",
-      groups: [{ id: "deltoid.tendon.outer_heads", label: "Side head", members: [tendonMember(deltoidIds.lateral), tendonMember(deltoidIds.anterior, "draft")], caveat: null }],
+      groups: [{ id: "deltoid.tendon.outer_heads", label: "Side and front heads", members: [tendonMember(deltoidIds.lateral), tendonMember(deltoidIds.anterior, "draft")], caveat: null }],
     },
   ],
   tendonNotPlaced: [{ nodeId: deltoidIds.posterior, reason: "Test fixture: a head in no group, so the not-placed line runs on a second region." }],

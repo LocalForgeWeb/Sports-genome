@@ -25,7 +25,7 @@ export const forearmTendonSources: Source[] = [
     doi: null,
     evidenceType: "anatomy",
     retrievedOn: CHECKED,
-    notes: "Checked via web-search results: a thick tendinous structure arising from the medial epicondyle, splitting into an anterosuperior and a posteroinferior common tendinous portion, which pronator teres, flexor digitorum superficialis and flexor carpi ulnaris form; flexor carpi radialis and palmaris longus also arise from the medial epicondyle, over FDS, and are counted to the flexor-pronator mass and only variably to the common flexor origin. One summary sentence on which muscle forms which portion was garbled, so the portions are not relied on, only the members.",
+    notes: "Checked via web-search results: a thick tendinous structure arising from the medial epicondyle, splitting into an anterosuperior common tendinous portion, formed by pronator teres and flexor digitorum superficialis, and a posteroinferior one, formed by FDS and flexor carpi ulnaris (the article's sentence on the portions is clumsily worded but reads this way); flexor carpi radialis and palmaris longus also arise from the medial epicondyle, over FDS, and are counted to the flexor-pronator mass and only variably to the common flexor origin.",
   },
   {
     id: "radiopaedia.common_extensor_origin",
@@ -124,6 +124,6 @@ export const forearmTendonSources: Source[] = [
     doi: null,
     evidenceType: "anatomy",
     retrievedOn: CHECKED,
-    notes: "Title, authors and abstract seen through web search; the PubMed id is the one the PMC record gives (PMC2586286), and the record's year reads 2008 in citations and 2009 on PMC. Cadaver study of 32 wrists: the abductor pollicis longus and extensor pollicis brevis tendons occupy the first dorsal compartment beside the radial styloid; EPB had a compartment of its own in just over a third of specimens, and APL had one to four slips, three most often. The bony prominences of the thumb side of the wrist located the compartment reliably. An anatomy study, not a training one.",
+    notes: "Title, authors and abstract seen through web search; the PubMed id is the one the PMC record gives (PMC2586286), and orthobullets.com/evidence/19092992 lists the same paper under it; the record's year reads 2008 in citations and 2009 on PMC. Cadaver study of 32 wrists: the abductor pollicis longus and extensor pollicis brevis tendons occupy the first dorsal compartment beside the radial styloid; EPB had a compartment of its own in just over a third of specimens, and APL had one to four slips, three most often. The bony prominences of the thumb side of the wrist located the compartment reliably. An anatomy study, not a training one.",
   },
 ];
