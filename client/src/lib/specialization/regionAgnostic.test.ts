@@ -326,7 +326,8 @@ describe("no region is named in the page's components", () => {
   ];
 
   it("finds the page's components, and reads strings and code but not comments", () => {
-    expect(files).toEqual(expect.arrayContaining(["SpecializationPanel.tsx", "SpecializationDiagram.tsx", "MeasurementsPanel.tsx", "MuscleSheet.tsx", "model.ts", "diagramGeometry.ts", "sideWords.ts"]));
+    // Tendon exposure's section and its "Attaches at" line among them (11-forearm-research-and-stack.md §4.6).
+    expect(files).toEqual(expect.arrayContaining(["SpecializationPanel.tsx", "SpecializationDiagram.tsx", "MeasurementsPanel.tsx", "MuscleSheet.tsx", "model.ts", "diagramGeometry.ts", "sideWords.ts", "TendonExposure.tsx", "AttachesAt.tsx"]));
     expect(files.some((name) => name.includes(".test."))).toBe(false);
     const sample = 'const a = "Thumb side"; // forearm\n/** forearm */\nconst b = <p>{/* forearm */}upper-arm</p>;';
     expect(codeLines("sample.tsx", sample).map((line) => pageWords.test(line))).toEqual([true, false, true]);

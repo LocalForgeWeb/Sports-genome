@@ -10,19 +10,19 @@
         "files": 6
       },
       "after": {
-        "total": 1141747,
-        "gzip": 302401,
+        "total": 1141790,
+        "gzip": 302396,
         "files": 6,
         "tendonFilesFetched": []
       },
       "change": {
-        "bytes": 3601,
-        "gzip": 1018,
+        "bytes": 3644,
+        "gzip": 1013,
         "files": [
           {
             "name": "SpecializationPanel.js",
-            "bytes": 3601,
-            "gzip": 1013
+            "bytes": 3644,
+            "gzip": 1014
           }
         ]
       }
@@ -62,9 +62,9 @@
         "Supinator · 0 sets\n0 target · 0 holds · 0 other"
       ],
       "tendonChunkAfterOpen": [
-        "TendonExposure-llDuA91k.js",
-        "TendonExposure-miUkXe_f.css",
-        "tendonAreas-X_DTXMRx.js"
+        "TendonExposure-Bag1rcgP.js",
+        "TendonExposure-yIcCxJYS.css",
+        "tendonAreas-BI83KjIm.js"
       ],
       "file": "open-outer-elbow-390.png"
     },
@@ -185,9 +185,9 @@
         "Supinator · 0 sets\n0 target · 0 holds · 0 other"
       ],
       "tendonChunkAfterOpen": [
-        "TendonExposure-llDuA91k.js",
-        "TendonExposure-miUkXe_f.css",
-        "tendonAreas-X_DTXMRx.js"
+        "TendonExposure-Bag1rcgP.js",
+        "TendonExposure-yIcCxJYS.css",
+        "tendonAreas-BI83KjIm.js"
       ],
       "file": "open-outer-elbow-375.png"
     },

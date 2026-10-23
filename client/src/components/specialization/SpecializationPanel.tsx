@@ -826,9 +826,11 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const places = placesWanted && selected && placesExtras.status === "ready" && placesExtras.extras ? tendonPlacesOf(placesExtras.extras, selected.id) : [];
   const attachesAt: AttachesAt | null = places.length ? { places, onOpen: () => openTendon(places[0].areaId) } : null;
   const trainingStack = tendonSection && stackSection ? stackForWeek(stacks, data.region.id, trainingWeek) : null;
+  // Only the entries the stack wrote that are still as it wrote them: one changed since is the athlete's (11 §3.8), so no link.
+  const trainingStackEntries = useMemo(() => (trainingStack && trainingStore ? stackEntriesState(trainingStack, trainingStore).asWritten : []), [trainingStack, trainingStore]);
   const tendonProps: TendonExposureProps = {
     data, summary, waiting, window: state.window, trainingWeek, plan: { ready: plan.ready, slots: plan.slots, weeks: plan.weeks }, catalog, equipmentProfile, exclusions,
-    goals: regionGoals, goal, accountId, nowIso, timeZone, weightUnit, aboutMeArea: aboutMeArea ?? null, stackEntries: trainingStack?.entries ?? [],
+    goals: regionGoals, goal, accountId, nowIso, timeZone, weightUnit, aboutMeArea: aboutMeArea ?? null, stackEntries: trainingStackEntries,
     onApplyPlanChanges, onApplyPlanChange, onOpenStackEntry: stackSection ? (entry) => revealStack(`${entry.dayKey}:${entry.catalogExerciseId}`) : null,
     onOpenSession: openSession, onInspectExercise: inspect, announce, focusArea: tendonFocus,
   };

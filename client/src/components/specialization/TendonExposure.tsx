@@ -36,6 +36,7 @@ import {
 import { localDateKey, planWeekInterval } from "@shared/specialization/time";
 import type { ExposureBout, RegionBoutRow, RegionExtras, SpecializationGoal, SpecializationRegionData, SpecializationSummary } from "@shared/specialization/types";
 import { BoutListSheet, type BoutList } from "./BoutListSheet";
+import { revealClearOfBars } from "./reveal";
 import { otherWorkWords } from "./model";
 import { PlanChangeSheet } from "./PlanChangeSheet";
 import "./tendon.css";
@@ -232,7 +233,13 @@ export function clearTendonWeekCounts(): void {
 
 type SetsSheet = { kind: "sets"; eyebrow: string; title: string; intro: string; lists: BoutList[] };
 type SwapSheet = { kind: "swap"; nodeId: string; candidates: RecommendationCandidate[]; initialExerciseId: number; dayKey: string; entryId: number; outgoing: string };
-type Done = { text: string; undo: (() => void) | null };
+/**
+ * One finished action on a planned entry, said in that entry's row (F2 review: a line above the rows
+ * moved every row under the finger). `key` is the row acted on; `index` where it stood, for the row
+ * that stands in its place once it has left (Take out, Move), so no other row moves. After −1 set the line goes under the row's buttons, which stay where they were; after Take out or
+ * Move, and after Undo, under the row's name, where the buttons were.
+ */
+type Done = { text: string; undo: (() => void) | null; key: string; index: number; kind: "sets" | "out" | "move" };
 
 /** One planned entry as its row shows it: the entry in its day, and what the page reads its prescription as. */
 type PlannedRow = TendonPlannedEntry & { entryId: number; catalogId: number; ordinal: string; prescription: string; own: string | undefined; setCount: number; byStack: boolean };
@@ -529,7 +536,13 @@ function PlannedEntries(props: TendonExposureProps & { summary: SpecializationSu
   const [moving, setMoving] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const statusRef = useRef<HTMLElement | null>(null);
-  useEffect(() => { if (done) statusRef.current?.focus({ preventScroll: true }); }, [done]);
+  // Focus on Undo (then on the Undone line), brought into view only as far as needed and clear of the dock.
+  useEffect(() => {
+    const element = statusRef.current;
+    if (!done || !element) return;
+    element.focus({ preventScroll: true });
+    revealClearOfBars(element);
+  }, [done]);
 
   const rows = useMemo<PlannedRow[]>(() => {
     if (!store) return [];
@@ -549,16 +562,17 @@ function PlannedEntries(props: TendonExposureProps & { summary: SpecializationSu
 
   const apply = async (row: PlannedRow, change: SpecializationPlanBatchChange) => {
     if (busy || !onApplyPlanChanges) return;
+    const at = { key: rowKey(row), index: Math.max(0, rows.findIndex((item) => rowKey(item) === rowKey(row))), kind: change.kind === "sets" ? "sets" as const : change.kind === "move" ? "move" as const : "out" as const };
     setBusy(true);
     setError(null);
     try {
       const result = await onApplyPlanChanges({ week: trainingWeek, changes: [change] }, {
         // The notice's Undo says so here too.
-        onUndo: () => setDone((current) => (current && current.undo ? { text: `Undone: Plan Week ${trainingWeek} is as it was.`, undo: null } : current)),
+        onUndo: () => setDone((current) => (current && current.undo ? { ...current, text: `Undone: Plan Week ${trainingWeek} is as it was.`, undo: null } : current)),
       });
       if (!result.ok) { setError({ at: rowKey(row), text: result.reason }); announce(result.reason); return; }
       setMoving(null);
-      setDone({ text: result.message, undo: result.undo });
+      setDone({ ...at, text: result.message, undo: result.undo });
       announce(`${result.message}. Undo is beside it.`);
     } finally {
       setBusy(false);
@@ -567,7 +581,7 @@ function PlannedEntries(props: TendonExposureProps & { summary: SpecializationSu
   const undo = () => {
     if (!done?.undo) return;
     done.undo();
-    setDone({ text: `Undone: Plan Week ${trainingWeek} is as it was.`, undo: null });
+    setDone({ ...done, text: `Undone: Plan Week ${trainingWeek} is as it was.`, undo: null });
     announce(`Undone: Plan Week ${trainingWeek} is as it was.`);
   };
   const rowKey = (row: PlannedRow) => `${row.dayKey}:${row.entryId}`;
@@ -591,19 +605,26 @@ function PlannedEntries(props: TendonExposureProps & { summary: SpecializationSu
   };
 
   const heading = `Planned in Week ${trainingWeek} at the ${lowerFirst(area.label)}`;
+  const statusLine = done && <p className="spz-inline-status spz-tendon-done" role="status" tabIndex={done.undo ? undefined : -1} ref={done.undo ? undefined : (element) => { statusRef.current = element; }}>
+    <span id={`${ids}-done`}>{done.text}</span>
+    {done.undo && <button ref={(element) => { statusRef.current = element; }} type="button" className="spz-button" aria-describedby={`${ids}-done`} onClick={undo}>Undo</button>}
+  </p>;
+  // The entry acted on has left this list (taken out, or moved to a day that sorts elsewhere): its line, which names it, stands where it was.
+  const standIn = done && !rows.some((row) => rowKey(row) === done.key) ? Math.min(done.index, rows.length) : -1;
+  const standInRow = done && <li key={`done:${done.key}`} className="spz-tendon-entry spz-tendon-stand-in">
+    {statusLine}
+  </li>;
   return <section className="spz-tendon-planned" aria-labelledby={`${ids}-planned`}>
     <h4 id={`${ids}-planned`} className="spz-tendon-subheading">{heading}</h4>
-    {done && <p className="spz-inline-status spz-tendon-done" role="status" tabIndex={done.undo ? undefined : -1} ref={done.undo ? undefined : (element) => { statusRef.current = element; }}>
-      <span id={`${ids}-done`}>{done.text}</span>
-      {done.undo && <button ref={(element) => { statusRef.current = element; }} type="button" className="spz-button" aria-describedby={`${ids}-done`} onClick={undo}>Undo</button>}
-    </p>}
-    {!rows.length ? <p className="spz-note">Nothing planned in Week {trainingWeek} loads the muscles that attach here.</p>
+    {!rows.length && !done ? <p className="spz-note">Nothing planned in Week {trainingWeek} loads the muscles that attach here.</p>
       : <ul className="spz-tendon-entries">
-        {rows.map((row) => {
+        {rows.flatMap((row, index) => {
           const key = rowKey(row);
           const others = plan.slots.filter((slot) => slot.key !== row.dayKey);
-          return <li key={key} className="spz-tendon-entry">
+          const here = done?.key === key;
+          return [...(index === standIn ? [standInRow] : []), <li key={key} className="spz-tendon-entry">
             <p><b>{row.exerciseName}</b><small>{row.ordinal} · {row.prescription} · {plural(row.sets, "set")} counted here</small></p>
+            {here && done.kind !== "sets" && statusLine}
             {onApplyPlanChanges ? <div className="spz-tendon-entry-actions" role="group" aria-label={row.exerciseName}>
               <button type="button" className="spz-button" aria-disabled={row.setCount <= 1 || busy || undefined} onClick={() => lessOne(row)}>−1 set</button>
               <button type="button" className="spz-button" aria-expanded={moving === key} aria-controls={`${ids}-${key}-days`} onClick={() => { setMoving(moving === key ? null : key); setError(null); }}>Move to another day</button>
@@ -613,10 +634,12 @@ function PlannedEntries(props: TendonExposureProps & { summary: SpecializationSu
             {moving === key && <div id={`${ids}-${key}-days`} className="spz-chips spz-tendon-move" role="group" aria-label={`Move ${row.exerciseName} to`}>
               {others.map((slot) => <button key={slot.key} type="button" className="spz-chip" onClick={() => moveTo(row, slot.key)}><span>{slot.ordinal}</span><small>{slot.day}</small></button>)}
             </div>}
+            {here && done.kind === "sets" && statusLine}
             {error?.at === key && <p className="spz-tendon-reason" role="status">{error.text}</p>}
             {row.byStack && props.onOpenStackEntry && <button type="button" className="spz-link" onClick={() => props.onOpenStackEntry!({ dayKey: row.dayKey!, catalogExerciseId: row.catalogId })}>Added by your stack: see it there <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
-          </li>;
+          </li>];
         })}
+        {standIn === rows.length && standInRow}
       </ul>}
   </section>;
 }

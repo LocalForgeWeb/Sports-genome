@@ -17,6 +17,7 @@ import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary
 import { defaultSpecializationState, type SpecializationAreaReport, type SpecializationPlanBatch, type SpecializationPlanBatchResult, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { splitDaysForFrequency } from "@/lib/splitCycle";
 import { buildDaySlots, commitDay, emptyDayStore, loadDay, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
+import { prescriptionOf, type TrainingGoal } from "@/lib/workoutPlanner";
 import { tendonPlacesOf } from "@shared/specialization/tendonPlaces";
 import { tendonAreaExtras } from "@shared/specialization/regions/forearm/tendonAreas";
 import { forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
@@ -76,20 +77,25 @@ const history = [
 
 const batches: SpecializationPlanBatch[] = [];
 const singleChanges: unknown[] = [];
+/** Home's notices, each with its Undo, as Home shows them. */
+const notices: { title: string; description: string; undo: () => void }[] = [];
 let lastState: SpecializationViewState | null = null;
+let shownWeeks: Record<number, WeeklyDayStore> = {};
 
-function Harness({ initial = {}, weeks = { 1: weekOf() }, planSlots = slots, aboutMeArea = null, goals = [] }: { initial?: Partial<SpecializationViewState>; weeks?: Record<number, WeeklyDayStore>; planSlots?: DaySlot[]; aboutMeArea?: SpecializationAreaReport | null; goals?: unknown[] }) {
+function Harness({ initial = {}, weeks = { 1: weekOf() }, planSlots = slots, aboutMeArea = null, goals = [], goal = "Muscle growth" }: { initial?: Partial<SpecializationViewState>; weeks?: Record<number, WeeklyDayStore>; planSlots?: DaySlot[]; aboutMeArea?: SpecializationAreaReport | null; goals?: unknown[]; goal?: TrainingGoal }) {
   const [state, setState] = useState<SpecializationViewState>({ ...defaultSpecializationState("forearm"), ...initial });
   const [plan, setPlan] = useState(weeks);
   const planRef = useRef(plan);
   planRef.current = plan;
   lastState = state;
+  shownWeeks = plan;
   void goals;
   const onApplyPlanChanges = async (batch: SpecializationPlanBatch, options?: { onUndo?: () => void }): Promise<SpecializationPlanBatchResult> => {
     batches.push(batch);
     const store = planRef.current[batch.week];
     if (!store) return { ok: false, reason: `Week ${batch.week} is not built yet. Build it in Plan first.` };
-    const outcome = applyPlanBatch(store, batch, { slots: planSlots, catalog: exercises });
+    // As Home applies it: with the goal, so entries that move a place keep how they read.
+    const outcome = applyPlanBatch(store, batch, { slots: planSlots, catalog: exercises, goal });
     if (!outcome.ok) return { ok: false, reason: outcome.reason };
     setPlan((current) => ({ ...current, [batch.week]: outcome.store }));
     let undone = false;
@@ -99,12 +105,13 @@ function Harness({ initial = {}, weeks = { 1: weekOf() }, planSlots = slots, abo
       setPlan((current) => ({ ...current, [batch.week]: [...outcome.days].reverse().reduce((week, day) => commitDay(week, day.slot.key, day.revert(loadDay(week, day.slot.key))), current[batch.week]) }));
       options?.onUndo?.();
     };
+    notices.push({ title: outcome.message.title, description: outcome.message.description, undo });
     return { ok: true, undo, message: outcome.message.title };
   };
   const props: SpecializationPanelProps = {
     state, onStateChange: setState,
     plan: { ready: true, slots: planSlots, weeks: plan, choice: null, activeWeek: 1 },
-    catalog: exercises, equipmentProfile: defaultEquipmentProfile, accountId: null, goal: "Muscle growth", weightUnit: "lb", gymMinutes: 60,
+    catalog: exercises, equipmentProfile: defaultEquipmentProfile, accountId: null, goal, weightUnit: "lb", gymMinutes: 60,
     onApplyPlanChange: (change) => { singleChanges.push(change); return { ok: true, undo: () => {} }; }, onApplyPlanChanges, aboutMeArea,
     onInspectExercise: () => {}, onOpenSession: () => {}, backLabel: null, onBack: null,
   };
@@ -123,7 +130,7 @@ const words = (element: Element) => (element.textContent ?? "").replace(/\u00a0/
 const areaTexts = () => areaButtons().map(words);
 const area = (name: string) => areaButtons().find((button) => words(button).startsWith(`${name} · `))!;
 const changeLines = () => Array.from(section().querySelectorAll(".spz-tendon-changes li")).map((item) => item.textContent);
-const entries = () => Array.from(section().querySelectorAll<HTMLElement>(".spz-tendon-entry"));
+const entries = () => Array.from(section().querySelectorAll<HTMLElement>(".spz-tendon-entry:not(.spz-tendon-stand-in)"));
 const entryNamed = (name: string) => entries().find((entry) => entry.querySelector("b")?.textContent === name);
 const dialog = () => screen.getByRole("dialog");
 const closeDialog = async () => click(within(dialog()).getByRole("button", { name: "Close" }));
@@ -156,6 +163,7 @@ beforeEach(() => {
   clearTendonWeekCounts();
   batches.length = 0;
   singleChanges.length = 0;
+  notices.length = 0;
   lastState = null;
 });
 afterEach(() => { cleanup(); vi.useRealTimers(); });
@@ -351,6 +359,11 @@ describe("the planned entries, changed in place with Undo", () => {
     await press("Reverse Wrist Curl", "−1 set");
     expect(batches).toEqual([{ week: 1, changes: [{ kind: "sets", dayKey: slots[0].key, entryId: 140, catalogExerciseId: 140, sets: 2, prescription: "3 × 10–25" }] }]);
     expect(done()!.textContent).toBe("Reverse Wrist Curl on Day 01 of Week 1: 3 → 2 setsUndo");
+    // The line is in the row acted on, under its buttons, so they stay where they were and nothing is put above the rows.
+    expect(done()!.closest(".spz-tendon-entry")).toBe(entryNamed("Reverse Wrist Curl")!);
+    expect(done()!.previousElementSibling!.classList.contains("spz-tendon-entry-actions")).toBe(true);
+    expect(section().querySelector(".spz-tendon-planned > .spz-tendon-done")).toBeNull();
+    expect(document.activeElement!.textContent).toBe("Undo");
     expect(entryNamed("Reverse Wrist Curl")!.querySelector("small")!.textContent).toBe("Day 01 · 2 × 10–25 · 2 sets counted here");
     await click(within(done() as HTMLElement).getByRole("button", { name: "Undo" }));
     expect(done()!.textContent).toBe("Undone: Plan Week 1 is as it was.");
@@ -387,6 +400,11 @@ describe("the planned entries, changed in place with Undo", () => {
     expect(batches[0].changes).toEqual([{ kind: "remove", dayKey: slots[0].key, entryId: 140, catalogExerciseId: 140, prescription: "3 × 10–25" }]);
     expect(done()!.textContent).toBe("Reverse Wrist Curl taken out of Day 01 of Week 1Undo");
     expect(entryNamed("Reverse Wrist Curl")).toBeUndefined();
+    // Its line stands where its row was, with its name: the rows after it keep their order, none moves above it.
+    const list = Array.from(section().querySelectorAll(".spz-tendon-entries > li"));
+    expect(list[0].classList.contains("spz-tendon-stand-in")).toBe(true);
+    expect(list[0].querySelector(".spz-tendon-done")).toBe(done());
+    expect(list[1].querySelector("b")!.textContent).toBe("Hammer Curl");
     await click(within(done() as HTMLElement).getByRole("button", { name: "Undo" }));
     expect(entryNamed("Reverse Wrist Curl")!.querySelector("small")!.textContent).toMatch(/^Day 01 · 3 × 10–25/);
   });
@@ -399,6 +417,57 @@ describe("the planned entries, changed in place with Undo", () => {
     await click(within(dialog()).getByRole("button", { name: "Save swap" }));
     expect(singleChanges).toHaveLength(1);
     expect(singleChanges[0]).toMatchObject({ week: 1, dayKey: slots[0].key, replaceEntryId: 140 });
+  });
+
+  it("the notice's Undo says Undone in the section too", async () => {
+    await atOuterElbow();
+    await press("Reverse Wrist Curl", "Take out");
+    expect(notices).toHaveLength(1);
+    await act(async () => { notices[0].undo(); });
+    expect(done()!.textContent).toBe("Undone: Plan Week 1 is as it was.");
+    expect(within(done() as HTMLElement).queryByRole("button", { name: "Undo" })).toBeNull();
+    // Back in its row, under its name, where the row's buttons were.
+    expect(done()!.closest(".spz-tendon-entry")).toBe(entryNamed("Reverse Wrist Curl")!);
+  });
+
+  /** Week 1 under Max strength: Reverse Wrist Curl (its own 3 × 10–25), then Wrist Curl and Bench Press with none of their own (4 × 3–5 and 3 × 6–8 by place). */
+  const strengthWeek = () => commitDay(weekOf(), slots[0].key, { workout: [byId(140), byId(139), byId(1)], prescriptions: { 140: "3 × 10–25" }, settings: {}, context: [] });
+  const readingsOf = (dayKey: string) => { const day = loadDay(shownWeeks[1], dayKey); return Object.fromEntries(day.workout.map((entry, index) => [entry.id, prescriptionOf(day.prescriptions[entry.id], index, "Max strength")])); };
+
+  it("under Max strength, Take out keeps the day's other exercises as they read, so the notice's 'unchanged' is true; Undo gives the day back exactly", async () => {
+    await atOuterElbow({ weeks: { 1: strengthWeek() }, goal: "Max strength" });
+    const before = loadDay(shownWeeks[1], slots[0].key);
+    expect(readingsOf(slots[0].key)).toEqual({ 140: "3 × 10–25", 139: "4 × 3–5", 1: "3 × 6–8" });
+    await press("Reverse Wrist Curl", "Take out");
+    // Bench Press moves up to second place, which reads 4 × 3–5 under Max strength: pinned to the 3 × 6–8 it read.
+    expect(loadDay(shownWeeks[1], slots[0].key).prescriptions).toEqual({ 1: "3 × 6–8" });
+    expect(readingsOf(slots[0].key)).toEqual({ 139: "4 × 3–5", 1: "3 × 6–8" });
+    expect(notices[0]).toMatchObject({ title: "Reverse Wrist Curl taken out of Day 01 of Week 1", description: "Your other exercises are unchanged." });
+    await click(within(done() as HTMLElement).getByRole("button", { name: "Undo" }));
+    expect(loadDay(shownWeeks[1], slots[0].key)).toEqual(before);
+  });
+
+  it("under Max strength, Move keeps the day it leaves as it reads, and Undo gives it back exactly", async () => {
+    await atOuterElbow({ weeks: { 1: strengthWeek() }, goal: "Max strength" });
+    const before = loadDay(shownWeeks[1], slots[0].key);
+    await press("Reverse Wrist Curl", "Move to another day");
+    await click(within(entryNamed("Reverse Wrist Curl")!).getByRole("button", { name: "Day 03Legs" }));
+    expect(readingsOf(slots[0].key)).toEqual({ 139: "4 × 3–5", 1: "3 × 6–8" });
+    expect(readingsOf(slots[2].key)).toEqual({ 1: "4 × 3–5", 140: "3 × 10–25" });
+    expect(notices[0].description).toBe("Your other exercises are unchanged.");
+    await click(within(done() as HTMLElement).getByRole("button", { name: "Undo" }));
+    expect(loadDay(shownWeeks[1], slots[0].key)).toEqual(before);
+  });
+
+  it("drops the stack's link once the athlete changes that entry (it is theirs then), and shows it again on Undo", async () => {
+    expect(saveStackRecord({ id: "stack-1", regionId: "forearm", planWeek: 1, mappingVersion: "forearm_mappings_v1", total: 4, createdAt: "2026-10-20T08:00:00.000Z", settings: { days: null, perDay: 2, holds: null }, entries: [{ dayKey: slots[0].key, catalogExerciseId: 140, prescription: "3 × 10–25" }] }).ok).toBe(true);
+    await atOuterElbow();
+    const link = () => within(entryNamed("Reverse Wrist Curl")!).queryByRole("button", { name: /Added by your stack/ });
+    expect(link()).not.toBeNull();
+    await press("Reverse Wrist Curl", "−1 set");
+    expect(link()).toBeNull();
+    await click(within(done() as HTMLElement).getByRole("button", { name: "Undo" }));
+    expect(link()).not.toBeNull();
   });
 
   it("an entry the stack wrote links to the stack card", async () => {

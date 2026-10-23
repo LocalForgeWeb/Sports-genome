@@ -1624,7 +1624,8 @@ export default function Home() {
     const isActive = batch.week === activeWeek;
     if (!isActive && !planWeeks[batch.week]) return { ok: false, reason: `Week ${batch.week} is not built yet. Build it in Plan first.` };
     const store = isActive ? commitDay(dayStore, draftDayKeyRef.current, activeDraft()) : planWeeks[batch.week].days;
-    const outcome = apply(store, batch, { slots: daySlots, catalog: exercises });
+    // The goal, so entries that move a place keep how they read (planBatch pins them).
+    const outcome = apply(store, batch, { slots: daySlots, catalog: exercises, goal });
     if (!outcome.ok) return { ok: false, reason: outcome.reason };
     for (const day of outcome.days) editDayInWeek(batch.week, day.slot.key, () => day.record);
     let undone = false;

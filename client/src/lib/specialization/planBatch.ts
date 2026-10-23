@@ -2,7 +2,9 @@ import type { Exercise } from "@/lib/exerciseCatalog";
 import { parseSetCount } from "@/lib/sessionVolume";
 import { formatPrescription, maxEditableSets, parsePrescription, withSetCount } from "@/lib/setPrescription";
 import { commitDay, loadDay, type DayRecord, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
+import { prescriptionOf, type TrainingGoal } from "@/lib/workoutPlanner";
 import { catalogIdOf } from "@/lib/workoutSwapRecord";
+import { catalogMeasureOf } from "@shared/specialization/holdCatalogIds";
 import { applyPlanChangeToRecord, insertionIndex } from "./planChange";
 import type { SpecializationPlanBatch, SpecializationPlanBatchChange } from "./viewState";
 
@@ -87,6 +89,44 @@ function withEntry(record: DayRecord, entry: Exercise, index: number, prescripti
   };
 }
 
+const noRevert: Revert = (current) => current;
+
+/**
+ * Keeps the other entries of a day as they read when one leaves it or one is put in it (F2 review):
+ * every entry from `from` on moves one place (`shift`), and one with no prescription of its own reads
+ * the goal's default for its place, which can differ (under Max strength, Capacity or Athleticism the
+ * first two places are 4 sets and later ones 3), so a Take out could turn a Bent-Over Row's 3 × 6–8
+ * into 4 × 3–5 while the notice says the other exercises are unchanged. Each such entry whose reading
+ * would change is pinned to what it reads now (with the measure the first screens read it with,
+ * `catalogMeasureOf`), in the same batch; one whose reading stays needs nothing. With no goal (the
+ * batch alone, in tests) nothing depends on the place. The revert takes a pin away only while the
+ * entry still holds exactly it, so Undo gives back the day as it was, pins included.
+ */
+function pinShifted(record: DayRecord, from: number, shift: 1 | -1, goal: TrainingGoal | undefined): { record: DayRecord; revert: Revert } {
+  if (!goal) return { record, revert: noRevert };
+  const pins = new Map<number, string>();
+  record.workout.forEach((entry, index) => {
+    if (index < from || record.prescriptions[entry.id]) return;
+    const measure = catalogMeasureOf(catalogIdOf(entry));
+    const now = prescriptionOf(undefined, index, goal, measure);
+    if (now !== prescriptionOf(undefined, index + shift, goal, measure)) pins.set(entry.id, now);
+  });
+  if (!pins.size) return { record, revert: noRevert };
+  return {
+    record: { ...record, prescriptions: { ...record.prescriptions, ...Object.fromEntries(pins) } },
+    revert: (current) => {
+      const prescriptions = { ...current.prescriptions };
+      let changed = false;
+      for (const [entryId, pinned] of Array.from(pins)) {
+        if (prescriptions[entryId] !== pinned || !current.workout.some((entry) => entry.id === entryId)) continue;
+        delete prescriptions[entryId];
+        changed = true;
+      }
+      return changed ? { ...current, prescriptions } : current;
+    },
+  };
+}
+
 /** Takes an entry out; `asWritten` holds it to the prescription of its own it was written with (none when absent). */
 function removeStep(record: DayRecord, entryId: number, catalogExerciseId: number, name: string, asWritten: { prescription: string | undefined } | null): StepOutcome {
   const found = entryIn(record, entryId, catalogExerciseId);
@@ -134,7 +174,7 @@ function setsStep(record: DayRecord, change: Extract<SpecializationPlanBatchChan
  * comes back once with its record and its revert, or the whole batch is refused with the first
  * reason, naming its day, and nothing is written. The week given is never edited.
  */
-export function applyPlanBatch(store: WeeklyDayStore, batch: SpecializationPlanBatch, context: { slots: readonly DaySlot[]; catalog: readonly Exercise[] }): PlanBatchOutcome {
+export function applyPlanBatch(store: WeeklyDayStore, batch: SpecializationPlanBatch, context: { slots: readonly DaySlot[]; catalog: readonly Exercise[]; goal?: TrainingGoal }): PlanBatchOutcome {
   if (!batch.changes.length) return { ok: false, reason: "There was nothing to change. Nothing was changed.", changeIndex: -1 };
   type Day = { slot: DaySlot; before: DayRecord; record: DayRecord; reverts: Revert[] };
   const days = new Map<string, Day>();
@@ -175,10 +215,13 @@ export function applyPlanBatch(store: WeeklyDayStore, batch: SpecializationPlanB
 
     if (change.kind === "remove") {
       const own: string | undefined = day.record.prescriptions[change.entryId];
-      const outcome = removeStep(day.record, change.entryId, change.catalogExerciseId, name, { prescription: change.prescription });
+      // The entries after it move up a place: those whose reading would change are pinned first.
+      const leaving = entryIn(day.record, change.entryId, change.catalogExerciseId);
+      const pinned = leaving ? pinShifted(day.record, leaving.index + 1, -1, context.goal) : { record: day.record, revert: noRevert };
+      const outcome = removeStep(pinned.record, change.entryId, change.catalogExerciseId, name, { prescription: change.prescription });
       if (!outcome.ok) return refuse(outcome.reason, day.slot);
       day.record = outcome.record;
-      day.reverts.push(outcome.revert);
+      day.reverts.push(pinned.revert, outcome.revert);
       effects.push({ kind: "remove", dayKey: change.dayKey, name, sets: own === undefined ? null : parseSetCount(own) });
       continue;
     }
@@ -203,12 +246,16 @@ export function applyPlanBatch(store: WeeklyDayStore, batch: SpecializationPlanB
     }
     const prescription: string | undefined = day.record.prescriptions[change.entryId] ?? change.prescription;
     const settings = day.record.settings[change.entryId];
-    const leaving = removeStep(day.record, change.entryId, change.catalogExerciseId, name, null);
+    // The entries after it on the day it leaves move up a place, and those after where it goes down one: pinned where their reading would change.
+    const pinnedFrom = pinShifted(day.record, found.index + 1, -1, context.goal);
+    const leaving = removeStep(pinnedFrom.record, change.entryId, change.catalogExerciseId, name, null);
     if (!leaving.ok) return refuse(leaving.reason, day.slot);
     day.record = leaving.record;
-    day.reverts.push(leaving.revert);
-    target.record = withEntry(target.record, found.entry, insertionIndex(target.record.workout.length, change.insertAt), prescription, settings);
-    target.reverts.push((current) => (current.workout.some((exercise) => exercise.id === found.entry.id) ? withoutEntry(current, found.entry.id) : current));
+    day.reverts.push(pinnedFrom.revert, leaving.revert);
+    const at = insertionIndex(target.record.workout.length, change.insertAt);
+    const pinnedTo = pinShifted(target.record, at, 1, context.goal);
+    target.record = withEntry(pinnedTo.record, found.entry, at, prescription, settings);
+    target.reverts.push(pinnedTo.revert, (current) => (current.workout.some((exercise) => exercise.id === found.entry.id) ? withoutEntry(current, found.entry.id) : current));
     effects.push({ kind: "move", dayKey: change.dayKey, toDayKey: change.toDayKey, name });
   }
 

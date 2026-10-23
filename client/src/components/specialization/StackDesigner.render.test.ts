@@ -18,6 +18,8 @@ import { defaultSpecializationState, type SpecializationAreaReport, type Special
 import { splitDaysForFrequency } from "@/lib/splitCycle";
 import { buildDaySlots, commitDay, emptyDayStore, loadDay, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import { catalogIdOf } from "@/lib/workoutSwap";
+import { prescriptionOf, type TrainingGoal } from "@/lib/workoutPlanner";
+import { saveStackRecord } from "@/lib/specialization/stackStore";
 
 /**
  * The stack card on the forearm page (docs/specialization-atlas/11-forearm-research-and-stack.md §3.2–
@@ -51,14 +53,14 @@ const weekOf = (days: number[][]): WeeklyDayStore => days.reduce((store, ids, in
 /** Plan A: full-body content in the app's Push / Pull / Legs slots; the Hammer Curl is the plan's own direct forearm work. */
 const planA = weekOf([[161, 1, 43, 103, 150], [41, 4, 66, 111, 121], [173, 2, 54, 186, 132]]);
 
-const notices: { title: string; undo: () => void }[] = [];
+const notices: { title: string; description?: string; undo: () => void }[] = [];
 const batches: SpecializationPlanBatch[] = [];
 let lastState: SpecializationViewState | null = null;
 let shownWeeks: Record<number, WeeklyDayStore> = {};
 /** Runs before Home's stand-in applies a batch: to hold it (the batch code still arriving) or to fail. */
 let beforeApply: (() => Promise<void>) | null = null;
 
-function Harness({ initial = {}, weeks = { 1: planA }, aboutMeArea = null, ready = true, chooseWeek }: { initial?: Partial<SpecializationViewState>; weeks?: Record<number, WeeklyDayStore>; aboutMeArea?: SpecializationAreaReport | null; ready?: boolean; chooseWeek?: number }) {
+function Harness({ initial = {}, weeks = { 1: planA }, aboutMeArea = null, ready = true, chooseWeek, goal = "Muscle growth" }: { initial?: Partial<SpecializationViewState>; weeks?: Record<number, WeeklyDayStore>; aboutMeArea?: SpecializationAreaReport | null; ready?: boolean; chooseWeek?: number; goal?: TrainingGoal }) {
   const [state, setState] = useState<SpecializationViewState>({ ...defaultSpecializationState("forearm"), ...initial });
   const [plan, setPlan] = useState(weeks);
   const planRef = useRef(plan);
@@ -71,7 +73,8 @@ function Harness({ initial = {}, weeks = { 1: planA }, aboutMeArea = null, ready
     if (beforeApply) await beforeApply();
     const store = planRef.current[batch.week];
     if (!store) return { ok: false, reason: `Week ${batch.week} is not built yet. Build it in Plan first.` };
-    const outcome = applyPlanBatch(store, batch, { slots, catalog: exercises });
+    // As Home applies it: with the goal, so entries that move a place keep how they read.
+    const outcome = applyPlanBatch(store, batch, { slots, catalog: exercises, goal });
     if (!outcome.ok) return { ok: false, reason: outcome.reason };
     setPlan((current) => ({ ...current, [batch.week]: outcome.store }));
     let undone = false;
@@ -81,13 +84,13 @@ function Harness({ initial = {}, weeks = { 1: planA }, aboutMeArea = null, ready
       setPlan((current) => ({ ...current, [batch.week]: [...outcome.days].reverse().reduce((week, day) => commitDay(week, day.slot.key, day.revert(loadDay(week, day.slot.key))), current[batch.week]) }));
       options?.onUndo?.();
     };
-    notices.push({ title: outcome.message.title, undo });
+    notices.push({ title: outcome.message.title, description: outcome.message.description, undo });
     return { ok: true, undo, message: outcome.message.title };
   };
   const props: SpecializationPanelProps = {
     state, onStateChange: setState,
     plan: { ready, slots, weeks: plan, choice: chooseWeek ? { week: chooseWeek, index: 0, day: "Push", madeAt: "2026-10-21T08:00:00.000Z" } : null, activeWeek: 1 },
-    catalog: exercises, equipmentProfile: defaultEquipmentProfile, accountId: null, goal: "Muscle growth", weightUnit: "lb", gymMinutes: 60,
+    catalog: exercises, equipmentProfile: defaultEquipmentProfile, accountId: null, goal, weightUnit: "lb", gymMinutes: 60,
     onApplyPlanChange: () => ({ ok: true, undo: () => {} }), onApplyPlanChanges, aboutMeArea,
     onInspectExercise: () => {}, onOpenSession: () => {}, backLabel: null, onBack: null,
   };
@@ -491,6 +494,27 @@ describe("the card, open", () => {
     await click(undo);
     expect(directIn(shownWeeks[1])).toEqual(directIn(added));
     expect(loadStackStore(null).stacks).toHaveLength(1);
+  });
+
+  it("under Max strength, Take it out keeps the plan's own exercises as they read, so the notice's 'unchanged' is true, and Undo gives the week back exactly", async () => {
+    // Day 01 with the stack's One-Arm Dumbbell Wrist Curl first (as it wrote it), then the plan's own five with none of their own: by place 4 × 3–5, 4 × 3–5, 3 × 6–8, ….
+    const week = commitDay(planA, slots[0].key, { workout: [410, 161, 1, 43, 103, 150].map(byId), prescriptions: { 410: "2 × 10–25" }, settings: {}, context: [] });
+    expect(saveStackRecord({ id: "stack-strength", regionId: "forearm", planWeek: 1, mappingVersion: "forearm_mappings_v1", total: 5, createdAt: "2026-10-20T08:00:00.000Z", settings: { days: null, perDay: 2, holds: null }, entries: [{ dayKey: slots[0].key, catalogExerciseId: 410, prescription: "2 × 10–25" }] }, null).ok).toBe(true);
+    const readings = (store: WeeklyDayStore) => { const day = loadDay(store, slots[0].key); return Object.fromEntries(day.workout.map((entry, index) => [entry.id, prescriptionOf(day.prescriptions[entry.id], index, "Max strength")])); };
+    render(createElement(Harness, { initial: { mode: "planned" }, weeks: { 1: week }, goal: "Max strength" }));
+    await act(async () => {});
+    await act(async () => { card().open = true; fireEvent(card(), new Event("toggle")); });
+    await waitFor(() => expect(within(card()).getByRole("button", { name: "Take it out" })).not.toBeNull(), { timeout: 10000 });
+    const before = readings(week);
+    await click(within(card()).getByRole("button", { name: "Take it out" }));
+    expect(batches.at(-1)!.changes).toEqual([{ kind: "remove", dayKey: slots[0].key, entryId: 410, catalogExerciseId: 410, prescription: "2 × 10–25" }]);
+    // Bench Press moves from third place (3 × 6–8) to second (4 × 3–5 under Max strength): pinned to what it read.
+    expect(loadDay(shownWeeks[1], slots[0].key).prescriptions).toEqual({ 1: "3 × 6–8" });
+    const { 410: _gone, ...others } = before;
+    expect(readings(shownWeeks[1])).toEqual(others);
+    expect(notices.at(-1)).toMatchObject({ title: "One-Arm Dumbbell Wrist Curl taken out of Day 01 of Week 1", description: "Your other exercises are unchanged." });
+    await click(within(card()).getByRole("button", { name: "Undo" }));
+    expect(shownWeeks[1]).toEqual(week);
   });
 
   it("changes the total by designing again on the week without the stack, and replaces the stack's own entries in one batch with one Undo", async () => {

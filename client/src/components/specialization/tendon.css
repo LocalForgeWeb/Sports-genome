@@ -47,6 +47,8 @@
 .spz-tendon-prompt { display: grid; gap: .5rem; justify-items: start; border-left: 2px solid var(--sg-control-border-on-dark); padding-left: .75rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .spz-tendon-planned { display: grid; gap: .5rem; width: 100%; min-width: 0; }
 .spz-tendon-done { color: var(--sg-text-on-dark); font-weight: 700; }
+/* The line in a row (or standing in for one that left): text, then Undo at its own width, never stretched. */
+.spz-tendon-entry > .spz-tendon-done { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; }
 .spz-tendon-entries { display: grid; padding: 0; list-style: none; }
 .spz-tendon-entry { display: grid; gap: .4rem; border-top: 1px solid rgb(164 200 232 / .14); padding: .55rem 0; }
 .spz-tendon-entry > p { display: grid; gap: .1rem; }
