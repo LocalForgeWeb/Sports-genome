@@ -27,15 +27,15 @@ The forearm's 119 records are unchanged. `variants.test.ts` compares their colum
 
 The plan gives every such row a variant, whether it ends up mapped or listed (§9.1's 121 counts them all). A row listed as unmapped needs only a reason, but this way a mapping lane never waits on a record. So:
 
-1. Rows tagging an upper-arm key, primary or secondary, after this lane's catalog fixes (section 5): **186** (50 primary, 136 secondary only). §9.1 estimated 194 before the fixes.
-2. Of these, 72 already have a forearm variant. Those are frozen and are reused, not rewritten. That leaves **114 new records**.
+1. Rows tagging an upper-arm key, primary or secondary, after this lane's catalog fixes (section 5): **187** (50 primary, 137 secondary only). §9.1 estimated 194 before the fixes.
+2. Of these, 73 already have a forearm variant. Those are frozen and are reused, not rewritten. That leaves **114 new records**.
 3. Plus **11 untagged rows** that load the upper arm's actions (elbow flexion and extension, forearm supination, shoulder flexion and extension) under load. The upper arm's mapping lanes may map these, so they are written now rather than waiting for a request.
 4. Total: **125 new variants.**
 
 Before the fixes, the same rule gave 121, the figure in §9.1. The fixes:
 - took out 18–23 (flys tagged triceps) and 223 (a calf raise tagged chest and triceps);
 - took out 79 Scapular Pull-Up, a forearm-variant row tagged biceps;
-- moved no row in.
+- moved in 74 L-Sit Pull-Up, a forearm-variant row now tagged biceps like its sibling pull-ups (so no new record).
 
 `variants.test.ts` recomputes the list from the catalog and fails if a tag change adds or drops a row without a record to match.
 
@@ -79,7 +79,7 @@ Before the fixes, the same rule gave 121, the figure in §9.1. The fixes:
 *Other (17):*
 - **Front raises (untagged):** 117 Dumbbell Front Raise, 118 Cable Front Raise (unilateral, as photographed), 119 Plate Front Raise. They are shoulder flexion; the biceps assists, and the anatomy lane's node action exists for exactly this.
 - **Zercher Squat (untagged):** 164. The bar sits in the elbows, as on the forearm's 300 Zercher Carry, whose biceps and brachialis rows the forearm already maps.
-- **Rollouts (untagged):** 237 Ab-Wheel Rollout, 238 Barbell Rollout. The arms are drawn back down by shoulder extension.
+- **Rollouts (untagged):** 237 Ab-Wheel Rollout, 238 Barbell Rollout. The arms are drawn back down by shoulder extension. 238 is the barbell used as an ab wheel; its photograph shows another exercise (section 5).
 - **Throws and slams:** 271 Medicine-Ball Chest Pass, 273 Medicine-Ball Overhead Slam, 279 Medicine-Ball Overhead Backward Throw, 280 Medicine-Ball Forward Overhead Throw, 281 Kneeling Medicine-Ball Chest Pass, 283 Medicine-Ball Sit-Up Throw (untagged), 284 Medicine-Ball Sprawl-to-Slam, 285 Medicine-Ball Slam-to-Sprint.
 - **Kettlebell:** 388 Kettlebell Snatch (unilateral; untagged, an overhead lockout), 390 Turkish Get-Up (unilateral).
 - **Cable:** 380 Cable Anti-Rotation Walkout.
@@ -180,6 +180,12 @@ Set where the name or photograph defines them, and left out where it does not. N
 - **`bench`, `torso`, `grip_width`.** On every bench exercise; `bench: none` on standing presses, the Z-press (seated on the floor) and floor presses.
   - Seated upright presses leave `bench` unset: the vocabulary's incline means a reclined bench.
   - `grip_width` only where the name or photograph says it: medium grip `shoulder` (1, 2, 26), `wide` (27, 31, 39), `narrow` (8, 25, 28, 146, 147, 304).
+- **On the forearm's curls** (requested by the upper arm's pulls, rows and curls lane): `shoulder` added as attributes in `variants/forearmAttributes.ts`.
+  - `extended`: 125 Incline Dumbbell Curl, 129 Bayesian Cable Curl, 338 Incline Cable Curl.
+  - `flexed`: 126 Preacher Curl, 127 Machine Preacher Curl, 130 Spider Curl, 131 Concentration Curl, 340 Cable Concentration Curl, 341 Cable Spider Curl.
+  - `changing`: 137 Drag Curl, where the request asked `extended`. The elbows travel back as the bar rises, so the shoulder moves from the side to behind the body within each rep, which is what `changing` means everywhere else in this vocabulary.
+  - 339 High Cable Curl has none: its arms are raised out to the sides, which no value describes. A value is not added for one exercise, since the long head's length is set mainly by flexion and extension. Add `abducted` if a rationale needs it.
+  - These are `variant_attributes` rows, never columns of the frozen records. `variants.test.ts` checks every field but the attributes against the published 119, and that only `shoulder` is added.
 - **`range`** is not set. The floor presses' shortened bottom (7, 308) is in their notes, because "partial" depends on which muscle is read.
 
 ## 5. Catalog fixes (§11 decision 6)
@@ -190,10 +196,10 @@ Made on rows wave A decides: its new records, and 62 and 79, which keep their fr
 - The fixes change what Review and the Muscles map show for these exercises. That is the effect decision 6 accepts.
 
 Kinds of fix:
-- **Duplicate tag.** `frontDelts` as both primary and secondary on the overhead presses. Review counted that as 1.5 per set; the forearm's 139–145 fix is the precedent.
+- **Duplicate tag, tried and reverted.** `frontDelts` as both primary and secondary on the overhead presses is left as it was. Review already counts a muscle once per exercise, and `weekReview.test.ts` and `exerciseGenome.test.ts` rely on such a row existing. 105 and 110 take the overhead presses' tags exactly, duplicate included.
 - **Chest-primary template copies.** On exercises that are not chest presses, the catalog's own rows for the same lift give the right tags:
   - the landmine presses, as 381 and 382;
-  - the Pallof press, as 310, the same exercise and photograph;
+  - the Pallof press, its muscles as 310's, the same exercise and photograph (its movement stays "Horizontal push": the genome reads any movement naming "rotation" as spinal rotation);
   - the squat-to-press, as 268, the same lift;
   - the overhead presses, as 103 and 104.
 - **Upper-arm tags on the wrong muscle.**
@@ -221,20 +227,12 @@ Kinds of fix:
 | 63 | Cable Pullover | secondary: biceps, rearDelts, forearms → triceps, rearDelts, forearms |
 | 64 | Machine Pullover | secondary: biceps, rearDelts, forearms → triceps, rearDelts, forearms |
 | 65 | Dumbbell Pullover | secondary: biceps, rearDelts, forearms → triceps, rearDelts, forearms |
+| 74 | L-Sit Pull-Up | secondary: obliques, hipFlexors → obliques, hipFlexors, biceps (as the pull-ups 66–73) |
 | 79 | Scapular Pull-Up | secondary: biceps, rearDelts, forearms → rearDelts, forearms |
 | 87 | Face Pull | equipment: Free weights → Cable |
 | 88 | Rope Face Pull with External Rotation | equipment: Free weights → Cable |
-| 101 | Barbell Overhead Press | secondary: triceps, frontDelts, abs → triceps, abs |
-| 102 | Seated Barbell Overhead Press | secondary: triceps, frontDelts, abs → triceps, abs |
-| 103 | Dumbbell Shoulder Press | secondary: triceps, frontDelts, abs → triceps, abs |
-| 104 | Seated Dumbbell Shoulder Press | secondary: triceps, frontDelts, abs → triceps, abs |
-| 105 | Arnold Press | equipment: Free weights → Dumbbells; movement: Horizontal push → Vertical push; primary: chest → frontDelts, sideDelts; secondary: triceps, frontDelts, abs → triceps, abs |
-| 106 | Machine Shoulder Press | secondary: triceps, frontDelts, abs → triceps, abs |
-| 107 | Smith Machine Shoulder Press | secondary: triceps, frontDelts, abs → triceps, abs |
-| 108 | Single-Arm Dumbbell Overhead Press | secondary: triceps, frontDelts, abs → triceps, abs |
-| 109 | Z-Press | secondary: triceps, frontDelts, abs → triceps, abs |
-| 110 | Push Press | equipment: Free weights → Barbell; movement: Horizontal push → Vertical push; primary: chest → frontDelts, sideDelts; secondary: triceps, frontDelts, abs → triceps, abs |
-| 120 | Handstand Push-Up | secondary: triceps, frontDelts, abs → triceps, abs |
+| 105 | Arnold Press | equipment: Free weights → Dumbbells; movement: Horizontal push → Vertical push; primary: chest → frontDelts, sideDelts |
+| 110 | Push Press | equipment: Free weights → Barbell; movement: Horizontal push → Vertical push; primary: chest → frontDelts, sideDelts |
 | 146 | Close-Grip Bench Press | equipment: Free weights → Barbell |
 | 147 | JM Press | equipment: Free weights → Barbell; primary: chest → triceps; secondary: triceps, frontDelts, abs → chest, frontDelts, abs |
 | 150 | Cable Triceps Pushdown | secondary: frontDelts → (none) |
@@ -245,7 +243,7 @@ Kinds of fix:
 | 159 | Ring Dip | movement: Horizontal push → Vertical push |
 | 160 | Bodyweight Triceps Extension | equipment: Free weights → Bodyweight |
 | 223 | Leg-Press Calf Raise | equipment: Free weights → Machine; movement: Horizontal push → Ankle plantarflexion; primary: chest → calves; secondary: triceps, frontDelts, abs → feet (as 221, 222, 224–226) |
-| 249 | Pallof Press | equipment: Free weights → Cable; movement: Horizontal push → Anti-rotation press; primary: chest → abs, obliques; secondary: triceps, frontDelts, abs → chest, triceps, frontDelts |
+| 249 | Pallof Press | equipment: Free weights → Cable; primary: chest → abs, obliques; secondary: triceps, frontDelts, abs → chest, triceps, frontDelts |
 | 251 | Landmine Press | movement: Horizontal push → Diagonal push; primary: chest → frontDelts, chest; secondary: triceps, frontDelts, abs → triceps, abs |
 | 252 | Half-Kneeling Landmine Press | as 251 |
 | 253 | Single-Arm Standing Landmine Press | as 251 |
@@ -255,11 +253,11 @@ Kinds of fix:
 | 280 | Medicine-Ball Forward Overhead Throw | movement: Horizontal pull → Throw, slam or ballistic rotation; secondary: biceps, rearDelts, forearms → triceps, rearDelts, forearms |
 | 345 | Reverse-Grip Cable Pressdown | secondary: forearms, biceps → forearms |
 
-Forty-six rows. Region by region, decisions are rows tagging a region's catalog keys, and primary counts are in brackets:
+Thirty-eight rows. Region by region, decisions are rows tagging a region's catalog keys, and primary counts are in brackets:
 
 | Region | Before → after |
 |---|---|
-| Upper arm | 194 → 186 (48 → 50) |
+| Upper arm | 194 → 187 (48 → 50) |
 | Shoulders | 209 → 204 (56 → 63) |
 | Chest | 98 → 95 (82 → 76) |
 | Back | 122 → 123 |
@@ -268,6 +266,14 @@ Forty-six rows. Region by region, decisions are rows tagging a region's catalog 
 | Thigh | 122 → 123 |
 | Lower leg | 73 → 74 (24 → 25) |
 | Forearm | 137 → 137 |
+
+**238 Barbell Rollout's photograph shows a different exercise.** Its photograph (`Barbell_Ab_Rollout`, attached by the name alias `238: 'Barbell Ab Rollout'` in `scripts/exercise-photos/curate.mjs`) is a pike roll-in:
+- it starts in a push-up position on the feet with the hands on the bar, and the hips rise into a pike while the bar rolls toward the feet;
+- the arms stay perpendicular to the floor throughout, as the source says, and the photo-order audit already shows its frames reversed.
+
+The row's name, its movement ("Trunk flexion / anti-extension") and its sibling 237 Ab-Wheel Rollout define the usual barbell rollout: the bar rolled out until the arms reach overhead, and drawn back. The variant is written that way, and its note says the photograph is another exercise.
+- **Proposed:** drop 238's photograph (the alias and its `exercisePhotos.json` entry; neither is this lane's file), so it shows the placeholder and goes on the photo checklist. The alternative is to rename and redefine the row as the photographed pike, which would also change what athletes log under it.
+- The upper arm's mapping lane listed 238 as not counted because of the photograph's vertical arms. Read as the rollout, 238 loads the shoulder extensors as 237 does, so the same decision should apply to both.
 
 **Seen and not fixed.** Each is another region's reading, or the right tags are not certain from the catalog; their waves' variants lanes decide them:
 - **267 Landmine Anti-Rotation Press and 269 Landmine Clean and Press.** They still carry the chest-primary press template, but the catalog defines neither set-up beyond the name.
@@ -279,15 +285,17 @@ Forty-six rows. Region by region, decisions are rows tagging a region's catalog 
 - **350 Cable Wrist Extension.** Keeps its biceps tag: if the forearm is not supported, the elbow flexors hold it bent against the cable.
 - **Face pulls (87, 88) and goblet holds.** Not tagged with the elbow flexors they use. The face pulls get variants anyway (section 1); no tag is added.
 - **The catalog's `unilateral` quality.** Wrong on many rows; never read, not changed.
-- **The forearm's 72 upper-arm-tagged records.** These are frozen and carry no descriptive dimensions. Two exceptions to the lists above:
-  - the curls the upper arm will cite by shoulder position (125 incline, 129 Bayesian, 137 drag: `extended`; 126 preacher, 130 spider: `flexed`) could take `shoulder` as an attribute, which §3 allows without touching a frozen column;
-  - this lane was told not to edit those records, so that is left to whoever owns the next forearm-record change.
+- **The forearm's 73 upper-arm-tagged records.** These are frozen; only the curls' `shoulder` attributes are added (section 4).
 
 ## 6. What this does elsewhere
 
-- **The seed.** Variants reach the seed only once a region maps them, so the new records add nothing yet. The `shoulder` dimension adds one row to `variant_dimensions` and five to `variant_dimension_values`.
+- **The seed.** Variants reach the seed only once a region maps them, so the new records add nothing yet. The `shoulder` dimension adds one row to `variant_dimensions` and five to `variant_dimension_values`. The curls' `shoulder` adds ten `variant_attributes` rows, since the forearm's version maps those variants. They are inserted unfrozen (only a publish freezes an attribute). `specializationSeed.test.ts`'s `sided_by` check now reads `sided_by` rows only, so it still holds once the seed is regenerated with them.
   - `emit-seed.ts --check` reports the seed stale. It was already stale at this lane's base (5080ffe, the anatomy checkpoint). Not regenerated here: the integration lane owns it.
   - Until then, `specializationSeed.test.ts`'s dimension check fails with the drift guard.
+- **The Training Day analysis.** The recorded Push day in `stackMuscleAnalysis.test.ts` and `StackAnalysisPage.inspect.test.ts` includes 150 Cable Triceps Pushdown, which no longer tags the front delts.
+  - Anterior deltoid involvement goes from 99 % to 79 % of the triceps'.
+  - Its supporting sets go from 9 (counted 4.5) to 6 (counted 3), from three supporting exercises to two.
+  - Both tests say a catalog edit may move these figures; they are updated.
 - **The logging table** reads only production regions' mappings. `emit-logging-table.ts --check` reports it current.
 - **§11 decision 11(c), as planned.** Fifteen forearm-tagged exercises the forearm does not map now have a variant: 24, 63, 64, 65, 279, 280, 335, 343, 344, 345, 346, 348, 388, 389 and 390. Ten are two-handed; 346, 348, 388, 389 and 390 are one-sided or either. On the forearm page, a two-handed one's region-only sets now count on both arms instead of "no arm recorded". A one-sided one's still need a recorded arm (none is asked now, so they count as before in the both-arms summary).
   - The golden edge week logs 24 (fixture `x10`), so `golden.test.ts` (six edge-week cases: one row's side `unknown` → `bilateral`, `boutsUnknownSide` 7 → 6) and `golden.both.test.ts` (three cases) fail.

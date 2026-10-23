@@ -1,5 +1,6 @@
 import type { ExerciseVariant, ForearmOrientation, GripType, Laterality, SidedBy } from "../types";
 import { variantIdFor } from "../ids";
+import { forearmDescriptiveAttributes } from "./forearmAttributes";
 
 /**
  * One default variant per catalog exercise the forearm atlas maps (`cat-<id>`), with its
@@ -59,13 +60,21 @@ function sidedByOf(catalogExerciseId: number): SidedBy {
   return arm ? "arm" : "none";
 }
 
-const variant = (catalogExerciseId: number, catalogName: string, dims: Dims): ExerciseVariant => ({
-  id: variantIdFor(catalogExerciseId),
-  catalogExerciseId,
-  catalogName,
-  ...dims,
-  sidedBy: sidedByOf(catalogExerciseId),
-});
+/**
+ * A record as published, with its counting attribute and any descriptive attributes added since
+ * (forearmAttributes.ts). The attributes are rows beside the frozen record, never its columns.
+ */
+const variant = (catalogExerciseId: number, catalogName: string, dims: Dims): ExerciseVariant => {
+  const dimensions = forearmDescriptiveAttributes[catalogExerciseId];
+  return {
+    id: variantIdFor(catalogExerciseId),
+    catalogExerciseId,
+    catalogName,
+    ...dims,
+    sidedBy: sidedByOf(catalogExerciseId),
+    ...(dimensions ? { dimensions } : {}),
+  };
+};
 
 /** An elbow-flexion curl: the wrist is held straight, straps play no part. */
 const curl = (forearmOrientation: ForearmOrientation, gripType: GripType, laterality: Laterality, notes: string): Dims => ({
