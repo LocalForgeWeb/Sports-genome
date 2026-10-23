@@ -41,7 +41,8 @@ describe("the bouts behind region totals", () => {
     bout("u1", 132, noArm),
     // Towel dead hang: tagged with the forearms in the catalog, mapped to no muscle here.
     bout("r1", 144, { segments: [{ id: "r1", reps: null, loadKg: null, holdSeconds: 30 }] }),
-    // Dumbbell pullover, the same, with no arm recorded; the shared library has no variant of it, so its sides stay unknown.
+    // Dumbbell pullover, the same, with no arm recorded; this region's data holds no variant of it (the synthetic region lists
+    // no `taggedVariants`; the forearm's page reads the library's two-handed one from wave A, golden.test.ts), so its sides stay unknown.
     bout("r2", 24, { ...noArm, sessionId: "s3", sessionLabel: "Grip" }),
   ];
   const summary = summarize(bouts);

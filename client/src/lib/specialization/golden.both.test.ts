@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { regionDataFor } from "@shared/specialization/registry";
 import type { Contribution, RegionBoutRow, SpecializationSummary } from "@shared/specialization/types";
 import { canonicalJson, goldenSummaries, summaryTotals } from "./__fixtures__/releaseGateHistories";
+import { expectOnlyTwoHandedMoves, expectOnlyUpperArmCredit, libraryOnlyInputs, waveZeroInputs, type UpperArmCredit } from "./__fixtures__/goldenWaveA";
 
 /**
  * The forearm's golden test for the page's summary, both arms as one (owner, 20 Oct 2026: "there's
@@ -21,7 +22,14 @@ import { canonicalJson, goldenSummaries, summaryTotals } from "./__fixtures__/re
  *    exercises the forearm lists as left unmapped (296–298, sled pushes and drags), each with its
  *    listed reason and in no total (`expectListedOnly`);
  * 3. the ledger note "Each side assumed" on a planned row assumed on both arms, which main's
- *    calculator writes and no row says now (`withAssumedNote`; the release review, 22 Oct 2026).
+ *    calculator writes and no row says now (`withAssumedNote`; the release review, 22 Oct 2026);
+ *
+ * and wave A's, taken apart as golden.test.ts takes them apart (__fixtures__/goldenWaveA.ts): each
+ * case computed with wave 0's inputs must give the reference exactly (1-3 aside); then the rule
+ * version (v2), the biceps' and brachialis' rows and the biceps' targets credited by the upper arm,
+ * and the region-only set of a forearm-tagged exercise whose new variant is two-handed read on both
+ * arms rather than as "no arm recorded" (24 Dumbbell Pullover in the edge week: on `both` it was
+ * counted already, so only its reading and the no-arm count in completeness change).
  *
  * Nothing else may differ: not a count, a row, a note, a side, an order or the rule version. The
  * per-arm summaries (the calculator's per-side capability, dormant on the page) are held to the
@@ -116,9 +124,14 @@ function normalised(summary: SpecializationSummary, seen: Seen): SpecializationS
 }
 
 describe("the forearm's golden summaries, both arms as one, against main's calculator (4dac1ae)", () => {
-  const computed = goldenSummaries(["both"]);
+  // Wave 0's inputs: the reference must come back exactly (allowed differences 1-3 aside).
+  const computed = goldenSummaries(["both"], waveZeroInputs);
   const byId = new Map(computed.map((item) => [item.id, item.summary] as const));
+  const libraryOnly = new Map(goldenSummaries(["both"], libraryOnlyInputs).map((item) => [item.id, item.summary] as const));
+  const actual = new Map(goldenSummaries(["both"]).map((item) => [item.id, item.summary] as const));
   const seen = new Map<string, Seen>();
+  const moved = new Map<string, string[]>();
+  const credit: UpperArmCredit = { gained: new Map(), lost: new Map(), partnerDropped: 0 };
 
   it("computes every case the reference holds, in the same order", () => {
     expect(reference.from).toBe("4dac1ae");
@@ -138,7 +151,21 @@ describe("the forearm's golden summaries, both arms as one, against main's calcu
       expect(summary.regionUnknownSideBouts).toBe(0);
       expect(summary.nodes.every((node) => node.unknownSide.bouts === 0)).toBe(true);
     });
+    it(`${expected.id}: wave A differs from wave 0 only as allowed`, () => {
+      const steps = expectOnlyTwoHandedMoves(byId.get(expected.id)!, libraryOnly.get(expected.id)!);
+      if (steps.length) moved.set(expected.id, steps);
+      expectOnlyUpperArmCredit(libraryOnly.get(expected.id)!, actual.get(expected.id)!, credit);
+      // Still nothing kept apart for want of an arm, and the page's summary is the tree's.
+      expect(actual.get(expected.id)!.regionUnknownSideBouts).toBe(0);
+    });
   }
+
+  it("found wave A's differences where they belong", () => {
+    // 24 Dumbbell Pullover's set with no arm recorded, in each window of the edge week.
+    expect(Array.from(moved).map(([id, bouts]) => `${id}: ${bouts.join(", ")}`)).toEqual(["calendar-week", "rolling-7d", "custom-year"].map((window) => `completed/edge-week/${window}/both: x10a`));
+    expect(credit.lost.size).toBe(0);
+    expect(Array.from(credit.gained.keys()).sort()).toEqual(["upper_arm.biceps", "upper_arm.brachialis"]);
+  });
 
   it("found the allowed differences where they belong, and only there", () => {
     expect(Array.from(seen.values()).every((counts) => counts.newFields > 0)).toBe(true);
