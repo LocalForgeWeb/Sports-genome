@@ -18,15 +18,18 @@ import {
   tendonMetrics,
   tendonPlacesOf,
   tendonPlannedEntries,
+  tendonWeekCounts,
+  tendonWeekCountsKey,
   tendonWeekOf,
   tendonWeekWindows,
   warmupPassBouts,
   type TendonAreasCount,
   type TendonCounts,
+  type TendonDay,
   type TendonExposure,
   type TendonExtras,
 } from "@shared/specialization/tendonAreas";
-import { addDaysToDateKey, calendarWeekInterval, planWeekInterval } from "@shared/specialization/time";
+import { addDaysToDateKey, calendarWeekInterval, customInterval, planWeekInterval, rolling7dInterval } from "@shared/specialization/time";
 import type { ExposureBout, SpecializationRegionData, SummaryInterval, SummaryRequest, TendonArea, TendonGroup, TendonMember, VariantMapping } from "@shared/specialization/types";
 import { boutsFromSessions, excludedRecordsFromSessions } from "./bouts";
 import { boutsFromPlan } from "./planBouts";
@@ -103,13 +106,16 @@ function counted(sessions: readonly DeviceWorkoutSession[], options: { region?: 
   return countTendonAreas({ region, extras: options.extras ?? extras, summary: windowSummary(region, boutsOf(sessions)) });
 }
 
-function exposureOf(sessions: readonly DeviceWorkoutSession[], options: { now?: string; tz?: string; interval?: SummaryInterval; summarize?: (request: SummaryRequest) => ReturnType<typeof getSpecializationSummary>; bouts?: ExposureBout[] } = {}): TendonExposure {
+type ExposureOptions = { now?: string; tz?: string; interval?: SummaryInterval; summarize?: (request: SummaryRequest) => ReturnType<typeof getSpecializationSummary>; bouts?: ExposureBout[]; region?: SpecializationRegionData; extras?: TendonExtras; planned?: { summary: ReturnType<typeof getSpecializationSummary>; bouts: readonly ExposureBout[] } };
+function exposureOf(sessions: readonly DeviceWorkoutSession[], options: ExposureOptions = {}): TendonExposure {
   const now = options.now ?? NOW;
-  const tz = options.tz ?? TZ;
+  const region = options.region ?? forearmRegionData;
   const bouts = options.bouts ?? boutsOf(sessions);
-  const summary = windowSummary(forearmRegionData, bouts, options.interval ?? calendarWeekInterval(now, tz), now);
-  return tendonExposure({ region: forearmRegionData, extras, summary, bouts, finishedWorkouts: finishedWorkoutsOf(sessions), catalogMusclesFor, now, tz, summarize: options.summarize });
+  // The page's local time is the summary's own (`interval.timezone`).
+  const summary = windowSummary(region, bouts, options.interval ?? calendarWeekInterval(now, options.tz ?? TZ), now);
+  return tendonExposure({ region, extras: options.extras ?? extras, summary, bouts, finishedWorkouts: finishedWorkoutsOf(sessions), catalogMusclesFor, now, summarize: options.summarize, planned: options.planned });
 }
+const daysIn = (days: ReturnType<typeof tendonDays>) => days as TendonDay[];
 
 type Areas = Pick<TendonAreasCount, "areas">;
 const area = (result: Areas, id: string) => result.areas.find((item) => item.id === id)!;
@@ -381,7 +387,7 @@ describe("weeks: the last complete week and the four before", () => {
     expect(calls[5].interval).toEqual(calendarWeekInterval(NOW, TZ));
 
     const plannedCalls: SummaryRequest[] = [];
-    tendonExposure({ region: forearmRegionData, extras, summary: plannedSummary([[{ id: 139, prescription: "3 × 10–25" }]]).summary, bouts: [], finishedWorkouts: [], catalogMusclesFor, now: NOW, tz: TZ, summarize: (request) => { plannedCalls.push(request); return getSpecializationSummary(request); } });
+    tendonExposure({ region: forearmRegionData, extras, summary: plannedSummary([[{ id: 139, prescription: "3 × 10–25" }]]).summary, bouts: [], finishedWorkouts: [], catalogMusclesFor, now: NOW, summarize: (request) => { plannedCalls.push(request); return getSpecializationSummary(request); } });
     expect(plannedCalls).toHaveLength(0);
   });
 });
@@ -415,16 +421,26 @@ describe("the change line, every state", () => {
     expect(change.state === "change" && change.baseline[2]).toMatchObject({ known: true, value: 0, finishedWorkouts: 1 });
   });
 
-  it("is New when the median is 0 and last week has sets", () => {
+  it("is New only when every known earlier week is 0 and last week has sets", () => {
     expect(innerSets(["legs", "legs", null, "legs", 3])).toMatchObject({ state: "new", last: 3, median: 0, knownWeeks: 3, aboveEveryKnownWeek: true });
-    // The median can be 0 with a known week above 0; the baseline says which, so the words stay true.
-    const change = innerSets(["legs", "legs", 5, null, 3]);
-    expect(change).toMatchObject({ state: "new", last: 3, median: 0, aboveEveryKnownWeek: false });
-    expect(change.state === "new" && change.baseline.map((week) => week.value)).toEqual([0, 0, 5, null]);
   });
 
-  it("is none when last week and the median are both zero", () => {
+  it("is none only when last week and every known earlier week are 0", () => {
     expect(innerSets(["legs", "legs", "legs", "legs", "legs"])).toMatchObject({ state: "none", last: 0, median: 0, knownWeeks: 4 });
+  });
+
+  it("reads a median of 0 beside a known week above 0 as a change, never New or none", () => {
+    // Earlier weeks 0, 0 and 5 (one not known): something was done, so the median of 0 is compared.
+    const three = innerSets(["legs", "legs", 5, null, 3]);
+    expect(three).toMatchObject({ state: "change", last: 3, median: 0, change: 3, aboveEveryKnownWeek: false });
+    expect(three.state === "change" && three.baseline.map((week) => week.value)).toEqual([0, 0, 5, null]);
+    expect(innerSets(["legs", "legs", 5, null, "legs"])).toMatchObject({ state: "change", last: 0, median: 0, change: 0, aboveEveryKnownWeek: false });
+    // Four known, 0, 6, 5, 0: the middle two give 2.5, kept exact.
+    expect(innerSets(["legs", 6, 5, "legs", 3])).toMatchObject({ state: "change", last: 3, median: 2.5, change: 0.5 });
+  });
+
+  it("is building the baseline before reading any median, a median of 0 included", () => {
+    expect(innerSets(["legs", null, null, null, 3])).toMatchObject({ state: "building_baseline", last: 3, knownWeeks: 1, neededWeeks: 3 });
   });
 
   it("gives both numbers and the absolute change, and whether last week is above every known week", () => {
@@ -452,7 +468,7 @@ describe("the change line, every state", () => {
   it("is a pure function of the weeks and their values", () => {
     const windows = tendonWeekWindows(NOW, TZ);
     const known = windows.map((window) => tendonWeekOf(window, [{ id: "a", performedAt: window.interval.startAt! }], NOW));
-    const change = tendonChangeOf({ week: known[4], value: 25 }, [16, 15, 17, 30].map((value, index) => ({ week: known[index], value })));
+    const change = tendonChangeOf("sets", { week: known[4], value: 25, holdsWithoutTime: 0 }, [16, 15, 17, 30].map((value, index) => ({ week: known[index], value, holdsWithoutTime: 0 })));
     expect(change).toMatchObject({ state: "change", last: 25, median: 16.5, change: 8.5, aboveEveryKnownWeek: false });
     // A week that has not ended is never known, whatever it holds.
     const thisWeek = tendonWeekOf({ ...windows[4], interval: calendarWeekInterval(NOW, TZ) }, [{ id: "a", performedAt: NOW }], NOW);
@@ -481,7 +497,7 @@ describe("weeks across a clock change", () => {
 
     // That week's seven day columns, the late Sunday set on Sunday.
     const lastWeek = windowSummary(forearmRegionData, boutsOf(sessions), windows[4].interval, now);
-    const days = tendonDays(countTendonAreas({ region: forearmRegionData, extras, summary: lastWeek }).areas[0].counts, { interval: windows[4].interval, now, tz: TZ })!;
+    const days = daysIn(tendonDays(countTendonAreas({ region: forearmRegionData, extras, summary: lastWeek }).areas[0].counts, { interval: windows[4].interval, now }));
     expect(days.map((day) => [day.dayKey, day.toCome ? "to come" : day.sets])).toEqual([["2026-10-19", 1], ["2026-10-20", 0], ["2026-10-21", 0], ["2026-10-22", 0], ["2026-10-23", 0], ["2026-10-24", 0], ["2026-10-25", 1]]);
   });
 
@@ -507,20 +523,49 @@ describe("day columns", () => {
   const result = exposureOf(sessions);
 
   it("has every day of the week, today included, and the days still to come apart from 0", () => {
-    const days = area(result, "inner").days!;
-    expect(days.map((day) => (day.toCome ? [day.dayKey, "to come"] : [day.dayKey, day.target, day.holds.sets, day.other, day.strapped]))).toEqual([
-      ["2026-10-19", 2, 0, 0, 0],
-      ["2026-10-20", 0, 0, 0, 0],
-      ["2026-10-21", 0, 1, 0, 1],
-      ["2026-10-22", 0, 0, 0, 0],
+    const days = daysIn(area(result, "inner").days);
+    expect(days.map((day) => (day.toCome ? [day.dayKey, "to come"] : [day.dayKey, day.target, day.holds.sets, day.other, day.strapped, day.partial]))).toEqual([
+      ["2026-10-19", 2, 0, 0, 0, false],
+      ["2026-10-20", 0, 0, 0, 0, false],
+      ["2026-10-21", 0, 1, 0, 1, false],
+      ["2026-10-22", 0, 0, 0, 0, false],
       ["2026-10-23", "to come"],
       ["2026-10-24", "to come"],
       ["2026-10-25", "to come"],
     ]);
   });
 
+  it("gives a rolling window its eight days, the first partial, counting only the sets inside it", () => {
+    // Rolling 7 days from Thu 22 Oct 13:00 BST: from Thu 15 Oct 13:00 BST. On the 15th one set at 09:00 (outside) and one at 15:00 (inside).
+    const rolling = exposureOf([
+      finished("a", "2026-10-15T08:00:00.000Z", [exercise("e", "Wrist Curl", 139, sets(1))]),
+      finished("b", "2026-10-15T14:00:00.000Z", [exercise("e", "Wrist Curl", 139, sets(1))]),
+    ], { interval: rolling7dInterval(NOW, TZ) });
+    const days = daysIn(area(rolling, "inner").days);
+    expect(days.map((day) => (day.toCome ? [day.dayKey, "to come"] : [day.dayKey, day.sets, day.partial]))).toEqual([
+      ["2026-10-15", 1, true],
+      ["2026-10-16", 0, false],
+      ["2026-10-17", 0, false],
+      ["2026-10-18", 0, false],
+      ["2026-10-19", 0, false],
+      ["2026-10-20", 0, false],
+      ["2026-10-21", 0, false],
+      ["2026-10-22", 0, false],
+    ]);
+  });
+
+  it("gives a custom window each of its days, and says too long past 31", () => {
+    const custom = exposureOf([finished("a", "2026-10-02T12:00:00.000Z", [exercise("e", "Wrist Curl", 139, sets(2))])], { interval: customInterval("2026-10-01", "2026-10-31", TZ) });
+    const days = daysIn(area(custom, "inner").days);
+    expect(days).toHaveLength(31);
+    expect(days[0]).toMatchObject({ dayKey: "2026-10-01", toCome: false, sets: 0, partial: false });
+    expect(days[1]).toMatchObject({ dayKey: "2026-10-02", toCome: false, sets: 2, target: 2 });
+    expect(days.slice(22).every((day) => day.toCome)).toBe(true);
+    expect(area(exposureOf([], { interval: customInterval("2026-09-30", "2026-10-31", TZ) }), "inner").days).toBe("too_long");
+  });
+
   it("keeps each day's sets in the sheet's lists", () => {
-    const wednesday = area(result, "inner").days!.find((day) => day.dayKey === "2026-10-21")!;
+    const wednesday = daysIn(area(result, "inner").days).find((day) => day.dayKey === "2026-10-21")!;
     expect(wednesday.toCome).toBe(false);
     if (wednesday.toCome) return;
     expect(wednesday.lists.holds.map((row) => row.exerciseName)).toEqual(["Plate Pinch"]);
@@ -529,7 +574,7 @@ describe("day columns", () => {
   });
 
   it("has none for a window with no dates", () => {
-    expect(tendonDays(area(result, "inner").counts, { interval: planWeekInterval(1), now: NOW, tz: TZ })).toBeNull();
+    expect(tendonDays(area(result, "inner").counts, { interval: planWeekInterval(1), now: NOW })).toBeNull();
   });
 });
 
@@ -550,7 +595,7 @@ function plannedSummary(days: { id: number; prescription?: string }[][]) {
 
 describe("planned mode: plan-week totals per area only", () => {
   const { bouts, summary, slots } = plannedSummary([[{ id: 139, prescription: "3 × 10–25" }, { id: 140, prescription: "2 × 10–25" }], [{ id: 142, prescription: "3 × 30 sec" }]]);
-  const result = tendonExposure({ region: forearmRegionData, extras, summary, bouts: [], finishedWorkouts: [], catalogMusclesFor, now: NOW, tz: TZ });
+  const result = tendonExposure({ region: forearmRegionData, extras, summary, bouts: [], finishedWorkouts: [], catalogMusclesFor, now: NOW });
 
   it("counts the plan week per area and group, with no dates, change line or warm-ups", () => {
     expect(result).toMatchObject({ mode: "planned", weeks: null, warmups: null, interval: { kind: "plan_week", planWeek: 2 } });
@@ -629,17 +674,136 @@ describe("the deltoid fixture, with test-local areas and no deltoid code", () =>
   });
 });
 
+describe("review fixes (adversarial review of 03ca352)", () => {
+  const pinchWeeks = (earlier: AtlasSet[], last: AtlasSet[]) => MONDAYS.map((monday, index) => finished(`w${index}`, at(addDaysToDateKey(monday, 2)), [exercise(`p${index}`, "Plate Pinch", 142, index === MONDAYS.length - 1 ? last : earlier)]));
+
+  it("never compares hold seconds across an untimed hold: earlier weeks untimed, last week timed", () => {
+    // Each earlier week: 2 holds with no time recorded. Last week: one hold of 30 s. The holds fell; the seconds must not read as New.
+    const digits = area(exposureOf(pinchWeeks([workSet(), workSet()], [workSet({ holdSeconds: "30" })])), "digits").change!;
+    expect(digits.holds).toMatchObject({ state: "change", last: 1, median: 2, change: -1 });
+    expect(digits.holdSeconds).toMatchObject({ state: "some_untimed", last: 30, lastHoldsWithoutTime: 0, knownWeeks: 4 });
+    expect(digits.holdSeconds.state === "some_untimed" && digits.holdSeconds.baseline.map((week) => [week.value, week.holdsWithoutTime])).toEqual([[0, 2], [0, 2], [0, 2], [0, 2]]);
+  });
+
+  it("never compares hold seconds across an untimed hold: earlier weeks timed, last week untimed", () => {
+    const digits = area(exposureOf(pinchWeeks([workSet({ holdSeconds: "30" })], [workSet()])), "digits").change!;
+    expect(digits.holdSeconds).toMatchObject({ state: "some_untimed", last: 0, lastHoldsWithoutTime: 1 });
+    expect(digits.holds).toMatchObject({ state: "change", last: 1, median: 1, change: 0 });
+    // Timed in every week, the seconds are compared as usual.
+    expect(area(exposureOf(pinchWeeks([workSet({ holdSeconds: "30" })], [workSet({ holdSeconds: "45" })])), "digits").change!.holdSeconds).toMatchObject({ state: "change", last: 45, median: 30, change: 15, lastHoldsWithoutTime: 0 });
+  });
+
+  it("keeps last week's counts and sets on every area and group, so its sets open without another summary", () => {
+    const result = exposureOf(weeks([2, 2, 2, 2, 3]));
+    const inner = area(result, "inner");
+    expect(brief(inner.lastWeek!)).toEqual({ ...none, sets: 3, target: 3 });
+    expect(inner.lastWeek!.lists.target.map((row) => row.boutId)).toEqual(["w4/w4e/0", "w4/w4e/1", "w4/w4e/2"]);
+    expect(brief(groupIn(result, "inner", "cfo").lastWeek!)).toEqual({ ...none, sets: 3, target: 3 });
+    expect(brief(area(result, "digits").lastWeek!)).toEqual({ ...none, sets: 3, other: 3 });
+  });
+
+  it("gives a group or area with no reviewed member no change line", () => {
+    const result = exposureOf(weeks([2, 2, 2, 2, 3]));
+    expect(groupIn(result, "outer", "sup").change).toBeNull();
+    expect(groupIn(result, "distal", "deep").change).toBeNull();
+    expect(groupIn(result, "outer", "ceo").change).not.toBeNull();
+    const empty: TendonExtras = { tendonAreas: [{ id: "x", label: "X", description: "", groups: [group("g", [member(m.supinator, "draft")])] }] };
+    const lonely = exposureOf(weeks([2, 2, 2, 2, 3]), { extras: empty });
+    expect(lonely.areas[0].change).toBeNull();
+    expect(lonely.areas[0].groups[0].change).toBeNull();
+  });
+
+  it("lists the trained plan week's entries in any window, from the plan week the page passes", () => {
+    const plan = plannedSummary([[{ id: 139, prescription: "3 × 10–25" }], [{ id: 142, prescription: "2 × 30 sec" }]]);
+    const rolling = exposureOf([], { interval: rolling7dInterval(NOW, TZ), planned: { summary: plan.summary, bouts: plan.bouts } });
+    expect(rolling.plannedWeek).toBe(2);
+    expect(area(rolling, "inner").planned!.entries.map((entry) => [entry.exerciseName, entry.sets, entry.target, entry.holds])).toEqual([["Wrist Curl", 3, 3, 0], ["Plate Pinch", 2, 0, 2]]);
+    expect(brief(area(rolling, "outer").planned!.counts)).toEqual(none);
+    expect(exposureOf([]).plannedWeek).toBeNull();
+    expect(area(exposureOf([]), "inner").planned).toBeNull();
+    const completed = windowSummary(forearmRegionData, []);
+    expect(() => tendonExposure({ region: forearmRegionData, extras, summary: completed, bouts: [], finishedWorkouts: [], catalogMusclesFor, now: NOW, planned: { summary: completed, bouts: [] } })).toThrow(/planned summary/);
+  });
+
+  it("reuses week counts made for the same key, so only the warm-up pass is summarized again", () => {
+    const sessions = weeks([2, 2, 2, 2, 3]);
+    const bouts = boutsOf(sessions);
+    const summary = windowSummary(forearmRegionData, bouts);
+    const base = { region: forearmRegionData, extras, summary, bouts, finishedWorkouts: finishedWorkoutsOf(sessions), catalogMusclesFor, now: NOW };
+    const weekCounts = tendonWeekCounts(base);
+    const calls: SummaryRequest[] = [];
+    const summarize = (request: SummaryRequest) => { calls.push(request); return getSpecializationSummary(request); };
+    const reused = tendonExposure({ ...base, weekCounts, summarize });
+    expect(calls).toHaveLength(1);
+    expect(reused).toEqual(tendonExposure(base));
+    // Counts made for other areas are not reused.
+    calls.length = 0;
+    const other: TendonExtras = { tendonAreas: forearmAreas.slice(1) };
+    tendonExposure({ ...base, extras, weekCounts: tendonWeekCounts({ ...base, extras: other }), summarize });
+    expect(calls).toHaveLength(6);
+  });
+
+  it("keys week counts on what they read, not on the minute", () => {
+    const summary = windowSummary(forearmRegionData, []);
+    const key = tendonWeekCountsKey(summary, NOW);
+    // London leaves summer time on Sunday 25 Oct, so this week ends at 2026-10-26T00:00:00.000Z.
+    expect(tendonWeekCountsKey(summary, "2026-10-25T23:59:59.999Z")).toBe(key);
+    expect(tendonWeekCountsKey(summary, "2026-10-26T00:00:00.000Z")).not.toBe(key);
+    expect(tendonWeekCountsKey({ ...summary, sourceRevision: "other" }, NOW)).not.toBe(key);
+    expect(tendonWeekCountsKey({ ...summary, interval: calendarWeekInterval(NOW, "America/New_York") }, NOW)).not.toBe(key);
+  });
+
+  it("puts a set and a workout at exactly Monday 00:00:00.000 local in the week that Monday starts", () => {
+    // Monday 12 Oct 2026 00:00 BST is 2026-10-11T23:00:00.000Z; one millisecond earlier is Sunday 11 Oct.
+    const result = exposureOf([
+      finished("onMonday", "2026-10-11T23:00:00.000Z", [exercise("e", "Wrist Curl", 139, sets(2))]),
+      finished("onSunday", "2026-10-11T22:59:59.999Z", [exercise("e", "Wrist Curl", 139, sets(1))]),
+      finished("thisMonday", "2026-10-18T23:00:00.000Z", [exercise("e", "Wrist Curl", 139, sets(1))]),
+      finished("lastSunday", "2026-10-18T22:59:59.999Z", [exercise("e", "Wrist Curl", 139, sets(1))]),
+    ]);
+    expect(result.weeks!.last).toMatchObject({ label: "12–18 Oct", finishedWorkouts: 2 });
+    expect(result.weeks!.earlier[3]).toMatchObject({ label: "5–11 Oct", finishedWorkouts: 1 });
+    expect(area(result, "inner").lastWeek!.lists.target.map((row) => row.sessionId)).toEqual(["onMonday", "onMonday", "lastSunday"]);
+    expect(area(result, "inner").change!.sets).toMatchObject({ state: "building_baseline", last: 3, knownWeeks: 1 });
+    // This week's window and its first day column hold the set at its first instant.
+    expect(brief(area(result, "inner").counts)).toEqual({ ...none, sets: 1, target: 1 });
+    expect(daysIn(area(result, "inner").days)[0]).toMatchObject({ dayKey: "2026-10-19", sets: 1 });
+  });
+
+  it("lists a set strapped for one member and pending for another once, as strapped", () => {
+    // A test assumption: a draft FCR mapping on 43 Barbell Bent-Over Row, so the strapped FDS and FDP rows and FCR's pending row meet at the inner area.
+    const base = forearmRegionData.mappings.find((mapping) => mapping.id === "cat-139:forearm.fcr" && mapping.versionKey === forearmRegionData.mappingVersion.key)!;
+    const region: SpecializationRegionData = { ...forearmRegionData, mappings: [...forearmRegionData.mappings, { ...base, id: "test-43-fcr-draft", variantId: "cat-43", reviewStatus: "draft" }] };
+    const result = counted([finished("s1", WED, [exercise("e1", "Barbell Bent-Over Row", 43, sets(2), { straps: "yes" })])], { region });
+    expect(brief(area(result, "inner").counts)).toEqual({ ...none, strapped: 2 });
+    expect(brief(groupIn(result, "distal", "front").counts)).toEqual({ ...none, pending: 2 });
+    expect(brief(area(result, "digits").counts)).toEqual({ ...none, strapped: 2 });
+  });
+});
+
 describe("the module's words", () => {
   const source = readFileSync(join(process.cwd(), "shared/specialization/tendonAreas.ts"), "utf8");
 
+  /**
+   * Every line, comments included, with identifiers split at their capitals ("aboveThreshold" reads
+   * "above threshold") and read as plain text, not word by word, so a word inside an identifier is
+   * found too. One token is allowed: `timezone`, the calculator's own `SummaryInterval` field, which
+   * names the page's local time, not a zone in the sense the list means.
+   */
+  const lines = source.split("\n").map((line, index) => [index + 1, line.replace(/\btimezone\b/g, "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase()] as const);
+
   it("has no percentage, ratio, cut-off or risk word anywhere, comments and identifiers included", () => {
     // 11-forearm-research-and-stack.md §4.4's list, and the words for a share or a line drawn.
-    const words = ["risk", "safe", "unsafe", "danger", "injury", "injure", "tendonitis", "tendinitis", "tendinopathy", "overuse", "overload", "strain", "damage", "warning", "alert", "limit", "budget", "threshold", "zone", "spike", "red flag", "ACWR", "acute", "chronic", "push through", "percent", "percentage", "ratio", "cut-off", "cutoff"];
-    const hits = source.split("\n").map((line, index) => [index + 1, line] as const).filter(([, line]) => line.includes("%") || words.some((word) => new RegExp(`\\b${word}`, "i").test(line)));
-    expect(hits).toEqual([]);
+    const words = ["risk", "safe", "danger", "injur", "tendonitis", "tendinitis", "tendinopathy", "overuse", "overload", "strain", "damage", "warning", "alert", "limit", "budget", "threshold", "zone", "spike", "red flag", "acwr", "acute", "chronic", "push through", "percent", "ratio", "cut-off", "cutoff", "%"];
+    expect(lines.filter(([, line]) => words.some((word) => line.includes(word)))).toEqual([]);
+  });
+
+  it("finds a word inside an identifier", () => {
+    const read = (text: string) => text.replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase();
+    expect(["aboveThreshold", "leftSide", "loadRatio", "riskScore"].map((word) => /threshold|left|ratio|risk/.test(read(word)))).toEqual([true, true, true, true]);
   });
 
   it("names no side", () => {
-    expect(source.split("\n").filter((line) => /\b(left|right)\b/i.test(line))).toEqual([]);
+    expect(lines.filter(([, line]) => /left|right/.test(line))).toEqual([]);
   });
 });

@@ -42,35 +42,45 @@ import { addDaysToDateKey, customInterval, dateRangeLabel, intervalContains, loc
  *   neither counted nor strapped there, so a set sits in one list per area; region-only sets, once,
  *   at section level (`regionOnly`); marked warm-ups, which the calculator already keeps out and a
  *   second pass counts on their own (`warmupPassBouts`, `TendonExposure.warmups`).
- * - **Weeks** (`tendonWeekWindows`): calendar weeks in the page's local time, from `time.ts`, so a
- *   week across a clock change is 167 or 169 hours: the last complete week and the four before,
- *   each with its count of finished workouts (`finishedWorkoutsOf`).
+ * - **Weeks** (`tendonWeekWindows`): calendar weeks in the page's local time (the summary's
+ *   `interval.timezone`), from `time.ts`, so a week across a clock change is 167 or 169 hours: the
+ *   last complete week and the four before, each with its count of finished workouts
+ *   (`finishedWorkoutsOf`).
  * - **Change line** (`tendonChangeOf`), per area and group and per metric: the last complete week
  *   against the median of the known weeks among the four before, at least three known. A week is
  *   known when it has ended and holds at least one finished workout; a week with none is not read,
- *   never counted as zero; a partly logged week is known. States: no workout last week, building
- *   the baseline (n of 3), both zero, new, or the absolute change with both numbers and whether last
- *   week is above every known week. Structured data only: the page writes the words.
- * - **Day columns** (`tendonDays`): every local day of the window; a day still to come is its own
- *   kind (`toCome: true`), never a 0.
+ *   never counted as zero; a partly logged week is known. `none` and `new` only when every known
+ *   earlier week is 0; a median of 0 beside a known week above 0 is an ordinary `change`. Hold
+ *   seconds are never compared across a hold with no time recorded (`some_untimed`). Structured
+ *   data only: the page writes the words, and formats a median or change of an even number of
+ *   weeks, which can end in .5 ("2.5 sets").
+ * - **Day columns** (`tendonDays`): every local day of the window, up to `TENDON_DAYS_SHOWN`
+ *   (else `"too_long"`, as the page's own day columns); a day still to come is its own kind
+ *   (`toCome: true`), never a 0; a day the window covers only part of is `partial` (the first day
+ *   of a rolling window).
  * - **Planned mode**: plan-week totals per area and group; no dates, no change line, no warm-ups.
  * - Every result carries the method (`tendon_areas_v1`, a constant here, not a rule version), the
  *   mapping version and the rule version of the summary it read.
  *
  * How the page calls it (`TendonExposure.tsx`, lane T3), on first open of the section:
- * 1. `tendonExposure({ region, extras, summary, bouts, finishedWorkouts, catalogMusclesFor, now, tz })`
- *    with the page's own summary (`useSpecializationSummary`: its side, window and mode), the
- *    completed bouts the page reads (`boutsFromSessions` and `excludedRecordsFromSessions`),
- *    `finishedWorkoutsOf(sessions)`, the catalog lookup, the clock and the page's IANA name for
- *    local time (`tz`, as `calendarWeekInterval` takes it). In completed mode it computes six more
- *    summaries (the five weeks and the warm-up pass) through `summarize`
- *    (`getSpecializationSummary` unless the page passes its cached reader); in planned mode none.
- *    Memoize it on the summary, the source revision and the minute of `now`.
- * 2. "Planned in Week N": `countTendonAreas` over the plan week's planned summary (the page's pair
- *    summary in completed mode), then `tendonPlannedEntries(area.counts, plannedBouts)`.
- * 3. "Attaches at" on a muscle's sheet: `tendonPlacesOf(extras, nodeId)`.
- * 4. A day column's sets: `TendonExposure.areas[i].days[d].lists` (target, holds, other, strapped,
- *    pending), each a `RegionBoutRow[]` that `BoutListSheet` opens as it is.
+ * 1. `tendonWeekCounts(input)`: the five week summaries, the costly part. Memoize it on
+ *    `tendonWeekCountsKey(summary, now)` (region, source revision, side, rule and mapping versions,
+ *    the page's local time and the last complete week's Monday), never on the minute of `now`, so
+ *    returning to the page reuses it until a set changes or a week ends.
+ * 2. `tendonExposure({ region, extras, summary, bouts, finishedWorkouts, catalogMusclesFor, now,
+ *    weekCounts, planned })` with the page's own summary (`useSpecializationSummary`: its side,
+ *    window and mode), the completed bouts the page reads (`boutsFromSessions` and
+ *    `excludedRecordsFromSessions`), `finishedWorkoutsOf(sessions)`, the catalog lookup and the
+ *    clock. In completed mode it makes one more summary, over the window's warm-ups only (and the
+ *    five weeks when `weekCounts` is not given); in planned mode none.
+ * 3. "Planned in Week N", in every window: the page builds the trained plan week's planned summary
+ *    itself, over `planWeekInterval(trainingWeek, tz)` whatever the window shows (the page's pair
+ *    summary exists only for the calendar week), and passes it with its plan bouts as `planned`;
+ *    each area then carries `planned.entries` (`tendonPlannedEntries`).
+ * 4. "See these sets" for last week: `areas[i].lastWeek.lists` (and on each group).
+ * 5. "Attaches at" on a muscle's sheet: `tendonPlacesOf(extras, nodeId)`.
+ * 6. A day column's sets: `areas[i].days[d].lists` (target, holds, other, strapped, pending), each
+ *    a `RegionBoutRow[]` that `BoutListSheet` opens as it is.
  */
 
 // ---------------------------------------------------------------- constants and types
@@ -81,6 +91,8 @@ export const TENDON_AREAS_METHOD = "tendon_areas_v1" as const;
 export const TENDON_EARLIER_WEEKS = 4;
 /** How many of those must be known before a median is read. */
 export const TENDON_KNOWN_WEEKS_NEEDED = 3;
+/** The most local days a window shows column by column, as the page's own day columns. */
+export const TENDON_DAYS_SHOWN = 31;
 
 export type TendonKind = "target" | "hold" | "other";
 /** What a change line can be read on: the counted sets, each kind, and hold seconds. */
@@ -202,7 +214,23 @@ export interface TendonWeek extends TendonWeekWindow {
   known: boolean;
 }
 
-/** One earlier week as a change line shows it beside the median. */
+/** The five weeks and each one's count: `tendonWeekCounts`, the part worth memoizing. */
+export interface TendonWeekCounts {
+  /** Oldest first; the last is the last complete week. */
+  weeks: TendonWeek[];
+  /** Each week's count, in the same order. */
+  counts: TendonAreasCount[];
+}
+
+/** One week's value for one area or group and one metric, as `tendonChangeOf` reads it. */
+export interface TendonWeekValue {
+  week: TendonWeek;
+  value: number;
+  /** Hold sets that week, in that area or group, with no time recorded. */
+  holdsWithoutTime: number;
+}
+
+/** One earlier week as a change line shows it beside last week. */
 export interface TendonBaselineWeek {
   firstDay: string;
   lastDay: string;
@@ -211,70 +239,42 @@ export interface TendonBaselineWeek {
   known: boolean;
   /** The week's value; null for a week that is not known (not read, never zero). */
   value: number | null;
+  /** Its hold sets with no time recorded; null for a week that is not known. */
+  holdsWithoutTime: number | null;
 }
 
 /**
  * A change line's state, for one area or group and one metric (note 11 §4.2). Every state but the
- * first carries the earlier weeks, oldest first, each with its finished workouts.
+ * first carries last week's value, its hold sets with no time recorded, how many earlier weeks are
+ * known, and the earlier weeks, oldest first, each with its finished workouts.
  * - `no_workout_last_week`: no finished workout logged last week; nothing to compare, no numbers.
  * - `building_baseline`: fewer than `neededWeeks` of the earlier weeks are known.
- * - `none`: last week and the median are both 0.
- * - `new`: the median is 0 and last week has some.
- * - `change`: last week and the median, and `change` = last − median (absolute, signed).
- * `aboveEveryKnownWeek` is true when last week is above every known earlier week. The median of four
- * known weeks is the mean of the middle two, so it (and the change) can end in .5.
+ * - `some_untimed` (hold seconds only): last week or a known earlier week has a hold with no time
+ *   recorded, so seconds are shown week by week and never compared, never `new` or above.
+ * - `none`: last week and every known earlier week are 0.
+ * - `new`: every known earlier week is 0 and last week has some.
+ * - `change`: last week, the median, and `change` = last − median (absolute, signed); the median can
+ *   be 0 when a known week is above 0. `aboveEveryKnownWeek` is true when last week is above every
+ *   known earlier week. The median of four known weeks is the mean of the middle two, so it (and the
+ *   change) can end in .5, kept exact: the page formats halves ("2.5 sets").
  */
 export type TendonChange =
   | { state: "no_workout_last_week" }
-  | { state: "building_baseline"; last: number; knownWeeks: number; neededWeeks: number; baseline: TendonBaselineWeek[] }
-  | { state: "none"; last: 0; median: 0; knownWeeks: number; baseline: TendonBaselineWeek[] }
-  | { state: "new"; last: number; median: 0; knownWeeks: number; aboveEveryKnownWeek: boolean; baseline: TendonBaselineWeek[] }
-  | { state: "change"; last: number; median: number; change: number; knownWeeks: number; aboveEveryKnownWeek: boolean; baseline: TendonBaselineWeek[] };
+  | { state: "building_baseline"; last: number; lastHoldsWithoutTime: number; knownWeeks: number; neededWeeks: number; baseline: TendonBaselineWeek[] }
+  | { state: "some_untimed"; last: number; lastHoldsWithoutTime: number; knownWeeks: number; baseline: TendonBaselineWeek[] }
+  | { state: "none"; last: 0; median: 0; lastHoldsWithoutTime: number; knownWeeks: number; baseline: TendonBaselineWeek[] }
+  | { state: "new"; last: number; median: 0; lastHoldsWithoutTime: number; knownWeeks: number; aboveEveryKnownWeek: true; baseline: TendonBaselineWeek[] }
+  | { state: "change"; last: number; median: number; change: number; lastHoldsWithoutTime: number; knownWeeks: number; aboveEveryKnownWeek: boolean; baseline: TendonBaselineWeek[] };
 
 export type TendonChangeSet = Record<TendonMetric, TendonChange>;
 
 /** A day column: a day still to come is its own kind, never a count of 0. */
-export type TendonDay = { dayKey: string; toCome: true } | ({ dayKey: string; toCome: false } & TendonCounts);
+export type TendonDay =
+  | { dayKey: string; toCome: true }
+  | ({ dayKey: string; toCome: false; /** The window covers only part of this day (the first day of a rolling window). */ partial: boolean } & TendonCounts);
 
-export interface TendonGroupView extends TendonGroupCount {
-  /** Completed mode only. */
-  change: TendonChangeSet | null;
-}
-
-export interface TendonAreaView extends Omit<TendonAreaCount, "groups"> {
-  groups: TendonGroupView[];
-  /** Completed mode only. */
-  change: TendonChangeSet | null;
-  /** Completed mode, a window with dates: each local day of the window. */
-  days: TendonDay[] | null;
-}
-
-/** The section's numbers for one open: the page's window, and in completed mode the weeks and the warm-up pass. */
-export interface TendonExposure extends Omit<TendonAreasCount, "areas"> {
-  areas: TendonAreaView[];
-  /** Completed mode only: the last complete week and the four before (oldest first). */
-  weeks: { last: TendonWeek; earlier: TendonWeek[] } | null;
-  /** Completed mode only: the window's marked warm-ups, counted the same way and kept out of every count above. */
-  warmups: TendonAreasCount | null;
-}
-
-export interface TendonExposureInput {
-  region: SpecializationRegionData;
-  extras: TendonExtras;
-  /** The page's own summary: its side, window (or plan week) and mode. */
-  summary: SpecializationSummary;
-  /** Completed bouts as the page reads them (excluded records may be included; they are never counted). */
-  bouts: readonly ExposureBout[];
-  /** `finishedWorkoutsOf(sessions)`. */
-  finishedWorkouts: readonly FinishedWorkout[];
-  catalogMusclesFor: SummaryRequest["catalogMusclesFor"];
-  /** ISO instant: the page's clock. */
-  now: string;
-  /** The IANA name of the page's local time, as `calendarWeekInterval` takes it. */
-  tz: string;
-  /** How a summary is computed; `getSpecializationSummary` unless the page passes its cached reader. */
-  summarize?: (request: SummaryRequest) => SpecializationSummary;
-}
+/** The window's day columns, `"too_long"` past `TENDON_DAYS_SHOWN` days, or null for a window with no dates. */
+export type TendonDays = TendonDay[] | "too_long" | null;
 
 /** One plan entry that loads an area: what "Planned in Week N" lists, one row each. */
 export interface TendonPlannedEntry {
@@ -288,6 +288,59 @@ export interface TendonPlannedEntry {
   target: number;
   holds: number;
   other: number;
+}
+
+export interface TendonGroupView extends TendonGroupCount {
+  /** Completed mode only; null too for a group with no reviewed member. */
+  change: TendonChangeSet | null;
+  /** Completed mode only: last complete week's counts and sets. */
+  lastWeek: TendonCounts | null;
+}
+
+export interface TendonAreaView extends Omit<TendonAreaCount, "groups"> {
+  groups: TendonGroupView[];
+  /** Completed mode only; null too for an area with no reviewed member. */
+  change: TendonChangeSet | null;
+  /** Completed mode only: last complete week's counts and sets. */
+  lastWeek: TendonCounts | null;
+  /** Completed mode only. */
+  days: TendonDays;
+  /** The trained plan week's counts here and the entries behind them, when `planned` was given. */
+  planned: { counts: TendonCounts; entries: TendonPlannedEntry[] } | null;
+}
+
+/** The section's numbers for one open: the page's window, and in completed mode the weeks and the warm-up pass. */
+export interface TendonExposure extends Omit<TendonAreasCount, "areas"> {
+  areas: TendonAreaView[];
+  /** Completed mode only: the last complete week and the four before (oldest first). */
+  weeks: { last: TendonWeek; earlier: TendonWeek[] } | null;
+  /** Completed mode only: the window's marked warm-ups, counted the same way and kept out of every count above. */
+  warmups: TendonAreasCount | null;
+  /** The plan week `planned` was read from; null when none was given. */
+  plannedWeek: number | null;
+}
+
+export interface TendonWeekCountsInput {
+  region: SpecializationRegionData;
+  extras: TendonExtras;
+  /** The page's own summary: its side, rule, source revision and local time (`interval.timezone`). */
+  summary: SpecializationSummary;
+  /** Completed bouts as the page reads them (excluded records may be included; they are never counted). */
+  bouts: readonly ExposureBout[];
+  /** `finishedWorkoutsOf(sessions)`. */
+  finishedWorkouts: readonly FinishedWorkout[];
+  catalogMusclesFor: SummaryRequest["catalogMusclesFor"];
+  /** ISO instant: the page's clock. */
+  now: string;
+  /** How a summary is computed; `getSpecializationSummary` unless the page passes its cached reader. */
+  summarize?: (request: SummaryRequest) => SpecializationSummary;
+}
+
+export interface TendonExposureInput extends TendonWeekCountsInput {
+  /** `tendonWeekCounts(input)` made for the same key (`tendonWeekCountsKey`); made here when absent. */
+  weekCounts?: TendonWeekCounts | null;
+  /** The trained plan week: its planned summary over `planWeekInterval(week, tz)` and the plan bouts it was made from. */
+  planned?: { summary: SpecializationSummary; bouts: readonly ExposureBout[] } | null;
 }
 
 /** Where a node is a reviewed member: the "Attaches at" line. */
@@ -304,17 +357,7 @@ export interface TendonPlace {
 const naturalCollator = new Intl.Collator("en", { numeric: true });
 const naturalCompare = (a: string, b: string) => naturalCollator.compare(a, b);
 
-function byTimeThenId(a: Pick<RegionBoutRow, "performedAt" | "boutId">, b: Pick<RegionBoutRow, "performedAt" | "boutId">): number {
-  if (a.performedAt !== b.performedAt) {
-    if (a.performedAt === null) return 1;
-    if (b.performedAt === null) return -1;
-    const difference = Date.parse(a.performedAt) - Date.parse(b.performedAt);
-    if (difference !== 0) return difference;
-  }
-  return naturalCompare(a.boutId, b.boutId);
-}
-
-/** A contribution as a set record: the bout, with no node and no category. */
+/** A contribution as a set record: the bout, with no node and no category. Segments are the summary's own, read only. */
 function rowOf(row: Contribution): RegionBoutRow {
   return {
     boutId: row.boutId,
@@ -329,14 +372,22 @@ function rowOf(row: Contribution): RegionBoutRow {
     sessionLabel: row.sessionLabel,
     performedAt: row.performedAt,
     kind: row.kind,
-    segments: row.segments.map((segment) => ({ ...segment })),
+    segments: row.segments,
   };
 }
 
 /** Seconds once per bout from its segments; null when no segment recorded a time. */
 function secondsOf(row: Pick<RegionBoutRow, "segments">): number | null {
-  const recorded = row.segments.map((segment) => segment.holdSeconds).filter((value): value is number => value !== null && Number.isFinite(value) && value > 0);
-  return recorded.length ? recorded.reduce((total, value) => total + value, 0) : null;
+  let total = 0;
+  let recorded = false;
+  for (const segment of row.segments) {
+    const value = segment.holdSeconds;
+    if (value !== null && Number.isFinite(value) && value > 0) {
+      total += value;
+      recorded = true;
+    }
+  }
+  return recorded ? total : null;
 }
 
 /** The kind of one bout over the members of one area or group: target, else hold, else other. */
@@ -346,6 +397,7 @@ function kindOf(parts: { target: boolean; hold: boolean }): TendonKind {
 
 const membersWith = (group: TendonGroup, status: ReviewStatus): NodeId[] => group.members.filter((member) => member.reviewStatus === status).map((member) => member.nodeId);
 const unique = <T>(items: readonly T[]): T[] => Array.from(new Set(items));
+const emptyLists = (): TendonSetLists => ({ target: [], holds: [], other: [], strapped: [], pending: [] });
 
 /** One record per bout id, the first kept, as the calculator reads a list (a replayed import is read once). */
 function firstRecords(bouts: readonly ExposureBout[]): ExposureBout[] {
@@ -357,6 +409,19 @@ function firstRecords(bouts: readonly ExposureBout[]): ExposureBout[] {
     out.push(bout);
   }
   return out;
+}
+
+/** The local day of an instant, each instant read once per reader. */
+function dayKeyReader(tz: string): (instant: string) => string {
+  const days = new Map<string, string>();
+  return (instant) => {
+    let key = days.get(instant);
+    if (key === undefined) {
+      key = localDateKey(instant, tz);
+      days.set(instant, key);
+    }
+    return key;
+  };
 }
 
 const reviewedKeyCache = new WeakMap<SpecializationRegionData, ReadonlySet<string>>();
@@ -400,43 +465,97 @@ function countsFrom(lists: TendonSetLists): TendonCounts {
   };
 }
 
+// ---------------------------------------------------------------- one summary
+
+/** What one member node holds in one summary: its counted bouts with their kind flags, and its kept-apart bouts. */
+type NodeReading = { counted: { boutId: string; target: boolean; hold: boolean }[]; strapped: string[]; pending: string[] };
+
+/**
+ * The summary's member rows, read once: one record per set, shared by every area and group, and one
+ * order for all of them (oldest first, then by bout id, as the calculator orders its rows), so no
+ * area or group sorts again.
+ */
+function readSummary(region: SpecializationRegionData, extras: TendonExtras, summary: SpecializationSummary) {
+  const wanted = new Set<NodeId>();
+  for (const area of extras.tendonAreas ?? []) for (const group of area.groups) for (const nodeId of membersWith(group, "reviewed")) wanted.add(nodeId);
+  const reviewed = reviewedKeysOf(region);
+  const rows = new Map<string, RegionBoutRow>();
+  const readings = new Map<NodeId, NodeReading>();
+  for (const node of summary.nodes) {
+    if (!wanted.has(node.nodeId)) continue;
+    const reading: NodeReading = { counted: [], strapped: [], pending: [] };
+    for (const row of node.contributions) {
+      if (row.countedSide === "unknown") continue;
+      if (!rows.has(row.boutId)) rows.set(row.boutId, rowOf(row));
+      reading.counted.push({
+        boutId: row.boutId,
+        target: row.parts.some((part) => part.category === "direct_dynamic"),
+        hold: row.parts.some((part) => part.category === "deliberate_isometric"),
+      });
+    }
+    for (const row of node.notCounted ?? []) {
+      if (row.countedSide === "unknown") continue;
+      if (!rows.has(row.boutId)) rows.set(row.boutId, rowOf(row));
+      (row.parts.some((part) => reviewed.has(part.mappingId)) ? reading.strapped : reading.pending).push(row.boutId);
+    }
+    readings.set(node.nodeId, reading);
+  }
+  const instants = new Map<string, number>();
+  const instantOf = (iso: string) => {
+    let at = instants.get(iso);
+    if (at === undefined) {
+      at = Date.parse(iso);
+      instants.set(iso, at);
+    }
+    return at;
+  };
+  const ordered = Array.from(rows.values()).sort((a, b) => {
+    if (a.performedAt !== b.performedAt) {
+      if (a.performedAt === null) return 1;
+      if (b.performedAt === null) return -1;
+      const difference = instantOf(a.performedAt) - instantOf(b.performedAt);
+      if (difference !== 0) return difference;
+    }
+    return naturalCompare(a.boutId, b.boutId);
+  });
+  return { readings, ordered };
+}
+
 /**
  * The counts over a set of members of one summary. Each set sits in one list: counted (by its
  * kind), else strapped, else pending, in the order a node row reads them. A per-side summary's rows
  * kept apart with no side (`countedSide: "unknown"`) are in no list; the page's summary has none.
  */
-function scopeCounts(nodes: ReadonlyMap<NodeId, SpecializationSummary["nodes"][number]>, reviewed: ReadonlySet<string>, members: readonly NodeId[]): TendonCounts {
-  const counted = new Map<string, { row: RegionBoutRow; target: boolean; hold: boolean }>();
-  const strapped = new Map<string, RegionBoutRow>();
-  const pending = new Map<string, RegionBoutRow>();
+function scopeCounts(read: ReturnType<typeof readSummary>, members: readonly NodeId[]): TendonCounts {
+  const counted = new Map<string, { target: boolean; hold: boolean }>();
+  const strapped = new Set<string>();
+  const pending = new Set<string>();
   for (const nodeId of members) {
-    const node = nodes.get(nodeId);
-    if (!node) continue;
-    for (const row of node.contributions) {
-      if (row.countedSide === "unknown") continue;
-      const entry = counted.get(row.boutId) ?? { row: rowOf(row), target: false, hold: false };
-      entry.target ||= row.parts.some((part) => part.category === "direct_dynamic");
-      entry.hold ||= row.parts.some((part) => part.category === "deliberate_isometric");
-      counted.set(row.boutId, entry);
+    const reading = read.readings.get(nodeId);
+    if (!reading) continue;
+    for (const entry of reading.counted) {
+      const seen = counted.get(entry.boutId);
+      if (seen) {
+        seen.target ||= entry.target;
+        seen.hold ||= entry.hold;
+      } else counted.set(entry.boutId, { target: entry.target, hold: entry.hold });
     }
-    for (const row of node.notCounted ?? []) {
-      if (row.countedSide === "unknown") continue;
-      const into = row.parts.some((part) => reviewed.has(part.mappingId)) ? strapped : pending;
-      if (!into.has(row.boutId)) into.set(row.boutId, rowOf(row));
+    for (const boutId of reading.strapped) strapped.add(boutId);
+    for (const boutId of reading.pending) pending.add(boutId);
+  }
+  const lists = emptyLists();
+  if (counted.size || strapped.size || pending.size) {
+    for (const row of read.ordered) {
+      const flags = counted.get(row.boutId);
+      if (flags) {
+        const kind = kindOf(flags);
+        (kind === "target" ? lists.target : kind === "hold" ? lists.holds : lists.other).push(row);
+      } else if (strapped.has(row.boutId)) lists.strapped.push(row);
+      else if (pending.has(row.boutId)) lists.pending.push(row);
     }
   }
-  const lists: TendonSetLists = { target: [], holds: [], other: [], strapped: [], pending: [] };
-  for (const entry of Array.from(counted.values())) {
-    const kind = kindOf(entry);
-    (kind === "target" ? lists.target : kind === "hold" ? lists.holds : lists.other).push(entry.row);
-  }
-  for (const [boutId, row] of Array.from(strapped)) if (!counted.has(boutId)) lists.strapped.push(row);
-  for (const [boutId, row] of Array.from(pending)) if (!counted.has(boutId) && !strapped.has(boutId)) lists.pending.push(row);
-  for (const list of Object.values(lists)) list.sort(byTimeThenId);
   return countsFrom(lists);
 }
-
-// ---------------------------------------------------------------- one summary
 
 /**
  * Tendon areas over one summary: the page's window, one week, a plan week or the warm-up pass. Pure
@@ -444,20 +563,19 @@ function scopeCounts(nodes: ReadonlyMap<NodeId, SpecializationSummary["nodes"][n
  */
 export function countTendonAreas(input: { region: SpecializationRegionData; extras: TendonExtras; summary: SpecializationSummary }): TendonAreasCount {
   const { region, extras, summary } = input;
-  const nodes = new Map(summary.nodes.map((node) => [node.nodeId, node] as const));
-  const reviewed = reviewedKeysOf(region);
+  const read = readSummary(region, extras, summary);
   const inAnyArea = new Set<string>();
   const areas = (extras.tendonAreas ?? []).map((area): TendonAreaCount => {
     const groups = area.groups.map((group): TendonGroupCount => {
       const members = membersWith(group, "reviewed");
-      return { id: group.id, label: group.label, caveat: group.caveat, members, notPlacedYet: membersWith(group, "draft"), counts: scopeCounts(nodes, reviewed, members) };
+      return { id: group.id, label: group.label, caveat: group.caveat, members, notPlacedYet: membersWith(group, "draft"), counts: scopeCounts(read, members) };
     });
     const members = unique(groups.flatMap((group) => group.members));
-    const counts = scopeCounts(nodes, reviewed, members);
+    const counts = scopeCounts(read, members);
     for (const row of [...counts.lists.target, ...counts.lists.holds, ...counts.lists.other]) inAnyArea.add(row.boutId);
     return { id: area.id, label: area.label, description: area.description, members, counts, groups };
   });
-  const regionOnlyRows = [...(summary.regionUnclassifiedRows ?? [])].sort(byTimeThenId);
+  const regionOnlyRows = [...(summary.regionUnclassifiedRows ?? [])];
   return {
     method: TENDON_AREAS_METHOD,
     mappingVersion: summary.mappingVersion,
@@ -505,57 +623,66 @@ export function tendonPlannedEntries(counts: TendonCounts, plannedBouts: readonl
 
 // ---------------------------------------------------------------- days
 
-/**
- * The window's local days, first to last, each with the counts of the sets done that day: the
- * seven columns of a calendar week. A day after today with nothing recorded is `toCome`, never a
- * 0; a day with records is always a day, whatever the clock says. Null for a window with no dates
- * (a plan week).
- */
-export function tendonDays(counts: TendonCounts, window: { interval: Pick<SummaryInterval, "startAt" | "endAtExclusive">; now: string; tz: string }): TendonDay[] | null {
-  const { startAt, endAtExclusive } = window.interval;
+function daysOf(counts: TendonCounts, interval: Pick<SummaryInterval, "startAt" | "endAtExclusive">, now: string, dayKeyOf: (instant: string) => string): TendonDays {
+  const { startAt, endAtExclusive } = interval;
   if (startAt === null || endAtExclusive === null) return null;
-  const first = localDateKey(startAt, window.tz);
-  const last = localDateKey(new Date(Date.parse(endAtExclusive) - 1).toISOString(), window.tz);
-  const today = localDateKey(window.now, window.tz);
-  // The sets of one workout share their instant, so each instant's local day is found once.
-  const dayKeys = new Map<string, string>();
-  const dayKeyOf = (instant: string) => {
-    let key = dayKeys.get(instant);
-    if (key === undefined) {
-      key = localDateKey(instant, window.tz);
-      dayKeys.set(instant, key);
-    }
-    return key;
-  };
+  const startInstant = Date.parse(startAt);
+  const endInstant = Date.parse(endAtExclusive);
+  const first = dayKeyOf(startAt);
+  const last = dayKeyOf(new Date(endInstant - 1).toISOString());
+  const keys: string[] = [];
+  for (let key = first; key <= last; key = addDaysToDateKey(key, 1)) {
+    keys.push(key);
+    if (keys.length > TENDON_DAYS_SHOWN) return "too_long";
+  }
+  const today = dayKeyOf(now);
+  // The window starts after its first day began (a rolling window), or ended before its last day
+  // did with that day's rest already past; the rest of today is still to come, so today is whole.
+  const startsInside = dayKeyOf(new Date(startInstant - 1).toISOString()) === first;
+  const endsInside = dayKeyOf(endAtExclusive) === last && endInstant < Date.parse(now);
   const byDay = new Map<string, TendonSetLists>();
   for (const [name, rows] of Object.entries(counts.lists) as [keyof TendonSetLists, RegionBoutRow[]][]) {
     for (const row of rows) {
       if (row.performedAt === null) continue;
       const key = dayKeyOf(row.performedAt);
-      const lists = byDay.get(key) ?? { target: [], holds: [], other: [], strapped: [], pending: [] };
+      const lists = byDay.get(key) ?? emptyLists();
       lists[name].push(row);
       byDay.set(key, lists);
     }
   }
-  const days: TendonDay[] = [];
-  for (let key = first; key <= last; key = addDaysToDateKey(key, 1)) {
+  return keys.map((key): TendonDay => {
     const lists = byDay.get(key);
-    if (!lists && key > today) days.push({ dayKey: key, toCome: true });
-    else days.push({ dayKey: key, toCome: false, ...countsFrom(lists ?? { target: [], holds: [], other: [], strapped: [], pending: [] }) });
-  }
-  return days;
+    if (!lists && key > today) return { dayKey: key, toCome: true };
+    return { dayKey: key, toCome: false, partial: (key === first && startsInside) || (key === last && endsInside), ...countsFrom(lists ?? emptyLists()) };
+  });
+}
+
+/**
+ * The window's local days, first to last, each with the counts of the sets done that day: the
+ * seven columns of a calendar week, the eight of a rolling one (its first day `partial`). A day
+ * after today with nothing recorded is `toCome`, never a 0; a day with records is always a day,
+ * whatever the clock says. `"too_long"` past `TENDON_DAYS_SHOWN` days; null for a window with no
+ * dates (a plan week).
+ */
+export function tendonDays(counts: TendonCounts, window: { interval: Pick<SummaryInterval, "startAt" | "endAtExclusive" | "timezone">; now: string }): TendonDays {
+  return daysOf(counts, window.interval, window.now, dayKeyReader(window.interval.timezone));
 }
 
 // ---------------------------------------------------------------- weeks
 
+/** The Monday of the week holding `now`, in local time. */
+function mondayOf(now: string, tz: string): string {
+  const today = localDateKey(now, tz);
+  return addDaysToDateKey(today, -mondayIndexOfDateKey(today));
+}
+
 /**
- * The last complete calendar week and the four before it, oldest first, in the page's local time.
- * Each runs from its Monday's first instant to the next Monday's (`time.ts` finds local midnight,
- * so a week across a clock change is 167 or 169 hours).
+ * The last complete calendar week and the four before it, oldest first, in local time (`tz`, an
+ * IANA name). Each runs from its Monday's first instant to the next Monday's (`time.ts` finds local
+ * midnight, so a week across a clock change is 167 or 169 hours).
  */
 export function tendonWeekWindows(now: string, tz: string): TendonWeekWindow[] {
-  const today = localDateKey(now, tz);
-  const thisMonday = addDaysToDateKey(today, -mondayIndexOfDateKey(today));
+  const thisMonday = mondayOf(now, tz);
   const windows: TendonWeekWindow[] = [];
   for (let weeksAgo = TENDON_EARLIER_WEEKS + 1; weeksAgo >= 1; weeksAgo -= 1) {
     const firstDay = addDaysToDateKey(thisMonday, -7 * weeksAgo);
@@ -598,20 +725,31 @@ function medianOf(values: readonly number[]): number {
 }
 
 /**
- * The change line for one metric (note 11 §4.2): last week against the median of the known weeks
+ * The change line for one metric (note 11 §4.2, `TendonChange`): last week against the known weeks
  * among the earlier ones, at least `TENDON_KNOWN_WEEKS_NEEDED` known. A week that is not known is
  * not read (its value is null), never counted as zero.
  */
-export function tendonChangeOf(last: { week: TendonWeek; value: number }, earlier: readonly { week: TendonWeek; value: number }[]): TendonChange {
+export function tendonChangeOf(metric: TendonMetric, last: TendonWeekValue, earlier: readonly TendonWeekValue[]): TendonChange {
   if (!last.week.known) return { state: "no_workout_last_week" };
-  const baseline: TendonBaselineWeek[] = earlier.map(({ week, value }) => ({ firstDay: week.firstDay, lastDay: week.lastDay, label: week.label, finishedWorkouts: week.finishedWorkouts, known: week.known, value: week.known ? value : null }));
-  const known = baseline.flatMap((week) => (week.value === null ? [] : [week.value]));
-  if (known.length < TENDON_KNOWN_WEEKS_NEEDED) return { state: "building_baseline", last: last.value, knownWeeks: known.length, neededWeeks: TENDON_KNOWN_WEEKS_NEEDED, baseline };
-  const median = medianOf(known);
-  const aboveEveryKnownWeek = known.every((value) => last.value > value);
-  if (median === 0 && last.value === 0) return { state: "none", last: 0, median: 0, knownWeeks: known.length, baseline };
-  if (median === 0) return { state: "new", last: last.value, median: 0, knownWeeks: known.length, aboveEveryKnownWeek, baseline };
-  return { state: "change", last: last.value, median, change: last.value - median, knownWeeks: known.length, aboveEveryKnownWeek, baseline };
+  const baseline: TendonBaselineWeek[] = earlier.map(({ week, value, holdsWithoutTime }) => ({
+    firstDay: week.firstDay,
+    lastDay: week.lastDay,
+    label: week.label,
+    finishedWorkouts: week.finishedWorkouts,
+    known: week.known,
+    value: week.known ? value : null,
+    holdsWithoutTime: week.known ? holdsWithoutTime : null,
+  }));
+  const known = baseline.filter((week) => week.known);
+  const values = known.map((week) => week.value ?? 0);
+  const common = { last: last.value, lastHoldsWithoutTime: last.holdsWithoutTime, knownWeeks: values.length, baseline };
+  if (values.length < TENDON_KNOWN_WEEKS_NEEDED) return { state: "building_baseline", ...common, neededWeeks: TENDON_KNOWN_WEEKS_NEEDED };
+  if (metric === "holdSeconds" && (last.holdsWithoutTime > 0 || known.some((week) => (week.holdsWithoutTime ?? 0) > 0))) return { state: "some_untimed", ...common };
+  if (values.every((value) => value === 0)) {
+    return last.value === 0 ? { state: "none", ...common, last: 0, median: 0 } : { state: "new", ...common, median: 0, aboveEveryKnownWeek: true };
+  }
+  const median = medianOf(values);
+  return { state: "change", ...common, median, change: last.value - median, aboveEveryKnownWeek: values.every((value) => last.value > value) };
 }
 
 const valueOf = (counts: TendonCounts, metric: TendonMetric): number => {
@@ -627,30 +765,31 @@ const valueOf = (counts: TendonCounts, metric: TendonMetric): number => {
 /** One change line per metric, from the same area or group in each week's count (oldest first, last week at the end). */
 function changeSetOf(weeks: readonly TendonWeek[], countsByWeek: readonly TendonCounts[]): TendonChangeSet {
   const lastIndex = weeks.length - 1;
+  const at = (index: number, metric: TendonMetric): TendonWeekValue => ({ week: weeks[index], value: valueOf(countsByWeek[index], metric), holdsWithoutTime: countsByWeek[index].holds.withoutTime });
   const set = {} as TendonChangeSet;
-  for (const metric of tendonMetrics) {
-    set[metric] = tendonChangeOf(
-      { week: weeks[lastIndex], value: valueOf(countsByWeek[lastIndex], metric) },
-      weeks.slice(0, lastIndex).map((week, index) => ({ week, value: valueOf(countsByWeek[index], metric) })),
-    );
-  }
+  for (const metric of tendonMetrics) set[metric] = tendonChangeOf(metric, at(lastIndex, metric), weeks.slice(0, lastIndex).map((_, index) => at(index, metric)));
   return set;
 }
 
-// ---------------------------------------------------------------- the warm-up pass
-
-/**
- * The window's sets marked as warm-ups, with the flag cleared so the calculator counts them: the
- * second pass the section shows only as its warm-ups line. Each bout id is read once, the first
- * record kept, as the calculator reads the page's list.
- */
-export function warmupPassBouts(bouts: readonly ExposureBout[], interval: Pick<SummaryInterval, "startAt" | "endAtExclusive">): ExposureBout[] {
-  return firstRecords(bouts)
-    .filter((bout) => bout.mode === "completed" && bout.warmup && !bout.excluded && intervalContains(interval, bout.performedAt))
-    .map((bout) => ({ ...bout, warmup: false }));
+/** One summary on the page's side and rule, over the given bouts and window, with no targets. */
+function summaryReader(input: TendonWeekCountsInput): (bouts: readonly ExposureBout[], interval: SummaryInterval) => SpecializationSummary {
+  const { region, summary } = input;
+  const summarize = input.summarize ?? getSpecializationSummary;
+  const rule = publishedExposureRules.find((candidate) => candidate.id === summary.ruleVersion);
+  return (bouts, interval) => summarize({
+    region,
+    bouts,
+    interval,
+    side: summary.side,
+    mode: "completed",
+    ...(rule ? { rule } : {}),
+    goals: [],
+    catalogMusclesFor: input.catalogMusclesFor,
+    sourceRevision: summary.sourceRevision,
+    planRevision: null,
+    now: input.now,
+  });
 }
-
-// ---------------------------------------------------------------- the section, on first open
 
 /**
  * Each week's work (completed, not excluded, not a warm-up), in one pass with each instant read
@@ -671,56 +810,96 @@ function workByWeek(records: readonly ExposureBout[], weeks: readonly TendonWeek
   return out;
 }
 
-function viewOf(window: TendonAreasCount): TendonExposure {
-  return {
-    ...window,
-    areas: window.areas.map((area) => ({ ...area, groups: area.groups.map((group) => ({ ...group, change: null })), change: null, days: null })),
-    weeks: null,
-    warmups: null,
-  };
+/**
+ * The last complete week and the four before, each with its finished workouts and its count: five
+ * summaries, the costly part of the section. They depend only on what `tendonWeekCountsKey` holds.
+ */
+export function tendonWeekCounts(input: TendonWeekCountsInput): TendonWeekCounts {
+  const { region, extras, summary, now } = input;
+  const summaryOf = summaryReader(input);
+  const weeks = tendonWeekWindows(now, summary.interval.timezone).map((week) => tendonWeekOf(week, input.finishedWorkouts, now));
+  const counts = workByWeek(firstRecords(input.bouts), weeks).map((bouts, index) => countTendonAreas({ region, extras, summary: summaryOf(bouts, weeks[index].interval) }));
+  return { weeks, counts };
+}
+
+/**
+ * The memo key for `tendonWeekCounts`: the region, the source revision, the side, the rule and
+ * mapping versions, the page's local time and the last complete week's Monday. A new `now` in the
+ * same week (the page returning to view) keeps the key; a set logged, edited or removed, or a new
+ * week, changes it.
+ */
+export function tendonWeekCountsKey(summary: SpecializationSummary, now: string): string {
+  const tz = summary.interval.timezone;
+  return JSON.stringify([summary.regionId, summary.sourceRevision, summary.side, summary.ruleVersion, summary.mappingVersion, tz, addDaysToDateKey(mondayOf(now, tz), -7)]);
+}
+
+// ---------------------------------------------------------------- the warm-up pass
+
+/**
+ * The window's sets marked as warm-ups, with the flag cleared so the calculator counts them: the
+ * second pass the section shows only as its warm-ups line. Each bout id is read once, the first
+ * record kept, as the calculator reads the page's list.
+ */
+export function warmupPassBouts(bouts: readonly ExposureBout[], interval: Pick<SummaryInterval, "startAt" | "endAtExclusive">): ExposureBout[] {
+  return firstRecords(bouts)
+    .filter((bout) => bout.mode === "completed" && bout.warmup && !bout.excluded && intervalContains(interval, bout.performedAt))
+    .map((bout) => ({ ...bout, warmup: false }));
+}
+
+// ---------------------------------------------------------------- the section, on first open
+
+/** Week counts made for the same areas and groups, in the same order; any others are made again. */
+function fits(weekCounts: TendonWeekCounts | null | undefined, window: TendonAreasCount): weekCounts is TendonWeekCounts {
+  const shape = (count: TendonAreasCount) => count.areas.map((area) => `${area.id}:${area.groups.map((group) => group.id).join(",")}`).join("|");
+  return !!weekCounts && weekCounts.weeks.length === TENDON_EARLIER_WEEKS + 1 && weekCounts.counts.length === weekCounts.weeks.length && weekCounts.counts.every((count) => shape(count) === shape(window));
 }
 
 /**
  * The section's numbers for one open. The page's window (or plan week) is counted from the page's
- * own summary. In completed mode six more summaries are made, on the page's side: one per week
- * (the last complete week and the four before, each over that week's work only) and one for the
- * window's warm-ups; then each area and group gets its change line per metric and its day columns.
- * Planned mode makes no summary and has no dates, change line or warm-ups.
+ * own summary; the trained plan week from `planned`, in any mode and window. In completed mode the
+ * five weeks come from `weekCounts` (made here when absent) and one more summary counts the window's
+ * warm-ups; each area and group then gets last week's counts, its change line per metric and, for
+ * an area, its day columns. Planned mode makes no summary and has no dates, change line or warm-ups.
  */
 export function tendonExposure(input: TendonExposureInput): TendonExposure {
-  const { region, extras, summary, now, tz } = input;
+  const { region, extras, summary, now } = input;
   const window = countTendonAreas({ region, extras, summary });
-  if (summary.mode !== "completed") return viewOf(window);
+  let planned: TendonAreasCount | null = null;
+  if (input.planned) {
+    if (input.planned.summary.mode !== "planned") throw new Error("`planned` takes a planned summary of the trained plan week");
+    planned = countTendonAreas({ region, extras, summary: input.planned.summary });
+  }
+  const view: TendonExposure = {
+    ...window,
+    areas: window.areas.map((area, index) => ({
+      ...area,
+      groups: area.groups.map((group) => ({ ...group, change: null, lastWeek: null })),
+      change: null,
+      lastWeek: null,
+      days: null,
+      planned: planned ? { counts: planned.areas[index].counts, entries: tendonPlannedEntries(planned.areas[index].counts, input.planned!.bouts) } : null,
+    })),
+    weeks: null,
+    warmups: null,
+    plannedWeek: planned ? planned.interval.planWeek : null,
+  };
+  if (summary.mode !== "completed") return view;
 
-  const summarize = input.summarize ?? getSpecializationSummary;
-  const rule = publishedExposureRules.find((candidate) => candidate.id === summary.ruleVersion);
-  const records = firstRecords(input.bouts);
-  const summaryOf = (bouts: readonly ExposureBout[], interval: SummaryInterval) => summarize({
-    region,
-    bouts,
-    interval,
-    side: summary.side,
-    mode: "completed",
-    ...(rule ? { rule } : {}),
-    goals: [],
-    catalogMusclesFor: input.catalogMusclesFor,
-    sourceRevision: summary.sourceRevision,
-    planRevision: null,
-    now,
-  });
-
-  const weeks = tendonWeekWindows(now, tz).map((week) => tendonWeekOf(week, input.finishedWorkouts, now));
-  const byWeek = workByWeek(records, weeks).map((bouts, index) => countTendonAreas({ region, extras, summary: summaryOf(bouts, weeks[index].interval) }));
-  const warmups = countTendonAreas({ region, extras, summary: summaryOf(warmupPassBouts(records, summary.interval), summary.interval) });
-
-  const view = viewOf(window);
-  view.areas = window.areas.map((area, areaIndex) => ({
+  const { weeks, counts } = fits(input.weekCounts, window) ? input.weekCounts : tendonWeekCounts(input);
+  const lastIndex = weeks.length - 1;
+  const dayKeyOf = dayKeyReader(summary.interval.timezone);
+  view.areas = view.areas.map((area, areaIndex) => ({
     ...area,
-    groups: area.groups.map((group, groupIndex) => ({ ...group, change: changeSetOf(weeks, byWeek.map((count) => count.areas[areaIndex].groups[groupIndex].counts)) })),
-    change: changeSetOf(weeks, byWeek.map((count) => count.areas[areaIndex].counts)),
-    days: tendonDays(area.counts, { interval: summary.interval, now, tz }),
+    groups: area.groups.map((group, groupIndex) => ({
+      ...group,
+      change: group.members.length ? changeSetOf(weeks, counts.map((count) => count.areas[areaIndex].groups[groupIndex].counts)) : null,
+      lastWeek: counts[lastIndex].areas[areaIndex].groups[groupIndex].counts,
+    })),
+    change: area.members.length ? changeSetOf(weeks, counts.map((count) => count.areas[areaIndex].counts)) : null,
+    lastWeek: counts[lastIndex].areas[areaIndex].counts,
+    days: daysOf(area.counts, summary.interval, now, dayKeyOf),
   }));
-  view.weeks = { last: weeks[weeks.length - 1], earlier: weeks.slice(0, -1) };
-  view.warmups = warmups;
+  view.weeks = { last: weeks[lastIndex], earlier: weeks.slice(0, lastIndex) };
+  view.warmups = countTendonAreas({ region, extras, summary: summaryReader(input)(warmupPassBouts(input.bouts, summary.interval), summary.interval) });
   return view;
 }
