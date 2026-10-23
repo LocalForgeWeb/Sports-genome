@@ -125,10 +125,9 @@ const mapping = (catalogExerciseId: number, nodeId: NodeId, spec: Spec): Variant
 const SHARED = "The lateral and medial heads share this work; it is not split between them.";
 const EITHER = "One arm or both may press; the triceps work on whichever arm presses.";
 
-/** The long head's shoulder action: against the movement, not what it is built on, or with a throw. */
+/** The long head's shoulder action: against the movement, or not what it is built on. */
 const against = (what: string) => `The long head also crosses the shoulder, where it draws the arm down and back; that works against the ${what}, so only its elbow action is credited.`;
 const notBuiltOn = (what: string) => `The long head also crosses the shoulder, but the ${what} is not built on its action there, so only its elbow action is credited.`;
-const THROW_DOWN = "The long head also crosses the shoulder, and its action there, drawing the arm down from overhead, goes with the throw; it is credited once, for the elbow.";
 
 interface Press {
   relationship: "direct" | "contributing";
@@ -265,27 +264,4 @@ export const pressesPushesUnmapped: UnmappedTaggedExercise[] = [
   { catalogId: 267, reason: "Landmine anti-rotation press: no set-up is defined beyond the name, and an anti-rotation press is usually pressed out and held against a pull to turn, as the Pallof press is, so the elbows straighten against little load along the press. The work is the trunk's." },
   { catalogId: 310, reason: "Cable press-out (the Pallof press by another name): the cable pulls sideways, across the line of the press, and the trunk resists turning; the elbows straighten against little load along the press. The work is the trunk's." },
   { catalogId: 322, reason: "Serratus punch: the elbow stays straight while the shoulder blade carries the arm forward. The triceps may keep that straight elbow from bending, but the cable pulls along the arm, so that asks little of them and no source describes it; the work is the serratus anterior's." },
-];
-
-// ---------------------------------------------------------------- medicine-ball throws and slams (not wired)
-
-/**
- * The seven medicine-ball rows in the upper arm's scope (271 and 281 chest passes, 273 overhead
- * slam, 280 forward overhead throw, 284 and 285 slams with a sprawl or sprint, 279 backward throw),
- * as this lane reads them. This lane's brief named "medicine-ball throws" among its exercises, and
- * the extensions-and-other lane's family takes every row whose catalog movement is "Throw, slam or
- * ballistic rotation", these seven; so both lanes decided them. They are kept apart from
- * `pressesPushesMappings` so that the version holds one decision per row by default (the movement
- * partition: presses and pushes here, throws there). Integration keeps one set and drops the
- * other; the readings differ in that 284 and 285 are drafts here.
- */
-export const pressesPushesMedicineBallMappings: VariantMapping[] = [
-  ...[271, 281].flatMap((id) => triceps(id, { relationship: "contributing", basis: "inference", long: against("pass"), why: "The ball is pushed from the chest and released, the elbows straightening to throw it, so the triceps do real work against the ball's inertia, not only bracing. The trunk and shoulders lead, so the triceps are contributing." })),
-  ...triceps(273, { relationship: "contributing", basis: "inference", long: THROW_DOWN, why: "As photographed, the ball is held behind the head with the elbows bent and slammed down, so the elbows straighten as the arms drive and the triceps help throw it. The trunk and shoulders lead, so the triceps are contributing." }),
-  ...triceps(280, { relationship: "contributing", basis: "inference", long: THROW_DOWN, why: "As photographed, the ball is thrown forward from behind the head with both hands, so the elbows straighten as the arms come forward and the triceps help drive it. The back muscles lead, so the triceps are contributing." }),
-  ...([[284, "a sprawl"], [285, "a sprint"]] as const).flatMap(([id, after]) => triceps(id, { relationship: "contributing", basis: "inference", long: THROW_DOWN, status: "draft", why: `An overhead slam, then ${after}. It is not photographed, and a slam can be thrown from straight arms, where the elbows barely move; whether they straighten under load is not defined, so this stays pending review.` })),
-];
-
-export const pressesPushesMedicineBallUnmapped: UnmappedTaggedExercise[] = [
-  { catalogId: 279, reason: "Overhead backward throw: the hips and legs swing the ball from between the legs up and back over the head with the arms nearly straight, so the elbows do not work; the biceps' help raising the arm forward is weak and disputed, so no upper-arm muscle is credited." },
 ];

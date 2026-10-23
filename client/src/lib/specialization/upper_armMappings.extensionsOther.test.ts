@@ -32,7 +32,8 @@ const listedIds = new Set(unmapped.map((entry) => entry.catalogId));
  */
 const PRESS_MOVEMENTS = ["Horizontal push", "Vertical push", "Diagonal push", "Anti-rotation press", "Diagonal press, pull, squat or rotation", "Scapular protraction", "Explosive push"];
 const PULL_MOVEMENTS = ["Horizontal pull", "Vertical pull", "Elbow flexion"];
-const PULL_IDS = [379];
+// 74 L-Sit Pull-Up reads "Trunk flexion / anti-extension" but is a pull-up; the variants lane's catalog fix tags it biceps.
+const PULL_IDS = [74, 379];
 const THIS_FAMILY_MOVEMENTS = ["Elbow extension", "Throw, slam or ballistic rotation", "Wrist extension", "Forearm supination", "Anti-rotation", "Loaded transition", "Overhead slam", "Alternating arm drive"];
 const familiesOf = (exercise: Exercise) => [
   PRESS_MOVEMENTS.includes(exercise.movement),
@@ -66,9 +67,9 @@ describe("extensionsOther: the family's rows", () => {
   });
 
   it("map 30 exercises in 86 rows and list 18, none twice, none both", () => {
-    expect(mappedIds.size).toBe(30);
-    expect(rows).toHaveLength(86);
-    expect(unmapped).toHaveLength(18);
+    expect(mappedIds.size).toBe(31);
+    expect(rows).toHaveLength(89);
+    expect(unmapped).toHaveLength(17);
     expect(listedIds.size).toBe(unmapped.length);
     for (const id of listedIds) expect(mappedIds.has(id), `${id} is both mapped and listed`).toBe(false);
     for (const entry of unmapped) {
@@ -239,21 +240,23 @@ describe("extensionsOther: the judgment calls", () => {
     for (const id of [164, 300]) expect(rowsFor(id).map((mapping) => mapping.nodeId).sort(), String(id)).toEqual([m.biceps, m.brachialis].sort());
   });
 
-  it("splits the kneeling ab-wheel rollout's arms, and lists the barbell rollout, photographed as a pike from a plank with the arms upright", () => {
+  it("splits the kneeling ab-wheel rollout's arms, and maps the barbell rollout (as its variant defines it, not its photograph) exactly alike", () => {
     const long = rowOf(237, m.tricepsLong)!;
     expect([long.actionId, long.relationship, long.muscleMode, long.reviewStatus]).toEqual(["shoulder.extension", "contributing", "dynamic", "reviewed"]);
     for (const nodeId of [m.tricepsLateral, m.tricepsMedial]) {
       const mapping = rowOf(237, nodeId)!;
       expect([mapping.actionId, mapping.relationship, mapping.muscleMode, mapping.allocation]).toEqual(["elbow.extension", "stabilizer", "isometric", "shared"]);
     }
-    expect(rowsFor(238)).toEqual([]);
-    expect(listedIds.has(238)).toBe(true);
+    // Integration, 23 Oct 2026: 238's photograph is another exercise (variants.md section 5), so it is mapped as 237 is.
+    const strip = (mapping: (typeof rows)[number]) => ({ ...mapping, id: "", variantId: "" });
+    expect(rowsFor(238).map(strip)).toEqual(rowsFor(237).map(strip));
+    expect(listedIds.has(238)).toBe(false);
   });
 
   it("credits the long head's shoulder extension in the same words wherever it does", () => {
     const words = "The long head, the one triceps head that crosses the shoulder, helps draw the arm down from overhead, so it helps move the load (contributing); the back muscles lead.";
     const drawing = rows.filter((mapping) => mapping.nodeId === m.tricepsLong && mapping.actionId === "shoulder.extension");
-    expect(drawing.map((mapping) => variantById.get(mapping.variantId)!.catalogExerciseId).sort((a, b) => a - b)).toEqual([237, 284, 285, 399]);
+    expect(drawing.map((mapping) => variantById.get(mapping.variantId)!.catalogExerciseId).sort((a, b) => a - b)).toEqual([237, 238, 284, 285, 399]);
     for (const mapping of drawing) expect(mapping.rationale, mapping.id).toContain(words);
     for (const id of [283, 250]) expect(unmapped.find((entry) => entry.catalogId === id)!.reason, String(id)).toContain("The triceps' long head helps draw the arms down from overhead");
   });

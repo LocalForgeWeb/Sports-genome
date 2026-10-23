@@ -1,7 +1,8 @@
 import type { ActionId, MappingEvidenceBasis, MappingSourceRef, MuscleMode, NodeId, Relationship, ReviewStatus, UnmappedTaggedExercise, VariantMapping } from "../../../types";
 import { variantIdFor } from "../../../ids";
 import { forearmActionIds as a, shoulderActionIds as sh } from "../../../actions/ids";
-import { UPPER_ARM_MAPPING_VERSION, upperArmMuscleIds as m } from "../ids";
+import { upperArmMuscleIds as m } from "../ids";
+import { action, leverSupination, mapping, type Spec, zercherCarry, zercherSquat } from "./extensionsOther.elbowFlexors";
 
 /**
  * The upper arm's mappings for one family (docs/specialization-atlas/regions/upper_arm/mappings.md,
@@ -45,9 +46,6 @@ import { UPPER_ARM_MAPPING_VERSION, upperArmMuscleIds as m } from "../ids";
 
 // ---------------------------------------------------------------- source references
 
-const ACTION_ONLY = "Gives the muscle's action, not how much this exercise loads it.";
-const SEEN = "Seen through web-search excerpts, not the full text.";
-const action = (sourceId: string, locator: string, seen = SEEN): MappingSourceRef => ({ sourceId, locator, limitation: `${ACTION_ONLY} ${seen}` });
 
 const src = {
   triceps: action("statpearls.triceps", "Structure and Function: the three heads straighten the elbow"),
@@ -67,52 +65,9 @@ const src = {
     locator: "Abstract: Results (at 90 degrees of shoulder elevation and above the medial head had the highest modelled force)",
     limitation: "Ten adults; short-term activity and force estimated by a computer model from surface EMG. Abstract only. Not growth and never a credit weight.",
   } satisfies MappingSourceRef,
-  biceps: action("A50", "Introduction"),
-  bicepsKenhub: action("kenhub.biceps_brachii", "Function"),
-  brachialis: action("A51", "Introduction"),
-  brachialisTeach: action("teachmeanatomy.brachialis", "Brachialis: flexes the elbow"),
-  supinationByTorque: {
-    sourceId: "M5",
-    locator: "Results: supinator vs biceps activity as torque rises",
-    limitation: "Pilot of 4 adults, isometric, forearm in neutral; shows the biceps joining supination as torque rises, not its share in this exercise.",
-  } satisfies MappingSourceRef,
-  supinationByElbowAngle: {
-    sourceId: "M6",
-    locator: "Abstract: maximal supination torque by elbow and forearm angle",
-    limitation: "Maximal isometric efforts, not repetitions.",
-  } satisfies MappingSourceRef,
 };
 
-// ---------------------------------------------------------------- one mapping
-
-interface Spec {
-  action: ActionId;
-  relationship: Relationship;
-  mode: MuscleMode;
-  basis: MappingEvidenceBasis;
-  rationale: string;
-  sources: MappingSourceRef[];
-  allocation?: VariantMapping["allocation"];
-  status?: ReviewStatus;
-}
-
-const mapping = (catalogExerciseId: number, nodeId: NodeId, spec: Spec): VariantMapping => ({
-  id: `${variantIdFor(catalogExerciseId)}:${nodeId}`,
-  versionKey: UPPER_ARM_MAPPING_VERSION,
-  variantId: variantIdFor(catalogExerciseId),
-  nodeId,
-  actionId: spec.action,
-  relationship: spec.relationship,
-  muscleMode: spec.mode,
-  evidenceBasis: spec.basis,
-  allocation: spec.allocation ?? "individual",
-  requiresNoStraps: false,
-  rationale: spec.rationale,
-  reviewStatus: spec.status ?? "reviewed",
-  sources: spec.sources,
-  // Every row here loads the muscle on the side of the arm that holds or moves the load.
-  sideRelation: "same",
-});
+// ---------------------------------------------------------------- one mapping: extensionsOther.elbowFlexors.ts
 
 // ---------------------------------------------------------------- building blocks
 
@@ -216,15 +171,6 @@ function slamThen(id: number, then: string): VariantMapping[] {
   ];
 }
 
-/** The two elbow flexors holding the elbows bent against a bar that sits in their crook. */
-function zercher(id: number, relationship: "incidental" | "contributing", rationale: string): VariantMapping[] {
-  const work = { action: a.elbowFlexion, relationship, mode: "isometric" as const, basis: "anatomy" as const, rationale };
-  return [
-    mapping(id, m.biceps, { ...work, sources: [src.biceps, src.bicepsKenhub] }),
-    mapping(id, m.brachialis, { ...work, sources: [src.brachialis, src.brachialisTeach] }),
-  ];
-}
-
 // ---------------------------------------------------------------- the family, by catalog id
 
 export const extensionsOtherMappings: VariantMapping[] = [
@@ -254,13 +200,17 @@ export const extensionsOtherMappings: VariantMapping[] = [
   ...extension(347, "not_defined", "A cross-body extension, the handle drawn across the body,"),
   ...extension(348, "behind", "A kickback"),
 
-  // The Zercher lifts: the bar sits in the crook of the elbows; the hands do not hold it.
-  ...zercher(164, "incidental", "The bar sits in the crook of both elbows and the hands do not hold it, so the elbow flexors hold the elbows bent against it while the legs and hips move the load: holding, isometric, counted as incidental steadying, never as direct work."),
-  ...zercher(300, "contributing", "The bar sits in the crook of both elbows for the whole carry and the hands do not grip it, so the elbow flexors hold the elbows bent for the time logged. Holding it is part of what the carry trains, so they are contributing, isometric, as the forearm page has always counted them."),
+  // The Zercher lifts: the bar sits in the crook of the elbows; the hands do not hold it (extensionsOther.elbowFlexors.ts).
+  ...zercherSquat,
+  ...zercherCarry,
 
-  // Ab-wheel rollout (kneeling, as photographed): the long head draws the arms down; the other two heads keep the elbows straight.
-  longHeadDrawsDown(237, "Rolling out takes the arms overhead, and drawing them back down to return works against the body's weight.", `It also helps keep the elbow straight; ${NOT_TWICE}.`),
-  ...lateralAndMedial(237, { relationship: "stabilizer", mode: "isometric", basis: "inference" }, `The floor's push on the hands out in front tends to bend the elbows, so these heads hold them straight without moving: ${STEADYING}. ${PAIR}`),
+  // Rollouts: the ab wheel (kneeling, as photographed) and the barbell used as one (238, as its variant defines it; its
+  // photograph shows another exercise, variants.md section 5). The long head draws the arms down; the other two heads keep the
+  // elbows straight. Mapped alike, word for word.
+  ...[237, 238].flatMap((id) => [
+    longHeadDrawsDown(id, "Rolling out takes the arms overhead, and drawing them back down to return works against the body's weight.", `It also helps keep the elbow straight; ${NOT_TWICE}.`),
+    ...lateralAndMedial(id, { relationship: "stabilizer", mode: "isometric", basis: "inference" }, `The floor's push on the hands out in front tends to bend the elbows, so these heads hold them straight without moving: ${STEADYING}. ${PAIR}`),
+  ]),
 
   // Medicine-ball chest passes, the photographed overhead slam and the forward overhead throw.
   ...throwing(271, CHEST_PASS, "anatomy", "The long head works with the other two."),
@@ -286,15 +236,8 @@ export const extensionsOtherMappings: VariantMapping[] = [
     ];
   })(),
 
-  // Lever supination: the forearm's exercise; the upper arm speaks for the biceps.
-  mapping(406, m.biceps, {
-    action: a.supination,
-    relationship: "contributing",
-    mode: "dynamic",
-    basis: "emg",
-    sources: [src.biceps, src.bicepsKenhub, src.supinationByTorque, src.supinationByElbowAngle],
-    rationale: "Turning the forearm palm-up against a lever is supination. With the elbow bent at 90 degrees, as the exercise sets it, the biceps is a strong supinator and joins in more as the load rises (M5, M6), so it is contributing. The supinator, a forearm muscle, is credited on the forearm page.",
-  }),
+  // Lever supination: the forearm's exercise; the upper arm speaks for the biceps (extensionsOther.elbowFlexors.ts).
+  leverSupination,
 ];
 
 // ---------------------------------------------------------------- left unmapped, with the reason
@@ -321,7 +264,6 @@ export const extensionsOtherUnmapped: UnmappedTaggedExercise[] = [
   { catalogId: 117, reason: FRONT_RAISE },
   { catalogId: 118, reason: FRONT_RAISE },
   { catalogId: 119, reason: FRONT_RAISE },
-  { catalogId: 238, reason: "As shown, the bar is rolled from a push-up position toward the feet into a pike and back with the arms kept upright, so the body's weight runs down the arms: the trunk and hips do the work and the arms only prop the body." },
   { catalogId: 283, reason: "Sitting up drives the throw while the nearly straight arms carry the ball forward. The triceps' long head helps draw the arms down from overhead, but the load on it is not defined." },
   { catalogId: 388, reason: "Ballistic: the hips drive the bell overhead, the arm guides it and the elbow locks out briefly to catch it, with the load stacked over the joint. That is guiding and timing, not a defined load on the arm." },
 

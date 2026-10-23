@@ -152,6 +152,13 @@ describe("upper_arm_mappings_v1: rows", () => {
     }
   });
 
+  it("cite each source once per row, as the database keeps a row's citations (one per source)", () => {
+    for (const mapping of upperArmMappings) {
+      const ids = mapping.sources.map((ref) => ref.sourceId);
+      expect(new Set(ids).size, mapping.id).toBe(ids.length);
+    }
+  });
+
   it("cite no growth or training study: growth findings are never credit", () => {
     for (const mapping of upperArmMappings) {
       for (const ref of mapping.sources) {

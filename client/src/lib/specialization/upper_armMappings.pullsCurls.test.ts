@@ -169,14 +169,15 @@ describe("upper-arm pulls and curls: coverage and groups", () => {
   it("maps or lists every catalog row of the family in the upper arm's scope", () => {
     const listed = new Map(pullsCurlsUnmapped.map((entry) => [entry.catalogId, entry]));
     const family = exercises.filter((exercise) => tagsUpperArm(exercise) && inFamily(exercise)).map((exercise) => exercise.id);
-    expect(family).toHaveLength(78);
+    // 79: the lane's 78 and 74 L-Sit Pull-Up, which the variants lane's catalog fix tags biceps (variants.md).
+    expect(family).toHaveLength(79);
     for (const id of family) expect(mappedCatalogIds.has(id) || listed.has(id), `${id} ${catalogById.get(id)!.name}`).toBe(true);
     for (const [id, entry] of Array.from(listed)) {
       expect(catalogById.has(id), String(id)).toBe(true);
       expect(mappedCatalogIds.has(id), `${id} is both mapped and listed`).toBe(false);
       expect(entry.reason.length, String(id)).toBeGreaterThan(20);
     }
-    // The family as the file states it: the 78 tagged rows and the four untagged ones it maps, each once.
+    // The family as the file states it: the 79 tagged rows and the three untagged ones it maps, each once.
     expect(new Set(familyIds).size).toBe(familyIds.length);
     expect(sorted(familyIds)).toEqual(sorted([...family, ...pullsCurlsUntaggedMapped]));
     expect(sorted(Array.from(mappedCatalogIds))).toEqual(sorted(familyIds));
@@ -289,9 +290,15 @@ describe("upper-arm pulls and curls: new sources", () => {
     const libraryIds = new Set(sourceLibrary.map((source) => source.id));
     const normal = (url: string) => url.trim().replace(/\/+$/, "").toLowerCase();
     const libraryUrls = new Set(sourceLibrary.map((source) => normal(source.url)));
+    // Wired into the library at integration (23 Oct 2026): each is there once, and no other key holds its URL.
+    const others = sourceLibrary.filter((source) => !upperArmPullsCurlsSources.includes(source));
+    const otherIds = new Set(others.map((source) => source.id));
+    const otherUrls = new Set(others.map((source) => normal(source.url)));
     for (const source of upperArmPullsCurlsSources) {
-      expect(libraryIds.has(source.id), source.id).toBe(false);
-      expect(libraryUrls.has(normal(source.url)), source.id).toBe(false);
+      expect(libraryIds.has(source.id), source.id).toBe(true);
+      expect(sourceLibrary.filter((item) => item === source), source.id).toHaveLength(1);
+      expect(otherIds.has(source.id), source.id).toBe(false);
+      expect(otherUrls.has(normal(source.url)), source.id).toBe(false);
       expect(source.id).toMatch(/^([a-z][a-z0-9_]*\.[a-z0-9_]+|pmid\.\d+)$/);
       expect(source.notes?.length ?? 0, source.id).toBeGreaterThan(100);
     }

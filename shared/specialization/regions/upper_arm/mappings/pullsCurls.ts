@@ -11,11 +11,11 @@ import { UPPER_ARM_MAPPING_VERSION, upperArmMuscleIds as m } from "../ids";
  *
  * The family, derived from the catalog with the coverage rule (every row tagging `biceps`,
  * `brachialis` or `triceps`, primary or secondary, whose movement is a pull or elbow flexion, or
- * whose name says row, pull-up, chin-up, pulldown, pullover, face pull, high pull or curl): 78 tagged
- * rows, all mapped (`pullsCurlsCatalogIds`). Four untagged rows are mapped too, because the upper arm
- * really is loaded in them: 74 L-Sit Pull-Up (tagged as core work, but the arms do a pull-up), 87 and
- * 88 the face pulls and 335 Cable High Pull (the variants lane wrote variants for these three so this
- * lane could decide them). 79 Scapular Pull-Up is not mapped: the arms stay straight, and its biceps
+ * whose name says row, pull-up, chin-up, pulldown, pullover, face pull, high pull or curl): 79 tagged
+ * rows, all mapped (`pullsCurlsCatalogIds`), among them 74 L-Sit Pull-Up (listed as core work, but the
+ * arms do a pull-up; the variants lane's catalog fix tags it biceps). Three untagged rows are mapped
+ * too, because the upper arm really is loaded in them: 87 and 88 the face pulls and 335 Cable High
+ * Pull (the variants lane wrote variants for these three so this lane could decide them). 79 Scapular Pull-Up is not mapped: the arms stay straight, and its biceps
  * tag was removed by the variants lane's catalog fixes.
  *
  * The judgment calls, each said in the rows' rationales:
@@ -95,7 +95,11 @@ const ACTION_ONLY = "Gives the muscle's action, not how much this exercise loads
 const src = {
   bicepsAction: { sourceId: "A50", locator: "Introduction: elbow flexion and supination", limitation: ACTION_ONLY } as MappingSourceRef,
   bicepsKenhub: { sourceId: "kenhub.biceps_brachii", locator: "Function: flexion and supination of the forearm at the elbow", limitation: ACTION_ONLY } as MappingSourceRef,
-  bicepsTwoJoint: { sourceId: "kenhub.biceps_brachii", locator: "Function: the shoulder-blade origin lets it act at the shoulder and the elbow", limitation: "The muscle's attachments and actions; it says nothing about any exercise's set-up, and nothing about growth. Seen through web-search excerpts." } as MappingSourceRef,
+  /**
+   * Kenhub cited for both the elbow action and the shoulder-blade origin, in one citation: the database keeps one citation per
+   * source on a mapping (integration, 23 Oct 2026; the two had been cited apart on the curls that say where the arm is held).
+   */
+  bicepsKenhubTwoJoint: { sourceId: "kenhub.biceps_brachii", locator: "Function: flexion and supination of the forearm at the elbow; the shoulder-blade origin lets it act at the shoulder and the elbow", limitation: "The muscle's attachments and actions, not how much this exercise loads it; it says nothing about any exercise's set-up, and nothing about growth. Seen through web-search excerpts, not the full text." } as MappingSourceRef,
   brachialisAction: { sourceId: "A51", locator: "Introduction: flexes the elbow in every forearm position; a pure flexor", limitation: ACTION_ONLY } as MappingSourceRef,
   brachialisTeach: { sourceId: "teachmeanatomy.brachialis", locator: "Function: flexes the elbow", limitation: ACTION_ONLY } as MappingSourceRef,
   curlGrips: { sourceId: "mdpi.biceps_curl_grips", locator: "Abstract: Results (biceps excitation by handgrip, lifting and lowering)", limitation: "Ten competitive bodybuilders, curls at an eight-repetition maximum, surface EMG: short-term activity, not growth and not a credit weight. Abstract only." } as MappingSourceRef,
@@ -182,7 +186,7 @@ export const pullsCurlsCatalogIds = {
 } as const;
 
 /** The untagged rows this family maps because the upper arm is really loaded in them (the coverage rule asks only for the tagged ones). */
-export const pullsCurlsUntaggedMapped = [74, 87, 88, 335] as const;
+export const pullsCurlsUntaggedMapped = [87, 88, 335] as const;
 
 // ---------------------------------------------------------------- curls
 
@@ -226,7 +230,7 @@ function supinatedCurl(id: number): VariantMapping[] {
       relationship: "direct",
       mode: "dynamic",
       basis: "anatomy",
-      sources: [src.bicepsAction, src.bicepsKenhub, src.curlGrips, ...(curlShoulder[id] ? [src.bicepsTwoJoint] : [])],
+      sources: [src.bicepsAction, curlShoulder[id] ? src.bicepsKenhubTwoJoint : src.bicepsKenhub, src.curlGrips],
       rationale: withShoulder(id, `A palms-up curl is built on elbow flexion in the biceps' best position: direct, dynamic.${bodyWeight} ${NO_SUPINATION}`, "biceps"),
     }),
     curlBrachialis(id),
@@ -301,7 +305,7 @@ const PULL_LONG_HEAD =
 const pullNote: Record<number, string> = {
   73: "One arm does most of the pull.",
   74: "Listed as core work, but the arms do a pull-up.",
-  80: "Hand over hand, each arm draws the body up.",
+  80: "Hand over hand, the arms take turns drawing the body up.",
   379: "The trunk turns with the pull.",
 };
 const withNote = (id: number, text: string) => (pullNote[id] ? `${text} ${pullNote[id]}` : text);
