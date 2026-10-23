@@ -110,12 +110,16 @@ for (const extra of FIGURES.extra ?? []) {
 }
 
 // What the entry draws: this asset and the region's members (what the renderer and the labels read of them).
+// Each card paints the page's ground itself (23 Oct): a card taller than the screen (every figure at
+// 375 × 667) is captured in parts, and the page's fixed background was not painted beyond the
+// screen, so the card's title or caption sat on a white band. The drawing and the measured squares
+// do not depend on it.
 const drawnMembers = members.map(({ id, kind, parentId, name, shortName }) => ({ id, kind, parentId, name, shortName }));
 const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>${tokens}
-html, body { margin: 0; background: radial-gradient(circle at 14% 3%, #1e5f98 0, var(--sg-surface-panel) 35%, var(--sg-surface-deep) 82%); background-attachment: fixed; color: var(--sg-text-on-dark); font-family: "DM Sans", Inter, system-ui, sans-serif; }
+html, body { margin: 0; background: radial-gradient(circle at 14% 3%, #1e5f98 0, var(--sg-surface-panel) 35%, var(--sg-surface-deep) 82%); background-attachment: fixed; background-color: var(--sg-surface-deep); color: var(--sg-text-on-dark); font-family: "DM Sans", Inter, system-ui, sans-serif; }
 .evidence { display: grid; gap: 16px; padding: 16px; }
-.evidence-card { display: grid; gap: .6rem; border: 1px solid rgb(164 200 232 / .18); background: rgb(255 255 255 / .035); padding: 16px; }
+.evidence-card { display: grid; gap: .6rem; border: 1px solid rgb(164 200 232 / .18); background: linear-gradient(rgb(255 255 255 / .035), rgb(255 255 255 / .035)), radial-gradient(circle at 14% 3%, #1e5f98 0, var(--sg-surface-panel) 35%, var(--sg-surface-deep) 82%); padding: 16px; }
 .evidence-card h2 { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--sg-text-muted-on-dark); }
 ${css}</style></head><body><div id="root"></div><script>window.EVIDENCE = ${JSON.stringify({ region, asset, members: drawnMembers, figures }).replace(/</g, "\\u003c")};</script><script>${js}</script></body></html>`;
 writeFileSync(resolve(bundleDir, "evidence.html"), html);

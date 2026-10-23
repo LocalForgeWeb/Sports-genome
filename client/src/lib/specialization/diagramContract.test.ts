@@ -2,8 +2,8 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { diagramSidesOf } from "@shared/specialization/compose";
-import { specializationRegions } from "@shared/specialization/registry";
+import { diagramSidesOf, resolveMembers } from "@shared/specialization/compose";
+import { registeredRegionContents, specializationRegions } from "@shared/specialization/registry";
 import type { AnatomyNode, DiagramAsset, DiagramLayerId, DiagramPath, DiagramViewId, SpecializationRegionData } from "@shared/specialization/types";
 import { HIT_SQUARE_SHARE, textWidth } from "@/components/specialization/SpecializationDiagram";
 import { containsPoint, drawableNodeIds, drawnNodes, flattenPath, polygonArea, type Point } from "@/components/specialization/diagramGeometry";
@@ -55,7 +55,23 @@ const NOT_YET: Record<string, Record<string, string>> = {
   },
 };
 
-const drawings: Drawing[] = [...specializationRegions, ...fixtures].filter((data) => data.diagram).map((data) => {
+/**
+ * A registered region drawn before its promotion (wave A's upper arm until the integration lane
+ * promotes it): it has no page data yet and its content carries no drawing, so the app and the
+ * seed are unchanged, but its committed drawing keeps the contract all the same. Its members are
+ * resolved as the page will resolve them (`resolveMembers`), its drawing read from its generated module.
+ */
+const drawnBeforePromotion: SpecializationRegionData[] = [...configs.keys()]
+  .filter((region) => !specializationRegions.some((data) => data.region.id === region))
+  .flatMap((region) => {
+    const content = registeredRegionContents.find((item) => item.region.id === region);
+    const diagram = (content?.diagram ?? generated.get(region)?.[`${exportStem(region)}Diagram`]) as DiagramAsset | undefined;
+    if (!content || !diagram) return [];
+    const nodes = resolveMembers(content, registeredRegionContents.filter((item) => item !== content)).map(({ node, role }) => (role === node.role ? node : { ...node, role }));
+    return [{ ...content, nodes, externalMappingVersions: [], diagram } as SpecializationRegionData];
+  });
+
+const drawings: Drawing[] = [...specializationRegions, ...drawnBeforePromotion, ...fixtures].filter((data) => data.diagram).map((data) => {
   const region = data.region.id;
   const module = generated.get(region);
   return {
@@ -115,7 +131,7 @@ function inside(point: Point, polygon: readonly Point[]): boolean {
 }
 
 it("finds the drawings: every registered region's, and the fixtures'", () => {
-  expect(drawings.map((drawing) => drawing.region)).toEqual(expect.arrayContaining(["forearm", deltoidRegionData.region.id]));
+  expect(drawings.map((drawing) => drawing.region)).toEqual(expect.arrayContaining(["forearm", "upper_arm", deltoidRegionData.region.id]));
 });
 
 it("measures the anatomy labels at the size the page sets them", () => {
@@ -135,8 +151,12 @@ it("lets only a test fixture's drawing leave a check for later", () => {
 
 it("draws every region drawn in design/specialization/ as its registered region's diagram", () => {
   for (const [region, config] of configs) {
-    const data = specializationRegions.find((item) => item.region.id === region);
-    expect(data, `${region} is registered`).toBeDefined();
+    // A production region's page data carries the drawing; a reference region drawn before its
+    // promotion is registered, and its drawing is its generated module's, checked below all the same.
+    const data = specializationRegions.find((item) => item.region.id === region) ?? drawnBeforePromotion.find((item) => item.region.id === region);
+    expect(registeredRegionContents.some((item) => item.region.id === region), `${region} is registered`).toBe(true);
+    expect(data, `${region} has a drawing to check`).toBeDefined();
+    expect(drawings.some((drawing) => drawing.region === region), `${region}'s drawing keeps the contract`).toBe(true);
     expect(config.REGION, region).toBe(region);
     expect(data!.diagram?.key, region).toBe(config.ASSET_KEY);
     expect(authored.has(region), `${region} has views/index.mjs`).toBe(true);
