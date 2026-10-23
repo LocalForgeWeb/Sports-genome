@@ -86,6 +86,40 @@ export function holdTime(seconds: number): string {
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
 /**
+ * A muscle's hold time, holds with no time recorded said apart (11-forearm-research-and-stack.md
+ * §7.1): "45 s recorded; 1 hold with no time recorded", counted from the muscle's own deliberate
+ * holds (a bout once), where `holdTime` read only the seconds' total and so said "time not
+ * recorded" only when no hold had any. With every hold timed it is the time; with none, "time not
+ * recorded", as before. A hold with no time is never read as 0 s. No calculator change.
+ */
+export function holdTimeOf(node: Pick<NodeExposure, "deliberateHoldSeconds" | "contributions">): string {
+  const timed = new Map<string, boolean>();
+  for (const contribution of node.contributions) {
+    if (contribution.category !== "deliberate_isometric" || contribution.countedSide === "unknown") continue;
+    const hasTime = contribution.segments.some((segment) => segment.holdSeconds !== null && segment.holdSeconds > 0);
+    timed.set(contribution.boutId, (timed.get(contribution.boutId) ?? false) || hasTime);
+  }
+  const withoutTime = Array.from(timed.values()).filter((hasTime) => !hasTime).length;
+  if (!withoutTime || node.deliberateHoldSeconds <= 0) return holdTime(node.deliberateHoldSeconds);
+  return `${formatSeconds(node.deliberateHoldSeconds)} recorded; ${plural(withoutTime, "hold")} with no time recorded`;
+}
+
+/**
+ * The app's starting ranges, said wherever they appear (11-forearm-research-and-stack.md §5.3):
+ * practical defaults, never "optimal", "best" or a promise of growth. The add sheet, the muscle
+ * sheet's suggestions and the stack card say them; the sources behind each are the region's
+ * (`repGuidanceCitations`).
+ */
+export const REP_RANGE_SENTENCE = "Starting ranges the app uses for this kind of movement. They are practical defaults, not measured for this muscle. General training studies found growth across a wide range of reps when sets are hard, and heavier sets suit maximal strength. Change them any time.";
+export const REP_EFFORT_SENTENCE = "Stopping 1 to 3 reps short of failure is a common starting point, not a rule.";
+/** Where a hold range appears (§5.3), with the range ("10–30"). */
+export const holdRangeSentence = (range: string) => `Holds of ${range} s are the app's starting range, not a tested one. Results from holds depend on their length, how hard they are and the intent; the plan counts the number written.`;
+/** The add sheet's shorter form (§5.2). */
+export const holdRangeShortSentence = (range: string) => `Holds of ${range} s are the app's starting range, not a tested one; the plan counts the number written.`;
+/** A range beside a suggested exercise (§5.2): "10–25 reps", "10–30 s holds". */
+export const rangeWords = (resolved: { profile: { measure: "reps" | "seconds" }; range: readonly [number, number] }) => `${resolved.range[0]}–${resolved.range[1]} ${resolved.profile.measure === "seconds" ? "s holds" : "reps"}`;
+
+/**
  * The plain word for holding a position while other muscles move the load, the kind of work every
  * region's incidental credit is (10-multi-region.md §8, the method note). One region's own word for
  * it is the same word, which is why the page scan lists this line.
@@ -112,7 +146,7 @@ export function exposureParts(node: NodeExposure, incidentalWork: string): strin
   const parts: string[] = [];
   if (node.directDynamicBouts) parts.push(`${plural(node.directDynamicBouts, "direct dynamic bout")}`);
   if (node.contributingDynamicBouts) parts.push(`${node.contributingDynamicBouts} other dynamic`);
-  if (node.deliberateHoldBouts) parts.push(`${plural(node.deliberateHoldBouts, "deliberate hold")}, ${holdTime(node.deliberateHoldSeconds)}`);
+  if (node.deliberateHoldBouts) parts.push(`${plural(node.deliberateHoldBouts, "deliberate hold")}, ${holdTimeOf(node)}`);
   if (node.incidentalBouts) parts.push(`${node.incidentalBouts} incidental ${incidentalWords(incidentalWork)}`);
   if (node.mixedBouts) parts.push(`${node.mixedBouts} mixed`);
   if (node.unknownBouts) parts.push(`${node.unknownBouts} unclassified`);

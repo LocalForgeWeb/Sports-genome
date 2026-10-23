@@ -106,8 +106,10 @@ import { buildStampLabel } from "@/lib/buildStamp";
 import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 import { preloadRegionData, regionLoadsSettled } from "@/lib/specialization/loadRegion";
-import { clearSpecializationParams, defaultSpecializationState, readRememberedRegion, specializationStateFromParams, withRegion, writeSpecializationParams, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationViewState } from "@/lib/specialization/viewState";
+import { areaReportForRegion, clearSpecializationParams, defaultSpecializationState, readRememberedRegion, specializationStateFromParams, stackNotesForNewWeek, withRegion, writeSpecializationParams, type SpecializationPlanBatch, type SpecializationPlanBatchResult, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationStackProps, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { applyPlanChangeToRecord } from "@/lib/specialization/planChange";
+import type { applyPlanBatch } from "@/lib/specialization/planBatch";
+import { stacksOnDevice } from "@/lib/specialization/stackStore";
 import { useSpecializationGoals } from "@/lib/specialization/stores";
 import { loggerGatesFor } from "@/lib/specialization/loggerGates";
 import { catalogMeasureOf } from "@shared/specialization/holdCatalogIds";
@@ -1365,6 +1367,9 @@ export default function Home() {
     const next = { ...defaultSpecializationState(partial.regionId), ...partial };
     navigateWorkspace("specialization", { specialization: next, specializationFrom: workspace });
   };
+  /** For a notice's action, pressed renders later: it opens the page from wherever the athlete is then. */
+  const openSpecializationRef = useRef(openSpecialization);
+  openSpecializationRef.current = openSpecialization;
   /** A change made on the page itself (muscle, arm, window, view): the same entry, its address rewritten. */
   const updateSpecializationState = (next: SpecializationViewState) => {
     setSpecializationState(next);
@@ -1595,6 +1600,66 @@ export default function Home() {
       cancel: { label: "Undo", onClick: undo },
     });
     return { ok: true, undo };
+  };
+  /**
+   * Several changes to one plan week from the specialization page, together or not at all
+   * (11-forearm-research-and-stack.md §3.7): the stack's Add, Change the total and Take it out, the
+   * tendon section's planned-entry actions. The same pure batch the page previewed
+   * (lib/specialization/planBatch `applyPlanBatch`), on the week as Home holds it now; refused with
+   * a reason, and nothing written, while the plan is loading, when the week is not built, or when
+   * any one change cannot apply. Otherwise each touched day is written once, and one notice says
+   * what changed, with one Undo for all of it: every day's revert, newest day first, on the days as
+   * they stand when it is pressed, through the ref, as the single change's Undo is; then the page's
+   * `onUndo`, once, from either Undo. The card's Undo also takes the notice away while it is still
+   * this batch's, so no Undo is left showing that does nothing. No confirm step (CLAUDE.md: Undo
+   * over confirm).
+   *
+   * The batch code is never part of Home's own chunk (§3.10, §7.5): it is awaited here when a batch
+   * arrives. The stack card starts the same download when it opens, so by its first Add the code has
+   * usually arrived; if it has not, Add waits for it, and a failed download refuses with a reason.
+   * The write runs through a ref after the import, so it reads the plan as it stands then.
+   */
+  const applyBatchNow = (apply: typeof applyPlanBatch, batch: SpecializationPlanBatch, options?: { onUndo?: () => void }): SpecializationPlanBatchResult => {
+    if (!planReadyForEdits({ quiet: true }) || !profileHydrated) return { ok: false, reason: "Your plan is still loading, so nothing was changed. Try again in a moment." };
+    const isActive = batch.week === activeWeek;
+    if (!isActive && !planWeeks[batch.week]) return { ok: false, reason: `Week ${batch.week} is not built yet. Build it in Plan first.` };
+    const store = isActive ? commitDay(dayStore, draftDayKeyRef.current, activeDraft()) : planWeeks[batch.week].days;
+    const outcome = apply(store, batch, { slots: daySlots, catalog: exercises });
+    if (!outcome.ok) return { ok: false, reason: outcome.reason };
+    for (const day of outcome.days) editDayInWeek(batch.week, day.slot.key, () => day.record);
+    let undone = false;
+    const cancel = { label: "Undo", onClick: () => undo() };
+    const undo = () => {
+      if (undone) return;
+      undone = true;
+      // The notice goes too while it is still this batch's (a later notice with its id replaced it otherwise).
+      if (toast.getToasts?.().some((item) => item.id === "plan-add" && "cancel" in item && item.cancel === cancel)) toast.dismiss("plan-add");
+      for (const day of [...outcome.days].reverse()) editDayInWeekRef.current(batch.week, day.slot.key, day.revert);
+      options?.onUndo?.();
+    };
+    // Every option named: sonner merges a notice into the one showing with the same id.
+    toast(outcome.message.title, { id: "plan-add", description: outcome.message.description, action: undefined, cancel });
+    return { ok: true, undo, message: outcome.message.title };
+  };
+  const applyBatchNowRef = useRef(applyBatchNow);
+  applyBatchNowRef.current = applyBatchNow;
+  const applySpecializationChanges = async (batch: SpecializationPlanBatch, options?: { onUndo?: () => void }): Promise<SpecializationPlanBatchResult> => {
+    let batchCode: typeof import("@/lib/specialization/planBatch");
+    try {
+      batchCode = await import("@/lib/specialization/planBatch");
+    } catch {
+      return { ok: false, reason: "The plan change could not be loaded, so nothing was changed. Reloading usually fixes this." };
+    }
+    return applyBatchNowRef.current(batchCode.applyPlanBatch, batch, options);
+  };
+  /**
+   * What the page takes for the stack, beside its own props: the batch apply, and About me's answer
+   * to its area question when that area is the page region's and the answer is anything but "Feels
+   * fine" (11-forearm-research-and-stack.md §3.2 item 10; the page says it and changes nothing).
+   */
+  const specializationStackProps: SpecializationStackProps = {
+    onApplyPlanChanges: applySpecializationChanges,
+    aboutMeArea: areaReportForRegion(capacityFocus.constraint, regionIndexEntry(specializationState.regionId)?.bodyMapKeys ?? []),
   };
   const toggleFavorite = (exercise: Exercise) => {
     const currentlyFavorite = favoriteIds.has(exercise.id);
@@ -2106,7 +2171,17 @@ export default function Home() {
     const leaving = createWeekSnapshot();
     setPlanWeeks((current) => ({ ...current, [activeWeek]: leaving, [nextWeek]: generated }));
     applyWeek(nextWeek, generated);
-    toast(`Week ${nextWeek} generated`, { description: `${splitDays.length} training days were built around your ${goal.toLowerCase()} goal and ${gymTimeBudget.label.toLowerCase()} budget.` });
+    const built = `${splitDays.length} training days were built around your ${goal.toLowerCase()} goal and ${gymTimeBudget.label.toLowerCase()} budget.`;
+    // The new week is built fresh from the split pool and never copies a stack, so a stack in an
+    // earlier week is said here, with the way to design one for this week
+    // (11-forearm-research-and-stack.md §3.2, "Plan says so too").
+    const stackNotes = stackNotesForNewWeek(stacksOnDevice(accountId), nextWeek);
+    if (!stackNotes.length) { toast(`Week ${nextWeek} generated`, { description: built }); return; }
+    const [first] = stackNotes;
+    toast(`Week ${nextWeek} generated`, {
+      description: `${built} ${stackNotes.map((note) => note.sentence).join(" ")}`,
+      action: { label: `Design for Week ${nextWeek}`, onClick: () => openSpecializationRef.current({ regionId: first.regionId, mode: "planned", planWeek: nextWeek, open: "stack" }) },
+    });
   };
   /**
    * The overlay is a history entry of its own, so Back closes it and leaves the
@@ -2759,7 +2834,9 @@ export default function Home() {
           accountId={accountId}
           goal={goal}
           weightUnit={athleteBaseline.weightUnit}
+          gymMinutes={gymMinutes}
           onApplyPlanChange={applySpecializationChange}
+          {...specializationStackProps}
           onInspectExercise={inspectExercise}
           onOpenSession={(id) => navigateWorkspace("progress", { session: id })}
           backLabel={specializationOrigin ? shortTitleOf(specializationOrigin) : null}

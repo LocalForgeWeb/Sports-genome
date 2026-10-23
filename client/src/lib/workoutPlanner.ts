@@ -120,6 +120,9 @@ export function prescriptionOf(saved: string | undefined, index: number, goal: T
   return defaultPrescriptionOf(index, goal, measure);
 }
 
+/** What the session review says when it has nothing else to say. */
+export const NOTHING_TO_REVIEW_PROMPT = "The active stack has workable variety for a single training session. Use the movement gaps as context, not a requirement to add everything.";
+
 export function getWorkoutDiagnostics(workout: Exercise[], prescriptions: Record<number, string>, settings: Record<number, ExerciseSettings>, goal: TrainingGoal = "Athleticism", gymMinutes = 60): WorkoutDiagnostics {
   const genome = getWorkoutGenome(workout);
   const baseTarget = getProgrammingTarget(goal);
@@ -142,6 +145,6 @@ export function getWorkoutDiagnostics(workout: Exercise[], prescriptions: Record
   if (estimatedMinutes > gymTimeBudget.minutes) prompts.push(`The current estimate is about ${estimatedMinutes} minutes, above your ${gymTimeBudget.label} gym window. Reduce accessories, work sets, or avoid rushing priority-lift rest.`);
   if (estimatedMinutes <= gymTimeBudget.minutes - logicCalibration.workoutReview.unusedTimeMinutes && workout.length && gymTimeBudget.minutes >= 60) prompts.push(`This stack leaves meaningful room in your ${gymTimeBudget.label} window. Add work only if it fills a specific movement, muscle, or skill need.`);
   if (genome.gaps.length >= logicCalibration.workoutReview.broadPatternGapCount) prompts.push(`The session has limited pattern variety. Consider whether ${genome.gaps.slice(0, 2).join(" and ")} are useful for this day’s purpose.`);
-  if (!prompts.length) prompts.push("The active stack has workable variety for a single training session. Use the movement gaps as context, not a requirement to add everything.");
+  if (!prompts.length) prompts.push(NOTHING_TO_REVIEW_PROMPT);
   return { totalSets, estimatedMinutes, fatigueExposure, sessionLoad, redundancy: genome.redundancy, dominantPatterns: genome.dominantPatterns, dominantMuscles: genome.dominantMuscles, gaps: genome.gaps, prompts, target, gymTimeBudget };
 }

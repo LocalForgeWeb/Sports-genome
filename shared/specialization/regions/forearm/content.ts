@@ -31,4 +31,7 @@ export const forearmHomeContent: RegionHomeContent = {
   mappings: forearmMappings,
   mappingVersion: forearmMappingVersion,
   unmappedTagged: forearmUnmappedTagged,
+  // The stack designer (11-forearm-research-and-stack.md §3.10). Its rep profiles are in
+  // ./repProfiles.ts, loaded only when the section opens, never imported here.
+  sections: { stack: true },
 };

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import React, { createElement } from "react";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
  * Home's side of an add or swap from the specialization page (brief §7): it writes the exact
@@ -35,6 +35,7 @@ vi.mock("@/lib/trpc", () => {
 });
 
 import Home from "@/pages/Home";
+import { loadRegionExtras } from "@/lib/specialization/regionExtras";
 import { exercises } from "@/lib/exerciseCatalog";
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
@@ -55,6 +56,8 @@ const stored = () => JSON.parse(window.localStorage.getItem(PLAN_KEY) ?? "{}").w
 const dayIds = (key: string) => ((stored().weeklyPlanEntries?.[key] ?? []) as { catalogExerciseId: number }[]).map((entry) => entry.catalogExerciseId);
 const dayPrescriptions = (key: string) => (stored().weeklyPrescriptions?.[key] ?? {}) as Record<string, string>;
 
+// The add sheet shows the app's starting range (11-forearm-research-and-stack.md §5.2) once the region's profiles have arrived; loaded first, so Save is never waiting on them here.
+beforeAll(async () => { await loadRegionExtras("forearm"); });
 beforeEach(() => {
   toasts.length = 0;
   window.localStorage.clear();
@@ -78,14 +81,16 @@ async function openSheetOn(day: RegExp) {
 }
 
 describe("an add or swap from the specialization page, as Home writes it", () => {
-  it("adds into the slot chosen, pins no prescription, names every toast option, and Undo takes back that one add", async () => {
+  it("adds into the slot chosen, writes the starting range the sheet showed, names every toast option, and Undo takes back that one add", async () => {
     const { sheet, name, id } = await openSheetOn(/Day 02 · Pull/);
     await act(async () => { fireEvent.click(within(within(sheet).getByRole("group", { name: "Where it goes" })).getByRole("radio", { name: /^First/ })); });
+    // 11-forearm-research-and-stack.md §5.2: the add's prescription is the goal's sets for the first place × the exercise's starting range, in a field the athlete can change; Save writes what it holds.
+    const field = within(sheet).getByRole("textbox", { name: /^Sets × reps/ }) as HTMLInputElement;
+    expect(field.value).toMatch(/^\d+ × \d+–\d+$/);
     await act(async () => { fireEvent.click(within(sheet).getByRole("button", { name: "Save to plan" })); });
     await tick();
     expect(dayIds("1-Pull")).toEqual([id, exercises[2].id, exercises[3].id]);
-    // Its sets are the goal's default for the first place, as every plan reader reads an entry without its own.
-    expect(dayPrescriptions("1-Pull")).not.toHaveProperty(String(id));
+    expect(dayPrescriptions("1-Pull")).toEqual({ [id]: field.value });
     const notice = toasts.find((item) => item.title === `Added ${name} · Week 1 · Day 02 · Pull`)!;
     expect(notice.options).toMatchObject({ id: "plan-add", description: "Now 1 of 3 in that day.", cancel: { label: "Undo" } });
     // Named, so an earlier add's "View workout" cannot carry over into this notice.
