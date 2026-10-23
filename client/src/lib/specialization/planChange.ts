@@ -1,6 +1,14 @@
 import type { Exercise } from "@/lib/exerciseCatalog";
 import type { DayRecord } from "@/lib/trainingDayPlan";
+import { catalogIdOf } from "@/lib/workoutSwapRecord";
 import type { SpecializationPlanChange } from "./viewState";
+
+/*
+ * One change to one day, from the specialization page (an add or a swap). Several changes to one
+ * plan week together (the stack's Add, Change the total and Take it out; the tendon section's
+ * planned-entry actions) are planBatch.ts's: it is fetched only with the stack card (or by Home when
+ * a batch arrives), so the page and Home load this half alone (the stack design note, docs/specialization-atlas, note 11, §3.10).
+ */
 
 export type PlanChangeOutcome =
   /**
@@ -33,7 +41,6 @@ export function insertionIndex(length: number, insertAt: number | undefined): nu
  *   so its sets stay the default for that position instead of becoming another position's.
  */
 export function applyPlanChangeToRecord(record: DayRecord, change: SpecializationPlanChange, incoming: Exercise): PlanChangeOutcome {
-  const catalogIdOf = (exercise: Exercise & { catalogExerciseId?: number }) => exercise.catalogExerciseId || exercise.id;
   if (record.workout.some((exercise) => catalogIdOf(exercise) === incoming.id)) {
     return { ok: false, reason: `${incoming.name} is already in that day.` };
   }

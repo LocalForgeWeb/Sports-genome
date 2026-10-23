@@ -5,6 +5,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 import { exercises } from "@/lib/exerciseCatalog";
 import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
 import { loadRegionData } from "@/lib/specialization/loadRegion";
+import { loadRegionExtras } from "@/lib/specialization/regionExtras";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { buildDaySlots, emptyDayStore } from "@/lib/trainingDayPlan";
@@ -12,7 +13,7 @@ import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import type { Contribution, NodeExposure, SpecializationRegionData, SpecializationSummary, SummarySide } from "@shared/specialization/types";
 import { pageFixtures } from "./__fixtures__/pageRegions";
 import { exposureSentence, findingsFor } from "./model";
-import { SpecializationPanel } from "./SpecializationPanel";
+import { SpecializationPanel, preloadStackModel } from "./SpecializationPanel";
 
 /**
  * Every page sentence that names a region, for every region shape (docs/specialization-atlas/
@@ -213,7 +214,8 @@ async function readModel(data: SpecializationRegionData, mode: "completed" | "pl
   return seen;
 }
 
-beforeAll(async () => { await loadRegionData("forearm"); });
+// The forearm's rep profiles too (F1, §5.2), so its muscle sheet's starting ranges are read with everything else.
+beforeAll(async () => { await loadRegionData("forearm"); await loadRegionExtras("forearm"); await preloadStackModel(); });
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date("2026-10-16T12:00:00.000Z"));

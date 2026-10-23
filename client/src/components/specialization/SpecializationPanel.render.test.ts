@@ -357,7 +357,8 @@ describe("the window line's pair opens its sets (brief §1: every total opens th
   it("in planned mode, on the week being trained, opens the same sets", async () => {
     render(createElement(Harness, { initial: { mode: "planned" } }));
     const button = within(document.querySelector(".spz-window") as HTMLElement).getByRole("button");
-    expect(button.textContent).toMatch(/^Plan Week 1, as written: \d+ bouts planned · 3 logged this week$/);
+    // Planned mode says the plan week's direct moving sets where the logged count stood (11-forearm-research-and-stack.md §3.3); the sheet it opens still sets the logged week beside it.
+    expect(button.textContent).toMatch(/^Plan Week 1, as written: \d+ bouts planned · \d+ direct moving sets?$/);
     await act(async () => { fireEvent.click(button); });
     const sheet = screen.getByRole("dialog", { name: /^3 logged · \d+ planned$/ });
     expect(within(sheet).getAllByRole("button", { name: /Open this workout/ })).toHaveLength(3);
@@ -563,10 +564,12 @@ describe("planned beside logged, only for the week being trained (design §4)", 
     render(createElement(Harness, { plan, initial: { nodeId: "forearm.br" } }));
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Planned" })); });
     expect(screen.getByRole("button", { name: "Week 1" }).getAttribute("aria-pressed")).toBe("true");
-    expect(windowLine()).toMatch(/logged this week$/);
+    expect(windowLine()).toMatch(/bouts planned · \d+ direct moving sets?$/);
+    expect(document.querySelector(".spz-window-open")).not.toBeNull();
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Week 2" })); });
     expect(windowLine()).toMatch(/not the week you train from \(Week 1\), so there is no logged week to compare$/);
-    expect(windowLine()).not.toMatch(/logged this week/);
+    expect(windowLine()).not.toMatch(/logged this week|direct moving/);
+    expect(document.querySelector(".spz-window-open")).toBeNull();
     await act(async () => { fireEvent.click(row(/^Brachioradialis,/)); });
     expect(within(screen.getByRole("dialog", { name: "Brachioradialis" })).getByText("Plan Week 2 is not the week you train from (Week 1), so there is no logged week to compare.")).not.toBeNull();
     await act(async () => { fireEvent.keyDown(window, { key: "Escape" }); });

@@ -1,0 +1,752 @@
+{
+ "note": "Headless Chromium emulating an iPhone (viewport, isMobile, hasTouch, deviceScaleFactor 3, en-US, UTC, SwiftShader WebGL); not an iPhone, not Safari. Production builds: before = e1153d8 (before lane S4), after = this lane. Device stores seeded: plan A (3 days, 60 min, Muscle growth, commercial gym, Hammer Curl on Day 03) or plan C (5 days, 45 min, Athleticism, at home), as Home stores them; this week Hammer Curl x3 and Wrist Curl x3 on Monday, Reverse Wrist Curl x3 on Tuesday. Run on 2026-10-22, UTC. Coordinates are CSS px from the top of the screen.",
+ "scenes": [
+  {
+   "scene": "download",
+   "method": "390 × 844: open Muscles (/?workspace=body), let it settle, tap Specialize, every .js file requested until the map (the 3D model) is drawn; raw bytes as served",
+   "before": {
+    "build": "before",
+    "files": [
+     {
+      "file": "ForearmModelView-CcUUQhLH.js",
+      "bytes": 613722
+     },
+     {
+      "file": "index-CA-WuiHM.js",
+      "bytes": 227044
+     },
+     {
+      "file": "SpecializationPanel-BeTMXTRp.js",
+      "bytes": 205693
+     },
+     {
+      "file": "draco_wasm_wrapper.js",
+      "bytes": 58456
+     },
+     {
+      "file": "index-SzV5tI8j.js",
+      "bytes": 20875
+     }
+    ],
+    "total": 1125790,
+    "modelStatus": "ready"
+   },
+   "after": {
+    "build": "after",
+    "files": [
+     {
+      "file": "ForearmModelView-BLxA5RAn.js",
+      "bytes": 613722
+     },
+     {
+      "file": "index-BbHu3zVR.js",
+      "bytes": 227044
+     },
+     {
+      "file": "SpecializationPanel-Blkiq6vI.js",
+      "bytes": 217685
+     },
+     {
+      "file": "draco_wasm_wrapper.js",
+      "bytes": 58456
+     },
+     {
+      "file": "index-SzV5tI8j.js",
+      "bytes": 20875
+     }
+    ],
+    "total": 1137782,
+    "modelStatus": "ready"
+   },
+   "change": 11992
+  },
+  {
+   "scene": "first-screen",
+   "build": "before",
+   "figure": "model",
+   "mode": "planned",
+   "viewport": "390x844",
+   "mapTop": 265,
+   "mapBottom": 1066,
+   "cardTop": null,
+   "dockTop": 774,
+   "windowLine": "Plan Week 1, as written: 21 bouts planned · 9 logged this week",
+   "horizontalOverflowPx": 0,
+   "file": "first-screen-model-390-before.png"
+  },
+  {
+   "scene": "first-screen",
+   "build": "after",
+   "figure": "model",
+   "mode": "planned",
+   "viewport": "390x844",
+   "mapTop": 265,
+   "mapBottom": 1087,
+   "cardTop": 1099,
+   "dockTop": 774,
+   "windowLine": "Plan Week 1, as written: 21 bouts planned · 3 direct moving sets",
+   "horizontalOverflowPx": 0,
+   "file": "first-screen-model-390-after.png"
+  },
+  {
+   "scene": "first-screen",
+   "build": "before",
+   "figure": "drawing",
+   "mode": "planned",
+   "viewport": "390x844",
+   "mapTop": 265,
+   "mapBottom": 1393,
+   "cardTop": null,
+   "dockTop": 774,
+   "windowLine": "Plan Week 1, as written: 21 bouts planned · 9 logged this week",
+   "horizontalOverflowPx": 0,
+   "file": "first-screen-drawing-390-before.png"
+  },
+  {
+   "scene": "first-screen",
+   "build": "after",
+   "figure": "drawing",
+   "mode": "planned",
+   "viewport": "390x844",
+   "mapTop": 265,
+   "mapBottom": 1393,
+   "cardTop": 1405,
+   "dockTop": 774,
+   "windowLine": "Plan Week 1, as written: 21 bouts planned · 3 direct moving sets",
+   "horizontalOverflowPx": 0,
+   "file": "first-screen-drawing-390-after.png"
+  },
+  {
+   "scene": "first-screen",
+   "build": "before",
+   "figure": "model",
+   "mode": "planned",
+   "viewport": "375x667",
+   "mapTop": 260,
+   "mapBottom": 956,
+   "cardTop": null,
+   "dockTop": 597,
+   "windowLine": "Plan Week 1, as written: 21 bouts planned · 9 logged this week",
+   "horizontalOverflowPx": 0,
+   "file": "first-screen-model-375-before.png"
+  },
+  {
+   "scene": "first-screen",
+   "build": "after",
+   "figure": "model",
+   "mode": "planned",
+   "viewport": "375x667",
+   "mapTop": 260,
+   "mapBottom": 977,
+   "cardTop": 985,
+   "dockTop": 597,
+   "windowLine": "Plan Week 1, as written: 21 bouts planned · 3 direct moving sets",
+   "horizontalOverflowPx": 0,
+   "file": "first-screen-model-375-after.png"
+  },
+  {
+   "scene": "first-screen",
+   "build": "before",
+   "figure": "drawing",
+   "mode": "planned",
+   "viewport": "375x667",
+   "mapTop": 260,
+   "mapBottom": 1358,
+   "cardTop": null,
+   "dockTop": 597,
+   "windowLine": "Plan Week 1, as written: 21 bouts planned · 9 logged this week",
+   "horizontalOverflowPx": 0,
+   "file": "first-screen-drawing-375-before.png"
+  },
+  {
+   "scene": "first-screen",
+   "build": "after",
+   "figure": "drawing",
+   "mode": "planned",
+   "viewport": "375x667",
+   "mapTop": 260,
+   "mapBottom": 1358,
+   "cardTop": 1366,
+   "dockTop": 597,
+   "windowLine": "Plan Week 1, as written: 21 bouts planned · 3 direct moving sets",
+   "horizontalOverflowPx": 0,
+   "file": "first-screen-drawing-375-after.png"
+  },
+  {
+   "scene": "first-screen",
+   "build": "before",
+   "figure": "model",
+   "mode": "planned",
+   "viewport": "430x932",
+   "mapTop": 268,
+   "mapBottom": 1116,
+   "cardTop": null,
+   "dockTop": 862,
+   "windowLine": "Plan Week 1, as written: 21 bouts planned · 9 logged this week",
+   "horizontalOverflowPx": 0
+  },
+  {
+   "scene": "first-screen",
+   "build": "after",
+   "figure": "model",
+   "mode": "planned",
+   "viewport": "430x932",
+   "mapTop": 268,
+   "mapBottom": 1116,
+   "cardTop": 1128,
+   "dockTop": 862,
+   "windowLine": "Plan Week 1, as written: 21 bouts planned · 3 direct moving sets",
+   "horizontalOverflowPx": 0
+  },
+  {
+   "scene": "first-screen",
+   "build": "before",
+   "figure": "drawing",
+   "mode": "planned",
+   "viewport": "430x932",
+   "mapTop": 268,
+   "mapBottom": 1454,
+   "cardTop": null,
+   "dockTop": 862,
+   "windowLine": "Plan Week 1, as written: 21 bouts planned · 9 logged this week",
+   "horizontalOverflowPx": 0
+  },
+  {
+   "scene": "first-screen",
+   "build": "after",
+   "figure": "drawing",
+   "mode": "planned",
+   "viewport": "430x932",
+   "mapTop": 268,
+   "mapBottom": 1454,
+   "cardTop": 1466,
+   "dockTop": 862,
+   "windowLine": "Plan Week 1, as written: 21 bouts planned · 3 direct moving sets",
+   "horizontalOverflowPx": 0
+  },
+  {
+   "scene": "card-closed",
+   "viewport": "390x844",
+   "summary": "Design a stack\nPlan Week 1 · 3 direct moving sets now",
+   "card": {
+    "top": 130,
+    "bottom": 234,
+    "height": 105
+   },
+   "stripControlsUnder44px": [],
+   "files": [
+    "strip-design-a-stack-390.png",
+    "card-closed-390.png"
+   ]
+  },
+  {
+   "scene": "coverage-to-review",
+   "viewport": "390x844",
+   "first": "11 movements have no direct moving work in Plan Week 1\n\nPronation, supination, wrist flexion and 8 more.\n\nDesign a stack",
+   "controlsUnder44px": []
+  },
+  {
+   "scene": "card-closed",
+   "viewport": "375x667",
+   "summary": "Design a stack\nPlan Week 1 · 3 direct moving sets now",
+   "card": {
+    "top": 130,
+    "bottom": 235,
+    "height": 105
+   },
+   "stripControlsUnder44px": [],
+   "files": [
+    "strip-design-a-stack-375.png",
+    "card-closed-375.png"
+   ]
+  },
+  {
+   "scene": "coverage-to-review",
+   "viewport": "375x667",
+   "first": "11 movements have no direct moving work in Plan Week 1\n\nPronation, supination, wrist flexion and 8 more.\n\nDesign a stack",
+   "controlsUnder44px": []
+  },
+  {
+   "scene": "way-in-3d-overview",
+   "viewport": "390x844",
+   "line": "21 distinct bouts are planned for the forearms in Plan Week 1; 3 are direct moving sets. Tap a muscle on the model, or in the row above it, for its numbers.",
+   "controlsUnder44px": [],
+   "open": true,
+   "summaryTop": 78,
+   "focused": "SUMMARY",
+   "dockTop": 774,
+   "stickyBottom": 49,
+   "file": "model-overview-design-a-stack-390.png"
+  },
+  {
+   "scene": "acceptance",
+   "plan": "A",
+   "viewport": "390x844",
+   "stickyBottom": 49,
+   "dockTop": 774,
+   "control": {
+    "top": 61,
+    "bottom": 272,
+    "height": 211
+   },
+   "whatChanges": {
+    "top": 284,
+    "bottom": 349,
+    "height": 65
+   },
+   "add": {
+    "top": 361,
+    "bottom": 411,
+    "height": 50
+   },
+   "allOnOneScreenAboveDock": true,
+   "total": "14",
+   "whatChangesText": "What changes\n\nDirect moving sets 3 → 14 · muscles with direct work 1 → 16 of 19",
+   "addLabel": "Add 11 sets (11 exercises, 3 days) to Week 1",
+   "numberFieldFontPx": "16px",
+   "rowsClosed": {
+    "count": 11,
+    "heights": [
+     44,
+     44,
+     44,
+     44,
+     44,
+     44,
+     53,
+     53,
+     44,
+     44,
+     53
+    ]
+   },
+   "horizontalOverflowPx": 0,
+   "file": "card-open-plan-A-390.png"
+  },
+  {
+   "scene": "acceptance",
+   "plan": "A",
+   "viewport": "375x667",
+   "stickyBottom": 49,
+   "dockTop": 597,
+   "control": {
+    "top": 61,
+    "bottom": 272,
+    "height": 211
+   },
+   "whatChanges": {
+    "top": 284,
+    "bottom": 349,
+    "height": 65
+   },
+   "add": {
+    "top": 361,
+    "bottom": 411,
+    "height": 50
+   },
+   "allOnOneScreenAboveDock": true,
+   "total": "14",
+   "whatChangesText": "What changes\n\nDirect moving sets 3 → 14 · muscles with direct work 1 → 16 of 19",
+   "addLabel": "Add 11 sets (11 exercises, 3 days) to Week 1",
+   "numberFieldFontPx": "16px",
+   "rowsClosed": {
+    "count": 11,
+    "heights": [
+     44,
+     44,
+     53,
+     53,
+     44,
+     44,
+     53,
+     53,
+     44,
+     44,
+     53
+    ]
+   },
+   "horizontalOverflowPx": 0,
+   "file": "card-open-plan-A-375.png"
+  },
+  {
+   "scene": "acceptance",
+   "plan": "C",
+   "viewport": "390x844",
+   "stickyBottom": 49,
+   "dockTop": 774,
+   "control": {
+    "top": 61,
+    "bottom": 272,
+    "height": 211
+   },
+   "whatChanges": {
+    "top": 284,
+    "bottom": 349,
+    "height": 65
+   },
+   "add": {
+    "top": 361,
+    "bottom": 411,
+    "height": 50
+   },
+   "allOnOneScreenAboveDock": true,
+   "total": "14",
+   "whatChangesText": "What changes\n\nDirect moving sets 3 → 14 · muscles with direct work 1 → 16 of 19",
+   "addLabel": "Add 11 sets (11 exercises, 5 days) to Week 1",
+   "numberFieldFontPx": "16px",
+   "rowsClosed": {
+    "count": 11,
+    "heights": [
+     44,
+     44,
+     53,
+     53,
+     44,
+     44,
+     44,
+     44,
+     53,
+     44,
+     44
+    ]
+   },
+   "horizontalOverflowPx": 0,
+   "file": "card-open-plan-C-390.png"
+  },
+  {
+   "scene": "acceptance",
+   "plan": "C",
+   "viewport": "375x667",
+   "stickyBottom": 49,
+   "dockTop": 597,
+   "control": {
+    "top": 61,
+    "bottom": 272,
+    "height": 211
+   },
+   "whatChanges": {
+    "top": 284,
+    "bottom": 349,
+    "height": 65
+   },
+   "add": {
+    "top": 361,
+    "bottom": 411,
+    "height": 50
+   },
+   "allOnOneScreenAboveDock": true,
+   "total": "14",
+   "whatChangesText": "What changes\n\nDirect moving sets 3 → 14 · muscles with direct work 1 → 16 of 19",
+   "addLabel": "Add 11 sets (11 exercises, 5 days) to Week 1",
+   "numberFieldFontPx": "16px",
+   "rowsClosed": {
+    "count": 11,
+    "heights": [
+     44,
+     53,
+     53,
+     53,
+     44,
+     53,
+     44,
+     44,
+     53,
+     44,
+     44
+    ]
+   },
+   "horizontalOverflowPx": 0,
+   "file": "card-open-plan-C-375.png"
+  },
+  {
+   "scene": "row-open-change",
+   "viewport": "390x844",
+   "controlsLine": {
+    "lines": 1,
+    "width": 321
+   },
+   "sweep": {
+    "checked": 35,
+    "under44px": [],
+    "faint": []
+   },
+   "horizontalOverflowPx": 0,
+   "file": "row-open-change-390.png"
+  },
+  {
+   "scene": "leave-out-undo",
+   "viewport": "390x844",
+   "line": "Pronation left out · total 14 → 13\nUndo",
+   "undo": {
+    "top": 99,
+    "bottom": 143,
+    "width": 70.1,
+    "height": 44
+   },
+   "focused": "Undo",
+   "dockTop": 774,
+   "stickyBottom": 49,
+   "file": "leave-out-undo-390.png"
+  },
+  {
+   "scene": "after-add",
+   "viewport": "390x844",
+   "line": "Added 11 sets to Plan Week 1\nUndo",
+   "detail": "The page now shows 14 direct moving sets for Plan Week 1.",
+   "undo": {
+    "top": 133,
+    "bottom": 177,
+    "width": 70.1,
+    "height": 44
+   },
+   "focused": "Undo",
+   "dockTop": 774,
+   "stickyBottom": 49,
+   "notice": "Added 11 sets: 11 exercises on Day 01, Day 02, Day 03 of Week 1\nYour own exercises are unchanged.\nUndo",
+   "summary": "Design a stack\nYour stack: 14 direct moving sets in Week 1",
+   "windowLine": "Plan Week 1, as written: 32 bouts planned · 14 direct moving sets",
+   "sweep": [],
+   "file": "after-add-390.png"
+  },
+  {
+   "scene": "after-add-card-undo",
+   "viewport": "390x844",
+   "line": "Undone: Plan Week 1 is as it was.",
+   "noticesShowing": 0,
+   "summary": "Design a stack\nPlan Week 1 · 3 direct moving sets now"
+  },
+  {
+   "scene": "row-open-change",
+   "viewport": "375x667",
+   "controlsLine": {
+    "lines": 1,
+    "width": 307
+   },
+   "sweep": {
+    "checked": 35,
+    "under44px": [],
+    "faint": []
+   },
+   "horizontalOverflowPx": 0,
+   "file": "row-open-change-375.png"
+  },
+  {
+   "scene": "leave-out-undo",
+   "viewport": "375x667",
+   "line": "Pronation left out · total 14 → 13\nUndo",
+   "undo": {
+    "top": 532,
+    "bottom": 576,
+    "width": 70.1,
+    "height": 44
+   },
+   "focused": "Undo",
+   "dockTop": 597,
+   "stickyBottom": 49,
+   "file": "leave-out-undo-375.png"
+  },
+  {
+   "scene": "after-add",
+   "viewport": "375x667",
+   "line": "Added 11 sets to Plan Week 1\nUndo",
+   "detail": "The page now shows 14 direct moving sets for Plan Week 1.",
+   "undo": {
+    "top": 61,
+    "bottom": 105,
+    "width": 70.1,
+    "height": 44
+   },
+   "focused": "Undo",
+   "dockTop": 597,
+   "stickyBottom": 49,
+   "notice": null,
+   "summary": "Design a stack\nYour stack: 14 direct moving sets in Week 1",
+   "windowLine": "Plan Week 1, as written: 32 bouts planned · 14 direct moving sets",
+   "sweep": [],
+   "file": "after-add-375.png"
+  },
+  {
+   "scene": "not-in-this-stack",
+   "viewport": "390x844",
+   "lines": [
+    "No reviewed exercise trains these directly, so the stack cannot give them direct sets: palmaris longus, which tenses the sheet of connective tissue under the skin of the palm; extensor digiti minimi, which straightens the little finger on its own; and extensor indicis, which straightens the index finger on its own, as when pointing. Wrist Curl, One-Arm Dumbbell Wrist Curl and Band Finger Extension work them as helpers. Palmaris longus is missing in some people."
+   ],
+   "box": {
+    "top": 61,
+    "bottom": 292,
+    "height": 231
+   },
+   "dockTop": 774,
+   "stickyBottom": 49,
+   "controlsUnder44px": [],
+   "horizontalOverflowPx": 0,
+   "file": "not-in-this-stack-390.png"
+  },
+  {
+   "scene": "design-for-week-2",
+   "viewport": "390x844",
+   "line": "Your stack is in Week 1, not Week 2\nDesign for Week 2",
+   "then": {
+    "total": "14",
+    "add": "Add 11 sets (11 exercises, 3 days) to Week 2"
+   },
+   "controlsUnder44px": [],
+   "file": "design-for-week-2-390.png"
+  },
+  {
+   "scene": "muscle-sheet-ranges",
+   "viewport": "390x844",
+   "note": "Starting ranges the app uses for this kind of movement. They are practical defaults, not measured for this muscle. General training studies found growth across a wide range of reps when sets are hard, and heavier sets suit maximal strength. Change them any time.",
+   "ranges": [
+    "Starting range: 6–20 reps",
+    "Starting range: 6–20 reps",
+    "Starting range: 6–20 reps",
+    "Starting range: 6–20 reps",
+    "Starting range: 6–20 reps"
+   ],
+   "file": "muscle-sheet-ranges-390.png"
+  },
+  {
+   "scene": "add-sheet-prescription",
+   "viewport": "390x844",
+   "field": {
+    "value": "3 × 6–20",
+    "fontPx": "16px",
+    "focused": true,
+    "box": {
+     "width": 353,
+     "height": 44
+    }
+   },
+   "visualViewportScale": 1,
+   "plannedAs": "Planned as 3 × 6–20.",
+   "controlsUnder44px": [],
+   "file": "add-sheet-prescription-390.png"
+  },
+  {
+   "scene": "muscle-sheet-ranges",
+   "viewport": "375x667",
+   "note": "Starting ranges the app uses for this kind of movement. They are practical defaults, not measured for this muscle. General training studies found growth across a wide range of reps when sets are hard, and heavier sets suit maximal strength. Change them any time.",
+   "ranges": [
+    "Starting range: 6–20 reps",
+    "Starting range: 6–20 reps",
+    "Starting range: 6–20 reps",
+    "Starting range: 6–20 reps",
+    "Starting range: 6–20 reps"
+   ],
+   "file": "muscle-sheet-ranges-375.png"
+  },
+  {
+   "scene": "add-sheet-prescription",
+   "viewport": "375x667",
+   "field": {
+    "value": "3 × 6–20",
+    "fontPx": "16px",
+    "focused": true,
+    "box": {
+     "width": 339,
+     "height": 44
+    }
+   },
+   "visualViewportScale": 1,
+   "plannedAs": "Planned as 3 × 6–20.",
+   "controlsUnder44px": [],
+   "file": "add-sheet-prescription-375.png"
+  },
+  {
+   "scene": "narrow-and-wide",
+   "viewport": "320x568",
+   "horizontalOverflowPx": 0,
+   "elementsPastRightEdge": [],
+   "controlsUnder44px": [],
+   "file": "card-open-320.png"
+  },
+  {
+   "scene": "narrow-and-wide",
+   "viewport": "430x932",
+   "horizontalOverflowPx": 0,
+   "elementsPastRightEdge": [],
+   "controlsUnder44px": []
+  },
+  {
+   "scene": "time-gate",
+   "viewport": "390x844",
+   "plan": "7 days × 8 exercises × 4 sets, Muscle growth, 90 min",
+   "runs": [
+    {
+     "dom": 99.1,
+     "frame": 170.6
+    },
+    {
+     "dom": 53.4,
+     "frame": 77.5
+    },
+    {
+     "dom": 29,
+     "frame": 62.1
+    },
+    {
+     "dom": 41.5,
+     "frame": 93.9
+    },
+    {
+     "dom": 37,
+     "frame": 75.6
+    },
+    {
+     "dom": 39.1,
+     "frame": 78.6
+    },
+    {
+     "dom": 31.6,
+     "frame": 55.1
+    },
+    {
+     "dom": 31.1,
+     "frame": 55.8
+    },
+    {
+     "dom": 27.7,
+     "frame": 98.4
+    }
+   ],
+   "medianToDom": 37,
+   "medianToFrame": 77.5,
+   "gateMs": 100,
+   "note": "Per − or + (a click in the page): ms to What changes changing in the DOM, and to the next frame after it, in headless Chromium emulating an iPhone on the sandbox's CPU, not a phone."
+  }
+ ],
+ "kept": [
+  "add-sheet-prescription-375.png",
+  "add-sheet-prescription-390.png",
+  "after-add-375.png",
+  "after-add-390.png",
+  "card-closed-375.png",
+  "card-closed-390.png",
+  "card-open-320.png",
+  "card-open-plan-A-375.png",
+  "card-open-plan-A-390.png",
+  "card-open-plan-C-375.png",
+  "card-open-plan-C-390.png",
+  "design-for-week-2-390.png",
+  "first-screen-drawing-375-after.png",
+  "first-screen-drawing-375-before.png",
+  "first-screen-drawing-390-after.png",
+  "first-screen-drawing-390-before.png",
+  "first-screen-model-375-after.png",
+  "first-screen-model-375-before.png",
+  "first-screen-model-390-after.png",
+  "first-screen-model-390-before.png",
+  "leave-out-undo-375.png",
+  "leave-out-undo-390.png",
+  "model-overview-design-a-stack-390.png",
+  "muscle-sheet-ranges-375.png",
+  "muscle-sheet-ranges-390.png",
+  "not-in-this-stack-390.png",
+  "row-open-change-375.png",
+  "row-open-change-390.png",
+  "strip-design-a-stack-375.png",
+  "strip-design-a-stack-390.png"
+ ],
+ "retaken": "23 Oct, after the review's fixes and the merge of main (1056aca): after-add-390, add-sheet-prescription-390 and the new not-in-this-stack-390, with after-add-card-undo; the rest as first captured."
+}

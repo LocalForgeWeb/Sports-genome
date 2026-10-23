@@ -10,31 +10,27 @@
  * simultaneously for confidence, magnitude and focus" an anti-pattern.
  */
 
-/* The role palette, once, where the figure, its legend and its row dots all read it (Sep 28
-   regression brief §10). Supporting was the State rank's gold (ΔE00 4) and its row dot
-   Prospect's slate (3.8); primary sat 14-17 from National's crimson. Both now sit at least 15
-   from every rank colour (anatomyRoleColors.test.ts), so a role is never read as a rank.
-   The ranks themselves are unchanged. */
+/* The role palette, once, where the figure, its legend, its row dots and the focus figures all
+   read it (Sep 28 regression brief §10).
+
+   October 21 (owner, "Red muscle palette"): one red family on the navy ground in place of
+   orange, teal and champagne. These are roles, not measured intensities, so the reds are
+   ordered the way the roles are named: a primary mover is the vivid red, supporting the muted
+   red, stabilizing the dusty rose, each less saturated and no lighter than the one before.
+   "No role recorded" is slate, the resting muscle: the absence of a record, not a fourth
+   colour and not a claim of zero. Flat and opaque: no lit-side gradient, no transparency.
+
+   The Strength Genome rank palette is untouched. National's crimson sits near this red
+   family by the owner's choice (anatomyRoleColors.test.ts measures it); role views never draw
+   rank colours, and every role keeps its word beside its colour. */
 :root {
-  /* October 4 (Exercise Intelligence and anatomy brief §9): the brief's starting palette,
-     measured before it was adopted. Primary #FF783D and supporting #25BCC3 are taken as
-     given (each ≥22 from every rank). */
-  --sg-role-primary-1: #ff783d;
-  --sg-role-primary-2: #f06c35;
-  --sg-role-supporting-1: #25bcc3;
-  --sg-role-supporting-2: #1e9ea6;
-  /* Stabilizing was a fluorescent lime. The brief's warm gold, #D8B65B, is ΔE00 4.1 from the
-     State rank's #DCAF3C - the same collision the Sep 28 brief removed - and every saturated
-     gold sits inside that radius. A pale champagne gold keeps the warmth and clears it: 15.4
-     from State, ≥30 from every rank but State, 31.5 from primary and 36.7 from supporting. */
-  --sg-role-stabilizing-1: #fce3a8;
-  --sg-role-stabilizing-2: #f4deaa;
-  /* The figure's resting muscle on the dark ground, and the legend's "No role recorded" swatch:
-     dark enough to be structure, not a fourth colour. */
-  --sg-role-neutral-on-dark: #34495f;
+  --sg-role-primary: #ff364a;
+  --sg-role-supporting: #cd6570;
+  --sg-role-stabilizing: #956570;
+  --sg-role-neutral-on-dark: #34465a;
   /* Exposure (Train → Review's week board): five steps of one muted sand hue, from a tone just
      above the resting muscle to a pale warm grey. One hue, so the figure reads as more or less
-     of one thing; muted, so no step is read as a role (orange, teal, champagne) or a rank. A
+     of one thing; muted and warm grey, so no step is read as a role (the reds) or a rank. A
      region with nothing planned keeps the resting tone and is not a step. */
   /* Step 1 sits a clear lightness step (about 1.8:1) above the resting muscle, so a little planned
      work never differs from none by hue alone. */
@@ -56,12 +52,14 @@
   --anatomy-line: #8b99ad;
   --anatomy-selection: #16324f;
 
-  --anatomy-supporting-1: var(--sg-role-supporting-1);
-  --anatomy-supporting-2: var(--sg-role-supporting-2);
-  --anatomy-stabilizing-1: var(--sg-role-stabilizing-1);
-  --anatomy-stabilizing-2: var(--sg-role-stabilizing-2);
-  --anatomy-primary-1: var(--sg-role-primary-1);
-  --anatomy-primary-2: var(--sg-role-primary-2);
+  /* Both stops the same colour: role fills are flat. A view that wants a lit side (the Strength
+     map's coverage modes) still sets two stops of its own. */
+  --anatomy-supporting-1: var(--sg-role-supporting);
+  --anatomy-supporting-2: var(--sg-role-supporting);
+  --anatomy-stabilizing-1: var(--sg-role-stabilizing);
+  --anatomy-stabilizing-2: var(--sg-role-stabilizing);
+  --anatomy-primary-1: var(--sg-role-primary);
+  --anatomy-primary-2: var(--sg-role-primary);
 
   display: block;
   height: 100%;
@@ -104,7 +102,8 @@
   pointer-events: none;
 }
 
-.anatomy-muscle[data-focused="true"] > path { fill: var(--anatomy-shell); }
+/* A focused or selected muscle keeps its role colour: focus and selection are drawn as outlines
+   (below), never by repainting the muscle, so neither can change what the colour says. */
 
 /* A slightly stronger outer silhouette than the internal lines. Drawn on the body under the
    muscles, so only its outside edge shows; one stroke, never doubled where regions meet. */

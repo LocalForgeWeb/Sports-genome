@@ -9,7 +9,7 @@ import { deltoidIds, deltoidRegionData } from "@/lib/specialization/__fixtures__
 import { loadRegionData } from "@/lib/specialization/loadRegion";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
-import { buildDaySlots, emptyDayStore } from "@/lib/trainingDayPlan";
+import { buildDaySlots, commitDay, emptyDayStore, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 
 /**
  * Brief §1 "Deltoid specialization can be added without a new schema or calculator" and §11
@@ -31,6 +31,18 @@ vi.mock("@/lib/specialization/loadRegion", async (importOriginal) => {
   return loaderWith(await importOriginal(), ["deltoid"]);
 });
 
+// The deltoid's rep profiles, handed out by the region-extras loader as a region's own `repProfiles.ts` would be (11 §3.10): data only.
+vi.mock("@/lib/specialization/regionExtras", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/specialization/regionExtras")>();
+  const { deltoidRepProfiles } = await import("@/lib/specialization/__fixtures__/deltoidRegion");
+  const ready = { status: "ready" as const, extras: deltoidRepProfiles };
+  return {
+    ...actual,
+    useRegionExtras: (regionId: string, enabled?: boolean) => (regionId === "deltoid" ? ready : actual.useRegionExtras(regionId, enabled)),
+    loadRegionExtras: (regionId: string) => (regionId === "deltoid" ? Promise.resolve(deltoidRepProfiles) : actual.loadRegionExtras(regionId)),
+  };
+});
+
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
 if (!window.matchMedia) (window as unknown as Record<string, unknown>).matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
 Element.prototype.scrollIntoView = () => {};
@@ -49,14 +61,14 @@ const sessions = [{
 let lastState: SpecializationViewState | null = null;
 /** The address changing under the open page (Back, a link), as Home would hand it a new state. */
 let setHarnessState: ((next: SpecializationViewState) => void) | null = null;
-function Harness(props: { initial?: Partial<SpecializationViewState> }) {
+function Harness(props: { initial?: Partial<SpecializationViewState>; weeks?: Record<number, WeeklyDayStore> }) {
   const [state, setState] = useState<SpecializationViewState>({ ...defaultSpecializationState("deltoid"), ...props.initial });
   lastState = state;
   setHarnessState = setState;
   const props_: SpecializationPanelProps = {
     state,
     onStateChange: setState,
-    plan: { ready: true, slots, weeks: { 1: emptyDayStore() }, choice: null, activeWeek: 1 },
+    plan: { ready: true, slots, weeks: props.weeks ?? { 1: emptyDayStore() }, choice: null, activeWeek: 1 },
     catalog: exercises,
     equipmentProfile: defaultEquipmentProfile,
     accountId: null,
@@ -218,5 +230,28 @@ describe("the same page on the forearm, for contrast", () => {
     expect((within(details()).getByLabelText(/^Where \(landmark\)$/) as HTMLInputElement).value).toBe("Around the shoulder");
     expect((within(details()).getByLabelText(/^Posture$/) as HTMLSelectElement).value).toBe("arm_relaxed_hanging");
     expect(details().textContent).not.toMatch(/grip|dynamometer|forearm/i);
+  });
+});
+
+describe("the stack card on the deltoid fixture, with no deltoid code (11-forearm-research-and-stack.md §3.10)", () => {
+  it("shows the card under the map from the region's data alone, and designs a stack in the region's own words", async () => {
+    // The plan's own Barbell Overhead Press: four planned sets of direct moving work on the anterior head (Athleticism, first place).
+    const week = commitDay(emptyDayStore(), slots[0].key, { workout: [exercises.find((exercise) => exercise.id === 101)!], prescriptions: {}, settings: {}, context: [] });
+    render(createElement(Harness, { initial: { mode: "planned" }, weeks: { 1: week } }));
+    await act(async () => {});
+    const card = document.querySelector("details.spz-stack") as HTMLDetailsElement;
+    expect(document.querySelector(".spz-map")!.nextElementSibling).toBe(card);
+    expect(Array.from(card.querySelectorAll(":scope > summary b, :scope > summary small")).map((item) => item.textContent)).toEqual(["Design a stack", "Plan Week 1 · 4 direct moving sets now"]);
+    await act(async () => { card.open = true; fireEvent(card, new Event("toggle")); });
+    await screen.findByText(/^Pick a weekly number/, undefined, { timeout: 10000 });
+    expect(within(card).getByRole("spinbutton", { name: "Direct deltoid sets a week" })).not.toBeNull();
+    const rows = Array.from(card.querySelectorAll(".spz-stack-row")).map((row) => row.textContent);
+    expect(rows.length).toBeGreaterThan(0);
+    // The fixture's own profiles: the raise's range, and the one-arm fly done with each arm, in the region's side word.
+    expect(rows).toContain("Dumbbell Lateral Raise · 1 × 12–20");
+    expect(rows.some((row) => /^Single-Arm Cable Rear-Delt Fly · 1 × 12–25 · each arm$/.test(row ?? "") || /^Bent-Over Rear-Delt Fly · \d × 12–25$/.test(row ?? ""))).toBe(true);
+    for (const details of Array.from(card.querySelectorAll("details"))) await act(async () => { details.open = true; fireEvent(details, new Event("toggle")); });
+    expect(card.textContent).toMatch(/Deltoid exercises a day|deltoid exercises a day/);
+    expect(card.textContent).not.toMatch(/forearm|grip|palm|thumb|wrist|\b(left|right)\b/i);
   });
 });

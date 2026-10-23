@@ -14,6 +14,7 @@ import {
   SCHEMA_V2_MIGRATION_PATH,
   SEED_MIGRATION_PATH,
   SEED_V1_MIGRATION_PATH,
+  SEED_V2_MIGRATION_PATH,
   USER_A,
   USER_B,
   applyMigration,
@@ -38,9 +39,9 @@ import {
  * Schema v2 (supabase/migrations/…_specialization_atlas_schema_v2.sql; 10-multi-region.md §5;
  * 04-database.md §10) in PGlite: its five tables with their grants and row-level security as
  * anon, two users and the service role; every guard and refusal, the prototype experiment's
- * included; publication rules 10 to 13; what it writes over the applied files (nothing but the
- * forearm region row's new columns); the DO-block route and its locks; the undo; and the apply
- * tool's SQL, run with the `http` extension stood in for. The schema v1 tests run on the same
+ * included; publication rules 10 to 13; what it writes over schema v1 and seed v1 (nothing but
+ * the forearm region row's new columns); the DO-block route and its locks; the undo; and the
+ * apply tool's SQL, run with the `http` extension stood in for. The schema v1 tests run on the same
  * release database in server/specializationSchema.test.ts.
  */
 
@@ -275,10 +276,10 @@ describe("structure", () => {
   });
 });
 
-// ---------------------------------------------------------------- what it writes over the applied files
+// ---------------------------------------------------------------- what it writes over schema v1 and seed v1
 
 describe("what schema v2 writes", () => {
-  // Over the applied files, before the current seed lists the rest: the rows schema v2 writes itself.
+  // Over schema v1 and seed v1, before seed v2 lists the rest: the rows schema v2 writes itself.
   let backfilled: PGlite;
   beforeAll(async () => {
     backfilled = await createSupabaseLikeDb();
@@ -1170,10 +1171,10 @@ describe("the prototype experiment's cases", () => {
   });
 });
 
-// ---------------------------------------------------------------- how it reaches production
+// ---------------------------------------------------------------- how it reached production (22 Oct 2026)
 
-describe("applied over what production holds", () => {
-  it("writes the forearm region row's new columns and its own tables' rows, and touches no other existing row; applied again, nothing; the current seed after it, two existing rows: the upper arm's region row in schema v2's columns and the forearm's progress subtitle", async () => {
+describe("applied over what production held (schema v1 and seed v1)", () => {
+  it("writes the forearm region row's new columns and its own tables' rows, and touches no other existing row; applied again, nothing; seed v2 after it, two existing rows: the upper arm's region row in schema v2's columns and the forearm's progress subtitle", async () => {
     const fresh = await createSupabaseLikeDb();
     try {
       await replayMigrations(fresh, "seed v1");
@@ -1194,10 +1195,10 @@ describe("applied over what production holds", () => {
       await applyMigration(fresh, SCHEMA_V2_MIGRATION_PATH);
       expect(await rowVersions(fresh)).toEqual(after);
 
-      // The current seed after it: two existing rows change, both region rows: the upper arm's in the columns schema v2 added, and the
+      // Seed v2 after it, as production ran it: two existing rows change, both region rows: the upper arm's in the columns schema v2 added, and the
       // forearm's in one v1 column, its Progress subtitle, which no longer says "by arm" (both sides as one; server/specializationSeed.test.ts holds the rest).
       const [upperArmBefore, forearmBefore] = [await regionRow("upper_arm"), await regionRow("forearm")];
-      await applyMigration(fresh, SEED_MIGRATION_PATH);
+      await applyMigration(fresh, SEED_V2_MIGRATION_PATH);
       const seeded = await rowVersions(fresh);
       for (const table of Object.keys(after)) expect(after[table].filter((version) => !seeded[table].includes(version)).sort(), table).toEqual(table === "regions" ? [forearmBefore.v, upperArmBefore.v].sort() : []);
       const upperArmAfter = (await regionRow("upper_arm")).row;
@@ -1252,7 +1253,8 @@ describe("applied over what production holds", () => {
       expect(await snapshot(wrapped)).toEqual(v1);
       for (const target of [direct, wrapped]) await target.exec("delete from specialization.regions where id = 'zz_fixture'");
 
-      for (const path of [SCHEMA_V2_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+      // As production ran them (schema v2, seed v2), and the current seed after them.
+      for (const path of [SCHEMA_V2_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
         await applyMigration(direct, path);
         await applyMigrationAsDoBlock(wrapped, path);
       }
@@ -1265,7 +1267,7 @@ describe("applied over what production holds", () => {
     }
   }, SETUP);
 
-  it("production applies the specialization migrations in name order: the applied files, the pending schema, the current seed", () => {
+  it("production applies the specialization migrations in name order: the applied files, any pending schema, the current seed", () => {
     const files = readdirSync(resolve(process.cwd(), "supabase/migrations")).filter((name) => name.includes("_specialization_atlas_")).sort();
     const order = [...APPLIED_MIGRATION_PATHS, ...PENDING_MIGRATION_PATHS, SEED_MIGRATION_PATH];
     expect(files).toEqual(order.map((path) => basename(path)));
@@ -1289,18 +1291,21 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
     expect(readdirSync(resolve(process.cwd(), "supabase/migrations")).filter((name) => name.includes("undo"))).toEqual([]);
   });
 
-  it("after schema v2 and the current seed gives the database schema v1 and seed v1 gave (goals_no_overlap keyed on the side again), plus what the seed wrote to v1's tables and the goals kept; both then apply again; it refuses after seed v3, after a publish under schema v2, while a goal names what schema v2 would not list, and while a variant uses not_applicable", async () => {
+  it("after schema v2 and seed v2, what production holds since 22 Oct 2026, gives the database schema v1 and seed v1 gave (goals_no_overlap keyed on the side again), plus what seed v2 wrote to v1's tables and the goals kept; both then apply again; it refuses once the current seed (seed v3) is recorded, after a publish under schema v2, while a goal names what schema v2 would not list, and while a variant uses not_applicable", async () => {
     const target = await createSupabaseLikeDb();
-    const release = await createReleaseDb();
+    // Production as it stands: every applied file, the current seed not yet.
+    const production = await createSupabaseLikeDb();
     try {
+      await replayMigrations(production, "seed v2");
       await replayMigrations(target, "seed v1");
       const v1 = await snapshot(target);
       const v1Recorded = await recorded(target);
-      for (const path of [SCHEMA_V2_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+      for (const path of [SCHEMA_V2_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH]) {
         await applyMigration(target, path);
         await recordMigration(target, path);
       }
-      expect(await recorded(target)).toEqual([...v1Recorded, migrationRecord(SCHEMA_V2_MIGRATION_PATH), migrationRecord(SEED_MIGRATION_PATH)]);
+      expect(await recorded(target)).toEqual([...v1Recorded, migrationRecord(SCHEMA_V2_MIGRATION_PATH), migrationRecord(SEED_V2_MIGRATION_PATH)]);
+      expect(await recorded(target)).toEqual(await recorded(production));
       // A user's goals on a forearm muscle and movement: schema v2 lists both before it adds the goals' keys, so they survive the
       // undo and the apply after it (a goal on the upper arm, which only the seed lists, is refused: it has no page yet).
       await as(target, { user: USER_A }, async () => {
@@ -1318,9 +1323,9 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
         );
       });
       const beforeUndo = await rowVersions(target);
-      // The undo's limit (its header, 04-database.md §10): what the seed wrote to a table of v1's stays. In this release that is
-      // the upper arm's two shoulder actions, added, and one value rewritten, the forearm's Progress subtitle, which no longer says
-      // "by arm" (both sides as one); every other row it wrote is in schema v2's tables. The goals stay too.
+      // The undo's limit (its header, 04-database.md §10): what seed v2 wrote to a table of v1's stays. That is the upper arm's
+      // two shoulder actions, added, and one value rewritten, the forearm's Progress subtitle, which no longer says "by arm"
+      // (both sides as one); every other row it wrote is in schema v2's tables. The goals stay too.
       const seeded = await snapshot(target);
       const v1Columns = (table: string) => new Set(v1.catalog.columns.filter((column) => column.table_name === table).map((column) => column.column_name as string));
       const asV1Row = (table: string, row: string) => JSON.stringify(Object.fromEntries(Object.entries(JSON.parse(row) as Record<string, unknown>).filter(([column]) => v1Columns(table).has(column))));
@@ -1365,9 +1370,9 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
       const afterUndo = await rowVersions(target);
       for (const table of Object.keys(afterUndo)) expect(afterUndo[table], table).toEqual(beforeUndo[table]);
 
-      // Applied again (the apply tool takes both files again): the same database as the release replay, its
-      // columns in the same order (a dropped column leaves its number unused, so the re-added ones are numbered after it).
-      for (const path of [SCHEMA_V2_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+      // Applied again (the apply tool takes both files again): the same database as production's, but for the
+      // columns' order (a dropped column leaves its number unused, so the re-added ones are numbered after it).
+      for (const path of [SCHEMA_V2_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH]) {
         await applyMigration(target, path);
         await recordMigration(target, path);
       }
@@ -1378,14 +1383,16 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
       expect(await count(target, "select 1 from specialization.goals where id like 'undo-%'")).toBe(2);
       await target.exec("delete from specialization.goals where id like 'undo-%'");
       const reapplied = await snapshot(target);
-      expect(unnumbered(reapplied)).toEqual(unnumbered(await snapshot(release)));
-      expect(await recorded(target)).toEqual(await recorded(release));
+      expect(unnumbered(reapplied)).toEqual(unnumbered(await snapshot(production)));
+      expect(await recorded(target)).toEqual(await recorded(production));
 
-      // Seed v3 recorded: refused, nothing changed.
-      await target.query("insert into supabase_migrations.schema_migrations (version, name, statements) values ('20261026120100', 'specialization_atlas_seed_v3', '{}')");
-      expect(await scriptFailure(target, undo)).toMatch(/schema v2 cannot be undone: 20261026120100 specialization_atlas_seed_v3 is recorded, and from seed v3 on the specialization schema is forward-only/);
+      // The current seed, seed v3, recorded as the apply records it: refused, nothing changed. Its version sorts after seed v2's,
+      // which is what the undo reads.
+      expect(migrationRecord(SEED_MIGRATION_PATH)).toEqual({ version: "20261022120100", name: "specialization_atlas_seed_v3" });
+      await recordMigration(target, SEED_MIGRATION_PATH);
+      expect(await scriptFailure(target, undo)).toMatch(/schema v2 cannot be undone: 20261022120100 specialization_atlas_seed_v3 is recorded, and from seed v3 on the specialization schema is forward-only/);
       expect(await snapshot(target)).toEqual(reapplied);
-      await target.query("delete from supabase_migrations.schema_migrations where version = '20261026120100'");
+      await target.query("delete from supabase_migrations.schema_migrations where version = $1", [migrationRecord(SEED_MIGRATION_PATH).version]);
 
       // Refused, changing nothing, in a transaction rolled back after: what a publish under schema v2 rests on, however it was
       // published (here by hand), or a frozen attribute alone; and a goal on what only the seed lists, stored past the goals trigger.
@@ -1443,7 +1450,7 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
       expect(await snapshot(target)).toEqual(withVariant);
     } finally {
       await target.close();
-      await release.close();
+      await production.close();
     }
   }, SETUP);
 });
@@ -1452,7 +1459,8 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
 
 describe("the apply tool (scripts/specialization/release/make-apply-sql.mjs)", () => {
   const sha = "0123456789abcdef0123456789abcdef01234567";
-  const files = [SCHEMA_V2_MIGRATION_PATH, SEED_MIGRATION_PATH].map((path) => basename(path));
+  // Wave 0's two files, as production applied them on 22 Oct 2026, and the current seed, which the next release applies after them.
+  const files = [SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH, SEED_MIGRATION_PATH].map((path) => basename(path));
   const urlOf = (file: string) => `https://raw.githubusercontent.com/LocalForgeWeb/Sports-genome/${sha}/supabase/migrations/${file}`;
   const run = (args: string[]) => execFileSync(process.execPath, [APPLY_TOOL, ...args], { encoding: "utf8", stdio: "pipe" });
   let out: string;
@@ -1513,8 +1521,9 @@ describe("the apply tool (scripts/specialization/release/make-apply-sql.mjs)", (
     expect(() => run([sha, out, "20261016120000_other.sql"])).toThrow(/is not a specialization migration in supabase\/migrations/);
   });
 
-  it("run in PGlite with http stood in for: refuses a file out of order, after an earlier file recorded with other text, a failed fetch, a changed file and one already recorded, changing nothing; applies and records the rest", async () => {
+  it("run in PGlite with http stood in for: refuses a file out of order, after an earlier file recorded with other text, a failed fetch, a changed file and one already recorded, changing nothing; applies and records the rest, the current seed last", async () => {
     const target = await createSupabaseLikeDb();
+    const release = await createReleaseDb();
     try {
       await replayMigrations(target, "seed v1");
       // PGlite has no http extension: functions of the same names serve the repository's files.
@@ -1527,13 +1536,13 @@ describe("the apply tool (scripts/specialization/release/make-apply-sql.mjs)", (
       const serve = (file: string, status: number, content: string) =>
         target.query("insert into extensions.http_files (url, status, content) values ($1, $2, $3) on conflict (url) do update set status = excluded.status, content = excluded.content", [urlOf(file), status, content]);
       const apply = (file: string) => scriptFailure(target, applySql(file).replace("  create extension if not exists http with schema extensions;\n", ""));
-      const [schemaV2, seed] = files;
+      const [schemaV2, seedV2, seedV3] = files;
       const text = (file: string) => readFileSync(resolve(process.cwd(), "supabase/migrations", file), "utf8");
       const recorded = () => rows<{ version: string }>(target, "select version from supabase_migrations.schema_migrations order by 1").then((found) => found.map((row) => row.version));
       const v1 = await snapshot(target);
 
-      await serve(seed, 200, text(seed));
-      expect(await apply(seed)).toMatch(new RegExp(`${seed} applies after 20261019120000 specialization_atlas_schema_v2, which production has not recorded`));
+      await serve(seedV2, 200, text(seedV2));
+      expect(await apply(seedV2)).toMatch(new RegExp(`${seedV2} applies after 20261019120000 specialization_atlas_schema_v2, which production has not recorded`));
       await serve(schemaV2, 404, "");
       expect(await apply(schemaV2)).toMatch(new RegExp(`Could not fetch ${schemaV2} at ${sha.slice(0, 12)}: HTTP 404`));
       await serve(schemaV2, 200, `${text(schemaV2)}\n-- changed`);
@@ -1541,16 +1550,16 @@ describe("the apply tool (scripts/specialization/release/make-apply-sql.mjs)", (
       expect(await snapshot(target)).toEqual(v1);
       expect(await recorded()).toEqual(["20261016120000", "20261016120100"]);
 
-      // Schema v2 recorded from another commit (the seed then failed, and the fix edited schema v2): the recorded text is
-      // history this commit no longer has, so the seed is refused rather than run over a schema the repository does not hold.
+      // Schema v2 recorded from another commit (seed v2 then failed, and the fix edited schema v2): the recorded text is
+      // history this commit no longer has, so seed v2 is refused rather than run over a schema the repository does not hold.
       await target.query("insert into supabase_migrations.schema_migrations (version, name, statements) values ('20261019120000', 'specialization_atlas_schema_v2', array[$1])", [
         text(schemaV2).replace(/create or replace trigger regions_guard_published[\s\S]*?;\n/, ""),
       ]);
-      expect(await apply(seed)).toMatch(
-        new RegExp(`${seed} applies after 20261019120000 specialization_atlas_schema_v2, which production recorded with other text than this commit holds: a recorded file is history, so correct it in a new file`),
+      expect(await apply(seedV2)).toMatch(
+        new RegExp(`${seedV2} applies after 20261019120000 specialization_atlas_schema_v2, which production recorded with other text than this commit holds: a recorded file is history, so correct it in a new file`),
       );
       await target.query("update supabase_migrations.schema_migrations set statements = null where version = '20261019120000'");
-      expect(await apply(seed)).toMatch(/which production recorded with other text than this commit holds/);
+      expect(await apply(seedV2)).toMatch(/which production recorded with other text than this commit holds/);
       await target.query("delete from supabase_migrations.schema_migrations where version = '20261019120000'");
       // So is a file after a schema v1 recorded with other text.
       await target.query("update supabase_migrations.schema_migrations set statements = array[$1] where version = '20261016120000'", ["-- another schema v1"]);
@@ -1567,11 +1576,21 @@ describe("the apply tool (scripts/specialization/release/make-apply-sql.mjs)", (
       const afterSchema = await snapshot(target);
       expect(await apply(schemaV2)).toMatch(new RegExp(`${schemaV2} is already recorded in supabase_migrations.schema_migrations`));
       expect(await snapshot(target)).toEqual(afterSchema);
-      expect(await apply(seed)).toBeNull();
+      // The current seed waits for seed v2.
+      await serve(seedV3, 200, text(seedV3));
+      expect(await apply(seedV3)).toMatch(new RegExp(`${seedV3} applies after 20261019120100 specialization_atlas_seed_v2, which production has not recorded`));
+      expect(await snapshot(target)).toEqual(afterSchema);
+      expect(await apply(seedV2)).toBeNull();
       expect(await recorded()).toEqual(["20261016120000", "20261016120100", "20261019120000", "20261019120100"]);
       expect((await snapshot(target)).catalog).toEqual((await snapshot(db)).catalog);
+      // Then the current seed applies over what production holds: the release database, history included.
+      expect(await apply(seedV3)).toBeNull();
+      expect(await recorded()).toEqual(["20261016120000", "20261016120100", "20261019120000", "20261019120100", "20261022120100"]);
+      expect(await snapshot(target)).toEqual(await snapshot(release));
+      expect(await recorded()).toEqual((await rows<{ version: string }>(release, "select version from supabase_migrations.schema_migrations order by 1")).map((row) => row.version));
     } finally {
       await target.close();
+      await release.close();
     }
   }, SETUP);
 });

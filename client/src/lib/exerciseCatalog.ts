@@ -6169,7 +6169,7 @@ export const baseExercises: Exercise[] = [
     "name": "Wrist Curl",
     "sourceGroup": "Biceps, Brachialis & Forearms",
     "category": "Arms & grip",
-    "equipment": "Free weights",
+    "equipment": "Barbell",
     "movement": "Wrist flexion",
     "primaryMuscles": [
       "forearms"
@@ -6209,7 +6209,7 @@ export const baseExercises: Exercise[] = [
     "name": "Reverse Wrist Curl",
     "sourceGroup": "Biceps, Brachialis & Forearms",
     "category": "Arms & grip",
-    "equipment": "Free weights",
+    "equipment": "Barbell",
     "movement": "Wrist extension",
     "primaryMuscles": [
       "forearms"

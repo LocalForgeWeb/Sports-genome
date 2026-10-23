@@ -15,6 +15,9 @@ import { APPLIED_MIGRATION_PATHS, SEED_MIGRATION_PATH } from "./fixtures/special
 const applied: Record<string, string> = {
   "20261016120000_specialization_atlas_schema.sql": "b67a9cd7a90383c205686e17b029a55ffd5a59ee4d928189d3a7d16296da542d",
   "20261016120100_specialization_atlas_seed_v1.sql": "a267fdc4997699401822c2f4166a97b427fe28d8081bebcba037f963a35189f8",
+  // Recorded on 22 Oct 2026 (wave 0), from commit 14c0010.
+  "20261019120000_specialization_atlas_schema_v2.sql": "3de6e262939c25d15ba47a6cdd48d1f0527e7dedbb0775beeb7c98a81b9531fa",
+  "20261019120100_specialization_atlas_seed_v2.sql": "b3798fd6d35999789d6c0f790e80a24f9a32a7b96e70d986f9e88c5a007cfea8",
 };
 
 const migrations = resolve(process.cwd(), "supabase/migrations");

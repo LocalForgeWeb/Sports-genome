@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Contribution, GoalProgress, NodeExposure, RegionBoutRow, SpecializationGoal, SpecializationSummary } from "@shared/specialization/types";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
-import { directWorkBouts, evidenceBasisLabels, overlapsInWindow, exposureSentence, fillForNode, findingsFor, formatSegment, holdTime, latestSessionDayLabel, ledgerByExercise, mappingsBehind, movementFocusNodeId, movementLedger, regionBoutRows, selectableNodes, sortForList, targetStep, volumeStep } from "./model";
+import { directWorkBouts, evidenceBasisLabels, overlapsInWindow, exposureSentence, fillForNode, findingsFor, formatSegment, holdTime, holdTimeOf, latestSessionDayLabel, ledgerByExercise, mappingsBehind, movementFocusNodeId, movementLedger, regionBoutRows, selectableNodes, sortForList, targetStep, volumeStep } from "./model";
 
 /**
  * The page's own reading of a summary (design §7): fixed bins, honest blanks, the ledger's
@@ -117,6 +117,16 @@ describe("what the page says about a muscle", () => {
     expect(holdTime(0)).toBe("time not recorded");
     expect(holdTime(45)).toBe("45 s");
     expect(holdTime(150)).toBe("2 min 30 s");
+  });
+  it("says holds with no time recorded apart from the time the others recorded (11-forearm-research-and-stack.md §7.1)", () => {
+    const hold = (boutId: string, seconds: number | null) => ({ boutId, nodeId: "n", category: "deliberate_isometric", parts: [], countedSide: "both", holdSeconds: seconds ?? 0, segments: [{ id: `${boutId}-1`, reps: null, loadKg: null, holdSeconds: seconds }] } as unknown as NodeExposure["contributions"][number]);
+    const holding = (contributions: NodeExposure["contributions"]) => node({ deliberateHoldBouts: contributions.length, deliberateHoldSeconds: contributions.reduce((total, item) => total + item.holdSeconds, 0), contributions });
+    expect(holdTimeOf(holding([hold("a", 45), hold("b", null)]))).toBe("45 s recorded; 1 hold with no time recorded");
+    expect(holdTimeOf(holding([hold("a", 30), hold("b", null), hold("c", null)]))).toBe("30 s recorded; 2 holds with no time recorded");
+    // Every hold timed: the time; none timed: not recorded, never 0 s.
+    expect(holdTimeOf(holding([hold("a", 45), hold("b", 30)]))).toBe("1 min 15 s");
+    expect(holdTimeOf(holding([hold("a", null)]))).toBe("time not recorded");
+    expect(exposureSentence(holding([hold("a", 45), hold("b", null)]), "grip")).toBe("2 deliberate holds, 45 s recorded; 1 hold with no time recorded.");
   });
   it("writes a segment as it was logged, in the athlete's unit", () => {
     expect(formatSegment({ id: "x", reps: 12, loadKg: 13.6, holdSeconds: null }, "lb")).toMatch(/^30(\.\d)? lb × 12$/);

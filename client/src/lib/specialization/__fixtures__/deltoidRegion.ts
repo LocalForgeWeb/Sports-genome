@@ -1,7 +1,7 @@
 import { actionsFor } from "@shared/specialization/actions";
 import { forearmActionIds, shoulderActionIds } from "@shared/specialization/actions/ids";
 import { composeRegionData } from "@shared/specialization/compose";
-import type { AnatomyNode, ExerciseVariant, RegionContent, SpecializationRegion, SpecializationRegionData, VariantMapping } from "@shared/specialization/types";
+import type { AnatomyNode, ExerciseVariant, RegionContent, RegionExtras, SpecializationRegion, SpecializationRegionData, TendonMember, VariantMapping } from "@shared/specialization/types";
 
 /**
  * A deltoid region for tests only (brief §1 "Deltoid specialization can be added without a
@@ -242,6 +242,72 @@ export const deltoidContent: RegionContent = {
     },
     licenseNote: "Drawn for this test fixture.",
   },
+  // The stack designer, with the profiles below (`deltoidRepProfiles`), so the page's card renders on a second region;
+  // tendon exposure, with the areas below (`deltoidTendonAreas`), likewise.
+  sections: { stack: true, tendonExposure: true },
 };
 
 export const deltoidRegionData: SpecializationRegionData = composeRegionData(deltoidContent, [fixtureArmContent]);
+
+/**
+ * The deltoid's rep profiles (11-forearm-research-and-stack.md §3.10: "the deltoid fixture, which
+ * gains two rep profiles"), so the stack designer runs on a second region with no deltoid code.
+ * Test numbers, not guidance. The press keeps its whole-exercise prescription (no profile), so the
+ * designer's no-profile path runs too; the one-arm fly is marked for coverage only, as a reviewed
+ * family would mark a drill, so the coverage-only rule runs on a region other than the forearm.
+ */
+export const deltoidRepProfiles: RegionExtras = {
+  regionId: REGION,
+  repProfiles: [
+    { id: "deltoid.raise", label: "Raise", measure: "reps", growth: [12, 20], strength: [8, 12], evidence: "starting_default", origin: { family: "fixture_raise", status: "fixture" }, note: "Test fixture: not guidance." },
+    { id: "deltoid.rear_fly", label: "Rear fly", measure: "reps", growth: [12, 25], strength: null, evidence: "starting_default", origin: { family: "fixture_rear_fly", status: "fixture" }, note: "Test fixture: not guidance." },
+  ],
+  repProfileAssignments: [
+    { variantId: "fx-111", profileId: "deltoid.raise", strengthApplies: true, coverageOnly: false },
+    { variantId: "fx-90", profileId: "deltoid.rear_fly", strengthApplies: false, coverageOnly: false },
+    { variantId: "fx-93", profileId: "deltoid.rear_fly", strengthApplies: false, coverageOnly: true, coverageNote: "Test fixture: a drill marked for coverage, not volume." },
+  ],
+  unprofiledVariants: [{ variantId: "fx-101", reason: "Test fixture: a press keeps its whole-exercise prescription." }],
+  repGuidanceCitations: { general: ["F1"], effort: ["F1"], holds: ["F1"] },
+  referenceSources: [],
+};
+
+const tendonMember = (nodeId: string, reviewStatus: TendonMember["reviewStatus"] = "reviewed"): TendonMember => ({
+  nodeId,
+  citations: [{ sourceId: "F1", locator: "Fixture only.", qualification: null }],
+  packageGroups: [],
+  reviewStatus,
+  reviewNote: reviewStatus === "reviewed" ? "Test fixture: a product assumption, not evidence." : "Test fixture: a draft pair, kept out of this group only.",
+  singleSource: true,
+});
+
+/**
+ * The deltoid's tendon areas (11-forearm-research-and-stack.md §4.6: "the deltoid fixture gains two
+ * areas"), so tendon exposure runs on a second region with no deltoid code. Test data, not anatomy,
+ * shaped to run every path once:
+ * - the lateral head is in both areas, so one set counts once in each and the areas are never added;
+ * - the anterior head is a reviewed member of the first area's group and a draft member of the
+ *   second's, so that one pair is kept out while the head still counts in the first area;
+ * - the posterior head is in no group, so it is listed as not placed, with its reason;
+ * - the triceps, an external member, is in none;
+ * - one group has a caveat and the other none.
+ */
+export const deltoidTendonAreas: RegionExtras = {
+  regionId: REGION,
+  tendonAreas: [
+    {
+      id: "deltoid.tendon.front",
+      label: "Front of the shoulder",
+      description: "Test fixture: where the front and side heads attach at the front.",
+      groups: [{ id: "deltoid.tendon.front_heads", label: "Front and side heads", members: [tendonMember(deltoidIds.anterior), tendonMember(deltoidIds.lateral)], caveat: "Test fixture: a caveat, said on the page." }],
+    },
+    {
+      id: "deltoid.tendon.outer",
+      label: "Outer shoulder",
+      description: "Test fixture: where the side head attaches on the outside.",
+      groups: [{ id: "deltoid.tendon.outer_heads", label: "Side and front heads", members: [tendonMember(deltoidIds.lateral), tendonMember(deltoidIds.anterior, "draft")], caveat: null }],
+    },
+  ],
+  tendonNotPlaced: [{ nodeId: deltoidIds.posterior, reason: "Test fixture: a head in no group, so the not-placed line runs on a second region." }],
+  referenceSources: [],
+};

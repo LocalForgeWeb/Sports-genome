@@ -1,7 +1,12 @@
 import type { Source, SourceId } from "../types";
 import { forearmSources } from "./forearm";
 import { forearmMappingSources } from "./forearmMappings";
+import { forearmTendonSources } from "./forearmTendon";
+import { tendonMethodSources } from "./tendonMethod";
+import { trainingSources } from "./training";
 import { upperArmSources } from "./upper_arm";
+import { upperArmPressesPushesSources } from "./upper_arm-pressesPushes";
+import { upperArmPullsCurlsSources } from "./upper_arm-pullsCurls";
 
 /**
  * The shared source library (docs/specialization-atlas/10-multi-region.md §1.3): every source
@@ -15,6 +20,15 @@ import { upperArmSources } from "./upper_arm";
  * the sources it cites from the library files themselves, so a page never loads every region's
  * sources.
  */
-export const sourceLibrary: readonly Source[] = [...forearmSources, ...forearmMappingSources, ...upperArmSources];
+export const sourceLibrary: readonly Source[] = [
+  ...forearmSources,
+  ...forearmMappingSources,
+  ...trainingSources,
+  ...forearmTendonSources,
+  ...tendonMethodSources,
+  ...upperArmSources,
+  ...upperArmPressesPushesSources,
+  ...upperArmPullsCurlsSources,
+];
 
 export const sourceById: ReadonlyMap<SourceId, Source> = new Map(sourceLibrary.map((source) => [source.id, source]));

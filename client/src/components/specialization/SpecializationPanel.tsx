@@ -1,23 +1,29 @@
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type RefObject } from "react";
+import { lazy, Suspense, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import { ArrowRight, ChevronDown, ChevronLeft } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import type { AthleteEquipmentProfile } from "@/lib/equipmentProfile";
 import { trainingWeekFor, type NextWorkoutChoice } from "@/lib/nextWorkout";
 import { loadedRegionData, loadRegionData } from "@/lib/specialization/loadRegion";
-import { plannedExercisesInWeek } from "@/lib/specialization/planBouts";
+import { boutsFromPlan, plannedExercisesInWeek } from "@/lib/specialization/planBouts";
 import { recommendFor, type RecommendationCandidate } from "@/lib/specialization/recommendations";
+import { useRegionExtras } from "@/lib/specialization/regionExtras";
 import { useSpecializationGoals, useSpecializationMeasurements } from "@/lib/specialization/stores";
 import { useSpecializationExclusions } from "@/lib/specialization/exclusions";
-import { intervalForView, useDeviceWorkoutSessions, useSpecializationSummary, type SpecializationPlanInput } from "@/lib/specialization/useSpecializationSummary";
-import { rememberRegion, withRegion, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationViewState } from "@/lib/specialization/viewState";
+import { planRevision } from "@/lib/specialization/revision";
+import { stackEntriesState, stackForWeek, useSpecializationStacks } from "@/lib/specialization/stackStore";
+import { catalogMusclesLookup, computeSpecializationSummary, intervalForView, planningVariantsFor, useDeviceWorkoutSessions, useSpecializationSummary, type SpecializationPlanInput } from "@/lib/specialization/useSpecializationSummary";
+import { rememberRegion, withRegion, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationStackProps, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { emptyDayStore, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import type { TrainingGoal } from "@/lib/workoutPlanner";
+import { directWorkCount } from "@shared/specialization/directWork";
 import { goalScopeOf } from "@shared/specialization/goals";
 import { regionIndexEntry, specializationRegionIndex } from "@shared/specialization/regionIndex";
 import { currentExposureRule, exposureCategoryLabelsFor } from "@shared/specialization/rules";
+import { tendonPlacesOf } from "@shared/specialization/tendonPlaces";
 import { addDaysToDateKey, calendarWeekInterval, isDateKey, localDateKey, planWeekInterval } from "@shared/specialization/time";
 import type { AnatomyNode, DiagramLayerId, ExposureCategory, NodeExposure, RegionId, SpecializationGoal, SpecializationRegion, SpecializationRegionData, SummaryCompleteness, SummaryMode, SummarySide } from "@shared/specialization/types";
+import type { AttachesAt } from "./AttachesAt";
 import { BoutListSheet, type BoutList } from "./BoutListSheet";
 import { MeasurementsPanel } from "./MeasurementsPanel";
 import { MovementSheet } from "./MovementSheet";
@@ -26,6 +32,8 @@ import { splitTargets } from "./TargetsEditor";
 import { TargetsOverview } from "./TargetsOverview";
 import { PlanChangeSheet } from "./PlanChangeSheet";
 import { scrollToTopClear } from "./reveal";
+import type { StackDesignerProps } from "./StackDesigner";
+import type { TendonExposureProps } from "./TendonExposure";
 import { SpecializationDiagram } from "./SpecializationDiagram";
 import { AnatomyModelCredits } from "./anatomy3d/AnatomyModelCredits";
 import { AnatomyModelStage, webglAvailable } from "./anatomy3d/AnatomyModelStage";
@@ -33,7 +41,7 @@ import { ModelMuscleRail } from "./anatomy3d/ModelMuscleRail";
 import { anatomyModelFor, modelSourceForCanonical } from "./anatomy3d/modelIdentity";
 import { ModelMusclePanel } from "./anatomy3d/ModelMusclePanel";
 import { viewerMuscleData, type ViewerSummaryState } from "./anatomy3d/viewerData";
-import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricShortLabels, holdTime, goalsForNode, latestSessionDayLabel, layerLabels, listedUnmappedReasons, listedUnmappedSentences, movementFocusNodeId, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, targetProgressText, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
+import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricShortLabels, holdTimeOf, goalsForNode, latestSessionDayLabel, layerLabels, listedUnmappedReasons, listedUnmappedSentences, movementFocusNodeId, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, targetProgressText, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
 import { sideWordsFor } from "./sideWords";
 import "@/components/anatomy/anatomy-figure.css";
 import "./specialization.css";
@@ -56,6 +64,8 @@ export type SpecializationPanelProps = {
   goal: TrainingGoal;
   /** The profile's unit: loads are shown in it, and a set with no recorded unit was typed in it. */
   weightUnit: DisplayWeightUnit;
+  /** The athlete's gym window in minutes, which the stack's days are read against (Plan's own estimate); 60 when absent. */
+  gymMinutes?: number;
   onApplyPlanChange: (change: SpecializationPlanChange) => SpecializationPlanChangeResult;
   onInspectExercise: (exercise: Exercise) => void;
   onOpenSession: (sessionId: string) => void;
@@ -71,7 +81,40 @@ export type SpecializationPanelProps = {
    * region to choose from.
    */
   chooseRegion?: boolean;
-};
+} & SpecializationStackProps;
+
+/**
+ * The stack card's content (11-forearm-research-and-stack.md §3.10): the designer, its rules and
+ * the batch apply are fetched when the card first opens (or a way in is tapped), never with the page.
+ */
+const StackDesigner = lazy(() => import("./StackDesigner").then((module) => ({ default: module.StackDesigner })));
+/**
+ * Tendon exposure's content (11-forearm-research-and-stack.md §4.3, §7.5): its code, the region's
+ * attachment areas and the week summaries are fetched when the section first opens, never with the page.
+ */
+const TendonExposure = lazy(() => import("./TendonExposure").then((module) => ({ default: module.TendonExposure })));
+
+/**
+ * The stack's model of a region (`stackModel.ts`), for one line of Planned mode's "Coverage to
+ * review": fetched in Planned mode only, so the page as it opens (Completed mode) downloads none of
+ * it (11 §7.5). Kept once loaded; the designer's chunk shares it.
+ */
+type StackModelModule = typeof import("@/lib/specialization/stackModel");
+let stackModelModule: StackModelModule | null = null;
+export function preloadStackModel(): Promise<StackModelModule> {
+  return import("@/lib/specialization/stackModel").then((module) => (stackModelModule = module));
+}
+function useStackModel(wanted: boolean): StackModelModule | null {
+  const [loaded, setLoaded] = useState<StackModelModule | null>(stackModelModule);
+  useEffect(() => {
+    if (!wanted || loaded) return;
+    let live = true;
+    // A failed fetch leaves the line out; nothing else on the page depends on it.
+    preloadStackModel().then((module) => { if (live) setLoaded(module); }, () => {});
+    return () => { live = false; };
+  }, [wanted, loaded]);
+  return loaded ?? stackModelModule;
+}
 
 const layerControlLabels: Record<DiagramLayerId, string> = { surface: "Surface", intermediate: "Middle", deep: "Deep" };
 const SHOWN_FINDINGS = 3;
@@ -115,6 +158,16 @@ function regionSentence(regionWord: string, summary: { mode: SummaryMode; region
     ? `${plural(summary.regionDistinctBouts, "distinct bout")} ${summary.regionDistinctBouts === 1 ? "is" : "are"} planned for the ${regionWord}${planWeek === null ? "" : ` in Plan Week ${planWeek}`}.`
     : `${plural(summary.regionDistinctBouts, "distinct bout")} touched the ${regionWord}.`;
 }
+
+/**
+ * The 3D panel's Overview line in Planned mode (11 §3.3): the region sentence and, in the same
+ * words as the window line, how many of those bouts are direct moving sets (`directWorkCount`).
+ */
+function plannedOverviewLine(regionWord: string, summary: { mode: SummaryMode; regionDistinctBouts: number }, planWeek: number, directMoving: number): string {
+  return `${regionSentence(regionWord, summary, planWeek).replace(/\.$/, "")}; ${directMoving} ${directMoving === 1 ? "is a direct moving set" : "are direct moving sets"}.`;
+}
+
+const lowerFirst = (text: string) => (text ? text.charAt(0).toLowerCase() + text.slice(1) : text);
 
 /**
  * Body Lab → Specialize (Oct 16 forearm brief §6, design §7; 10-multi-region.md §6): one body
@@ -281,7 +334,7 @@ function RegionHead({ region, goals, backLabel, onBack, chooseRegion, onPick, to
 
 type GoalsStore = ReturnType<typeof useSpecializationGoals>;
 
-function SpecializationPage({ data, state, onStateChange, plan, catalog, equipmentProfile, accountId, goal, weightUnit, onApplyPlanChange, onInspectExercise, onOpenSession, goalsStore, announce, announceRegion, onRegionAnnounced, onOpenRegion }: SpecializationPanelProps & {
+function SpecializationPage({ data, state, onStateChange, plan, catalog, equipmentProfile, accountId, goal, weightUnit, gymMinutes, onApplyPlanChange, onApplyPlanChanges, aboutMeArea, onInspectExercise, onOpenSession, goalsStore, announce, announceRegion, onRegionAnnounced, onOpenRegion }: SpecializationPanelProps & {
   data: SpecializationRegionData;
   goalsStore: GoalsStore;
   /** Says something in the panel's live region. */
@@ -644,6 +697,144 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   /** A tap on the model chooses that muscle; tapping the one already chosen keeps it (Overview clears). */
   const chooseOnModel = (nodeId: string) => { if (nodeId !== selected?.id) select(nodeId); };
 
+  /**
+   * The direct moving sets of the plan week (11 §3.3): one shared count (`directWorkCount`) that
+   * the window line and the 3D panel's Overview show in Planned mode and the stack's total is in.
+   */
+  const plannedDirect = summary && state.mode === "planned" ? directWorkCount(data, summary).moving : null;
+
+  /**
+   * The stack card (11-forearm-research-and-stack.md §3.2): a card of its own right under the map,
+   * for a region whose content opts in (`sections.stack`). Its week is the page's plan week in
+   * Planned mode and the week being trained in Completed mode. Closed, it says that week's direct
+   * moving sets, or the stack's when one was added; its content is fetched when it first opens and
+   * kept from then on. Its ways in (the 3D panel's Overview, the drawing's strip with nothing
+   * selected, Planned mode's "Coverage to review", and `open=stack` in the address) open it and
+   * bring it into view clear of the dock and the sticky row.
+   */
+  const stackSection = Boolean(data.sections?.stack);
+  const stacks = useSpecializationStacks(accountId);
+  const cardWeek = state.mode === "planned" ? planWeek : trainingWeek;
+  const cardStore = plan.weeks[cardWeek];
+  const cardSummary = useMemo(() => {
+    if (!stackSection || !plan.ready || !cardStore) return null;
+    // The plan week as the page reads it: the same summary as Planned mode's (one cache entry), whatever the page's mode.
+    try {
+      return computeSpecializationSummary({
+        region: data, accountScope: accountId, interval: planWeekInterval(cardWeek, timeZone), side, mode: "planned", goals: regionGoals,
+        completedBouts: [], plannedBouts: boutsFromPlan({ week: cardWeek, slots: plan.slots, store: cardStore, variants: planningVariantsFor(data), goal }),
+        sourceRevision: "", planRevision: planRevision(cardStore, plan.slots, cardWeek, goal), catalogMusclesFor: catalogMusclesLookup(catalog), now: nowIso,
+      });
+    } catch {
+      return null;
+    }
+  }, [stackSection, plan.ready, cardStore, data, accountId, cardWeek, timeZone, side, regionGoals, plan.slots, goal, catalog, nowIso]);
+  const cardDirect = cardSummary ? directWorkCount(data, cardSummary).moving : null;
+  const cardRecord = stackSection ? stackForWeek(stacks, data.region.id, cardWeek) : null;
+  const cardEntries = cardRecord && cardStore ? stackEntriesState(cardRecord, cardStore) : null;
+  const cardHasStack = Boolean(cardEntries && cardEntries.asWritten.length + cardEntries.changed.length > 0);
+  const stackLine = !plan.ready ? "Your plan is still loading."
+    : !cardStore ? `Build Plan Week ${cardWeek} in Plan first.`
+    : cardDirect === null ? waiting
+    : cardHasStack ? `Your stack: ${plural(cardDirect, "direct moving set")} in Week ${cardWeek}`
+    : `Plan Week ${cardWeek} · ${plural(cardDirect, "direct moving set")} now`;
+  const [stackOpen, setStackOpen] = useState(false);
+  const [stackOpened, setStackOpened] = useState(false);
+  if (stackOpen && !stackOpened) setStackOpened(true);
+  const stackRef = useRef<HTMLDetailsElement>(null);
+  const [stackReveal, setStackReveal] = useState(0);
+  /** An entry of the stack to bring into view once the card shows it (tendon exposure's "Added by your stack"). */
+  const stackEntryAsked = useRef<string | null>(null);
+  const revealStack = (entryKey: string | null) => { setSheet(null); setStackOpen(true); stackEntryAsked.current = entryKey; setStackReveal((count) => count + 1); };
+  const openStack = () => revealStack(null);
+  useEffect(() => {
+    if (!stackReveal) return;
+    const entryKey = stackEntryAsked.current;
+    let tries = 0;
+    let frame = 0;
+    // The card's content may still be arriving: look for the entry for a couple of seconds, then stop.
+    const findEntry = () => {
+      const entry = Array.from(stackRef.current?.querySelectorAll<HTMLElement>("[data-stack-entry]") ?? []).find((element) => element.dataset.stackEntry === entryKey);
+      if (entry) { scrollToTopClear(entry); return; }
+      tries += 1;
+      if (tries < 120) frame = window.requestAnimationFrame(findEntry);
+    };
+    // After the card has opened: focus its summary without scrolling, then put its top just under the sticky row.
+    frame = window.requestAnimationFrame(() => {
+      const details = stackRef.current;
+      if (!details) return;
+      details.querySelector<HTMLElement>(":scope > summary")?.focus({ preventScroll: true });
+      scrollToTopClear(details);
+      if (entryKey) frame = window.requestAnimationFrame(findEntry);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [stackReveal]);
+  // `open=stack` (Plan's "Design for Week N"): the card opens once, and the address forgets the ask.
+  useEffect(() => {
+    if (state.open !== "stack") return;
+    if (stackSection) openStack();
+    const { open: _asked, ...rest } = state;
+    onStateChange(rest);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.open]);
+  /** Planned mode's "Coverage to review" (11 §3.2): the movements the plan week gives no direct moving work, the ones a stack fills. */
+  const stackModel = useStackModel(stackSection && state.mode === "planned");
+  const stackFinding = useMemo(() => (stackModel && stackSection && state.mode === "planned" && summary && planInput ? stackModel.movementsWithoutDirectWork(data, summary) : []), [stackModel, stackSection, state.mode, summary, planInput, data]);
+  const designerProps: StackDesignerProps = {
+    data, week: cardWeek, mode: state.mode, plan: { ready: plan.ready, slots: plan.slots, weeks: plan.weeks }, catalog, equipmentProfile, exclusions,
+    goals: regionGoals, goal, gymMinutes: gymMinutes ?? 60, accountId, nowIso, timeZone, stacks, onApplyPlanChanges, aboutMeArea: aboutMeArea ?? null, announce,
+  };
+
+  /**
+   * Tendon exposure (11-forearm-research-and-stack.md §4.3): a closed card after "Exercises in this
+   * window", for a region whose content opts in (`sections.tendonExposure`). Its content, the region's
+   * areas and the week summaries are fetched when it first opens and kept mounted from then on, as
+   * Progress is. A muscle's sheet and the 3D panel say where the muscle attaches ("Attaches at"), from
+   * the same areas, loaded when a muscle is shown there, and open the section on that area.
+   */
+  const tendonSection = Boolean(data.sections?.tendonExposure);
+  const [tendonOpen, setTendonOpen] = useState(false);
+  const [tendonOpened, setTendonOpened] = useState(false);
+  if (tendonOpen && !tendonOpened) setTendonOpened(true);
+  const tendonRef = useRef<HTMLDetailsElement>(null);
+  const [tendonFocus, setTendonFocus] = useState<{ areaId: string | null; n: number }>({ areaId: null, n: 0 });
+  const openTendon = (areaId: string | null) => { setSheet(null); setTendonOpen(true); setTendonFocus((current) => ({ areaId, n: current.n + 1 })); };
+  useEffect(() => {
+    if (!tendonFocus.n) return;
+    let tries = 0;
+    let frame = 0;
+    // On a first open the content is still arriving and the page may be too short to bring the section up:
+    // once it is there, the section is put under the sticky row again (for a couple of seconds at most).
+    const whenFilled = () => {
+      const details = tendonRef.current;
+      if (details?.querySelector(".spz-tendon")) { scrollToTopClear(details); return; }
+      tries += 1;
+      if (tries < 120) frame = window.requestAnimationFrame(whenFilled);
+    };
+    // After the sheet has closed and the section opened: focus its summary, then put its top just under the sticky row.
+    frame = window.requestAnimationFrame(() => {
+      const details = tendonRef.current;
+      if (!details) return;
+      details.querySelector<HTMLElement>(":scope > summary")?.focus({ preventScroll: true });
+      scrollToTopClear(details);
+      if (!details.querySelector(".spz-tendon")) frame = window.requestAnimationFrame(whenFilled);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [tendonFocus.n]);
+  const placesWanted = tendonSection && Boolean(selected) && (sheet?.kind === "muscle" || showModel);
+  const placesExtras = useRegionExtras(data.region.id, placesWanted);
+  const places = placesWanted && selected && placesExtras.status === "ready" && placesExtras.extras ? tendonPlacesOf(placesExtras.extras, selected.id) : [];
+  const attachesAt: AttachesAt | null = places.length ? { places, onOpen: () => openTendon(places[0].areaId) } : null;
+  const trainingStack = tendonSection && stackSection ? stackForWeek(stacks, data.region.id, trainingWeek) : null;
+  // Only the entries the stack wrote that are still as it wrote them: one changed since is the athlete's (11 §3.8), so no link.
+  const trainingStackEntries = useMemo(() => (trainingStack && trainingStore ? stackEntriesState(trainingStack, trainingStore).asWritten : []), [trainingStack, trainingStore]);
+  const tendonProps: TendonExposureProps = {
+    data, summary, waiting, window: state.window, trainingWeek, plan: { ready: plan.ready, slots: plan.slots, weeks: plan.weeks }, catalog, equipmentProfile, exclusions,
+    goals: regionGoals, goal, accountId, nowIso, timeZone, weightUnit, aboutMeArea: aboutMeArea ?? null, stackEntries: trainingStackEntries,
+    onApplyPlanChanges, onApplyPlanChange, onOpenStackEntry: stackSection ? (entry) => revealStack(`${entry.dayKey}:${entry.catalogExerciseId}`) : null,
+    onOpenSession: openSession, onInspectExercise: inspect, announce, focusArea: tendonFocus,
+  };
+
   return <>
     {/* The top of the page is kept short, so the selected muscle and the top of the drawing are on
         a 375 × 667 phone's first screen too (brief §6 "Mobile overview"): the heading row (the tab
@@ -679,7 +870,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           two lines on a phone. "Plan Week" and its number are joined by a no-break space. */}
       {pairShown
         ? <p className="spz-window"><button type="button" className="spz-window-open" onClick={() => setSheet({ kind: "bouts", list: "pair" })}><span><b>{interval.label}</b>: <span className="spz-pair">{state.mode === "planned"
-          ? <><b>{plannedBouts}</b> bout{plannedBouts === 1 ? "" : "s"} planned · <b>{completedBouts}</b> logged this week</>
+          // Planned mode says the plan week's direct moving sets where the logged count stood (11 §3.3); the logged week is in the sets the line opens.
+          ? <><b>{plannedBouts}</b> bout{plannedBouts === 1 ? "" : "s"} planned · <b>{plannedDirect ?? 0}</b> direct moving set{plannedDirect === 1 ? "" : "s"}</>
           : <><b>{completedBouts}</b> bout{completedBouts === 1 ? "" : "s"} logged · <b>{plannedBouts}</b> planned in Plan Week{" "}{trainingWeek}</>}</span></span><ArrowRight className="h-4 w-4" aria-hidden="true" /></button></p>
         : <p className="spz-window"><b>{interval.label}</b>{state.mode === "planned" && !planInput ? (plan.ready ? ` · Week ${planWeek} has nothing planned yet` : " · your plan is loading") : ""}{noPairNote && <span className="spz-pair-note">: not the week you train from (Week {trainingWeek}), so there is no logged week to compare</span>}</p>}
     </div>
@@ -717,7 +909,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           data={viewerData}
           mode={state.mode}
           windowLabel={interval.label}
-          regionLine={regionLine}
+          regionLine={summary && plannedDirect !== null ? plannedOverviewLine(regionWord, summary, planWeek, plannedDirect) : regionLine}
           bothSides={words.paired ? `both ${words.many}` : null}
           countedTogether={words.countedOnce}
           onViewContributions={() => setSheet({ kind: "muscle", section: "ledger" })}
@@ -725,6 +917,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           onViewExercise={inspect}
           onOpenMethod={openMethod}
           onSeeRegionSets={summary && regionBoutsBehind > 0 ? () => setSheet({ kind: "bouts", list: "region" }) : null}
+          onDesignStack={stackSection ? openStack : null}
+          attachesAt={attachesAt}
           credits={<AnatomyModelCredits />}
         />
       </div> : <>
@@ -754,8 +948,9 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           </div>
         </> : <>
           <p className="spz-strip-line">{regionLine} Choose a muscle {asset ? "on the drawing or " : ""}in the list for its numbers.</p>
-          {regionBoutsBehind > 0 && <div className="spz-actions">
-            <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "region" })}>See these sets <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+          {(regionBoutsBehind > 0 || stackSection) && <div className="spz-actions">
+            {regionBoutsBehind > 0 && <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "region" })}>See these sets <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
+            {stackSection && <button type="button" className="spz-button" onClick={openStack}>Design a stack</button>}
           </div>}
         </>}
       </div>
@@ -765,6 +960,13 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       </> : <p className="spz-note">The drawing is not ready yet. Every muscle is in the list below, with the same numbers.</p>}
       </>}
     </section>
+
+    {stackSection && <details ref={stackRef} className="spz-disclosure spz-card spz-stack" id="spz-stack" open={stackOpen} onToggle={(event) => setStackOpen(event.currentTarget.open)}>
+      <summary><span><b>Design a stack</b><small>{stackLine}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+      {stackOpened && <Suspense fallback={<p className="spz-note" role="status">Loading the stack designer…</p>}>
+        <StackDesigner key={`${data.region.id}:${cardWeek}`} {...designerProps} />
+      </Suspense>}
+    </details>}
 
     {/* The counting rule sits under the drawing, so the drawing starts on a phone's first screen (brief §6: the illustration above the fold). */}
     <p className="spz-lede">Each set counts once per muscle, from your {state.mode === "planned" ? "plan as written" : "logged workouts"}. Holds stay in seconds and never become sets.</p>
@@ -784,8 +986,14 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
 
     <section className="spz-card" aria-labelledby="spz-findings-title">
       <div className="spz-section-head"><h2 id="spz-findings-title">Coverage to review</h2></div>
-      {!summary ? <p className="spz-note">{waiting}</p> : findings.length ? <>
+      {!summary ? <p className="spz-note">{waiting}</p> : findings.length || stackFinding.length ? <>
         <ul className="spz-findings">
+          {/* Planned mode only, first (11 §3.2): never in Completed mode, where it would head a list about logged sets. */}
+          {stackFinding.length > 0 && <li key="stack" className="spz-finding">
+            <strong>{plural(stackFinding.length, "movement")} {stackFinding.length === 1 ? "has" : "have"} no direct moving work in Plan Week {planWeek}</strong>
+            <p>{stackFinding.slice(0, 3).map((movement, index) => (index ? lowerFirst(movement.label) : movement.label)).join(", ")}{stackFinding.length > 3 ? ` and ${stackFinding.length - 3} more` : ""}.</p>
+            <button type="button" className="spz-button" onClick={openStack}>Design a stack</button>
+          </li>}
           {shownFindings.map((finding) => <li key={finding.id} className="spz-finding">
             <strong>{finding.title}</strong>
             <p>{finding.detail}</p>
@@ -831,6 +1039,13 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           <ul className="spz-exercise-list">{notes.map((item) => <li key={item.id}><span><b>{item.label}</b><small>{item.note}</small></span><button type="button" className="spz-link spz-link-box" onClick={() => onOpenSession(item.id)} aria-label={`Open ${item.label}`}>Open</button></li>)}</ul>
         </div>}
       </details>
+
+      {tendonSection && <details ref={tendonRef} className="spz-disclosure spz-card" id="spz-tendon" open={tendonOpen} onToggle={(event) => setTendonOpen(event.currentTarget.open)}>
+        <summary><span><b>Tendon exposure</b><small>Sets by attachment area{state.mode === "planned" ? `, Plan Week ${planWeek}, as written` : ""}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+        {tendonOpened && <Suspense fallback={<p className="spz-note" role="status">Loading tendon exposure…</p>}>
+          <TendonExposure key={data.region.id} {...tendonProps} />
+        </Suspense>}
+      </details>}
 
       <details className="spz-disclosure spz-card">
         <summary><span><b>Targets</b><small>{activeTargets ? `${activeTargets} active` : "None set"}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
@@ -894,6 +1109,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       pairNote={noPairNote}
       exclusions={exclusions}
       equipmentOf={(catalogExerciseId) => equipmentById.get(catalogExerciseId) ?? null}
+      trainingGoal={goal}
+      attachesAt={attachesAt}
       onSetExerciseExcluded={setExerciseExcluded}
       onSetEquipmentExcluded={setEquipmentExcluded}
       onSaveGoals={(next) => saveGoals(next)}
@@ -971,7 +1188,7 @@ function MuscleRow({ node, exposure, incidentalWork, waiting, selected, onOpen }
     : [
       parts!.direct ? `${parts!.direct} direct` : "",
       parts!.other ? `${parts!.other} other` : "",
-      parts!.holds ? `${parts!.holds} hold${parts!.holds === 1 ? "" : "s"} · ${holdTime(exposure.deliberateHoldSeconds)}` : "",
+      parts!.holds ? `${parts!.holds} hold${parts!.holds === 1 ? "" : "s"} · ${holdTimeOf(exposure)}` : "",
       parts!.incidental ? `${parts!.incidental} ${incidentalWork}` : "",
       parts!.rest ? `${parts!.rest} mixed` : "",
     ].filter(Boolean).join(" · ") || "No work";

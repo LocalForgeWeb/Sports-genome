@@ -163,6 +163,73 @@ export function boutsFromSessions(sessions: readonly DeviceWorkoutSession[], dep
   return bouts;
 }
 
+// ---------------------------------------------------------------- what the adapter read but no page counts (11 §7.1)
+
+/** Sets of one exercise the app could not identify: no catalog id recorded and no exact name match. */
+export type UnidentifiedExercise = { exerciseName: string; sets: number; boutIds: string[] };
+/** A set id that arrived more than once with different values: the first is counted, as the calculator reads it. */
+export type ConflictingDuplicate = { boutId: string; exerciseName: string; copies: number };
+export type AdapterNotes = { unidentified: UnidentifiedExercise[]; conflictingDuplicates: ConflictingDuplicate[] };
+
+/** A record's values in a fixed key order, so two copies of one set compare equal whatever order their fields were written in. */
+function canonical(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return `{${Object.keys(record).filter((key) => record[key] !== undefined).sort().map((key) => `${JSON.stringify(key)}:${canonical(record[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
+}
+
+/**
+ * The two lists "How this is counted" names once on every region's page (11 §7.1), from the
+ * adapter's bouts, never from a summary (so no summary and no golden number changes):
+ * - **sets the app could not identify**: completed work sets (not warm-ups, not excluded) whose
+ *   exercise has no catalog id and no exact name match. No page counts them; they are listed, by
+ *   the name the athlete logged, so a set is never silently invisible;
+ * - **conflicting duplicates**: a set id that arrived twice with different values (only an import
+ *   can produce one; device data writes one record per set id). The first is counted, as the
+ *   calculator reads it; the same set delivered twice with the same values is not listed.
+ * `interval`, when given, keeps the sets whose first record was performed in it (start included,
+ * end excluded), as the page's window does.
+ */
+export function adapterNotesFor(bouts: readonly ExposureBout[], interval?: { startAt: string | null; endAtExclusive: string | null }): AdapterNotes {
+  const first = new Map<string, { bout: ExposureBout; text: string; copies: number; differs: boolean }>();
+  for (const bout of bouts) {
+    const text = canonical(bout);
+    const seen = first.get(bout.id);
+    if (!seen) first.set(bout.id, { bout, text, copies: 1, differs: false });
+    else {
+      seen.copies += 1;
+      seen.differs ||= seen.text !== text;
+    }
+  }
+  const inWindow = (bout: ExposureBout) => {
+    if (!interval) return true;
+    if (bout.mode !== "completed" || !bout.performedAt) return false;
+    const at = Date.parse(bout.performedAt);
+    if (!Number.isFinite(at)) return false;
+    if (interval.startAt !== null && at < Date.parse(interval.startAt)) return false;
+    return interval.endAtExclusive === null || at < Date.parse(interval.endAtExclusive);
+  };
+  const byName = new Map<string, UnidentifiedExercise>();
+  const conflictingDuplicates: ConflictingDuplicate[] = [];
+  for (const { bout, copies, differs } of Array.from(first.values())) {
+    if (!inWindow(bout)) continue;
+    if (differs) conflictingDuplicates.push({ boutId: bout.id, exerciseName: bout.exerciseName, copies });
+    if (bout.mode !== "completed" || bout.excluded || bout.warmup || bout.catalogExerciseId !== null || bout.matchedBy !== "none") continue;
+    const name = bout.exerciseName.trim() || bout.exerciseName;
+    const entry = byName.get(name) ?? { exerciseName: name, sets: 0, boutIds: [] };
+    entry.sets += 1;
+    entry.boutIds.push(bout.id);
+    byName.set(name, entry);
+  }
+  return {
+    unidentified: Array.from(byName.values()).sort((a, b) => b.sets - a.sets || a.exerciseName.localeCompare(b.exerciseName)),
+    conflictingDuplicates: conflictingDuplicates.sort((a, b) => a.boutId.localeCompare(b.boutId, "en", { numeric: true })),
+  };
+}
+
 /**
  * Records that are NOT work, passed to the calculator only so its completeness can say what
  * was left out (`excluded: "not_completed"`); they are never credited:

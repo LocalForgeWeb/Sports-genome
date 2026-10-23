@@ -31,4 +31,8 @@ export const forearmHomeContent: RegionHomeContent = {
   mappings: forearmMappings,
   mappingVersion: forearmMappingVersion,
   unmappedTagged: forearmUnmappedTagged,
+  // The stack designer (11-forearm-research-and-stack.md §3.10). Its rep profiles are in
+  // ./repProfiles.ts, loaded only when the section opens, never imported here.
+  // Tendon exposure (§4.6): its areas are in ./tendonAreas.ts, likewise loaded only when it opens.
+  sections: { stack: true, tendonExposure: true },
 };
