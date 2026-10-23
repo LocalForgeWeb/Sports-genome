@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { basename, resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { SpecializationGoal } from "@shared/specialization/types";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
@@ -11,6 +11,7 @@ import {
   SCHEMA_V2_MIGRATION_PATH,
   SEED_MIGRATION_PATH,
   SEED_V1_MIGRATION_PATH,
+  SEED_V2_MIGRATION_PATH,
   USER_A,
   USER_B,
   applyMigration,
@@ -1248,7 +1249,7 @@ describe("rollback", () => {
 
 describe("applied as one DO block per file, the way it reaches production", () => {
   it("wraps a file as exactly one statement, with quote tags the file does not contain", () => {
-    for (const path of [SCHEMA_MIGRATION_PATH, SEED_V1_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+    for (const path of [SCHEMA_MIGRATION_PATH, SEED_V1_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
       const text = readMigration(path);
       const block = asDoBlock(text);
       expect(block.startsWith("do $outer$ declare body text := $body$")).toBe(true);
@@ -1294,12 +1295,15 @@ describe("applied as one DO block per file, the way it reaches production", () =
       expect(await held()).toEqual(seedLocks);
       await fresh.exec("commit");
       await applyMigration(fresh, SCHEMA_V2_MIGRATION_PATH);
-      await fresh.exec("begin");
-      await applyMigration(fresh, SEED_MIGRATION_PATH);
-      const current = await held();
-      expect(current).toContainEqual({ relation: "public.exercises", mode: "AccessShareLock" });
-      expect(seedLocks).toEqual(expect.arrayContaining(current));
-      await fresh.exec("rollback");
+      // Seed v2 over schema v2, as production ran it, then the current seed over seed v2.
+      for (const path of [SEED_V2_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+        await fresh.exec("begin");
+        await applyMigration(fresh, path);
+        const locks = await held();
+        expect(locks, basename(path)).toContainEqual({ relation: "public.exercises", mode: "AccessShareLock" });
+        expect(seedLocks, basename(path)).toEqual(expect.arrayContaining(locks));
+        await fresh.exec("commit");
+      }
     } finally {
       await fresh.close();
     }
