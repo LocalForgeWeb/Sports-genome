@@ -125,6 +125,8 @@ The model is **third-party work**; Sports Genome did not make it.
 
 The share-alike terms apply to the model and to anything derived from it. The page credits these sources in **About the 3D model** (`AnatomyModelCredits.tsx`) and says that the model is for education, not diagnosis.
 
+Since 23 Oct the forearm's **Drawing** is derived from this model too: the owner's rendered plates (`client/public/assets/anatomy/forearm-plates/`, adapted renders shared under CC BY-SA 4.0), credited under the drawing in the same terms ([08-diagram.md, "Plates"](../08-diagram.md)).
+
 The supplied attribution note asks for a legal review before commercial redistribution. That review is still open and is the owner's decision. If the terms cannot be accepted, replace the GLB and the manifest; do not present the asset as proprietary.
 
 **Code provenance:**

@@ -22,6 +22,7 @@ Body Lab → **Specialize** is the forearm page the brief asks for (§6). This n
 | Where an Undo, or a section a sheet sends you to, lands on a phone | `reveal.ts` (clear of the bottom dock and the sticky tab row) |
 | What the page says about a summary | `model.ts` (pure) |
 | Drawing | `SpecializationDiagram.tsx` (renderer contract, `02-design.md` §12) |
+| Drawing as rendered plates (a region that declares them; the forearm since 23 Oct) | `PlateDiagram.tsx`, `plates.ts`, `plateAssets.ts`, `plate-diagram.css` |
 | Styles | `specialization.css`, `specialization-diagram.css`, `plan-change.css`, `targets.css`, `progress.css` (all in the same folder) |
 | URL state, plan-change contract | `client/src/lib/specialization/viewState.ts`, `planChange.ts` |
 | Home wiring | `client/src/pages/Home.tsx` (workspace `specialization`) |
@@ -144,9 +145,41 @@ What `10-multi-region.md` §6.1–§6.3 and the page's parts of §1.1, §2.2, §
 - **The logger** asks no side of any limb and builds one row per planned set (07-logger.md; `DeviceWorkoutTracker.legSide.test.ts` holds it for legs with a fixture table).
 - **Phone evidence** for the merge, 3D model and Drawing, and the live set card of a one-arm exercise, against `main` built the same way: [`evidence/reconcile-2026-10-21/`](evidence/reconcile-2026-10-21/).
 
+## The owner's plates (23 Oct)
+
+The forearm's **Drawing** (behind **3D model | Drawing**) is now the owner's own diagram: rendered plates of the forearm, the same anatomy model as the 3D view, in place of the SVG schematic ([08-diagram.md, "Plates"](08-diagram.md): the assets, how they were made, the renderer, the credits and the limits). A region that declares no plates keeps its SVG drawing; the forearm's SVG, its generator and its tests are unchanged.
+
+On a phone, with Drawing chosen, the athlete sees:
+1. The map card's controls as before: **Palm · Back · Thumb side** beside the heading, then **Surface · Deep** beside **Volume · Target** (the plates have no middle layer, so there is no **Middle**; FDS is on the palm's surface plate). Every button is 44 px tall, outlined, with `aria-pressed`.
+2. The selected-muscle strip, as before, between the controls and the drawing.
+3. The plate on a dark stage, the whole arm from above the elbow to the fingertips: muscles painted with the page's colours (the exposure ramp, the resting slate with a dashed edge for no direct work, the hatch for no reviewed mapping), bone in cool greys. The plate is as tall as the SVG drawing was (about 685 px) where the screen allows, and fits between the tab row and the dock on a 375 × 667 phone.
+4. Under it, the pass's muscles as chips (BR · PT · PL · FCR · FCU · FDS on the palm's surface), each at least 44 × 44 px with a swatch of its colour; the chosen one outlined in gold.
+5. The caption, the page's key, and the credit line.
+
+What the athlete does: taps a muscle on the plate (or within 12 px of one) or its chip to choose it, and the strip above names it with its numbers; taps it again to clear. Chooses a view or layer with the buttons. Choosing a deep muscle anywhere else (the list, a sheet, a finding, an address) moves the plates to its pass (the address then carries `layer=deep`, and `view` when it is not the palm); a view the athlete picks while a muscle is chosen stays, with a line saying where that muscle is and a **Show …** button to go there.
+
+Nothing is downloaded for the plates until the Drawing is on screen, and then only the pass shown (two files, 12–18 KB); a pass is fetched once per visit.
+
+The forearm page's words (`pageText.render.test.ts`) change in the three places stated there: the layer choice has no Middle, the credit line is new, and How this is counted says the drawing is adapted from renders of a third-party model (`drawingStatement`) instead of "original schematics"; the plate and its chips are read as the drawing, as the SVG was.
+
+Phone evidence (headless Chromium emulating an iPhone: 390 × 844 and 375 × 667, `isMobile`, `hasTouch`, device scale 3; not an iPhone, not Safari), in [`evidence/forearm-plates/`](evidence/forearm-plates/), made by `capture.mjs` on a production build with a week of forearm work seeded (curls, wrist curls both ways, a reverse curl, a cable wrist extension, hangs), its readings in `checks.json`:
+
+| Files (`plates-<width>-…png`) | Shows |
+|---|---|
+| `palm-surface`, `back-surface`, `thumb-surface` | each view at surface, the logged week's colours on the ramp, the chips under the plate |
+| `palm-deep` | the palm's deep layer: FDP, PQ, FPL |
+| `fcu-tapped`, `fcu-viewport` | FCU chosen by a touchscreen tap on the plate itself: gold outline, chip pressed, strip above; and the plate on the phone's screen between the tab row and the dock |
+| `target` | Target colouring with FCU selected (FCU at 14 of 20, the rest not targeted) |
+| `fdp-deep` | FDP opened from the address: the plates moved to Palm · Deep (`layer=deep` in the address) |
+| `nothing-logged` | no work: every muscle the resting slate with its dashed edge |
+| `plates-320-ecrl.png` | 320 × 568, ECRL from the address on the back's surface |
+
+The full map card is captured with the tab row and dock hidden (they would sit over it); `fcu-viewport` keeps them. The PNGs are reduced to 256 colours, and the card shots to two device pixels per CSS pixel (captured at three). Readings: no horizontal overflow at 390, 375 or 320; every chip and every view, layer and colour button 44 px tall or more; with the 3D model shown no plate image was requested, and choosing Drawing asked for the palm's surface pass only; FDP from the address asked for the palm's deep pass only. `plate-labels.png` shows which muscle each pixel was given, one colour per muscle; `plate-orientation.png` shows the six plates as rendered (see the limits in 08-diagram.md).
+
 ## Tests
 
 - `client/src/components/specialization/specializationModel.test.ts`: bins, fills, direct work, sentences, segments, list order, ledger grouping, findings, their wording and where each leads; a movement's ledger (one row per bout, region muscles only, seconds once); the rows behind region totals; the mappings behind a credit and their basis labels; the latest workout's plan day.
+- The owner's plates (23 Oct): `client/src/lib/specialization/forearmPlates.test.ts`, `client/src/components/specialization/plates.test.ts`, `PlateDiagram.render.test.ts`, `SpecializationPanel.plates.render.test.ts`, and a region without plates keeping its SVG in `SpecializationPanel.deltoid.render.test.ts` (08-diagram.md, "Plates"). The page tests that read the forearm's drawing now read its plate: the strip above the plate's canvas, the planned-while-loading fills on the chips, the journey's brachioradialis fill (`Home.specializationJourney.test.ts`).
 - `client/src/components/specialization/SpecializationPanel.render.test.ts`: the list's numbers (bilateral sets are 3 per arm, not 6), the sheet's section order, Not targeted, both-arm targets saved as two, the add previewed and handed over as one exact day, a refusal kept on screen, arm and mode switching, planned mode reading the plan as written; the selected muscle inside the map card between the view controls and the drawing with the one action, following a tap on the drawing; the region's count, the no-arm finding, the region-only finding and an exercise in the window each opening their sets with Open this workout; a movement target opening its sheet from its finding and from Targets, its bouts and workouts, and an add through the add sheet; Why this counts under ledger exercises and suggestions; planned mode while the plan loads; the pair only for the week being trained; a rolling 7-day target re-read when the page is looked at again days later; a day's bar opening that day's bouts (a day with none is not a button); the window line's pair as one button opening the logged and planned bouts, in both modes, and plain words with no pair; the target note and the missing-action line said once above the suggestions, in that order; "Already covered by" in words.
 - `client/src/components/specialization/specializationSuggestions.test.ts`: on the real forearm content and calculator, the missing-action line for each reason (none trains it, an exercise or an equipment left out, a target already met, both reasons when nothing can tell them apart, two actions with two reasons), never with a target or a shortfall in it, and nothing when a candidate covers the action or nothing is missing; `coveredWords`; and each day's bouts matching the count on its bar.
 - `client/src/components/specialization/SpecializationPanel.phone.render.test.ts` (the final review's phone fixes): Not for me's message and Undo in the removed row's place with focus on Undo, then on the restored exercise's Not for me, and no Undo once "Suggest again" brought it back; How this is counted from a sheet putting focus on the method's summary; the planned strip saying "planned for", never "touched"; the notes' Open and an exercise's Sets with the 44 px box; the completeness counts opening the region-only and no-arm sets and saying what cannot be opened, and which sets with no arm recorded are in which list; Suggest again moving focus to the next row left out, then to the disclosure, a refused Suggest again said, and no stale "suggested again" line after an equipment change; a movement's sheet in Planned mode saying its sets are planned, not done; a strapped set under Not counted with its segments and Open this workout.
