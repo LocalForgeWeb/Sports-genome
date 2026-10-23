@@ -82,7 +82,7 @@ export const slotKey = (nodeId: NodeId, actionId: ActionId) => `${nodeId}|${acti
 const lowerFirst = (text: string) => (text ? text.charAt(0).toLowerCase() + text.slice(1) : text);
 
 /** Whether a variant is done one side at a time on the limb its sets record (`sidedBy`); two-sided and either-way work is not. */
-function oneSidedOf(variant: ExerciseVariant): boolean {
+export function oneSidedOf(variant: ExerciseVariant): boolean {
   if (variant.sidedBy === "none") return false;
   const laterality = variant.sidedBy === "arm" ? variant.laterality : variant.legLaterality;
   return laterality === "unilateral";

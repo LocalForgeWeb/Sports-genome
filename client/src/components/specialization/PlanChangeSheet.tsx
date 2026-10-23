@@ -284,7 +284,7 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
     {slot && !swapping && rangesLoading && <p className="spz-note" role="status">Loading starting ranges…</p>}
     {prescriptionField !== null && resolved && <fieldset className="spz-fieldset">
       <legend>Sets and reps</legend>
-      <label className="spz-field spz-change-prescription"><span>{resolved.profile.measure === "seconds" ? "Sets × seconds held" : "Sets × reps"}, the app's starting range for its place in the day</span>
+      <label className="spz-field spz-change-prescription"><span>{resolved.profile.measure === "seconds" ? "Sets × seconds held" : "Sets × reps"}: the range is the app's starting one for this kind of movement; only the number of sets follows its place in the day</span>
         <input id={prescriptionId} type="text" inputMode="text" enterKeyHint="done" autoComplete="off" value={prescriptionField} aria-invalid={prescriptionError ? true : undefined} aria-describedby={`${prescriptionId}-about`} onChange={(event) => { setOwnPrescription(event.target.value); setError(null); }} />
       </label>
       <p className="spz-note" id={`${prescriptionId}-about`}>{resolved.profile.measure === "seconds" ? holdRangeShortSentence(rangeText(resolved.range)) : REP_RANGE_SENTENCE}</p>

@@ -55,6 +55,8 @@ const notices: { title: string; undo: () => void }[] = [];
 const batches: SpecializationPlanBatch[] = [];
 let lastState: SpecializationViewState | null = null;
 let shownWeeks: Record<number, WeeklyDayStore> = {};
+/** Runs before Home's stand-in applies a batch: to hold it (the batch code still arriving) or to fail. */
+let beforeApply: (() => Promise<void>) | null = null;
 
 function Harness({ initial = {}, weeks = { 1: planA }, aboutMeArea = null, ready = true, chooseWeek }: { initial?: Partial<SpecializationViewState>; weeks?: Record<number, WeeklyDayStore>; aboutMeArea?: SpecializationAreaReport | null; ready?: boolean; chooseWeek?: number }) {
   const [state, setState] = useState<SpecializationViewState>({ ...defaultSpecializationState("forearm"), ...initial });
@@ -66,6 +68,7 @@ function Harness({ initial = {}, weeks = { 1: planA }, aboutMeArea = null, ready
   /** Home's batch apply, as Home.tsx does it: the pure batch on the week as it stands, one notice, one Undo, then the page's onUndo. */
   const onApplyPlanChanges = async (batch: SpecializationPlanBatch, options?: { onUndo?: () => void }): Promise<SpecializationPlanBatchResult> => {
     batches.push(batch);
+    if (beforeApply) await beforeApply();
     const store = planRef.current[batch.week];
     if (!store) return { ok: false, reason: `Week ${batch.week} is not built yet. Build it in Plan first.` };
     const outcome = applyPlanBatch(store, batch, { slots, catalog: exercises });
@@ -113,6 +116,7 @@ beforeEach(() => {
   clearSummaryCache();
   notices.length = 0;
   batches.length = 0;
+  beforeApply = null;
   lastState = null;
   vi.mocked(designStack).mockClear();
 });
@@ -190,7 +194,7 @@ describe("the card, open", () => {
     for (let index = 1; index < order.length; index += 1) expect(order[index - 1].compareDocumentPosition(order[index]) & Node.DOCUMENT_POSITION_FOLLOWING, String(index)).toBeTruthy();
     expect(totalField().value).toBe("14");
     expect(changes()).toEqual(["What changes", "Direct moving sets 3 → 14 · muscles with direct work 1 → 16 of 19"]);
-    expect(addButton().textContent).toBe("Add 11 sets (11 exercises, 3 days) to Week 1");
+    expect(addButton().textContent).toBe("Add 11 sets (11 exercises, 3 days) to Week\u00a01");
     // The days, in the Plan's own minutes, with the second arm's beside them.
     expect(Array.from(body.querySelectorAll(".spz-stack-daylines > li > p:first-child")).map((line) => line.textContent)).toEqual([
       "Day 01 · Push: +4 · 5 → 9 exercises · about 48 of your 60 min, plus about 2 min for the second arm on one-arm sets",
@@ -202,6 +206,8 @@ describe("the card, open", () => {
     expect(rowButtons().every((row) => row.getAttribute("aria-expanded") === "false")).toBe(true);
     expect(rowNamed(/^Wrist Curl/).textContent).toBe("Wrist Curl · 1 × 10–25");
     expect(rowNamed(/^Lever Pronation/).textContent).toBe("Lever Pronation · 1 × 10–20 · each arm");
+    // What no reviewed exercise trains directly, in the region's plain words (§3.11).
+    expect(Array.from(body.querySelectorAll(".spz-stack-out li")).map((item) => item.textContent).find((text) => text!.startsWith("No reviewed exercise"))).toBe("No reviewed exercise trains these directly, so the stack cannot give them direct sets: palmaris longus, which tenses the sheet of connective tissue under the skin of the palm; extensor digiti minimi, which straightens the little finger on its own; and extensor indicis, which straightens the index finger on its own, as when pointing. Wrist Curl, One-Arm Dumbbell Wrist Curl and Band Finger Extension work them as helpers. Palmaris longus is missing in some people.");
     // The number field: 16 px (stack.css), numeric keypad, Done on the keyboard.
     expect(totalField().getAttribute("inputmode")).toBe("numeric");
     expect(totalField().getAttribute("enterkeyhint")).toBe("done");
@@ -219,7 +225,7 @@ describe("the card, open", () => {
     await click(within(card()).getByRole("button", { name: "One set fewer" }));
     await click(within(card()).getByRole("button", { name: "One set fewer" }));
     expect(totalField().value).toBe("13");
-    expect(addButton().textContent).toBe("Add 10 sets (10 exercises, 3 days) to Week 1");
+    expect(addButton().textContent).toBe("Add 10 sets (10 exercises, 3 days) to Week\u00a01");
     // A movement the total does not reach is said, with what reaches it.
     expect(card().querySelector(".spz-stack-out")!.textContent).toMatch(/Left out at this total: .+\. Raise the total by 1 to reach it\./);
   });
@@ -345,7 +351,26 @@ describe("the card, open", () => {
     await click(undo);
     expect(totalField().value).toBe("14");
     expect(rowButtons().map((row) => row.textContent)).toEqual(before);
+    // Focus goes to the row that came back, never to the page.
+    expect(document.activeElement).toBe(rowNamed(/^Band Thumb Abduction/));
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("ends Leave out's Undo at the next change, so it never throws a later change away; Bring back keeps it and focuses the row", async () => {
+    render(createElement(Harness, { initial: { mode: "planned" } }));
+    await act(async () => {});
+    await openCard();
+    await click(rowNamed(/^Band Thumb Abduction/));
+    await click(within(rowNamed(/^Band Thumb Abduction/).closest("li")!).getByRole("button", { name: "Leave out" }));
+    expect(totalField().value).toBe("13");
+    for (let press = 0; press < 3; press += 1) await click(within(card()).getByRole("button", { name: "One set more" }));
+    expect(totalField().value).toBe("16");
+    // The Undo that would put back 14 is gone; the three sets stay.
+    expect(within(card()).queryByRole("button", { name: "Undo" })).toBeNull();
+    expect(totalField().value).toBe("16");
+    await click(within(card().querySelector(".spz-stack-out") as HTMLElement).getByRole("button", { name: "Bring back Thumb abduction" }));
+    expect(totalField().value).toBe("17");
+    expect(document.activeElement).toBe(rowNamed(/^Band Thumb Abduction/));
   });
 
   it("states each setting's effect as it changes it, in a closed row that shows the current values", async () => {
@@ -392,6 +417,12 @@ describe("the card, open", () => {
     expect(stored.stacks[0]).toMatchObject({ regionId: "forearm", planWeek: 1, total: 14 });
     expect(stored.stacks[0].entries).toHaveLength(11);
     expect(stored.choices[0]).toMatchObject({ regionId: "forearm", total: 14 });
+    // The stack as the plan holds it, a one-arm exercise said as its row was.
+    expect(Array.from(card().querySelectorAll(".spz-stack-entries li li")).map((item) => item.textContent)).toEqual([
+      "Reverse Wrist Curl · 1 × 10–25", "Wrist Curl · 1 × 10–25", "Lever Radial Deviation · 1 × 10–25 · each arm", "Lever Ulnar Deviation · 1 × 10–25 · each arm",
+      "Lever Pronation · 1 × 10–20 · each arm", "Finger Curl · 1 × 10–25", "Band Finger Extension · 1 × 10–25 · each arm", "Band Thumb Extension · 1 × 12–25 · each arm",
+      "Lever Supination · 1 × 10–20 · each arm", "Band Thumb Flexion · 1 × 12–25 · each arm", "Band Thumb Abduction · 1 × 12–25 · each arm",
+    ]);
     expect(said()).toMatch(/^Added 11 sets to Plan Week 1\./);
     await click(undo);
     expect(directIn(shownWeeks[1])).toEqual(directIn(planA));
@@ -412,6 +443,33 @@ describe("the card, open", () => {
     await act(async () => { notices[0].undo(); });
     expect(loadStackStore(null).stacks).toEqual([]);
     expect(shownWeeks[1]).toEqual(planA);
+    // The card says it too, as its own Undo does: never "Added" over a plan without the stack.
+    expect(card().querySelector(".spz-stack-done")!.textContent).toBe("Undone: Plan Week 1 is as it was.");
+    expect(within(card()).queryByRole("button", { name: "Undo" })).toBeNull();
+    expect(within(card()).queryByText(/^Your stack:/)).toBeNull();
+    expect(within(card()).queryByText(/^The page now shows/)).toBeNull();
+    expect(addButton().textContent).toBe("Add 11 sets (11 exercises, 3 days) to Week\u00a01");
+    await waitFor(() => expect(summaryLines()).toEqual(["Design a stack", "Plan Week 1 · 3 direct moving sets now"]));
+  });
+
+  it("says Adding… on the button while the plan change is on its way, and an error in the card if it fails", async () => {
+    render(createElement(Harness, { initial: { mode: "planned" } }));
+    await act(async () => {});
+    await openCard();
+    let release: () => void = () => {};
+    beforeApply = () => new Promise<void>((resolve) => { release = resolve; });
+    await click(addButton());
+    expect(addButton().textContent).toBe("Adding…");
+    expect(addButton().getAttribute("aria-busy")).toBe("true");
+    await act(async () => { release(); });
+    await act(async () => {});
+    expect(card().querySelector(".spz-stack-done")!.textContent).toBe("Added 11 sets to Plan Week 1Undo");
+    await click(within(card()).getByRole("button", { name: "Undo" }));
+    beforeApply = async () => { throw new Error("chunk failed"); };
+    await click(addButton());
+    expect(within(card()).getByRole("alert").textContent).toBe("The change did not finish. Check Plan Week 1 before trying again; reloading usually fixes this.");
+    expect(addButton().textContent).toBe("Add 11 sets (11 exercises, 3 days) to Week\u00a01");
+    expect(addButton().getAttribute("aria-busy")).toBeNull();
   });
 
   it("takes the stack out at once, with Undo, and only the entries still as it wrote them", async () => {
@@ -447,7 +505,7 @@ describe("the card, open", () => {
     expect(within(card()).getByText("It starts at your stack's 14. No number suits everyone; change it any time.")).not.toBeNull();
     expect(changes()[1]).toBe("Direct moving sets 3 → 14 · muscles with direct work 1 → 16 of 19");
     await click(within(card()).getByRole("button", { name: "One set more" }));
-    expect(addButton().textContent).toBe("Replace your stack: 12 sets (11 exercises, 3 days) in Week 1");
+    expect(addButton().textContent).toBe("Replace your stack: 12 sets (11 exercises, 3 days) in Week\u00a01");
     await click(addButton());
     expect(batches[1].changes.filter((change) => change.kind === "remove")).toHaveLength(11);
     expect(batches[1].changes.filter((change) => change.kind === "add")).toHaveLength(11);
@@ -474,7 +532,7 @@ describe("the card, open", () => {
     await click(within(card()).getByRole("button", { name: "Design for Week 2" }));
     expect(totalField().value).toBe("14");
     expect(within(card()).getByText("It starts at 14, your last total here. No number suits everyone; change it any time.")).not.toBeNull();
-    expect(addButton().textContent).toBe("Add 11 sets (11 exercises, 3 days) to Week 2");
+    expect(addButton().textContent).toBe("Add 11 sets (11 exercises, 3 days) to Week\u00a02");
   });
 
   it("in Completed mode reads the week being trained, as written", async () => {
@@ -482,7 +540,7 @@ describe("the card, open", () => {
     await act(async () => {});
     await openCard();
     expect(within(card()).getByText("Built from your plan as written; sets you logged are not counted here.")).not.toBeNull();
-    expect(addButton().textContent).toBe("Add 11 sets (11 exercises, 3 days) to Week 1");
+    expect(addButton().textContent).toBe("Add 11 sets (11 exercises, 3 days) to Week\u00a01");
   });
 
   it("says About me's answer in its own words, and changes nothing because of it", async () => {

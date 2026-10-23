@@ -1,7 +1,7 @@
 import { equipmentMatchesProfile, type AthleteEquipmentProfile } from "@/lib/equipmentProfile";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { commitDay, loadDay, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
-import { getGoalPrescription, getWorkoutDiagnostics, holdDefaultTarget, type TrainingGoal } from "@/lib/workoutPlanner";
+import { NOTHING_TO_REVIEW_PROMPT, getGoalPrescription, getWorkoutDiagnostics, holdDefaultTarget, type TrainingGoal } from "@/lib/workoutPlanner";
 import { catalogIdOf } from "@/lib/workoutSwap";
 import { directWorkCount, type DirectWorkCount } from "@shared/specialization/directWork";
 import { getSpecializationSummary } from "@shared/specialization/exposure";
@@ -30,7 +30,7 @@ import { catalogMusclesLookup, planningVariantsFor } from "./useSpecializationSu
 import type { SpecializationPlanChange } from "./viewState";
 
 export { STACK_RULES } from "./stackRules";
-export { coveredSlots, movementsWithoutDirectWork, stackModelFor, type StackGap, type StackMode, type StackModel, type StackMovement } from "./stackModel";
+export { coveredSlots, movementsWithoutDirectWork, oneSidedOf, stackModelFor, type StackGap, type StackMode, type StackModel, type StackMovement } from "./stackModel";
 
 type Candidate = StackCandidate;
 const modelOf = (region: SpecializationRegionData): StackModelIndex => stackModelIndexFor(region);
@@ -797,7 +797,8 @@ export function designStack(input: StackInput): StackDesign {
       secondSideMinutes: Math.round(secondSide),
       gymMinutes: plan.gymMinutes,
       overWindow: afterDiagnostics.estimatedMinutes > plan.gymMinutes,
-      planPromptsAdded: here.length ? afterDiagnostics.prompts.filter((prompt) => !day.diagnostics.prompts.includes(prompt)) : [],
+      // Plan's own review lines the day gains; its "nothing to review" line says nothing about the stack.
+      planPromptsAdded: here.length ? afterDiagnostics.prompts.filter((prompt) => prompt !== NOTHING_TO_REVIEW_PROMPT && !day.diagnostics.prompts.includes(prompt)) : [],
     };
   });
 

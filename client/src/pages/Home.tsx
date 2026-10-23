@@ -1585,11 +1585,14 @@ export default function Home() {
    * any one change cannot apply. Otherwise each touched day is written once, and one notice says
    * what changed, with one Undo for all of it: every day's revert, newest day first, on the days as
    * they stand when it is pressed, through the ref, as the single change's Undo is; then the page's
-   * `onUndo`, once, from either Undo. No confirm step (CLAUDE.md: Undo over confirm).
+   * `onUndo`, once, from either Undo. The card's Undo also takes the notice away while it is still
+   * this batch's, so no Undo is left showing that does nothing. No confirm step (CLAUDE.md: Undo
+   * over confirm).
    *
-   * The batch code is fetched only when a batch arrives (§3.10, §7.5): the page's stack card has
-   * already loaded it, so the import resolves at once, and Home's own chunk never carries it. The
-   * write runs through a ref after the import, so it reads the plan as it stands then.
+   * The batch code is never part of Home's own chunk (§3.10, §7.5): it is awaited here when a batch
+   * arrives. The stack card starts the same download when it opens, so by its first Add the code has
+   * usually arrived; if it has not, Add waits for it, and a failed download refuses with a reason.
+   * The write runs through a ref after the import, so it reads the plan as it stands then.
    */
   const applyBatchNow = (apply: typeof applyPlanBatch, batch: SpecializationPlanBatch, options?: { onUndo?: () => void }): SpecializationPlanBatchResult => {
     if (!planReadyForEdits({ quiet: true }) || !profileHydrated) return { ok: false, reason: "Your plan is still loading, so nothing was changed. Try again in a moment." };
@@ -1600,14 +1603,17 @@ export default function Home() {
     if (!outcome.ok) return { ok: false, reason: outcome.reason };
     for (const day of outcome.days) editDayInWeek(batch.week, day.slot.key, () => day.record);
     let undone = false;
+    const cancel = { label: "Undo", onClick: () => undo() };
     const undo = () => {
       if (undone) return;
       undone = true;
+      // The notice goes too while it is still this batch's (a later notice with its id replaced it otherwise).
+      if (toast.getToasts?.().some((item) => item.id === "plan-add" && "cancel" in item && item.cancel === cancel)) toast.dismiss("plan-add");
       for (const day of [...outcome.days].reverse()) editDayInWeekRef.current(batch.week, day.slot.key, day.revert);
       options?.onUndo?.();
     };
     // Every option named: sonner merges a notice into the one showing with the same id.
-    toast(outcome.message.title, { id: "plan-add", description: outcome.message.description, action: undefined, cancel: { label: "Undo", onClick: undo } });
+    toast(outcome.message.title, { id: "plan-add", description: outcome.message.description, action: undefined, cancel });
     return { ok: true, undo, message: outcome.message.title };
   };
   const applyBatchNowRef = useRef(applyBatchNow);

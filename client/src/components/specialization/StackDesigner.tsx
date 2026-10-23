@@ -13,6 +13,7 @@ import {
   designStack,
   leaveOutMovement,
   moveRow,
+  oneSidedOf,
   plannedSummaryFor,
   setRowSets,
   type StackDesign,
@@ -95,6 +96,9 @@ const metricUnit: Record<GoalMetric, string> = { direct_dynamic_bouts: "", delib
 
 export function StackDesigner(props: StackDesignerProps) {
   const extras = useRegionExtras(props.data.region.id);
+  // Home's batch apply fetches the batch code when a batch arrives; started here, with the card, it
+  // has usually arrived by the first Add. A failed fetch says so at Add, where Home awaits it again.
+  useEffect(() => { import("@/lib/specialization/planBatch").catch(() => {}); }, []);
   const store = props.plan.weeks[props.week];
   if (!props.plan.ready) return <p className="spz-note" role="status">Your plan is still loading.</p>;
   if (!store) return <p className="spz-note">Build Plan Week {props.week} in Plan first.</p>;
@@ -109,7 +113,7 @@ export function StackDesigner(props: StackDesignerProps) {
 }
 
 /** One finished action on the plan, said in the card with its Undo; or that it was undone. */
-type Done = { kind: "added" | "changed" | "removed"; text: string; detail: string; undo: () => void } | { kind: "undone"; text: string };
+type Done = { kind: "added" | "changed" | "removed"; action: string; text: string; detail: string; undo: () => void } | { kind: "undone"; text: string };
 
 function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, exclusions, goals, goal, gymMinutes, accountId, nowIso, timeZone, stacks, onApplyPlanChanges, aboutMeArea, announce, store, extras }: StackDesignerProps & { store: WeeklyDayStore; extras: RegionExtras | null }) {
   const regionId = data.region.id;
@@ -171,7 +175,8 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
     // Only a committed change is said, once its design is drawn.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingSay]);
-  const commit = (next: Draft) => { setDraft(next); setPendingSay((count) => count + 1); };
+  // Any later change ends Leave out's Undo: it puts back the design as it was then, so it is offered only while nothing has changed since.
+  const commit = (next: Draft) => { setDraft(next); setLeftOut(null); setPendingSay((count) => count + 1); };
   const commitInput = (next: StackInput) => commit({ total: next.total, settings: next.settings, edits: next.edits ?? {} });
 
   // ---- the total: − and + commit at once; the field commits on blur, Enter or Done, and clamps then
@@ -213,21 +218,31 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
   // ---- where focus goes after an action that removes the control that had it
   const doneRef = useRef<HTMLElement | null>(null);
   const leftRef = useRef<HTMLButtonElement | null>(null);
-  const [focusOn, setFocusOn] = useState<{ on: "done" | "left"; count: number }>({ on: "done", count: 0 });
+  const bodyRef = useRef<HTMLDivElement | null>(null);
+  const [focusOn, setFocusOn] = useState<{ on: "done" | "left" | "row"; movementKeys?: readonly string[]; count: number }>({ on: "done", count: 0 });
   useEffect(() => {
     if (!focusOn.count) return;
-    const target = focusOn.on === "done" ? doneRef.current : leftRef.current;
+    let target: HTMLElement | null = focusOn.on === "done" ? doneRef.current : focusOn.on === "left" ? leftRef.current : null;
+    if (focusOn.on === "row") {
+      // The row a movement came back as (Undo, Bring back); the total's field when it found no place.
+      const row = design.rows.find((item) => item.movementKeys.some((key) => focusOn.movementKeys?.includes(key)));
+      target = Array.from(bodyRef.current?.querySelectorAll<HTMLElement>(".spz-stack-row") ?? []).find((element) => element.dataset.row === row?.key)
+        ?? document.getElementById(`${ids}-total`);
+    }
     if (!target) return;
     target.focus({ preventScroll: true });
     revealClearOfBars(target);
+    // Only a new ask moves focus, once its design is drawn.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusOn]);
   const focusDone = () => setFocusOn((current) => ({ on: "done", count: current.count + 1 }));
+  const focusRow = (movementKeys: readonly string[]) => setFocusOn((current) => ({ on: "row", movementKeys, count: current.count + 1 }));
 
   // ---- rows: one open at a time; Change opens in place
   const [openRow, setOpenRow] = useState<string | null>(null);
   const [changeRow, setChangeRow] = useState<string | null>(null);
   /** Leave out's line, where the row was: "Thumb abduction left out · total 14 → 13 · Undo". */
-  const [leftOut, setLeftOut] = useState<{ text: string; previous: Draft; dayKey: string } | null>(null);
+  const [leftOut, setLeftOut] = useState<{ text: string; previous: Draft; dayKey: string; movementKeys: readonly string[] } | null>(null);
   const leaveOut = (row: StackRow) => {
     const labels = row.movementKeys.map((key) => design.movements.find((movement) => movement.key === key)?.label ?? key);
     let next = input;
@@ -236,18 +251,18 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
       next = leaveOutMovement(next, shown, key);
       shown = designStack(next);
     }
-    setLeftOut({ text: `${listWords(labels)} left out · total ${design.total} → ${shown.total}`, previous: draft, dayKey: row.dayKey });
     setOpenRow(null);
     setChangeRow(null);
     setLimit(null);
     setStartedFrom(null);
     commitInput(next);
+    setLeftOut({ text: `${listWords(labels)} left out · total ${design.total} → ${shown.total}`, previous: draft, dayKey: row.dayKey, movementKeys: row.movementKeys });
     setFocusOn((current) => ({ on: "left", count: current.count + 1 }));
   };
   const undoLeaveOut = () => {
     if (!leftOut) return;
     commit(leftOut.previous);
-    setLeftOut(null);
+    focusRow(leftOut.movementKeys);
   };
 
   // ---- settings say their effect as they change; "See each muscle" works its numbers out only while open
@@ -264,6 +279,16 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
     return entryId === null ? [] : [{ kind: "remove" as const, dayKey: entry.dayKey, entryId, catalogExerciseId: entry.catalogExerciseId, prescription: entry.prescription }];
   });
   const pageCountOn = (weekStore: WeeklyDayStore) => directWorkCount(data, plannedSummaryFor(input, weekStore)).moving;
+  /**
+   * The notice's Undo said in the card as the card's own is: the action's line becomes "Undone".
+   * A ref, set while the card is mounted: the notice outlives a closed card.
+   */
+  const undoneInCard = useRef<((action: string, text: string) => void) | null>(null);
+  useEffect(() => {
+    undoneInCard.current = (action, text) => setDone((current) => (current && current.kind !== "undone" && current.action === action ? { kind: "undone", text } : current));
+    return () => { undoneInCard.current = null; };
+  }, []);
+  const failed = `The change did not finish. Check Plan Week ${week} before trying again; reloading usually fixes this.`;
 
   const add = async () => {
     if (busy || !onApplyPlanChanges || !design.changes.length) return;
@@ -274,14 +299,23 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
     const adds: SpecializationPlanBatchChange[] = design.changes.map((change) => ({ kind: "add", dayKey: change.dayKey, catalogExerciseId: change.catalogExerciseId, prescription: change.prescription }));
     const createdAt = new Date().toISOString();
     const next = stackRecordFrom(design, `stack-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`, createdAt, draft.settings);
-    // Either Undo (the card's or the notice's) forgets this stack and keeps the one it replaced.
-    const result = await onApplyPlanChanges({ week, changes: [...removals, ...adds] }, {
-      onUndo: () => {
-        removeStackRecord(next.id, accountId);
-        if (replaced) saveStackRecord(replaced, accountId);
-      },
-    });
-    setBusy(false);
+    const undoneText = `Undone: Plan Week ${week} is as it was.`;
+    let result: Awaited<ReturnType<NonNullable<typeof onApplyPlanChanges>>>;
+    try {
+      // Either Undo (the card's or the notice's) forgets this stack, keeps the one it replaced, and says so in the card.
+      result = await onApplyPlanChanges({ week, changes: [...removals, ...adds] }, {
+        onUndo: () => {
+          removeStackRecord(next.id, accountId);
+          if (replaced) saveStackRecord(replaced, accountId);
+          undoneInCard.current?.(next.id, undoneText);
+        },
+      });
+    } catch {
+      setError(failed);
+      return;
+    } finally {
+      setBusy(false);
+    }
     if (!result.ok) { setError(result.reason); return; }
     const kept = stacks.saveStack(next);
     stacks.saveChoice({ regionId, total: design.total, settings: draft.settings, updatedAt: createdAt });
@@ -290,7 +324,7 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
     const text = replaced
       ? `Changed your stack in Plan Week ${week}: ${replaced.total} → ${design.total} direct moving sets`
       : `Added ${plural(sets, "set")} to Plan Week ${week}`;
-    setDone({ kind: replaced ? "changed" : "added", text, detail: `The page now shows ${plural(design.counts.after.moving, "direct moving set")} for Plan Week ${week}.`, undo: result.undo });
+    setDone({ kind: replaced ? "changed" : "added", action: next.id, text, detail: `The page now shows ${plural(design.counts.after.moving, "direct moving set")} for Plan Week ${week}.`, undo: result.undo });
     setView("auto");
     setLeftOut(null);
     announce(`${text}. ${result.message}.`);
@@ -303,12 +337,21 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
     setBusy(true);
     setError(null);
     const removed = record;
-    const result = await onApplyPlanChanges({ week, changes: removals }, { onUndo: () => { saveStackRecord(removed, accountId); } });
-    setBusy(false);
+    const action = `out:${removed.id}:${Date.now()}`;
+    const undoneText = `Undone: Plan Week ${week} is as it was.`;
+    let result: Awaited<ReturnType<NonNullable<typeof onApplyPlanChanges>>>;
+    try {
+      result = await onApplyPlanChanges({ week, changes: removals }, { onUndo: () => { saveStackRecord(removed, accountId); undoneInCard.current?.(action, undoneText); } });
+    } catch {
+      setError(failed);
+      return;
+    } finally {
+      setBusy(false);
+    }
     if (!result.ok) { setError(result.reason); return; }
     stacks.remove(removed.id);
     const text = `Took your stack out of Plan Week ${week}`;
-    setDone({ kind: "removed", text, detail: `The page now shows ${plural(pageCountOn(storeWithoutEntries(store, entries.asWritten)), "direct moving set")} for Plan Week ${week}.`, undo: result.undo });
+    setDone({ kind: "removed", action, text, detail: `The page now shows ${plural(pageCountOn(storeWithoutEntries(store, entries.asWritten)), "direct moving set")} for Plan Week ${week}.`, undo: result.undo });
     setView("auto");
     announce(`${text}. ${result.message}.`);
     focusDone();
@@ -354,6 +397,11 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
     const nameOf = (catalogExerciseId: number) => catalog.find((exercise) => exercise.id === catalogExerciseId)?.name ?? `Exercise ${catalogExerciseId}`;
     const dayOf = (dayKey: string) => plan.slots.find((slot) => slot.key === dayKey)?.label ?? dayKey;
     const byDay = plan.slots.map((slot) => ({ slot, items: asWritten.filter((entry) => entry.dayKey === slot.key) })).filter((group) => group.items.length);
+    // A one-side-at-a-time exercise says so, as its row did in the design.
+    const eachSide = (catalogExerciseId: number) => {
+      const variant = data.variants.find((item) => item.catalogExerciseId === catalogExerciseId);
+      return variant && words.paired && oneSidedOf(variant) ? ` · each ${words.one}` : "";
+    };
     return <div className="spz-stack-body">
       {completedNote}
       {doneLine}
@@ -361,7 +409,7 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
       <p className="spz-stack-status"><b>Your stack: {plural(pageCountOn(store), "direct moving set")} in Week {week}</b></p>
       {byDay.length > 0 && <ul className="spz-stack-entries">
         {byDay.map((group) => <li key={group.slot.key}><b>{group.slot.label}</b>
-          <ul>{group.items.map((entry) => <li key={entry.catalogExerciseId}>{nameOf(entry.catalogExerciseId)} · <span className="spz-stack-nowrap">{entry.prescription}</span></li>)}</ul>
+          <ul>{group.items.map((entry) => <li key={entry.catalogExerciseId}>{nameOf(entry.catalogExerciseId)} · <span className="spz-stack-nowrap">{entry.prescription}{eachSide(entry.catalogExerciseId)}</span></li>)}</ul>
         </li>)}
       </ul>}
       {current && current.changed.length > 0 && <p className="spz-note">Changed since the stack added {current.changed.length === 1 ? "it" : "them"}, so counted as your plan's own: {listWords(current.changed.map((entry) => `${nameOf(entry.catalogExerciseId)} (${dayOf(entry.dayKey)})`))}.</p>}
@@ -370,7 +418,7 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
       {error && <p className="spz-error" role="alert">{error}</p>}
       {current && <div className="spz-actions">
         <button type="button" className="spz-button" onClick={() => startDesign("stack")}>Change the total</button>
-        {asWritten.length > 0 && onApplyPlanChanges && <button type="button" className="spz-button" aria-busy={busy || undefined} onClick={() => { void takeOut(); }}>Take it out</button>}
+        {asWritten.length > 0 && onApplyPlanChanges && <button type="button" className="spz-button" aria-busy={busy || undefined} onClick={() => { void takeOut(); }}>{busy ? "Taking it out…" : "Take it out"}</button>}
       </div>}
       {current && !asWritten.length && <p className="spz-note">Every entry of the stack has changed since it was added, so they are your plan's own and stay as they are.</p>}
     </div>;
@@ -389,13 +437,13 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
     : startedFrom === "start" ? startWords(design, noun) : null;
 
   const addLabel = changing
-    ? `Replace your stack: ${plural(design.added.movingSets, "set")}${design.added.holdSets ? ` and ${plural(design.added.holdSets, "hold")}` : ""} (${plural(design.added.exercises, "exercise")}, ${plural(design.added.days, "day")}) in Week ${week}`
-    : `Add ${plural(design.added.movingSets, "set")}${design.added.holdSets ? ` and ${plural(design.added.holdSets, "hold")}` : ""} (${plural(design.added.exercises, "exercise")}, ${plural(design.added.days, "day")}) to Week ${week}`;
+    ? `Replace your stack: ${plural(design.added.movingSets, "set")}${design.added.holdSets ? ` and ${plural(design.added.holdSets, "hold")}` : ""} (${plural(design.added.exercises, "exercise")}, ${plural(design.added.days, "day")}) in Week\u00a0${week}`
+    : `Add ${plural(design.added.movingSets, "set")}${design.added.holdSets ? ` and ${plural(design.added.holdSets, "hold")}` : ""} (${plural(design.added.exercises, "exercise")}, ${plural(design.added.days, "day")}) to Week\u00a0${week}`;
   const nothingToAdd = design.total <= design.own && !design.added.holdSets
     ? `Your plan already has ${design.own}. The stack never removes your own exercises.`
     : "Nothing to add at these settings.";
 
-  return <div className="spz-stack-body">
+  return <div className="spz-stack-body" ref={bodyRef}>
     {completedNote}
     {doneLine}
     {doneDetail}
@@ -440,7 +488,7 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
 
     {error && <p className="spz-error" role="alert">{error}</p>}
     {design.changes.length > 0 && onApplyPlanChanges
-      ? <button type="button" className="spz-primary spz-stack-add" aria-busy={busy || undefined} onClick={() => { void add(); }}>{addLabel}</button>
+      ? <button type="button" className="spz-primary spz-stack-add" aria-busy={busy || undefined} onClick={() => { void add(); }}>{busy ? (changing ? "Replacing…" : "Adding…") : addLabel}</button>
       : <p className="spz-note">{design.changes.length ? "Adding to the plan is not available here." : nothingToAdd}</p>}
     <p className="spz-note">Your own exercises and their sets stay as they are.</p>
     {changing && <button type="button" className="spz-button" onClick={() => { setView("auto"); setError(null); }}>Keep your stack as it is</button>}
@@ -502,7 +550,7 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
       {musclesOpen && <MuscleChanges data={data} input={input} design={design} baseStore={baseStore} />}
     </details>
 
-    <NotInThisStack data={data} design={design} noun={noun} nodeName={nodeName} catalog={catalog} onBringBack={(key) => { setLeftOut(null); setStartedFrom(null); commitInput(bringBackMovement(input, key)); }} />
+    <NotInThisStack data={data} design={design} noun={noun} nodeName={nodeName} catalog={catalog} onBringBack={(key) => { setStartedFrom(null); commitInput(bringBackMovement(input, key)); focusRow([key]); }} />
 
     {aboutMeArea && <p className="spz-note spz-stack-about">Your answer in About me for the {data.region.label.toLowerCase()}: “{aboutMeArea.answer}”. You can start lower or leave movements out.</p>}
 
@@ -590,7 +638,7 @@ function StackRowItem({ row, design, input, words, open, changing, limit, nodeNa
   const dayChoices = changing ? dayChoicesFor(input, design, row.key) : [];
   const exerciseChoices = movement?.choices ?? [];
   return <li className="spz-stack-row-item">
-    <button type="button" className="spz-stack-row" aria-expanded={open} aria-controls={`${ids}-detail`} onClick={onToggle}>
+    <button type="button" className="spz-stack-row" data-row={row.key} aria-expanded={open} aria-controls={`${ids}-detail`} onClick={onToggle}>
       <span>{label}</span>
       <ChevronDown className="h-4 w-4" aria-hidden="true" />
     </button>
@@ -755,8 +803,15 @@ function NotInThisStack({ data, design, noun, nodeName, catalog, onBringBack }: 
   }
   if (design.gaps.length) {
     const helpers = Array.from(new Set(design.gaps.flatMap((gap) => gap.helpers.map((helper) => nameOf(helper.catalogExerciseId)))));
-    const gapWords = design.gaps.map((gap) => `${nodeName(gap.nodeId)} (${lowerFirst(actionWords(data, gap.actionId))})`);
-    items.push({ key: "gaps", node: <span>No reviewed exercise trains these directly, so the stack cannot give them direct sets: {listWords(gapWords)}.{helpers.length ? ` ${listWords(helpers.length > 3 ? [...helpers.slice(0, 3), `${helpers.length - 3} more`] : helpers)} work them as helpers.` : ""}</span> });
+    // Each muscle with what it does in the region's plain words (§3.11), and a muscle missing in some
+    // people says so (its reviewed variation claim): never a deficit, never a warning.
+    const gapNodes = Array.from(new Set(design.gaps.map((gap) => gap.nodeId)));
+    const gapWords = gapNodes.map((nodeId) => `${nodeName(nodeId)}, which ${listWords(design.gaps.filter((gap) => gap.nodeId === nodeId).map((gap) => plainWords(data, gap.actionId)))}`);
+    const gapList = gapWords.length <= 1 ? gapWords.join("") : `${gapWords.slice(0, -1).join("; ")}; and ${gapWords[gapWords.length - 1]}`;
+    const missing = gapNodes
+      .filter((nodeId) => data.claims.some((claim) => claim.nodeId === nodeId && claim.kind === "variation" && claim.reviewStatus === "reviewed"))
+      .map((nodeId) => `${data.nodes.find((node) => node.id === nodeId)?.name ?? nodeId} is missing in some people.`);
+    items.push({ key: "gaps", node: <span>No reviewed exercise trains these directly, so the stack cannot give them direct sets: {gapList}.{helpers.length ? ` ${listWords(helpers.length > 3 ? [...helpers.slice(0, 3), `${helpers.length - 3} more`] : helpers)} work them as helpers.` : ""}{missing.length ? ` ${missing.join(" ")}` : ""}</span> });
   }
   for (const target of design.targets) {
     const unit = metricUnit[target.metric];
@@ -777,6 +832,11 @@ function NotInThisStack({ data, design, noun, nodeName, catalog, onBringBack }: 
 
 /** A joint action in the region's own words. */
 const actionWords = (data: SpecializationRegionData, actionId: string) => data.actions.find((action) => action.id === actionId)?.label ?? actionId;
+/** What a joint action does, in the region's plain words, to follow "which": "straightens the little finger on its own". */
+const plainWords = (data: SpecializationRegionData, actionId: string) => {
+  const action = data.actions.find((item) => item.id === actionId);
+  return action ? lowerFirst(action.plainDescription).replace(/\.$/, "") : lowerFirst(actionWords(data, actionId));
+};
 function targetLabel(target: StackTarget, nodeName: (nodeId: string) => string, data: SpecializationRegionData): string {
   if (target.nodeId) return nodeName(target.nodeId);
   return target.actionId ? lowerFirst(actionWords(data, target.actionId)) : "a movement";

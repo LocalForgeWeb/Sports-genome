@@ -3,7 +3,7 @@ import { exercises } from "@/lib/exerciseCatalog";
 import { gymAccessProfiles, type GymAccess } from "@/lib/equipmentProfile";
 import { splitDaysForFrequency } from "@/lib/splitCycle";
 import { buildDaySlots, commitDay, emptyDayStore, loadDay, type DayRecord, type WeeklyDayStore } from "@/lib/trainingDayPlan";
-import { getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
+import { NOTHING_TO_REVIEW_PROMPT, getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
 import { composeRegionData } from "@shared/specialization/compose";
 import { directWorkCount } from "@shared/specialization/directWork";
 import { forearmRegionData as forearm } from "@shared/specialization/regions/forearm";
@@ -173,6 +173,8 @@ describe("plan A, as the prototype ran it", () => {
     expect(minutes(at30)).toEqual([59, 64, 61]);
     expect(at30.days.map((day) => day.overWindow)).toEqual([false, true, true]);
     for (const day of at30.days.filter((item) => item.overWindow)) expect(day.planPromptsAdded.some((prompt) => prompt.includes(`above your 60 min gym window`))).toBe(true);
+    // Plan's "nothing to review" line is never quoted as something the stack brings, at any total.
+    for (const total of [8, 14, 20, 30]) for (const day of designStack({ ...input, total }).days) expect(day.planPromptsAdded).not.toContain(NOTHING_TO_REVIEW_PROMPT);
     expect(pageCountAfter(input, at30).moving).toBe(30);
   });
 

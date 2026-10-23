@@ -13,9 +13,13 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 
 type ToastOptions = { id?: string; description?: unknown; action?: { label: string; onClick: () => void }; cancel?: { label: string; onClick: () => void } };
 const toasts = vi.hoisted(() => [] as { title: string; options?: ToastOptions }[]);
+/** The notices showing, by id, as sonner keeps them: a notice replaces the one with its id, and dismiss takes it away. */
+const showing = vi.hoisted(() => new Map<string, { title: string; options?: ToastOptions }>());
 vi.mock("sonner", () => {
-  const record = (title: string, options?: ToastOptions) => { toasts.push({ title, options }); };
-  return { toast: Object.assign(record, { success: record, error: record, message: record, dismiss: () => {} }), Toaster: () => null };
+  const record = (title: string, options?: ToastOptions) => { toasts.push({ title, options }); if (options?.id) showing.set(options.id, { title, options }); };
+  const dismiss = (id?: string) => { if (id === undefined) showing.clear(); else showing.delete(id); };
+  const getToasts = () => Array.from(showing.values()).map((item) => ({ ...item.options, id: item.options!.id, title: item.title }));
+  return { toast: Object.assign(record, { success: record, error: record, message: record, dismiss, getToasts }), Toaster: () => null };
 });
 vi.mock("@/_core/hooks/useAuth", () => ({
   useAuth: () => ({ user: null, loading: false, error: null, isAuthenticated: false, logout: async () => {}, refresh: async () => ({}) }),
@@ -61,6 +65,7 @@ const windowLine = () => document.querySelector(".spz-window")?.textContent ?? "
 beforeAll(async () => { await loadRegionExtras("forearm"); });
 beforeEach(() => {
   toasts.length = 0;
+  showing.clear();
   window.localStorage.clear();
   window.localStorage.setItem(PROFILE_KEY, profile);
   window.localStorage.setItem(PLAN_KEY, plan);
@@ -83,7 +88,7 @@ describe("the stack, from Planned mode through Home and back", () => {
     expect(card.open).toBe(true);
     const field = await within(card).findByRole("spinbutton", { name: "Direct forearm sets a week" }, { timeout: 10000 }) as HTMLInputElement;
     expect(field.value).toBe("14");
-    const add = within(card).getByRole("button", { name: "Add 11 sets (11 exercises, 3 days) to Week 1" });
+    const add = within(card).getByRole("button", { name: "Add 11 sets (11 exercises, 3 days) to Week\u00a01" });
     await act(async () => { fireEvent.click(add); });
     await tick();
 
@@ -105,11 +110,14 @@ describe("the stack, from Planned mode through Home and back", () => {
     expect(card.querySelector(":scope > summary small")!.textContent).toBe("Your stack: 14 direct moving sets in Week 1");
     expect(loadStackStore(null).stacks.map((stack) => [stack.planWeek, stack.total, stack.entries.length])).toEqual([[1, 14, 11]]);
 
-    // The card's Undo, focused: the plan back exactly, the record gone.
+    // The card's Undo, focused: the plan back exactly, the record gone, and the notice with its Undo gone too.
     const undo = within(card).getByRole("button", { name: "Undo" });
     expect(document.activeElement).toBe(undo);
+    expect(showing.get("plan-add")?.title).toBe("Added 11 sets: 11 exercises on Day 01, Day 02, Day 03 of Week 1");
     await act(async () => { fireEvent.click(undo); });
     await tick();
+    expect(showing.has("plan-add")).toBe(false);
+    expect(card.querySelector(".spz-stack-done")!.textContent).toBe("Undone: Plan Week 1 is as it was.");
     // Exactly as before: every entry, prescription and setting. (Home writes a day it touched with its
     // empty per-day maps, prescriptions {}, settings {}, imported context []: they hold nothing, and are left out.)
     const emptyDropped = (week: Record<string, unknown>) => Object.fromEntries(Object.entries(week).map(([key, value]) => [key, ["weeklyPrescriptions", "weeklySettings", "importedPlanContext"].includes(key)
