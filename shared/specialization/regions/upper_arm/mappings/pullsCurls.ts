@@ -186,9 +186,9 @@ export const pullsCurlsUntaggedMapped = [74, 87, 88, 335] as const;
 
 // ---------------------------------------------------------------- curls
 
-const SHOULDER_TAIL = "That describes the set-up; it earns no extra credit, and the mapping is the same as any palms-up curl's.";
-const BEHIND = `The biceps also crosses the shoulder, so this holds it longer at the shoulder than a standing curl does. ${SHOULDER_TAIL}`;
-const IN_FRONT = `The biceps also crosses the shoulder, so this holds it shorter at the shoulder than a standing curl does. ${SHOULDER_TAIL}`;
+const SHOULDER_TAIL = "that describes the set-up and earns no extra credit.";
+const BEHIND = `The biceps also crosses the shoulder, so this holds it longer there than a standing curl does; ${SHOULDER_TAIL}`;
+const IN_FRONT = `The biceps also crosses the shoulder, so this holds it shorter there than a standing curl does; ${SHOULDER_TAIL}`;
 const BRACHIALIS_ONE_JOINT = "The brachialis does not cross the shoulder, so where the upper arm is held does not change its length.";
 
 /** Where a curl holds the upper arm, said for the two-joint biceps (and, for the brachialis, that it does not matter). Descriptive only. */
@@ -203,7 +203,7 @@ const curlShoulder: Record<number, string> = {
   341: `Chest on an incline bench, the arms hang straight down in front of the body. ${IN_FRONT}`,
   131: `The working upper arm hangs in front of the body with the elbow braced. ${IN_FRONT}`,
   340: `The working upper arm hangs in front of the body with the elbow braced. ${IN_FRONT}`,
-  339: `The arms are held out to the sides at about shoulder height between two high pulleys. The biceps also crosses the shoulder, so the arm's position changes its length there. ${SHOULDER_TAIL}`,
+  339: `The arms are held out wide at about shoulder height between two high pulleys. The biceps also crosses the shoulder, so the arm's position changes its length there; ${SHOULDER_TAIL}`,
 };
 
 const withShoulder = (id: number, text: string, node: "biceps" | "brachialis") => {
@@ -212,14 +212,14 @@ const withShoulder = (id: number, text: string, node: "biceps" | "brachialis") =
   return `${text} ${node === "biceps" ? note : BRACHIALIS_ONE_JOINT}`;
 };
 
-const NO_SUPINATION = "The biceps also turns the palm up, but the hand holds a fixed palms-up grip and the curl puts no load on that turn, so supination is not credited.";
+const NO_SUPINATION = "Supination is not credited: the grip is fixed and the curl puts no load on the turn.";
 const CURL_BRACHIALIS = "The brachialis flexes the elbow whatever the forearm's rotation and does not turn it, so every curl works it directly: direct, dynamic.";
 
 const curlBrachialis = (id: number) =>
   mapping(id, m.brachialis, { action: a.elbowFlexion, relationship: "direct", mode: "dynamic", basis: "anatomy", sources: [src.brachialisAction, src.brachialisTeach], rationale: withShoulder(id, CURL_BRACHIALIS, "brachialis") });
 
 function supinatedCurl(id: number): VariantMapping[] {
-  const bodyWeight = id === 138 ? " Here the hands hold the body's weight on a bar and the elbows bend through the curl." : "";
+  const bodyWeight = id === 138 ? " Here the hands hold the body's weight on a bar." : "";
   return [
     mapping(id, m.biceps, {
       action: a.elbowFlexion,
@@ -227,7 +227,7 @@ function supinatedCurl(id: number): VariantMapping[] {
       mode: "dynamic",
       basis: "anatomy",
       sources: [src.bicepsAction, src.bicepsKenhub, src.curlGrips, ...(curlShoulder[id] ? [src.bicepsTwoJoint] : [])],
-      rationale: withShoulder(id, `A palms-up curl is built on elbow flexion with the forearm turned palm up, the position in which the biceps flexes the elbow best: direct, dynamic.${bodyWeight} ${NO_SUPINATION}`, "biceps"),
+      rationale: withShoulder(id, `A palms-up curl is built on elbow flexion in the biceps' best position: direct, dynamic.${bodyWeight} ${NO_SUPINATION}`, "biceps"),
     }),
     curlBrachialis(id),
   ];
@@ -242,7 +242,7 @@ function neutralCurl(id: number): VariantMapping[] {
       basis: "anatomy",
       sources: [src.bicepsAction, src.curlGrips, src.slowBends],
       rationale:
-        "The biceps still flexes the elbow with the palms facing in, but this curl is chosen for the brachialis and the forearm's brachioradialis, so the biceps is contributing, dynamic, as the forearm atlas first read it. Whether the palms' direction changes how hard the biceps works is not settled: one muscle-activity study of bodybuilders found it more active palms up than palms in while lifting, and another, of slow single elbow bends, found no change. Supination is not credited: the palms stay facing in.",
+        "With the palms in the biceps still flexes the elbow, but this curl is chosen for the brachialis and the forearm's brachioradialis, so the biceps is contributing, dynamic, as the forearm atlas first read it. Whether grip changes the biceps' work is not settled: one study found it more active palms up than palms in while lifting, another found no change.",
     }),
     curlBrachialis(id),
   ];
@@ -257,7 +257,7 @@ function pronatedCurl(id: number): VariantMapping[] {
       basis: "emg",
       sources: [src.bicepsAction, src.curlGrips, src.slowBends],
       rationale:
-        "With the palms down the biceps flexes the elbow at a mechanical disadvantage, and one muscle-activity study of bodybuilders found it less active than with the palms up while lifting, so in the reverse curl it is contributing, dynamic; the brachialis and the forearm's brachioradialis are the targets. A second study, of slow single elbow bends, found no change with the palms' direction, so this reads the exercise's purpose as much as a measured difference. The forearm atlas first read it the same way.",
+        "With the palms down the biceps flexes the elbow at a mechanical disadvantage, and one study found it less active than palms up while lifting, so it is contributing, dynamic; the brachialis and the forearm's brachioradialis are the targets. Another study found no change with grip, so this also reads the exercise's purpose, as the forearm atlas first did.",
     }),
     curlBrachialis(id),
   ];
@@ -272,7 +272,7 @@ function zottmanCurl(id: number): VariantMapping[] {
       basis: "anatomy",
       sources: [src.bicepsAction, src.bicepsKenhub],
       rationale:
-        "Each rep is lifted with the palms up, the biceps' best position for flexing the elbow, so it is direct, dynamic, as the forearm atlas first read it. The turn to palms down at the top is not credited as supination (it is the opposite turn), and a dumbbell turned about its own handle gives little resistance to any turn.",
+        "Each rep is lifted with the palms up, the biceps' best position for flexing the elbow, so it is direct, dynamic, as the forearm atlas first read it. The turns between palms up and palms down are not credited: a dumbbell turned about its own handle gives little resistance to a turn.",
     }),
     curlBrachialis(id),
   ];
@@ -283,26 +283,26 @@ function zottmanCurl(id: number): VariantMapping[] {
 type PullGrip = keyof typeof pullsCurlsCatalogIds.elbowPulls;
 
 const PULL_BICEPS =
-  "In a row, pulldown or pull-up the elbows bend under load while the back muscles draw the arms down or back, and the biceps is an elbow flexor, so it helps move the load through range: contributing, dynamic. The exercise is built on the back's work, so the biceps is never direct here.";
+  "The elbows bend under load, and the biceps flexes the elbow, so it helps move the load: contributing, dynamic. The pull is built on the back's work, so it is never direct.";
 const PULL_BICEPS_GRIP: Record<PullGrip, string> = {
-  supinated: "With the palms up it flexes the elbow from its best position, but an underhand pull is still built on the back's work, so it stays contributing.",
-  neutral: "With the palms facing in it still flexes the elbow fully.",
-  pronated: "With the palms down it pulls at a mechanical disadvantage but still flexes the elbow.",
-  unknown: "The grip is not fixed for this exercise; the biceps flexes the elbow in any of them.",
+  supinated: "Palms up is its best position, but the pull is still the back's.",
+  neutral: "With the palms in it still flexes fully.",
+  pronated: "With the palms down it works at a mechanical disadvantage.",
+  unknown: "The grip varies; it flexes the elbow in any.",
 };
 const PULL_GRIP_EVIDENCE =
-  "On grip the evidence is mixed: two muscle-activity studies, one of pulldowns and one of pull-ups, found the biceps' activity much the same across grips, while a third is reported to have found more of it in the chin-up than in the pull-up.";
+  "On grip the studies are mixed: two, of pulldowns and pull-ups, found its activity much the same across grips; a third is reported to find more in chin-ups.";
 const PULL_BRACHIALIS =
-  "The brachialis flexes the elbow whatever the forearm's rotation, so it helps move the load through range in every row, pulldown and pull-up, palms up, in or down alike: contributing, dynamic. The exercise is built on the back's work, so it is never direct here. This is how the forearm atlas first read the brachialis in every curl, applied to pulls.";
+  "The brachialis flexes the elbow whatever the forearm's rotation, so it helps move the load in every row, pulldown and pull-up, whatever the grip: contributing, dynamic. The pull is built on the back's work, so it is never direct.";
 const PULL_LONG_HEAD =
-  "The long head, the one triceps head that crosses the shoulder, helps draw the arm down and back (shoulder extension), and with the palms in or up this pull brings the arms down in front of the body, which is that movement. Two-joint muscles routinely work alongside their opposites, and one study recorded the long head in four lat-pulldown grips. But the elbow bends under load at the same time, and the long head also straightens the elbow, so whether it does net work moving the load here is not established: this stays pending review.";
+  "The long head, the one triceps head crossing the shoulder, helps draw the arm down and back, as this pull does in front of the body, and one study recorded it in lat pulldowns. But the elbow bends under load at the same time and the long head also straightens it, so whether it does net work here is not established: pending review.";
 
 /** What a few pulls add to the family's words. */
 const pullNote: Record<number, string> = {
-  73: "One arm does most of the pull while the other stays nearly straight; both arms count together.",
-  74: "The catalog tags the L-sit pull-up as core work, but the arms do a pull-up's elbow work, so it is credited as one.",
-  80: "Hand over hand up the rope, each arm draws the body up as its elbow bends.",
-  379: "The trunk turns with the pull, and the elbow still bends against the handle.",
+  73: "One arm does most of the pull.",
+  74: "Listed as core work, but the arms do a pull-up.",
+  80: "Hand over hand, each arm draws the body up.",
+  379: "The trunk turns with the pull.",
 };
 const withNote = (id: number, text: string) => (pullNote[id] ? `${text} ${pullNote[id]}` : text);
 const frontToBack = new Set<number>(pullsCurlsCatalogIds.frontToBackPulls);
@@ -320,25 +320,25 @@ function elbowPull(id: number, grip: PullGrip): VariantMapping[] {
 // ---------------------------------------------------------------- face pulls and the rear-delt row
 
 const FACE_PULL =
-  "The rope is drawn from arm's length toward the face, the elbows bending as it comes. The elbows sit out wide of the rope's line, so the rope pulls the hands away from the shoulders and the elbow flexors bend the elbows against it.";
-const FACE_PULL_LIMIT = "The back of the shoulder and the upper back are the target and the load is light, so it is never direct. No muscle-activity study of the elbow flexors in this exercise was found: this rests on how the joint is loaded.";
-const FACE_PULL_TURN = " The turn of the upper arms at the end works the shoulder's rotators, not the elbow, and is not credited here.";
+  "The elbows sit out wide of the rope's line, so the rope pulls the hands away from the shoulders and the elbow flexors bend the elbows against it.";
+const FACE_PULL_LIMIT = "The rear shoulder is the target and the load is light, so never direct; no study of the elbow flexors here was found.";
+const FACE_PULL_TURN = " The turn out at the end works the shoulder's rotators, not the elbow.";
 
 function facePull(id: number): VariantMapping[] {
   const turn = id === 88 ? FACE_PULL_TURN : "";
   return [
     mapping(id, m.biceps, { action: a.elbowFlexion, relationship: "contributing", mode: "dynamic", basis: "inference", sources: [src.bicepsAction], rationale: `${FACE_PULL} The biceps is an elbow flexor: contributing, dynamic. ${FACE_PULL_LIMIT}${turn}` }),
-    mapping(id, m.brachialis, { action: a.elbowFlexion, relationship: "contributing", mode: "dynamic", basis: "inference", sources: [src.brachialisAction], rationale: `${FACE_PULL} The brachialis flexes the elbow whatever the forearm's rotation: contributing, dynamic. ${FACE_PULL_LIMIT}${turn}` }),
+    mapping(id, m.brachialis, { action: a.elbowFlexion, relationship: "contributing", mode: "dynamic", basis: "inference", sources: [src.brachialisAction], rationale: `${FACE_PULL} The brachialis flexes the elbow in any grip: contributing, dynamic. ${FACE_PULL_LIMIT}${turn}` }),
   ];
 }
 
 // ---------------------------------------------------------------- the upright row and the high pull (drafts)
 
 const UPRIGHT =
-  "The elbows bend as the handle rises up the front of the body, but the forearms hang close to the line of the cable, so the load has little leverage at the elbow and the elbows bend mostly because the upper arms rise. Whether the elbow flexors move a real share of the load or mostly follow the shoulders is not established, so this stays pending review, as the forearm atlas's reading of the brachioradialis in the upright row does.";
+  "The elbows bend as the handle rises, but the forearms hang close to the cable's line, so the load has little leverage at the elbow. Whether the elbow flexors move it or follow the shoulders is not established, so this stays pending review, as the forearm's brachioradialis does here.";
 
 function uprightPull(id: number): VariantMapping[] {
-  const hips = id === 335 ? " In the high pull the hips help drive the cable as well." : "";
+  const hips = id === 335 ? " The hips help drive the high pull." : "";
   const draft = { action: a.elbowFlexion, relationship: "contributing" as const, mode: "dynamic" as const, basis: "inference" as const, status: "draft" as const, rationale: `${UPRIGHT}${hips}` };
   return [
     mapping(id, m.biceps, { ...draft, sources: [src.bicepsAction] }),
@@ -348,24 +348,22 @@ function uprightPull(id: number): VariantMapping[] {
 
 // ---------------------------------------------------------------- pullovers and straight-arm pulldowns
 
-const LONG_HEAD = "The long head is the one triceps head that crosses the shoulder, and it helps draw the arm down and back (shoulder extension).";
-const LONG_HEAD_HOLDS = "It also helps hold the elbow straight, as the other two heads do; its moving shoulder work is the part credited.";
+const LONG_HEAD = "The long head, the one triceps head crossing the shoulder, helps draw the arm down and back.";
+const LONG_HEAD_HOLDS = "It also helps hold the elbow straight; its shoulder work is what is credited.";
 const longHeadSources = [src.longHead, src.longHeadImaios, src.longHeadKenhub];
 
 /** Why the load tends to bend the nearly straight elbows, so the triceps hold them. */
 const elbowLoad: Record<number, string> = {
-  24: "Lying on a bench with the arms reaching overhead, bending the elbow would lower the hand toward the floor, so the dumbbell's weight pulls the elbows toward bending.",
-  65: "Lying on a bench with the arms reaching overhead, bending the elbow would lower the hand toward the floor, so the dumbbell's weight pulls the elbows toward bending.",
-  63: "Whether lying or standing, the cable pulls the hands across the line of the straight arms, toward the pulley, and so pulls the elbows toward bending.",
-  62: "The cable pulls the straight arms up toward the pulley, and so pulls the elbows toward bending.",
-  328: "The cable pulls the straight arms up toward the pulley, and so pulls the elbows toward bending.",
+  24: "Lying with the arms overhead, bending the elbow would lower the hand, so the dumbbell pulls the elbows toward bending.",
+  65: "Lying with the arms overhead, bending the elbow would lower the hand, so the dumbbell pulls the elbows toward bending.",
+  63: "Lying or standing, the cable pulls the hands across the line of the straight arms, toward bending the elbows.",
+  62: "The cable pulls the straight arms up toward the pulley, toward bending the elbows.",
+  328: "The cable pulls the straight arms up toward the pulley, toward bending the elbows.",
 };
-const ELBOW_HOLD = "The triceps hold the elbows straight against it for the whole set without them moving: isometric steadying, never dynamic credit. The lateral and medial heads share every action and nothing in this exercise splits the work between them, so it is shared.";
-const elbowHoldStudy: Record<number, string> = {
-  62: "In one study the triceps was more active in the straight-arm pulldown than in the lying barbell pullover; which head was recorded was not stated in what could be read.",
-  328: "In one study the triceps was more active in the straight-arm pulldown than in the lying barbell pullover; which head was recorded was not stated in what could be read.",
-};
-const PULLOVER_STUDY = "One study recorded the triceps in a lying barbell pullover, less active there than in the straight-arm pulldown; which head was recorded was not stated in what could be read.";
+const ELBOW_HOLD = "The triceps hold them straight without moving: isometric steadying, never dynamic credit. The lateral and medial heads share every action, so the work is shared.";
+const SAP_STUDY = "One study found the triceps more active here than in the barbell pullover; the head was not named.";
+const elbowHoldStudy: Record<number, string> = { 62: SAP_STUDY, 328: SAP_STUDY };
+const PULLOVER_STUDY = "One study recorded the triceps in a lying barbell pullover; the head was not named.";
 
 function tricepsHold(id: number): VariantMapping[] {
   const hold = { action: a.elbowExtension, relationship: "stabilizer" as const, mode: "isometric" as const, basis: "inference" as const, allocation: "shared" as const, rationale: `${elbowLoad[id]} ${ELBOW_HOLD} ${elbowHoldStudy[id] ?? PULLOVER_STUDY}` };
@@ -385,7 +383,7 @@ function pullover(id: number): VariantMapping[] {
         basis: "inference",
         status: "draft",
         sources: longHeadSources,
-        rationale: `This machine is described only as one lever that the arms move in an arc with the elbows nearly straight; the description does not say where the lever meets the arms. ${LONG_HEAD} Without knowing where the load reaches the arm, whether the long head shares this shoulder extension as in a free-weight pullover is not established, so this stays pending review. The other two heads, which cross only the elbow, are not credited: the description does not say the elbows carry the load.`,
+        rationale: "This machine is described only as one lever the arms move in an arc, elbows nearly straight, not where the lever meets the arms. Without that, whether the long head, the one triceps head crossing the shoulder, shares the shoulder extension as in a free-weight pullover is not established: pending review. The elbow-only heads are not credited.",
       }),
     ];
   }
@@ -397,7 +395,7 @@ function pullover(id: number): VariantMapping[] {
       mode: "dynamic",
       basis: "anatomy",
       sources: [...longHeadSources, ...study],
-      rationale: `${LONG_HEAD} In a pullover the arms sweep in an arc toward the body against the load with the elbows nearly straight, so it helps move the load through range: contributing, dynamic. The lats are the target and the long head's shoulder action is small beside theirs, so it is never direct. ${LONG_HEAD_HOLDS}`,
+      rationale: `${LONG_HEAD} Here the nearly straight arms sweep toward the body against the load, so it helps move it: contributing, dynamic. The lats are the target, so it is never direct. ${LONG_HEAD_HOLDS}`,
     }),
     ...tricepsHold(id),
   ];
@@ -411,7 +409,7 @@ function straightArmPulldown(id: number): VariantMapping[] {
       mode: "dynamic",
       basis: "anatomy",
       sources: [...longHeadSources, src.straightArm],
-      rationale: `${LONG_HEAD} The straight arms sweep down from in front of the body to the thighs against the cable, so it helps move the load through range: contributing, dynamic. The lats are the target, so it is never direct. In one study the triceps was more active in the straight-arm pulldown than in the lying barbell pullover. ${LONG_HEAD_HOLDS}`,
+      rationale: `${LONG_HEAD} Here the straight arms sweep down to the thighs against the cable, so it helps move it: contributing, dynamic. The lats are the target, so it is never direct. ${LONG_HEAD_HOLDS} ${SAP_STUDY}`,
     }),
     ...tricepsHold(id),
   ];

@@ -123,9 +123,17 @@ describe("upper-arm pulls and curls: every row", () => {
     }
   });
 
-  it("says nothing about growth, size, percentages or screen sides", () => {
+  /** Words athlete-facing copy never uses: growth, percentages, screen or body sides, counting words, and internal terms. */
+  const forbiddenCopy = /%|\bper ?cent\b|optimal|guarantee|growth|\bgrows?\b|\bbuilds?\b|\bsize\b|hypertroph|\bwill (grow|get bigger|increase)\b|\btables?\b|\b(left|right)\b|\bsides?\b|\bcount(s|ed|ing)?\b|laterality|primary tag|\bvariants?\b/i;
+
+  it("is plain athlete-facing copy: at most 450 characters, no growth, percentage, side, count or internal words", () => {
     for (const mapping of pullsCurlsMappings) {
-      expect(mapping.rationale, mapping.id).not.toMatch(/%|\bper ?cent\b|optimal|guarantee|growth|\bgrows?\b|\bbuilds?\b|\bsize\b|hypertroph|\bwill (grow|get bigger|increase)\b|\btables?\b|\b(left|right)\b/i);
+      expect(mapping.rationale.length, mapping.id).toBeLessThanOrEqual(450);
+      expect(mapping.rationale, mapping.id).not.toMatch(forbiddenCopy);
+    }
+    for (const entry of pullsCurlsUnmapped) {
+      expect(entry.reason.length, String(entry.catalogId)).toBeLessThanOrEqual(450);
+      expect(entry.reason, String(entry.catalogId)).not.toMatch(forbiddenCopy);
     }
   });
 
