@@ -195,7 +195,8 @@ describe("the selected muscle, on the same screen as the drawing (brief §6 mobi
     expect(within(strip).getByText("Brachioradialis")).not.toBeNull();
     expect(within(strip).getByText(/^3 direct dynamic bouts/)).not.toBeNull();
     const controls = within(card).getByRole("group", { name: "View" });
-    const drawing = card.querySelector(".spz-diagram-svg")!;
+    // The forearm's drawing is its rendered plates (the owner's, 23 Oct): the plate's canvas.
+    const drawing = card.querySelector(".spz-plate-canvas")!;
     expect(controls.compareDocumentPosition(strip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(strip.compareDocumentPosition(drawing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     // One action for the selection, in the strip: no second copy further down the page.
@@ -535,7 +536,8 @@ describe("planned mode while the plan loads", () => {
     expect(screen.getByRole("heading", { name: "Coverage to review" }).closest("section")!.textContent).toMatch(/Loading your plan…$/);
     expect(row(/^Brachioradialis, Surface\. Loading your plan…/)).not.toBeNull();
     expect(screen.queryAllByRole("button", { name: /No work for it|No exercise is mapped/ })).toEqual([]);
-    const fills = new Set(Array.from(document.querySelectorAll<SVGPathElement>(".spz-diagram-belly")).map((path) => path.dataset.fill));
+    // The forearm's drawing is its rendered plates: each muscle's chip carries the fill the canvas paints it with.
+    const fills = new Set(Array.from(document.querySelectorAll<HTMLElement>(".spz-plate-chip")).map((chip) => chip.dataset.fill));
     expect(Array.from(fills)).toEqual(["none"]);
   });
 

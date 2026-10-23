@@ -55,7 +55,8 @@ const plan = JSON.stringify({ version: 2, ...week, weeks: { "1": week }, activeW
 
 const tick = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); });
 const brRow = () => screen.getByRole("button", { name: /^Brachioradialis, Surface\./ });
-const brFills = () => Array.from(document.querySelectorAll<SVGPathElement>('.spz-diagram-belly[data-node="forearm.br"]')).map((path) => path.dataset.fill);
+// The forearm's drawing is its rendered plates (23 Oct): each muscle's chip carries the fill the plate paints it with.
+const brFills = () => Array.from(document.querySelectorAll<HTMLElement>('.spz-plate-chip[data-node="forearm.br"], .spz-diagram-belly[data-node="forearm.br"]')).map((element) => element.dataset.fill);
 const dock = (name: string) => within(screen.getByRole("navigation", { name: "Primary mobile navigation" })).getByRole("button", { name });
 
 // The add sheet shows the app's starting range once the region's profiles arrive (11-forearm-research-and-stack.md §5.2); loaded first, so Save never waits on them here.

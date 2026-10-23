@@ -496,6 +496,48 @@ export interface DiagramAsset {
   licenseNote: string;
 }
 
+// ---------------------------------------------------------------- plates
+
+/**
+ * One rendered plate of a region's drawing (docs/specialization-atlas/08-diagram.md, "Plates"): a
+ * shaded image of one view at one layer, and beside it a label image of the same size whose pixel
+ * value is a muscle index, 0 for none. Paths are relative to the app's public root, with no
+ * leading slash.
+ */
+export interface DiagramPlatePass {
+  /** The pass's own id, as its images are named ("anterior-surface"). */
+  id: string;
+  view: DiagramViewId;
+  layer: DiagramLayerId;
+  image: string;
+  labels: string;
+  /** Label value k (1-based) is `nodeIds[k - 1]`; in the order the muscles sit, top to bottom. */
+  nodeIds: NodeId[];
+}
+
+/** A piece of a credit line: words, or words that link to a source or a licence. */
+export type DiagramCreditPart = string | { text: string; href: string };
+
+/**
+ * A region's drawing as rendered plates rather than an SVG schematic. A region that declares
+ * plates shows them as its Drawing; one that does not keeps its `DiagramAsset`. Nothing in the
+ * renderer names a region: views, layers, muscles and credits are all here.
+ */
+export interface DiagramPlates {
+  key: string;
+  version: number;
+  regionId: RegionId;
+  /** Every pass's size in pixels: one frame for all, so changing view or layer never moves the drawing. */
+  frame: { width: number; height: number };
+  /** The plates' views in the order the page offers them, with the words on their buttons. */
+  viewOrder: DiagramView[];
+  passes: DiagramPlatePass[];
+  /** The credit shown under the drawing: the source, its licence, and that the images are adapted. */
+  credit: DiagramCreditPart[];
+  /** One sentence for "How this is counted" on how the drawing was made, in place of the schematic's. */
+  drawingStatement: string;
+}
+
 // ---------------------------------------------------------------- one region's data
 
 /** A catalog exercise tagged with a region's keys that the region deliberately leaves unmapped, and why. */
@@ -548,6 +590,11 @@ export interface RegionContent {
   mappingVersion: MappingVersion | null;
   unmappedTagged: UnmappedTaggedExercise[];
   diagram: DiagramAsset | null;
+  /**
+   * The region's drawing as rendered plates, shown as its Drawing in place of `diagram`'s SVG.
+   * Absent for a region drawn only as a schematic. The database seed does not carry it.
+   */
+  plates?: DiagramPlates;
   /** The page's optional sections this region opts into (11-forearm-research-and-stack.md §3.10); absent opts into none. */
   sections?: RegionSections;
 }
@@ -645,7 +692,7 @@ export interface TendonNotPlaced {
  * page reads of it as the home of its external members (10-multi-region.md §6.1: a region's chunk
  * carries its homes' content, never their drawings).
  */
-export type RegionHomeContent = Omit<RegionContent, "diagram">;
+export type RegionHomeContent = Omit<RegionContent, "diagram" | "plates">;
 
 export interface SpecializationRegionData {
   region: SpecializationRegion;
@@ -669,6 +716,11 @@ export interface SpecializationRegionData {
   /** Catalog exercises tagged with the region's keys and deliberately left unmapped, each with its reason (§3). */
   unmappedTagged: UnmappedTaggedExercise[];
   diagram: DiagramAsset | null;
+  /**
+   * The region's drawing as rendered plates, shown as its Drawing in place of `diagram`'s SVG.
+   * Absent for a region drawn only as a schematic. The database seed does not carry it.
+   */
+  plates?: DiagramPlates;
   /** The optional sections the region opts into, from its content (`RegionSections`); absent opts into none. */
   sections?: RegionSections;
 }
