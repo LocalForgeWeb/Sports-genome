@@ -323,7 +323,7 @@ describe("windows, modes and determinism", () => {
 
   it("carries its versions, revisions and window, and is stamped with the request's now", () => {
     const summary = summarize([], { planRevision: "plan-abc" });
-    expect(summary).toMatchObject({ regionId: "forearm", side: "left", mode: "completed", mappingVersion: "synthetic_forearm_v1", ruleVersion: "specialization_exposure_v1", sourceRevision: "src-test", planRevision: "plan-abc", calculatedAt: NOW, interval: WEEK });
+    expect(summary).toMatchObject({ regionId: "forearm", side: "left", mode: "completed", mappingVersion: "synthetic_forearm_v1", ruleVersion: "specialization_exposure_v2", sourceRevision: "src-test", planRevision: "plan-abc", calculatedAt: NOW, interval: WEEK });
     expect(summary.nodes.map((node) => node.nodeId)).toEqual(syntheticForearm.nodes.map((node) => node.id));
   });
 });

@@ -11,6 +11,8 @@ import { loadRegionData } from "@/lib/specialization/loadRegion";
 import { loadRegionExtras } from "@/lib/specialization/regionExtras";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { currentExposureRule } from "@shared/specialization/rules";
+import { forearmContent } from "@shared/specialization/regions/forearm";
+import { upperArmContent } from "@shared/specialization/regions/upper_arm";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { NOW, goals, sessions, slots, store, storeWithOneArm } from "./__fixtures__/forearmWeek";
 
@@ -239,6 +241,13 @@ const stated: { why: string; was: RegExp; now: string }[] = [
   { why: "wave A, §1.3: the biceps' shape note is neutral anatomy; its forearm words are the forearm's caveat", was: /^Shapes the front of the upper arm\. It is an upper-arm muscle and does not add forearm size\.$/, now: "May contribute most of the front contour of the upper arm above the elbow crease, since it is the surface muscle there. Visible shape also depends on neighbouring muscles, body fat and individual anatomy." },
   { why: "wave A, §1.3: the brachialis' location is its home's neutral text", was: /^Front of the lower upper arm, under the biceps, crossing the elbow to the ulna\.$/, now: "Front of the lower half of the upper arm, under the biceps, crossing the elbow to the ulna." },
   { why: "wave A, §1.3: the brachialis' shape note is neutral anatomy, its outer edge the one the sources confirm; its forearm words are the forearm's caveat", was: /^Mostly covered by the biceps; may show at the sides of the lower upper arm\. It is not a forearm muscle\.$/, now: "Mostly covered by the biceps, so most of it has little or no contour of its own. Its outer edge and lower end lie close to the surface and may add to the outer side of the lower upper arm, beside the biceps. Visible shape also depends on neighbouring muscles, body fat and individual anatomy." },
+  // Wave A (10-multi-region.md §4.3): rule v2, published with the upper arm; every page reads it.
+  { why: "wave A, §4.3: How this is counted names rule v2", was: /^specialization_exposure_v1 · forearm_mappings_v1$/, now: "specialization_exposure_v2 · forearm_mappings_v1" },
+  { why: "wave A, §4.3: Why this counts names rule v2", was: /counting rule \(specialization_exposure_v1\)/, now: "counting rule (specialization_exposure_v2)" },
+  { why: "wave A, §4.3: rule v2's straps clause, in words for every region (shown only where a mapping here needs a bare hand)", was: /^Grip credit that needs a bare hand is not given to a set logged with straps\. /, now: "A grip mapping that needs a bare hand does not credit a set logged with straps. " },
+  { why: "wave A, §4.3: rule v2's region-only clause names the region's catalog keys and tag scope and its own muscles", was: /^Work tagged with the region in the exercise catalog but with no reviewed atlas mapping counts only at region level, /, now: "Work tagged in the exercise catalog with one of the region's catalog keys, within the region's tag scope, but with no reviewed atlas mapping for any of the region's own muscles, counts only at region level, " },
+  { why: "wave A, §4.3: rule v2 says incidental work in words for every region", was: /^Incidental grip is never counted as dynamic work\.$/, now: "Incidental work (holding or steadying while something else is trained) is never counted as dynamic work." },
+  { why: "wave A, §2.2: the biceps' target saved on this page is the upper arm's (re-homed on read), so the forearm holds one fewer", was: /^5 active$/, now: "4 active" },
   // F1, lane S4 (11-forearm-research-and-stack.md §3.3): the one count of direct moving sets, in the window line's words.
   { why: "F1 S4; 11 §3.3: in Planned mode the window line says the plan week's direct moving sets where it said the logged bouts (the logged week stays in the sets it opens); with the one-arm exercise in the plan, 12", was: /^Plan Week 1, as written: 15 bouts planned · \d+ logged this week$/, now: "Plan Week 1, as written: 15 bouts planned · 12 direct moving sets" },
   { why: "F1 S4; 11 §3.3: in Planned mode the window line says the plan week's direct moving sets where it said the logged bouts (the logged week stays in the sets it opens)", was: /^Plan Week 1, as written: (\d+) bouts planned · \d+ logged this week$/, now: "Plan Week 1, as written: $1 bouts planned · 9 direct moving sets" },
@@ -246,12 +255,18 @@ const stated: { why: string; was: RegExp; now: string }[] = [
 ];
 /** Runs of the reference's lines, one after another, gone from the sheets `in` names. */
 const gone: { why: string; in: Where; lines: RegExp[] }[] = [
+  // Wave A: the heading is the region picker, now that two regions have a page (§6.1).
+  { why: "wave A, §6.1: with two production regions the heading is the region picker, named by the region's label", in: /^page$/, lines: [/^Forearm specialization$/] },
+  // Wave A: the upper arm's version credits the biceps and brachialis (§4.2; decision 11(b)), so their rows change (pageNumbers.render.test.ts holds the numbers).
+  { why: "wave A, §4.2: the brachialis' and biceps' rows as the forearm's own rows credited them", in: /^page$/, lines: [/^\[name\] Brachialis, Deep\. (3|4) direct dynamic bouts\. Open details\.$/, /^Brachialis$/, /^Brachialis$/, /^Deep(3|4) direct$/, /^\[name\] Biceps brachii, Surface\. (3|4) other dynamic\. Open details\.$/, /^Biceps brachii$/, /^Biceps$/, /^(3|4) other$/] },
   { why: "09 item 5; §2.2: a target saved earlier on a muscle that is not a target here is no target behind, with exercises for it", in: /^page$/, lines: [/^(Biceps brachii|Anconeus): 0 of your \d+$/, /^Direct dynamic bouts, .+\. The target is yours, not a prescription\.$/, /^See exercises for it$/] },
   { why: "09 item 2; §2.2, §9.1: a target saved earlier on a muscle that is not a target here can be ended or removed, not changed", in: ANYWHERE, lines: [/^\[name\] Change the target of .+ for (Anconeus|Biceps brachii|Brachialis)$/, /^Change$/] },
   { why: "09 item 2: no target is offered on a muscle that is not a target here", in: MUSCLES_NOT_TARGETS, lines: [/^Set a target$/] },
   { why: "09 item 2: nor is it said to be untargeted, as if it could take one", in: MUSCLES_NOT_TARGETS, lines: [/^Not targeted\. Nothing here is behind: a muscle without a target has no gap to show\.$/] },
   { why: "09 item 10; appendix 'Both sides as one': a ledger row says no side for a planned one-arm set", in: ANYWHERE, lines: [/^Each side assumed$/] },
   { why: "09 'The owner's plates' (23 Oct): the Drawing is the owner's rendered plates, a surface and a deep plate per view (FDS is on the palm's surface plate), so the layer choice has no Middle", in: /^page$/, lines: [/^\[name\] Layer$/, /^Surface$/, /^Middle$/, /^Deep$/] },
+  // Wave A: the biceps' target saved on this page is read as the upper arm's (§2.2), so the Targets overview does not hold it (after wave 0's rules, which take its Change out first).
+  { why: "wave A, §2.2: the biceps' target saved here earlier is the upper arm's now: gone from the Targets overview", in: /^page$/, lines: [/^Biceps brachii$/, /^Muscle$/, /^\[name\] Open Biceps brachii$/, /^Open$/, /^Direct dynamic bouts$/, /^5 per calendar week · 0 of your 5$/, /^\[name\] End the target of 5 direct dynamic bouts per calendar week for Biceps brachii$/, /^End$/, /^\[name\] Remove the target of 5 direct dynamic bouts per calendar week for Biceps brachii$/, /^Remove$/] },
 ];
 /** Runs of lines new in the sheets `in` names (each run may stand anywhere in them). */
 const added: { why: string; in: Where; lines: RegExp[] }[] = [
@@ -259,7 +274,13 @@ const added: { why: string; in: Where; lines: RegExp[] }[] = [
   { why: "09 item 5; §2.2: a target saved earlier on a muscle that is not a target here is said last, as one to end or remove", in: /^page$/, lines: [/^(Biceps brachii|Anconeus): a target saved earlier$/, /^Targets are for this region's target muscles\. You can end or remove this one\.$/, /^End or remove it$/] },
   { why: "09 item 2; §2.2: said beside such a target", in: ANYWHERE, lines: [/^Targets are for this region's target muscles\. You can end or remove this one\.$/] },
   { why: "09 item 2; §2.2: said on such a muscle with no target", in: /^muscle: Anconeus$/, lines: [/^Targets are for this region's target muscles, and this one is not one of them\.$/] },
-  { why: "09 item 2; §2.2, §6.2: an external muscle's sheet says where its targets are set", in: /^muscle: (Biceps brachii|Brachialis)$/, lines: [/^Targets for this muscle are set on the upper arm page, which is not available yet\.$/] },
+  // (Wave 0's "Targets for this muscle are set on the upper arm page, which is not available yet." on the biceps' and brachialis'
+  // sheets is superseded by wave A: the upper-arms page exists, and the sheets' credited part is checked apart, `creditedSheets`.)
+  // Wave A: the region picker (§6.1), with the upper arm's targets (the biceps' one, re-homed) and the forearm's.
+  { why: "wave A, §6.1: the heading's region picker, the grid closed under it: Upper arms (the biceps' target re-homed there) and Forearms", in: /^page$/, lines: [/^Forearms$/, /^Choose a body region$/, /^\[name\] Body region$/, /^Upper arms$/, /^1 target$/, /^Forearms$/, /^\d+ targets$/] },
+  { why: "wave A, §6.1: the heading's region picker, with no target on the upper arm", in: /^page$/, lines: [/^Forearms$/, /^Choose a body region$/, /^\[name\] Body region$/, /^Upper arms$/, /^Forearms$/, /^\d+ targets$/] },
+  { why: "wave A, §4.2: the brachialis' and biceps' rows credited by the upper arm, which adds the rows logged and planned (43, 46; 45)", in: /^page$/, lines: [/^\[name\] Brachialis, Deep\. (4 direct dynamic bouts · 4|3 direct dynamic bouts · 3) other dynamic\. Open details\.$/, /^Brachialis$/, /^Brachialis$/, /^Deep(4 direct · 4|3 direct · 3) other$/, /^\[name\] Biceps brachii, Surface\. (8|6) other dynamic\. Open details\.$/, /^Biceps brachii$/, /^Biceps$/, /^(8|6) other$/] },
+  { why: "wave A, §4.3: rule v2's clause on another region's muscles, said where this page credits one (the biceps and brachialis)", in: /^page$/, lines: [/^A muscle of another region is credited as its home region's current mapping version credits it; where that region has no published version, the listing region's own reviewed rows credit it\. Crediting it never moves a set into or out of this region's own totals\.$/] },
   { why: "09 item 3; §8: the plain statement about automated review, under How this is counted", in: /^page$/, lines: [/^“Reviewed” means an automated agent checked each sentence/] },
   { why: "09 item 6; §8: How this is counted names the sets of exercises the forearm leaves unmapped, and opens them", in: /^page$/, lines: [/^\d+ sets? of exercises left unmapped here (is|are) not counted, each for the reason given with it\.$/, /^See (this set|these sets) and why$/] },
   // Wave A (§1.3): the node's own caveats, then the forearm's caveats on its membership; the last of those is the caveat the node said before.
@@ -294,6 +315,35 @@ const added: { why: string; in: Where; lines: RegExp[] }[] = [
   { why: "F2 T3; 11 §4.3: a muscle's sheet says where it attaches, by tendon area, and opens tendon exposure", in: /^muscle: /, lines: [/^Attaches at: [a-z].+\)\.$/, /^See tendon exposure$/] },
   { why: "F2 T3; 11 §4.3: the 3D model's panel says where the chosen muscle attaches, and opens tendon exposure", in: /^model: /, lines: [/^Attaches at: [a-z].+\)\.$/, /^See tendon exposure$/] },
 ];
+/**
+ * Wave A (10-multi-region.md §4.2; §11 decision 11(b)): on the forearm page the biceps and brachialis
+ * are credited by the upper arm's published version, so everything their sheets say from the window
+ * line to "Sources and method" is that version's: the counts, the sets and why each counts (the
+ * upper arm's rows, rationales and sources), the target section (set on the upper-arms page) and the
+ * suggestions. That span is checked apart, here, and the rest of each sheet, its anatomy and its
+ * sources, against the reference as everywhere else.
+ */
+const creditedSheets = /^muscle: (Biceps brachii|Brachialis)$/;
+const CREDITED_SPAN = "[credited by the upper arm's version: checked apart]";
+function creditedSpan(lines: string[]): [before: string[], span: string[], after: string[]] {
+  const start = lines.findIndex((line) => /^(Completed|Planned) · /.test(line));
+  const end = lines.indexOf("Sources and method");
+  expect(start, "the window line").toBeGreaterThan(-1);
+  expect(end, "Sources and method").toBeGreaterThan(start);
+  return [lines.slice(0, start), lines.slice(start, end), lines.slice(end)];
+}
+function expectUpperArmCredit(key: string, span: string[]): void {
+  const nodeId = key.endsWith("Biceps brachii") ? "upper_arm.biceps" : "upper_arm.brachialis";
+  const upperArmWords = new Set(upperArmContent.mappings.filter((mapping) => mapping.nodeId === nodeId).map((mapping) => mapping.rationale));
+  const forearmWords = new Set(forearmContent.mappings.filter((mapping) => mapping.nodeId === nodeId).map((mapping) => mapping.rationale));
+  expect(span, key).toContain("Targets for this muscle are set on the upper-arms page.");
+  expect(span, key).toContain("Open the upper-arms page");
+  expect(span.filter((line) => forearmWords.has(line)), `${key}: none of the forearm's own rows' words`).toEqual([]);
+  expect(span.some((line) => upperArmWords.has(line)), `${key}: the upper arm's rows' words`).toBe(true);
+  expect(span.filter((line) => /specialization_exposure_v1/.test(line)), key).toEqual([]);
+  expect(span.filter((line) => /^Targets are for this region's target muscles/.test(line)), `${key}: no target held here`).toEqual([]);
+}
+
 /** Sheets new with wave 0. */
 const addedSheets: { why: string; key: RegExp }[] = [
   { why: "09 item 6; §8: the sets not counted here, each with its reason", key: /^sets: not counted here$/ },
@@ -326,8 +376,17 @@ describe.skipIf(out)("the forearm page says what main says (4dac1ae, both arms a
       const sheetsNow = Object.keys(read[state]).filter((key) => !addedSheets.some((rule) => rule.key.test(key) && used.add(rule.why)));
       if (JSON.stringify(sheetsNow) !== JSON.stringify(Object.keys(reference[state]))) differences[`${state}: sheets`] = `${Object.keys(reference[state]).join(", ")} → ${sheetsNow.join(", ")}`;
       for (const key of Object.keys(reference[state])) {
-        const expected = withoutRuns(reference[state][key], gone.filter((rule) => rule.in.test(key)), used).map(rewrite);
-        const shown = withoutRuns(read[state][key] ?? [], added.filter((rule) => rule.in.test(key)), used);
+        let referenceLines = reference[state][key];
+        let readLines = read[state][key] ?? [];
+        if (creditedSheets.test(key)) {
+          const [before, , after] = creditedSpan(referenceLines);
+          const [nowBefore, span, nowAfter] = creditedSpan(readLines);
+          expectUpperArmCredit(`${state}: ${key}`, span);
+          referenceLines = [...before, CREDITED_SPAN, ...after];
+          readLines = [...nowBefore, CREDITED_SPAN, ...nowAfter];
+        }
+        const expected = withoutRuns(referenceLines, gone.filter((rule) => rule.in.test(key)), used).map(rewrite);
+        const shown = withoutRuns(readLines, added.filter((rule) => rule.in.test(key)), used);
         total += shown.length;
         if (JSON.stringify(shown) !== JSON.stringify(expected)) differences[`${state}: ${key}`] = { expected, read: shown };
       }

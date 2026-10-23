@@ -148,9 +148,8 @@ describe("the heading row with more than one region", () => {
     expect(group.id).toBe("spz-regions");
     const labels = within(group).getAllByRole("button").map((button) => button.querySelector("span")!.textContent);
     expect(labels).toEqual(specializationRegionIndex.map((region) => region.label));
-    expect(labels).toEqual(["Forearms", "Deltoids", "Fixture thighs", "Fixture back", "Fixture shoulders", "Fixture core"]);
-    // The reference upper arm (a home of the forearm's biceps) has no page, so it is not offered.
-    expect(labels).not.toContain("Upper arm");
+    // Wave A: the upper arm is a production region, first in body order (sort 8, the forearm's 10).
+    expect(labels).toEqual(["Upper arms", "Forearms", "Deltoids", "Fixture thighs", "Fixture back", "Fixture shoulders", "Fixture core"]);
     const pressed = within(group).getAllByRole("button").filter((button) => button.getAttribute("aria-pressed") === "true");
     expect(pressed.map((button) => button.querySelector("span")!.textContent)).toEqual(["Forearms"]);
     const targetsOf = (label: string) => within(group).getAllByRole("button").find((button) => button.querySelector("span")!.textContent === label)!.querySelector("small")?.textContent ?? null;
@@ -280,9 +279,10 @@ describe("another region's muscle", () => {
     await show({ regionId: "fx_back" });
     expect(screen.getByText("Fixture shoulders muscles credited here")).toBeTruthy();
     const sheet = await openSheetOf(/^Fixture rear deltoid/);
-    expect(within(sheet).getByText("Targets for this muscle are set on the fixture shoulders page.")).toBeTruthy();
+    // The home's label as a compound before "page" (§2.2: "the upper-arms page").
+    expect(within(sheet).getByText("Targets for this muscle are set on the fixture-shoulders page.")).toBeTruthy();
     expect(within(sheet).queryByRole("button", { name: /Set a target/ })).toBeNull();
-    await click(within(sheet).getByRole("button", { name: "Open the fixture shoulders page" }));
+    await click(within(sheet).getByRole("button", { name: "Open the fixture-shoulders page" }));
     expect(lastState).toMatchObject({ regionId: "fx_shoulder", nodeId: "fx_shoulder.rear_delt" });
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(toggle().textContent).toBe("Fixture shoulders");
@@ -290,24 +290,25 @@ describe("another region's muscle", () => {
     expect(live()).toMatch(/^Fixture shoulders: /);
   });
 
-  it("on the forearm, says its home's page is not available yet, and keeps an existing target read-only", async () => {
+  it("on the forearm, sends the biceps' targets to the upper-arms page, where a target saved on the forearm earlier now is (wave A, §2.2)", async () => {
     storeGoals([goal({ id: "biceps", nodeId: "upper_arm.biceps", side: "right" })]);
     await show();
     expect(screen.getByText("Upper-arm muscles credited here")).toBeTruthy();
     const sheet = await openSheetOf(/^Biceps brachii/);
-    expect(within(sheet).getByText("Targets for this muscle are set on the upper arm page, which is not available yet.")).toBeTruthy();
-    expect(within(sheet).queryByRole("button", { name: /Open the/ })).toBeNull();
-    expect(within(sheet).getByText("Targets are for this region's target muscles. You can end or remove this one.")).toBeTruthy();
-    expect(within(sheet).queryByRole("button", { name: /^Change/ })).toBeNull();
-    expect(within(sheet).getByRole("button", { name: /^End/ })).toBeTruthy();
+    expect(within(sheet).getByText("Targets for this muscle are set on the upper-arms page.")).toBeTruthy();
+    // The target saved here before wave A is read as the upper arm's (re-homed on read), so the forearm's sheet holds no copy of it.
+    expect(within(sheet).queryByText("Targets are for this region's target muscles. You can end or remove this one.")).toBeNull();
+    expect(within(sheet).queryByRole("button", { name: /^End/ })).toBeNull();
     expect(within(sheet).queryByRole("button", { name: /Set a target/ })).toBeNull();
+    await click(within(sheet).getByRole("button", { name: "Open the upper-arms page" }));
+    expect(lastState).toMatchObject({ regionId: "upper_arm", nodeId: "upper_arm.biceps" });
   });
 
   it("on the core, is the back's, under the back's heading", async () => {
     await show({ regionId: "fx_core" });
     expect(screen.getByText("Fixture back muscles credited here")).toBeTruthy();
     const sheet = await openSheetOf(/^Fixture quadratus lumborum/);
-    expect(within(sheet).getByRole("button", { name: "Open the fixture back page" })).toBeTruthy();
+    expect(within(sheet).getByRole("button", { name: "Open the fixture-back page" })).toBeTruthy();
   });
 });
 

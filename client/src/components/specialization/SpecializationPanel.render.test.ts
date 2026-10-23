@@ -72,7 +72,8 @@ const row = (name: RegExp) => screen.getByRole("button", { name });
 describe("the specialization page", () => {
   it("lists the muscles with what this week's logged work gave them", () => {
     render(createElement(Harness));
-    expect(screen.getByRole("heading", { level: 1, name: "Forearm specialization" })).not.toBeNull();
+    // From wave A there are two production regions, so the heading is the region picker, named by the region's label.
+    expect(within(screen.getByRole("heading", { level: 1 })).getByRole("button", { name: /^Forearms/ })).not.toBeNull();
     // Three two-handed hammer curls: three direct bouts, never six (both arms are counted as one).
     expect(row(/^Brachioradialis, Surface\. 3 direct dynamic bouts/)).not.toBeNull();
     expect(within(screen.getByRole("group", { name: "Selected muscle" })).getByText(/3 distinct bouts touched the forearms\./)).not.toBeNull();

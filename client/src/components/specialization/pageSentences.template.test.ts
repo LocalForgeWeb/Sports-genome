@@ -10,6 +10,7 @@ import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { buildDaySlots, emptyDayStore } from "@/lib/trainingDayPlan";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
+import { registeredRegionIndex } from "@shared/specialization/regionIndex";
 import type { Contribution, NodeExposure, SpecializationRegionData, SpecializationSummary, SummarySide } from "@shared/specialization/types";
 import { pageFixtures } from "./__fixtures__/pageRegions";
 import { exposureSentence, findingsFor } from "./model";
@@ -126,7 +127,10 @@ function problems(data: SpecializationRegionData, texts: readonly string[]): str
   const limb = region.sides.model === "paired" ? region.sides.limb : null;
   const side = /\b(left|right)\b(?! out\b| unmapped\b)/i;
   const foreign = limb === "arm" ? /\blegs?\b/i : limb === "leg" ? /\barms?\b/i : /\barms?\b|\blegs?\b/i;
-  const names = [...data.nodes.map((node) => node.name), ...exerciseNames].sort((a, b) => b.length - a.length);
+  // Names are not words the page chooses: the muscles', the exercises' and, in the heading's region grid, the regions' own
+  // ("Upper arms" on the core's page names a region, not a limb; wave A).
+  const regionNames = registeredRegionIndex.flatMap((item) => [item.label, item.heading]);
+  const names = [...data.nodes.map((node) => node.name), ...exerciseNames, ...regionNames].sort((a, b) => b.length - a.length);
   const out: string[] = [];
   for (const text of texts) {
     const twice = text.match(/\b(Plan\sWeek\s\d+)\b[\s\S]*\b(Plan\sWeek\s\d+)\b/);
