@@ -9,10 +9,10 @@ export const upperArmMethodNotes: string = [
   "A reviewed mapping says the muscle does that joint action in that exercise, from anatomy references and, where cited, muscle-activity studies.",
   "It does not say how much the exercise loads the muscle.",
   "\"Incidental steadying\" credit means the muscle holds a position while other muscles move the load; it is counted apart and never as direct work.",
-  "Each exercise has one shared variant (cat-<id>) with its set-up written out, and each mapping names one muscle, one joint action, how the muscle takes part (direct, contributing, steadying or holding) and whether its joint moves or holds.",
+  "Each exercise is read one way, with its set-up written out, and each mapping names one muscle, one joint action, how the muscle takes part (direct, contributing, steadying a joint that does not move, or holding the load while other muscles train) and whether its joint moves or holds; steadying and holding count as incidental steadying.",
   "The lateral and medial heads of the triceps do the same things, so their work is credited together and never split between them.",
-  "The long head has its own row; where the arm is held, overhead or at the side, never changes its credit, and growth found in training studies is never used as credit.",
-  "The biceps' help in raising the arm forward is disputed, so no exercise counts toward a shoulder-flexion target in this version.",
+  "The long head has its own credit; where the arm is held, overhead or at the side, never changes it, and training studies are never used as credit.",
+  "The biceps' help in raising the arm forward is weak and disputed, so no exercise counts toward a shoulder-flexion target in this version.",
   "The coracobrachialis is explained but never credited, and the brachioradialis is credited as the forearm counts it.",
   "Mappings not yet reviewed are shown as pending and never counted.",
 ].join(" ");

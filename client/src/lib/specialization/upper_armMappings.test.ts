@@ -27,9 +27,29 @@ const catalogById = new Map<number, Exercise>(exercises.map((exercise) => [exerc
 const nodeById = new Map(upperArmContent.nodes.map((node) => [node.id, node]));
 const regionActions = new Set(upperArmContent.actions.map((action) => action.id));
 const nodeActions = new Set(upperArmNodeActions.map((row) => `${row.nodeId}|${row.actionId}`));
-const catalogIdOf = (mapping: VariantMapping) => variantById.get(mapping.variantId)!.catalogExerciseId;
-const mappedCatalogIds = new Set(upperArmMappings.map(catalogIdOf));
+/** The catalog id a mapping's variant names, or null when the library does not hold the variant (its own test fails then). */
+const catalogIdOf = (mapping: VariantMapping): number | null => variantById.get(mapping.variantId)?.catalogExerciseId ?? null;
+const mappedCatalogIds = new Set(upperArmMappings.map(catalogIdOf).filter((id): id is number => id !== null));
 const tagsUpperArm = (exercise: Exercise) => [...exercise.primaryMuscles, ...exercise.secondaryMuscles].some((key) => UPPER_ARM_KEYS.has(key));
+
+/**
+ * Words athlete-facing copy may not use. Rationales and unmapped reasons are shown on the page and
+ * freeze at publish: no growth promise, no percentages, no screen or body side, no side or count
+ * words the both-sides page no longer says, no "table", no internal words.
+ */
+const COPY_REFUSED: [string, RegExp][] = [
+  ["growth wording", /\b(grow|grows|grew|growth|hypertroph\w*|bigger|muscle size|gains?)\b/i],
+  ["a percentage", /%|\bper ?cent\b/i],
+  ["a screen or body side", /\b(left|right)\b/i],
+  ["side or count words", /\bcounts? on both\b|\barm's side\b|\b(each|both) (arm|arms|side|sides)\b/i],
+  ["\"table\"", /\btable\b/i],
+  ["internal words", /\blaterality\b|catalog's primary tag|\bvariants?\b/i],
+];
+const MAX_COPY = 450;
+const copyProblems = (where: string, text: string): string[] => [
+  ...COPY_REFUSED.filter(([, pattern]) => pattern.test(text)).map(([what]) => `${where}: ${what}`),
+  ...(text.length > MAX_COPY ? [`${where}: ${text.length} characters, over ${MAX_COPY}`] : []),
+];
 
 describe("upper_arm_mappings_v1: coverage", () => {
   it("maps or lists with a reason every catalog row tagging biceps, brachialis or triceps, primary or secondary", () => {
@@ -60,9 +80,9 @@ describe("upper_arm_mappings_v1: method notes", () => {
     expect(upperArmContent.region.wording.incidentalWork).toBe("steadying");
   });
 
-  it("name no side and promise no growth", () => {
-    expect(upperArmMethodNotes).not.toMatch(/\b(left|right|per arm|each arm|by arm)\b/i);
-    expect(upperArmMethodNotes).not.toMatch(/\b(grows?|bigger|builds? size)\b/i);
+  it("keep the copy rules: no growth, side or internal words", () => {
+    const refused = COPY_REFUSED.filter(([what]) => what !== "\"table\"");
+    expect(refused.filter(([, pattern]) => pattern.test(upperArmMethodNotes)).map(([what]) => what)).toEqual([]);
   });
 });
 
@@ -79,9 +99,10 @@ describe("upper_arm_mappings_v1: rows", () => {
   it("resolve every catalog id through variantFor to the variant they map", () => {
     for (const mapping of upperArmMappings) {
       const variant = variantById.get(mapping.variantId);
-      expect(variant, mapping.id).toBeDefined();
-      expect(variantFor(variant!.catalogExerciseId), mapping.id).toBe(variant);
-      expect(catalogById.get(variant!.catalogExerciseId)?.name, mapping.id).toBe(variant!.catalogName);
+      expect(variant, `${mapping.id}: the library holds no ${mapping.variantId}`).toBeDefined();
+      if (!variant) continue;
+      expect(variantFor(variant.catalogExerciseId), mapping.id).toBe(variant);
+      expect(catalogById.get(variant.catalogExerciseId)?.name, mapping.id).toBe(variant.catalogName);
     }
   });
 
@@ -89,8 +110,9 @@ describe("upper_arm_mappings_v1: rows", () => {
     for (const mapping of upperArmMappings) {
       const node = nodeById.get(mapping.nodeId);
       expect(node, `${mapping.id}: an upper-arm node`).toBeDefined();
-      expect(node!.regionId, mapping.id).toBe(upperArmContent.region.id);
-      expect(node!.role, `${mapping.id}: only target muscles are mapped (no group, adjacent or external)`).toBe("target");
+      if (!node) continue;
+      expect(node.regionId, mapping.id).toBe(upperArmContent.region.id);
+      expect(node.role, `${mapping.id}: only target muscles are mapped (no group, adjacent or external)`).toBe("target");
       expect(mapping.nodeId, mapping.id).not.toBe(upperArmExternalIds.brachioradialis);
       expect(mapping.actionId !== null && regionActions.has(mapping.actionId), `${mapping.id}: ${mapping.actionId}`).toBe(true);
       expect(nodeActions.has(`${mapping.nodeId}|${mapping.actionId}`), `${mapping.id}: ${mapping.actionId} is not among the node's actions`).toBe(true);
@@ -112,36 +134,58 @@ describe("upper_arm_mappings_v1: rows", () => {
     }
   });
 
-  it("keep §8's evidence standard: every row sourced; a reviewed row with a rationale, a basis and a located, limited source", () => {
+  it("keep §8's evidence standard: every citation located and limited, a basis on every reviewed row, a reason on every draft", () => {
     for (const mapping of upperArmMappings) {
       expect(mapping.sources.length, mapping.id).toBeGreaterThan(0);
-      for (const ref of mapping.sources) expect(sourceById.has(ref.sourceId), `${mapping.id} → ${ref.sourceId}`).toBe(true);
+      for (const ref of mapping.sources) {
+        expect(sourceById.has(ref.sourceId), `${mapping.id} → ${ref.sourceId}`).toBe(true);
+        expect(ref.locator?.trim(), `${mapping.id} → ${ref.sourceId}: locator`).toBeTruthy();
+        expect(ref.limitation?.trim(), `${mapping.id} → ${ref.sourceId}: limitation`).toBeTruthy();
+      }
       expect(mapping.rationale.length, mapping.id).toBeGreaterThan(40);
-      if (mapping.reviewStatus === "reviewed") {
-        expect(["anatomy", "inference", "emg"], mapping.id).toContain(mapping.evidenceBasis);
-        expect(mapping.sources.some((ref) => Boolean(ref.locator?.trim()) && Boolean(ref.limitation?.trim())), mapping.id).toBe(true);
+      if (mapping.reviewStatus === "reviewed") expect(["anatomy", "inference", "emg"], mapping.id).toContain(mapping.evidenceBasis);
+      if (mapping.reviewStatus === "draft") {
+        expect(mapping.rationale, `${mapping.id}: a draft says it is pending review`).toMatch(/\bpending review\b/i);
+        expect(mapping.rationale, `${mapping.id}: a draft says why`).toMatch(/\b(not established|not defined|not known|disputed|unclear)\b/i);
       }
       if (mapping.evidenceBasis === "emg") expect(mapping.sources.some((ref) => sourceById.get(ref.sourceId)?.evidenceType === "emg"), mapping.id).toBe(true);
     }
   });
 
+  it("cite no growth or training study: growth findings are never credit", () => {
+    for (const mapping of upperArmMappings) {
+      for (const ref of mapping.sources) {
+        const source = sourceById.get(ref.sourceId);
+        expect(source?.evidenceType, `${mapping.id} → ${ref.sourceId}`).not.toBe("longitudinal");
+        expect(source?.title ?? "", `${mapping.id} → ${ref.sourceId}`).not.toMatch(/hypertroph|growth|muscle volume/i);
+      }
+    }
+  });
+
+  it("speak to the athlete in plain words, 450 characters at most", () => {
+    const problems = [
+      ...upperArmMappings.flatMap((mapping) => copyProblems(mapping.id, mapping.rationale)),
+      ...upperArmUnmapped.flatMap((entry) => copyProblems(`unmapped ${entry.catalogId}`, entry.reason)),
+    ];
+    expect(problems).toEqual([]);
+  });
+
   it("never let steadying or holding earn dynamic credit, and give every reviewed row a countable category", () => {
     for (const mapping of upperArmMappings) {
       if (mapping.relationship === "stabilizer" || mapping.relationship === "incidental") expect(mapping.muscleMode, mapping.id).toBe("isometric");
-      const variant = variantById.get(mapping.variantId)!;
-      if (mapping.reviewStatus === "reviewed") expect(categoryFor(mapping.relationship, mapping.muscleMode, variant.deliberateHold), mapping.id).not.toBe("unknown");
+      const variant = variantById.get(mapping.variantId);
+      if (variant && mapping.reviewStatus === "reviewed") expect(categoryFor(mapping.relationship, mapping.muscleMode, variant.deliberateHold), mapping.id).not.toBe("unknown");
       expect(mapping.requiresNoStraps, `${mapping.id}: straps decide only grip mappings, which are the forearm's`).toBe(false);
     }
   });
 
   it("read a side only from a limb the variant uses (§2.1 rule 5)", () => {
     for (const mapping of upperArmMappings) {
-      if (variantById.get(mapping.variantId)!.laterality === "not_applicable") expect(mapping.sideRelation, mapping.id).toBe("both");
+      if (variantById.get(mapping.variantId)?.laterality === "not_applicable") expect(mapping.sideRelation, mapping.id).toBe("both");
     }
   });
 
-  it("count no exercise toward a shoulder-flexion target in v1: the biceps' help there is disputed (Levy 2001)", () => {
-    const reviewed = upperArmMappings.filter((mapping) => mapping.actionId === "shoulder.flexion" && mapping.reviewStatus === "reviewed").map((mapping) => mapping.id);
-    expect(reviewed).toEqual([]);
+  it("hold no shoulder-flexion row at all in v1: the biceps' help there is disputed (Levy 2001)", () => {
+    expect(upperArmMappings.filter((mapping) => mapping.actionId === "shoulder.flexion").map((mapping) => mapping.id)).toEqual([]);
   });
 });
