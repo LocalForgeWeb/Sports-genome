@@ -120,9 +120,10 @@ describe("a tap on the plate", () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
-  it("paints the pass once it has loaded, at twice its size", async () => {
+  it("paints the pass once it has loaded, at twice its size, in the next frame", async () => {
     render(createElement(PlateDiagram, props()));
     await settle();
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
     expect(document.querySelector(".spz-plate")!.getAttribute("data-status")).toBe("ready");
     expect(painted.at(-1)).toEqual({ width: 80, height: 20 });
   });

@@ -305,6 +305,11 @@ export function compositePlate(pixels: PlatePixels, paints: readonly (PlatePaint
         if (slot === distinct) { ids[slot] = label; cover[slot] = 0; distinct++; }
         cover[slot] += weights[k];
       }
+      let d = 0;
+      if (ring) for (let k = 0; k < 4; k++) d += ring[sample[k]] * (k === 0 ? (1 - tx) * (1 - ty) : k === 1 ? tx * (1 - ty) : k === 2 ? (1 - tx) * ty : tx * ty);
+      const inRing = ring !== null && d > 0.35 && d <= SELECTION_RINGS.halo;
+      // Nothing here and no ring: leave it transparent (most of the frame), which halves the work.
+      if (alpha <= 0 && !inRing) continue;
       const t = clamp((lum - 0.1) / 0.8, 0, 1);
       const baseR = dr + (lr - dr) * t;
       const baseG = dg + (lg - dg) * t;
@@ -336,30 +341,26 @@ export function compositePlate(pixels: PlatePixels, paints: readonly (PlatePaint
         const seam = 1 - 0.32 * smooth(0, 0.5, leastMuscle);
         r *= seam; g *= seam; b *= seam;
       }
-      if (ring) {
-        let d = 0;
-        for (let k = 0; k < 4; k++) d += ring[sample[k]] * (k === 0 ? (1 - tx) * (1 - ty) : k === 1 ? tx * (1 - ty) : k === 2 ? (1 - tx) * ty : tx * ty);
-        if (d > 0.35 && d <= SELECTION_RINGS.halo) {
-          // From the edge outwards: keyline, gold, keyline, halo; each change over half a label pixel.
-          const gold = smooth(SELECTION_RINGS.keyline - 0.25, SELECTION_RINGS.keyline + 0.25, d) * (1 - smooth(SELECTION_RINGS.ring - 0.25, SELECTION_RINGS.ring + 0.25, d));
-          const ringR = kr + (sr - kr) * gold;
-          const ringG = kg + (sg - kg) * gold;
-          const ringB = kb + (sb - kb) * gold;
-          const solid = smooth(0.35, 0.85, d) * (1 - smooth(SELECTION_RINGS.outerKeyline - 0.25, SELECTION_RINGS.outerKeyline + 0.25, d));
-          const halo = 0.32 * (1 - smooth(SELECTION_RINGS.outerKeyline, SELECTION_RINGS.halo, d)) * smooth(SELECTION_RINGS.outerKeyline - 0.25, SELECTION_RINGS.outerKeyline + 0.25, d);
-          const over = solid + halo;
-          const below = alpha / 255;
-          const sum = over + below * (1 - over);
-          if (sum > 0) {
-            const cr = (solid * ringR + halo * sr) / Math.max(over, 1e-6);
-            const cg = (solid * ringG + halo * sg) / Math.max(over, 1e-6);
-            const cb = (solid * ringB + halo * sb) / Math.max(over, 1e-6);
-            r = (cr * over + r * below * (1 - over)) / sum;
-            g = (cg * over + g * below * (1 - over)) / sum;
-            b = (cb * over + b * below * (1 - over)) / sum;
-          }
-          alpha = sum * 255;
+      if (inRing) {
+        // From the edge outwards: keyline, gold, keyline, halo; each change over half a label pixel.
+        const gold = smooth(SELECTION_RINGS.keyline - 0.25, SELECTION_RINGS.keyline + 0.25, d) * (1 - smooth(SELECTION_RINGS.ring - 0.25, SELECTION_RINGS.ring + 0.25, d));
+        const ringR = kr + (sr - kr) * gold;
+        const ringG = kg + (sg - kg) * gold;
+        const ringB = kb + (sb - kb) * gold;
+        const solid = smooth(0.35, 0.85, d) * (1 - smooth(SELECTION_RINGS.outerKeyline - 0.25, SELECTION_RINGS.outerKeyline + 0.25, d));
+        const halo = 0.32 * (1 - smooth(SELECTION_RINGS.outerKeyline, SELECTION_RINGS.halo, d)) * smooth(SELECTION_RINGS.outerKeyline - 0.25, SELECTION_RINGS.outerKeyline + 0.25, d);
+        const over = solid + halo;
+        const below = alpha / 255;
+        const sum = over + below * (1 - over);
+        if (sum > 0) {
+          const cr = (solid * ringR + halo * sr) / Math.max(over, 1e-6);
+          const cg = (solid * ringG + halo * sg) / Math.max(over, 1e-6);
+          const cb = (solid * ringB + halo * sb) / Math.max(over, 1e-6);
+          r = (cr * over + r * below * (1 - over)) / sum;
+          g = (cg * over + g * below * (1 - over)) / sum;
+          b = (cb * over + b * below * (1 - over)) / sum;
         }
+        alpha = sum * 255;
       }
       const at = (v * outWidth + u) * 4;
       out[at] = r;

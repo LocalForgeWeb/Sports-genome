@@ -101,16 +101,23 @@ export function PlateDiagram({ plates, view, layer, fillFor, selectedNodeId, onS
   const failed = status.kind === "error" && status.passId === pass?.id;
   const selectedLabel = selectedNodeId ? nodeIds.indexOf(selectedNodeId) + 1 : 0;
 
+  // Painted in the next frame, not in the tap's own task: the chip and the strip above answer the
+  // finger at once, and the plate (tens of milliseconds of pixels) follows a frame later.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !shown) return;
-    const context = canvas.getContext("2d");
-    if (!context) return;
-    const colours = coloursFrom(canvas);
-    const paints = fills.map((fill) => paintFor(fill, colours));
-    const image = context.createImageData(width * PLATE_SUPERSAMPLE, height * PLATE_SUPERSAMPLE);
-    image.data.set(compositePlate(shown, paints, selectedLabel, colours));
-    context.putImageData(image, 0, 0);
+    const paint = () => {
+      const context = canvas.getContext("2d");
+      if (!context) return;
+      const colours = coloursFrom(canvas);
+      const paints = fills.map((fill) => paintFor(fill, colours));
+      const image = context.createImageData(width * PLATE_SUPERSAMPLE, height * PLATE_SUPERSAMPLE);
+      image.data.set(compositePlate(shown, paints, selectedLabel, colours));
+      context.putImageData(image, 0, 0);
+    };
+    if (typeof requestAnimationFrame !== "function") { paint(); return; }
+    const frame = requestAnimationFrame(paint);
+    return () => cancelAnimationFrame(frame);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shown, fillSignature, selectedLabel, width, height]);
 
