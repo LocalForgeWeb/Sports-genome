@@ -62,7 +62,9 @@ const userA = { user: USER_A };
 const userB = { user: USER_B };
 
 // Counts from the content itself, so a content change only needs the seed regenerated.
-const reviewedMappingCount = forearmRegionData.mappings.filter((mapping) => mapping.reviewStatus === "reviewed").length;
+/** Every published version's rows: forearm_mappings_v1 and, from wave A, upper_arm_mappings_v1. */
+const publishedMappings = registeredRegionContents.flatMap((content) => (content.mappingVersion?.state === "published" ? content.mappings : []));
+const reviewedMappingCount = publishedMappings.filter((mapping) => mapping.reviewStatus === "reviewed").length;
 const draftMappingCount = forearmRegionData.mappings.filter((mapping) => mapping.reviewStatus === "draft").length;
 /** Records the seed writes once each, however many regions list them. */
 const distinctIn = (ids: (number | string)[]) => new Set(ids).size;
@@ -480,14 +482,16 @@ describe("reference content, as a signed-in user", () => {
       ),
     );
     expect(seen).toEqual(owner);
-    expect(owner[0]).toMatchObject({ nodes: 24, claims: 60, node_actions: 38 });
+    // Seed v3 (wave A): the forearm's 24 nodes, 60 claims and 38 node actions, and the upper arm's 5 more nodes (its triceps
+    // group, three heads and the coracobrachialis), 19 claims and 6 node actions, every one reviewed.
+    expect(owner[0]).toMatchObject({ nodes: 29, claims: 79, node_actions: 44 });
     const hidden = await as(db, userA, () => count(db, "select 1 from specialization.claims where claim_key like 'test:%' union all select 1 from specialization.nodes where id = 'forearm.zz_hidden'"));
     expect(hidden).toBe(0);
   });
 
-  it("sees the published mapping version's reviewed rows only: not its drafts, not an unpublished version", async () => {
-    const versions = await as(db, userA, () => rows<{ version_key: string }>(db, "select version_key from specialization.mapping_versions"));
-    expect(versions.map((row) => row.version_key)).toEqual(["forearm_mappings_v1"]);
+  it("sees the published mapping versions' reviewed rows only: not their drafts, not an unpublished version", async () => {
+    const versions = await as(db, userA, () => rows<{ version_key: string }>(db, "select version_key from specialization.mapping_versions order by 1"));
+    expect(versions.map((row) => row.version_key)).toEqual(["forearm_mappings_v1", "upper_arm_mappings_v1"]);
     const seen = await as(db, userA, () => rows<{ review_status: string; n: number }>(db, "select review_status, count(*)::int as n from specialization.variant_mappings group by 1"));
     expect(seen).toEqual([{ review_status: "reviewed", n: reviewedMappingCount }]);
     const drafts = await count(db, "select 1 from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where v.version_key = 'forearm_mappings_v1' and m.review_status = 'draft'");
@@ -508,7 +512,7 @@ describe("reference content, as a signed-in user", () => {
                 (select count(*)::int from specialization.exercise_variants) as variants, (select count(*)::int from specialization.catalog_exercises) as catalog`,
       ),
     );
-    expect(seen[0]).toEqual({ rules: ["specialization_exposure_v1"], sources: sourceCount, actions: actionCount, variants: variantCount, catalog: catalogCount });
+    expect(seen[0]).toEqual({ rules: ["specialization_exposure_v1", "specialization_exposure_v2"], sources: sourceCount, actions: actionCount, variants: variantCount, catalog: catalogCount });
   });
 
   it("cannot insert, update, delete or truncate any reference table", async () => {
@@ -1318,7 +1322,7 @@ describe("applied as one DO block per file, the way it reaches production", () =
         await applyMigrationAsDoBlock(wrapped, path);
       }
       const expected = await snapshot(direct);
-      expect(expected.data.variant_mappings).toHaveLength(forearmRegionData.mappings.length);
+      expect(expected.data.variant_mappings).toHaveLength(publishedMappings.length);
       expect(expected.catalog.triggers.length).toBeGreaterThan(20);
       expect(await snapshot(wrapped)).toEqual(expected);
 
