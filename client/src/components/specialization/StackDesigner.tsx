@@ -13,7 +13,6 @@ import {
   designStack,
   leaveOutMovement,
   moveRow,
-  pageSideOf,
   plannedSummaryFor,
   setRowSets,
   type StackDesign,
