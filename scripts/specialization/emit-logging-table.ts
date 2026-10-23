@@ -14,20 +14,30 @@
  * - `shared/specialization/holdCatalogIds.ts`: the catalog ids measured in seconds, which the
  *   first screens read. It imports nothing, so it adds only its own bytes to them.
  *
- * Both are deterministic (rows in catalog id order, regions in body order, no dates), so
- * client/src/lib/specialization/loggingTable.test.ts regenerates them in memory and fails on
- * any drift from the registry.
+ * - `shared/specialization/regions/<region>/libraryVariants.generated.ts`, one per production region
+ *   (wave A, 23 Oct 2026): the variant library's records that region's page reads beyond its own
+ *   version's: those of the catalog exercises tagged with its keys (within its tag scope) that its
+ *   version does not map, which it reads for region-only sets (`taggedVariants`), and those its
+ *   homes' published versions map for its external members (`homeVariants`). A region's page reads
+ *   these instead of the whole library, so opening the forearm does not download every region's
+ *   variants (10-multi-region.md §6.1's download gate).
+ *
+ * All are deterministic (rows in catalog id order, regions in body order, records in library
+ * order, no dates), so client/src/lib/specialization/loggingTable.test.ts regenerates them in
+ * memory and fails on any drift from the registry, the library or the catalog.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { specializationRegions } from "../../shared/specialization/registry";
-import { variantById, variantFor } from "../../shared/specialization/variants";
-import type { ExerciseVariant, LegLaterality, Laterality, RegionId, SetMeasure, SideAnchor, SidedBy, SpecializationRegionData, VariantId } from "../../shared/specialization/types";
+import { exercises as catalog } from "../../client/src/lib/exerciseCatalog";
+import { registeredRegionContents, specializationRegions } from "../../shared/specialization/registry";
+import { variantById, variantFor, variantLibrary } from "../../shared/specialization/variants";
+import type { ExerciseVariant, LegLaterality, Laterality, RegionContent, RegionId, SetMeasure, SideAnchor, SidedBy, SpecializationRegionData, VariantId } from "../../shared/specialization/types";
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const LOGGING_TABLE_PATH = resolve(here, "../../shared/specialization/loggingTable.generated.ts");
 export const HOLD_CATALOG_IDS_PATH = resolve(here, "../../shared/specialization/holdCatalogIds.ts");
+export const libraryVariantsPath = (regionId: RegionId) => resolve(here, `../../shared/specialization/regions/${regionId}/libraryVariants.generated.ts`);
 const COMMAND = "npx tsx scripts/specialization/emit-logging-table.ts";
 
 /** One row of the table, as the generated file declares it. */
@@ -193,12 +203,83 @@ function wrap(items: readonly string[], width: number): string[] {
   return lines.length ? lines : ["None yet."];
 }
 
-/** Both files, path and text, from the registry. */
+// ---------------------------------------------------------------- the library records a page reads
+
+/** A catalog row's muscle tags, as the page's `catalogMusclesFor` reads them. */
+export type CatalogTags = { id: number; primaryMuscles: readonly string[]; secondaryMuscles: readonly string[] };
+
+/**
+ * The library's records a production region's page reads beyond its own version's, in library order:
+ * - `taggedVariants`: the current variants of the catalog exercises tagged with the region's
+ *   catalog keys within its tag scope (`primary`, or `any` tag) that neither its version nor its
+ *   homes' (for its external members, `homeVariants`) map. A
+ *   bout of one is region-only work, read with this record (its sides, measure and straps) as the
+ *   calculator always read it from the library (§3; §11 decision 11(c)); it is never credited.
+ * - `homeVariants`: the variants its homes' published versions map for its external members that
+ *   its version does not map, which those rows credit.
+ */
+export function libraryReadsOf(
+  content: RegionContent,
+  contents: readonly RegionContent[] = registeredRegionContents,
+  tags: readonly CatalogTags[] = catalog,
+  library: readonly ExerciseVariant[] = variantLibrary,
+): { taggedVariants: ExerciseVariant[]; homeVariants: ExerciseVariant[] } {
+  const { region } = content;
+  const own = new Set(content.mappings.map((mapping) => mapping.variantId));
+  const keys = new Set(region.catalogKeys);
+  const inScope = (row: CatalogTags) => row.primaryMuscles.some((key) => keys.has(key)) || (region.regionOnlyTagScope === "any" && row.secondaryMuscles.some((key) => keys.has(key)));
+  const tagged = new Set(tags.filter(inScope).map((row) => row.id));
+  const current = (variant: ExerciseVariant) => variantFor(variant.catalogExerciseId)?.id === variant.id;
+  const ownNodes = new Set(content.nodes.map((node) => node.id));
+  const external = new Set(content.members.map((member) => member.nodeId).filter((id) => !ownNodes.has(id)));
+  const homeMapped = new Set(
+    contents
+      .filter((home) => home !== content && home.mappingVersion?.state === "published")
+      .flatMap((home) => home.mappings.filter((mapping) => mapping.versionKey === home.mappingVersion!.key && external.has(mapping.nodeId)).map((mapping) => mapping.variantId)),
+  );
+  return {
+    taggedVariants: library.filter((variant) => current(variant) && tagged.has(variant.catalogExerciseId) && !own.has(variant.id) && !homeMapped.has(variant.id)),
+    homeVariants: library.filter((variant) => homeMapped.has(variant.id) && !own.has(variant.id)),
+  };
+}
+
+/** One record as a literal, its fields in the library's order. */
+const recordLine = (variant: ExerciseVariant) => `  ${JSON.stringify(variant)},`;
+
+/** A region's library-records module text. */
+export function emitLibraryVariants(content: RegionContent, reads = libraryReadsOf(content)): string {
+  const block = (list: readonly ExerciseVariant[]) => (list.length ? `\n${list.map(recordLine).join("\n")}\n` : "");
+  return `// Generated by scripts/specialization/emit-logging-table.ts from the registry, the variant library
+// and the exercise catalog. Do not edit: run ${COMMAND}
+import type { ExerciseVariant } from "../../types";
+
+/**
+ * The variant library's records the ${region(content)} page reads beyond its own version's
+ * (docs/specialization-atlas/10-multi-region.md §3, §6.1), copied record for record, so the page
+ * never loads the whole library (shared/specialization/variants/).
+ */
+
+/**
+ * The current variants of the catalog exercises tagged with this region's catalog keys
+ * (${content.region.regionOnlyTagScope === "any" ? "primary or secondary tags" : "primary tags"}) that neither its version nor its homes' map: read for
+ * region-only sets and plans as the library reads them, never credited (\`RegionContent.taggedVariants\`).
+ */
+export const taggedVariants: ExerciseVariant[] = [${block(reads.taggedVariants)}];
+
+/** The variants its homes' published versions map for its external members that its version does not map. */
+export const homeVariants: ExerciseVariant[] = [${block(reads.homeVariants)}];
+`;
+}
+
+const region = (content: RegionContent) => content.region.label.toLowerCase().replace(/s$/, "");
+
+/** Every file, path and text, from the registry. */
 export function emitLoggingFiles(): { path: string; text: string }[] {
   const rows = loggingTableRows();
   return [
     { path: LOGGING_TABLE_PATH, text: emitLoggingTable(rows) },
     { path: HOLD_CATALOG_IDS_PATH, text: emitHoldCatalogIds(rows) },
+    ...registeredRegionContents.filter((content) => content.region.status === "production").map((content) => ({ path: libraryVariantsPath(content.region.id), text: emitLibraryVariants(content) })),
   ];
 }
 
@@ -219,7 +300,7 @@ if (isMain) {
       for (const { path } of stale) console.error(`${path} is stale: run ${COMMAND}`);
       process.exit(1);
     }
-    console.log("Logging table and hold list are current.");
+    console.log("Logging table, hold list and the regions' library records are current.");
   } else {
     for (const { path, text } of files) {
       writeFileSync(path, text);

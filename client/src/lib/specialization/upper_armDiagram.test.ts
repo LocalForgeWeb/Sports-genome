@@ -105,10 +105,9 @@ describe("the upper arm's drawing", () => {
     expect(asset.licenseNote).toMatch(/Not traced or copied from any illustration, photograph or 3D model/);
   });
 
-  it("is not yet the region's drawing on any page or in the seed: the integration lane promotes it", () => {
-    // Wave A's drawing lane draws it; registering it changes the seed, which is the integration lane's.
-    expect(upperArmContent.diagram).toBeNull();
-    expect(upperArmContent.region.status).toBe("reference");
+  it("is the region's drawing from wave A, on its page and in the seed (the integration lane promoted it)", () => {
+    expect(upperArmContent.diagram).toBe(upperArmDiagram);
+    expect(upperArmContent.region.status).toBe("production");
   });
 
   it("has §7.2's views and layers: Front and Back, each a surface and a deep layer, no middle layer", () => {

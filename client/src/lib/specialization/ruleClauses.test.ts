@@ -9,6 +9,7 @@ import {
   exposureCategoryLabelsFor,
   exposureRuleIds,
   exposureRuleV1,
+  exposureRuleV2,
   publishedExposureRules,
   ruleClauses,
   unpublishedBranches,
@@ -82,9 +83,24 @@ describe("every branch has a clause", () => {
 });
 
 describe("production data reaches only published clauses", () => {
-  it("through wave 0, v1 is the only published rule and every page reads it", () => {
-    expect(publishedExposureRules.map((rule) => rule.id)).toEqual([exposureRuleIds.v1]);
-    expect(currentExposureRule).toBe(exposureRuleV1);
+  it("from wave A, v1 and v2 are published, v2 a superset of v1 that every page reads", () => {
+    expect(publishedExposureRules.map((rule) => rule.id)).toEqual([exposureRuleIds.v1, exposureRuleIds.v2]);
+    expect(currentExposureRule).toBe(exposureRuleV2);
+    expect(exposureRuleV2.publishedAt).toBe("2026-10-23");
+    // Every clause of v1 is in v2, and v2 adds its own three (10-multi-region.md §4.3).
+    expect(Object.keys(exposureRuleV2.specification)).toEqual(expect.arrayContaining(Object.keys(exposureRuleV1.specification)));
+    expect(Object.keys(exposureRuleV2.specification).filter((key) => !(key in exposureRuleV1.specification)).sort()).toEqual(["catalogKeys", "classification", "externals"]);
+    // What v1 counts, v2 counts the same way: only its words for sides, straps, the region total, region-only work and incidental work changed.
+    const changed = (Object.keys(exposureRuleV1.specification) as (keyof typeof exposureRuleV1.specification)[]).filter((key) => JSON.stringify(exposureRuleV1.specification[key]) !== JSON.stringify(exposureRuleV2.specification[key]));
+    expect(changed.sort()).toEqual(["notConverted", "regionTotal", "sides", "straps", "unmapped"]);
+  });
+
+  it("says v2 in words for every region: no arm, forearm or grip word but in the straps clause, which names grip mappings", () => {
+    const { straps, ...rest } = exposureRuleV2.specification;
+    // v1's categories keep their examples (gripping a bar during a row; hangs, carries, pinches): unchanged, as every count is.
+    const { categories: _categories, ...words } = rest;
+    expect(JSON.stringify(words)).not.toMatch(/\b(arms?|forearms?|grip|left|right)\b/i);
+    expect(straps).toMatch(/^A grip mapping that needs a bare hand does not credit a set logged with straps\./);
   });
 
   it("every production region's data reaches only branches of a published rule", () => {
@@ -99,10 +115,15 @@ describe("production data reaches only published clauses", () => {
     const missing = (region: typeof fxCore) => Array.from(new Set(unpublishedBranches(ruleBranchesOf(region)).map((branch) => ruleClauses[branch].rule))).sort();
     // The core: midline (v4), the back's credit for its quadratus lumborum and primary tags only (v2),
     // and a side plank planned once per leg (v5).
-    expect(missing(fxCore)).toEqual([exposureRuleIds.v2, exposureRuleIds.v4, exposureRuleIds.v5]);
-    expect(missing(fxThigh)).toEqual([exposureRuleIds.v2, exposureRuleIds.v5]);
-    expect(missing(fxBack)).toEqual([exposureRuleIds.v2, exposureRuleIds.v3]);
-    expect(missing(fxBackBeforeShoulder)).toEqual([exposureRuleIds.v2, exposureRuleIds.v3]);
+    // v2 is published from wave A, so a home region's credit and primary tags are covered.
+    expect(missing(fxCore)).toEqual([exposureRuleIds.v4, exposureRuleIds.v5]);
+    expect(missing(fxThigh)).toEqual([exposureRuleIds.v5]);
+    expect(missing(fxBack)).toEqual([exposureRuleIds.v3]);
+    expect(missing(fxBackBeforeShoulder)).toEqual([exposureRuleIds.v3]);
+    // Without v2 they would also miss it.
+    const v1Only = (region: typeof fxCore) => Array.from(new Set(unpublishedBranches(ruleBranchesOf(region), [exposureRuleV1]).map((branch) => ruleClauses[branch].rule))).sort();
+    expect(v1Only(fxThigh)).toEqual([exposureRuleIds.v2, exposureRuleIds.v5]);
+    expect(v1Only(fxBack)).toEqual([exposureRuleIds.v2, exposureRuleIds.v3]);
     expect(ruleBranchesOf(fxBack).has("version.home")).toBe(true);
     // The deltoid fixture is paired by the arm like the forearm, maps only its own muscles' and the
     // triceps' rows, and reads tags at any scope: v1 covers it.
@@ -133,8 +154,8 @@ describe("the rule a summary applies", () => {
   const request = { region: forearmRegionData, bouts: [], interval: calendarWeekInterval("2026-10-16T12:00:00.000Z", "Europe/London"), side: "left" as const, mode: "completed" as const, goals: [], catalogMusclesFor: catalogMusclesLookup(exercises), sourceRevision: "", planRevision: null, now: "2026-10-16T12:00:00.000Z" };
 
   it("records the rule passed in, else the current published one", () => {
-    expect(getSpecializationSummary(request).ruleVersion).toBe(exposureRuleIds.v1);
-    expect(getSpecializationSummary({ ...request, rule: { ...exposureRuleV1, id: exposureRuleIds.v2 } }).ruleVersion).toBe(exposureRuleIds.v2);
+    expect(getSpecializationSummary(request).ruleVersion).toBe(exposureRuleIds.v2);
+    expect(getSpecializationSummary({ ...request, rule: exposureRuleV1 }).ruleVersion).toBe(exposureRuleIds.v1);
   });
 
   it("names incidental work in the region's word, the forearm's labels as shipped", () => {

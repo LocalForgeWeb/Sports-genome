@@ -33,10 +33,13 @@ describe("the region loader", () => {
     expect(fresh.loadedRegionData("forearm")).toBeNull();
     fresh.preloadRegionData("forearm");
     fresh.preloadRegionData("forearm");
-    fresh.preloadRegionData("upper_arm");
+    // A region with no page (none is a reference region from wave A on, so a name the index lacks).
+    fresh.preloadRegionData("lower_leg");
     expect(fresh.loadedRegionData("forearm")).toBeNull();
     await fresh.regionLoadsSettled();
     expect(fresh.loadedRegionData("forearm")?.region.id).toBe("forearm");
+    expect(fresh.loadedRegionData("lower_leg")).toBeNull();
+    // A region never asked for is not loaded.
     expect(fresh.loadedRegionData("upper_arm")).toBeNull();
     // With nothing loading, it settles at once; a load asked for again is the one already made.
     await fresh.regionLoadsSettled();
@@ -44,9 +47,9 @@ describe("the region loader", () => {
   });
 
   it("has nothing for a region with no page, and has not loaded one it was never asked for", async () => {
-    expect(await loadRegionData("upper_arm")).toBeNull();
+    expect(await loadRegionData("lower_leg")).toBeNull();
     expect(await loadRegionData("nowhere")).toBeNull();
-    expect(loadedRegionData("upper_arm")).toBeNull();
+    expect(loadedRegionData("lower_leg")).toBeNull();
     // A name on Object.prototype is not a loader.
     expect(await loadRegionData("toString")).toBeNull();
   });
@@ -88,18 +91,49 @@ describe("a region's chunk", () => {
   };
   const drawingsIn = (files: string[]) => files.filter((file) => /^shared\/specialization\/regions\/[^/]+\/diagram\.generated\.ts$/.test(file));
 
-  it("holds its own drawing and no other region's", () => {
+  it("holds its own drawing and no other region's, and of a home only what the page reads", () => {
     expect(regionIds).toEqual(expect.arrayContaining(["forearm", "upper_arm"]));
     for (const id of regionIds) {
       const closure = closureOf(join(regionsDir, id, "index.ts"));
       const own = `shared/specialization/regions/${id}/diagram.generated.ts`;
       expect(drawingsIn(closure).filter((file) => file !== own), id).toEqual([]);
     }
-    // The forearm's reaches the upper arm's content, as the home of the biceps and brachialis, and not its index.
+    // The forearm's reaches the upper arm as the home of the biceps and brachialis only through what its page reads of it
+    // (regions/forearm/upperArmHome.ts, wave A): not the upper arm's whole content, its index, its triceps rows, its own
+    // claims and sources, or the whole variant library (§6.1's download gate).
     const forearm = closureOf(join(regionsDir, "forearm/index.ts"));
-    expect(forearm).toContain("shared/specialization/regions/upper_arm/content.ts");
-    expect(forearm).not.toContain("shared/specialization/regions/upper_arm/index.ts");
+    expect(forearm).toContain("shared/specialization/regions/forearm/upperArmHome.ts");
+    for (const file of [
+      "shared/specialization/regions/upper_arm/index.ts",
+      "shared/specialization/regions/upper_arm/content.ts",
+      "shared/specialization/regions/upper_arm/claims.ts",
+      "shared/specialization/regions/upper_arm/nodes.ts",
+      "shared/specialization/regions/upper_arm/mappings/index.ts",
+      "shared/specialization/regions/upper_arm/mappings/pressesPushes.ts",
+      "shared/specialization/regions/upper_arm/mappings/extensionsOther.ts",
+      "shared/specialization/sources/upper_arm.ts",
+      "shared/specialization/sources/upper_arm-pullsCurls.ts",
+      "shared/specialization/sources/upper_arm-pressesPushes.ts",
+      "shared/specialization/variants/index.ts",
+      "shared/specialization/variants/upperArm.ts",
+    ]) expect(forearm, file).not.toContain(file);
     expect(drawingsIn(forearm)).toEqual(["shared/specialization/regions/forearm/diagram.generated.ts"]);
+    // The upper arm's reaches the forearm's content, as the home of the brachioradialis, and not its index.
+    const upperArm = closureOf(join(regionsDir, "upper_arm/index.ts"));
+    expect(upperArm).toContain("shared/specialization/regions/forearm/content.ts");
+    expect(upperArm).not.toContain("shared/specialization/regions/forearm/index.ts");
+    expect(drawingsIn(upperArm)).toEqual(["shared/specialization/regions/upper_arm/diagram.generated.ts"]);
+  });
+
+  it("leaves the whole variant library out of the page's own chunk: a region's data carries the records its page reads", () => {
+    // The page, its calculator and its plan reader read variants from the region's data (its version's, its homes', and the
+    // library's records of exercises tagged with its keys, `taggedVariants`), never the library, so opening one region does
+    // not download every region's variants (10-multi-region.md §6.1; wave A).
+    for (const entry of ["client/src/components/specialization/SpecializationPanel.tsx", "shared/specialization/exposure.ts", "client/src/lib/specialization/useSpecializationSummary.ts"]) {
+      const closure = closureOf(join(root, entry));
+      expect(closure, entry).not.toContain("shared/specialization/variants/index.ts");
+      expect(closure.filter((file) => /^shared\/specialization\/regions\//.test(file) && !/\/(ids|region)\.ts$/.test(file)), entry).toEqual([]);
+    }
   });
 
   it("reads a home through its content, which holds no drawing at all", () => {

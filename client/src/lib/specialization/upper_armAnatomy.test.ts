@@ -18,6 +18,8 @@ import {
 } from "@shared/specialization/regions/upper_arm/ids";
 import { sourceById } from "@shared/specialization/sources";
 import { upperArmSources } from "@shared/specialization/sources/upper_arm";
+import { upperArmPressesPushesSources } from "@shared/specialization/sources/upper_arm-pressesPushes";
+import { upperArmPullsCurlsSources } from "@shared/specialization/sources/upper_arm-pullsCurls";
 import type { AnatomyNode, Claim, MappingVersion } from "@shared/specialization/types";
 import { stubMuscles } from "../../../../server/fixtures/specializationPg";
 
@@ -85,8 +87,10 @@ describe("the upper arm's rows, as §1.2 fixes them", () => {
     ]);
   });
 
-  it("names §1.1's catalog keys with the primary tag scope, §1.2's actions, and stays a reference region until the integration lane promotes it", () => {
-    expect(region.status).toBe("reference");
+  it("names §1.1's catalog keys with the primary tag scope, §1.2's actions, and is promoted to production by wave A with §1.1's label", () => {
+    expect(region.status).toBe("production");
+    expect([region.label, region.heading, region.entryLabel, region.sortOrder]).toEqual(["Upper arms", "Upper-arm specialization", "Explore upper-arm coverage", 8]);
+    expect(region.wording.externalHeading).toBe("Upper-arm muscles credited here");
     expect(region.catalogKeys).toEqual(["biceps", "brachialis", "triceps"]);
     expect(region.regionOnlyTagScope).toBe("primary");
     expect(region.sides).toEqual({ model: "paired", limb: "arm" });
@@ -266,7 +270,12 @@ describe("upper-arm claims and the evidence standard (§8)", () => {
     const cited = new Set(claims.flatMap((claim) => claim.sources.map((ref) => ref.sourceId)));
     expect(Array.from(cited).filter((id) => !ownKeys.has(id)).sort()).toEqual(["A4", "A50", "A51"]);
     for (const id of Array.from(ownKeys)) expect(cited.has(id), `${id} is cited`).toBe(true);
-    expect(sources.map((source) => source.id).sort()).toEqual([...Array.from(ownKeys), "A4", "A50", "A51"].sort());
+    // The content also lists its mapping lanes' sources and the forearm's M5 and M6, which its rows cite (wave A integration).
+    const rowsCite = new Set(upperArmContent.mappings.flatMap((mapping) => mapping.sources.map((ref) => ref.sourceId)));
+    expect(Array.from(rowsCite).filter((id) => !sourceById.get(id)!.id.includes(".") && !["A4", "A50", "A51"].includes(id)).sort()).toEqual(["M5", "M6"]);
+    expect(sources.map((source) => source.id).sort()).toEqual(
+      [...Array.from(ownKeys), ...upperArmPressesPushesSources.map((source) => source.id), ...upperArmPullsCurlsSources.map((source) => source.id), "A4", "A50", "A51", "M5", "M6"].sort(),
+    );
     for (const source of upperArmSources) {
       expect(["2026-10-19", "2026-10-22"], source.id).toContain(source.retrievedOn);
       expect(source.notes, source.id).toMatch(/^(Checked via web-search|Added by the second review\. Checked via|Added in the fix round of 22 Oct 2026\. Checked via)/);

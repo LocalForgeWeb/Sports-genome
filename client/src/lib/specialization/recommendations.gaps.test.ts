@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
-import { getSpecializationSummary } from "@shared/specialization/exposure";
+import { creditedMappingsFor, getSpecializationSummary, mappingKeyIn } from "@shared/specialization/exposure";
 import { forearmActionIds as a, forearmMuscleIds as m } from "@shared/specialization/regions/forearm/ids";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { categoryFor } from "@shared/specialization/rules";
@@ -233,8 +233,10 @@ describe("work the calculator counts only as incidental is never a suggestion or
   for (const [label, region] of [["forearm", forearmRegionData], ["synthetic", extended]] as const) {
     it(`${label}: no muscle is offered, or covered by, an exercise whose only credit for it is incidental or unknown`, () => {
       const variantById = new Map(region.variants.map((variant) => [variant.id, variant] as const));
-      const reviewed = region.mappings.filter((mapping) => mapping.versionKey === region.mappingVersion.key && mapping.reviewStatus === "reviewed");
-      const mappingById = new Map(reviewed.map((mapping) => [mapping.id, mapping] as const));
+      // What credits each node on this page: its own version, or an external member's home version once published (wave A:
+      // the upper arm's rows credit the forearm page's biceps and brachialis), keyed as the page keys them.
+      const reviewed = region.nodes.flatMap((node) => creditedMappingsFor(region, node.id)).filter((mapping) => mapping.reviewStatus === "reviewed");
+      const mappingById = new Map(reviewed.map((mapping) => [mappingKeyIn(region, mapping), mapping] as const));
       const credit = (mapping: VariantMapping) => categoryFor(mapping.relationship, mapping.muscleMode, variantById.get(mapping.variantId)!.deliberateHold);
       let incidentalOnly = 0;
       for (const node of region.nodes) {

@@ -31,6 +31,9 @@ import type {
  * - Sources: the region's own list, then any its claims cite from a home region's list.
  * - Mappings: the region's own version; the external members' home versions, where published,
  *   in `externalMappingVersions`, each with the home's actions its mappings name.
+ * - Variants: those the region's version maps, then those its homes' versions map for its external
+ *   members; apart, `taggedVariants`, the library's records of exercises tagged with the region's
+ *   keys that none of those maps, which the page reads for region-only sets.
  */
 
 /**
@@ -157,6 +160,10 @@ export function composeRegionData(content: RegionContent, homes: readonly Region
     ? uniqueById([content.variants, ...externalHomes.map((home) => home.variants.filter((variant) => externallyMapped.has(variant.id)))])
     : content.variants;
 
+  // The library's records of exercises tagged with the region's keys that nothing here maps: read for region-only sets, never credited.
+  const read = new Set(variants.map((variant) => variant.catalogExerciseId));
+  const taggedVariants = (content.taggedVariants ?? []).filter((variant) => !read.has(variant.catalogExerciseId));
+
   return {
     region: content.region,
     nodes,
@@ -165,6 +172,7 @@ export function composeRegionData(content: RegionContent, homes: readonly Region
     claims,
     sources,
     variants,
+    ...(taggedVariants.length ? { taggedVariants } : {}),
     mappings: content.mappings,
     mappingVersion: content.mappingVersion,
     externalMappingVersions,

@@ -1,6 +1,6 @@
 import type { RegionContent, RegionId, SpecializationRegionData } from "./types";
 import { forearmContent, forearmRegionData } from "./regions/forearm";
-import { upperArmContent } from "./regions/upper_arm";
+import { upperArmContent, upperArmRegionData } from "./regions/upper_arm";
 
 /**
  * The registered regions (docs/specialization-atlas/10-multi-region.md §1). A new region is
@@ -12,7 +12,7 @@ import { upperArmContent } from "./regions/upper_arm";
 export const registeredRegionContents: readonly RegionContent[] = [upperArmContent, forearmContent];
 
 /** Production regions' page data, composed from their content and their external members' homes. */
-export const specializationRegions: readonly SpecializationRegionData[] = [forearmRegionData];
+export const specializationRegions: readonly SpecializationRegionData[] = [upperArmRegionData, forearmRegionData];
 
 export function regionDataFor(id: RegionId | null | undefined): SpecializationRegionData | null {
   if (!id) return null;

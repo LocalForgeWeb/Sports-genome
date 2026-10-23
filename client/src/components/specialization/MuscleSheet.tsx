@@ -89,7 +89,8 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
   // Another region's muscle: its targets are set on its home region's page, linked once that page exists.
   const home = node.role === "external" ? regionIndexEntry(node.regionId) : null;
   const homeHasPage = home !== null && specializationRegionIndex.some((region) => region.id === home.id);
-  const homePage = home ? `the ${home.label.toLowerCase()} page` : null;
+  // "the upper-arms page" (10-multi-region.md §2.2, §6.2): the label as a compound before "page".
+  const homePage = home ? `the ${home.label.toLowerCase().replace(/ /g, "-")} page` : null;
   // A muscle that is not a target here shows its editor only for targets saved on it earlier; once
   // shown, it stays for as long as the sheet shows this muscle, so removing the last of them leaves
   // the message and its Undo in place, with focus on Undo, rather than taking them away with it.

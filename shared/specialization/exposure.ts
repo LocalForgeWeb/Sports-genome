@@ -31,7 +31,6 @@ import type {
 import { categoryFor, currentExposureRule, type RuleBranch } from "./rules";
 import { variantIdFor } from "./ids";
 import { sideRelationOf, versionedMappingKey } from "./compose";
-import { variantFor } from "./variants";
 import { intervalContains } from "./time";
 import { goalPeriodInterval, goalProgressLabel, isGoalActiveAt } from "./goals";
 
@@ -180,6 +179,11 @@ export type RegionIndex = {
   /** Nodes whose home is the region (not external members such as another region's muscle). */
   regionNodeIds: ReadonlySet<NodeId>;
   variantByCatalogId: ReadonlyMap<number, ExerciseVariant>;
+  /**
+   * The library's records of exercises tagged with the region's keys that nothing on the page maps
+   * (`taggedVariants`), by catalog id: how a region-only set is read (§3), never credited.
+   */
+  taggedByCatalogId: ReadonlyMap<number, ExerciseVariant>;
   /** The mappings that credit the region's nodes, each node by exactly one version, rejected ones dropped, in id order. */
   mappingsByVariant: ReadonlyMap<VariantId, readonly VariantMapping[]>;
   /** The version each node is credited by, and the branch of the rule that chose it. */
@@ -217,6 +221,7 @@ export function indexRegion(region: SpecializationRegionData): RegionIndex {
       variantByCatalogId.set(variant.catalogExerciseId, variant);
     }
   }
+  const taggedByCatalogId = new Map((region.taggedVariants ?? []).map((variant) => [variant.catalogExerciseId, variant] as const));
   const usable = (mapping: VariantMapping, versionKey: string) => mapping.versionKey === versionKey && mapping.reviewStatus !== "rejected";
   const own = region.mappings.filter((mapping) => usable(mapping, region.mappingVersion.key));
   const creditedBy = new Map<NodeId, { versionKey: string; branch: Extract<RuleBranch, `version.${string}`> }>();
@@ -244,7 +249,7 @@ export function indexRegion(region: SpecializationRegionData): RegionIndex {
   }
   const regionCatalogKeys = new Set(region.region.catalogKeys);
   const unmappedReasons = new Map(region.unmappedTagged.map((entry) => [entry.catalogId, entry.reason] as const));
-  const index: RegionIndex = { nodeById, regionNodeIds, variantByCatalogId, mappingsByVariant, creditedBy, coverage, regionCatalogKeys, unmappedReasons };
+  const index: RegionIndex = { nodeById, regionNodeIds, variantByCatalogId, taggedByCatalogId, mappingsByVariant, creditedBy, coverage, regionCatalogKeys, unmappedReasons };
   indexCache.set(region, index);
   return index;
 }
@@ -296,8 +301,10 @@ function tagsOf(region: SpecializationRegionData, index: RegionIndex, bout: Expo
 function classifyBout(region: SpecializationRegionData, index: RegionIndex, bout: ExposureBout, catalogMusclesFor: SummaryRequest["catalogMusclesFor"]): BoutClass {
   const mine = bout.catalogExerciseId === null ? undefined : index.variantByCatalogId.get(bout.catalogExerciseId);
   const mappings = mine ? index.mappingsByVariant.get(mine.id) ?? [] : [];
-  // A bout no mapping speaks for is read with the shared library's variant (10-multi-region.md §3).
-  const variant = mine ?? variantFor(bout.catalogExerciseId);
+  // A bout no mapping speaks for is read with the shared library's variant (10-multi-region.md §3). Only a region-only bout's
+  // reading is used, and region-only work is tagged with the region's keys, so the page data's `taggedVariants` hold every
+  // library record that can matter here (regionContent.test.ts), and the page never loads the whole library.
+  const variant = mine ?? (bout.catalogExerciseId === null ? undefined : index.taggedByCatalogId.get(bout.catalogExerciseId)) ?? null;
   const reading = nodeSideFor(region.region, variant, null, bout);
   const effects = new Map<NodeId, NodeEffect>();
   let ownMapped = false;

@@ -9,6 +9,7 @@ import { forearmMembers } from "./members";
 import { forearmNodeActions } from "./nodeActions";
 import { forearmClaims } from "./claims";
 import { forearmVariants } from "./variants";
+import { taggedVariants } from "./libraryVariants.generated";
 import { forearmMappings, forearmMappingVersion } from "./mappings";
 import { forearmUnmappedTagged } from "./unmapped";
 
@@ -28,6 +29,7 @@ export const forearmHomeContent: RegionHomeContent = {
   claims: forearmClaims,
   sources: [...forearmSources, ...forearmMappingSources],
   variants: forearmVariants,
+  taggedVariants,
   mappings: forearmMappings,
   mappingVersion: forearmMappingVersion,
   unmappedTagged: forearmUnmappedTagged,

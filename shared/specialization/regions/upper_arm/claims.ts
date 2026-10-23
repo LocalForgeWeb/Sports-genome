@@ -1,5 +1,5 @@
 import type { Claim } from "../../types";
-import { LOCATION_ONLY as FOREARM_LOCATION_ONLY, SEARCH_EXCERPT as FOREARM_SEARCH_EXCERPT, fn as forearmFn, look as forearmLook, src as forearmSrc } from "../forearm/review";
+import { forearmClaimsOnUpperArm } from "./forearmClaims";
 import { upperArmAdjacentIds as adj, upperArmGroupIds as grp, upperArmMuscleIds as m } from "./ids";
 import { ACUTE_EMG, GARBLED_SUMMARY, IMAIOS_MIRROR, LOCATION_ONLY, MODELLED_FORCE, SEARCH_EXCERPT, fn, look, select, src, varies } from "./review";
 
@@ -7,7 +7,7 @@ import { ACUTE_EMG, GARBLED_SUMMARY, IMAIOS_MIRROR, LOCATION_ONLY, MODELLED_FORC
  * The claims on the upper arm's nodes, with their sources.
  *
  * The forearm's four claims on the biceps and brachialis come first, kept beside the nodes they are
- * about. They belong to the forearm (`ownerRegionId: "forearm"`, from its review of 16 Oct 2026) and
+ * about, in forearmClaims.ts (so the forearm's page loads them without the upper arm's own). They belong to the forearm (`ownerRegionId: "forearm"`, from its review of 16 Oct 2026) and
  * keep their keys for good: `forearm:biceps.function`, `forearm:biceps.appearance`,
  * `forearm:brachialis.function`, `forearm:brachialis.appearance` (docs/specialization-atlas/
  * 10-multi-region.md §1.3, §10). The upper-arm page shows the two function claims, which its
@@ -41,28 +41,8 @@ import { ACUTE_EMG, GARBLED_SUMMARY, IMAIOS_MIRROR, LOCATION_ONLY, MODELLED_FORC
 const PUSHDOWN_SUMMARY = `${ACUTE_EMG} Cited only for its introduction's summary of Landin et al. 2018, a review not seen here; seen through web-search summaries.`;
 
 export const upperArmClaims: Claim[] = [
-  // ---------------------------------------------------------------- the forearm's, frozen (seed v1)
-  forearmFn({
-    nodeId: m.biceps,
-    statement: "Biceps brachii bends the elbow and turns the forearm palm-up; with the elbow bent it is the forearm's most powerful palm-up muscle.",
-    sources: [forearmSrc("A50", "Introduction", FOREARM_SEARCH_EXCERPT)],
-  }),
-  forearmLook({
-    nodeId: m.biceps,
-    statement: "Biceps shapes the front of the upper arm. It is an upper-arm muscle and does not add forearm size.",
-    sources: [forearmSrc("A50", "Introduction: attachments", FOREARM_LOCATION_ONLY)],
-  }),
-
-  forearmFn({
-    nodeId: m.brachialis,
-    statement: "Brachialis bends the elbow in every forearm position and does not turn the forearm; it is described as a pure elbow flexor.",
-    sources: [forearmSrc("A51", "Introduction", FOREARM_SEARCH_EXCERPT)],
-  }),
-  forearmLook({
-    nodeId: m.brachialis,
-    statement: "Brachialis lies under the biceps in the lower front of the upper arm and may show at its sides. It is not a forearm muscle.",
-    sources: [forearmSrc("A51", "Introduction: deeper than the biceps", FOREARM_LOCATION_ONLY)],
-  }),
+  // ---------------------------------------------------------------- the forearm's, frozen (seed v1): forearmClaims.ts
+  ...forearmClaimsOnUpperArm,
 
   // ---------------------------------------------------------------- the upper arm's own (19 Oct 2026)
   fn({

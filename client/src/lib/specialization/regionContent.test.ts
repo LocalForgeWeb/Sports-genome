@@ -7,6 +7,7 @@ import { claimKeyOf, composeRegionData, diagramSidesOf, memberRole, resolveMembe
 import { defaultSpecializationRegionId, onSide, regionForBodyMapKey, regionIndexEntry, registeredRegionIndex, specializationRegionIndex } from "@shared/specialization/regionIndex";
 import { regionContentFor, regionDataFor, registeredRegionContents, specializationRegions } from "@shared/specialization/registry";
 import { forearmContent, forearmRegionData } from "@shared/specialization/regions/forearm";
+import { upperArmAsForearmHome } from "@shared/specialization/regions/forearm/upperArmHome";
 import { upperArmContent } from "@shared/specialization/regions/upper_arm";
 import { categoryFor } from "@shared/specialization/rules";
 import { sourceLibrary } from "@shared/specialization/sources";
@@ -153,12 +154,38 @@ function withMovedWords(at6738eeb: ReturnType<typeof asAt6738eeb>): ReturnType<t
   };
 }
 
+/**
+ * What wave A adds to the forearm's page data (10-multi-region.md §4.2): the upper arm's published
+ * version credits the biceps and brachialis, so the page also lists the variants those rows map
+ * that the forearm's version does not, and the sources they cite that the forearm's list lacks, each
+ * after the forearm's own, as composition appends a home's. Checked to be exactly those before they
+ * are added, so nothing else may differ.
+ */
+function withUpperArmCredit(at6738eeb: ReturnType<typeof asAt6738eeb>): ReturnType<typeof asAt6738eeb> {
+  const [external] = forearmRegionData.externalMappingVersions;
+  expect(external.regionId).toBe("upper_arm");
+  const own = new Set(at6738eeb.variants.map((variant) => variant.id));
+  const addedVariants = variantsMappedBy(external.mappings).filter((variant) => !own.has(variant.id));
+  const listed = new Set(at6738eeb.sources.map((source) => source.id));
+  const cited = new Set(external.mappings.flatMap((mapping) => mapping.sources.map((ref) => ref.sourceId)));
+  const addedSources = sourceLibrary.filter((source) => cited.has(source.id) && !listed.has(source.id));
+  expect(addedVariants.map((variant) => variant.catalogExerciseId)).toEqual([318, 326, 329, 330, 333, 87, 88, 335, 164]);
+  expect(addedSources.map((source) => source.id).sort()).toEqual(["bmc.pulldown_row_grips", "jelekin.pull_up_grips", "jscr.pull_up_chin_up", "kenhub.biceps_brachii", "mdpi.biceps_curl_grips", "teachmeanatomy.brachialis"]);
+  const strip = (variant: ExerciseVariant) => (({ sidedBy: _sidedBy, legLaterality: _legs, sideAnchor: _anchor, dimensions: _dimensions, ...rest }) => rest)(variant);
+  return { ...at6738eeb, variants: [...at6738eeb.variants, ...addedVariants.map(strip)], sources: [...at6738eeb.sources, ...forearmRegionData.sources.filter((source) => addedSources.includes(source))] };
+}
+
 describe("nothing moved: the forearm and the deltoid fixture as composed", () => {
-  it("gives the forearm page the data it read at 6738eeb, record for record, apart from the fields the model added, the subtitle that said \"by arm\" and the biceps' and brachialis' words (§1.3)", () => {
-    expect(asAt6738eeb(forearmRegionData)).toEqual(withMovedWords(withSubtitle(fixture("forearmRegionData.6738eeb.json"), "Circumference and grip, by arm", "Circumference and grip")));
+  it("gives the forearm page the data it read at 6738eeb, record for record, apart from the fields the model added, the subtitle that said \"by arm\", the biceps' and brachialis' words (§1.3) and wave A's upper-arm credit (§4.2)", () => {
+    expect(asAt6738eeb(forearmRegionData)).toEqual(withUpperArmCredit(withMovedWords(withSubtitle(fixture("forearmRegionData.6738eeb.json"), "Circumference and grip, by arm", "Circumference and grip"))));
   });
 
-  it("fills the forearm's added fields with what it did before: arm sides, the forearms key from any tag, no external version", () => {
+  it("reads the same page data through what it reads of the upper arm (upperArmHome.ts) as through the upper arm's whole content", () => {
+    expect(composeRegionData(forearmContent, [upperArmAsForearmHome])).toEqual(composeRegionData(forearmContent, [upperArmContent]));
+    expect(forearmRegionData).toEqual(composeRegionData(forearmContent, [upperArmContent]));
+  });
+
+  it("fills the forearm's added fields with what it did before: arm sides, the forearms key from any tag; and from wave A the upper arm's version for the biceps and brachialis", () => {
     const { region } = forearmRegionData;
     expect(region.sides).toEqual({ model: "paired", limb: "arm" });
     // regionCatalogKeys used to derive this from the target nodes' keys.
@@ -168,7 +195,11 @@ describe("nothing moved: the forearm and the deltoid fixture as composed", () =>
     expect(region.regionOnlyTagScope).toBe("any");
     expect(region.wording.externalHeading).toBe("Forearm muscles credited here");
     expect(region.wording.externalGroup).toBe(upperArmContent.region.wording.externalHeading);
-    expect(forearmRegionData.externalMappingVersions).toEqual([]);
+    // Wave A: the upper arm's published version credits the biceps and brachialis (§4.2), its rows for them alone.
+    expect(forearmRegionData.externalMappingVersions.map((external) => [external.regionId, external.version.key, external.version.state, external.mappings.length, external.actions.map((action) => action.id)])).toEqual([
+      ["upper_arm", "upper_arm_mappings_v1", "published", 157, ["elbow.flexion", "forearm.supination"]],
+    ]);
+    expect(forearmRegionData.externalMappingVersions[0].mappings).toEqual(upperArmContent.mappings.filter((mapping) => mapping.nodeId === "upper_arm.biceps" || mapping.nodeId === "upper_arm.brachialis"));
     expect(forearmRegionData.unmappedTagged.length).toBe(24);
     expect(diagramSidesOf(forearmRegionData.diagram!)).toBe("one_side");
     for (const mapping of forearmRegionData.mappings) expect(sideRelationOf(mapping), mapping.id).toBe("same");
@@ -176,7 +207,9 @@ describe("nothing moved: the forearm and the deltoid fixture as composed", () =>
 
   it("hands the page the folder's own region, variants and mappings, record for record", () => {
     expect(forearmRegionData.region).toBe(forearmContent.region);
-    expect(forearmRegionData.variants).toBe(forearmContent.variants);
+    // Its own variants first, the very records; then the nine the upper arm's rows for its members map (wave A).
+    forearmContent.variants.forEach((variant, index) => expect(forearmRegionData.variants[index]).toBe(variant));
+    expect(forearmRegionData.variants).toHaveLength(forearmContent.variants.length + 9);
     expect(forearmRegionData.mappings).toBe(forearmContent.mappings);
   });
 
@@ -215,7 +248,9 @@ describe("the registry and the light index", () => {
       expect(regionContentFor(content.region.id)).toBe(content);
       expect(regionIndexEntry(content.region.id)).toBe(content.region);
     }
-    expect(regionDataFor(upperArmContent.region.id)).toBeNull();
+    // Wave A: the upper arm is a production region, the second.
+    expect(pages.map(forPage)).toEqual(["upper_arm", "forearm"]);
+    expect(regionDataFor(upperArmContent.region.id)?.region).toBe(upperArmContent.region);
     expect(regionDataFor("deltoid")).toBeNull();
     expect(regionDataFor(defaultSpecializationRegionId)?.region.status).toBe("production");
   });
@@ -223,8 +258,11 @@ describe("the registry and the light index", () => {
   it("open a page from a body-map key only for a production region", () => {
     expect(regionForBodyMapKey("forearms")?.id).toBe("forearm");
     expect(regionForBodyMapKey("brachioradialis")?.id).toBe("forearm");
-    // The upper arm is a reference region: its keys open what they opened before.
-    expect(regionForBodyMapKey("biceps")).toBeNull();
+    // Wave A: the upper arm is in production, so its keys open it (§1.1's key table): the biceps and brachialis with
+    // the muscle selected, the triceps (a group) with nothing selected.
+    for (const key of ["biceps", "brachialis", "triceps"]) expect(regionForBodyMapKey(key)?.id, key).toBe("upper_arm");
+    expect(upperArmContent.region.nodeForBodyMapKey).toEqual({ biceps: "upper_arm.biceps", brachialis: "upper_arm.brachialis" });
+    expect(regionForBodyMapKey("lats")).toBeNull();
     expect(regionForBodyMapKey(null)).toBeNull();
   });
 
@@ -546,7 +584,7 @@ describe("composition (§1.3, §4.2)", () => {
 
   it("refuses a member it cannot find and a region with no version", () => {
     expect(() => composeRegionData(forearmContent, [])).toThrow(/upper_arm\.biceps/);
-    expect(() => composeRegionData(upperArmContent, [forearmContent])).toThrow(/no mapping version/);
+    expect(() => composeRegionData({ ...upperArmContent, mappingVersion: null }, [forearmContent])).toThrow(/no mapping version/);
   });
 });
 
@@ -778,9 +816,33 @@ describe("each page's data", () => {
     });
   }
 
+  it("holds the library's own record for every exercise it can count, so the page reads no other variant (§3, §6.1; wave A)", () => {
+    // The calculator reads a region-only set with the library's variant (§11 decision 11(c)); a region-only set is tagged with
+    // the region's keys within its tag scope. Every such exercise's current library variant is in the page data, as the library
+    // holds it, mapped (`variants`) or not (`taggedVariants`); nothing else is in `taggedVariants`.
+    for (const data of pages) {
+      const keys = new Set(data.region.catalogKeys);
+      const inScope = (exercise: Exercise) => exercise.primaryMuscles.some((key) => keys.has(key)) || (data.region.regionOnlyTagScope === "any" && exercise.secondaryMuscles.some((key) => keys.has(key)));
+      const read = new Map([...data.variants, ...(data.taggedVariants ?? [])].map((variant) => [variant.catalogExerciseId, variant] as const));
+      for (const exercise of exercises.filter(inScope)) {
+        const library = variantFor(exercise.id);
+        if (library) expect(read.get(exercise.id), `${data.region.id}: ${exercise.id} ${exercise.name}`).toEqual(library);
+      }
+      const mapped = new Set(data.variants.map((variant) => variant.catalogExerciseId));
+      for (const variant of data.taggedVariants ?? []) {
+        expect(mapped.has(variant.catalogExerciseId), `${data.region.id}: ${variant.id} is mapped`).toBe(false);
+        expect(inScope(exercises.find((exercise) => exercise.id === variant.catalogExerciseId)!), `${data.region.id}: ${variant.id}`).toBe(true);
+      }
+      for (const variant of data.variants) expect(variant, `${data.region.id}: ${variant.id}`).toEqual(variantById.get(variant.id));
+    }
+    expect(forearmRegionData.taggedVariants?.map((variant) => variant.catalogExerciseId)).toEqual([389, 343, 344, 345, 346, 348, 24, 65, 63, 64, 279, 280, 388, 390]);
+  });
+
   it("keys every mapping uniquely where versions meet", () => {
-    const keys = pages.flatMap((data) => [...data.mappings, ...data.externalMappingVersions.flatMap((external) => external.mappings)].map(versionedMappingKey));
-    expect(new Set(keys).size).toBe(keys.length);
+    for (const data of pages) {
+      const keys = [...data.mappings, ...data.externalMappingVersions.flatMap((external) => external.mappings)].map(versionedMappingKey);
+      expect(new Set(keys).size, data.region.id).toBe(keys.length);
+    }
   });
 });
 

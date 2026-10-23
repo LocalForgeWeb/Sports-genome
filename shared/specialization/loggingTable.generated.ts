@@ -29,80 +29,152 @@ export type LoggingTableRow = {
 
 /** Every catalog exercise a production region maps, by catalog id. */
 export const loggingTable: ReadonlyMap<number, LoggingTableRow> = new Map<number, LoggingTableRow>([
+  // Barbell Bench Press
+  [1, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Incline Barbell Bench Press
+  [2, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Decline Barbell Bench Press
+  [3, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Dumbbell Bench Press
+  [4, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Incline Dumbbell Bench Press
+  [5, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Decline Dumbbell Bench Press
+  [6, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Dumbbell Floor Press
+  [7, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Dumbbell Squeeze Press
+  [8, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Alternating Dumbbell Bench Press
+  [9, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Single-Arm Dumbbell Bench Press
+  [10, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Machine Chest Press
+  [11, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Incline Machine Chest Press
+  [12, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Plate-Loaded Chest Press
+  [13, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Smith Machine Bench Press
+  [14, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Smith Machine Incline Press
+  [15, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cable Chest Press
+  [16, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Single-Arm Cable Chest Press
+  [17, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Dumbbell Pullover
+  [24, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Standard Push-Up
+  [26, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Wide-Grip Push-Up
+  [27, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Diamond Push-Up
+  [28, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Decline Push-Up
+  [29, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Incline Push-Up
+  [30, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Archer Push-Up
+  [31, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Plyometric Push-Up
+  [32, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Clap Push-Up
+  [33, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Explosive Depth Push-Up
+  [34, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Deficit Push-Up
+  [35, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Ring Push-Up
+  [36, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Weighted Push-Up
+  [37, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Spiderman Push-Up
+  [38, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Typewriter Push-Up
+  [39, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Parallel-Bar Dip
+  [40, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Conventional Deadlift
   [41, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
   // Romanian Deadlift
   [42, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
   // Barbell Bent-Over Row
-  [43, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [43, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Pendlay Row
-  [44, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [44, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Underhand Barbell Row
-  [45, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [45, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Dumbbell Row
-  [46, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [46, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Chest-Supported Dumbbell Row
-  [47, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [47, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Seal Row
-  [48, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [48, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Meadows Row
-  [49, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [49, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // T-Bar Row
-  [50, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [50, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Chest-Supported T-Bar Row
-  [51, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [51, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Machine High Row
-  [52, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [52, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Machine Low Row
-  [53, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [53, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Seated Cable Row
-  [54, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [54, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Wide-Grip Cable Row
-  [55, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [55, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Single-Arm Cable Row
-  [56, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [56, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Lat Pulldown
-  [57, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [57, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Wide-Grip Lat Pulldown
-  [58, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [58, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Neutral-Grip Lat Pulldown
-  [59, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [59, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Underhand Lat Pulldown
-  [60, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [60, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Single-Arm Lat Pulldown
-  [61, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [61, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Straight-Arm Cable Pulldown
-  [62, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [62, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
+  // Cable Pullover
+  [63, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Machine Pullover
+  [64, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Dumbbell Pullover
+  [65, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Pull-Up
-  [66, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [66, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Chin-Up
-  [67, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [67, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Neutral-Grip Pull-Up
-  [68, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [68, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Wide-Grip Pull-Up
-  [69, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [69, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Weighted Pull-Up
-  [70, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [70, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Weighted Chin-Up
-  [71, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [71, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Commando Pull-Up
-  [72, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [72, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Archer Pull-Up
-  [73, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [73, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // L-Sit Pull-Up
-  [74, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [74, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Inverted Row
-  [75, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [75, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Feet-Elevated Inverted Row
-  [76, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [76, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Ring Row
-  [77, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [77, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Towel Pull-Up
-  [78, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [78, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Scapular Pull-Up
   [79, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
   // Rope Climb
-  [80, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [80, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Barbell Shrug
   [81, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
   // Dumbbell Shrug
@@ -115,42 +187,68 @@ export const loggingTable: ReadonlyMap<number, LoggingTableRow> = new Map<number
   [85, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
   // Incline Dumbbell Shrug
   [86, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  // Face Pull
+  [87, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Rope Face Pull with External Rotation
+  [88, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Barbell Overhead Press
+  [101, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Seated Barbell Overhead Press
+  [102, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Dumbbell Shoulder Press
+  [103, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Seated Dumbbell Shoulder Press
+  [104, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Arnold Press
+  [105, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Machine Shoulder Press
+  [106, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Smith Machine Shoulder Press
+  [107, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Single-Arm Dumbbell Overhead Press
+  [108, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Z-Press
+  [109, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Push Press
+  [110, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Handstand Push-Up
+  [120, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Barbell Curl
-  [121, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [121, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // EZ-Bar Curl
-  [122, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [122, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Dumbbell Curl
-  [123, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [123, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Alternating Dumbbell Curl
-  [124, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [124, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Incline Dumbbell Curl
-  [125, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [125, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Preacher Curl
-  [126, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [126, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Machine Preacher Curl
-  [127, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["forearm"] }],
+  [127, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Cable Curl
-  [128, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [128, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Bayesian Cable Curl
-  [129, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["forearm"] }],
+  [129, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Spider Curl
-  [130, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [130, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Concentration Curl
-  [131, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["forearm"] }],
+  [131, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Hammer Curl
-  [132, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [132, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Cross-Body Hammer Curl
-  [133, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [133, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Rope Hammer Curl
-  [134, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [134, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Reverse Curl
-  [135, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [135, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Zottman Curl
-  [136, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [136, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Drag Curl
-  [137, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [137, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Chin-Up Curl
-  [138, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [138, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Wrist Curl
   [139, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
   // Reverse Wrist Curl
@@ -165,6 +263,38 @@ export const loggingTable: ReadonlyMap<number, LoggingTableRow> = new Map<number
   [144, { measure: "seconds", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
   // Farmer Hold
   [145, { measure: "seconds", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  // Close-Grip Bench Press
+  [146, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // JM Press
+  [147, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Skull Crusher
+  [148, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Dumbbell Skull Crusher
+  [149, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cable Triceps Pushdown
+  [150, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Rope Triceps Pushdown
+  [151, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Reverse-Grip Pushdown
+  [152, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Single-Arm Cable Pushdown
+  [153, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Overhead Cable Triceps Extension
+  [154, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Dumbbell Overhead Triceps Extension
+  [155, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Single-Arm Dumbbell Triceps Extension
+  [156, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Machine Triceps Extension
+  [157, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Bench Dip
+  [158, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Ring Dip
+  [159, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Bodyweight Triceps Extension
+  [160, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Zercher Squat
+  [164, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Romanian Deadlift
   [186, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
   // Stiff-Leg Deadlift
@@ -187,52 +317,148 @@ export const loggingTable: ReadonlyMap<number, LoggingTableRow> = new Map<number
   [232, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
   // Toes-to-Bar
   [234, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  // Ab-Wheel Rollout
+  [237, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Barbell Rollout
+  [238, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Landmine Press
+  [251, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Half-Kneeling Landmine Press
+  [252, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Single-Arm Standing Landmine Press
+  [253, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Landmine Push Press
+  [254, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Landmine Squat-to-Press
+  [255, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Landmine Row
-  [256, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [256, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Meadows Landmine Row
-  [257, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [257, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Landmine T-Bar Row
-  [258, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [258, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Landmine Romanian Deadlift
   [263, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
   // Landmine Single-Leg Romanian Deadlift
   [264, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  // Landmine Thruster
+  [268, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Landmine Clean and Press
+  [269, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Landmine Split Jerk
+  [270, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Medicine-Ball Chest Pass
+  [271, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Explosive Medicine-Ball Push-Up
+  [272, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Medicine-Ball Overhead Slam
+  [273, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Medicine-Ball Forward Overhead Throw
+  [280, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Kneeling Medicine-Ball Chest Pass
+  [281, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Medicine-Ball Sprawl-to-Slam
+  [284, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Medicine-Ball Slam-to-Sprint
+  [285, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Farmer’s Walk
   [299, { measure: "seconds", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
   // Zercher Carry
-  [300, { measure: "seconds", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [300, { measure: "seconds", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
+  // Cable Press Around
+  [301, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Split-Stance Cable Chest Press
+  [302, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Half-Kneeling Cable Chest Press
+  [303, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cable Squeeze Press
+  [304, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cable Incline Press
+  [305, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cable Decline Press
+  [306, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Neutral-Grip Cable Chest Press
+  [307, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Single-Arm Cable Floor Press
+  [308, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cable Resisted Push-Up
+  [309, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Cable Upright Row
-  [317, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [317, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
+  // Cable Rear-Delt Row
+  [318, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cable Standing Punch
+  [323, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cable Incline Press-Around
+  [324, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cable Front-Foot-Elevated Press
+  [325, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Kneeling Cable Lat Pulldown
+  [326, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Wide-Grip Cable Lat Pulldown
-  [327, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [327, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
+  // Cable Straight-Arm Pulldown
+  [328, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cable Single-Arm Bent-Over Row
+  [329, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Chest-Supported Cable Row
+  [330, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Low Cable Row
-  [331, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [331, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Rope Cable Row
-  [332, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [332, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
+  // Cable High Row
+  [333, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cable High Pull
+  [335, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Cable Biceps Curl
-  [336, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [336, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Rope Hammer Cable Curl
-  [337, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [337, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Incline Cable Curl
-  [338, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["forearm"] }],
+  [338, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // High Cable Curl
-  [339, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [339, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Cable Concentration Curl
-  [340, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["forearm"] }],
+  [340, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Cable Spider Curl
-  [341, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [341, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Cross-Body Cable Curl
-  [342, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["forearm"] }],
+  [342, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
+  // Cable Triceps Pressdown
+  [343, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Rope Cable Pressdown
+  [344, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Reverse-Grip Cable Pressdown
+  [345, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Single-Arm Cable Pressdown
+  [346, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cross-Body Cable Triceps Extension
+  [347, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cable Triceps Kickback
+  [348, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Cable Overhead Triceps Extension
+  [349, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Cable Wrist Extension
   [350, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["forearm"] }],
   // Cable Rotational Row
-  [379, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [379, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
+  // Alternating Landmine Press
+  [381, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Tall-Kneeling Landmine Press
+  [382, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Chest-Supported Landmine Row
-  [383, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [383, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Offset Landmine Row
-  [384, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  [384, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
+  // Landmine Split Press
+  [386, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Kettlebell Clean and Press
+  [389, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  // Turkish Get-Up
+  [390, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Battle Rope Slams
-  [399, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  [399, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Battle Rope Alternating Waves
   [400, { measure: "seconds", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
   // Finger Curl
@@ -246,7 +472,7 @@ export const loggingTable: ReadonlyMap<number, LoggingTableRow> = new Map<number
   // Lever Pronation
   [405, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["forearm"] }],
   // Lever Supination
-  [406, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["forearm"] }],
+  [406, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Lever Radial Deviation
   [407, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["forearm"] }],
   // Lever Ulnar Deviation
