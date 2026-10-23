@@ -1,0 +1,334 @@
+{
+  "note": "Headless Chromium emulating an iPhone (viewport, isMobile, hasTouch, deviceScaleFactor 3, en-US, UTC, SwiftShader WebGL); not an iPhone, not Safari. Production builds: before = d322439 (before lane T3), after = this lane. Device stores seeded: plan A (3 days, 60 min, Muscle growth) with a Reverse Wrist Curl written \"3 × 10–25\" on Day 01, as Home stores it; reverse wrist curls in each of the four weeks before last (2, 2, 1 and 2 sets), 6 and 3 hammer curls last week, and this week's hammer curls, wrist curls and reverse wrist curls. Run on 2026-10-23, UTC. Coordinates are CSS px from the top of the screen.",
+  "scenes": [
+    {
+      "scene": "download",
+      "method": "390 × 844: open Muscles (/?workspace=body), let it settle, tap Specialize, every .js file requested until the map (the 3D model) is drawn; raw bytes as built, gzip -9 of the same files",
+      "before": {
+        "total": 1138146,
+        "gzip": 301383,
+        "files": 6
+      },
+      "after": {
+        "total": 1141747,
+        "gzip": 302401,
+        "files": 6,
+        "tendonFilesFetched": []
+      },
+      "change": {
+        "bytes": 3601,
+        "gzip": 1018,
+        "files": [
+          {
+            "name": "SpecializationPanel.js",
+            "bytes": 3601,
+            "gzip": 1013
+          }
+        ]
+      }
+    },
+    {
+      "scene": "section-closed",
+      "viewport": "390x844",
+      "summary": "Tendon exposure\nSets by attachment area",
+      "card": {
+        "top": 278,
+        "bottom": 383,
+        "height": 105
+      },
+      "order": [
+        "Exercises in this window",
+        "Tendon exposure",
+        "Targets",
+        "Progress",
+        "How this is counted"
+      ],
+      "tendonChunkBeforeOpen": false,
+      "file": "section-closed-390.png"
+    },
+    {
+      "scene": "open-area",
+      "viewport": "390x844",
+      "areas": [
+        "Inner elbow · 9",
+        "Outer elbow · 6",
+        "Wrist and thumb · 9",
+        "Fingers · 9"
+      ],
+      "pressed": "Outer elbow · 6",
+      "groups": [
+        "Common extensor origin · 3 sets\n3 target · 0 holds · 0 other",
+        "Ridge above the outer elbow · 6 sets\n6 target · 0 holds · 0 other",
+        "Supinator · 0 sets\n0 target · 0 holds · 0 other"
+      ],
+      "tendonChunkAfterOpen": [
+        "TendonExposure-llDuA91k.js",
+        "TendonExposure-miUkXe_f.css",
+        "tendonAreas-X_DTXMRx.js"
+      ],
+      "file": "open-outer-elbow-390.png"
+    },
+    {
+      "scene": "days",
+      "viewport": "390x844",
+      "columns": 7,
+      "values": [
+        "3",
+        "3",
+        "0",
+        "0",
+        "0",
+        "–",
+        "–"
+      ],
+      "dayControlsUnder44px": []
+    },
+    {
+      "scene": "change-line",
+      "viewport": "390x844",
+      "heading": "LAST WEEK (12–18 OCT) BESIDE THE 4 WEEKS BEFORE",
+      "lines": [
+        "Last week: 9 sets · median of the 4 weeks before: 2 (weeks with 1, 1, 1 and 1 finished workouts) · +7 sets · more than in any of those weeks.",
+        "Last week: 9 target sets · median of the 4 weeks before: 2 · +7 target sets · more than in any of those weeks."
+      ],
+      "prompt": "More than in any of the 4 weeks before. You can look at the sets behind it, or change a planned exercise below.",
+      "file": "change-line-390.png"
+    },
+    {
+      "scene": "planned-rows",
+      "viewport": "390x844",
+      "rows": [
+        "Barbell Bent-Over Row\nDay 01 · 3 × 6–15 · 3 sets counted here",
+        "Reverse Wrist Curl\nDay 01 · 3 × 10–25 · 3 sets counted here",
+        "Pull-Up\nDay 02 · 3 × 6–15 · 3 sets counted here",
+        "Barbell Curl\nDay 02 · 3 × 6–15 · 3 sets counted here",
+        "Seated Cable Row\nDay 03 · 3 × 6–15 · 3 sets counted here",
+        "Hammer Curl\nDay 03 · 3 × 6–15 · 3 sets counted here"
+      ],
+      "doneLine": "Barbell Bent-Over Row moved from Day 01 to Day 02 of Week 1\nUndo",
+      "focusedAfterMove": "Undo",
+      "undone": "Undone: Plan Week 1 is as it was.",
+      "controlsChecked": 38,
+      "controlsUnder44px": [],
+      "faintControls": [],
+      "dockTop": 774,
+      "stickyBottom": 49,
+      "files": [
+        "planned-rows-390.png",
+        "planned-move-390.png",
+        "planned-undo-390.png"
+      ]
+    },
+    {
+      "scene": "day-sheet",
+      "viewport": "390x844",
+      "title": "OUTER ELBOW · MON, OCT 19",
+      "lists": [
+        "TARGET: 3 SETS"
+      ],
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "method",
+      "viewport": "390x844",
+      "text": "Counts distinct sets per area from the reviewed exercise mappings. Loading can help tendons adapt. Logged weight is not tendon force, and no study found ties a set count to how a tendon will respond, so the page shows no ratio or cut-off. A week counts once one workout in it is finished, so a partly logged week can lower the median. Warm-ups are not marked in the logger, so any you logged are coun",
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "muscle-sheet-attaches",
+      "viewport": "390x844",
+      "line": "Attaches at: outer elbow (common extensor origin), wrist and thumb (back of the wrist).",
+      "controlsUnder44px": [],
+      "landed": {
+        "dialogOpen": false,
+        "sectionOpen": true,
+        "pressed": "Outer elbow · 6",
+        "summaryTop": 78,
+        "focused": "SUMMARY"
+      },
+      "dockTop": 774,
+      "stickyBottom": 49,
+      "file": "muscle-sheet-attaches-390.png"
+    },
+    {
+      "scene": "section-closed",
+      "viewport": "375x667",
+      "summary": "Tendon exposure\nSets by attachment area",
+      "card": {
+        "top": 130,
+        "bottom": 234,
+        "height": 105
+      },
+      "order": [
+        "Exercises in this window",
+        "Tendon exposure",
+        "Targets",
+        "Progress",
+        "How this is counted"
+      ],
+      "tendonChunkBeforeOpen": false,
+      "file": "section-closed-375.png"
+    },
+    {
+      "scene": "open-area",
+      "viewport": "375x667",
+      "areas": [
+        "Inner elbow · 9",
+        "Outer elbow · 6",
+        "Wrist and thumb · 9",
+        "Fingers · 9"
+      ],
+      "pressed": "Outer elbow · 6",
+      "groups": [
+        "Common extensor origin · 3 sets\n3 target · 0 holds · 0 other",
+        "Ridge above the outer elbow · 6 sets\n6 target · 0 holds · 0 other",
+        "Supinator · 0 sets\n0 target · 0 holds · 0 other"
+      ],
+      "tendonChunkAfterOpen": [
+        "TendonExposure-llDuA91k.js",
+        "TendonExposure-miUkXe_f.css",
+        "tendonAreas-X_DTXMRx.js"
+      ],
+      "file": "open-outer-elbow-375.png"
+    },
+    {
+      "scene": "days",
+      "viewport": "375x667",
+      "columns": 7,
+      "values": [
+        "3",
+        "3",
+        "0",
+        "0",
+        "0",
+        "–",
+        "–"
+      ],
+      "dayControlsUnder44px": []
+    },
+    {
+      "scene": "change-line",
+      "viewport": "375x667",
+      "heading": "LAST WEEK (12–18 OCT) BESIDE THE 4 WEEKS BEFORE",
+      "lines": [
+        "Last week: 9 sets · median of the 4 weeks before: 2 (weeks with 1, 1, 1 and 1 finished workouts) · +7 sets · more than in any of those weeks.",
+        "Last week: 9 target sets · median of the 4 weeks before: 2 · +7 target sets · more than in any of those weeks."
+      ],
+      "prompt": "More than in any of the 4 weeks before. You can look at the sets behind it, or change a planned exercise below.",
+      "file": "change-line-375.png"
+    },
+    {
+      "scene": "planned-rows",
+      "viewport": "375x667",
+      "rows": [
+        "Barbell Bent-Over Row\nDay 01 · 3 × 6–15 · 3 sets counted here",
+        "Reverse Wrist Curl\nDay 01 · 3 × 10–25 · 3 sets counted here",
+        "Pull-Up\nDay 02 · 3 × 6–15 · 3 sets counted here",
+        "Barbell Curl\nDay 02 · 3 × 6–15 · 3 sets counted here",
+        "Seated Cable Row\nDay 03 · 3 × 6–15 · 3 sets counted here",
+        "Hammer Curl\nDay 03 · 3 × 6–15 · 3 sets counted here"
+      ],
+      "doneLine": "Barbell Bent-Over Row moved from Day 01 to Day 02 of Week 1\nUndo",
+      "focusedAfterMove": "Undo",
+      "undone": "Undone: Plan Week 1 is as it was.",
+      "controlsChecked": 38,
+      "controlsUnder44px": [],
+      "faintControls": [],
+      "dockTop": 597,
+      "stickyBottom": 49,
+      "files": [
+        "planned-rows-375.png",
+        "planned-move-375.png",
+        "planned-undo-375.png"
+      ]
+    },
+    {
+      "scene": "day-sheet",
+      "viewport": "375x667",
+      "title": "OUTER ELBOW · MON, OCT 19",
+      "lists": [
+        "TARGET: 3 SETS"
+      ],
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "method",
+      "viewport": "375x667",
+      "text": "Counts distinct sets per area from the reviewed exercise mappings. Loading can help tendons adapt. Logged weight is not tendon force, and no study found ties a set count to how a tendon will respond, so the page shows no ratio or cut-off. A week counts once one workout in it is finished, so a partly logged week can lower the median. Warm-ups are not marked in the logger, so any you logged are coun",
+      "controlsUnder44px": []
+    },
+    {
+      "scene": "muscle-sheet-attaches",
+      "viewport": "375x667",
+      "line": "Attaches at: outer elbow (common extensor origin), wrist and thumb (back of the wrist).",
+      "controlsUnder44px": [],
+      "landed": {
+        "dialogOpen": false,
+        "sectionOpen": true,
+        "pressed": "Outer elbow · 6",
+        "summaryTop": 78,
+        "focused": "SUMMARY"
+      },
+      "dockTop": 597,
+      "stickyBottom": 49,
+      "file": "muscle-sheet-attaches-375.png"
+    },
+    {
+      "scene": "days-rolling",
+      "viewport": "390x844",
+      "columns": 8,
+      "partial": 1,
+      "file": "days-rolling-390.png"
+    },
+    {
+      "scene": "planned-mode",
+      "viewport": "390x844",
+      "summary": "Tendon exposure\nSets by attachment area, Plan Week 1, as written",
+      "areas": [
+        "Inner elbow · 24",
+        "Outer elbow · 18",
+        "Wrist and thumb · 18",
+        "Fingers · 24"
+      ],
+      "groups": 0,
+      "change": 0,
+      "file": "planned-mode-390.png"
+    },
+    {
+      "scene": "model-panel-attaches",
+      "viewport": "390x844",
+      "line": "Attaches at: outer elbow (common extensor origin), wrist and thumb (back of the wrist).",
+      "controlsUnder44px": [],
+      "file": "model-panel-attaches-390.png"
+    },
+    {
+      "scene": "320",
+      "viewport": "320x568",
+      "overflowClosedPx": 0,
+      "overflowOpenPx": 0,
+      "elementsPastTheEdge": [],
+      "controlsUnder44px": [],
+      "file": "open-320.png"
+    }
+  ],
+  "kept": [
+    "change-line-375.png",
+    "change-line-390.png",
+    "days-rolling-390.png",
+    "model-panel-attaches-390.png",
+    "muscle-sheet-attaches-375.png",
+    "muscle-sheet-attaches-390.png",
+    "open-320.png",
+    "open-outer-elbow-375.png",
+    "open-outer-elbow-390.png",
+    "planned-mode-390.png",
+    "planned-move-375.png",
+    "planned-move-390.png",
+    "planned-rows-375.png",
+    "planned-rows-390.png",
+    "planned-undo-375.png",
+    "planned-undo-390.png",
+    "section-closed-375.png",
+    "section-closed-390.png"
+  ]
+}
