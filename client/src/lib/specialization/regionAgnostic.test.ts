@@ -195,8 +195,9 @@ describe("no region is named in the calculator, the windows, the goals or the ad
     "client/src/lib/specialization/stackRules.ts",
     "client/src/lib/specialization/planBatch.ts",
     "client/src/lib/specialization/regionExtras.ts",
-    // Tendon exposure's calculation (11-forearm-research-and-stack.md §4.2, §4.6).
+    // Tendon exposure's calculation (11-forearm-research-and-stack.md §4.2, §4.6), and its "Attaches at" reader in the page's chunk (§4.3).
     "shared/specialization/tendonAreas.ts",
+    "shared/specialization/tendonPlaces.ts",
   ];
   /** Lines that must stay, by file and exact code, each with its reason. */
   const allowed: { file: string; code: string; why: string }[] = [

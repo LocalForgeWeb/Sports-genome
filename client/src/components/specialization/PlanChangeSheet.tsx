@@ -42,8 +42,12 @@ type Placement = "first" | "end" | number;
  * starting ranges…" until they arrive, never a default in their place). A swap keeps the replaced
  * entry's own prescription, and an exercise with no profile (a carry, a row) the plan's default, as
  * before.
+ *
+ * Tendon exposure's Swap (11 §4.3) opens it on one planned entry: `start` names its week, its day and
+ * the entry to swap out, so the sheet opens in swap mode with that entry chosen and the athlete picks
+ * only what goes in; every other control works as it does from a muscle.
  */
-export function PlanChangeSheet({ data, side, nodeId, candidates, initialExerciseId, catalog, plan, goal, onApply, onClose }: {
+export function PlanChangeSheet({ data, side, nodeId, candidates, initialExerciseId, catalog, plan, goal, start, onApply, onClose }: {
   data: SpecializationRegionData;
   /** The summary's side: `both` on a paired region (both sides as one), `midline` on a midline one. */
   side: SummarySide;
@@ -55,16 +59,18 @@ export function PlanChangeSheet({ data, side, nodeId, candidates, initialExercis
   /** The plan's days and built weeks; `week` is the page's plan week, where the sheet starts. */
   plan: { slots: DaySlot[]; weeks: Record<number, WeeklyDayStore>; week: number };
   goal: TrainingGoal;
+  /** Opens as a swap of one planned entry (tendon exposure's Swap): its week, its day and the entry. */
+  start?: { week: number; dayKey: string; replaceEntryId: number };
   onApply: (change: SpecializationPlanChange) => SpecializationPlanChangeResult;
   onClose: () => void;
 }) {
   const weeks = useMemo(() => Object.keys(plan.weeks).map(Number).filter((week) => week > 0).sort((left, right) => left - right), [plan.weeks]);
   const [exerciseId, setExerciseId] = useState(initialExerciseId);
-  const [week, setWeek] = useState(weeks.includes(plan.week) ? plan.week : weeks[0] ?? plan.week);
-  // The day is the athlete's to choose: none is preselected, and Save waits for one.
-  const [dayKey, setDayKey] = useState<string | null>(null);
-  const [mode, setMode] = useState<"add" | "swap">("add");
-  const [replaceEntryId, setReplaceEntryId] = useState<number | null>(null);
+  const [week, setWeek] = useState(start && weeks.includes(start.week) ? start.week : weeks.includes(plan.week) ? plan.week : weeks[0] ?? plan.week);
+  // The day is the athlete's to choose: none is preselected, and Save waits for one (a swap of a named entry starts on its day).
+  const [dayKey, setDayKey] = useState<string | null>(start?.dayKey ?? null);
+  const [mode, setMode] = useState<"add" | "swap">(start ? "swap" : "add");
+  const [replaceEntryId, setReplaceEntryId] = useState<number | null>(start?.replaceEntryId ?? null);
   const [placement, setPlacement] = useState<Placement>("end");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);

@@ -378,10 +378,20 @@ export const forearmTendonAreaList: TendonArea[] = [
 /** The forearm's own target muscles in no reviewed group: none since the review of 22 Oct 2026 (see above). */
 export const forearmTendonNotPlaced: TendonNotPlaced[] = [];
 
+/**
+ * What the counts cover and leave out (11 §4.4, "What the counts cover"), as `forearm_mappings_v1`
+ * maps it: the brachioradialis is credited in rows and pulls, the finger flexors with grip in rows,
+ * pulls and deadlifts, and the wrist extensors steady the wrist only in palms-down curls and carries
+ * (`wristExtensorStabilizers`, mappings.ts). The wrist flexors' steadying is not mapped (§1.4 adopts
+ * it in v2 only if a source names them), so the last sentence says so. Lane V1 rewrites this with v2.
+ */
+export const forearmTendonCoverage = "Rows and pulls count for the brachioradialis as an elbow flexor, at the outer elbow and at the wrist, where it attaches. Grip in rows, pulls and deadlifts counts for the finger flexors. The wrist extensors that steady the wrist while you grip are counted only in palms-down curls and carries, so the outer elbow shows less of your gripping than your grip may do. The wrist flexors' steadying is not counted yet.";
+
 /** What a region's `tendonAreas.ts` exports, under this one name, so a region-agnostic loader finds it. */
 export const tendonAreaExtras: RegionExtras = {
   regionId: FOREARM_REGION_ID,
   tendonAreas: forearmTendonAreaList,
   tendonNotPlaced: forearmTendonNotPlaced,
   referenceSources: forearmTendonSources,
+  tendonCoverage: forearmTendonCoverage,
 };

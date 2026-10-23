@@ -343,14 +343,6 @@ export interface TendonExposureInput extends TendonWeekCountsInput {
   planned?: { summary: SpecializationSummary; bouts: readonly ExposureBout[] } | null;
 }
 
-/** Where a node is a reviewed member: the "Attaches at" line. */
-export interface TendonPlace {
-  areaId: string;
-  areaLabel: string;
-  groupId: string;
-  groupLabel: string;
-}
-
 // ---------------------------------------------------------------- small readers
 
 /** Natural order, so "…/2" sorts before "…/10": `localeCompare(b, "en", { numeric: true })`, with one collator built once. */
@@ -589,12 +581,8 @@ export function countTendonAreas(input: { region: SpecializationRegionData; extr
   };
 }
 
-/** Where a node is a reviewed member, area by area, in the region's order: the "Attaches at" line. */
-export function tendonPlacesOf(extras: TendonExtras, nodeId: NodeId): TendonPlace[] {
-  return (extras.tendonAreas ?? []).flatMap((area) => area.groups
-    .filter((group) => group.members.some((member) => member.nodeId === nodeId && member.reviewStatus === "reviewed"))
-    .map((group) => ({ areaId: area.id, areaLabel: area.label, groupId: group.id, groupLabel: group.label })));
-}
+/** "Attaches at" (`tendonPlacesOf`) lives in `tendonPlaces.ts`, so the page's own chunk can read it without this module. */
+export { tendonPlacesOf, type TendonPlace } from "./tendonPlaces";
 
 /**
  * The plan entries whose planned sets an area (or group) counts, in the plan's order (the order

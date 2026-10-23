@@ -358,3 +358,8 @@ button.spz-day:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outli
   .spz-segment button, .spz-track i, .spz-day-bar i, .spz-disclosure > summary svg, .spz-region-chevron { transition: none; }
   .spz-sheet { animation: none; }
 }
+
+/* "Attaches at" on a muscle's sheet and on the 3D panel (11-forearm-research-and-stack.md §4.3): the
+   places in text, then the way to tendon exposure as a 44 px link under them. */
+.spz-attaches { display: grid; justify-items: start; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.spz-attaches p { overflow-wrap: anywhere; }

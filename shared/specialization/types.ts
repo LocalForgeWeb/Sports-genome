@@ -585,6 +585,11 @@ export interface RegionExtras {
   tendonAreas?: TendonArea[];
   /** The region's own target nodes in no reviewed tendon group, each with why (11 §4.1, "Not placed"). */
   tendonNotPlaced?: TendonNotPlaced[];
+  /**
+   * What tendon exposure's counts cover and leave out on this region, in its own words (11 §4.4, "What
+   * the counts cover"): said in the section's "How this is counted"; absent says nothing.
+   */
+  tendonCoverage?: string;
 }
 
 /**
