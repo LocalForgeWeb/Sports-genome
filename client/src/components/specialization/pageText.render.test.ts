@@ -252,8 +252,8 @@ const added: { why: string; in: Where; lines: RegExp[] }[] = [
     why: "wave A, §1.3: the biceps' own caveats, then the forearm's words on it, moved from its shape note",
     in: /^muscle: Biceps brachii$/,
     lines: [
-      /^Its two heads are counted as one muscle here; anatomy references describe their elbow and forearm actions together\.$/,
-      /^Its help raising the arm forward is weak, and studies disagree on whether its long head works in shoulder movement at all, so it is listed only as helping there\.$/,
+      /^Its two heads are counted as one muscle; anatomy references describe their elbow and forearm actions together\.$/,
+      /^Its help raising the arm forward is weak, and studies disagree on whether its long head works in shoulder movement at all\.$/,
       /^Some people have an extra head; it usually causes no symptoms\.$/,
       /^It is an upper-arm muscle and does not add forearm size\.$/,
     ],
