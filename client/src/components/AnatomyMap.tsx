@@ -40,7 +40,7 @@ function useWideCanvas() {
 const anatomyRoleRenderState = { neutral: "neutral", supporting: "supporting", stabilizing: "stabilizing", primary: "primary" } as const;
 
 /** The fill the figure paints a row's role in, so the dot beside the row is the same colour. */
-const roleFill: Record<Role, string> = { Primary: "var(--sg-role-primary-1)", Stabilizer: "var(--sg-role-stabilizing-1)", Synergist: "var(--sg-role-supporting-1)" };
+const roleFill: Record<Role, string> = { Primary: "var(--sg-role-primary)", Stabilizer: "var(--sg-role-stabilizing)", Synergist: "var(--sg-role-supporting)" };
 
 const labels: Record<string, string> = {
   // Rows render `muscleLabels[key] || key`, so any catalog key missing here
@@ -303,14 +303,14 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
               a colour never claims a distinction the paint does not draw. A
               training day's roles come from the catalog, which records no
               stabilizers, so that legend keeps to the two states it can show. */}
-          {/* Swatches carry the figure's own fills, gradients included, so the legend
-              cannot drift from what the body is actually painted. Items, so a swatch
+          {/* Swatches carry the figure's own flat fills, so the legend cannot drift from
+              what the body is actually painted. Items, so a swatch
               never wraps away from its word; two columns on a phone. The neutral entry
               says what neutral is: nothing recorded, never "not involved". */}
           <ul className="atlas-heat-legend-pro" aria-label="Colour key">
-            <li><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-primary-1),var(--sg-role-primary-2))" }} />{trainingDay ? "Prime mover in this day" : "Primary"}</li>
-            <li><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-supporting-1),var(--sg-role-supporting-2))" }} />{trainingDay ? "Supporting in this day" : "Supporting"}</li>
-            {(roleSource === "action" || roleCounts.stabilizing > 0) && <li><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-stabilizing-1),var(--sg-role-stabilizing-2))" }} />{trainingDay ? "Stabilizing in this day" : "Stabilizing"}</li>}
+            <li><i className="atlas-swatch" style={{ background: "var(--sg-role-primary)" }} />{trainingDay ? "Prime mover in this day" : "Primary"}</li>
+            <li><i className="atlas-swatch" style={{ background: "var(--sg-role-supporting)" }} />{trainingDay ? "Supporting in this day" : "Supporting"}</li>
+            {(roleSource === "action" || roleCounts.stabilizing > 0) && <li><i className="atlas-swatch" style={{ background: "var(--sg-role-stabilizing)" }} />{trainingDay ? "Stabilizing in this day" : "Stabilizing"}</li>}
             <li><i className="atlas-swatch atlas-swatch-neutral" style={{ background: "var(--sg-role-neutral-on-dark)" }} />{trainingDay ? "Not in this day" : "No role recorded"}</li>
           </ul>
         </div>

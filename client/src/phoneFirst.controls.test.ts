@@ -35,6 +35,21 @@ describe("Controls built for the phone", () => {
     expect(plan).toMatch(/^\.day-row-remove \{[^}]*width: 44px; height: 44px/m);
   });
 
+  it("keep moving exercises visible at rest, in reach, and clear of the screen's edge (21 Oct)", () => {
+    const card = css("./mobile-training-card.css");
+    // The hint is the only sign that holding works, so it is never faded.
+    expect(rule(card, ".day-arrange-hint")).not.toMatch(/opacity/);
+    // Done is a full thumb target, pinned above the navigation and the home indicator.
+    expect(remOf(rule(card, ".day-arrange-bar button"))).toBeGreaterThanOrEqual(2.75);
+    // The base rule, at the start of its line; the later ones only move it for wider screens.
+    const bar = /^\.day-arrange-bar \{[^}]*\}/m.exec(card)?.[0] ?? "";
+    expect(bar).toContain("position: sticky");
+    expect(bar).toContain("env(safe-area-inset-bottom, 0px)");
+    // A long press is the gesture, so iOS's callout and text selection stay out of it.
+    expect(card).toContain("-webkit-touch-callout: none");
+    expect(card).toMatch(/summary \{ -webkit-user-select: none; user-select: none; \}/);
+  });
+
   it("lay Swap, Skip and Add out as three equal buttons under Log set", () => {
     expect(rule(css("./workout-planner.css"), ".live-set-secondary")).toContain("display: grid; grid-template-columns: repeat(3, minmax(0, 1fr))");
   });

@@ -126,7 +126,7 @@ export interface RegionWording {
    * "Incidental grip" in the key and "3 grip" on a bar.
    */
   incidentalWork: string;
-  /** The line under "Progress": "Circumference and grip, by arm". */
+  /** The line under "Progress": "Circumference and grip". */
   progressSubtitle: string;
   /**
    * A paired region's word for one side and for both, from the limb the logger asks about:
@@ -811,7 +811,7 @@ export interface Contribution {
   segments: ContributionSegment[];
   reps: number;
   holdSeconds: number;
-  /** "Strapped: grip not counted", "Straps not recorded", "Each side assumed" ... */
+  /** "Strapped: grip not counted", "Straps not recorded", "Matched by name"; never a side (both sides as one). */
   notes: string[];
   /** Mapping allocation is shared with these nodes (FDS with FDP). */
   sharedWith: NodeId[];

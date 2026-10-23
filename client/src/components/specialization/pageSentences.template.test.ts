@@ -100,7 +100,9 @@ const regionLineOf = (data: SpecializationRegionData, mode: "completed" | "plann
 
 const BLOCKS = "p, li, h1, h2, h3, dt, dd, summary, legend, figcaption, label > span, button, option, small, strong, b";
 /** Region content the page shows but does not write: anatomy, claims and sources, rationales, method notes, and the published rule. */
-const CONTENT = ".spz-rule-text, .spz-method-notes, #spz-does ~ *, [aria-labelledby='spz-does'], [aria-labelledby='spz-shape'], [aria-labelledby='spz-sources'], .spz-why-rationale, .spz-sources, .spz-sheet-subtitle, .spz-actions-list small";
+const CONTENT = ".spz-rule-text, .spz-method-notes, #spz-does ~ *, [aria-labelledby='spz-does'], [aria-labelledby='spz-shape'], [aria-labelledby='spz-sources'], .spz-why-rationale, .spz-sources, .spz-sheet-subtitle, .spz-actions-list small"
+  // The same anatomy in the 3D model's panel: what the muscle does, and how it contributes to shape with its caveats.
+  + ", .sg-anatomy3d-detail .sg-anatomy3d-function, .sg-anatomy3d-detail .spz-caveats";
 
 /** Every piece of text on screen, innermost block by block, and every accessible name and description. */
 function pageTexts(): string[] {
@@ -138,6 +140,8 @@ function problems(data: SpecializationRegionData, texts: readonly string[]): str
       if (side.test(said)) out.push(`a side named: ${sentence}`);
       if (foreign.test(said)) out.push(`limb not the region's: ${sentence}`);
       if (/kept apart|counted for neither/i.test(said)) out.push(`a side kept apart: ${sentence}`);
+      // Both sides as one: nothing is read, measured or counted per arm or leg.
+      if (/\b(by|per|each)\s+(arm|leg|side)s?\b/i.test(said)) out.push(`counted per side: ${sentence}`);
     }
   }
   return out;
@@ -188,6 +192,28 @@ async function readEverything(data: SpecializationRegionData, mode: "completed" 
   return seen;
 }
 
+/**
+ * The 3D model, which a phone shows by default where a region has one (the forearm): the page with
+ * the model's row of muscles and its Overview, then each muscle of the row chosen in turn with the
+ * model's panel and its disclosures open. jsdom has no WebGL, so the stage shows its fallback.
+ */
+async function readModel(data: SpecializationRegionData, mode: "completed" | "planned"): Promise<string[]> {
+  render(createElement(Harness, { initial: { ...defaultSpecializationState(data.region.id), mode, figure: "model" } }));
+  await act(async () => {});
+  const openPanel = () => document.querySelectorAll<HTMLDetailsElement>(".sg-anatomy3d details").forEach((details) => { details.open = true; });
+  openPanel();
+  const seen = [...pageTexts()];
+  const chips = () => Array.from(document.querySelectorAll<HTMLElement>(".sg-anatomy3d-rail-chip"));
+  expect(chips().length).toBeGreaterThan(1);
+  for (let index = 1; index < chips().length; index += 1) {
+    await click(chips()[index]);
+    openPanel();
+    seen.push(...pageTexts());
+  }
+  cleanup();
+  return seen;
+}
+
 // The forearm's rep profiles too (F1, §5.2), so its muscle sheet's starting ranges are read with everything else.
 beforeAll(async () => { await loadRegionData("forearm"); await loadRegionExtras("forearm"); await preloadStackModel(); });
 beforeEach(() => {
@@ -211,6 +237,16 @@ describe("every page sentence that names a region, for every region shape", () =
     }
   }
 
+  for (const mode of ["completed", "planned"] as const) {
+    it(`forearm, ${mode}, the 3D model's row and panel for each of its muscles`, async () => {
+      const texts = await readModel(forearmRegionData, mode);
+      // It reached the panel of a chosen muscle, and the model's credits.
+      expect(texts).toContain("One bout per set, per muscle");
+      expect(texts.some((text) => text.startsWith("It is one model of one arm"))).toBe(true);
+      expect(problems(forearmRegionData, texts)).toEqual([]);
+    }, 60000);
+  }
+
   it("finds what it is looking for: each rule catches the sentence it is there for", () => {
     const thigh = pageFixtures.fx_thigh;
     expect(problems(thigh, ["12 distinct bouts touched the fixture thighs on the right thigh."])).toHaveLength(3);
@@ -227,6 +263,11 @@ describe("every page sentence that names a region, for every region shape", () =
     expect(problems(forearmRegionData, ["Both arms count together: a set counts once, whichever arm or arms did it, and a set with no arm recorded counts like any other."])).toEqual([]);
     expect(problems(forearmRegionData, ["Plan Week 1, as written: 18 distinct bouts are planned for the forearms in Plan\u00a0Week 1."])).toHaveLength(1);
     expect(problems(forearmRegionData, ["Plan Week 2, as written: 18 distinct bouts are planned for the forearms in Plan Week 1."])).toEqual([]);
+    // Nothing read, measured or counted by, per or each side (the release review, 22 Oct): main's words, and what the page says now.
+    expect(problems(forearmRegionData, ["Circumference and grip, by arm"])).toEqual(["counted per side: Circumference and grip, by arm"]);
+    expect(problems(forearmRegionData, ["One bout per set, per muscle, per arm"])).toEqual(["counted per side: One bout per set, per muscle, per arm"]);
+    expect(problems(thigh, ["Each side assumed", "Measured per leg", "Counted by sides"])).toHaveLength(3);
+    expect(problems(forearmRegionData, ["Circumference and grip", "One bout per set, per muscle", "By FCR, FCU, PL.", "Each set counts once per muscle, from your logged workouts."])).toEqual([]);
   });
 
   /** What the page's live region says once Planned is chosen. */

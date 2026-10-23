@@ -12,7 +12,7 @@ import { loadRegionExtras } from "@/lib/specialization/regionExtras";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { currentExposureRule } from "@shared/specialization/rules";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
-import { NOW, goals, sessions, slots, store } from "./__fixtures__/forearmWeek";
+import { NOW, goals, sessions, slots, store, storeWithOneArm } from "./__fixtures__/forearmWeek";
 
 /**
  * The forearm page says what main says (4dac1ae: both arms counted as one, owner 20 Oct 2026; the
@@ -25,7 +25,12 @@ import { NOW, goals, sessions, slots, store } from "./__fixtures__/forearmWeek";
  * and the external biceps, each with a target saved earlier for one arm, now read for both; the
  * external brachialis, with none), the sets behind every total (the region's, the window line's pair,
  * each exercise's, each day's, those for the forearms only, those not counted here), and the wrist
- * flexion movement.
+ * flexion movement; once more for the plan week with a one-arm exercise in the plan. The 3D model,
+ * which a phone shows by default, is read too, for this week and the plan week: the page with the
+ * model's row of muscles and its Overview, then the model's panel for each muscle of the row, its
+ * disclosures open. jsdom has no WebGL, so the stage is a stand-in that shows what the page hands
+ * it, as the stage does over a drawn model: its accessible name and the selected muscle's name and
+ * layer (the drawing states never render it).
  *
  * Each of those readings is a list of lines in the order the page shows them, kept apart per state
  * and per sheet, and compared in order with the same reading taken on main at 4dac1ae
@@ -41,17 +46,24 @@ import { NOW, goals, sessions, slots, store } from "./__fixtures__/forearmWeek";
  * are not read there), and run it with READ_PAGE_TEXT=<path>.
  */
 
+vi.mock("./anatomy3d/AnatomyModelStage", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./anatomy3d/AnatomyModelStage")>()),
+  AnatomyModelStage: ({ label, selected }: { label: string; selected: { name: string; layer: string } | null }) =>
+    createElement("div", { className: "sg-anatomy3d-stage", role: "img", "aria-label": label },
+      selected && createElement("div", { className: "sg-anatomy3d-selected" }, createElement("small", null, "Selected structure"), createElement("b", null, selected.name), createElement("small", null, selected.layer))),
+}));
+
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
 if (!window.matchMedia) (window as unknown as Record<string, unknown>).matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
 Element.prototype.scrollIntoView = () => {};
 window.scrollBy = (() => {}) as typeof window.scrollBy;
 window.scrollTo = (() => {}) as typeof window.scrollTo;
 
-function Harness({ initial }: { initial: SpecializationViewState }) {
+function Harness({ initial, planned }: { initial: SpecializationViewState; planned: typeof store }) {
   const [state, setState] = useState(initial);
   return createElement(SpecializationPanel, {
     state, onStateChange: setState,
-    plan: { ready: true, slots, weeks: { 1: store }, choice: null, activeWeek: 1 },
+    plan: { ready: true, slots, weeks: { 1: planned }, choice: null, activeWeek: 1 },
     catalog: exercises, equipmentProfile: defaultEquipmentProfile, accountId: null, goal: "Muscle growth", weightUnit: "lb",
     onApplyPlanChange: () => ({ ok: true, undo: () => {} }), onInspectExercise: () => {}, onOpenSession: () => {},
     backLabel: null, onBack: null,
@@ -104,8 +116,8 @@ async function readSheet(key: string, open: Element | null | undefined, into: Re
 }
 const pageButton = (name: RegExp) => Array.from(document.querySelectorAll<HTMLElement>(".spz-page button")).find((button) => name.test(button.textContent ?? "") || name.test(button.getAttribute("aria-label") ?? ""));
 
-async function readPage(state: SpecializationViewState): Promise<Reading> {
-  render(createElement(Harness, { initial: state }));
+async function readPage(state: SpecializationViewState, planned: typeof store): Promise<Reading> {
+  render(createElement(Harness, { initial: state, planned }));
   await act(async () => {});
   const seen: Reading = {};
   const more = pageButton(/^Show \d+ more$/);
@@ -127,16 +139,48 @@ async function readPage(state: SpecializationViewState): Promise<Reading> {
   return seen;
 }
 
+/**
+ * The page with the 3D model (its row of muscles, the stage and the Overview panel), every
+ * finding shown and every disclosure open; then each muscle of the row chosen in turn, and the stage and the model's panel
+ * read for it, the panel's disclosures open. The sheets are the drawing states' own.
+ */
+async function readModel(state: SpecializationViewState, planned: typeof store): Promise<Reading> {
+  render(createElement(Harness, { initial: state, planned }));
+  await act(async () => {});
+  const seen: Reading = {};
+  const more = pageButton(/^Show \d+ more$/);
+  if (more) await click(more);
+  await openAll(document.querySelector(".spz-page")!);
+  seen.page = linesOf(document.querySelector(".spz-page")!);
+  const chips = () => Array.from(document.querySelectorAll<HTMLElement>(".sg-anatomy3d-rail-chip"));
+  for (let index = 1; index < chips().length; index += 1) {
+    const chip = chips()[index];
+    await click(chip);
+    const model = document.querySelector(".sg-anatomy3d")!;
+    await openAll(model);
+    seen[`model: ${chip.lastChild?.textContent}`] = Array.from(model.children).filter((part) => !part.classList.contains("sg-anatomy3d-rail")).flatMap((part) => linesOf(part));
+  }
+  cleanup();
+  return seen;
+}
+
 /** The targets of the fixture but those saved earlier on the biceps and the anconeus: each muscle that is not a target here then has none. */
 const onTargetMusclesOnly = goals.filter((goal) => goal.nodeId !== "upper_arm.biceps" && goal.nodeId !== "forearm.anconeus");
 
-/** Both arms as one: this week, the rolling 7 days, a custom window and the plan week; and this week with no target saved earlier on a muscle that is not a target here. */
-const states: [string, Partial<SpecializationViewState>, unknown[]][] = [
-  ["week", {}, goals],
-  ["7d", { window: "7d" }, goals],
-  ["custom", { window: "custom", from: "2026-10-05", to: "2026-10-16" }, goals],
-  ["planned", { mode: "planned" }, goals],
-  ["week, targets on target muscles only", {}, onTargetMusclesOnly],
+/**
+ * Both arms as one: this week, the rolling 7 days, a custom window and the plan week; this week with
+ * no target saved earlier on a muscle that is not a target here; the plan week with a one-arm
+ * exercise in the plan; and this week and the plan week with the 3D model.
+ */
+const states: [string, Partial<SpecializationViewState>, unknown[], typeof store][] = [
+  ["week", {}, goals, store],
+  ["7d", { window: "7d" }, goals, store],
+  ["custom", { window: "custom", from: "2026-10-05", to: "2026-10-16" }, goals, store],
+  ["planned", { mode: "planned" }, goals, store],
+  ["week, targets on target muscles only", {}, onTargetMusclesOnly, store],
+  ["planned, a one-arm exercise in the plan", { mode: "planned" }, goals, storeWithOneArm],
+  ["week, 3D model", { figure: "model" }, goals, store],
+  ["planned, 3D model", { mode: "planned", figure: "model" }, goals, store],
 ];
 
 // The region's rep profiles too (F1, §5.2): a muscle sheet shows the starting ranges once they arrive, so they are here before any sheet opens.
@@ -152,10 +196,10 @@ afterEach(() => { cleanup(); vi.useRealTimers(); });
 
 async function readAll(): Promise<Record<string, Reading>> {
   const read: Record<string, Reading> = {};
-  for (const [id, over, saved] of states) {
+  for (const [id, over, saved, planned] of states) {
     window.localStorage.setItem("sports-genome-specialization-goals-v1", JSON.stringify(saved));
     clearSummaryCache();
-    read[id] = await readPage({ ...defaultSpecializationState("forearm"), ...over });
+    read[id] = await (over.figure === "model" ? readModel : readPage)({ ...defaultSpecializationState("forearm"), ...over }, planned);
   }
   return read;
 }
@@ -181,8 +225,14 @@ const stated: { why: string; was: RegExp; now: string }[] = [
   { why: "09 item 4; §4.3: the strapped finding's detail is the published rule's straps clause", was: /^Straps hold the bar for the hand, so the finger flexors are not credited for those sets\. The rest of each set still counts\.$/, now: `${currentExposureRule.specification.straps} The rest of each set still counts.` },
   // The anconeus's target of 3 is the fixture's only one of 3; the biceps' target of 5 is counted, and its row keeps "0 of your 5".
   { why: "09 item 5; §2.2: a target on a muscle nothing can be counted for (the anconeus: no mapping) says so, never a zero", was: /^3 per calendar week · 0 of your 3$/, now: "3 per calendar week · cannot be counted yet" },
+  { why: "09 item 8; appendix 'Both sides as one', §4.4: the Progress subtitle says no side", was: /^Circumference and grip, by arm$/, now: "Circumference and grip" },
+  { why: "09 item 9; appendix 'Both sides as one': the 3D model's panel counts a set once per muscle, not per arm", was: /^One bout per set, per muscle, per arm$/, now: "One bout per set, per muscle" },
+  { why: "09 item 10; appendix 'Both sides as one': a movement's ledger row says no side for a planned one-arm set", was: /^(By [^.]+\.) Each side assumed\.$/, now: "$1" },
+  { why: "09 item 11; appendix 'Both sides as one': the 3D model's credits name no side and claim no mirror image (the model is never mirrored)", was: /^It is one model of a right arm; the left arm is shown as its mirror image, not a separate model\. /, now: "It is one model of one arm, never mirrored. " },
   // F1, lane S4 (11-forearm-research-and-stack.md §3.3): the one count of direct moving sets, in the window line's words.
+  { why: "F1 S4; 11 §3.3: in Planned mode the window line says the plan week's direct moving sets where it said the logged bouts (the logged week stays in the sets it opens); with the one-arm exercise in the plan, 12", was: /^Plan Week 1, as written: 15 bouts planned · \d+ logged this week$/, now: "Plan Week 1, as written: 15 bouts planned · 12 direct moving sets" },
   { why: "F1 S4; 11 §3.3: in Planned mode the window line says the plan week's direct moving sets where it said the logged bouts (the logged week stays in the sets it opens)", was: /^Plan Week 1, as written: (\d+) bouts planned · \d+ logged this week$/, now: "Plan Week 1, as written: $1 bouts planned · 9 direct moving sets" },
+  { why: "F1 S4; 11 §3.3: in Planned mode the 3D model's Overview says the plan week's direct moving sets, in the window line's words", was: /^(\d+) distinct bouts are planned for the forearms in Plan Week 1\. (Tap a muscle on the model, or in the row above it, for its numbers\.)$/, now: "$1 distinct bouts are planned for the forearms in Plan Week 1; 9 are direct moving sets. $2" },
 ];
 /** Runs of the reference's lines, one after another, gone from the sheets `in` names. */
 const gone: { why: string; in: Where; lines: RegExp[] }[] = [
@@ -190,6 +240,7 @@ const gone: { why: string; in: Where; lines: RegExp[] }[] = [
   { why: "09 item 2; §2.2, §9.1: a target saved earlier on a muscle that is not a target here can be ended or removed, not changed", in: ANYWHERE, lines: [/^\[name\] Change the target of .+ for (Anconeus|Biceps brachii|Brachialis)$/, /^Change$/] },
   { why: "09 item 2: no target is offered on a muscle that is not a target here", in: MUSCLES_NOT_TARGETS, lines: [/^Set a target$/] },
   { why: "09 item 2: nor is it said to be untargeted, as if it could take one", in: MUSCLES_NOT_TARGETS, lines: [/^Not targeted\. Nothing here is behind: a muscle without a target has no gap to show\.$/] },
+  { why: "09 item 10; appendix 'Both sides as one': a ledger row says no side for a planned one-arm set", in: ANYWHERE, lines: [/^Each side assumed$/] },
 ];
 /** Runs of lines new in the sheets `in` names (each run may stand anywhere in them). */
 const added: { why: string; in: Where; lines: RegExp[] }[] = [
@@ -202,7 +253,7 @@ const added: { why: string; in: Where; lines: RegExp[] }[] = [
   { why: "09 item 6; §8: How this is counted names the sets of exercises the forearm leaves unmapped, and opens them", in: /^page$/, lines: [/^\d+ sets? of exercises left unmapped here (is|are) not counted, each for the reason given with it\.$/, /^See (this set|these sets) and why$/] },
   // F1, lane S4 (11-forearm-research-and-stack.md §3.2): the stack card under the map and its ways in. The finding's run first, then the card's, so the strip's one line is what is left.
   { why: "F1 S4; 11 §3.2: Planned mode's Coverage to review leads with the movements the plan week gives no direct moving work, and opens the stack card", in: /^page$/, lines: [/^9 movements have no direct moving work in Plan Week 1$/, /^Pronation, supination, radial deviation and 6 more\.$/, /^Design a stack$/] },
-  { why: "F1 S4; 11 §3.2: the stack card, closed, right under the map: its two-line summary", in: /^page$/, lines: [/^Design a stack$/, /^Plan Week 1 · 9 direct moving sets now$/] },
+  { why: "F1 S4; 11 §3.2: the stack card, closed, right under the map: its two-line summary", in: /^page$/, lines: [/^Design a stack$/, /^Plan Week 1 · (9|12) direct moving sets now$/] },
   { why: "F1 S4; 11 §3.2: the drawing's strip with nothing selected opens the stack card, beside See these sets", in: /^page$/, lines: [/^Design a stack$/] },
   { why: "F1 S4; 11 §5.2, §5.3: a muscle sheet says once, right above its suggestions, that the ranges are the app's starting ranges, not measured for the muscle", in: /^muscle: /, lines: [/^Starting ranges the app uses for this kind of movement\. They are practical defaults, not measured for this muscle\. .+ Change them any time\.$/] },
   { why: "F1 S4; 11 §5.3: where a hold range appears, the hold sentence, once", in: /^muscle: /, lines: [/^Holds of \d+–\d+ s are the app's starting range, not a tested one\. .+the plan counts the number written\.$/] },

@@ -21,6 +21,8 @@ const nameOf = (id: number) => byId(id).name;
 
 export const slots = buildDaySlots(["Upper", "Lower", "Upper", "Lower"]);
 export const store = { ...emptyDayStore(), plan: { [slots[0].key]: [byId(1), byId(45), byId(132)], [slots[1].key]: [byId(167)], [slots[2].key]: [byId(3), byId(139), byId(140)], [slots[3].key]: [byId(168)] } };
+/** The same plan with a one-arm exercise on Day 01, the One-Arm Dumbbell Wrist Curl (410), which the plan assumes on both sides. */
+export const storeWithOneArm = { ...store, plan: { ...store.plan, [slots[0].key]: [...store.plan[slots[0].key], byId(410)] } };
 
 const set = (over: Record<string, unknown> = {}) => ({ weight: "30", reps: "12", unit: "lb", completed: true, ...over });
 const hold = (seconds: number, over: Record<string, unknown> = {}) => ({ weight: "", reps: "", holdSeconds: String(seconds), unit: "lb", completed: true, ...over });

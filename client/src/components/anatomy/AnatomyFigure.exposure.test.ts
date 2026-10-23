@@ -68,8 +68,9 @@ describe("exposure encoding", () => {
     const luminance = (hex: string) => { const [r, g, b] = linear(hex); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
     const resting = css.match(/--sg-role-neutral-on-dark: (#[0-9a-f]{6});/)![1];
     expect((luminance(tokens[0]!) + 0.05) / (luminance(resting) + 0.05)).toBeGreaterThanOrEqual(1.5);
-    for (const role of ["--sg-role-primary-1", "--sg-role-supporting-1", "--sg-role-stabilizing-1"]) {
+    for (const role of ["--sg-role-primary", "--sg-role-supporting", "--sg-role-stabilizing"]) {
       const value = css.match(new RegExp(`${role}: (#[0-9a-f]{6});`))?.[1];
+      expect(value, role).toBeTruthy();
       expect(tokens).not.toContain(value);
     }
   });

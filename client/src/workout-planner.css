@@ -919,7 +919,7 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
    changing day meant scrolling past the one you were on to a grid below it.
    Weeks are pills, days are tabs, and the day states itself once. */
 
-.training-plan-header { display: grid; gap: .8rem; }
+.training-plan-header { display: grid; grid-template-columns: minmax(0, 1fr); gap: .8rem; }
 .training-plan-title h1 { margin-top: .2rem; font-family: var(--font-display, sans-serif); font-size: clamp(2.1rem, 8vw, 3rem); font-weight: 800; line-height: .9; text-transform: uppercase; }
 
 .training-plan-weeks { display: flex; flex-wrap: wrap; gap: .4rem; }
@@ -930,6 +930,49 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .training-plan-week:disabled { opacity: .45; }
 .training-plan-week-active { border-color: var(--sg-selected-on-dark); background: rgb(255 255 255 / .1); color: var(--sg-text-on-dark); }
 .training-plan-week-active small { color: var(--sg-text-muted-on-dark); }
+/* Naming a week and editing its days: two quiet actions on their own line under the weeks, their words in line with
+   the page's edge; what they open sits under them, in place. */
+.training-plan-week-name { max-width: 9.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.training-plan-actions { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: -.45rem 0 -.2rem -.55rem; }
+.training-plan-setup { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.75rem; border-radius: 999px; padding: 0 .55rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.training-plan-setup[aria-expanded="true"] { background: rgb(255 255 255 / .1); color: var(--sg-text-on-dark); }
+.training-plan-setup:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.training-plan-naming { display: grid; grid-template-columns: minmax(0, 1fr); gap: .4rem; }
+.training-plan-naming label { color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.training-plan-naming small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 600; }
+.training-plan-naming-row { display: flex; gap: .4rem; }
+.training-plan-naming input { flex: 1 1 0; width: 0; min-width: 0; min-height: 2.75rem; border: 1px solid transparent; border-radius: 12px; background: rgb(255 255 255 / .08); padding: 0 .85rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.training-plan-naming input::placeholder { color: var(--sg-text-faint-on-dark); }
+.training-plan-naming input:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 0; }
+.training-plan-naming-save, .training-plan-naming-cancel { flex: 0 0 auto; min-width: 2.75rem; min-height: 2.75rem; border-radius: 12px; padding: 0 .95rem; font-size: var(--sg-text-sm); font-weight: 800; }
+.training-plan-naming-save { background: var(--sg-action-fill); color: var(--sg-action-on); }
+.training-plan-naming-cancel { padding: 0 .6rem; color: var(--sg-link-on-dark); }
+.training-plan-naming-save:focus-visible, .training-plan-naming-cancel:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+/* The week's days (WeekLayoutEditor), drawn as the iPhone's settings are: a segmented control,
+   then inset grouped lists with the value on the right and a check on the chosen split. */
+.week-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.1rem; padding: .2rem 0 .4rem; }
+.week-layout-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.week-layout-head h2 { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 800; }
+.week-layout-done { min-width: 2.75rem; min-height: 2.75rem; padding: 0 .1rem 0 .75rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-lg); font-weight: 700; }
+.week-layout-group { display: grid; min-width: 0; gap: .45rem; }
+.week-layout-group h3 { padding: 0 .9rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.week-layout-segments { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; border-radius: 12px; background: rgb(255 255 255 / .07); padding: 3px; }
+.week-layout-segments button { min-height: 2.75rem; border-radius: 9px; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.week-layout-segments button[aria-pressed="true"] { background: rgb(255 255 255 / .18); color: var(--sg-text-on-dark); font-weight: 700; box-shadow: var(--sg-elevation-1); }
+.week-layout-list { margin: 0; overflow: hidden; border-radius: 12px; background: rgb(255 255 255 / .06); padding: 0; list-style: none; }
+.week-layout-list > li + li { border-top: 1px solid var(--sg-divider-on-dark); }
+.week-layout-row { position: relative; display: flex; width: 100%; min-height: 3.25rem; align-items: center; justify-content: space-between; gap: .75rem; padding: .55rem .9rem; text-align: left; }
+.week-layout-text { display: grid; min-width: 0; gap: .1rem; }
+.week-layout-text b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; }
+.week-layout-text b em { margin-left: .5rem; color: var(--sg-selected-on-dark); font-size: var(--sg-text-xs); font-style: normal; font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.week-layout-text small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+.week-layout-value { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .3rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); font-weight: 700; white-space: nowrap; }
+/* The whole row is the picker; what shows is the label and the value beside it. */
+.week-layout-pick select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; font-size: var(--sg-text-lg); cursor: pointer; }
+.week-layout-pick:focus-within, .week-layout-list button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -2px; }
+.week-layout-check { flex: 0 0 auto; color: var(--sg-selected-on-dark); }
+.week-layout-done:focus-visible, .week-layout-segments button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.week-layout-note { padding: 0 .9rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; line-height: var(--sg-leading-body); }
 
 /* The day row scrolls rather than wrapping: five names on one line is the whole
    point, and a wrapped second line reads as a second group. */
@@ -1108,9 +1151,6 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .day-review-stack .workout-health-disclosure > summary h3 { font-family: inherit; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); }
 
 /* -- Next update: Review summaries and Reorder mode ---------------------------- */
-.day-plan-actions .day-action-reorder { display: inline-flex; align-items: center; gap: .45rem; min-height: 2.9rem; border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); padding: 0 .95rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
-.day-plan-actions .day-action-reorder[aria-pressed="true"] { border-color: var(--sg-focus-on-dark); color: var(--sg-focus-on-dark); }
-.day-plan-actions .day-action-reorder:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 /* The planning guide summary: title, what the count counts, one action - not a
    display-size "0 WORK SETS" competing with the goal. */
 .programming-guide-disclosure > summary p strong { font-weight: 700; }

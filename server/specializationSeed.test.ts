@@ -13,6 +13,7 @@ import {
   SCHEMA_MIGRATION_PATH,
   SEED_MIGRATION_PATH,
   SEED_V1_MIGRATION_PATH,
+  SEED_V2_MIGRATION_PATH,
   USER_B,
   applyMigration,
   as,
@@ -32,11 +33,11 @@ import type { AnatomyNode, DiagramAsset, RegionContent, SpecializationRegion } f
 /**
  * The seed migration is generated from the TypeScript content (scripts/specialization/
  * emit-seed.ts). This holds the committed file to the generator byte for byte, applies it to
- * Postgres (PGlite) in production's order (schema v1, seed v1, schema v2, then this seed;
- * server/fixtures/specializationPg.ts) and reads every record back in the content's own shape,
- * so "the database carries the content" is checked, not assumed. It also proves what the seed
- * may change in rows production already holds (10-multi-region.md §5.2): in this release, the
- * upper arm's region row in the columns schema v2 added, and nothing else.
+ * Postgres (PGlite) in production's order (schema v1, seed v1, schema v2, seed v2, then this
+ * seed; server/fixtures/specializationPg.ts) and reads every record back in the content's own
+ * shape, so "the database carries the content" is checked, not assumed. It also proves what a
+ * seed may change in rows production already holds (10-multi-region.md §5.2): seed v2, at wave
+ * 0's release, two region rows; the current seed, in this release, nothing.
  */
 
 const SETUP = 120_000;
@@ -335,13 +336,14 @@ describe("over what production holds: seed v1's rows stay as they were", () => {
   });
 
   /**
-   * §5.2 "What a seed may change in existing rows, and nothing else". In this release, one row:
-   * the upper arm's, in the columns schema v2 added (a region row's new columns), its v1 columns
-   * staying as seed v1 wrote them. Every other row it writes is new (rows of schema v2's tables,
-   * and the upper arm's two shoulder actions), and applied a second time it touches no row. xmin
-   * and ctid compared on every table.
+   * §5.2 "What a seed may change in existing rows, and nothing else", for seed v2 as production
+   * ran it on 22 Oct 2026, over schema v1, seed v1 and schema v2: two rows, the upper arm's region
+   * row in the columns schema v2 added (its v1 columns staying as seed v1 wrote them) and the
+   * forearm's progress subtitle. Every other row it writes is new (rows of schema v2's tables, and
+   * the upper arm's two shoulder actions), and applied a second time it touches no row. xmin and
+   * ctid compared on every table.
    */
-  it("changes only the upper arm's new region columns, adds only new rows, and applied again touches nothing; forearm_mappings_v1 still passes its publication rule", async () => {
+  it("seed v2 changes only the upper arm's new region columns and the forearm's progress subtitle, adds only new rows, and applied again touches nothing; forearm_mappings_v1 still passes its publication rule", async () => {
     const fresh = await freshDb("schema v2 again");
     try {
       const regionRows = async () => {
@@ -350,14 +352,20 @@ describe("over what production holds: seed v1's rows stay as they were", () => {
       };
       const prior = await rowVersions(fresh);
       const regionsBefore = await regionRows();
-      await applyMigration(fresh, SEED_MIGRATION_PATH);
+      await applyMigration(fresh, SEED_V2_MIGRATION_PATH);
       const after = await rowVersions(fresh);
-      const allowedChanges: Record<string, number> = { regions: 1 };
+      const allowedChanges: Record<string, number> = { regions: 2 };
       const changed = Object.fromEntries(Object.keys(prior).map((table) => [table, prior[table].filter((version) => !after[table].includes(version)).length]).filter(([, n]) => n));
       expect(changed).toEqual(allowedChanges);
-      // That row is the upper arm's: schema v1's columns exactly as seed v1 wrote them, schema v2's from its record. The forearm's is untouched.
+      // Those rows are the forearm's, in exactly one column, its Progress subtitle, which no longer says "by arm" (both sides as one,
+      // owner 20 Oct 2026), and the upper arm's: schema v1's columns exactly as seed v1 wrote them, schema v2's from its record.
       const regionsAfter = await regionRows();
-      expect(regionsAfter.forearm.v).toBe(regionsBefore.forearm.v);
+      expect(regionsAfter.forearm.v).not.toBe(regionsBefore.forearm.v);
+      expect(regionsBefore.forearm.row.progress_subtitle).toBe("Circumference and grip, by arm");
+      expect(regionsAfter.forearm.row).toEqual({ ...regionsBefore.forearm.row, progress_subtitle: "Circumference and grip" });
+      expect(regionsAfter.forearm.row.progress_subtitle).toBe(forearmContent.region.wording.progressSubtitle);
+      // The upper arm's subtitle is a v1 column of a reference region: null, as seed v1 wrote it, until its promotion.
+      expect(regionsAfter.upper_arm.row.progress_subtitle).toBeNull();
       const v2Columns = ["side_model", "side_limb", "side_word", "side_word_plural", "catalog_keys", "region_only_tag_scope", "external_heading", "measurement_defaults", "on_side_template"];
       const v1Part = (row: Record<string, unknown>) => Object.fromEntries(Object.entries(row).filter(([column]) => !v2Columns.includes(column)));
       expect(v1Part(regionsAfter.upper_arm.row)).toEqual(v1Part(regionsBefore.upper_arm.row));
@@ -378,8 +386,25 @@ describe("over what production holds: seed v1's rows stay as they were", () => {
       });
       expect(added.actions).toBe(2);
 
-      await applyMigration(fresh, SEED_MIGRATION_PATH);
+      await applyMigration(fresh, SEED_V2_MIGRATION_PATH);
       expect(await rowVersions(fresh)).toEqual(after);
+      expect(await rows(fresh, "select specialization.mapping_version_problems(id) as problems from specialization.mapping_versions where version_key = 'forearm_mappings_v1'")).toEqual([{ problems: null }]);
+    } finally {
+      await fresh.close();
+    }
+  }, SETUP);
+
+  /**
+   * §5.2 for the current seed: over every file production has recorded (schema v1, seed v1,
+   * schema v2, seed v2), what it may change in existing rows. In this release, nothing: seed v3
+   * carries seed v2's content, so it changes no existing row and adds none.
+   */
+  it("the current seed, over every applied file, changes no existing row and adds none; forearm_mappings_v1 still passes its publication rule", async () => {
+    const fresh = await freshDb("seed v2");
+    try {
+      const prior = await rowVersions(fresh);
+      await applyMigration(fresh, SEED_MIGRATION_PATH);
+      expect(await rowVersions(fresh)).toEqual(prior);
       expect(await rows(fresh, "select specialization.mapping_version_problems(id) as problems from specialization.mapping_versions where version_key = 'forearm_mappings_v1'")).toEqual([{ problems: null }]);
     } finally {
       await fresh.close();

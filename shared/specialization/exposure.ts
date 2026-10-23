@@ -455,12 +455,15 @@ function contributionOf(bout: ExposureBout, nodeId: NodeId, effects: readonly Ma
   };
 }
 
-/** The plain-language notes the ledger shows beside a row. */
+/**
+ * The plain-language notes the ledger shows beside a row. None says a side: both sides count as
+ * one (owner, 20 Oct 2026), so a planned one-arm set, which the plan assumes on both sides
+ * (`plan_assumption`), no longer says "Each side assumed"; the row keeps that source.
+ */
 function notesFor(bout: ExposureBout, shown: readonly MappingEffect[], strapped: readonly MappingEffect[]): string[] {
   const notes: string[] = [];
   if (strapped.length) notes.push("Strapped: grip not counted");
   if (bout.straps === "unknown" && shown.some((effect) => effect.mapping.reviewStatus === "reviewed" && effect.mapping.requiresNoStraps)) notes.push("Straps not recorded");
-  if (shown[0]?.reading.source === "plan_assumption") notes.push("Each side assumed");
   if (bout.matchedBy === "name") notes.push("Matched by name");
   return notes;
 }

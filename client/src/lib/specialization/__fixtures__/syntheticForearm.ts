@@ -83,7 +83,7 @@ export const syntheticForearm: SpecializationRegionData = {
     id: REGION_ID, label: "Forearms", heading: "Forearm specialization", sortOrder: 10, status: "fixture", sides: { model: "paired", limb: "arm" },
     bodyMapKeys: ["forearms"], catalogKeys: ["forearms"], regionOnlyTagScope: "any", entryLabel: "Explore forearm coverage",
     wording: {
-      externalGroup: "Upper-arm muscles credited here", externalHeading: "Forearm muscles credited here", incidentalWork: "grip", progressSubtitle: "Circumference and grip, by arm",
+      externalGroup: "Upper-arm muscles credited here", externalHeading: "Forearm muscles credited here", incidentalWork: "grip", progressSubtitle: "Circumference and grip",
       sideWord: "arm", sideWordPlural: "arms", onSideTemplate: "your {side} forearm",
     },
     measurementMetrics: ["circumference_cm", "grip_force_n"],

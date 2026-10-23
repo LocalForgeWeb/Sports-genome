@@ -119,9 +119,19 @@ function asAt6738eeb(data: SpecializationRegionData) {
   };
 }
 
+/**
+ * The one field 6738eeb's data had that changed since: the Progress subtitle, which said "by arm"
+ * until both sides counted as one (owner, 20 Oct 2026; the release review, 22 Oct). Checked to be
+ * the old words before it is set to the new ones, so nothing else may differ.
+ */
+function withSubtitle(at6738eeb: ReturnType<typeof asAt6738eeb>, was: string, now: string): ReturnType<typeof asAt6738eeb> {
+  expect(at6738eeb.region.wording.progressSubtitle).toBe(was);
+  return { ...at6738eeb, region: { ...at6738eeb.region, wording: { ...at6738eeb.region.wording, progressSubtitle: now } } };
+}
+
 describe("nothing moved: the forearm and the deltoid fixture as composed", () => {
-  it("gives the forearm page the data it read at 6738eeb, record for record, apart from the fields the model added", () => {
-    expect(asAt6738eeb(forearmRegionData)).toEqual(fixture("forearmRegionData.6738eeb.json"));
+  it("gives the forearm page the data it read at 6738eeb, record for record, apart from the fields the model added and the subtitle that said \"by arm\"", () => {
+    expect(asAt6738eeb(forearmRegionData)).toEqual(withSubtitle(fixture("forearmRegionData.6738eeb.json"), "Circumference and grip, by arm", "Circumference and grip"));
   });
 
   it("fills the forearm's added fields with what it did before: arm sides, the forearms key from any tag, no external version", () => {
@@ -146,8 +156,8 @@ describe("nothing moved: the forearm and the deltoid fixture as composed", () =>
     expect(forearmRegionData.mappings).toBe(forearmContent.mappings);
   });
 
-  it("changes the deltoid fixture only by its renames (§5.2) and the shared library's action words", () => {
-    const at6738eeb = fixture("deltoidRegionData.6738eeb.json") as ReturnType<typeof asAt6738eeb>;
+  it("changes the deltoid fixture only by its renames (§5.2), the shared library's action words and the subtitle that said \"by arm\"", () => {
+    const at6738eeb = withSubtitle(fixture("deltoidRegionData.6738eeb.json") as ReturnType<typeof asAt6738eeb>, "Circumference, by arm", "Circumference");
     const renamed = JSON.parse(JSON.stringify(at6738eeb).replaceAll('"upper_arm.triceps"', '"fixture_arm.triceps"').replace(/"cat-(\d+)"/g, '"fx-$1"')) as typeof at6738eeb;
     const expected = {
       ...renamed,
@@ -367,10 +377,13 @@ describe("what seed v1 wrote, byte for byte (§1.3, §5.2)", () => {
     expect(nodeActionsIn(emitted())).toEqual(expect.arrayContaining(nodeActionsIn(seedV1)));
   });
 
-  it("keeps every region row seed v1 wrote, its v1 columns unchanged until the region's status changes (the upper arm's promotion)", () => {
+  it("keeps every region row seed v1 wrote, its v1 columns unchanged until the region's status changes (the upper arm's promotion), but for the forearm's subtitle", () => {
     const v1Rows = insertedRows(seedV1, "regions");
     const rows = insertedRows(emitted(), "regions");
     expect(Array.from(v1Rows.keys())).toEqual(["$$forearm$$", "$$upper_arm$$"]);
+    // The one v1 value the current seed rewrites (10-multi-region.md, appendix "Both sides as one"): the forearm's Progress subtitle,
+    // which said "by arm". The upper arm's is a reference region's, null as seed v1 wrote it, and stays so until its promotion.
+    const rewritten: Record<string, Record<string, [string, string]>> = { $$forearm$$: { progress_subtitle: ["$$Circumference and grip, by arm$$", "$$Circumference and grip$$"] } };
     for (const [key, v1Row] of v1Rows) {
       const region = regionContentFor(key.replaceAll("$$", ""))?.region;
       expect(region, key).toBeDefined();
@@ -379,8 +392,13 @@ describe("what seed v1 wrote, byte for byte (§1.3, §5.2)", () => {
       if (`$$${region!.status}$$` !== v1Row.status) continue;
       // The upper arm's row is seed v1's reference row (a label, no heading, sort 0, no keys or
       // words) until its promotion, though its record already holds §1.1's (upper_arm/region.ts).
-      for (const [column, value] of Object.entries(v1Row)) expect(row![column], `${key} ${column}`).toBe(value);
+      for (const [column, value] of Object.entries(v1Row)) {
+        const change = rewritten[key]?.[column];
+        if (change) expect([value, row![column]], `${key} ${column}`).toEqual(change);
+        else expect(row![column], `${key} ${column}`).toBe(value);
+      }
     }
+    expect(v1Rows.get("$$upper_arm$$")!.progress_subtitle).toBe("null");
   });
 });
 

@@ -287,10 +287,12 @@ describe("holds and straps", () => {
     expect(row(bare, m.flexorDigitorumSuperficialis).contributions[0].notes).toEqual([]);
   });
 
-  it("notes a name match and a planned each-side assumption in the ledger", () => {
+  it("notes a name match in the ledger, and no side: a planned set assumed on both sides says nothing of it (both sides as one)", () => {
     expect(row(summarize([bout(139, { matchedBy: "name" })]), m.flexorCarpiRadialis).contributions[0].notes).toEqual(["Matched by name"]);
     const planned = summarize([bout(139, { mode: "planned", performedAt: null, planWeek: 1, armSide: { side: "both", source: "plan_assumption" } })], { mode: "planned", interval: planWeekInterval(1) });
-    expect(row(planned, m.flexorCarpiRadialis).contributions[0].notes).toEqual(["Each side assumed"]);
+    const [contribution] = row(planned, m.flexorCarpiRadialis).contributions;
+    expect(contribution.sideSource).toBe("plan_assumption");
+    expect(contribution.notes).toEqual([]);
   });
 });
 

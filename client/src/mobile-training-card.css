@@ -244,20 +244,17 @@
   text-transform: uppercase;
 }
 
-/* -- Next update: two bands, and reordering as a mode ----------------------
+/* -- Next update: two bands -------------------------------------------------
    The row gave a third of its width to a display-size index and reserved
    another 7rem for two arrow boxes it showed on every row, all the time; the
    name and prescription were squeezed between them and "90 sec" broke in two.
-   The index is now a small secondary mark, the name has the width, each part of
-   the prescription is an unbreakable group, and the arrows appear only while
-   the list is in Reorder mode (`.day-plan-list.is-reordering`). */
+   The index is now a small secondary mark, the name has the width, and each part
+   of the prescription is an unbreakable group. Rows are moved by holding them
+   (below); the arrows are kept for a keyboard or a screen reader. */
 .custom-prescription > summary.custom-row { grid-template-columns: 1.5rem auto minmax(0, 1fr) auto; gap: .2rem .6rem; align-items: start; }
-.day-plan-list:not(.is-reordering) .custom-prescription > summary.custom-row { padding-right: .9rem; }
 .custom-row-index { padding-top: .2rem; color: var(--sg-text-subtle-on-dark); font-family: inherit; font-size: var(--sg-text-sm); font-weight: 700; font-variant-numeric: tabular-nums; }
 .custom-row-identity strong { font-size: var(--sg-text-md); line-height: var(--sg-leading-snug); }
 .custom-row-state { align-self: center; min-height: 44px; }
-.day-plan-list:not(.is-reordering) .day-order-controls { display: none; }
-.day-plan-list.is-reordering .custom-row-state { visibility: hidden; }
 @media (max-width: 640px) {
   .custom-prescription > summary.custom-row { grid-template-columns: 1.5rem auto minmax(0, 1fr); }
   .custom-row-state { grid-column: 3; justify-self: start; min-height: 44px; margin-top: .1rem; }
@@ -266,10 +263,43 @@
 /* The plan row's photograph: the dense 72px frame, top-aligned with the name. */
 .custom-prescription > summary.custom-row .exercise-media-thumb { margin-top: .1rem; }
 
-/* Remove on the row (15 Oct): top right, where Reorder's arrows sit while reordering, so the two
-   never show together. The summary keeps clear of it at every width. */
+/* Remove on the row (15 Oct): top right. The summary keeps clear of it at every width. */
 .day-row-remove { position: absolute; z-index: 2; top: .65rem; right: .7rem; display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); border-radius: 10px; color: var(--sg-text-muted-on-dark); }
 .day-row-remove:hover { border-color: var(--sg-action); background: rgb(228 81 46 / .16); color: #fff; }
 .day-row-remove:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
-.day-plan-list.is-reordering .day-row-remove { display: none; }
-.day-plan-list:not(.is-reordering) .custom-prescription > summary.custom-row { padding-right: calc(.7rem + 44px + .6rem); }
+.day-plan-list > .day-orderable-exercise .custom-prescription > summary.custom-row { padding-right: calc(.7rem + 44px + .6rem); }
+
+/* -- Moving exercises (owner, 21 Oct 2026) -----------------------------------
+   As on the iPhone home screen: hold a row and it lifts under the finger, the
+   list starts arranging and its rows wiggle, the others slide out of the way of
+   the lifted one, and letting go drops it in place (lib/useHoldToArrange.ts).
+   Done, pinned above the navigation, ends it. Nothing here is hover-only: the
+   hint under the list says how, at rest. The arrows for a keyboard or a screen
+   reader stay in the row, out of sight until one of them has focus, beside
+   Remove rather than over it. */
+.day-plan-list .day-order-controls:not(:focus-within) { width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.day-plan-list .day-orderable-exercise .day-order-controls:focus-within { right: calc(.7rem + 44px + .4rem); background: var(--sg-surface-raised); }
+/* A long press is this gesture: not iOS's text selection, its photo menu, or a dragged image. */
+.day-orderable-exercise { -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+.day-orderable-exercise > .custom-prescription > summary { -webkit-user-select: none; user-select: none; }
+.day-orderable-exercise img { -webkit-user-drag: none; }
+@keyframes sg-arrange-wiggle { 0%, 100% { transform: rotate(-.45deg); } 50% { transform: rotate(.45deg); } }
+.day-plan-list.is-arranging > .day-orderable-exercise > .custom-prescription { animation: sg-arrange-wiggle var(--sg-motion-slow) var(--sg-ease) infinite; }
+.day-plan-list.is-arranging > .day-orderable-exercise:nth-child(even) > .custom-prescription { animation-direction: reverse; }
+.day-plan-list.is-arranging summary:active { transform: none; }
+/* While one is lifted the others slide; the lifted one follows the finger exactly. */
+.day-plan-list[data-dragging] > .day-orderable-exercise { transition: transform var(--sg-motion-base) var(--sg-ease); }
+.day-plan-list[data-dragging] > .day-orderable-exercise[data-lifted] { z-index: 6; transition: none; border-radius: 12px; background: var(--sg-surface-panel); box-shadow: var(--sg-elevation-3); outline: 2px solid var(--sg-selected-on-dark); }
+.day-plan-list[data-dragging] > .day-orderable-exercise[data-lifted] > .custom-prescription { animation: none; }
+.day-plan-list[data-settling] > .day-orderable-exercise { transition: none !important; }
+.day-arrange-hint { display: flex; align-items: center; gap: .45rem; margin: -.4rem 0 -.6rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+.day-arrange-bar { position: sticky; z-index: 30; bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + .5rem); display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: -.4rem; border: 1px solid var(--sg-selected-on-dark); border-radius: var(--sg-radius-sm); background: rgb(8 31 59 / .97); backdrop-filter: blur(16px); padding: .55rem .6rem .55rem .9rem; color: var(--sg-text-on-dark); box-shadow: var(--sg-elevation-2); }
+.day-arrange-bar p { display: grid; min-width: 0; gap: .1rem; margin: 0; }
+.day-arrange-bar b { font-size: var(--sg-text-base); font-weight: 800; }
+.day-arrange-bar span { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+.day-arrange-bar button { flex: 0 0 auto; min-width: 5rem; min-height: 2.75rem; border-radius: var(--sg-radius-sm); background: var(--sg-action-fill); padding: 0 1.1rem; color: var(--sg-action-on); font-size: var(--sg-text-base); font-weight: 800; }
+.day-arrange-bar button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+@media (max-width: 1023px) {
+  body:has(.session-resume-bar) .day-arrange-bar { bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + var(--sg-resume-height) + .5rem); }
+}
+@media (min-width: 1024px) { .day-arrange-bar { bottom: calc(4.375rem + 1.25rem + .5rem); } }

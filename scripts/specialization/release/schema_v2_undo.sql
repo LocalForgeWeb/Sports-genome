@@ -14,19 +14,24 @@
 -- mapping_version_problems and guard_mapping_version as v1 wrote them; drops the five tables
 -- (memberships, region actions, dimensions, values and attributes, with their rows), the
 -- columns, constraints and triggers schema v2 added to v1's tables, and the functions it
--- created; restores v1's checks and comments; and deletes the schema_migrations rows of schema
--- v2 and seed v2, so the apply tool takes both again.
+-- created; restores v1's checks, v1's goals_no_overlap as v1 wrote it (keyed on the side again;
+-- goals that schema v2's rule, which ignores the side, allows never clash under it) and v1's
+-- comments; and deletes the schema_migrations rows of schema v2 and seed v2, so the apply tool
+-- takes both again.
 --
--- Its limit: rows seed v2 added to v1's tables (an action, a variant) stay. They are valid
--- under v1, and seed v2 applied again finds them in place. A goal or measurement only schema v2
--- allows (side midline, girth_cm, a new posture) makes a restored check fail, and the undo
--- with it; production holds none.
+-- Its limit: what seed v2 wrote to v1's tables stays: the rows it added (an action, a variant)
+-- and the one value it rewrote, the forearm's progress_subtitle ("Circumference and grip", no
+-- longer "..., by arm"). They are valid under v1, and seed v2 applied again finds them in
+-- place. A goal or measurement only schema v2 allows (side midline, girth_cm, a new posture)
+-- makes a restored check fail, and the undo with it; production holds none.
 --
 -- Tested (server/specializationSchemaV2.test.ts › the undo): schema v1, seed v1, schema v2 and
--- the current seed, then this, give the database schema v1 and seed v1 gave, catalog and rows
--- table by table, a goal on a forearm muscle and movement kept; schema v2 and the current seed
--- then apply again; it refuses after seed v3 is recorded, while a variant uses not_applicable,
--- after a publish under schema v2, and while a goal names what schema v2 would not list.
+-- seed v2 (what production holds since 22 Oct 2026), then this, give the database schema v1 and
+-- seed v1 gave, catalog and rows table by table (goals_no_overlap and the side columns' comments
+-- included), a goal on a forearm muscle and movement kept; schema v2 and seed v2 then apply
+-- again; it refuses after seed v3 (20261022120100_specialization_atlas_seed_v3.sql) is recorded,
+-- while a variant uses not_applicable, after a publish under schema v2, and while a goal names
+-- what schema v2 would not list.
 do $undo$
 declare
   v_later text;
@@ -294,6 +299,18 @@ $fn$;
     check (wrist_position in ('flexed', 'neutral', 'extended', 'changing', 'unknown'));
   alter table specialization.goals drop constraint if exists goals_side_check;
   alter table specialization.goals add constraint goals_side_check check (side in ('left', 'right'));
+  alter table specialization.goals drop constraint if exists goals_no_overlap;
+  alter table specialization.goals add constraint goals_no_overlap exclude using gist (
+    user_id with =,
+    region_id with =,
+    (coalesce('node:' || node_id, 'action:' || action_id)) with =,
+    side with =,
+    metric with =,
+    period with =,
+    daterange(starts_on, ends_on, '[]') with &&
+  );
+  comment on column specialization.goals.side is null;
+  comment on column specialization.measurements.side is null;
   alter table specialization.measurements drop constraint if exists measurements_side_metric;
   alter table specialization.measurements drop constraint if exists measurements_side_check;
   alter table specialization.measurements add constraint measurements_side_check check (side in ('left', 'right'));

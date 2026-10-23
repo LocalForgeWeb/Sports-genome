@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { goalsForBothArms } from "@shared/specialization/goals";
 import type { SpecializationGoal, SpecializationMeasurement } from "@shared/specialization/types";
 import {
   collapseArmPairs,
@@ -145,11 +144,13 @@ describe("goal writes and the region check", () => {
 
 describe("useSpecializationGoals", () => {
   it("reads a target saved once per arm as one, refuses an overlap, removes, and keeps every reader current", () => {
+    // The old "Both arms" choice stored two copies before 20 Oct 2026; both arms now count as one.
+    saveSpecializationGoals((["left", "right"] as const).map((side) => goal({ id: `pair:${side}`, side })), "a");
     const writer = renderHook(() => useSpecializationGoals("a"));
     const reader = renderHook(() => useSpecializationGoals("a"));
-    // The old "Both arms" choice stored two copies; both arms now count as one (20 Oct 2026).
-    const { side: _side, ...draft } = goal({ id: "pair" });
-    act(() => { expect(writer.result.current.save(goalsForBothArms(draft))).toEqual({ ok: true }); });
+    expect(reader.result.current.goals.map((item) => item.id)).toEqual(["pair:right"]);
+    // Nothing writes such a pair now: its second copy is the same target as the first.
+    act(() => { expect(writer.result.current.save([goal({ id: "twice:left", side: "left", nodeId: "forearm.fcu" }), goal({ id: "twice:right", side: "right", nodeId: "forearm.fcu" })]).ok).toBe(false); });
     expect(reader.result.current.goals.map((item) => item.id)).toEqual(["pair:right"]);
     act(() => { expect(writer.result.current.save(goal({ id: "again", side: "right", startsOn: "2026-10-30" })).ok).toBe(false); });
     act(() => { expect(writer.result.current.remove("pair:right")).toEqual({ ok: true }); });

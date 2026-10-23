@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GOAL_TARGET_SANITY_MAX, goalPeriodInterval, goalProgressLabel, goalScopeOf, goalsForBothArms, goalsForBothSides, isGoalActive, isGoalActiveAt, nodeHomeRegionId, rehomedGoal, sameGoalTarget, validateGoal } from "@shared/specialization/goals";
+import { GOAL_TARGET_SANITY_MAX, goalPeriodInterval, goalProgressLabel, goalScopeOf, isGoalActive, isGoalActiveAt, nodeHomeRegionId, rehomedGoal, sameGoalTarget, validateGoal } from "@shared/specialization/goals";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { forearmAdjacentIds, forearmMuscleIds } from "@shared/specialization/regions/forearm/ids";
 import { upperArmMuscleIds } from "@shared/specialization/regions/upper_arm/ids";
@@ -9,7 +9,8 @@ import { fx, fxBack, fxCore, fxThigh } from "./__fixtures__/multiRegion";
 
 /**
  * Targets are the athlete's own (brief §7, design §5): any positive number, above 15
- * included; no default; one active target per muscle-or-movement, arm, measure and period.
+ * included; no default; one active target per muscle-or-movement, measure and period, whichever
+ * side it stores (both sides count as one, owner 20 Oct 2026).
  */
 
 const goal = (over: Partial<SpecializationGoal> = {}): SpecializationGoal => ({
@@ -58,16 +59,22 @@ describe("validateGoal", () => {
     expect(validateGoal(goal({ endsOn: "2026-10-12" }), [])).toEqual({ ok: true });
   });
 
-  it("refuses an overlapping target for the same muscle, arm, measure and period, and says which", () => {
+  it("refuses an overlapping target for the same muscle, measure and period, and says which", () => {
     const existing = [goal({ id: "existing", target: 12 })];
     const result = validateGoal(goal({ id: "new", startsOn: "2026-11-02" }), existing);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toBe("You already have a target of 12 direct dynamic bouts per calendar week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts.");
   });
 
-  it("allows what does not overlap: another arm, measure, period, muscle, or dates that do not meet", () => {
+  it("refuses the same target saved for the other arm: both sides count as one (owner, 20 Oct 2026), so the side is not part of a target", () => {
+    const existing = [goal({ id: "existing", side: "left", target: 12 })];
+    const result = validateGoal(goal({ id: "new", side: "right", startsOn: "2026-11-02" }), existing);
+    expect(result).toEqual({ ok: false, reason: "You already have a target of 12 direct dynamic bouts per calendar week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts." });
+    expect(sameGoalTarget(goal({ side: "left" }), goal({ side: "right" }))).toBe(true);
+  });
+
+  it("allows what does not overlap: another measure, period, muscle, or dates that do not meet", () => {
     const existing = [goal({ id: "existing", endsOn: "2026-10-18" })];
-    expect(validateGoal(goal({ id: "n1", side: "right" }), existing)).toEqual({ ok: true });
     expect(validateGoal(goal({ id: "n2", metric: "deliberate_hold_bouts" }), existing)).toEqual({ ok: true });
     expect(validateGoal(goal({ id: "n3", period: "rolling_7d" }), existing)).toEqual({ ok: true });
     expect(validateGoal(goal({ id: "n4", nodeId: "forearm.fcu" }), existing)).toEqual({ ok: true });
@@ -80,12 +87,26 @@ describe("validateGoal", () => {
   });
 });
 
-describe("both arms, activity, periods and labels", () => {
-  it("writes a both-arms entry as two explicit goals that do not clash with each other", () => {
-    const { side: _side, ...draft } = goal({ id: "pair" });
-    const [left, right] = goalsForBothArms(draft);
-    expect([left.id, left.side, right.id, right.side]).toEqual(["pair:left", "left", "pair:right", "right"]);
-    expect(validateGoal(right, [left])).toEqual({ ok: true });
+describe("both arms as one, activity, periods and labels", () => {
+  /** What the old "Both arms" choice stored before 20 Oct 2026: two copies, one per arm. Nothing writes them now. */
+  const savedPerArm = (over: Partial<SpecializationGoal> = {}) => (["left", "right"] as const).map((side) => goal({ id: `pair:${side}`, side, ...over }));
+
+  it("holds a pair saved once per arm before 20 Oct as one target: a second copy is refused, as the database's goals_no_overlap refuses it", () => {
+    const [left, right] = savedPerArm();
+    expect(sameGoalTarget(left, right)).toBe(true);
+    expect(validateGoal(right, [left]).ok).toBe(false);
+  });
+
+  it("lets either target of a pair saved once per arm with different numbers be ended, and changed only once the other is out of its way", () => {
+    const [left, right] = savedPerArm();
+    const pair = [left, { ...right, target: 9 }];
+    // Ending only narrows a target's dates, so the overlap it already had does not refuse it.
+    expect(validateGoal({ ...left, endsOn: "2026-10-16" }, pair)).toEqual({ ok: true });
+    expect(validateGoal({ ...pair[1], endsOn: "2026-10-12" }, pair)).toEqual({ ok: true });
+    // Any other change is a new overlap, said as one.
+    expect(validateGoal({ ...left, target: 30 }, pair)).toEqual({ ok: false, reason: "You already have a target of 9 direct dynamic bouts per calendar week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts." });
+    expect(validateGoal({ ...left, endsOn: "2026-10-16", startsOn: "2026-10-13" }, pair).ok).toBe(false);
+    expect(validateGoal({ ...left, target: 30 }, [left, { ...pair[1], endsOn: "2026-10-11", startsOn: "2026-10-01" }])).toEqual({ ok: true });
   });
 
   it("is active from its start date through its end date, in its own zone", () => {
@@ -134,12 +155,6 @@ describe("goals in every region's words and sides (10-multi-region.md §2.2)", (
     for (const side of ["left", "right"] as const) expect(validateGoal(coreGoal(side), [], core)).toEqual({ ok: false, reason: "This region is counted as a whole, with no left or right. Save the target without a side." });
     const clash = validateGoal({ ...coreGoal("midline"), id: "again" }, [coreGoal("midline")], core);
     expect(clash.ok === false && clash.reason).toMatch(/^You already have a target of 20 direct dynamic bouts/);
-  });
-
-  it("still splits both sides into two targets for the old \"Both arms\" pairs it reads (dormant: the page saves one)", () => {
-    const { side: _side, ...draft } = legGoal({ id: "pair" });
-    expect(goalsForBothSides(draft).map((item) => [item.id, item.side])).toEqual([["pair:left", "left"], ["pair:right", "right"]]);
-    expect(goalsForBothArms).toBe(goalsForBothSides);
   });
 });
 

@@ -19,7 +19,9 @@ import { canonicalJson, goldenSummaries, summaryTotals } from "./__fixtures__/re
  *    has a side relation but `same`;
  * 2. the new §8 fields `completeness.boutsListedUnmapped` and `listedUnmappedRows`: the sets of the
  *    exercises the forearm lists as left unmapped (296–298, sled pushes and drags), each with its
- *    listed reason and in no total (`expectListedOnly`).
+ *    listed reason and in no total (`expectListedOnly`);
+ * 3. the ledger note "Each side assumed" on a planned row assumed on both arms, which main's
+ *    calculator writes and no row says now (`withAssumedNote`; the release review, 22 Oct 2026).
  *
  * Nothing else may differ: not a count, a row, a note, a side, an order or the rule version. The
  * per-arm summaries (the calculator's per-side capability, dormant on the page) are held to the
@@ -38,7 +40,7 @@ const NEW_ROW_FIELDS = ["countedSide", "recordedSide"] as const;
 const LISTED_NOT_COUNTED = new Set([296, 297, 298]);
 const listedReasons = new Map(region.unmappedTagged.map((item) => [item.catalogId, item.reason] as const));
 
-type Seen = { newFields: number; listed: number; noArm: number };
+type Seen = { newFields: number; listed: number; noArm: number; assumed: number };
 
 function expectNewSideFields(item: Contribution | RegionBoutRow, seen: Seen): void {
   const at = item.boutId;
@@ -70,6 +72,22 @@ function expectListedOnly(summary: SpecializationSummary, seen: Seen): void {
   seen.listed += rows.length;
 }
 
+/**
+ * Allowed difference 3: no ledger note names a side (the release review, 22 Oct 2026), so a planned row
+ * the plan assumed on both arms (`sideSource: "plan_assumption"`) no longer says "Each side assumed".
+ * The reference's rows have it, written after the straps notes and before "Matched by name" (and the
+ * pending-review note); it is put back there on exactly those rows, and the rest of each row, its
+ * other notes included, must be as the reference holds it.
+ */
+const ASSUMED = "Each side assumed";
+function withAssumedNote(item: Contribution, seen: Seen): string[] {
+  expect(item.notes, `${item.boutId}: no note names a side`).not.toContain(ASSUMED);
+  if (item.sideSource !== "plan_assumption") return item.notes;
+  seen.assumed += 1;
+  const at = item.notes.findIndex((note) => note === "Matched by name" || note === "Mapping pending review");
+  return at < 0 ? [...item.notes, ASSUMED] : [...item.notes.slice(0, at), ASSUMED, ...item.notes.slice(at)];
+}
+
 function withoutNew<T extends object>(item: T, fields: readonly string[], seen: Seen): T {
   const copy = { ...item } as Record<string, unknown>;
   for (const field of fields) {
@@ -83,7 +101,7 @@ function withoutNew<T extends object>(item: T, fields: readonly string[], seen: 
 /** The summary with the allowed differences taken back out; every other field as computed. */
 function normalised(summary: SpecializationSummary, seen: Seen): SpecializationSummary {
   const row = (item: RegionBoutRow): RegionBoutRow => { expectNewSideFields(item, seen); return withoutNew(item, NEW_ROW_FIELDS, seen); };
-  const contribution = (item: Contribution): Contribution => { expectNewSideFields(item, seen); return withoutNew(item, NEW_CONTRIBUTION_FIELDS, seen); };
+  const contribution = (item: Contribution): Contribution => { expectNewSideFields(item, seen); const plain = withoutNew(item, NEW_CONTRIBUTION_FIELDS, seen); return { ...plain, notes: withAssumedNote(plain, seen) }; };
   expectListedOnly(summary, seen);
   const { listedUnmappedRows: _rows, ...rest } = summary;
   const { boutsListedUnmapped: _listed, ...completeness } = summary.completeness;
@@ -110,7 +128,7 @@ describe("the forearm's golden summaries, both arms as one, against main's calcu
 
   for (const expected of reference.cases) {
     it(expected.id, () => {
-      const counts: Seen = { newFields: 0, listed: 0, noArm: 0 };
+      const counts: Seen = { newFields: 0, listed: 0, noArm: 0, assumed: 0 };
       const summary = normalised(byId.get(expected.id)!, counts);
       seen.set(expected.id, counts);
       if ("summary" in expected) expect(summary).toEqual(expected.summary);
@@ -130,5 +148,7 @@ describe("the forearm's golden summaries, both arms as one, against main's calcu
     );
     // The edge week's sets with no arm recorded are counted like any other, on both.
     expect(Array.from(seen).filter(([, counts]) => counts.noArm > 0).map(([id]) => id)).toContain("completed/edge-week/calendar-week/both");
+    // The day templates' one-arm sets, planned and assumed on both arms: the only rows that said "Each side assumed".
+    expect(Array.from(seen).filter(([, counts]) => counts.assumed > 0).map(([id]) => id)).toEqual(["planned/day-templates-plan/both"]);
   });
 });
