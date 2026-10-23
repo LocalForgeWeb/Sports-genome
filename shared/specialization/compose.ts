@@ -171,5 +171,7 @@ export function composeRegionData(content: RegionContent, homes: readonly Region
     unmappedTagged: content.unmappedTagged,
     diagram: content.diagram,
     ...(content.plates ? { plates: content.plates } : {}),
+    // The optional sections the region opts into (11-forearm-research-and-stack.md §3.10); left off when it opts into none.
+    ...(content.sections ? { sections: content.sections } : {}),
   };
 }

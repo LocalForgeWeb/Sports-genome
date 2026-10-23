@@ -8,8 +8,10 @@
  * can be generated from the TypeScript content rather than written twice.
  */
 import type { VariantDimensions } from "./variants/dimensions";
+import type { RepGuidanceCitations, RepProfile, RepProfileAssignment, UnprofiledVariant } from "./repProfiles";
 
 export type { VariantDimensions };
+export type { RepGuidanceCitations, RepProfile, RepProfileAssignment, UnprofiledVariant };
 
 // ---------------------------------------------------------------- reference content
 
@@ -593,6 +595,96 @@ export interface RegionContent {
    * Absent for a region drawn only as a schematic. The database seed does not carry it.
    */
   plates?: DiagramPlates;
+  /** The page's optional sections this region opts into (11-forearm-research-and-stack.md §3.10); absent opts into none. */
+  sections?: RegionSections;
+}
+
+/**
+ * The optional sections of a region's page, by data (11-forearm-research-and-stack.md §3.10): the
+ * page renders a section's closed card only for a region that sets its flag, and fetches the
+ * section's code and the region's extras (`RegionExtras`) when the card is first opened.
+ */
+export interface RegionSections {
+  /** The stack designer, which reads the region's rep profiles. */
+  stack?: true;
+  /** Tendon exposure, which reads the region's tendon areas. */
+  tendonExposure?: true;
+}
+
+/**
+ * A region's data that is loaded only when a section opens (`regions/<region>/repProfiles.ts`),
+ * never with the page: so the closed page downloads what it did before (11 §3.10). Every field is
+ * optional, so each file adds its own part.
+ */
+export interface RegionExtras {
+  regionId: RegionId;
+  /** Rep profiles by task family (11 §5.1), in the order the stack lists their exercises within a day. */
+  repProfiles?: RepProfile[];
+  /** One per profiled variant: its profile, whether the strength range applies, whether it is for coverage only. */
+  repProfileAssignments?: RepProfileAssignment[];
+  /** Variants with direct work on the region that take no profile (a carry, a multi-joint lift), each with its reason. */
+  unprofiledVariants?: UnprofiledVariant[];
+  /** The library sources behind each sentence of the rep guidance. */
+  repGuidanceCitations?: RepGuidanceCitations;
+  /** Sources cited only by these extras: library records the seed never writes (no region lists them in `sources`). */
+  referenceSources?: Source[];
+  /** Tendon exposure's attachment areas (`regions/<region>/tendonAreas.ts`, 11 §4.1), in the page's order. */
+  tendonAreas?: TendonArea[];
+  /** The region's own target nodes in no reviewed tendon group, each with why (11 §4.1, "Not placed"). */
+  tendonNotPlaced?: TendonNotPlaced[];
+  /**
+   * What tendon exposure's counts cover and leave out on this region, in its own words (11 §4.4, "What
+   * the counts cover"): said in the section's "How this is counted"; absent says nothing.
+   */
+  tendonCoverage?: string;
+}
+
+/**
+ * An attachment area of tendon exposure (11-forearm-research-and-stack.md §4.1): a muscle belongs
+ * to the area of each place it attaches, where it starts and where it ends, so areas overlap and
+ * their counts are never added together.
+ */
+export interface TendonArea {
+  id: string;
+  label: string;
+  description: string;
+  groups: TendonGroup[];
+}
+
+/** One attachment site inside an area (the package's regional group, or a part of one). */
+export interface TendonGroup {
+  id: string;
+  label: string;
+  members: TendonMember[];
+  /** What the group's sources disagree on or leave open, said on the page; null when nothing is. */
+  caveat: string | null;
+}
+
+/**
+ * One muscle's membership of one group. Review status sits on the (group, member) pair, so a
+ * draft membership keeps that muscle out of that group only, while the group's reviewed members count.
+ */
+export interface TendonMember {
+  nodeId: NodeId;
+  citations: TendonCitation[];
+  /** The package's `regional_groups` codes for this muscle (muscles.json), kept for traceability. */
+  packageGroups: string[];
+  reviewStatus: ReviewStatus;
+  reviewNote: string;
+  /** True when one source alone places the muscle here (named in regions/<region>/tendon-areas.md). */
+  singleSource: boolean;
+}
+
+export interface TendonCitation {
+  sourceId: SourceId;
+  locator: string;
+  /** What the source says that limits the membership, if anything. */
+  qualification: string | null;
+}
+
+export interface TendonNotPlaced {
+  nodeId: NodeId;
+  reason: string;
 }
 
 /**
@@ -629,6 +721,8 @@ export interface SpecializationRegionData {
    * Absent for a region drawn only as a schematic. The database seed does not carry it.
    */
   plates?: DiagramPlates;
+  /** The optional sections the region opts into, from its content (`RegionSections`); absent opts into none. */
+  sections?: RegionSections;
 }
 
 // ---------------------------------------------------------------- calculator input

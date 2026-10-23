@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import React, { createElement } from "react";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
  * The specialization page as a Body Lab page (Oct 16 forearm brief §6, design §7): its tab,
@@ -34,6 +34,7 @@ vi.mock("@/lib/trpc", () => {
 });
 
 import Home from "@/pages/Home";
+import { loadRegionExtras } from "@/lib/specialization/regionExtras";
 import { exercises } from "@/lib/exerciseCatalog";
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
@@ -51,6 +52,8 @@ const plan = JSON.stringify({ version: 2, ...week, weeks: { "1": week }, activeW
 
 const tick = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); });
 
+// The add sheet shows the app's starting range (11-forearm-research-and-stack.md §5.2) once the region's profiles have arrived; loaded first, so Save is never waiting on them here.
+beforeAll(async () => { await loadRegionExtras("forearm"); });
 beforeEach(() => {
   toasts.length = 0;
   window.localStorage.clear();

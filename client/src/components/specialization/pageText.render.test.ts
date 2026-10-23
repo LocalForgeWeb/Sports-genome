@@ -4,10 +4,11 @@ import { join } from "node:path";
 import React, { createElement, useState } from "react";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { SpecializationPanel } from "./SpecializationPanel";
+import { SpecializationPanel, preloadStackModel } from "./SpecializationPanel";
 import { exercises } from "@/lib/exerciseCatalog";
 import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
 import { loadRegionData } from "@/lib/specialization/loadRegion";
+import { loadRegionExtras } from "@/lib/specialization/regionExtras";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { currentExposureRule } from "@shared/specialization/rules";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
@@ -98,8 +99,14 @@ function linesOf(root: Element): string[] {
 type Reading = Record<string, string[]>;
 
 const click = async (element: Element) => { await act(async () => { fireEvent.click(element); }); await act(async () => {}); };
+/**
+ * Every disclosure, open; but the stack card (F1, 11-forearm-research-and-stack.md §3.2), whose
+ * content is the stack designer's (StackDesigner.render.test.ts reads it), and tendon exposure (F2,
+ * §4.3), whose content TendonExposure.render.test.ts reads. Their closed summaries are read here as
+ * stated changes.
+ */
 const openAll = async (root: ParentNode) => {
-  for (const details of Array.from(root.querySelectorAll("details"))) await act(async () => { details.open = true; fireEvent(details, new Event("toggle")); });
+  for (const details of Array.from(root.querySelectorAll("details:not(.spz-stack):not(#spz-tendon)"))) await act(async () => { (details as HTMLDetailsElement).open = true; fireEvent(details, new Event("toggle")); });
   await act(async () => {});
 };
 const dialog = () => screen.getByRole("dialog");
@@ -179,7 +186,8 @@ const states: [string, Partial<SpecializationViewState>, unknown[], typeof store
   ["planned, 3D model", { mode: "planned", figure: "model" }, goals, store],
 ];
 
-beforeAll(async () => { await loadRegionData("forearm"); });
+// The region's rep profiles too (F1, §5.2): a muscle sheet shows the starting ranges once they arrive, so they are here before any sheet opens.
+beforeAll(async () => { await loadRegionData("forearm"); await loadRegionExtras("forearm"); await preloadStackModel(); });
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date(NOW));
@@ -224,6 +232,10 @@ const stated: { why: string; was: RegExp; now: string }[] = [
   { why: "09 item 9; appendix 'Both sides as one': the 3D model's panel counts a set once per muscle, not per arm", was: /^One bout per set, per muscle, per arm$/, now: "One bout per set, per muscle" },
   { why: "09 item 10; appendix 'Both sides as one': a movement's ledger row says no side for a planned one-arm set", was: /^(By [^.]+\.) Each side assumed\.$/, now: "$1" },
   { why: "09 item 11; appendix 'Both sides as one': the 3D model's credits name no side and claim no mirror image (the model is never mirrored)", was: /^It is one model of a right arm; the left arm is shown as its mirror image, not a separate model\. /, now: "It is one model of one arm, never mirrored. " },
+  // F1, lane S4 (11-forearm-research-and-stack.md §3.3): the one count of direct moving sets, in the window line's words.
+  { why: "F1 S4; 11 §3.3: in Planned mode the window line says the plan week's direct moving sets where it said the logged bouts (the logged week stays in the sets it opens); with the one-arm exercise in the plan, 12", was: /^Plan Week 1, as written: 15 bouts planned · \d+ logged this week$/, now: "Plan Week 1, as written: 15 bouts planned · 12 direct moving sets" },
+  { why: "F1 S4; 11 §3.3: in Planned mode the window line says the plan week's direct moving sets where it said the logged bouts (the logged week stays in the sets it opens)", was: /^Plan Week 1, as written: (\d+) bouts planned · \d+ logged this week$/, now: "Plan Week 1, as written: $1 bouts planned · 9 direct moving sets" },
+  { why: "F1 S4; 11 §3.3: in Planned mode the 3D model's Overview says the plan week's direct moving sets, in the window line's words", was: /^(\d+) distinct bouts are planned for the forearms in Plan Week 1\. (Tap a muscle on the model, or in the row above it, for its numbers\.)$/, now: "$1 distinct bouts are planned for the forearms in Plan Week 1; 9 are direct moving sets. $2" },
 ];
 /** Runs of the reference's lines, one after another, gone from the sheets `in` names. */
 const gone: { why: string; in: Where; lines: RegExp[] }[] = [
@@ -245,6 +257,19 @@ const added: { why: string; in: Where; lines: RegExp[] }[] = [
   { why: "09 item 6; §8: How this is counted names the sets of exercises the forearm leaves unmapped, and opens them", in: /^page$/, lines: [/^\d+ sets? of exercises left unmapped here (is|are) not counted, each for the reason given with it\.$/, /^See (this set|these sets) and why$/] },
   { why: "09 'The owner's plates' (23 Oct): the plates' layers, surface and deep", in: /^page$/, lines: [/^\[name\] Layer$/, /^Surface$/, /^Deep$/] },
   { why: "09 'The owner's plates' (23 Oct): the credit under the plates: the source model, its licences, and that the images are adapted renders", in: /^page$/, lines: [/^Images rendered from the Open3Dmodel upper-limb model, built on BodyParts3D \(.+CC BY-SA 2\.1 Japan\) and Z-Anatomy \(CC BY-SA 4\.0\)\. They are adapted renders: .+ shared under CC BY-SA 4\.0\. .+$/] },
+  // F1, lane S4 (11-forearm-research-and-stack.md §3.2): the stack card under the map and its ways in. The finding's run first, then the card's, so the strip's one line is what is left.
+  { why: "F1 S4; 11 §3.2: Planned mode's Coverage to review leads with the movements the plan week gives no direct moving work, and opens the stack card", in: /^page$/, lines: [/^9 movements have no direct moving work in Plan Week 1$/, /^Pronation, supination, radial deviation and 6 more\.$/, /^Design a stack$/] },
+  { why: "F1 S4; 11 §3.2: the stack card, closed, right under the map: its two-line summary", in: /^page$/, lines: [/^Design a stack$/, /^Plan Week 1 · (9|12) direct moving sets now$/] },
+  { why: "F1 S4; 11 §3.2: the drawing's strip with nothing selected opens the stack card, beside See these sets", in: /^page$/, lines: [/^Design a stack$/] },
+  { why: "F1 S4; 11 §5.2, §5.3: a muscle sheet says once, right above its suggestions, that the ranges are the app's starting ranges, not measured for the muscle", in: /^muscle: /, lines: [/^Starting ranges the app uses for this kind of movement\. They are practical defaults, not measured for this muscle\. .+ Change them any time\.$/] },
+  { why: "F1 S4; 11 §5.3: where a hold range appears, the hold sentence, once", in: /^muscle: /, lines: [/^Holds of \d+–\d+ s are the app's starting range, not a tested one\. .+the plan counts the number written\.$/] },
+  { why: "F1 S4; 11 §5.2: each suggested exercise shows its starting range", in: /^muscle: /, lines: [/^Starting range: \d+–\d+ (reps|s holds)$/] },
+  // F1, not wave 0 (11-forearm-research-and-stack.md §8.2, lane S2; 10-multi-region.md decision 6).
+  { why: "F1 S2: 139 Wrist Curl and 140 Reverse Wrist Curl are filed as Barbell, as their variants and photos define them, so the suggestions' equipment list names Barbell", in: /^movement: Wrist flexion$/, lines: [/^Barbell$/, /^Suggested$/] },
+  // F2, lane T3 (11-forearm-research-and-stack.md §4.3): tendon exposure's closed card and its ways in.
+  { why: "F2 T3; 11 §4.3: tendon exposure, closed, after Exercises in this window: its two-line summary", in: /^page$/, lines: [/^Tendon exposure$/, /^Sets by attachment area(, Plan Week 1, as written)?$/] },
+  { why: "F2 T3; 11 §4.3: a muscle's sheet says where it attaches, by tendon area, and opens tendon exposure", in: /^muscle: /, lines: [/^Attaches at: [a-z].+\)\.$/, /^See tendon exposure$/] },
+  { why: "F2 T3; 11 §4.3: the 3D model's panel says where the chosen muscle attaches, and opens tendon exposure", in: /^model: /, lines: [/^Attaches at: [a-z].+\)\.$/, /^See tendon exposure$/] },
 ];
 /** Sheets new with wave 0. */
 const addedSheets: { why: string; key: RegExp }[] = [
