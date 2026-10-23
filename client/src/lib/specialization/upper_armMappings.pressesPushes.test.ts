@@ -78,8 +78,8 @@ describe("the presses-and-pushes family", () => {
         if (primaryInScope(exercise)) expect(mapped, `${exercise.id} ${exercise.name} is tagged primary`).toBe(true);
       }
     }
-    expect(mappedIds.size).toBe(73);
-    expect(Array.from(listedIds.keys()).sort((x, y) => x - y)).toEqual([25, 249, 310, 322]);
+    expect(mappedIds.size).toBe(72);
+    expect(Array.from(listedIds.keys()).sort((x, y) => x - y)).toEqual([25, 249, 267, 310, 322]);
     expect(listedIds.size).toBe(unmapped.length);
     expect(ballMappedIds.size).toBe(6);
     expect(Array.from(ballListedIds.keys())).toEqual([279]);
@@ -100,7 +100,7 @@ describe("the presses-and-pushes family", () => {
       expect(variant, row.id).toBeDefined();
       expect(variantFor(variant!.catalogExerciseId), row.id).toBe(variant);
     }
-    expect(variantsMappedBy(rows)).toHaveLength(73);
+    expect(variantsMappedBy(rows)).toHaveLength(72);
     expect(variantsMappedBy(ballRows)).toHaveLength(6);
   });
 });
@@ -157,7 +157,7 @@ describe("presses-and-pushes rows", () => {
       expect(lateral && medial && long, `${id}: all three heads`).toBeTruthy();
       expect(lateral!.allocation, String(id)).toBe("shared");
       expect(medial!.allocation, String(id)).toBe("shared");
-      for (const key of ["relationship", "muscleMode", "actionId", "reviewStatus", "evidenceBasis"] as const) expect(medial![key], `${id} ${key}`).toBe(lateral![key]);
+      for (const key of ["relationship", "muscleMode", "actionId", "reviewStatus"] as const) expect(medial![key], `${id} ${key}`).toBe(lateral![key]);
       expect(long!.allocation, String(id)).toBe("individual");
       expect(long!.relationship, String(id)).toBe(lateral!.relationship);
       expect(long!.reviewStatus, String(id)).toBe(lateral!.reviewStatus);
@@ -191,21 +191,27 @@ describe("presses-and-pushes judgement calls", () => {
     for (const id of [309, 323, 386, 389]) for (const row of rowsFor(id)) expect(row.relationship, row.id).toBe("contributing");
   });
 
-  it("say on every long-head row that its shoulder action is not what is credited", () => {
+  it("say on every long-head row that its shoulder action is not what is credited, citing that action", () => {
+    const notBuiltOn = [3, 6, 30, 40, 158, 159, 306];
+    const throwDown = [273, 280, 284, 285];
     for (const row of allRows.filter((item) => item.nodeId === m.tricepsLong)) {
-      expect(row.rationale, row.id).toMatch(/crosses the shoulder|shoulder action/);
-      expect(row.rationale, row.id).toMatch(/elbow/);
+      const id = catalogIdOf(row.variantId);
+      expect(row.sources.some((ref) => ref.sourceId === "imaios.triceps_long_head"), `${row.id}: cites the shoulder action`).toBe(true);
+      expect(row.rationale, row.id).toMatch(/The long head also crosses the shoulder/);
+      if (throwDown.includes(id)) expect(row.rationale, row.id).toMatch(/goes with the throw; it is credited once, for the elbow\.$/);
+      else if (notBuiltOn.includes(id)) expect(row.rationale, row.id).toMatch(/is not built on its action there, so only its elbow action is credited\.$/);
+      else expect(row.rationale, row.id).toMatch(/where it draws the arm down and back; that works against the \w+, so only its elbow action is credited\.$/);
     }
   });
 
   it("read the pressing arm's side on either-laterality variants and say so", () => {
     const either = Array.from(mappedIds).filter((id) => variantFor(id)!.laterality === "either").sort((x, y) => x - y);
-    expect(either).toEqual([11, 12, 13, 106, 252, 254, 267, 269, 270, 301, 303, 324, 325, 382, 386, 389]);
+    expect(either).toEqual([11, 12, 13, 106, 252, 254, 269, 270, 301, 303, 324, 325, 382, 386, 389]);
     for (const id of either) {
       expect(variantFor(id)!.sidedBy, String(id)).toBe("arm");
       for (const row of rowsFor(id)) {
         expect(sideRelationOf(row), row.id).toBe("same");
-        expect(row.rationale, row.id).toMatch(/laterality either/);
+        expect(row.rationale, row.id).toContain("One arm or both may press; the triceps work on whichever arm presses.");
       }
     }
     // The both-limb presses are sided by the pressing arm, which these rows read.
@@ -220,11 +226,56 @@ describe("presses-and-pushes judgement calls", () => {
   });
 
   it("pins the family's counts, so a change is deliberate", () => {
-    expect(rows).toHaveLength(219);
-    expect(rows.filter((row) => row.reviewStatus === "reviewed")).toHaveLength(219);
+    expect(rows).toHaveLength(216);
+    expect(rows.filter((row) => row.reviewStatus === "reviewed")).toHaveLength(216);
     expect(rows.filter((row) => row.relationship === "direct")).toHaveLength(12);
     expect(ballRows).toHaveLength(18);
     expect(ballRows.filter((row) => row.reviewStatus === "reviewed")).toHaveLength(12);
+  });
+});
+
+describe("presses-and-pushes copy and evidence", () => {
+  /** Shown to athletes on a phone: no growth wording, no %, no screen or body side, no counting words, no internal jargon. */
+  const forbidden = [
+    /%|\bper ?cent\b/i,
+    /optimal|guarantee/i,
+    /\bwill (grow|get bigger|increase)\b|\bgrowth\b|\bhypertroph/i,
+    /\b(left|right)\b/i,
+    /\bsides?\b/i,
+    /\bcount(s|ed|ing)?\b|\bonce per\b|\btwice\b|\bper (arm|set)\b|\beach arm\b/i,
+    /supabase|\btables?\b/i,
+    /laterality|catalog's primary tag|primary tag|\bvariants?\b/i,
+  ];
+  const copy = [
+    ...allRows.map((row) => ({ where: row.id, text: row.rationale })),
+    ...[...unmapped, ...ballUnmapped].map((entry) => ({ where: `unmapped ${entry.catalogId}`, text: entry.reason })),
+  ];
+
+  it("keep rationales and unmapped reasons free of growth wording, sides, counts, '%', 'table' and jargon", () => {
+    for (const { where, text } of copy) for (const pattern of forbidden) expect(text, where).not.toMatch(pattern);
+  });
+
+  it("keep every rationale short enough to read on a phone (at most 450 characters)", () => {
+    for (const row of allRows) expect(row.rationale.length, row.id).toBeLessThanOrEqual(450);
+    for (const entry of [...unmapped, ...ballUnmapped]) expect(entry.reason.length, String(entry.catalogId)).toBeLessThanOrEqual(450);
+  });
+
+  it("cite on every row an anatomy source for its own head's action", () => {
+    const own: Record<string, string> = { [m.tricepsLong]: "imaios.triceps_long_head", [m.tricepsLateral]: "elsevier.triceps_lateral_head", [m.tricepsMedial]: "elsevier.triceps_medial_head" };
+    for (const row of allRows) {
+      expect(row.sources.some((ref) => ref.sourceId === own[row.nodeId]), `${row.id} cites ${own[row.nodeId]}`).toBe(true);
+      expect(libraryAndLane.get(own[row.nodeId])?.evidenceType, own[row.nodeId]).toBe("anatomy");
+      if (row.evidenceBasis === "anatomy") expect(row.sources.some((ref) => libraryAndLane.get(ref.sourceId)?.evidenceType === "anatomy"), row.id).toBe(true);
+      if (row.evidenceBasis === "emg") expect(row.sources.some((ref) => libraryAndLane.get(ref.sourceId)?.evidenceType === "emg"), row.id).toBe(true);
+    }
+  });
+
+  it("rest a direct call on a study only where that study recorded the head, and read the rest as inference", () => {
+    const basisOf = (id: number, nodeId: string) => rowsFor(id).find((row) => row.nodeId === nodeId)!.evidenceBasis;
+    expect([basisOf(146, m.tricepsLong), basisOf(146, m.tricepsLateral), basisOf(146, m.tricepsMedial)]).toEqual(["emg", "emg", "inference"]);
+    for (const id of [28, 147, 158]) for (const row of rowsFor(id)) expect(row.evidenceBasis, row.id).toBe("inference");
+    for (const id of [110, 254, 255, 268, 269, 270, 389]) for (const row of rowsFor(id)) expect(row.evidenceBasis, row.id).toBe("inference");
+    expect(allRows.filter((row) => row.evidenceBasis === "emg").map((row) => row.id).sort()).toEqual(["cat-146:upper_arm.triceps_lateral", "cat-146:upper_arm.triceps_long"]);
   });
 });
 
@@ -271,6 +322,6 @@ describe("presses-and-pushes on the upper-arm page", () => {
       expect(variantIds.has(row.variantId), row.id).toBe(true);
       for (const ref of row.sources) expect(sourceIds.has(ref.sourceId), `${row.id} → ${ref.sourceId}`).toBe(true);
     }
-    expect(page.mappings).toHaveLength(219);
+    expect(page.mappings).toHaveLength(216);
   });
 });
