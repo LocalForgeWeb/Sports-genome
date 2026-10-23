@@ -1,0 +1,56 @@
+/* -- The plate renderer (PlateDiagram.tsx) ------------------------------------------- *
+
+   A rendered plate on a dark stage (as the 3D model has), with a row of muscle chips under it. The plate
+   is drawn at twice its own pixel size and scaled by CSS. Every control here is at least 44 × 44 px
+   and outlined at rest; nothing depends on hover. */
+
+.spz-plate { width: 100%; }
+.spz-plate-group { display: grid; justify-items: center; gap: .75rem; width: 100%; min-width: 0; }
+/* The plate on the 3D model's dark stage, so a muscle with no work (the resting slate) and the gold
+   outline read against it as they do on the model; the canvas keeps the frame's proportions. */
+.spz-plate-stage {
+  position: relative; width: 100%; padding: .75rem 0;
+  border: 1px solid rgb(142 176 198 / .16); border-radius: var(--sg-radius-md);
+  background: radial-gradient(ellipse at 50% 45%, rgb(76 123 154 / .2), transparent 60%), linear-gradient(130deg, rgb(7 24 40 / .98), rgb(3 14 25 / .98));
+}
+/* As tall as the SVG drawing (about 685 px) where the screen allows, and never taller than the space
+   between the tab row and the dock, so the whole arm can be seen and tapped at once on a 375 × 667
+   phone; its width follows the frame's proportions. */
+.spz-plate-canvas {
+  display: block; width: auto; max-width: 100%; height: min(42.8rem, calc(100vh - 10rem)); margin: 0 auto;
+  object-fit: contain; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+@supports (height: 100svh) { .spz-plate-canvas { height: min(42.8rem, calc(100svh - 10rem)); } }
+.spz-plate-status { position: absolute; top: 40%; left: 0; right: 0; margin: 0; padding: 0 .5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); text-align: center; }
+
+/* The muscles of the pass shown, in the order they sit, top to bottom: every muscle has a full
+   44 px target here, however thin it is on the image. The swatch is the muscle's fill, as the key draws it. */
+.spz-plate-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; width: 100%; margin: 0; padding: 0; list-style: none; }
+.spz-plate-chip {
+  display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+  min-width: 2.75rem; min-height: 2.75rem; padding: 0 .8rem;
+  border: 1px solid var(--sg-control-border-on-dark); border-radius: var(--sg-radius-pill);
+  background: transparent; color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-base); font-weight: 700; -webkit-tap-highlight-color: transparent;
+}
+.spz-plate-chip[aria-pressed="true"] { border-color: var(--sg-selected-on-dark); box-shadow: inset 0 0 0 1px var(--sg-selected-on-dark); background: rgb(255 255 255 / .1); }
+.spz-plate-chip:focus-visible, .spz-plate-go:focus-visible, .spz-plate-credit a:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.spz-plate-swatch { flex: none; width: .95rem; height: .95rem; border: 1px solid rgb(255 255 255 / .22); border-radius: .2rem; background: var(--sg-role-neutral-on-dark); }
+.spz-plate-swatch[data-fill="bin-1"] { background: var(--sg-exposure-1); }
+.spz-plate-swatch[data-fill="bin-2"] { background: var(--sg-exposure-2); }
+.spz-plate-swatch[data-fill="bin-3"] { background: var(--sg-exposure-3); }
+.spz-plate-swatch[data-fill="bin-4"] { background: var(--sg-exposure-4); }
+.spz-plate-swatch[data-fill="bin-5"] { background: var(--sg-exposure-5); }
+.spz-plate-swatch[data-fill="zero"] { border: 1px dashed #9fb3c8; }
+.spz-plate-swatch[data-fill="hatch"] { background: var(--spz-hatch, #2e3a49); }
+
+.spz-plate-go {
+  min-height: 2.75rem; padding: 0 1rem;
+  border: 1px solid var(--sg-control-border-on-dark); border-radius: var(--sg-radius-pill);
+  background: transparent; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700;
+}
+
+/* The credit: the source, its licence, and that the images are adapted. Links keep the line's
+   height but take taps a little above and below it. */
+.spz-plate-credit { max-width: 26rem; margin: 0; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-sm); line-height: 1.6; text-align: center; }
+.spz-plate-credit a { padding: .55rem 0; color: var(--sg-text-muted-on-dark); text-decoration: underline; text-underline-offset: .15em; }

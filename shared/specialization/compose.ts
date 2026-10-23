@@ -170,5 +170,6 @@ export function composeRegionData(content: RegionContent, homes: readonly Region
     externalMappingVersions,
     unmappedTagged: content.unmappedTagged,
     diagram: content.diagram,
+    ...(content.plates ? { plates: content.plates } : {}),
   };
 }
