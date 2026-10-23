@@ -43,12 +43,13 @@ const MEDIAL_HEAD = {
 
 /**
  * Where the medial head shows on the surface: on the inner side just above the elbow, below the
- * long head's lower border (that border, less a gutter, slanting down toward the tendon) and beside
- * the common tendon (its inner edge, less a gutter), down to the head's own lower end. A convex
- * window; the muscle's own outline bounds it on the inner side. Kept small: that any of it shows
- * at the surface is weakly supported (dossier §5, §12).
+ * long head's lower border (parallel to it, a gutter below, slanting down toward the tendon) and
+ * beside the common tendon (its inner edge, less a gutter), down to the head's own lower end. A
+ * convex window; the muscle's own outline bounds it on the inner side. Kept small: that any of it
+ * shows at the surface is weakly supported (dossier §5, §12). The inner side is a drawing choice
+ * (diagram.md, "What each shape rests on").
  */
-const MEDIAL_HEAD_WINDOW = [[60, 418], [137, 518], [143, 595], [60, 595]];
+const MEDIAL_HEAD_WINDOW = [[60, 394], [140.4, 538.5], [143.5, 595], [60, 595]];
 
 export function backView() {
   const skin = { kind: "skin", structure: "skin", d: closed(backSilhouette()) };
@@ -61,31 +62,35 @@ export function backView() {
   const longHead = rowsShape({
     rows: [
       [80, 135, 170], [120, 113, 180], [160, innerIn(160), 185], [200, innerIn(200), 187], [240, innerIn(240), 187], [280, innerIn(280), 185],
-      [320, innerIn(320), 181], [360, innerIn(360), 176], [400, 96, 170], [430, 100, 165], [455, 106, 160], [478, 116, 153],
+      [320, innerIn(320), 181], [360, innerIn(360), 176], [400, 96, 169.5], [430, 100, 163.5], [455, 106, 158.5], [478, 116, 152.5],
+      [500, 127, 144.5],
     ],
-    // Its lower end turns outward, onto the inner border of the common tendon.
-    bottom: [[136, 500]],
+    // Its lower end turns outward and ends on the inner border of the common tendon.
+    bottom: [[140, 522]],
     top: [[164, 60], [154, 48, C], [143, 60]],
   });
   const longHeadTendon = tendon([[154, 58], [151, 20], [149, CROP_TOP]], 10, 9);
 
-  // Lateral head: from the back of the humerus above the groove for the radial nerve, under the
-  // shoulder muscle at the top edge, down the outer half of the back of the arm, its lower border
-  // running down and inward to the common tendon.
+  // Lateral head: from the back of the humerus below the greater tubercle and above the groove for
+  // the radial nerve (its origin, an oblique top running down and inward; it does not cross the
+  // shoulder, so nothing of it runs off the top edge), under the shoulder muscle near its top, down
+  // the outer half of the back of the arm, its inner edge a gutter from the common tendon all the
+  // way down, its outer edge converging, to end on the tendon's outer border.
   const lateralHead = rowsShape({
     rows: [
-      [CROP_TOP, [198, C], [outerIn(CROP_TOP), C]], [30, 197, outerIn(30)], [80, 196, outerIn(80)], [130, 196, outerIn(130)], [180, 196, outerIn(180)],
-      [230, 197, outerIn(230)], [280, 200, outerIn(280)], [330, 204, outerIn(330)], [380, 210, outerIn(380)], [420, 216, 256],
-      [450, 222, 248], [475, 226, 238],
+      [100, 202, outerIn(100)], [140, 198, outerIn(140)], [180, 196, outerIn(180)], [230, 197, outerIn(230)], [280, 199, outerIn(280)],
+      [330, 201.5, outerIn(330)], [370, 205.5, 261], [410, 211.5, 255], [440, 217.5, 249], [470, 223.5, 242], [500, 226.5, 235],
     ],
-    // Its lower end turns inward, onto the outer border of the common tendon.
-    bottom: [[226, 494]],
+    bottom: [[219.5, 538]],
+    // Right to left: up the outer side to the origin's highest point, then down and inward along it.
+    top: [[263, 64], [252, 52, C], [228, 70], [208, 90]],
   });
 
   // The common tendon the three heads end on, to the olecranon: shared, so drawn as structure.
+  // Widest between the heads' lower ends, narrowing to the olecranon's width where it ends on it.
   const commonTendon = closed([
-    [188, 335, C], [198, 370], [204, 410], [209, 440], [213, 465], [216, 490], [222, 515], [226, 540], [222, 562], [210, 579], [195, 589], [178, 590],
-    [161, 584], [150, 568], [146, 545], [145, 522], [150, 503], [158, 485], [165, 460], [171, 430], [177, 400], [183, 370],
+    [188, 335, C], [198, 370], [204, 410], [210, 440], [216, 470], [219, 500], [214.5, 530], [203, 558], [186, 580], [176, 588], [164, 590],
+    [152, 582], [148, 560], [147, 530], [151, 503], [158, 485], [165, 460], [171, 430], [177, 400], [183, 370],
   ]);
 
   const medialHeadOutcrop = closed(clipToPolygon(rowsPoints(MEDIAL_HEAD), MEDIAL_HEAD_WINDOW));

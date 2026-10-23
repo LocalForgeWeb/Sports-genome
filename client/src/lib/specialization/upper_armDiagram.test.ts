@@ -71,6 +71,19 @@ function across(path: DiagramPath, y: number): [number, number] {
   }
   return [Math.min(...xs), Math.max(...xs)];
 }
+/** The shortest distance from a point to a closed outline. */
+function distanceToOutline(point: Point, outline: readonly Point[]): number {
+  let best = Infinity;
+  for (let i = 0; i < outline.length; i++) {
+    const a = outline[i];
+    const b = outline[(i + 1) % outline.length];
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const t = Math.max(0, Math.min(1, ((point.x - a.x) * dx + (point.y - a.y) * dy) / (dx * dx + dy * dy || 1)));
+    best = Math.min(best, Math.hypot(point.x - (a.x + t * dx), point.y - (a.y + t * dy)));
+  }
+  return best;
+}
 /** A path's points moved from the forearm drawing to this one's elbow. */
 const dropped = (path: DiagramPath) => flattenPath(path.d).map((point) => ({ x: point.x, y: point.y + ELBOW_DROP }));
 
@@ -184,7 +197,9 @@ describe("a path for every member, at its layer", () => {
     const whole = bellyOf("back", "deep", m.tricepsMedial);
     const longHead = bellyOf("back", "surface", m.tricepsLong);
     expect(centroid(outcrop).x).toBeLessThan(W / 2);
-    expect(Math.min(...ys(outcrop))).toBeGreaterThan(Math.max(...ys(longHead)) - 40);
+    // In the lower fifth of the arm, below the long head's lower border (no overlap: the contract test).
+    expect(Math.min(...ys(outcrop))).toBeGreaterThan(440);
+    expect(Math.min(...ys(outcrop))).toBeGreaterThan(Math.min(...ys(longHead)) + 400);
     expect(Math.abs(Math.max(...ys(outcrop)) - Math.max(...ys(whole)))).toBeLessThan(10);
   });
 
@@ -196,6 +211,32 @@ describe("a path for every member, at its layer", () => {
     expect(centroid(tendon).x).toBeLessThan(centroid(bellyOf("back", "surface", m.tricepsLateral)).x);
     const olecranon = flattenPath(layerOf("back", "surface").paths.find((path) => path.id === "back__surface__olecranon__1")!.d);
     expect(Math.max(...box.map((point) => point.y))).toBeGreaterThan(Math.min(...olecranon.map((point) => point.y)));
+  });
+
+  it("brings the long and lateral heads onto the common tendon, which narrows to the olecranon's width", () => {
+    const tendon = layerOf("back", "surface").paths.find((path) => path.id === "back__surface__triceps-tendon__1")!;
+    const outline = flattenPath(tendon.d, 24);
+    // Each head's lowest point lies on the tendon's border, within one gutter of it.
+    for (const id of [m.tricepsLong, m.tricepsLateral]) {
+      const points = flattenPath(bellyOf("back", "surface", id).d);
+      const lowest = points.reduce((low, point) => (point.y > low.y ? point : low));
+      expect(distanceToOutline(lowest, outline), id).toBeLessThanOrEqual(8);
+    }
+    // Where it reaches the olecranon it is no wider than the olecranon (it does not balloon there).
+    const olecranon = flattenPath(layerOf("back", "surface").paths.find((path) => path.id === "back__surface__olecranon__1")!.d);
+    const top = Math.min(...olecranon.map((point) => point.y));
+    const [left, right] = across(tendon, top);
+    expect(right - left).toBeLessThanOrEqual(Math.max(...olecranon.map((point) => point.x)) - Math.min(...olecranon.map((point) => point.x)) + 6);
+  });
+
+  it("runs only the long head off the top edge on the back: the one head that crosses the shoulder", () => {
+    const offTop = layerOf("back", "surface").paths.filter((path) => path.nodeId && Math.min(...ys(path)) < 0).map((path) => path.id);
+    expect(offTop).toEqual(["back__surface__trilong__2"]);
+    expect(pathById(asset, "back__surface__trilong__2").kind).toBe("tendon");
+    // The lateral head starts at its origin on the back of the humerus, below the greater tubercle, on both layers.
+    expect(Math.min(...ys(bellyOf("back", "surface", m.tricepsLateral)))).toBeGreaterThanOrEqual(40);
+    const ghost = layerOf("back", "deep").paths.find((path) => path.kind === "ghost" && path.nodeId === m.tricepsLateral)!;
+    expect(Math.min(...ys(ghost))).toBeGreaterThanOrEqual(40);
   });
 
   it("draws tendons apart from the bellies, each narrow, and only the biceps', the long head's and brachialis'", () => {
@@ -308,15 +349,30 @@ describe("the elbow it shares with the forearm drawing", () => {
   const bone = (view: DiagramViewId) => layerOf(view, "deep").paths.find((path) => path.id === `${view}__deep__humerus__1`)!;
   const near = (a: Point[], b: Point[]) => Math.max(...a.map((point, index) => Math.hypot(point.x - b[index].x, point.y - b[index].y)));
 
-  it("has the forearm drawing's outline from just above the epicondyles to the bottom edge, moved down", () => {
+  it("has the forearm drawing's outline from y 548, just above the epicondyles, toward the bottom edge, moved down", () => {
     for (const [view, forearmView] of [["front", "palm"], ["back", "back"]] as const) {
       const skin = layerOf(view, "surface").paths[0];
       const theirs = forearm(`${forearmView}__surface__skin__1`);
-      for (let y = 580; y <= 730; y += 10) {
+      for (let y = 548; y <= 730; y += 6) {
         const [left, right] = across(skin, y);
         const [forearmLeft, forearmRight] = across(theirs, y - ELBOW_DROP);
         expect(Math.abs(left - forearmLeft), `${view} y ${y}`).toBeLessThan(1);
         expect(Math.abs(right - forearmRight), `${view} y ${y}`).toBeLessThan(1);
+      }
+    }
+  });
+
+  it("draws the radius and the ulna below the elbow as the forearm drawing does, from their tops toward the bottom edge", () => {
+    for (const [view, forearmView] of [["front", "palm"], ["back", "back"]] as const) {
+      for (const structure of ["radius", "ulna"]) {
+        const ours = layerOf(view, "deep").paths.find((path) => path.id === `${view}__deep__${structure}__1`)!;
+        const theirs = forearm(`${forearmView}__deep__${structure}__1`);
+        for (let y = Math.ceil(Math.min(...ys(ours))) + 6; y <= 730; y += 6) {
+          const [left, right] = across(ours, y);
+          const [forearmLeft, forearmRight] = across(theirs, y - ELBOW_DROP);
+          expect(Math.abs(left - forearmLeft), `${view} ${structure} y ${y}`).toBeLessThan(1);
+          expect(Math.abs(right - forearmRight), `${view} ${structure} y ${y}`).toBeLessThan(1);
+        }
       }
     }
   });

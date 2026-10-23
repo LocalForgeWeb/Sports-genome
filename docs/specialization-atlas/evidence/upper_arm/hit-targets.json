@@ -3,7 +3,7 @@
   "gatePx": 44,
   "generated": {
     "file": "shared/specialization/regions/upper_arm/diagram.generated.ts",
-    "sha256": "aa0f52eeea3266b267db6f53f5b5311330855873c299eb6bc3b5e3fb80224b22"
+    "sha256": "7168adc39cb5191a0c08b23cf7d47e733e2d7f223f296e31eb525f3ab96fd313"
   },
   "widths": {
     "375": {
@@ -31,8 +31,8 @@
         "back-surface-right": {
           "svgWidth": 309,
           "squares": {
-            "upper_arm.triceps_lateral": 78,
             "upper_arm.triceps_long": 93,
+            "upper_arm.triceps_lateral": 76.5,
             "upper_arm.triceps_medial": 44.8
           }
         },
@@ -68,16 +68,16 @@
         "back-surface-trilat": {
           "svgWidth": 309,
           "squares": {
-            "upper_arm.triceps_lateral": 78,
             "upper_arm.triceps_long": 93,
+            "upper_arm.triceps_lateral": 76.5,
             "upper_arm.triceps_medial": 44.8
           }
         },
         "back-surface-trimed": {
           "svgWidth": 309,
           "squares": {
-            "upper_arm.triceps_lateral": 78,
             "upper_arm.triceps_long": 93,
+            "upper_arm.triceps_lateral": 76.5,
             "upper_arm.triceps_medial": 44.8
           }
         },
@@ -124,8 +124,8 @@
         "back-surface-right": {
           "svgWidth": 324,
           "squares": {
-            "upper_arm.triceps_lateral": 82.5,
             "upper_arm.triceps_long": 97.5,
+            "upper_arm.triceps_lateral": 81,
             "upper_arm.triceps_medial": 46.9
           }
         },
@@ -161,16 +161,16 @@
         "back-surface-trilat": {
           "svgWidth": 324,
           "squares": {
-            "upper_arm.triceps_lateral": 82.5,
             "upper_arm.triceps_long": 97.5,
+            "upper_arm.triceps_lateral": 81,
             "upper_arm.triceps_medial": 46.9
           }
         },
         "back-surface-trimed": {
           "svgWidth": 324,
           "squares": {
-            "upper_arm.triceps_lateral": 82.5,
             "upper_arm.triceps_long": 97.5,
+            "upper_arm.triceps_lateral": 81,
             "upper_arm.triceps_medial": 46.9
           }
         },

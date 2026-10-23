@@ -48,13 +48,14 @@ export const STRUCTURE_WORDS = ["skin", "crease", "epicondyle", "humerus", "radi
 /**
  * The most of a layer's drawn muscle that may lie under another muscle's tap square (a tap there
  * selects the square's muscle), per view and layer, as measured when the squares were placed
- * (22 Oct): none on any layer. Every square sits on its own muscle, over skin or gutter where it
- * spills (the brachialis outcrop's at (107, 397), the medial head's at (122, 540)), so no tap on
- * a drawn muscle selects another one.
+ * (23 Oct). Every square sits on its own muscle and spills over skin or gutter, except on the back
+ * surface, where the medial head's square, at (123, 540), takes in the tip of the long head where
+ * it ends on the common tendon: about 41 square units, 0.06 % of the layer's drawn muscle (the
+ * test's sampling reads 0.058 %). Elsewhere under 1 square unit.
  */
 export const COVER_BOUNDS = {
   "front/surface": 0,
   "front/deep": 0,
-  "back/surface": 0,
+  "back/surface": 0.001,
   "back/deep": 0,
 };

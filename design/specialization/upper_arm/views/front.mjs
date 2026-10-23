@@ -27,29 +27,30 @@ const outerIn = (y) => frontEdge("outer", y) + INSET;
 
 /**
  * Brachialis, whole, as the deep layer draws it: from the front of the lower half of the
- * humerus, its top embracing the shoulder muscle's insertion, broad across the bone, its outer
+ * humerus, its top two shallow slips either side of the shoulder muscle's insertion, broad across the bone, its outer
  * edge reaching the outer border of the arm; from y 546 down it is the forearm drawing's
  * brachialis, ending on the ulna below the elbow. The surface layer cuts its outcrop from these
  * same points (`clipToPolygon`), so the part that shows is exactly part of the muscle underneath.
  */
 const BRACHIALIS = {
   rows: [
-    [300, 156, 190], [325, 128, 206], [350, 108, 218], [380, outerIn(380), 228], [410, outerIn(410), 235], [440, outerIn(440), 239],
+    [305, 148, 194], [325, 128, 206], [350, 108, 218], [380, outerIn(380), 228], [410, outerIn(410), 235], [440, outerIn(440), 239],
     [470, outerIn(470), 241], [500, 109, 240], [525, 122, 235],
     // The forearm drawing's slices at 50, 75 and 95, moved down.
     [546, 139, 228], [571, 153, 220], [591, 177, 211],
   ],
   bottom: fromForearm([[191, 105], [201, 113], [209, 105]]),
-  top: [[182, 287], [170, 281], [160, 288]],
+  // Two shallow slips either side of a notch, embracing the shoulder muscle's insertion.
+  top: [[190, 290], [184, 276], [180, 270, C], [173, 280], [160, 295, C], [151, 281], [145, 270, C], [142, 280], [144, 294]],
 };
 
 /**
  * Where brachialis shows on the surface: lateral to the lower biceps, below the shoulder
  * muscle's insertion (y 335), between the biceps (its outer edge, less a gutter) and
- * brachioradialis (its upper inner edge, less a gutter), down to where those two close over it
- * (y 532). A convex window; the muscle's own outline bounds it on the outer side.
+ * brachioradialis (its upper inner edge, less a gutter), down to the point where those two close
+ * over it (y 538). A convex window; the muscle's own outline bounds it on the outer side.
  */
-const BRACHIALIS_WINDOW = [[77.3, 335], [119, 335], [144.5, 505], [144.5, 532], [140, 532]];
+const BRACHIALIS_WINDOW = [[77.3, 335], [118.5, 335], [144, 505], [141, 538]];
 
 /**
  * Brachioradialis from the front: from the ridge above the outer epicondyle (its pointed top,
