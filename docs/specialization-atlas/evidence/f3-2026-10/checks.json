@@ -1,0 +1,433 @@
+{
+  "note": "Headless Chromium emulating an iPhone (viewport, isMobile, hasTouch, deviceScaleFactor 3, en-US, UTC); emulation, not an iPhone, not Safari. The production build of branch f3, served here. Device stores seeded: this week, Hammer Curl x3, Wrist Curl x4, Dumbbell Row one per arm, Suitcase Carry in the left hand, Pull-Up x2 and Barbell Curl x3 on Monday; Barbell Bench Press x3, Reverse Wrist Curl x3, Dead Hang 45 s and 40 s, Farmer Hold 2 x 30 s (straps not recorded) on Tuesday; wave A's 4-day Upper/Lower plan; targets on the FCU (right) and wrist flexion (right; its row opens the movement sheet). Run on 2026-10-24, UTC. Coordinates are CSS px from the top of the screen.",
+  "scenes": [
+    {
+      "scene": "plan-picker",
+      "viewport": "390x844",
+      "query": "wrist curl",
+      "count": "6 options · Anterior deltoid and Posterior deltoid first\nAll of these also work forearm compartments.",
+      "firstResults": [
+        "Wrist Curl",
+        "Cable Wrist Curl",
+        "Reverse Wrist Curl",
+        "Behind-the-Back Wrist Curl",
+        "One-Arm Dumbbell Wrist Curl",
+        "One-Arm Dumbbell Reverse Wrist Curl"
+      ],
+      "rows": [
+        {
+          "exercise": "Cable Wrist Curl",
+          "found": true,
+          "line": "Wrist flexion · Cable",
+          "position": 2,
+          "openButton": {
+            "width": 260.9,
+            "height": 70.3
+          },
+          "addButton": {
+            "width": 80,
+            "height": 44,
+            "label": "Add Cable Wrist Curl to Week 1, Upper"
+          }
+        },
+        {
+          "exercise": "Behind-the-Back Wrist Curl",
+          "found": true,
+          "line": "Wrist flexion · Barbell",
+          "position": 4,
+          "openButton": {
+            "width": 260.9,
+            "height": 70.3
+          },
+          "addButton": {
+            "width": 80,
+            "height": 44,
+            "label": "Add Behind-the-Back Wrist Curl to Week 1, Upper"
+          }
+        }
+      ],
+      "searchFontPx": "16px",
+      "sweep": {
+        "checked": 26,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "file": "plan-picker-wrist-curl-390.png"
+    },
+    {
+      "scene": "plan-picker",
+      "viewport": "390x844",
+      "query": "barbell hold",
+      "count": "1 option · Anterior deltoid and Posterior deltoid first",
+      "firstResults": [
+        "Barbell Hold"
+      ],
+      "rows": [
+        {
+          "exercise": "Barbell Hold",
+          "found": true,
+          "line": "Grip isometric · Barbell",
+          "position": 1,
+          "openButton": {
+            "width": 260.9,
+            "height": 70.3
+          },
+          "addButton": {
+            "width": 80,
+            "height": 44,
+            "label": "Add Barbell Hold to Week 1, Upper"
+          }
+        }
+      ],
+      "searchFontPx": "16px",
+      "sweep": {
+        "checked": 16,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "file": "plan-picker-barbell-hold-390.png"
+    },
+    {
+      "scene": "plan-picker",
+      "viewport": "390x844",
+      "query": "band index",
+      "count": "1 option · Anterior deltoid and Posterior deltoid first",
+      "firstResults": [
+        "Band Index and Little Finger Extension"
+      ],
+      "rows": [
+        {
+          "exercise": "Band Index and Little Finger Extension",
+          "found": true,
+          "line": "Finger extension · Band",
+          "position": 1,
+          "openButton": {
+            "width": 260.9,
+            "height": 90.3
+          },
+          "addButton": {
+            "width": 80,
+            "height": 44,
+            "label": "Add Band Index and Little Finger Extension to Week 1, Upper"
+          }
+        }
+      ],
+      "searchFontPx": "16px",
+      "sweep": {
+        "checked": 16,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "file": "plan-picker-band-index-390.png"
+    },
+    {
+      "scene": "plan-picker",
+      "viewport": "375x667",
+      "query": "wrist curl",
+      "count": "6 options · Anterior deltoid and Posterior deltoid first\nAll of these also work forearm compartments.",
+      "firstResults": [
+        "Wrist Curl",
+        "Cable Wrist Curl",
+        "Reverse Wrist Curl",
+        "Behind-the-Back Wrist Curl",
+        "One-Arm Dumbbell Wrist Curl",
+        "One-Arm Dumbbell Reverse Wrist Curl"
+      ],
+      "rows": [
+        {
+          "exercise": "Cable Wrist Curl",
+          "found": true,
+          "line": "Wrist flexion · Cable",
+          "position": 2,
+          "openButton": {
+            "width": 247.3,
+            "height": 70.3
+          },
+          "addButton": {
+            "width": 80,
+            "height": 44,
+            "label": "Add Cable Wrist Curl to Week 1, Upper"
+          }
+        },
+        {
+          "exercise": "Behind-the-Back Wrist Curl",
+          "found": true,
+          "line": "Wrist flexion · Barbell",
+          "position": 4,
+          "openButton": {
+            "width": 247.3,
+            "height": 70.3
+          },
+          "addButton": {
+            "width": 80,
+            "height": 44,
+            "label": "Add Behind-the-Back Wrist Curl to Week 1, Upper"
+          }
+        }
+      ],
+      "searchFontPx": "16px",
+      "sweep": {
+        "checked": 26,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "file": "plan-picker-wrist-curl-375.png"
+    },
+    {
+      "scene": "plan-picker",
+      "viewport": "375x667",
+      "query": "barbell hold",
+      "count": "1 option · Anterior deltoid and Posterior deltoid first",
+      "firstResults": [
+        "Barbell Hold"
+      ],
+      "rows": [
+        {
+          "exercise": "Barbell Hold",
+          "found": true,
+          "line": "Grip isometric · Barbell",
+          "position": 1,
+          "openButton": {
+            "width": 247.3,
+            "height": 70.3
+          },
+          "addButton": {
+            "width": 80,
+            "height": 44,
+            "label": "Add Barbell Hold to Week 1, Upper"
+          }
+        }
+      ],
+      "searchFontPx": "16px",
+      "sweep": {
+        "checked": 16,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "file": "plan-picker-barbell-hold-375.png"
+    },
+    {
+      "scene": "plan-picker",
+      "viewport": "375x667",
+      "query": "band index",
+      "count": "1 option · Anterior deltoid and Posterior deltoid first",
+      "firstResults": [
+        "Band Index and Little Finger Extension"
+      ],
+      "rows": [
+        {
+          "exercise": "Band Index and Little Finger Extension",
+          "found": true,
+          "line": "Finger extension · Band",
+          "position": 1,
+          "openButton": {
+            "width": 247.3,
+            "height": 90.3
+          },
+          "addButton": {
+            "width": 80,
+            "height": 44,
+            "label": "Add Band Index and Little Finger Extension to Week 1, Upper"
+          }
+        }
+      ],
+      "searchFontPx": "16px",
+      "sweep": {
+        "checked": 16,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "file": "plan-picker-band-index-375.png"
+    },
+    {
+      "scene": "forearm-ei-sheet",
+      "viewport": "390x844",
+      "suggests420": true,
+      "line": {
+        "top": 510.1,
+        "height": 21
+      },
+      "sheet": "EI · DEEP · EXTENSOR INDICIS · Back of the forearm, deep layer near the wrist, arising on the pinky side; its tendon runs to the index finger. · WHAT IT DOES · Straightens your index finger, which lets it point on its own. · Index-finger extension · Main action · Straightens the index finger on its own, as when pointing. · Attaches at: fingers (finger extensors). · See tendon exposure · HOW IT CONTRIBUTES TO SHAPE · Small and deep near the wrist; little or no separately visible contour. · COMPLETED · THIS WEEK · 19–25 OCT · Direct dynamic bouts · 0 · Other dynamic bouts · 0 · Deliberate holds · 0 · Incidental grip or steadying · 0 · Plan Week 1, as written: 0 direct dynamic · 0 other dynamic",
+      "sweep": {
+        "checked": 18,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "file": "forearm-ei-sheet-420-390.png"
+    },
+    {
+      "scene": "forearm-wrist-flexion-planned",
+      "viewport": "390x844",
+      "suggests417": true,
+      "suggests418": true,
+      "line": {
+        "top": 489.3,
+        "height": 21
+      },
+      "sheet": "MOVEMENT · WRIST FLEXION · Bends the wrist toward the palm. · MUSCLES THAT DO IT · Flexor carpi radialis · A main action of this muscle · Open · Flexor carpi ulnaris · A main action of this muscle · Open · Palmaris longus · This muscle helps · Open · Flexor digitorum superficialis · This muscle helps · Open · Flexor digitorum profundus · This muscle helps · Open · PLANNED · PLAN WEEK 1, AS WRITTEN · Direct dynamic bouts · 3 · Deliberate holds · 0 · Other work for it · 0 · helping or steadying · Each planned set counts once for the movement, however many muscles it is planned for. · Direct dynamic bouts: 3 of your 8, Plan Week 1, as written. The target is yours, not a prescription. · WHERE THE NUMBERS COME FROM · Wrist Curl · 3 bouts · EXERCISES FOR THIS MOVEMENT · Behind-the-Back Wrist Curl · Direct wrist flexion; 3 of your 8 direct dynamic bouts in Plan Week 1. · Also loads Flexor digit",
+      "sweep": {
+        "checked": 29,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "file": "forearm-wrist-flexion-planned-390.png"
+    },
+    {
+      "scene": "forearm-stack",
+      "viewport": "390x844",
+      "lists420": true,
+      "line": {
+        "top": 401.3,
+        "height": 42
+      },
+      "card": "Design a stack · Plan Week 1 · 9 direct moving sets now · Built from your plan as written; sets you logged are not counted here. · Pick a weekly number; the app chooses the exercises and puts them on your plan days. · Direct forearm sets a week · From 9 (your plan's own) to 42 · all fit your gym time · It starts at 24: your plan's 9, 4 for your targets, and one set for each of the 10 movements your plan does not train directly yet. No number suits everyone; change it any time. · What changes · Direct moving sets 9 → 24 · muscles with direct work 6 → 18 of 19 · Add 15 sets (11 exercises, 4 days) to Week 1 · Your own exercises and their sets stay as they are. · Day 01 · Upper: +4 · 3 → 5 exercises · about 33 of your 60 min, plus about 1 min for the second arm on one-arm sets · Day 02 · Lower: +4 · 1 → 5 exercises · about 18 of your 60 min, plus about 4 min for the second arm on one-arm sets · Plan, about Day 02 · Lower: “7 planned work sets is below this goal’s current 12–24 planning band. That can be appropriate for a lighter day, skill emphasis, or a dense training week.” · Day 03 · Upper: +3 · 4 → 6 exercises · about 38 of your 60 min, plus about 1 min for the second arm on one-ar",
+      "sweep": {
+        "checked": 20,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "file": "forearm-stack-420-390.png"
+    },
+    {
+      "scene": "forearm-ei-sheet",
+      "viewport": "375x667",
+      "suggests420": true,
+      "line": {
+        "top": 416.5,
+        "height": 21
+      },
+      "sheet": "EI · DEEP · EXTENSOR INDICIS · Back of the forearm, deep layer near the wrist, arising on the pinky side; its tendon runs to the index finger. · WHAT IT DOES · Straightens your index finger, which lets it point on its own. · Index-finger extension · Main action · Straightens the index finger on its own, as when pointing. · Attaches at: fingers (finger extensors). · See tendon exposure · HOW IT CONTRIBUTES TO SHAPE · Small and deep near the wrist; little or no separately visible contour. · COMPLETED · THIS WEEK · 19–25 OCT · Direct dynamic bouts · 0 · Other dynamic bouts · 0 · Deliberate holds · 0 · Incidental grip or steadying · 0 · Plan Week 1, as written: 0 direct dynamic · 0 other dynamic",
+      "sweep": {
+        "checked": 18,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "file": "forearm-ei-sheet-420-375.png"
+    },
+    {
+      "scene": "forearm-wrist-flexion-planned",
+      "viewport": "375x667",
+      "suggests417": true,
+      "suggests418": true,
+      "line": {
+        "top": 394.7,
+        "height": 21
+      },
+      "sheet": "MOVEMENT · WRIST FLEXION · Bends the wrist toward the palm. · MUSCLES THAT DO IT · Flexor carpi radialis · A main action of this muscle · Open · Flexor carpi ulnaris · A main action of this muscle · Open · Palmaris longus · This muscle helps · Open · Flexor digitorum superficialis · This muscle helps · Open · Flexor digitorum profundus · This muscle helps · Open · PLANNED · PLAN WEEK 1, AS WRITTEN · Direct dynamic bouts · 3 · Deliberate holds · 0 · Other work for it · 0 · helping or steadying · Each planned set counts once for the movement, however many muscles it is planned for. · Direct dynamic bouts: 3 of your 8, Plan Week 1, as written. The target is yours, not a prescription. · WHERE THE NUMBERS COME FROM · Wrist Curl · 3 bouts · EXERCISES FOR THIS MOVEMENT · Behind-the-Back Wrist Curl · Direct wrist flexion; 3 of your 8 direct dynamic bouts in Plan Week 1. · Also loads Flexor digit",
+      "sweep": {
+        "checked": 29,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "file": "forearm-wrist-flexion-planned-375.png"
+    },
+    {
+      "scene": "forearm-stack",
+      "viewport": "375x667",
+      "lists420": true,
+      "line": {
+        "top": 312.9,
+        "height": 42
+      },
+      "card": "Design a stack · Plan Week 1 · 9 direct moving sets now · Built from your plan as written; sets you logged are not counted here. · Pick a weekly number; the app chooses the exercises and puts them on your plan days. · Direct forearm sets a week · From 9 (your plan's own) to 42 · all fit your gym time · It starts at 24: your plan's 9, 4 for your targets, and one set for each of the 10 movements your plan does not train directly yet. No number suits everyone; change it any time. · What changes · Direct moving sets 9 → 24 · muscles with direct work 6 → 18 of 19 · Add 15 sets (11 exercises, 4 days) to Week 1 · Your own exercises and their sets stay as they are. · Day 01 · Upper: +4 · 3 → 5 exercises · about 33 of your 60 min, plus about 1 min for the second arm on one-arm sets · Day 02 · Lower: +4 · 1 → 5 exercises · about 18 of your 60 min, plus about 4 min for the second arm on one-arm sets · Plan, about Day 02 · Lower: “7 planned work sets is below this goal’s current 12–24 planning band. That can be appropriate for a lighter day, skill emphasis, or a dense training week.” · Day 03 · Upper: +3 · 4 → 6 exercises · about 38 of your 60 min, plus about 1 min for the second arm on one-ar",
+      "sweep": {
+        "checked": 20,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "file": "forearm-stack-420-375.png"
+    },
+    {
+      "scene": "forearm-fpl-sheet",
+      "viewport": "390x844",
+      "row": "Flexor pollicis longus, Deep. 5 incidental grip or steadying. Open details.",
+      "incidental": true,
+      "underReview": false,
+      "line": {
+        "top": 175.6,
+        "height": 16.5
+      },
+      "sheet": "FPL · DEEP · FLEXOR POLLICIS LONGUS · Palm side, deep layer, on the thumb side against the radius. · WHAT IT DOES · Bends the tip of your thumb, and helps bend the thumb at its knuckle. No other muscle bends the thumb tip. · Thumb-tip flexion · Main action · Bends the tip of the thumb. · Attaches at: wrist and thumb (thumb). · See tendon exposure · HOW IT CONTRIBUTES TO SHAPE · Deep tissue on the thumb side of the palm side, close to the bone; little or no separately visible contour. · Hard to feel through the skin because it lies under the other flexors. · COMPLETED · THIS WEEK · 19–25 OCT · Direct dynamic bouts · 0 · Other dynamic bouts · 0 · Deliberate holds · 0 · Incidental grip or steadying · 5 · Plan Week 1, as written: 0 direct dynamic · 0 other dynamic · 0 holds. · WHERE THE NUMBERS COME FROM · Dead Hang · 2 bouts · Farmer Hold · 2 bouts · Suitcase Carry · 1 bout · YOUR TARGET · Not targeted. Nothing here is behind: a muscle without a target has no gap to show. · Set a target · EXERCISES FOR THIS MUSCLE · Starting ranges the app uses for this kind of movement. They are practical defaults, not measured for this muscle. General training studies found growth across a wide rang",
+      "sweep": {
+        "checked": 21,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "sheetOverflowPx": 0,
+      "files": [
+        "forearm-fpl-sheet-390.png",
+        "forearm-fpl-sheet-ledger-390.png"
+      ]
+    },
+    {
+      "scene": "forearm-fpl-sheet",
+      "viewport": "375x667",
+      "row": "Flexor pollicis longus, Deep. 5 incidental grip or steadying. Open details.",
+      "incidental": true,
+      "underReview": false,
+      "line": {
+        "top": 165,
+        "height": 16.5
+      },
+      "sheet": "FPL · DEEP · FLEXOR POLLICIS LONGUS · Palm side, deep layer, on the thumb side against the radius. · WHAT IT DOES · Bends the tip of your thumb, and helps bend the thumb at its knuckle. No other muscle bends the thumb tip. · Thumb-tip flexion · Main action · Bends the tip of the thumb. · Attaches at: wrist and thumb (thumb). · See tendon exposure · HOW IT CONTRIBUTES TO SHAPE · Deep tissue on the thumb side of the palm side, close to the bone; little or no separately visible contour. · Hard to feel through the skin because it lies under the other flexors. · COMPLETED · THIS WEEK · 19–25 OCT · Direct dynamic bouts · 0 · Other dynamic bouts · 0 · Deliberate holds · 0 · Incidental grip or steadying · 5 · Plan Week 1, as written: 0 direct dynamic · 0 other dynamic · 0 holds. · WHERE THE NUMBERS COME FROM · Dead Hang · 2 bouts · Farmer Hold · 2 bouts · Suitcase Carry · 1 bout · YOUR TARGET · Not targeted. Nothing here is behind: a muscle without a target has no gap to show. · Set a target · EXERCISES FOR THIS MUSCLE · Starting ranges the app uses for this kind of movement. They are practical defaults, not measured for this muscle. General training studies found growth across a wide rang",
+      "sweep": {
+        "checked": 21,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "sheetOverflowPx": 0,
+      "files": [
+        "forearm-fpl-sheet-375.png",
+        "forearm-fpl-sheet-ledger-375.png"
+      ]
+    },
+    {
+      "scene": "forearm-method",
+      "viewport": "390x844",
+      "summary": "How this is counted · specialization_exposure_v2 · forearm_mappings_v2",
+      "summaryHeight": 76,
+      "namesV2": true,
+      "notes": "Each catalog exercise the forearm atlas maps has one default variant (cat-<id>) with its execution spelled out: organization, forearm orientation, wrist position, grip, straps, laterality, measure, deliberate hold, and an elbow angle only where the exercise defines one. Each mapping names one muscle, one joint action, a relationship (direct, contributing, stabilizer, incidental) and a muscle mode (dynamic or isometric) separately, so one set can be dynamic elbow flexion and isometric wrist stabilization at once. Mappings are by catalog id; no name matching. A mapping is reviewed when the muscle's action is sourced (anatomy tables S4, S7, S8, the arm reference M8) and the relationship is explained in its rationale; EMG sources (S2, S3, M1, M2, M5-M7) are cited only for what they measured. Everything else stays draft and is shown as pending review, never counted. FDS and FDP are always credited together as shared: nothing in an ordinary grip separates them. Grip during rows, pulldowns, pull-ups, deadlifts, shrugs and hangs is incidental and is not earned by a set logged with straps. No percentage splits between muscles, no mapping credits every forearm muscle, the hand's own muscles are not credited to the forearm, and a broad 'forearms' tag on an unmapped exercise stays region-level. Version 2 reviews the thumb flexor's role in hangs and carries as incidental grip, adds the wrist extensors and flexors steadying the wrist in grip holds, carries and the gripper, the pronator quadratus steadying the joint near the wrist in lever supination, and the brachioradialis in face pulls and cable rows, and maps four new exercises. Its new EMG sources (pmid.9503091, pmid.14656682, pmid.32636008, pmid.35646483) are cited only for which muscles they found active. It adopts none of the research package's grades or percentages. It credits no upper-arm muscle: the upper arm's own version does.",
+      "horizontalOverflowPx": 0,
+      "files": [
+        "forearm-method-390.png",
+        "forearm-method-notes-390.png"
+      ]
+    },
+    {
+      "scene": "forearm-method",
+      "viewport": "375x667",
+      "summary": "How this is counted · specialization_exposure_v2 · forearm_mappings_v2",
+      "summaryHeight": 76,
+      "namesV2": true,
+      "notes": "Each catalog exercise the forearm atlas maps has one default variant (cat-<id>) with its execution spelled out: organization, forearm orientation, wrist position, grip, straps, laterality, measure, deliberate hold, and an elbow angle only where the exercise defines one. Each mapping names one muscle, one joint action, a relationship (direct, contributing, stabilizer, incidental) and a muscle mode (dynamic or isometric) separately, so one set can be dynamic elbow flexion and isometric wrist stabilization at once. Mappings are by catalog id; no name matching. A mapping is reviewed when the muscle's action is sourced (anatomy tables S4, S7, S8, the arm reference M8) and the relationship is explained in its rationale; EMG sources (S2, S3, M1, M2, M5-M7) are cited only for what they measured. Everything else stays draft and is shown as pending review, never counted. FDS and FDP are always credited together as shared: nothing in an ordinary grip separates them. Grip during rows, pulldowns, pull-ups, deadlifts, shrugs and hangs is incidental and is not earned by a set logged with straps. No percentage splits between muscles, no mapping credits every forearm muscle, the hand's own muscles are not credited to the forearm, and a broad 'forearms' tag on an unmapped exercise stays region-level. Version 2 reviews the thumb flexor's role in hangs and carries as incidental grip, adds the wrist extensors and flexors steadying the wrist in grip holds, carries and the gripper, the pronator quadratus steadying the joint near the wrist in lever supination, and the brachioradialis in face pulls and cable rows, and maps four new exercises. Its new EMG sources (pmid.9503091, pmid.14656682, pmid.32636008, pmid.35646483) are cited only for which muscles they found active. It adopts none of the research package's grades or percentages. It credits no upper-arm muscle: the upper arm's own version does.",
+      "horizontalOverflowPx": 0,
+      "files": [
+        "forearm-method-375.png",
+        "forearm-method-notes-375.png"
+      ]
+    }
+  ],
+  "kept": [
+    "forearm-ei-sheet-420-375.png",
+    "forearm-ei-sheet-420-390.png",
+    "forearm-fpl-sheet-375.png",
+    "forearm-fpl-sheet-390.png",
+    "forearm-fpl-sheet-ledger-375.png",
+    "forearm-fpl-sheet-ledger-390.png",
+    "forearm-method-375.png",
+    "forearm-method-390.png",
+    "forearm-method-notes-375.png",
+    "forearm-method-notes-390.png",
+    "forearm-stack-420-375.png",
+    "forearm-stack-420-390.png",
+    "forearm-wrist-flexion-planned-375.png",
+    "forearm-wrist-flexion-planned-390.png",
+    "plan-picker-band-index-375.png",
+    "plan-picker-band-index-390.png",
+    "plan-picker-barbell-hold-375.png",
+    "plan-picker-barbell-hold-390.png",
+    "plan-picker-wrist-curl-375.png",
+    "plan-picker-wrist-curl-390.png"
+  ]
+}
