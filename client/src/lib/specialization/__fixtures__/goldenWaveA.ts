@@ -111,8 +111,10 @@ export type UpperArmCredit = { gained: Map<string, Set<number>>; lost: Map<strin
  * Step 3: the upper arm's published version credits the biceps and brachialis (§4.2), under rule
  * v2. Their rows may change, each change explained by the two versions' rows: a set gained is of an
  * exercise the upper arm credits the muscle for and the forearm's v1 rows did not; a set lost, the
- * reverse. Every set credited is credited by an upper-arm row. The biceps' targets read its row. On
- * 406 the supinator's shared partner, the biceps, is gone. Nothing else may differ.
+ * reverse. Every set credited is credited by an upper-arm row. The biceps' targets read its row. A
+ * forearm row whose shared partner was the biceps or brachialis would lose it (partners are within
+ * one version) and is counted in `partnerDropped`; none does, not even 406's supinator, which was
+ * never the biceps' partner (they differ in category). Nothing else may differ.
  */
 export function expectOnlyUpperArmCredit(libraryOnly: SpecializationSummary, actual: SpecializationSummary, credit: UpperArmCredit): void {
   expect(libraryOnly.ruleVersion).toBe(exposureRuleIds.v1);
