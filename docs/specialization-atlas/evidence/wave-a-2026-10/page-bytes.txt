@@ -1,0 +1,37 @@
+What opening Specialize downloads, wave A (24 Oct 2026). page-bytes.mjs, --drawing, 2 runs each, the same files every run.
+Headless Chromium emulating an iPhone 390 x 844 (isMobile, hasTouch, scale 3): emulation, not an iPhone or Safari.
+Raw bytes as built; gzip at zlib level 9. Only .js files, from the tap until the region's drawing is drawn.
+
+file                                     raw      gzip  what
+main-2a556be-forearm                 469,612   133,025  main at 2a556be (before #102): the forearm page [Drawing]
+step0-merged-forearm                 594,278   163,863  wave A merged and wired, before any split: the forearm page [Drawing]
+step0-merged-upper_arm               513,021   141,017  the same build: the upper-arm page [Drawing]
+step1-forearm-slice-forearm          536,662   149,569  the forearm composes with upperArmHome.ts, not the whole upper arm [Drawing]
+step2-variants-split-forearm         522,714   146,166  and the variant library split per region (libraryVariants.generated.ts) [Drawing]
+step3-module-splits-forearm          507,947   142,616  and the upper arm's elbow-flexor nodes, claims, sources and rows in modules of their own [Drawing]
+step3-module-splits-upper_arm        525,018   145,004  the same build: the upper-arm page [Drawing]
+main-fb337a1-forearm                 485,716   139,206  main at fb337a1 (#102, the forearm's rendered plates): the forearm page [Drawing: plates (ready)]
+wave-a-forearm                       526,615   149,364  wave A at its head, merged with fb337a1: the forearm page [Drawing: plates (ready)]
+wave-a-upper_arm                     539,019   150,173  the same build: the upper-arm page (its SVG drawing) [Drawing: SVG]
+
+The gate (10-multi-region.md §6.1): opening Specialize downloads at most 10 % more than on main.
+  Before the splits, against main 2a556be: forearm 594,278 B, +26.5 % raw; 163,863 B gzip, +23.2 %.
+  After the splits, against main 2a556be: forearm 507,947 B, +8.2 % raw; 142,616 B gzip, +7.2 %.
+  Wave A's head against main fb337a1: forearm 526,615 B against 485,716 B, +8.4 % raw; 149,364 B against 139,206 B gzip, +7.3 %. Within the gate.
+  The upper-arm page, new in wave A, against main fb337a1's forearm page: 539,019 B, +11.0 % raw; 150,173 B gzip, +7.9 %.
+
+Read cumulatively, from main at 4dac1ae (428,623 B, the release review's base) with wave 0's +24,807 B (453,430 B at 161b86a):
+  wave 0 and wave A together add 65,706 B, +15.3 % of 428,623 B; the cap there is 42,862 B. Not within the gate on that reading (an owner question).
+
+Files after the tap, wave A's head, forearm:
+  index-COVj02l8.js                          114,646    33,473
+  ids-CXeVfLVW.js                              2,894     1,256
+  version-Dw0ppFv2.js                        172,340    41,001
+  review-CWhf68T_.js                           1,244       661
+  SpecializationPanel-BjuAuMpr.js            235,491    72,973
+Upper arm:
+  index-lj9QinOA.js                          127,050    34,282
+  ids-CXeVfLVW.js                              2,894     1,256
+  version-Dw0ppFv2.js                        172,340    41,001
+  review-CWhf68T_.js                           1,244       661
+  SpecializationPanel-BjuAuMpr.js            235,491    72,973

@@ -1,0 +1,41 @@
+{
+ "label": "final-upper_arm",
+ "region": "upper_arm",
+ "figureAsked": "drawing (3D APIs off)",
+ "runs": 2,
+ "sameEveryRun": true,
+ "figure": "Drawing: SVG",
+ "specialize": [
+  {
+   "file": "index-lj9QinOA.js",
+   "bytes": 127050,
+   "gzip": 34282
+  },
+  {
+   "file": "ids-CXeVfLVW.js",
+   "bytes": 2894,
+   "gzip": 1256
+  },
+  {
+   "file": "version-Dw0ppFv2.js",
+   "bytes": 172340,
+   "gzip": 41001
+  },
+  {
+   "file": "review-CWhf68T_.js",
+   "bytes": 1244,
+   "gzip": 661
+  },
+  {
+   "file": "SpecializationPanel-BjuAuMpr.js",
+   "bytes": 235491,
+   "gzip": 72973
+  }
+ ],
+ "total": 539019,
+ "totalGzip": 150173,
+ "model": 0,
+ "page": 539019,
+ "pageGzip": 150173,
+ "filesBeforeTheTap": 9
+}

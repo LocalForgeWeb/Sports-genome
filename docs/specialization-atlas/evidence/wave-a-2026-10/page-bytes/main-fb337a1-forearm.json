@@ -1,0 +1,36 @@
+{
+ "label": "mainfb-forearm",
+ "region": "(the tab)",
+ "figureAsked": "drawing (3D APIs off)",
+ "runs": 2,
+ "sameEveryRun": true,
+ "figure": "Drawing: plates (ready)",
+ "specialize": [
+  {
+   "file": "index-D-8kvKUS.js",
+   "bytes": 230655,
+   "gzip": 60112
+  },
+  {
+   "file": "index-BAYR8XqE.js",
+   "bytes": 20908,
+   "gzip": 6014
+  },
+  {
+   "file": "review-DNfztpDW.js",
+   "bytes": 1244,
+   "gzip": 663
+  },
+  {
+   "file": "SpecializationPanel-DZaYFI3K.js",
+   "bytes": 232909,
+   "gzip": 72417
+  }
+ ],
+ "total": 485716,
+ "totalGzip": 139206,
+ "model": 0,
+ "page": 485716,
+ "pageGzip": 139206,
+ "filesBeforeTheTap": 9
+}

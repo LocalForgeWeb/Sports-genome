@@ -1,0 +1,41 @@
+{
+ "label": "final-forearm",
+ "region": "(the tab)",
+ "figureAsked": "drawing (3D APIs off)",
+ "runs": 2,
+ "sameEveryRun": true,
+ "figure": "Drawing: plates (ready)",
+ "specialize": [
+  {
+   "file": "index-COVj02l8.js",
+   "bytes": 114646,
+   "gzip": 33473
+  },
+  {
+   "file": "ids-CXeVfLVW.js",
+   "bytes": 2894,
+   "gzip": 1256
+  },
+  {
+   "file": "version-Dw0ppFv2.js",
+   "bytes": 172340,
+   "gzip": 41001
+  },
+  {
+   "file": "review-CWhf68T_.js",
+   "bytes": 1244,
+   "gzip": 661
+  },
+  {
+   "file": "SpecializationPanel-BjuAuMpr.js",
+   "bytes": 235491,
+   "gzip": 72973
+  }
+ ],
+ "total": 526615,
+ "totalGzip": 149364,
+ "model": 0,
+ "page": 526615,
+ "pageGzip": 149364,
+ "filesBeforeTheTap": 9
+}

@@ -1,0 +1,41 @@
+{
+ "label": "slice1-forearm",
+ "region": "(the tab)",
+ "figureAsked": "drawing (3D APIs off)",
+ "runs": 2,
+ "sameEveryRun": true,
+ "figure": "Drawing",
+ "specialize": [
+  {
+   "file": "index-H28Fvkih.js",
+   "bytes": 109895,
+   "gzip": 31838
+  },
+  {
+   "file": "index-DInEAbo8.js",
+   "bytes": 46256,
+   "gzip": 10650
+  },
+  {
+   "file": "version-i_L1cQ_j.js",
+   "bytes": 157781,
+   "gzip": 38602
+  },
+  {
+   "file": "review-raFy9c8s.js",
+   "bytes": 1244,
+   "gzip": 662
+  },
+  {
+   "file": "SpecializationPanel-YxXLVYoD.js",
+   "bytes": 221486,
+   "gzip": 67817
+  }
+ ],
+ "total": 536662,
+ "totalGzip": 149569,
+ "model": 0,
+ "page": 536662,
+ "pageGzip": 149569,
+ "filesBeforeTheTap": 9
+}
