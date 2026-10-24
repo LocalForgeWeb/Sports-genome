@@ -18,6 +18,12 @@ import { forearmV1Variants } from "@shared/specialization/variants/forearm";
 import type { AnatomyNode, Claim, ExerciseVariant, Limb, MappingVersion, RegionContent, SpecializationRegionData, VariantMapping } from "@shared/specialization/types";
 import { emitSeedSql } from "../../../../scripts/specialization/emit-seed";
 import { deltoidIds, deltoidRegionData } from "./__fixtures__/deltoidRegion";
+import { forearmContentV1, forearmRegionDataV1 } from "./__fixtures__/forearmV1";
+import { forearmMappingsV1 } from "@shared/specialization/__fixtures__/forearmMappingsV1";
+import { forearmResearchSources } from "@shared/specialization/sources/forearmResearch";
+import { forearmResearchVariants } from "@shared/specialization/variants/forearmResearch";
+import { regionVariantRecords } from "@shared/specialization/variants";
+import { versionVariants } from "@shared/specialization/regions/forearm/libraryVariants.generated";
 
 /**
  * The multi-region model (docs/specialization-atlas/10-multi-region.md §1–§4): every registered
@@ -162,7 +168,7 @@ function withMovedWords(at6738eeb: ReturnType<typeof asAt6738eeb>): ReturnType<t
  * are added, so nothing else may differ.
  */
 function withUpperArmCredit(at6738eeb: ReturnType<typeof asAt6738eeb>): ReturnType<typeof asAt6738eeb> {
-  const [external] = forearmRegionData.externalMappingVersions;
+  const [external] = forearmRegionDataV1.externalMappingVersions;
   expect(external.regionId).toBe("upper_arm");
   const own = new Set(at6738eeb.variants.map((variant) => variant.id));
   const addedVariants = variantsMappedBy(external.mappings).filter((variant) => !own.has(variant.id));
@@ -172,12 +178,28 @@ function withUpperArmCredit(at6738eeb: ReturnType<typeof asAt6738eeb>): ReturnTy
   expect(addedVariants.map((variant) => variant.catalogExerciseId)).toEqual([318, 326, 329, 330, 333, 87, 88, 335, 164]);
   expect(addedSources.map((source) => source.id).sort()).toEqual(["bmc.pulldown_row_grips", "jelekin.pull_up_grips", "jscr.pull_up_chin_up", "kenhub.biceps_brachii", "mdpi.biceps_curl_grips", "teachmeanatomy.brachialis"]);
   const strip = (variant: ExerciseVariant) => (({ sidedBy: _sidedBy, legLaterality: _legs, sideAnchor: _anchor, dimensions: _dimensions, ...rest }) => rest)(variant);
-  return { ...at6738eeb, variants: [...at6738eeb.variants, ...addedVariants.map(strip)], sources: [...at6738eeb.sources, ...forearmRegionData.sources.filter((source) => addedSources.includes(source))] };
+  return { ...at6738eeb, variants: [...at6738eeb.variants, ...addedVariants.map(strip)], sources: [...at6738eeb.sources, ...forearmRegionDataV1.sources.filter((source) => addedSources.includes(source))] };
 }
 
 describe("nothing moved: the forearm and the deltoid fixture as composed", () => {
-  it("gives the forearm page the data it read at 6738eeb, record for record, apart from the fields the model added, the subtitle that said \"by arm\", the biceps' and brachialis' words (§1.3) and wave A's upper-arm credit (§4.2)", () => {
-    expect(asAt6738eeb(forearmRegionData)).toEqual(withUpperArmCredit(withMovedWords(withSubtitle(fixture("forearmRegionData.6738eeb.json"), "Circumference and grip, by arm", "Circumference and grip"))));
+  it("gives the forearm page the data it read at 6738eeb, record for record, apart from the fields the model added, the subtitle that said \"by arm\", the biceps' and brachialis' words (§1.3) and wave A's upper-arm credit (§4.2), under forearm_mappings_v1", () => {
+    expect(asAt6738eeb(forearmRegionDataV1)).toEqual(withUpperArmCredit(withMovedWords(withSubtitle(fixture("forearmRegionData.6738eeb.json"), "Circumference and grip, by arm", "Circumference and grip"))));
+  });
+
+  it("changes it at F3 only by forearm_mappings_v2: the version, its rows, the variants they map and the sources they cite (11-forearm §1.7)", () => {
+    const { mappingVersion, mappings, variants, sources, ...rest } = forearmRegionData;
+    const { mappingVersion: v1Version, mappings: v1Mappings, variants: v1Variants, sources: v1Sources, ...v1Rest } = forearmRegionDataV1;
+    expect(rest).toEqual(v1Rest);
+    expect([v1Version.key, mappingVersion.key]).toEqual(["forearm_mappings_v1", "forearm_mappings_v2"]);
+    expect(v1Mappings).toBe(forearmMappingsV1);
+    expect(mappings).toBe(forearmContent.mappings);
+    // The variants: v1's, with the four new rows after the forearm's 119, its own records first as before; the seven of the
+    // upper arm's records its brachioradialis rows map are now its own, in the place they had as the upper arm's.
+    expect(variants.map((variant) => variant.id)).toEqual([...v1Variants.slice(0, 119), ...forearmResearchVariants, ...v1Variants.slice(119)].map((variant) => variant.id));
+    expect(variants.filter((variant) => !v1Variants.some((old) => old.id === variant.id))).toEqual(forearmResearchVariants);
+    // The sources: the four v2's rows cite (sources/forearmResearch.ts), after v1's own list and before the upper arm's.
+    const ownCount = forearmContentV1.sources.length;
+    expect(sources).toEqual([...v1Sources.slice(0, ownCount), ...forearmResearchSources, ...v1Sources.slice(ownCount)]);
   });
 
   it("reads the same page data through what it reads of the upper arm (upperArmHome.ts) as through the upper arm's whole content", () => {
@@ -207,9 +229,10 @@ describe("nothing moved: the forearm and the deltoid fixture as composed", () =>
 
   it("hands the page the folder's own region, variants and mappings, record for record", () => {
     expect(forearmRegionData.region).toBe(forearmContent.region);
-    // Its own variants first, the very records; then the nine the upper arm's rows for its members map (wave A).
+    // Its own variants first, the very records; then the two more the upper arm's rows for its members map (wave A: nine, of
+    // which F3's brachioradialis rows made seven the forearm's own).
     forearmContent.variants.forEach((variant, index) => expect(forearmRegionData.variants[index]).toBe(variant));
-    expect(forearmRegionData.variants).toHaveLength(forearmContent.variants.length + 9);
+    expect(forearmRegionData.variants).toHaveLength(forearmContent.variants.length + 2);
     expect(forearmRegionData.mappings).toBe(forearmContent.mappings);
   });
 
@@ -495,7 +518,8 @@ function externalCreditProblems(data: SpecializationRegionData): string[] {
 
 describe("composition (§1.3, §4.2)", () => {
   const draft: MappingVersion = { key: "upper_arm_test_v1", state: "draft", publishedAt: null, methodNotes: "Test version." };
-  const curl = forearmContent.mappings.find((mapping) => mapping.id === "cat-121:upper_arm.biceps")!;
+  // A biceps row to stand for a home's (forearm_mappings_v1's: since F3 the forearm's own version maps no upper-arm muscle).
+  const curl = forearmMappingsV1.find((mapping) => mapping.id === "cat-121:upper_arm.biceps")!;
   const homeMapping: VariantMapping = { ...curl, versionKey: draft.key, rationale: "The upper arm's own reading, for this test." };
   /** The upper arm with its own version published, crediting the biceps with these mappings. */
   const publishedWith = (...mappings: VariantMapping[]): RegionContent => ({ ...upperArmContent, mappingVersion: { ...draft, state: "published", publishedAt: "2026-10-20" }, mappings, variants: variantsMappedBy(mappings) });
@@ -681,7 +705,14 @@ describe("anatomy content, in every region", () => {
         expect(new Set(content.actions.map((action) => action.id)).size).toBe(content.actions.length);
         const mapped = variantsMappedBy(content.mappings);
         expect(content.variants).toHaveLength(mapped.length);
-        content.variants.forEach((variant, index) => expect(variant).toBe(mapped[index]));
+        // The very records, but for those another region's lane wrote that a page reading its own lane's records copies from its
+        // generated list (the forearm's `versionVariants`, held to the library by loggingTable.test.ts): equal, not the same object.
+        const own = regionVariantRecords[content.region.id];
+        content.variants.forEach((variant, index) => {
+          if (own && !own.includes(mapped[index])) expect(variant, variant.id).toEqual(mapped[index]);
+          else expect(variant, variant.id).toBe(mapped[index]);
+        });
+        if (content.region.id === "forearm") expect(content.variants.filter((variant) => !own!.includes(variant))).toEqual(versionVariants);
       });
 
       it("makes no growth promise and never names the backend vendor or says 'table'", () => {
