@@ -37,7 +37,8 @@ import { FOREARM_MAPPING_VERSION, forearmActionIds as a, forearmMuscleIds as m }
  *   grip force);
  * - the pronator quadratus steadying the joint near the wrist in lever supination (S03), and S03 and
  *   S04 added as second sources on the pronation and deviation rows whose muscles their abstracts name;
- * - the brachioradialis on the face pulls, the rear-delt row and four cable rows, where the upper arm
+ * - the brachioradialis on the face pulls, the rear-delt row, three cable rows and a kneeling cable
+ *   pulldown, where the upper arm
  *   now credits the biceps and brachialis (wave A's pulls review);
  * - the new rows 417-420: two wrist curls, a timed barbell hold and the index and little finger drill.
  */
@@ -447,7 +448,7 @@ export const forearmMappingVersion: MappingVersion = {
     "FDS and FDP are always credited together as shared: nothing in an ordinary grip separates them. Grip during rows, pulldowns, pull-ups, deadlifts, shrugs and hangs is incidental and is not earned by a set logged with straps.",
     "No percentage splits between muscles, no mapping credits every forearm muscle, the hand's own muscles are not credited to the forearm, and a broad 'forearms' tag on an unmapped exercise stays region-level.",
     // Version 2 (11-forearm-research-and-stack.md §1.7), with what its conditional rows and decision 2 added.
-    "Version 2 reviews the thumb flexor's role in hangs and carries as incidental grip, adds the wrist extensors and flexors steadying the wrist in grip holds, carries and the gripper, the pronator quadratus steadying the joint near the wrist in lever supination, and the brachioradialis in face pulls and cable rows, and maps four new exercises.",
+    "Version 2 reviews the thumb flexor's role in hangs and carries as incidental grip, adds the wrist extensors and flexors steadying the wrist in grip holds, carries and the gripper, the pronator quadratus steadying the joint near the wrist in lever supination, and the brachioradialis in face pulls, cable rows and a kneeling cable pulldown, and maps four new exercises.",
     "Its new EMG sources (pmid.9503091, pmid.14656682, pmid.32636008, pmid.35646483) are cited only for which muscles they found active.",
     "It adopts none of the research package's grades or percentages. It credits no upper-arm muscle: the upper arm's own version does.",
   ].join(" "),

@@ -20,8 +20,8 @@
  *   version does not map, which it reads for region-only sets (`taggedVariants`), those its
  *   homes' published versions map for its external members (`homeVariants`), and, for a region
  *   whose page reads its own lane's records (`regionVariantRecords`, the forearm), those its own
- *   version maps that another lane wrote (`versionVariants`; F3, 24 Oct 2026: the face pulls and
- *   cable rows whose brachioradialis `forearm_mappings_v2` credits). A region's page reads these
+ *   version maps that another lane wrote (`versionVariants`; F3, 24 Oct 2026: the face pulls, cable
+ *   rows and kneeling pulldown whose brachioradialis `forearm_mappings_v2` credits). A region's page reads these
  *   instead of the whole library, so opening the forearm does not download every region's
  *   variants (10-multi-region.md §6.1's download gate).
  *

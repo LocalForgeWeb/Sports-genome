@@ -14,7 +14,7 @@ import { forearmMappings } from "./mappings";
 export const forearmVariants: ExerciseVariant[] = (() => {
   // Its version maps its own lane's records (variants/forearm.ts, variants/forearmResearch.ts), read from those files alone so the
   // forearm's chunk does not carry the whole library, and, from forearm_mappings_v2, a few records the upper arm's lane wrote (the
-  // face pulls and cable rows whose brachioradialis it credits), copied into libraryVariants.generated.ts (`versionVariants`).
+  // face pulls, cable rows and kneeling pulldown whose brachioradialis it credits), copied into libraryVariants.generated.ts (`versionVariants`).
   // In library order, equal to `variantsMappedBy(forearmMappings)` (regionContent.test.ts).
   const mapped = new Set(forearmMappings.map((mapping) => mapping.variantId));
   return [...forearmV1Variants, ...forearmResearchVariants, ...versionVariants].filter((variant) => mapped.has(variant.id));
