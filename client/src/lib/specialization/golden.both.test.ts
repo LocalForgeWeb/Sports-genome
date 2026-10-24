@@ -37,7 +37,8 @@ import { f3Moves } from "./__fixtures__/goldenF3";
  * forearm_mappings_v1 (`waveAInputs`), and the tree's differ from them only by
  * 9. the mapping version's name (v2) and the numbers of the muscles v2 credits differently, every
  *    one listed, generated, in __fixtures__/goldenF3.moved.both.txt (the release's list); region
- *    totals and completeness do not move.
+ *    totals and completeness do not move in these histories, which hold none of the seven pulls
+ *    whose brachioradialis v2 adds (goldenF3.pulls.test.ts lists where they do).
  *
  * Nothing else may differ: not a count, a row, a note, a side, an order or the rule version. The
  * per-arm summaries (the calculator's per-side capability, dormant on the page) are held to the

@@ -82,11 +82,11 @@ const src = {
   brStrongest: { sourceId: "A2", locator: "Quick Facts: Action", limitation: "Relays Gray's Anatomy: the muscle's action and the forearm position it is strongest in, not how much this exercise loads it." } as MappingSourceRef,
   fplForcefulGrip: { sourceId: "pmid.9503091", locator: "Abstract", limitation: "Forceful stone-tool use and tool making, not a gym handle; abstract only." } as MappingSourceRef,
   gripForce: { sourceId: "pmid.35646483", locator: "Abstract: Results; Methods (the eight muscles recorded)", limitation: "A robot tilting the wrist of a hand holding a handle at set grip forces, not this exercise; activity rose with grip force in every muscle recorded, and no value for this muscle was seen. Abstract and search excerpts only." } as MappingSourceRef,
-  extensorsAsGroup: { sourceId: "M2", locator: "Results: extensor activity during gripping by wrist and forearm posture", limitation: "Names the wrist extensors as a group, not each muscle; a dynamometer, not a barbell." } as MappingSourceRef,
+  extensorsAsGroup: { sourceId: "M2", locator: "Results: extensor activity during gripping by wrist and forearm posture", limitation: "Names the wrist extensors as a group, not each muscle; a measuring handle, not a barbell." } as MappingSourceRef,
   extensorsRecordedAsOne: { sourceId: "pmid.35646483", locator: "Abstract: Results; Methods (the eight muscles recorded)", limitation: "Records the radial wrist extensor as one muscle, not the longus and brevis apart; a robot tilting the wrist of a hand holding a handle, not this exercise; activity rose with grip force in every muscle recorded. Abstract and search excerpts only." } as MappingSourceRef,
   pronationEffort: { sourceId: "pmid.14656682", locator: "Abstract: muscle activity in pronation", limitation: "Maximal isometric efforts in a device that excludes the grip, 14 adults, not repetitions against a lever; abstract only." } as MappingSourceRef,
   pqBothWays: { sourceId: "pmid.14656682", locator: "Abstract: the deep head of pronator quadratus in pronation and supination", limitation: "Maximal isometric efforts in a device that excludes the grip, 14 adults, not repetitions against a lever; the deep head only; abstract only." } as MappingSourceRef,
-  deviationRobot: { sourceId: "pmid.32636008", locator: "Abstract", limitation: "Twelve men on a wrist robot, surface EMG: names the muscle among those whose activity changed with the direction of the tilt, with no value for this exercise; a robot handle, not a dumbbell lever. Abstract only." } as MappingSourceRef,
+  deviationRobot: { sourceId: "pmid.32636008", locator: "Abstract", limitation: "Twelve men on a wrist robot, surface EMG: the abstract names the ulnar flexor and extensor only as steadying the wrist (co-contraction) during radial tilts, not as moving it toward the little finger, with no value for this exercise; a robot handle, not a dumbbell lever. Abstract only." } as MappingSourceRef,
   radialExtensorRobot: { sourceId: "pmid.32636008", locator: "Abstract", limitation: "Twelve men on a wrist robot, surface EMG: records the radial wrist extensor as one muscle, the most task dependent of eight; a robot handle, not a dumbbell lever. Abstract only." } as MappingSourceRef,
   eiOnItsOwn: { sourceId: "A37", locator: "Function", limitation: "Gives the action and that it lets the index finger straighten on its own, not how much this drill loads it." } as MappingSourceRef,
   edmOnItsOwn: { sourceId: "A35", locator: "Function", limitation: "Gives the action and that it can straighten the little finger on its own, not how much this drill loads it." } as MappingSourceRef,
@@ -270,13 +270,12 @@ function thumbInGrip(id: number, how: string): VariantMapping {
   });
 }
 
-const STEADY_EXTENSORS = "The wrist extensors work alongside a gripping hand, more as the grip gets harder (two gripping studies, one with a dynamometer, one with a robot): they steady the wrist without moving it, never moving work.";
+const STEADY_EXTENSORS = "The wrist extensors work alongside a gripping hand, more as the grip gets harder (two gripping studies, one with a measuring handle, one with a robot): they steady the wrist without moving it, never moving work.";
 const STEADY_FLEXORS = "The wrist flexors work alongside a gripping hand too, more as the grip gets harder (a robot study that recorded both groups): with the extensors they steady the wrist without moving it, never moving work.";
-const STRAPPED_HANG = " A strapped hang takes the grip off the fingers, so it earns this nothing.";
 
 /** The three wrist extensors steadying the wrist in a grip task (§1.4): M2 names the group, S05 the radial extensor as one and ECU. */
-function gripTaskExtensors(id: number, how: string, noStraps: boolean): VariantMapping[] {
-  const common = { action: a.wristExtension, relationship: "stabilizer" as const, mode: "isometric" as const, basis: "emg" as const, noStraps, rationale: `${how} ${STEADY_EXTENSORS}${noStraps ? STRAPPED_HANG : ""}` };
+function gripTaskExtensors(id: number, how: string): VariantMapping[] {
+  const common = { action: a.wristExtension, relationship: "stabilizer" as const, mode: "isometric" as const, basis: "emg" as const, rationale: `${how} ${STEADY_EXTENSORS}` };
   return [
     mapping(id, m.extensorCarpiRadialisLongus, { ...common, sources: [src.ecrl, src.extensorsAsGroup, src.extensorsRecordedAsOne] }),
     mapping(id, m.extensorCarpiRadialisBrevis, { ...common, sources: [src.ecrb, src.extensorsAsGroup, src.extensorsRecordedAsOne] }),
@@ -285,8 +284,8 @@ function gripTaskExtensors(id: number, how: string, noStraps: boolean): VariantM
 }
 
 /** FCR and FCU steadying the wrist in a grip task (§1.4): adopted because S05 names both among the muscles that rose with grip force. */
-function gripTaskFlexors(id: number, how: string, noStraps: boolean): VariantMapping[] {
-  const common = { action: a.wristFlexion, relationship: "stabilizer" as const, mode: "isometric" as const, basis: "emg" as const, noStraps, rationale: `${how} ${STEADY_FLEXORS}${noStraps ? STRAPPED_HANG : ""}` };
+function gripTaskFlexors(id: number, how: string): VariantMapping[] {
+  const common = { action: a.wristFlexion, relationship: "stabilizer" as const, mode: "isometric" as const, basis: "emg" as const, rationale: `${how} ${STEADY_FLEXORS}` };
   return [
     mapping(id, m.flexorCarpiRadialis, { ...common, sources: [src.fcr, src.gripForce] }),
     mapping(id, m.flexorCarpiUlnaris, { ...common, sources: [src.fcu, src.gripForce] }),
@@ -312,7 +311,7 @@ function facePullBrachioradialis(id: number): VariantMapping {
   const turn = id === 88 ? " The turn out at the end works the shoulder's rotators, not the elbow." : "";
   return mapping(id, m.brachioradialis, {
     action: a.elbowFlexion, relationship: "contributing", mode: "dynamic", basis: "inference", sources: [src.br, src.brStrongest],
-    rationale: `The elbows sit out wide of the rope's line, so the rope pulls the hands away and the elbow flexors bend the elbows against it. With the thumbs up on the rope, the brachioradialis is where anatomy references call it strongest, so it helps move the load: contributing, never direct, as the rear shoulder is the target. No study of it here was found.${turn}`,
+    rationale: `The elbows sit out wide of the rope's line, so the rope pulls the hands away and the elbow flexors bend the elbows against it. With the thumbs up on the rope, the forearm is where anatomy references call the brachioradialis strongest, so it helps move the load: contributing, never direct, as the rear shoulder is the target. No study of it here was found.${turn}`,
   });
 }
 
@@ -371,7 +370,7 @@ export const forearmMappings: VariantMapping[] = [
   ...fingerFlexors(401, "dynamic", "The bar rolls to the fingertips and is curled back by bending the fingers, so the finger flexors move through range: direct, dynamic work, shared between FDS and FDP. A set where the fingers do not move is not this exercise."),
   ...fingerFlexors(402, "dynamic", "Closing the gripper bends the fingers against the spring, so the finger flexors move through range: direct, dynamic work, shared between FDS and FDP."),
   ...fingerFlexors(403, "isometric", `${DELIBERATE_GRIP} Straps do not apply to a gripper.`),
-  ...[402, 403].flatMap((id) => [...gripTaskExtensors(id, gripTask[id], false), ...gripTaskFlexors(id, gripTask[id], false)]),
+  ...[402, 403].flatMap((id) => [...gripTaskExtensors(id, gripTask[id]), ...gripTaskFlexors(id, gripTask[id])]),
   mapping(404, m.extensorDigitorum, { action: a.fingersExtension, relationship: "direct", mode: "dynamic", basis: "anatomy", allocation: "shared", sources: [src.ed], rationale: "Opening the fingers against a band is finger extension, the extensor digitorum's main action, so it is direct. The little- and index-finger extensors join in, and the work is shared between the three." }),
   mapping(404, m.extensorDigitiMinimi, { action: a.littleFingerExtension, relationship: "contributing", mode: "dynamic", basis: "anatomy", allocation: "shared", sources: [src.edm], rationale: "The extensor digiti minimi straightens the little finger alongside the extensor digitorum when all the fingers open; contributing and shared." }),
   mapping(404, m.extensorIndicis, { action: a.indexFingerExtension, relationship: "contributing", mode: "dynamic", basis: "anatomy", allocation: "shared", sources: [src.ei], rationale: "The extensor indicis straightens the index finger alongside the extensor digitorum when all the fingers open; contributing and shared." }),
@@ -389,25 +388,25 @@ export const forearmMappings: VariantMapping[] = [
   mapping(142, m.flexorPollicisLongus, { action: a.thumbIpFlexion, relationship: "direct", mode: "isometric", basis: "anatomy", sources: [src.fpl, src.fplPinch], rationale: "The thumb presses the plates against the fingers for the whole hold, and the long thumb flexor adds measurably to pinch strength (M4), so it is a direct isometric target in a pinch." }),
   ...fingerFlexors(143, "isometric", `${DELIBERATE_GRIP} Straps would take the hold off the fingers, so a strapped hang earns no grip credit.`, { noStraps: true, extra: [src.straps] }),
   thumbInGrip(143, "The thumb wraps the bar while the fingers hold the body's weight."),
-  ...gripTaskExtensors(143, gripTask[143], true),
-  ...gripTaskFlexors(143, gripTask[143], true),
+  ...gripTaskExtensors(143, gripTask[143]),
+  ...gripTaskFlexors(143, gripTask[143]),
   ...fingerFlexors(144, "isometric", `${DELIBERATE_GRIP} Gripping a towel closes the fist further than a bar. Straps would take the hold off the fingers, so a strapped hang earns no grip credit.`, { noStraps: true, extra: [src.straps] }),
   // v1's draft, reviewed in v2 as incidental grip (§1.3).
   thumbInGrip(144, "The thumb wraps and presses the towel while the fists hold the body's weight."),
-  ...gripTaskExtensors(144, gripTask[144], true),
-  ...gripTaskFlexors(144, gripTask[144], true),
+  ...gripTaskExtensors(144, gripTask[144]),
+  ...gripTaskFlexors(144, gripTask[144]),
   ...[145, 299, 409].flatMap((id) => [
     ...fingerFlexors(id, "isometric", `${DELIBERATE_GRIP} Straps would take the load off the fingers, so a strapped set earns no grip credit.`, { noStraps: true, extra: [src.straps] }),
     // v1's draft, reviewed in v2 as incidental grip (§1.3).
     thumbInGrip(id, "The thumb closes over the handle while the fingers hold the load."),
     ...wristExtensorStabilizers(id, "A heavy handle held at the side needs the wrist held straight while the fingers grip, and the wrist extensors work alongside a grip (M2): isometric stabilization, never dynamic credit (brief §4, farmer carry: wrist stabilization)."),
-    ...gripTaskFlexors(id, gripTask[id], false),
+    ...gripTaskFlexors(id, gripTask[id]),
   ]),
   // 419 Barbell Hold (§1.2): the hold family's finger flexors, steadying wrist muscles and the thumb in the grip.
   ...fingerFlexors(419, "isometric", `${DELIBERATE_GRIP} Straps would take the hold off the fingers, so a strapped hold earns no grip credit.`, { noStraps: true, extra: [src.straps] }),
   thumbInGrip(419, "The thumb closes over the bar while the fingers hold the load."),
-  ...gripTaskExtensors(419, gripTask[419], false),
-  ...gripTaskFlexors(419, gripTask[419], false),
+  ...gripTaskExtensors(419, gripTask[419]),
+  ...gripTaskFlexors(419, gripTask[419]),
   mapping(300, m.brachioradialis, { action: a.elbowFlexion, relationship: "contributing", mode: "isometric", basis: "anatomy", sources: [src.br], rationale: "The bar sits in the crook of the elbows, and the elbow flexors hold the elbows bent against it for the whole carry. The hands do not grip the bar, so no finger flexor is credited." }),
 
   // Rows, pulldowns, pull-ups and chin-ups.
@@ -449,7 +448,7 @@ export const forearmMappingVersion: MappingVersion = {
     "No percentage splits between muscles, no mapping credits every forearm muscle, the hand's own muscles are not credited to the forearm, and a broad 'forearms' tag on an unmapped exercise stays region-level.",
     // Version 2 (11-forearm-research-and-stack.md §1.7), with what its conditional rows and decision 2 added.
     "Version 2 reviews the thumb flexor's role in hangs and carries as incidental grip, adds the wrist extensors and flexors steadying the wrist in grip holds, carries and the gripper, the pronator quadratus steadying the joint near the wrist in lever supination, and the brachioradialis in face pulls, cable rows and a kneeling cable pulldown, and maps four new exercises.",
-    "Its new EMG sources (pmid.9503091, pmid.14656682, pmid.32636008, pmid.35646483) are cited only for which muscles they found active.",
+    "Its four new studies are cited only for which muscles they found active.",
     "It adopts none of the research package's grades or percentages. It credits no upper-arm muscle: the upper arm's own version does.",
   ].join(" "),
 };

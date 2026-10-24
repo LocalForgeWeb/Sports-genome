@@ -223,3 +223,45 @@ export function goldenSummaries(sides: readonly ("left" | "right" | "both")[] = 
   }
   return out;
 }
+
+/**
+ * Release F3's pulls case (the release review of 24 Oct 2026; goldenF3.pulls.test.ts): one week of
+ * the seven exercises whose brachioradialis `forearm_mappings_v2` adds as other (contributing)
+ * work, 87 Face Pull, 88 Rope Face Pull with External Rotation and 318 Cable Rear-Delt Row on one
+ * day and 326 Kneeling Cable Lat Pulldown, 329 Cable Single-Arm Bent-Over Row (one set per arm, one
+ * with no arm), 330 Chest-Supported Cable Row and 333 Cable High Row (with straps) on another,
+ * beside a wrist curl both versions count. None of the seven is tagged `forearms`, so under v1 no
+ * set of theirs is in the forearm's region: v2 puts them there, which moves region totals and
+ * completeness, as the release golden histories (which hold none of them) do not show. Not in the
+ * reference (`goldenSummaries`); compared v1 to v2 only.
+ */
+const pullsSessions: DeviceWorkoutSession[] = [
+  done("pulls-1", "2026-10-13T18:00:00.000Z", [
+    ex("p1", 87, [set({ id: "p1a" }), set({ id: "p1b" }), set({ id: "p1c" })]),
+    ex("p2", 88, [set({ id: "p2a" }), set({ id: "p2b" })]),
+    ex("p3", 318, [set({ id: "p3a" }), set({ id: "p3b" })]),
+    ex("p4", 139, [set({ id: "p4a" }), set({ id: "p4b" })]),
+  ]),
+  done("pulls-2", "2026-10-15T18:00:00.000Z", [
+    ex("p5", 326, [set({ id: "p5a" }), set({ id: "p5b" }), set({ id: "p5c" })]),
+    ex("p6", 329, [set({ id: "p6a", side: "right" }), set({ id: "p6b", side: "left" }), set({ id: "p6c" })]),
+    ex("p7", 330, [set({ id: "p7a" }), set({ id: "p7b" })]),
+    ex("p8", 333, [set({ id: "p8a" }), set({ id: "p8b" })], { straps: "yes" }),
+  ]),
+];
+
+/** The pulls week's summaries, in the release histories' three windows, for each of `sides`. */
+export function pullsWeekSummaries(sides: readonly ("left" | "right" | "both")[], inputs: GoldenInputs = {}): GoldenCase[] {
+  const data = inputs.region ?? region;
+  const deps = { catalog, variants: data.variants, fallbackUnit: "kg" as const };
+  const bouts = [...boutsFromSessions(pullsSessions, deps), ...excludedRecordsFromSessions(pullsSessions, deps)];
+  const intervals: [string, SummaryInterval][] = [
+    ["calendar-week", calendarWeekInterval(GOLDEN_NOW, TZ)],
+    ["rolling-7d", rolling7dInterval(GOLDEN_NOW, TZ)],
+    ["custom-year", customInterval("2025-10-18", "2026-10-17", TZ)],
+  ];
+  return intervals.flatMap(([intervalId, interval]) => sides.map((side) => ({
+    id: `completed/pulls-week/${intervalId}/${side}`,
+    summary: getSpecializationSummary({ region: data, bouts, interval, side, mode: "completed", goals: goldenGoals, catalogMusclesFor, sourceRevision: "golden", planRevision: null, now: GOLDEN_NOW, ...(inputs.rule ? { rule: inputs.rule } : {}) }),
+  })));
+}
