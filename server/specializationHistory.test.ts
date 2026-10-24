@@ -20,6 +20,8 @@ const applied: Record<string, string> = {
   "20261019120100_specialization_atlas_seed_v2.sql": "b3798fd6d35999789d6c0f790e80a24f9a32a7b96e70d986f9e88c5a007cfea8",
   // Recorded on 24 Oct 2026 (wave A), from commit 068ed73.
   "20261022120100_specialization_atlas_seed_v3.sql": "302f865dff4442d032678a6862dab412b6a2f0cae548a2a5cd05c1970ebc2967",
+  // Recorded on 24 Oct 2026 (F3), from commit 3a4672b.
+  "20261024120100_specialization_atlas_seed_v4.sql": "70bdff167ecb8a313d99e9723a18f438e5032ace6fb94c81cd9dac989c23a3dd",
 };
 
 const migrations = resolve(process.cwd(), "supabase/migrations");
