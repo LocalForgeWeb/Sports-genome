@@ -12,6 +12,8 @@ import { loadRegionExtras } from "@/lib/specialization/regionExtras";
 import { clearSummaryCache } from "@/lib/specialization/useSpecializationSummary";
 import { currentExposureRule } from "@shared/specialization/rules";
 import { forearmContent } from "@shared/specialization/regions/forearm";
+import { forearmMappingsV1, forearmMappingVersionV1 } from "@shared/specialization/__fixtures__/forearmMappingsV1";
+import { sourceById } from "@shared/specialization/sources";
 import { upperArmContent } from "@shared/specialization/regions/upper_arm";
 import { defaultSpecializationState, type SpecializationViewState } from "@/lib/specialization/viewState";
 import { NOW, goals, sessions, slots, store, storeWithOneArm } from "./__fixtures__/forearmWeek";
@@ -48,6 +50,23 @@ import { NOW, goals, sessions, slots, store, storeWithOneArm } from "./__fixture
  * 4dac1ae, leave out the region loader (that tree has none) and the rule import (the stated changes
  * are not read there), and run it with READ_PAGE_TEXT=<path>.
  */
+
+/**
+ * F3 (11-forearm-research-and-stack.md §1.7): the comparison with the reference reads the forearm as
+ * wave A left it, under forearm_mappings_v1 (`forearmRegionDataV1`, the frozen rows); what v2 changes
+ * is read apart, the tree's page against that one, in the last test. The loader serves the version asked.
+ */
+const forearmVersion = vi.hoisted(() => ({ current: "v1" as "v1" | "v2" }));
+vi.mock("@/lib/specialization/loadRegion", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/specialization/loadRegion")>();
+  const { forearmRegionDataV1 } = await import("@/lib/specialization/__fixtures__/forearmV1");
+  const asV1 = (id: string) => id === "forearm" && forearmVersion.current === "v1";
+  return {
+    ...actual,
+    loadedRegionData: (id: Parameters<typeof actual.loadedRegionData>[0]) => (asV1(id) ? forearmRegionDataV1 : actual.loadedRegionData(id)),
+    loadRegionData: (id: Parameters<typeof actual.loadRegionData>[0]) => (asV1(id) ? Promise.resolve(forearmRegionDataV1) : actual.loadRegionData(id)),
+  };
+});
 
 vi.mock("./anatomy3d/AnatomyModelStage", async (importOriginal) => ({
   ...(await importOriginal<typeof import("./anatomy3d/AnatomyModelStage")>()),
@@ -364,7 +383,8 @@ function withoutRuns(lines: string[], rules: { why: string; lines: RegExp[] }[],
 }
 
 describe.skipIf(out)("the forearm page says what main says (4dac1ae, both arms as one), apart from wave 0's and wave A's stated changes", () => {
-  it("reads the same lines, in the same order, in every state and every sheet", async () => {
+  it("reads the same lines, in the same order, in every state and every sheet (the forearm under forearm_mappings_v1)", async () => {
+    forearmVersion.current = "v1";
     const reference = JSON.parse(readFileSync(join(process.cwd(), "client/src/components/specialization/__fixtures__/pageText.4dac1ae.json"), "utf8")) as Record<string, Reading>;
     const read = await readAll();
     expect(Object.keys(read)).toEqual(Object.keys(reference));
@@ -396,4 +416,118 @@ describe.skipIf(out)("the forearm page says what main says (4dac1ae, both arms a
     // Every stated change is still one the page makes.
     expect([...stated, ...gone, ...added, ...addedSheets].map((rule) => rule.why).filter((why) => !used.has(why))).toEqual([]);
   }, 300000);
+});
+
+// ---------------------------------------------------------------- what F3 changes: forearm_mappings_v2 against v1, on the same tree
+
+/**
+ * Release F3 (11-forearm-research-and-stack.md §1.7, "What athletes see change"): the page as the tree
+ * shows it, under forearm_mappings_v2, against the same page under forearm_mappings_v1, state by state
+ * and sheet by sheet. On the page itself every changed line is stated below: How this is counted names
+ * v2 and says its method notes; the wrist flexors and the thumb flexor gain incidental grip or steadying
+ * (and in the year's window the wrist extensors more of it); the thumb flexor's pending-review finding
+ * goes; Planned mode's finding counts one more movement (420 reaches the index and little finger
+ * extensors). The sheets whose ledgers and suggestions v2's rows change (F3_SHEETS) are checked apart:
+ * every line they lose and gain is of a stated kind, and what each must now say is said. Every other
+ * sheet is unchanged.
+ */
+/** A row's value line ("8 direct", "DeepNo work") is rewritten only in that muscle's row: right after its short name. */
+const F3_STATED: { why: string; in: RegExp; was: string; now: string; after?: RegExp }[] = [
+  { why: "F3: How this is counted names forearm_mappings_v2", in: /./, was: "specialization_exposure_v2 · forearm_mappings_v1", now: "specialization_exposure_v2 · forearm_mappings_v2" },
+  { why: "F3: How this is counted says v2's method notes", in: /./, was: forearmMappingVersionV1.methodNotes, now: forearmContent.mappingVersion!.methodNotes },
+  ...(["radialis", "ulnaris"] as const).flatMap((muscle) => [
+    { why: `F3: the wrist flexors steady the wrist in the hangs and carries (flexor carpi ${muscle})`, in: /^(week|7d)|^week, /, was: `[name] Flexor carpi ${muscle}, Surface. 8 direct dynamic bouts. Open details.`, now: `[name] Flexor carpi ${muscle}, Surface. 8 direct dynamic bouts · 4 incidental grip or steadying. Open details.` },
+    { why: `F3: the wrist flexors steady the wrist in the hangs and carries (flexor carpi ${muscle}, the year)`, in: /^custom$/, was: `[name] Flexor carpi ${muscle}, Surface. 11 direct dynamic bouts. Open details.`, now: `[name] Flexor carpi ${muscle}, Surface. 11 direct dynamic bouts · 6 incidental grip or steadying. Open details.` },
+  ]),
+  { why: "F3: the wrist flexors' rows say their grip", in: /^(week|7d)|^week, /, was: "8 direct", now: "8 direct · 4 grip", after: /^FC[RU]$/ },
+  { why: "F3: the wrist flexors' rows say their grip (the year)", in: /^custom$/, was: "11 direct", now: "11 direct · 6 grip", after: /^FC[RU]$/ },
+  ...(["radialis longus", "radialis brevis", "ulnaris"] as const).map((muscle) => ({ why: `F3: the wrist extensors steady the wrist in the hangs too (the year; extensor carpi ${muscle})`, in: /^custom$/, was: `[name] Extensor carpi ${muscle}, Surface. 8 direct dynamic bouts · 5 incidental grip or steadying. Open details.`, now: `[name] Extensor carpi ${muscle}, Surface. 8 direct dynamic bouts · 7 incidental grip or steadying. Open details.` })),
+  { why: "F3: the wrist extensors' rows (the year)", in: /^custom$/, was: "8 direct · 5 grip", now: "8 direct · 7 grip", after: /^(ECRL|ECRB|ECU)$/ },
+  { why: "F3: the thumb flexor's carries are incidental grip, no longer pending review", in: /^(week|7d)|^week, /, was: "[name] Flexor pollicis longus, Deep. No work for it in this window. 4 sets matched a mapping still under review and are not counted. Open details.", now: "[name] Flexor pollicis longus, Deep. 2 incidental grip or steadying. Open details." },
+  { why: "F3: the thumb flexor's carries are incidental grip, no longer pending review (the year)", in: /^custom$/, was: "[name] Flexor pollicis longus, Deep. No work for it in this window. 4 sets matched a mapping still under review and are not counted. Open details.", now: "[name] Flexor pollicis longus, Deep. 4 incidental grip or steadying. Open details." },
+  { why: "F3: the thumb flexor's row", in: /^(week|7d)|^week, /, was: "DeepNo work", now: "Deep2 grip", after: /^FPL$/ },
+  { why: "F3: the thumb flexor's row (the year)", in: /^custom$/, was: "DeepNo work", now: "Deep4 grip", after: /^FPL$/ },
+  { why: "F3: Planned mode's finding counts the index and little finger extension, which 420 trains directly", in: /^planned/, was: "9 movements have no direct moving work in Plan Week 1", now: "10 movements have no direct moving work in Plan Week 1" },
+  { why: "F3: Planned mode's finding, its list", in: /^planned/, was: "Pronation, supination, radial deviation and 6 more.", now: "Pronation, supination, radial deviation and 7 more." },
+];
+const F3_GONE: { why: string; in: RegExp; lines: string[] }[] = [
+  { why: "F3: no thumb-flexor row is pending review, so its finding goes", in: /^(week|7d|custom)|^week, /, lines: ["Mapping under review for Flexor pollicis longus", "4 sets in this window matched a mapping that is not reviewed yet. They are shown in the ledger and not counted.", "Inspect coverage"] },
+];
+
+/** The sheets v2's rows change, each with the lines it may lose and gain and what it must now say. */
+const F3_SHEETS: { key: RegExp; mayGo: RegExp[]; mayCome: RegExp[]; must: (state: string) => string[] }[] = [
+  {
+    key: /^muscle: Flexor digitorum superficialis$/,
+    mayGo: [/^Also loads /, /^(Plate Pinch|Towel Dead Hang)$/, /^\[name\] Do not suggest (Plate Pinch|Towel Dead Hang)$/],
+    mayCome: [/^Also loads /, /^Barbell Hold$/, /^\[name\] Do not suggest Barbell Hold$/],
+    must: () => ["Barbell Hold"],
+  },
+  {
+    key: /^movement: Wrist flexion$/,
+    mayGo: [/^0$/, /^Also loads /, /^Helps /, /^Wrist Roller(, Extension Wind)?$/, /^\[name\] Do not suggest Wrist Roller(, Extension Wind)?$/],
+    mayCome: [
+      /^\d+$/, /^\d+ bouts$/, /^\d+ s$/, /^About (Farmer Hold|Suitcase Carry|Dead Hang|Farmer’s Walk)$/, /^(Farmer Hold|Suitcase Carry|Dead Hang|Farmer’s Walk|Behind-the-Back Wrist Curl|Cable Wrist Curl|Cable)$/,
+      /^By FCR, FCU\.( Straps not recorded\.)?$/, /^Incidental grip \/ stabilization$/, /^Measured by EMG$/, /^Anatomy reference$/, /^Open this workout$/, /^(Flexor carpi (radialis|ulnaris)|Palmaris longus) · Wrist flexion$/,
+      /^Steadies the joint, holds still\. Counted as incidental grip \/ stabilization\.$/, /^Direct target, moves the joint\. Counted as direct dynamic\.$/, /^Direct wrist flexion; \d+ of your 8 direct dynamic bouts in Plan Week 1\.$/,
+      /^Suggested$/, /^Week 1 · Day \d+ · .+$/, /^Which kind of work a mapping counts as is set by the counting rule \(specialization_exposure_v2\)/, /^Why this counts$/, /^Also loads /, /^\[name\] Do not suggest (Behind-the-Back Wrist Curl|Cable Wrist Curl)$/,
+    ],
+    must: (state) => (state.startsWith("planned") ? ["Cable Wrist Curl", "Behind-the-Back Wrist Curl"] : ["By FCR, FCU.", "Incidental grip / stabilization"]),
+  },
+  {
+    key: /^model: (Flexor carpi (radialis|ulnaris)|Flexor pollicis longus)$/,
+    mayGo: [/^0$/, /^Muscle details$/, /^None logged in this window\.$/, /^Nothing logged for it in this window\. \d+ sets matched a mapping still under review and are shown, not counted\.$/],
+    mayCome: [/^\d+$/, /^\d+ incidental grip \/ stabilization$/, /^(Farmer Hold|Suitcase Carry)$/, /^View$/, /^View contributions$/, /^\[name\] View (Farmer Hold|Suitcase Carry)$/],
+    must: () => ["2 incidental grip / stabilization"],
+  },
+];
+
+/** Every line v2's rows can put on a sheet in their own words: their rationales, and their sources as a ledger cites them. */
+const v2RowWords = new Set(forearmContent.mappings.flatMap((mapping) => [
+  mapping.rationale,
+  ...mapping.sources.flatMap((ref) => [`${sourceById.get(ref.sourceId)?.title} · ${ref.locator}`, `Limit: ${ref.limitation}`]),
+]));
+const v1RowWords = new Set(forearmMappingsV1.map((mapping) => mapping.rationale));
+
+describe.skipIf(out)("F3: the forearm page under forearm_mappings_v2 against v1, on the same tree", () => {
+  it("changes only the stated lines on the page, and only the stated kinds of line in the sheets v2's rows change", async () => {
+    forearmVersion.current = "v1";
+    const before = await readAll();
+    forearmVersion.current = "v2";
+    const after = await readAll();
+    const used = new Set<string>();
+    const differences: Record<string, unknown> = {};
+    for (const state of Object.keys(before)) {
+      expect(Object.keys(after[state]), state).toEqual(Object.keys(before[state]));
+      for (const key of Object.keys(before[state])) {
+        const was = before[state][key];
+        const now = after[state][key];
+        const sheet = F3_SHEETS.find((entry) => entry.key.test(key));
+        if (sheet) {
+          const count = (lines: string[]) => lines.reduce((map, line) => map.set(line, (map.get(line) ?? 0) + 1), new Map<string, number>());
+          const [a, b] = [count(was), count(now)];
+          const gone = [...a].filter(([line, n]) => (b.get(line) ?? 0) < n).map(([line]) => line);
+          const fresh = [...b].filter(([line, n]) => (a.get(line) ?? 0) < n).map(([line]) => line);
+          const badGone = gone.filter((line) => !v1RowWords.has(line) && !v2RowWords.has(line) && !sheet.mayGo.some((pattern) => pattern.test(line)));
+          const badFresh = fresh.filter((line) => !v2RowWords.has(line) && !sheet.mayCome.some((pattern) => pattern.test(line)));
+          if (badGone.length || badFresh.length) differences[`${state}: ${key}`] = { badGone, badFresh };
+          if (gone.length || fresh.length) for (const line of sheet.must(state)) expect(now, `${state}: ${key} says "${line}"`).toContain(line);
+          continue;
+        }
+        const rewritten = was.map((line, index) => {
+          const rule = F3_STATED.find((entry) => entry.in.test(state) && entry.was === line && (!entry.after || entry.after.test(was[index - 1] ?? "")));
+          if (!rule) return line;
+          used.add(rule.why);
+          return rule.now;
+        });
+        const expected = withoutRuns(rewritten, F3_GONE.filter((rule) => rule.in.test(state)).map((rule) => ({ why: rule.why, lines: rule.lines.map((line) => new RegExp(`^${line.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`)) })), used);
+        if (JSON.stringify(now) !== JSON.stringify(expected)) differences[`${state}: ${key}`] = { expected: expected.filter((line) => !now.includes(line)), read: now.filter((line) => !expected.includes(line)) };
+      }
+    }
+    expect(differences).toEqual({});
+    // Every stated change is one the page makes.
+    expect([...F3_STATED, ...F3_GONE].map((rule) => rule.why).filter((why) => !used.has(why))).toEqual([]);
+    // The sheets v2 changes are changed somewhere: the thumb flexor's panel, the wrist flexion ledger, the finger flexors' suggestions.
+    const changedSheets = new Set(Object.keys(before).flatMap((state) => Object.keys(before[state]).filter((key) => JSON.stringify(before[state][key]) !== JSON.stringify(after[state][key]))));
+    for (const sheet of F3_SHEETS) expect(Array.from(changedSheets).some((key) => sheet.key.test(key)), String(sheet.key)).toBe(true);
+  }, 600000);
 });
