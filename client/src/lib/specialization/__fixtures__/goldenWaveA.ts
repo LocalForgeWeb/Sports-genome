@@ -1,12 +1,11 @@
 import { expect } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
-import { forearmContent } from "@shared/specialization/regions/forearm";
 import { upperArmMuscleIds } from "@shared/specialization/regions/upper_arm/ids";
-import { regionDataFor } from "@shared/specialization/registry";
 import { exposureRuleIds, exposureRuleV1 } from "@shared/specialization/rules";
 import type { Contribution, GoalProgress, NodeExposure, RegionBoutRow, SpecializationRegionData, SpecializationSummary, VariantMapping } from "@shared/specialization/types";
 import { planningVariantsFor } from "../useSpecializationSummary";
 import type { GoldenInputs } from "./releaseGateHistories";
+import { forearmContentV1 as forearmContent, forearmRegionDataV1 } from "./forearmV1";
 
 /**
  * Wave A's allowed differences in the forearm's golden summaries (10-multi-region.md §4.3), taken
@@ -21,15 +20,19 @@ import type { GoldenInputs } from "./releaseGateHistories";
  *    is §4.3's "every release" difference (§11 decision 11(c)): region-only sets of a forearm-tagged
  *    exercise whose new variant is two-handed move from "no arm recorded" to both arms, and nothing
  *    else (`expectOnlyTwoHandedMoves`).
- * 3. as the tree computes it, the upper arm's published version crediting the biceps and
- *    brachialis, under rule v2: what moves is the rule version, the biceps' and brachialis' rows
- *    (on 406 Lever Supination the biceps' row is the upper arm's individual row) and the biceps'
- *    targets, and nothing else (`expectOnlyUpperArmCredit`). A shared partner a forearm row lost to
- *    the change of version would be put back here, counted, and checked; none does (the
- *    supinator and the biceps on 406 differ in category, so they were never partners).
+ * 3. as wave A left the tree (`waveAInputs`), the upper arm's published version crediting the
+ *    biceps and brachialis, under rule v2: what moves is the rule version, the biceps' and
+ *    brachialis' rows (on 406 Lever Supination the biceps' row is the upper arm's individual row)
+ *    and the biceps' targets, and nothing else (`expectOnlyUpperArmCredit`). A shared partner a
+ *    forearm row lost to the change of version would be put back here, counted, and checked; none
+ *    does (the supinator and the biceps on 406 differ in category, so they were never partners).
+ *
+ * All three read the forearm under `forearm_mappings_v1` (`forearmRegionDataV1`: the frozen rows,
+ * the variants and sources v1 listed), as wave A shipped it. Release F3's step, v1 to v2, is
+ * goldenF3.ts's, from wave A's summaries to the tree's.
  */
 
-const region = regionDataFor("forearm")!;
+const region = forearmRegionDataV1;
 const withoutTagged = ({ taggedVariants: _tagged, ...rest }: SpecializationRegionData): SpecializationRegionData => rest;
 
 export const waveZeroInputs: GoldenInputs = {
@@ -43,6 +46,9 @@ export const libraryOnlyInputs: GoldenInputs = {
   planningVariants: planningVariantsFor(region),
   rule: exposureRuleV1,
 };
+
+/** The tree as wave A left it: the forearm under forearm_mappings_v1, composed with the upper arm, rule v2. */
+export const waveAInputs: GoldenInputs = { region, planningVariants: planningVariantsFor(region) };
 
 const shipped = new Set(forearmContent.variants.map((variant) => variant.id));
 /** The library records new with wave A that the forearm page reads: its homes' rows' and the forearm-tagged exercises'. */
