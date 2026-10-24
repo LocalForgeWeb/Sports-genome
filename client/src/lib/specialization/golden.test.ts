@@ -9,7 +9,8 @@ import { calendarWeekInterval } from "@shared/specialization/time";
 import type { Contribution, ExposureBout, RegionBoutRow, SpecializationSummary } from "@shared/specialization/types";
 import { catalogMusclesLookup } from "./useSpecializationSummary";
 import { canonicalJson, goldenSummaries, summaryTotals } from "./__fixtures__/releaseGateHistories";
-import { expectOnlyTwoHandedMoves, expectOnlyUpperArmCredit, libraryOnlyInputs, twoHandedNew, waveZeroInputs, type UpperArmCredit } from "./__fixtures__/goldenWaveA";
+import { expectOnlyTwoHandedMoves, expectOnlyUpperArmCredit, libraryOnlyInputs, twoHandedNew, waveAInputs, waveZeroInputs, type UpperArmCredit } from "./__fixtures__/goldenWaveA";
+import { f3Moves } from "./__fixtures__/goldenF3";
 
 /**
  * The forearm's golden test (docs/specialization-atlas/10-multi-region.md §4.3): the release-gate
@@ -46,6 +47,15 @@ import { expectOnlyTwoHandedMoves, expectOnlyUpperArmCredit, libraryOnlyInputs, 
  *    its partner, but the two were never partners: they differ in category);
  * 8. region-only sets of a forearm-tagged exercise whose new variant is two-handed move from "no
  *    arm recorded" to both arms (in these histories, 24 Dumbbell Pullover in the edge week).
+ *
+ * and F3's (24 Oct 2026; 11-forearm-research-and-stack.md §1.7), taken apart in
+ * __fixtures__/goldenF3.ts: wave A's summaries are computed with the forearm under
+ * forearm_mappings_v1 (`waveAInputs`), and the tree's differ from them only by
+ * 9. the mapping version's name (v2) and the numbers of the muscles v2 credits differently, every
+ *    one listed, generated, in __fixtures__/goldenF3.moved.perArm.txt (per arm, a calculator
+ *    capability no page shows); region totals and completeness do not move in these histories,
+ *    which hold none of the seven pulls whose brachioradialis v2 adds (goldenF3.pulls.test.ts lists
+ *    where they do).
  *
  * Nothing else may differ: not a count, a row, a note, a side, an order or the rule version.
  * The reference (__fixtures__/goldenSummaries.6738eeb.json) is written by
@@ -163,7 +173,9 @@ describe("the forearm's golden summaries, against the code it shipped with (6738
   const computed = goldenSummaries(["left", "right"], waveZeroInputs);
   const byId = new Map(computed.map((item) => [item.id, item.summary] as const));
   const libraryOnly = new Map(goldenSummaries(["left", "right"], libraryOnlyInputs).map((item) => [item.id, item.summary] as const));
+  const waveA = new Map(goldenSummaries(["left", "right"], waveAInputs).map((item) => [item.id, item.summary] as const));
   const actual = new Map(goldenSummaries().map((item) => [item.id, item.summary] as const));
+  const f3 = new Map<string, string | null>();
   const seen = new Map<string, Seen>();
   const moved = new Map<string, string[]>();
   const credit: UpperArmCredit = { gained: new Map(), lost: new Map(), partnerDropped: 0 };
@@ -185,7 +197,10 @@ describe("the forearm's golden summaries, against the code it shipped with (6738
     it(`${expected.id}: wave A differs from wave 0 only as allowed (5-8)`, () => {
       const steps = expectOnlyTwoHandedMoves(byId.get(expected.id)!, libraryOnly.get(expected.id)!);
       if (steps.length) moved.set(expected.id, steps);
-      expectOnlyUpperArmCredit(libraryOnly.get(expected.id)!, actual.get(expected.id)!, credit);
+      expectOnlyUpperArmCredit(libraryOnly.get(expected.id)!, waveA.get(expected.id)!, credit);
+    });
+    it(`${expected.id}: F3 (forearm_mappings_v2) differs from wave A only by its listed moves (9)`, () => {
+      f3.set(expected.id, f3Moves(expected.id, waveA.get(expected.id)!, actual.get(expected.id)!));
     });
   }
 
@@ -209,6 +224,13 @@ describe("the forearm's golden summaries, against the code it shipped with (6738
     }
   });
 
+  it("lists F3's moved numbers, generated: the release's list, per arm (allowed difference 9)", async () => {
+    const lines = reference.cases.map((item) => f3.get(item.id)).filter((line): line is string => typeof line === "string");
+    console.log(`F3, the moved numbers (per arm, dormant on the page):\n${lines.join("\n")}`);
+    expect(f3.size).toBe(reference.cases.length);
+    await expect(`${lines.join("\n")}\n`).toMatchFileSnapshot("./__fixtures__/goldenF3.moved.perArm.txt");
+  });
+
   it("credits the biceps on 406 Lever Supination by the upper arm's individual row, and leaves the supinator's row as it was (allowed difference 7)", () => {
     // No golden history logs 406, so one set of it, computed both ways. The forearm's v1 rows there were both `shared`, but
     // never partners: the supinator's is direct, the biceps' contributing, and partners share a category (exposure.ts).
@@ -218,7 +240,8 @@ describe("the forearm's golden summaries, against the code it shipped with (6738
     };
     const request = { bouts: [set], interval: calendarWeekInterval("2026-10-16T12:00:00.000Z", "Europe/London"), side: "both" as const, mode: "completed" as const, goals: [], catalogMusclesFor: catalogMusclesLookup(exercises), sourceRevision: "", planRevision: null, now: "2026-10-16T12:00:00.000Z" };
     const before = getSpecializationSummary({ ...request, region: libraryOnlyInputs.region!, rule: libraryOnlyInputs.rule });
-    const now = getSpecializationSummary({ ...request, region: regionDataFor("forearm")! });
+    // Wave A's tree: the forearm under v1 (F3's v2 adds the pronator quadratus's steadying row on 406, which is F3's to list).
+    const now = getSpecializationSummary({ ...request, region: waveAInputs.region! });
     const rows = (summary: SpecializationSummary, nodeId: string) => summary.nodes.find((node) => node.nodeId === nodeId)!.contributions.map((item) => [item.parts.map((part) => [part.mappingId, part.category]), item.sharedWith]);
     expect(rows(before, "forearm.supinator")).toEqual([[[["cat-406:forearm.supinator", "direct_dynamic"]], []]]);
     expect(rows(now, "forearm.supinator")).toEqual(rows(before, "forearm.supinator"));

@@ -514,7 +514,7 @@ describe("regions", () => {
   });
 
   it("a region with a published version keeps its status, side model, limb, catalog keys and tag scope, and stays; its words, order and measures may change", async () => {
-    const kept = /region forearm has mapping version forearm_mappings_v1 \(published\); its status, side model, limb, catalog keys and region-only tag scope, which decide what counts there, cannot change and it cannot be deleted/;
+    const kept = /region forearm has mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\); its status, side model, limb, catalog keys and region-only tag scope, which decide what counts there, cannot change and it cannot be deleted/;
     for (const who of ["service_role", "postgres"] as const) {
       await as(db, who, async () => {
         for (const change of [
@@ -798,8 +798,9 @@ describe("variant attributes", () => {
 
   it("an attribute added after a version mapping its variant was published stays free (critic experiment 2: cat-205)", async () => {
     await as(db, "service_role", async () => {
-      expect(await rows(db, "select distinct v.version_key, v.state from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where m.variant_key = 'cat-205'")).toEqual([
+      expect(await rows(db, "select distinct v.version_key, v.state from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where m.variant_key = 'cat-205' order by 1")).toEqual([
         { version_key: "forearm_mappings_v1", state: "published" },
+        { version_key: "forearm_mappings_v2", state: "published" },
       ]);
       await giveAttribute("cat-205", "leg_laterality", "bilateral");
       await giveAttribute("cat-205", "stance", "bilateral");
@@ -822,7 +823,8 @@ describe("variant attributes", () => {
         db,
         "select a.dimension_id, a.frozen_at = v.published_at as same from specialization.variant_attributes a, specialization.mapping_versions v where a.variant_key = 'cat-139' and v.version_key = 'zz_freeze_v1' order by 1",
       );
-      expect(stamps).toEqual([{ dimension_id: "grip_width", same: true }, { dimension_id: "sided_by", same: true }]);
+      // cat-139's sided_by was frozen already, by forearm_mappings_v2's publish (F3, seed v4), and keeps that stamp.
+      expect(stamps).toEqual([{ dimension_id: "grip_width", same: true }, { dimension_id: "sided_by", same: false }]);
       expect(await attribute("cat-140", "grip_width")).toEqual({ value: "shoulder", frozen: false });
     });
     const frozen = /attribute grip_width of variant cat-139 is frozen: a published mapping version rests on it, so it cannot change or be deleted/;
@@ -947,7 +949,8 @@ describe("memberships", () => {
   });
 
   it("a membership a published version of its region maps keeps its role, stays listed and stays; its order and caveats may change", async () => {
-    const frozen = (node: string) => new RegExp(`node ${node.replace(".", "\\.")} is mapped in region forearm by mapping version forearm_mappings_v1 \\(published\\)(, zz_freeze_v\\d \\(published\\))*; its role there cannot change, it stays listed and it cannot leave the region`);
+    // forearm_mappings_v2 (F3) maps the forearm's own muscles too, not the biceps (rule 12).
+    const frozen = (node: string) => new RegExp(`node ${node.replace(".", "\\.")} is mapped in region forearm by mapping version forearm_mappings_v1 \\(published\\)(, forearm_mappings_v2 \\(published\\))?(, zz_freeze_v\\d \\(published\\))*; its role there cannot change, it stays listed and it cannot leave the region`);
     for (const who of ["service_role", "postgres"] as const) {
       await as(db, who, async () => {
         expect(await attempt("update specialization.region_nodes set role = 'adjacent' where region_id = 'forearm' and node_id = 'forearm.fcu'"), who).toMatch(frozen("forearm.fcu"));
@@ -1138,7 +1141,8 @@ describe("the prototype experiment's cases", () => {
     ["unlist brachioradialis from the upper arm (listed, not mapped there)", "update specialization.region_nodes set listed = false where region_id = 'upper_arm' and node_id = 'forearm.br'", null],
     ["cat-121 sided_by -> arm (frozen by the upper arm's publish)", "update specialization.variant_attributes set value = 'arm' where variant_key = 'cat-121' and dimension_id = 'sided_by'", /attribute sided_by of variant cat-121 is frozen/],
     ["delete cat-121 sided_by", "delete from specialization.variant_attributes where variant_key = 'cat-121' and dimension_id = 'sided_by'", /attribute sided_by of variant cat-121 is frozen/],
-    ["cat-140 sided_by (only forearm_mappings_v1 maps it, published before attributes) -> arm", "update specialization.variant_attributes set value = 'arm' where variant_key = 'cat-140' and dimension_id = 'sided_by'", null],
+    // Free until F3: only forearm_mappings_v1 mapped it, published before attributes existed; forearm_mappings_v2's publish froze it.
+    ["cat-140 sided_by (frozen by forearm_mappings_v2's publish) -> arm", "update specialization.variant_attributes set value = 'arm' where variant_key = 'cat-140' and dimension_id = 'sided_by'", /attribute sided_by of variant cat-140 is frozen/],
     ["new attribute on frozen cat-122", "insert into specialization.variant_attributes (variant_key, dimension_id, value) values ('cat-122', 'grip_width', 'narrow')", null],
     ["a value outside the dimension's list", "insert into specialization.variant_attributes (variant_key, dimension_id, value) values ('cat-123', 'grip_width', 'overhead')", /variant_attributes_value_listed/],
     ["frozen v1 node role still frozen", "update specialization.nodes set role = 'target' where id = 'upper_arm.biceps'", /node upper_arm\.biceps is mapped by mapping version .*its region, role and catalog muscle key/],

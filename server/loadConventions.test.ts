@@ -11,9 +11,10 @@ describe("The scoring policy's load conventions, as the app holds them", () => {
     expect(missing).toEqual([]);
     // 40 per implement, 50 on reps, 87 by the stack, 1 per hand (policy, 28 September 2026), plus
     // the app's own entries for the forearm rows of 16 Oct 2026: 2 per implement (410, 411),
-    // 2 by the number on the implement (the grippers, 402, 403), 1 per hand (409).
+    // 2 by the number on the implement (the grippers, 402, 403), 1 per hand (409); and for the rows of
+    // 24 Oct 2026, 1 by the stack (Cable Wrist Curl, 417).
     const counts = Array.from(classifiedCatalogIds().values()).reduce<Record<string, number>>((all, convention) => ({ ...all, [convention]: (all[convention] ?? 0) + 1 }), {});
-    expect(counts).toEqual({ per_implement: 42, bodyweight_reps: 50, machine_displayed_load: 89, per_hand: 2 });
+    expect(counts).toEqual({ per_implement: 42, bodyweight_reps: 50, machine_displayed_load: 90, per_hand: 2 });
   });
 
   it.each([
@@ -30,6 +31,10 @@ describe("The scoring policy's load conventions, as the app holds them", () => {
     ["Gripper Close", "machine_displayed_load"],
     ["Finger Curl", "total_external_load"],
     ["Lever Pronation", "total_external_load"],
+    ["Cable Wrist Curl", "machine_displayed_load"],
+    ["Behind-the-Back Wrist Curl", "total_external_load"],
+    ["Barbell Hold", "total_external_load"],
+    ["Band Index and Little Finger Extension", "total_external_load"],
   ])("reads %s as %s", (name, convention) => {
     expect(loadConventionFor(idOf(name))).toBe(convention);
   });

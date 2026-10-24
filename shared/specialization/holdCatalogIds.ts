@@ -17,9 +17,10 @@
  * `--check` and client/src/lib/specialization/loggingTable.test.ts fail when it drifts.
  *
  * 142 Plate Pinch, 143 Dead Hang, 144 Towel Dead Hang, 145 Farmer Hold, 299 Farmer’s Walk,
- * 300 Zercher Carry, 400 Battle Rope Alternating Waves, 403 Gripper Hold, 409 Suitcase Carry.
+ * 300 Zercher Carry, 400 Battle Rope Alternating Waves, 403 Gripper Hold, 409 Suitcase Carry,
+ * 419 Barbell Hold.
  */
-export const holdCatalogIds: ReadonlySet<number> = new Set([142, 143, 144, 145, 299, 300, 400, 403, 409]);
+export const holdCatalogIds: ReadonlySet<number> = new Set([142, 143, 144, 145, 299, 300, 400, 403, 409, 419]);
 
 /** What a catalog exercise's sets are measured in: seconds for a hold, else reps (also for no id). */
 export function catalogMeasureOf(catalogExerciseId: number | null | undefined): "reps" | "seconds" {

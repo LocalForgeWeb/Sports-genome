@@ -6,7 +6,8 @@ import { buildDaySlots, commitDay, emptyDayStore, loadDay, type DayRecord, type 
 import { NOTHING_TO_REVIEW_PROMPT, getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
 import { composeRegionData } from "@shared/specialization/compose";
 import { directWorkCount } from "@shared/specialization/directWork";
-import { forearmRegionData as forearm } from "@shared/specialization/regions/forearm";
+import { forearmRegionData as forearmV2 } from "@shared/specialization/regions/forearm";
+import { forearmRegionDataV1 as forearm } from "./__fixtures__/forearmV1";
 import { repProfileExtras as forearmProfiles } from "@shared/specialization/regions/forearm/repProfiles";
 import type { RegionExtras, SpecializationGoal, SpecializationRegionData } from "@shared/specialization/types";
 import { applyPlanChangeToRecord } from "./planChange";
@@ -32,6 +33,11 @@ import { fx, fxBackContent, fxCoreContent } from "./__fixtures__/multiRegion";
  * The stack designer's core (11-forearm-research-and-stack.md §3.3, §3.4, §3.8, §7.4), on the real
  * forearm (the prototype's plans A to F, `experiments/forearm-research-2026-10-21/architect-v3/`),
  * the deltoid fixture and a midline fixture.
+ *
+ * The prototype ran on `forearm_mappings_v1`, so the plans are held to it on v1's content
+ * (`forearmRegionDataV1`, the frozen rows); what F3's `forearm_mappings_v2` changes in the stack
+ * (four new exercises among its choices, the two finger extensors it now reaches) is the last
+ * describe block's, on the tree's data.
  */
 
 const NOW = "2026-10-21T12:00:00.000Z";
@@ -618,5 +624,37 @@ describe("other regions, with no region code", () => {
       const { storeAfter: _store, ...rest } = design;
       expect(JSON.stringify(rest)).not.toMatch(/\b(left|right)\b|each (arm|side|leg)|per (arm|side|leg)/i);
     }
+  });
+});
+
+describe("F3: the stack under forearm_mappings_v2 (the tree's data)", () => {
+  const model = stackModelFor(forearmV2);
+  const input = inputOf({ ...planA, region: forearmV2 });
+  const design = designStack(input);
+  const movingLabels = (list: typeof model.movements) => list.filter((movement) => movement.mode === "moving").map((movement) => movement.label);
+
+  it("reaches the two finger extensors through 420, leaving only the palmaris longus without a direct exercise (§10 decision 2)", () => {
+    expect(movingLabels(model.movements)).toEqual([...movingLabels(stackModelFor(forearm).movements).slice(0, 9), "Little-finger extension and index-finger extension", ...movingLabels(stackModelFor(forearm).movements).slice(9)]);
+    const fingers = model.movements.find((movement) => movement.label === "Little-finger extension and index-finger extension")!;
+    expect([fingers.nodeIds, fingers.variantIds]).toEqual([["forearm.edm", "forearm.ei"], ["cat-420"]]);
+    expect(model.gaps.map((gap) => `${gap.nodeId}|${gap.actionId}`)).toEqual(["forearm.pl|hand.palmar_aponeurosis_tension"]);
+  });
+
+  it("offers the new wrist curls and the barbell hold among its choices, and nothing for the steadying rows", () => {
+    expect(model.movements.find((movement) => movement.label === "Wrist flexion")!.variantIds).toEqual(["cat-139", "cat-410", "cat-416", "cat-417", "cat-418"]);
+    expect(model.movements.find((movement) => movement.label === "Middle-joint flexion and fingertip flexion (hold)")!.variantIds).toContain("cat-419");
+    // The wrist muscles' new rows steady (stabilizer) and the thumb's grips (incidental): neither covers a movement.
+    const covering = new Set(model.movements.flatMap((movement) => movement.variantIds));
+    for (const variantId of ["cat-87", "cat-88", "cat-318", "cat-326", "cat-329", "cat-330", "cat-333"]) expect(covering.has(variantId), variantId).toBe(false);
+  });
+
+  it("on plan A starts at 14 still, now reaching 18 of the 19 muscles, and says the ulnar deviation lever has no room at 4 exercises a day", () => {
+    expect(design.start).toMatchObject({ value: 14, targetSets: 0, movementsReachable: 12, movementsFit: 11, exercises: 11, cappedByTime: false });
+    expect(added(design)).toEqual([139, 140, 401, 404, 405, 406, 407, 412, 413, 414, 420]);
+    expect(design.cut.byRoom).toMatchObject({ catalogExerciseIds: [408], perDayToFit: 5 });
+    expect(design.counts.after.musclesWithMovingWork).toHaveLength(18);
+    expect(design.counts.after.musclesWithMovingWork).not.toContain("forearm.pl");
+    expect(pageCountAfter(input, design).moving).toBe(14);
+    expect(minutes(design)).toEqual([48, 48, 46]);
   });
 });

@@ -13,7 +13,8 @@ import { categoryFor } from "@shared/specialization/rules";
 
 /**
  * The forearm atlas's exercise variants and mappings, held to the brief of 16 Oct 2026 (§4, §5,
- * §11) and to docs/specialization-atlas/02-design.md. These read the shipped data, so a mapping
+ * §11) and to docs/specialization-atlas/02-design.md, as its current version holds them
+ * (`forearm_mappings_v2` since F3; what changed from v1, and only that, is forearmMappingsV2.test.ts's). These read the shipped data, so a mapping
  * or catalog edit that breaks a rule fails here rather than in a total on the page. The rules
  * every region's mappings keep (references, sources, categories, node actions, catalog coverage)
  * are checked for every region in regionContent.test.ts; these are the forearm's own.
@@ -40,7 +41,7 @@ describe("forearm variants", () => {
 
   it("time every deliberate hold in seconds, and make the hangs, holds, pinches and carries deliberate", () => {
     for (const variant of forearmVariants) if (variant.deliberateHold) expect(variant.measure, variant.id).toBe("seconds");
-    for (const id of [142, 143, 144, 145, 299, 300, 403, 409]) {
+    for (const id of [142, 143, 144, 145, 299, 300, 403, 409, 419]) {
       const variant = variantById.get(variantIdFor(id))!;
       expect(variant.deliberateHold, variant.catalogName).toBe(true);
       expect(variant.measure, variant.catalogName).toBe("seconds");
@@ -55,14 +56,14 @@ describe("forearm variants", () => {
       if (oneArm.test(variant.catalogName)) expect(variant.laterality, variant.catalogName).toBe("unilateral");
     }
     // One-arm by their photographs or definitions, whatever the name says.
-    for (const id of [46, 56, 61, 129, 131, 142, 256, 340, 342, 379, 384]) expect(variantById.get(variantIdFor(id))!.laterality, byId.get(id)!.name).toBe("unilateral");
+    for (const id of [46, 56, 61, 129, 131, 142, 256, 340, 342, 379, 384, 420]) expect(variantById.get(variantIdFor(id))!.laterality, byId.get(id)!.name).toBe("unilateral");
     // Two hands on one implement, two implements, or arms alternating within the set.
-    for (const id of [121, 123, 124, 132, 133, 135, 139, 140, 141, 143, 145, 299, 401]) expect(variantById.get(variantIdFor(id))!.laterality, byId.get(id)!.name).toBe("bilateral");
+    for (const id of [121, 123, 124, 132, 133, 135, 139, 140, 141, 143, 145, 299, 401, 417, 418, 419]) expect(variantById.get(variantIdFor(id))!.laterality, byId.get(id)!.name).toBe("bilateral");
   });
 
   it("say unknown straps where straps are used and not recorded, and not applicable where they cannot help", () => {
-    for (const id of [41, 43, 57, 66, 81, 143, 145, 299, 409]) expect(variantById.get(variantIdFor(id))!.straps, byId.get(id)!.name).toBe("unknown");
-    for (const id of [139, 140, 401, 402, 405, 412, 142, 300]) expect(variantById.get(variantIdFor(id))!.straps, byId.get(id)!.name).toBe("not_applicable");
+    for (const id of [41, 43, 57, 66, 81, 143, 145, 299, 409, 419]) expect(variantById.get(variantIdFor(id))!.straps, byId.get(id)!.name).toBe("unknown");
+    for (const id of [139, 140, 401, 402, 405, 412, 142, 300, 417, 418, 420]) expect(variantById.get(variantIdFor(id))!.straps, byId.get(id)!.name).toBe("not_applicable");
   });
 
   it("set an elbow angle only where the exercise defines one", () => {
@@ -77,11 +78,13 @@ describe("forearm mappings", () => {
     for (const variant of forearmVariants) expect(mappingsFor(variant.catalogExerciseId).length, variant.catalogName).toBeGreaterThan(0);
   });
 
-  it("map outside the forearm only the biceps and brachialis", () => {
+  it("map no muscle outside the forearm: the biceps and brachialis are the upper arm's to credit (rule 12)", () => {
+    const core = new Set<string>(coreForearmMuscleIds);
     for (const mapping of forearmMappings) {
-      const node = nodeById.get(mapping.nodeId)!;
-      if (node.role === "external") expect([externalContributorIds.biceps, externalContributorIds.brachialis]).toContain(node.id);
+      expect(nodeById.get(mapping.nodeId)!.role, mapping.id).not.toBe("external");
+      expect(core.has(mapping.nodeId), mapping.id).toBe(true);
     }
+    for (const nodeId of Object.values(externalContributorIds)) expect(forearmMappings.filter((mapping) => mapping.nodeId === nodeId)).toEqual([]);
   });
 
   it("credit FDS and FDP only together and only as shared work", () => {
@@ -106,11 +109,18 @@ describe("forearm mappings", () => {
       expect(nodes.size, variant.catalogName).toBeLessThan(coreForearmMuscleIds.length);
       if (nodes.size > 6) widest.push([variant.catalogName, nodes.size]);
     }
-    // The only exercises past six muscles are the wrist rollers: both wrist groups plus the grip
-    // on the handle. Where the winding direction is not recorded (141) nothing is direct; a row
-    // that names its direction (415, 416) credits only the group lifting the weight as direct.
-    expect(widest).toEqual([["Wrist Roller", 7], ["Wrist Roller, Extension Wind", 7], ["Wrist Roller, Flexion Wind", 7]]);
+    // The only exercises past six muscles are the wrist rollers, both wrist groups plus the grip on the handle, and from v2 the
+    // grip tasks whose steadying wrist muscles and thumb it credits. Where the roller's winding direction is not recorded (141)
+    // nothing is direct; a row that names its direction (415, 416) credits only the group lifting the weight as direct. In the
+    // grip tasks only the finger flexors are direct; every other row there steadies or grips (stabilizer or incidental).
+    expect(widest.sort((a, b) => a[0].localeCompare(b[0]))).toEqual([
+      ["Barbell Hold", 8], ["Dead Hang", 8], ["Farmer Hold", 8], ["Farmer’s Walk", 8], ["Gripper Close", 7], ["Gripper Hold", 7], ["Suitcase Carry", 8],
+      ["Towel Dead Hang", 8], ["Wrist Roller", 7], ["Wrist Roller, Extension Wind", 7], ["Wrist Roller, Flexion Wind", 7],
+    ]);
     expect(mappingsFor(141).every((mapping) => mapping.relationship !== "direct")).toBe(true);
+    for (const id of [143, 144, 145, 299, 402, 403, 409, 419]) {
+      for (const mapping of mappingsFor(id).filter((row) => !fingerFlexors.has(row.nodeId))) expect(["stabilizer", "incidental"], mapping.id).toContain(mapping.relationship);
+    }
   });
 
   it("credits a wrist roller by its winding direction", () => {
@@ -133,7 +143,7 @@ describe("forearm mappings", () => {
     for (const mapping of forearmMappings) {
       if (mapping.requiresNoStraps) expect(variantById.get(mapping.variantId)!.straps, mapping.id).not.toBe("not_applicable");
     }
-    for (const id of [41, 42, 43, 54, 57, 62, 66, 67, 78, 79, 81, 186, 203, 231, 232, 143, 145, 299, 409]) {
+    for (const id of [41, 42, 43, 54, 57, 62, 66, 67, 78, 79, 81, 186, 203, 231, 232, 143, 144, 145, 299, 409, 419]) {
       for (const node of fingerFlexors) expect(mappingOf(id, node)?.requiresNoStraps, `${byId.get(id)!.name} ${node}`).toBe(true);
     }
     for (const id of [43, 57, 66, 41, 81]) expect(mappingOf(id, m.flexorDigitorumSuperficialis)!.relationship).toBe("incidental");
@@ -152,7 +162,8 @@ describe("forearm mappings", () => {
     // Palms-up curl: brachioradialis helps; hammer curl: it is a target.
     expect(mappingOf(121, m.brachioradialis)!.relationship).toBe("contributing");
     expect(mappingOf(132, m.brachioradialis)!.relationship).toBe("direct");
-    expect(mappingOf(121, externalContributorIds.biceps)!.relationship).toBe("direct");
+    // The biceps and brachialis are the upper arm's rows (rule 12), on every curl.
+    expect(mappingOf(121, externalContributorIds.biceps)).toBeUndefined();
     // Wrist curl and reverse wrist curl move the wrist; the grip on the bar is incidental.
     expect(mappingOf(139, m.flexorCarpiUlnaris)!.actionId).toBe(forearmActionIds.wristFlexion);
     expect(mappingOf(139, m.palmarisLongus)!.relationship).toBe("contributing");
@@ -162,16 +173,19 @@ describe("forearm mappings", () => {
     // Finger curl and gripper close move the fingers; a gripper hold holds them.
     for (const id of [401, 402]) expect(mappingOf(id, m.flexorDigitorumSuperficialis)!.muscleMode).toBe("dynamic");
     expect(mappingOf(403, m.flexorDigitorumProfundus)!.muscleMode).toBe("isometric");
-    // Pronation and supination are shared, never one muscle alone; the biceps joins supination.
+    // Pronation and supination are shared, never one muscle alone; the biceps that joins supination is the upper arm's row, and
+    // from v2 the pronator quadratus steadies the joint near the wrist while the forearm turns palm-up.
     for (const node of [m.pronatorTeres, m.pronatorQuadratus]) expect(mappingOf(405, node)!.allocation).toBe("shared");
     expect(mappingOf(406, m.supinator)!.allocation).toBe("shared");
-    expect(mappingOf(406, externalContributorIds.biceps)!.actionId).toBe(forearmActionIds.supination);
+    expect(mappingOf(406, externalContributorIds.biceps)).toBeUndefined();
+    const pq = mappingOf(406, m.pronatorQuadratus)!;
+    expect([pq.relationship, pq.muscleMode, pq.actionId]).toEqual(["stabilizer", "isometric", forearmActionIds.distalRadioulnarStabilization]);
     // Thumb work credits the thumb muscle for each action.
     expect(mappingOf(412, m.flexorPollicisLongus)!.actionId).toBe(forearmActionIds.thumbIpFlexion);
     expect(mappingsFor(413).map((mapping) => mapping.nodeId).sort()).toEqual([m.extensorPollicisBrevis, m.extensorPollicisLongus]);
     expect(mappingsFor(414).map((mapping) => mapping.nodeId)).toEqual([m.abductorPollicisLongus]);
     // A deliberate hold's finger flexors are deliberate isometric work.
-    for (const id of [142, 143, 144, 145, 299, 403, 409]) {
+    for (const id of [142, 143, 144, 145, 299, 403, 409, 419]) {
       const mapping = mappingOf(id, m.flexorDigitorumSuperficialis)!;
       expect(categoryFor(mapping.relationship, mapping.muscleMode, variantById.get(mapping.variantId)!.deliberateHold), byId.get(id)!.name).toBe("deliberate_isometric");
     }
@@ -183,7 +197,8 @@ describe("forearm mappings", () => {
   });
 
   it("publish the version with its method, keeping drafts visible as drafts", () => {
-    expect(forearmMappingVersion).toMatchObject({ key: FOREARM_MAPPING_VERSION, state: "published", publishedAt: "2026-10-16" });
+    expect(forearmMappingVersion).toMatchObject({ key: "forearm_mappings_v2", state: "published", publishedAt: "2026-10-24" });
+    expect(FOREARM_MAPPING_VERSION).toBe("forearm_mappings_v2");
     expect(forearmMappingVersion.methodNotes.length).toBeGreaterThan(200);
     const drafts = forearmMappings.filter((mapping) => mapping.reviewStatus === "draft");
     // Drafts are few and each says why it is not reviewed.
@@ -223,12 +238,14 @@ describe("catalog coverage for the forearm", () => {
 });
 
 describe("forearm rows added to the catalog (ids 401+)", () => {
+  // 401-416 (16 Oct 2026) and, from the owner's research package, 417-420 (F3, 24 Oct 2026).
   const expected: [number, string][] = [
     [401, "Finger Curl"], [402, "Gripper Close"], [403, "Gripper Hold"], [404, "Band Finger Extension"],
     [405, "Lever Pronation"], [406, "Lever Supination"], [407, "Lever Radial Deviation"], [408, "Lever Ulnar Deviation"],
     [409, "Suitcase Carry"], [410, "One-Arm Dumbbell Wrist Curl"], [411, "One-Arm Dumbbell Reverse Wrist Curl"],
     [412, "Band Thumb Flexion"], [413, "Band Thumb Extension"], [414, "Band Thumb Abduction"],
     [415, "Wrist Roller, Extension Wind"], [416, "Wrist Roller, Flexion Wind"],
+    [417, "Cable Wrist Curl"], [418, "Behind-the-Back Wrist Curl"], [419, "Barbell Hold"], [420, "Band Index and Little Finger Extension"],
   ];
 
   it("appear once each, after every older row, with the ids written down", () => {
@@ -267,8 +284,12 @@ describe("forearm rows added to the catalog (ids 401+)", () => {
     expect(exercisePhotoSet(401)?.source).toBe("Finger_Curls");
     expect(exercisePhotoSet(410)?.source).toBe("Seated_One-Arm_Dumbbell_Palms-Up_Wrist_Curl");
     expect(exercisePhotoSet(411)?.source).toBe("Seated_One-Arm_Dumbbell_Palms-Down_Wrist_Curl");
-    // The source's lying pronation and supination pairs do not show which way the forearm turns.
-    for (const [id] of expected.filter(([id]) => ![401, 410, 411].includes(id))) expect(exercisePhotoSet(id), String(id)).toBeNull();
+    // F3: each wrist curl defined to match its pair (seated at a low pulley, palms up; standing, the bar behind the thighs).
+    expect(exercisePhotoSet(417)?.source).toBe("Cable_Wrist_Curl");
+    expect(exercisePhotoSet(418)?.source).toBe("Standing_Palms-Up_Barbell_Behind_The_Back_Wrist_Curl");
+    // The source's lying pronation and supination pairs do not show which way the forearm turns; it has no barbell hold and
+    // no band drill for single fingers.
+    for (const [id] of expected.filter(([id]) => ![401, 410, 411, 417, 418].includes(id))) expect(exercisePhotoSet(id), String(id)).toBeNull();
   });
 
   it("use the catalog's own muscle keys, never the atlas's node ids", () => {

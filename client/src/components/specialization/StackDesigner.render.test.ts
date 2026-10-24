@@ -187,7 +187,9 @@ describe("the card, open", () => {
       within(body).getByText(/^Pick a weekly number/),
       totalField(),
       within(body).getByText("From 3 (your plan's own) to 30 · about 28 fit your gym time"),
-      within(body).getByText("It starts at 14: your plan's 3, and one set for each of the 11 movements your plan does not train directly yet. No number suits everyone; change it any time."),
+      // F3 (forearm_mappings_v2): 420 reaches the index and little finger extensors, a twelfth movement, which leaves the ulnar
+      // deviation lever without room at 4 forearm exercises a day.
+      within(body).getByText("It starts at 14: your plan's 3, and one set for 11 of the 12 movements your plan does not train directly yet; one does not fit at 4 forearm exercises a day. No number suits everyone; change it any time."),
       body.querySelector(".spz-stack-changes")!,
       addButton(),
       within(body).getByText("Your own exercises and their sets stay as they are."),
@@ -196,12 +198,12 @@ describe("the card, open", () => {
     ];
     for (let index = 1; index < order.length; index += 1) expect(order[index - 1].compareDocumentPosition(order[index]) & Node.DOCUMENT_POSITION_FOLLOWING, String(index)).toBeTruthy();
     expect(totalField().value).toBe("14");
-    expect(changes()).toEqual(["What changes", "Direct moving sets 3 → 14 · muscles with direct work 1 → 16 of 19"]);
+    expect(changes()).toEqual(["What changes", "Direct moving sets 3 → 14 · muscles with direct work 1 → 18 of 19"]);
     expect(addButton().textContent).toBe("Add 11 sets (11 exercises, 3 days) to Week\u00a01");
     // The days, in the Plan's own minutes, with the second arm's beside them.
     expect(Array.from(body.querySelectorAll(".spz-stack-daylines > li > p:first-child")).map((line) => line.textContent)).toEqual([
-      "Day 01 · Push: +4 · 5 → 9 exercises · about 48 of your 60 min, plus about 2 min for the second arm on one-arm sets",
-      "Day 02 · Pull: +4 · 5 → 9 exercises · about 48 of your 60 min, plus about 3 min for the second arm on one-arm sets",
+      "Day 01 · Push: +4 · 5 → 9 exercises · about 48 of your 60 min, plus about 1 min for the second arm on one-arm sets",
+      "Day 02 · Pull: +4 · 5 → 9 exercises · about 48 of your 60 min, plus about 4 min for the second arm on one-arm sets",
       "Day 03 · Legs: +3 · 5 → 8 exercises · about 46 of your 60 min, plus about 3 min for the second arm on one-arm sets",
     ]);
     // Rows one line closed: the name, the prescription, "each arm" on a one-arm exercise.
@@ -210,7 +212,8 @@ describe("the card, open", () => {
     expect(rowNamed(/^Wrist Curl/).textContent).toBe("Wrist Curl · 1 × 10–25");
     expect(rowNamed(/^Lever Pronation/).textContent).toBe("Lever Pronation · 1 × 10–20 · each arm");
     // What no reviewed exercise trains directly, in the region's plain words (§3.11).
-    expect(Array.from(body.querySelectorAll(".spz-stack-out li")).map((item) => item.textContent).find((text) => text!.startsWith("No reviewed exercise"))).toBe("No reviewed exercise trains these directly, so the stack cannot give them direct sets: palmaris longus, which tenses the sheet of connective tissue under the skin of the palm; extensor digiti minimi, which straightens the little finger on its own; and extensor indicis, which straightens the index finger on its own, as when pointing. Wrist Curl, One-Arm Dumbbell Wrist Curl and Band Finger Extension work them as helpers. Palmaris longus is missing in some people.");
+    // Since F3 only the palmaris longus: 420 trains the little and index finger extensors directly (§10 decision 2).
+    expect(Array.from(body.querySelectorAll(".spz-stack-out li")).map((item) => item.textContent).find((text) => text!.startsWith("No reviewed exercise"))).toBe("No reviewed exercise trains these directly, so the stack cannot give them direct sets: palmaris longus, which tenses the sheet of connective tissue under the skin of the palm. Wrist Curl, One-Arm Dumbbell Wrist Curl, Cable Wrist Curl and 1 more work them as helpers. Palmaris longus is missing in some people.");
     // The number field: 16 px (stack.css), numeric keypad, Done on the keyboard.
     expect(totalField().getAttribute("inputmode")).toBe("numeric");
     expect(totalField().getAttribute("enterkeyhint")).toBe("done");
@@ -223,14 +226,14 @@ describe("the card, open", () => {
     await openCard();
     await click(within(card()).getByRole("button", { name: "One set more" }));
     expect(totalField().value).toBe("15");
-    expect(changes()[1]).toBe("Direct moving sets 3 → 15 · muscles with direct work 1 → 16 of 19");
+    expect(changes()[1]).toBe("Direct moving sets 3 → 15 · muscles with direct work 1 → 18 of 19");
     expect(said()).toBe("15 direct moving sets a week: 11 exercises over 3 days");
     await click(within(card()).getByRole("button", { name: "One set fewer" }));
     await click(within(card()).getByRole("button", { name: "One set fewer" }));
     expect(totalField().value).toBe("13");
     expect(addButton().textContent).toBe("Add 10 sets (10 exercises, 3 days) to Week\u00a01");
     // A movement the total does not reach is said, with what reaches it.
-    expect(card().querySelector(".spz-stack-out")!.textContent).toMatch(/Left out at this total: .+\. Raise the total by 1 to reach it\./);
+    expect(card().querySelector(".spz-stack-out")!.textContent).toMatch(/Left out at this total: .+\. Raise the total by \d+ to reach (it|them)\./);
   });
 
   it("keeps − and + at full contrast at their limits, says why in place, and never fades them", async () => {
@@ -268,13 +271,13 @@ describe("the card, open", () => {
     // Below the lowest, said in place while typing; the field keeps what is typed and the design stays.
     expect(totalField().value).toBe("2");
     expect(within(card()).getByText("The lowest is 3: your plan's own.")).not.toBeNull();
-    expect(changes()[1]).toBe("Direct moving sets 3 → 14 · muscles with direct work 1 → 16 of 19");
+    expect(changes()[1]).toBe("Direct moving sets 3 → 14 · muscles with direct work 1 → 18 of 19");
     await act(async () => { fireEvent.change(totalField(), { target: { value: "20" } }); });
     expect(within(card()).queryByText("The lowest is 3: your plan's own.")).toBeNull();
-    expect(changes()[1]).toBe("Direct moving sets 3 → 14 · muscles with direct work 1 → 16 of 19");
+    expect(changes()[1]).toBe("Direct moving sets 3 → 14 · muscles with direct work 1 → 18 of 19");
     await act(async () => { fireEvent.blur(totalField()); });
     expect(totalField().value).toBe("20");
-    expect(changes()[1]).toBe("Direct moving sets 3 → 20 · muscles with direct work 1 → 16 of 19");
+    expect(changes()[1]).toBe("Direct moving sets 3 → 20 · muscles with direct work 1 → 18 of 19");
     // Typing "2", "0" designed once, at 20, and nothing in between.
     const totals = vi.mocked(designStack).mock.calls.map(([input]) => input.total);
     expect(totals.filter((total) => total !== 20 && total !== 14)).toEqual([]);
@@ -422,8 +425,8 @@ describe("the card, open", () => {
     expect(stored.choices[0]).toMatchObject({ regionId: "forearm", total: 14 });
     // The stack as the plan holds it, a one-arm exercise said as its row was.
     expect(Array.from(card().querySelectorAll(".spz-stack-entries li li")).map((item) => item.textContent)).toEqual([
-      "Reverse Wrist Curl · 1 × 10–25", "Wrist Curl · 1 × 10–25", "Lever Radial Deviation · 1 × 10–25 · each arm", "Lever Ulnar Deviation · 1 × 10–25 · each arm",
-      "Lever Pronation · 1 × 10–20 · each arm", "Finger Curl · 1 × 10–25", "Band Finger Extension · 1 × 10–25 · each arm", "Band Thumb Extension · 1 × 12–25 · each arm",
+      "Reverse Wrist Curl · 1 × 10–25", "Wrist Curl · 1 × 10–25", "Lever Radial Deviation · 1 × 10–25 · each arm", "Finger Curl · 1 × 10–25",
+      "Lever Pronation · 1 × 10–20 · each arm", "Band Index and Little Finger Extension · 1 × 10–25 · each arm", "Band Finger Extension · 1 × 10–25 · each arm", "Band Thumb Extension · 1 × 12–25 · each arm",
       "Lever Supination · 1 × 10–20 · each arm", "Band Thumb Flexion · 1 × 12–25 · each arm", "Band Thumb Abduction · 1 × 12–25 · each arm",
     ]);
     expect(said()).toMatch(/^Added 11 sets to Plan Week 1\./);
@@ -527,7 +530,7 @@ describe("the card, open", () => {
     await click(within(card()).getByRole("button", { name: "Change the total" }));
     expect(totalField().value).toBe("14");
     expect(within(card()).getByText("It starts at your stack's 14. No number suits everyone; change it any time.")).not.toBeNull();
-    expect(changes()[1]).toBe("Direct moving sets 3 → 14 · muscles with direct work 1 → 16 of 19");
+    expect(changes()[1]).toBe("Direct moving sets 3 → 14 · muscles with direct work 1 → 18 of 19");
     await click(within(card()).getByRole("button", { name: "One set more" }));
     expect(addButton().textContent).toBe("Replace your stack: 12 sets (11 exercises, 3 days) in Week\u00a01");
     await click(addButton());
@@ -609,7 +612,8 @@ describe("the ways in", () => {
     await act(async () => {});
     const findings = screen.getByRole("heading", { name: "Coverage to review" }).closest("section")!;
     const first = findings.querySelector(".spz-finding")!;
-    expect(first.querySelector("strong")!.textContent).toBe("11 movements have no direct moving work in Plan Week 1");
+    // 12 since F3: 420 makes the index and little finger extension a movement the reviewed catalog trains directly.
+    expect(first.querySelector("strong")!.textContent).toBe("12 movements have no direct moving work in Plan Week 1");
     await click(within(first as HTMLElement).getByRole("button", { name: /Design a stack/ }));
     expect(card().open).toBe(true);
     cleanup();

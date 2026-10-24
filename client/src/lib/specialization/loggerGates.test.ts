@@ -28,8 +28,8 @@ describe("for the forearm, as main builds it (4dac1ae)", () => {
   it("asks straps as before, and lays no row out per arm, for an athlete with a forearm target", () => {
     const gates = loggerGatesFor([goal("forearm", { nodeId: "forearm.fcr" }), goal("forearm", { id: "g2", nodeId: null, actionId: "wrist.flexion" })], NOW);
     for (const id of ids) expect(gates.of(loggingPolicyFor(id)), `catalog ${id}`).toEqual(today(true, id));
-    // Some of each, so the comparison is not of nothing.
-    expect(ids.filter((id) => gates.of(loggingPolicyFor(id)).askStraps).length).toBe(72);
+    // Some of each, so the comparison is not of nothing (72 as main builds it, and from F3 419 Barbell Hold, a hold the straps can take).
+    expect(ids.filter((id) => gates.of(loggingPolicyFor(id)).askStraps).length).toBe(73);
   });
 
   it("asks neither of an athlete without a target, or whose targets have ended or not begun", () => {

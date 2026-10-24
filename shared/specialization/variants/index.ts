@@ -1,5 +1,6 @@
 import type { ExerciseVariant, VariantId, VariantMapping } from "../types";
 import { forearmV1Variants } from "./forearm";
+import { forearmResearchVariants } from "./forearmResearch";
 import { upperArmVariants } from "./upperArm";
 
 /**
@@ -11,7 +12,17 @@ import { upperArmVariants } from "./upperArm";
  * `replaces: "cat-<id>"`) only in a release that also publishes a new mapping version for every
  * region whose current version maps the old key; the old record stays here, behind the link.
  */
-export const variantLibrary: readonly ExerciseVariant[] = [...forearmV1Variants, ...upperArmVariants];
+export const variantLibrary: readonly ExerciseVariant[] = [...forearmV1Variants, ...forearmResearchVariants, ...upperArmVariants];
+
+/**
+ * The records each region's own lane wrote, for a region whose page reads its own records rather
+ * than the whole library: the forearm's 119 and its research rows (417-420). The library's other
+ * records its version maps reach its page through its generated list (`versionVariants`,
+ * scripts/specialization/emit-logging-table.ts), so the page never loads every region's records.
+ */
+export const regionVariantRecords: Readonly<Partial<Record<string, readonly ExerciseVariant[]>>> = {
+  forearm: [...forearmV1Variants, ...forearmResearchVariants],
+};
 
 export const variantById: ReadonlyMap<VariantId, ExerciseVariant> = new Map(variantLibrary.map((variant) => [variant.id, variant]));
 

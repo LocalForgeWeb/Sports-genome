@@ -1,6 +1,7 @@
 import type { Source, SourceId } from "../types";
 import { forearmSources } from "./forearm";
 import { forearmMappingSources } from "./forearmMappings";
+import { forearmResearchSources } from "./forearmResearch";
 import { forearmTendonSources } from "./forearmTendon";
 import { tendonMethodSources } from "./tendonMethod";
 import { trainingSources } from "./training";
@@ -23,6 +24,7 @@ import { upperArmPullsCurlsSources } from "./upper_arm-pullsCurls";
 export const sourceLibrary: readonly Source[] = [
   ...forearmSources,
   ...forearmMappingSources,
+  ...forearmResearchSources,
   ...trainingSources,
   ...forearmTendonSources,
   ...tendonMethodSources,

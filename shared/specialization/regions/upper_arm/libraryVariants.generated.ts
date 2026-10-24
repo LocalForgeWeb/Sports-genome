@@ -17,3 +17,6 @@ export const taggedVariants: ExerciseVariant[] = [];
 
 /** The variants its homes' published versions map for its external members that its version does not map. */
 export const homeVariants: ExerciseVariant[] = [];
+
+/** The variants its own version maps whose records another region's lane wrote (empty where the page reads the whole library). */
+export const versionVariants: ExerciseVariant[] = [];

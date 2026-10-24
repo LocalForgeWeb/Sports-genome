@@ -2,6 +2,7 @@ import type { RegionHomeContent } from "../../types";
 import { actionsFor } from "../../actions";
 import { forearmSources } from "../../sources/forearm";
 import { forearmMappingSources } from "../../sources/forearmMappings";
+import { forearmResearchSources } from "../../sources/forearmResearch";
 import { forearmActionIds } from "./ids";
 import { forearmRegion } from "./region";
 import { forearmNodes } from "./nodes";
@@ -27,7 +28,8 @@ export const forearmHomeContent: RegionHomeContent = {
   actions: actionsFor(Object.values(forearmActionIds)),
   nodeActions: forearmNodeActions,
   claims: forearmClaims,
-  sources: [...forearmSources, ...forearmMappingSources],
+  // forearm_mappings_v2's mapping sources (F3) follow v1's.
+  sources: [...forearmSources, ...forearmMappingSources, ...forearmResearchSources],
   variants: forearmVariants,
   taggedVariants,
   mappings: forearmMappings,

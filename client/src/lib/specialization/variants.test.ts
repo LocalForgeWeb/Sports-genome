@@ -6,6 +6,7 @@ import { isCurrentVariant, variantById, variantFor, variantLibrary } from "@shar
 import { bothLimbCatalogIds, bothLimbDecisions } from "@shared/specialization/variants/bothLimbs";
 import { countingDimensions, descriptiveDimensions } from "@shared/specialization/variants/dimensions";
 import { forearmV1Variants } from "@shared/specialization/variants/forearm";
+import { forearmResearchVariants } from "@shared/specialization/variants/forearmResearch";
 import { forearmDescriptiveAttributes } from "@shared/specialization/variants/forearmAttributes";
 import { upperArmVariants } from "@shared/specialization/variants/upperArm";
 import type { ExerciseVariant } from "@shared/specialization/types";
@@ -56,7 +57,9 @@ describe("the library's records", () => {
   it("have unique cat-<id> ids, the catalog's names, and resolve through variantFor", () => {
     const ids = variantLibrary.map((variant) => variant.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(variantLibrary).toHaveLength(forearmV1Variants.length + upperArmVariants.length);
+    // The forearm's 119, its research rows (417-420, F3) and wave A's 125.
+    expect(variantLibrary).toHaveLength(forearmV1Variants.length + forearmResearchVariants.length + upperArmVariants.length);
+    expect(forearmResearchVariants.map((variant) => variant.id)).toEqual(["cat-417", "cat-418", "cat-419", "cat-420"]);
     for (const variant of upperArmVariants) {
       expect(variant.id).toBe(`cat-${variant.catalogExerciseId}`);
       expect(variant.replaces, variant.id).toBeUndefined();

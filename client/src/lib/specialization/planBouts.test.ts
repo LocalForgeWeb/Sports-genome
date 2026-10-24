@@ -130,11 +130,13 @@ describe("the variants a region's page lays the plan out by (planningVariantsFor
     // the page no longer loads the whole library; client/src/lib/specialization/loadRegion.test.ts).
     expect(variantLookup(list)(410)).toBeNull();
     expect(planningVariantsFor(fxThigh)).toBe(list);
-    // The forearm's: its version's 119 records, the 9 the upper arm's rows for the biceps and brachialis map (wave A), then the
-    // library's records of the forearm-tagged exercises it does not map, among them 24 Dumbbell Pullover (§11 decision 11(c)).
+    // The forearm's: its version's records (from F3, forearm_mappings_v2's 130: the 119, the four new rows 417-420 and seven of
+    // the upper arm's whose brachioradialis it now credits), the 2 more the upper arm's rows for the biceps and brachialis map
+    // (wave A: 335, 164), then the library's records of the forearm-tagged exercises it does not map, among them 24 Dumbbell
+    // Pullover (§11 decision 11(c)).
     const forearm = planningVariantsFor(forearmRegionData);
     expect(forearm.map((variant) => variant.id)).toEqual([...forearmRegionData.variants, ...(forearmRegionData.taggedVariants ?? [])].map((variant) => variant.id));
-    expect([forearmRegionData.variants.length, forearmRegionData.taggedVariants?.length]).toEqual([128, 14]);
+    expect([forearmRegionData.variants.length, forearmRegionData.taggedVariants?.length]).toEqual([132, 14]);
     expect(forearm.slice(0, 119)).toEqual(variantLibrary.slice(0, 119));
     for (const variant of forearm) expect(variant, variant.id).toEqual(variantFor(variant.catalogExerciseId));
     expect(variantLookup(forearm)(24)?.laterality).toBe("bilateral");

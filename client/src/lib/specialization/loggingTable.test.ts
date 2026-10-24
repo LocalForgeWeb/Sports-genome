@@ -70,14 +70,22 @@ describe("the forearm logs exactly as main does (4dac1ae), through the table", (
     expect(ids.size).toBeGreaterThan(119);
     // Wave A: the upper arm maps exercises the forearm never did. The logger reads their variants as it reads the forearm's
     // (no arm asked, no straps question, reps), and an either-arm one starts its row on Both, as the forearm's do.
+    // F3 (forearm_mappings_v2): the forearm also maps the brachioradialis on seven of them (no grip row, so no straps question),
+    // and its four new rows, 417-420, whose one hold (419 Barbell Hold) asks straps as the hangs and carries do.
     const shipped = new Set(before.variants.map((variant) => variant.catalogExerciseId));
+    const f3Pulls = new Set([87, 88, 318, 326, 329, 330, 333]);
+    const f3Rows: Record<number, [string[], string[], string]> = { 417: [["forearm"], [], "reps"], 418: [["forearm"], [], "reps"], 419: [["forearm"], ["forearm"], "seconds"], 420: [["forearm"], [], "reps"] };
     for (const id of ids) {
       const { measure, askSide, oneArm, sideDefault, strapsSensitive } = loggingPolicyFor(id);
       const row = loggingTable.get(id);
-      const expected = shipped.has(id) || !row ? shippedPolicy(id) : { measure: row.measure, askSide: false, oneArm: false, sideDefault: row.laterality === "either" ? "both" : null, strapsSensitive: false };
+      const expected = shipped.has(id) || !row ? shippedPolicy(id) : { measure: row.measure, askSide: false, oneArm: false, sideDefault: row.laterality === "either" ? "both" : null, strapsSensitive: row.strapsBy.length > 0 };
       expect({ measure, askSide, oneArm, sideDefault, strapsSensitive }, `catalog ${id}`).toEqual(expected);
-      if (!shipped.has(id) && row) expect([row.mappedBy, row.strapsBy, row.measure], `catalog ${id}`).toEqual([["upper_arm"], [], "reps"]);
+      if (!shipped.has(id) && row) {
+        const own = f3Rows[id] ?? [f3Pulls.has(id) ? ["upper_arm", "forearm"] : ["upper_arm"], [], "reps"];
+        expect([row.mappedBy, row.strapsBy, row.measure], `catalog ${id}`).toEqual(own);
+      }
     }
+    expect(Object.keys(f3Rows).map(Number).every((id) => loggingTable.has(id))).toBe(true);
   });
 
   it("asks no side of any exercise, of an arm or a leg, and lays no planned set out per side", () => {

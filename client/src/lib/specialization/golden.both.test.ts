@@ -5,7 +5,8 @@ import { describe, expect, it } from "vitest";
 import { regionDataFor } from "@shared/specialization/registry";
 import type { Contribution, RegionBoutRow, SpecializationSummary } from "@shared/specialization/types";
 import { canonicalJson, goldenSummaries, summaryTotals } from "./__fixtures__/releaseGateHistories";
-import { expectOnlyTwoHandedMoves, expectOnlyUpperArmCredit, libraryOnlyInputs, waveZeroInputs, type UpperArmCredit } from "./__fixtures__/goldenWaveA";
+import { expectOnlyTwoHandedMoves, expectOnlyUpperArmCredit, libraryOnlyInputs, waveAInputs, waveZeroInputs, type UpperArmCredit } from "./__fixtures__/goldenWaveA";
+import { f3Moves } from "./__fixtures__/goldenF3";
 
 /**
  * The forearm's golden test for the page's summary, both arms as one (owner, 20 Oct 2026: "there's
@@ -30,6 +31,14 @@ import { expectOnlyTwoHandedMoves, expectOnlyUpperArmCredit, libraryOnlyInputs, 
  * and the region-only set of a forearm-tagged exercise whose new variant is two-handed read on both
  * arms rather than as "no arm recorded" (24 Dumbbell Pullover in the edge week: on `both` it was
  * counted already, so only its reading and the no-arm count in completeness change).
+ *
+ * and F3's (24 Oct 2026; 11-forearm-research-and-stack.md §1.7), taken apart in
+ * __fixtures__/goldenF3.ts: wave A's summaries are computed with the forearm under
+ * forearm_mappings_v1 (`waveAInputs`), and the tree's differ from them only by
+ * 9. the mapping version's name (v2) and the numbers of the muscles v2 credits differently, every
+ *    one listed, generated, in __fixtures__/goldenF3.moved.both.txt (the release's list); region
+ *    totals and completeness do not move in these histories, which hold none of the seven pulls
+ *    whose brachioradialis v2 adds (goldenF3.pulls.test.ts lists where they do).
  *
  * Nothing else may differ: not a count, a row, a note, a side, an order or the rule version. The
  * per-arm summaries (the calculator's per-side capability, dormant on the page) are held to the
@@ -128,7 +137,9 @@ describe("the forearm's golden summaries, both arms as one, against main's calcu
   const computed = goldenSummaries(["both"], waveZeroInputs);
   const byId = new Map(computed.map((item) => [item.id, item.summary] as const));
   const libraryOnly = new Map(goldenSummaries(["both"], libraryOnlyInputs).map((item) => [item.id, item.summary] as const));
+  const waveA = new Map(goldenSummaries(["both"], waveAInputs).map((item) => [item.id, item.summary] as const));
   const actual = new Map(goldenSummaries(["both"]).map((item) => [item.id, item.summary] as const));
+  const f3 = new Map<string, string | null>();
   const seen = new Map<string, Seen>();
   const moved = new Map<string, string[]>();
   const credit: UpperArmCredit = { gained: new Map(), lost: new Map(), partnerDropped: 0 };
@@ -154,8 +165,13 @@ describe("the forearm's golden summaries, both arms as one, against main's calcu
     it(`${expected.id}: wave A differs from wave 0 only as allowed`, () => {
       const steps = expectOnlyTwoHandedMoves(byId.get(expected.id)!, libraryOnly.get(expected.id)!);
       if (steps.length) moved.set(expected.id, steps);
-      expectOnlyUpperArmCredit(libraryOnly.get(expected.id)!, actual.get(expected.id)!, credit);
-      // Still nothing kept apart for want of an arm, and the page's summary is the tree's.
+      expectOnlyUpperArmCredit(libraryOnly.get(expected.id)!, waveA.get(expected.id)!, credit);
+      // Still nothing kept apart for want of an arm.
+      expect(waveA.get(expected.id)!.regionUnknownSideBouts).toBe(0);
+    });
+    it(`${expected.id}: F3 (forearm_mappings_v2) differs from wave A only by its listed moves`, () => {
+      f3.set(expected.id, f3Moves(expected.id, waveA.get(expected.id)!, actual.get(expected.id)!));
+      // The page's summary is the tree's, and still nothing is kept apart for want of an arm.
       expect(actual.get(expected.id)!.regionUnknownSideBouts).toBe(0);
     });
   }
@@ -165,6 +181,13 @@ describe("the forearm's golden summaries, both arms as one, against main's calcu
     expect(Array.from(moved).map(([id, bouts]) => `${id}: ${bouts.join(", ")}`)).toEqual(["calendar-week", "rolling-7d", "custom-year"].map((window) => `completed/edge-week/${window}/both: x10a`));
     expect(credit.lost.size).toBe(0);
     expect(Array.from(credit.gained.keys()).sort()).toEqual(["upper_arm.biceps", "upper_arm.brachialis"]);
+  });
+
+  it("lists F3's moved numbers, generated: the release's list, both arms as one (allowed difference 9)", async () => {
+    const lines = reference.cases.map((item) => f3.get(item.id)).filter((line): line is string => typeof line === "string");
+    console.log(`F3, the moved numbers (both arms as one):\n${lines.join("\n")}`);
+    expect(f3.size).toBe(reference.cases.length);
+    await expect(`${lines.join("\n")}\n`).toMatchFileSnapshot("./__fixtures__/goldenF3.moved.both.txt");
   });
 
   it("found the allowed differences where they belong, and only there", () => {

@@ -934,5 +934,13 @@
  "Seated_One-Arm_Dumbbell_Palms-Up_Wrist_Curl": {
   "verdict": "in order",
   "why": "frame 0 wrist down"
+ },
+ "Cable_Wrist_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 wrist down, the bar hanging toward the floor"
+ },
+ "Standing_Palms-Up_Barbell_Behind_The_Back_Wrist_Curl": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bar curled up; frame 1 the bar at arm's length, where the source starts"
  }
 }

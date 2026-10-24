@@ -24,6 +24,12 @@
  * - the grippers (402, 403): the rating printed on the gripper, a number read off the
  *   implement like a stack, not a mass the hand lifts.
  * Every other new row (a barbell, a lever handle or hammer, a band) is the default total load.
+ *
+ * The rows of 24 Oct 2026 (417-420, release F3), the same way:
+ * - Cable Wrist Curl (417): the number on the stack, as Cable Curl (128) and Rope Hammer Curl (134);
+ * - Behind-the-Back Wrist Curl (418) and Barbell Hold (419): the bar and its plates, the default
+ *   total load, as Wrist Curl (139);
+ * - Band Index and Little Finger Extension (420): a band, the default, as Band Finger Extension (404).
  */
 export type LoadConvention = "total_external_load" | "per_implement" | "machine_displayed_load" | "bodyweight_reps" | "per_hand";
 
@@ -40,7 +46,7 @@ const BY_CONVENTION: Record<Exclude<LoadConvention, "total_external_load">, read
 const APP_ONLY: Record<Exclude<LoadConvention, "total_external_load">, readonly number[]> = {
   per_implement: ids("410,411"),
   bodyweight_reps: [],
-  machine_displayed_load: ids("402,403"),
+  machine_displayed_load: ids("402,403,417"),
   per_hand: ids("409"),
 };
 

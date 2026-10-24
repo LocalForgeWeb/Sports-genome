@@ -169,7 +169,46 @@ function withWaveA(id: string, reading: { rows: string[][]; findings: string[][]
   return { ...reading, rows, findings: reading.findings.slice(0, -1) };
 }
 
-describe.skipIf(out)("the forearm page shows main's numbers (4dac1ae), both arms as one", () => {
+/**
+ * What release F3 moves (11-forearm-research-and-stack.md §1.7; forearm_mappings_v2), and nothing
+ * else; the moves are those golden.both.test.ts lists for the same kinds of set:
+ * - the wrist flexors steady the wrist in the week's hangs and carries (v2's added stabilizer rows,
+ *   incidental grip), and in the custom window's longer span the wrist extensors gain the same in
+ *   two more of them;
+ * - the thumb flexor's carries are reviewed as incidental grip, so its row says grip where it said
+ *   no work, and its finding (a mapping under review, said with no number) leaves the list;
+ * - in Planned mode, "Coverage to review" counts one more movement with no direct moving work in
+ *   Plan Week 1: 420 makes the index and little finger extension a movement the forearm trains
+ *   directly, and the plan has none of it.
+ */
+const F3_ROWS: Record<string, Record<string, [was: string, now: string]>> = {
+  week: { "Flexor carpi radialis": ["8 direct", "8 direct · 4 grip"], "Flexor carpi ulnaris": ["8 direct", "8 direct · 4 grip"], "Flexor pollicis longus": ["No work", "2 grip"] },
+  "7d": { "Flexor carpi radialis": ["8 direct", "8 direct · 4 grip"], "Flexor carpi ulnaris": ["8 direct", "8 direct · 4 grip"], "Flexor pollicis longus": ["No work", "2 grip"] },
+  custom: {
+    "Flexor carpi radialis": ["11 direct", "11 direct · 6 grip"], "Flexor carpi ulnaris": ["11 direct", "11 direct · 6 grip"], "Flexor pollicis longus": ["No work", "4 grip"],
+    "Extensor carpi radialis longus": ["8 direct · 5 grip", "8 direct · 7 grip"], "Extensor carpi radialis brevis": ["8 direct · 5 grip", "8 direct · 7 grip"], "Extensor carpi ulnaris": ["8 direct · 5 grip", "8 direct · 7 grip"],
+  },
+  planned: {},
+};
+function withF3(id: string, reading: { rows: string[][]; findings: string[][] }) {
+  const rows = reading.rows.map(([name, value]) => {
+    const moved = F3_ROWS[id][name];
+    if (!moved) return [name, value];
+    expect(value, `${id}: ${name} under forearm_mappings_v1`).toBe(moved[0]);
+    return [name, moved[1]];
+  });
+  for (const name of Object.keys(F3_ROWS[id])) expect(reading.rows.some(([row]) => row === name), `${id}: ${name} has a row`).toBe(true);
+  if (id === "planned") {
+    expect(reading.findings[0], "planned: the movements with no direct moving work").toEqual(["9", "1"]);
+    return { ...reading, rows, findings: [["10", "1"], ...reading.findings.slice(1)] };
+  }
+  // The thumb flexor's finding (a mapping under review, no number) is the first finding with no number.
+  const pending = reading.findings.findIndex((finding) => finding.length === 0);
+  expect(pending, `${id}: the thumb flexor's pending-review finding`).toBeGreaterThanOrEqual(0);
+  return { ...reading, rows, findings: reading.findings.filter((_, index) => index !== pending) };
+}
+
+describe.skipIf(out)("the forearm page shows main's numbers (4dac1ae), both arms as one, apart from wave 0's, F1's, wave A's and F3's stated moves", () => {
   const reference = (out ? {} : JSON.parse(readFileSync(join(process.cwd(), "client/src/components/specialization/__fixtures__/pageNumbers.4dac1ae.json"), "utf8"))) as Record<string, { findings: string[][] }>;
 
   it("reads every state the reference read", () => {
@@ -182,7 +221,7 @@ describe.skipIf(out)("the forearm page shows main's numbers (4dac1ae), both arms
       // The reading reaches the page's numbers at all: rows with work, and the completeness counts.
       expect(read.rows.length).toBeGreaterThan(20);
       expect(read.completeness.length).toBeGreaterThan(5);
-      expect(read).toEqual(withWaveA(id, withF1(id, withWaveZero(reference[id] as { window: string[]; findings: string[][] })) as { rows: string[][]; window: string[]; findings: string[][] }));
+      expect(read).toEqual(withF3(id, withWaveA(id, withF1(id, withWaveZero(reference[id] as { window: string[]; findings: string[][] })) as { rows: string[][]; window: string[]; findings: string[][] })));
     }, 30000);
   }
 });

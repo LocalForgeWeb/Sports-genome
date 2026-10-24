@@ -38,6 +38,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { exercises as catalog } from "../../../../client/src/lib/exerciseCatalog";
 import { trainingEvidence } from "../../../../client/src/lib/trainingEvidence";
 import { forearmModelSourceToCanonical } from "../../../../client/src/components/specialization/anatomy3d/modelIdentity";
+import { forearmMappingsV1, forearmMappingVersionV1 } from "../../../../shared/specialization/__fixtures__/forearmMappingsV1";
 import { forearmHomeContent } from "../../../../shared/specialization/regions/forearm/content";
 import { coreForearmMuscleIds, forearmMuscleIds as m } from "../../../../shared/specialization/regions/forearm/ids";
 import { categoryFor } from "../../../../shared/specialization/rules";
@@ -348,17 +349,23 @@ export interface AppRow {
   relationship: Relationship;
   mode: MuscleMode;
   category: ExposureCategory;
-  /** `planned` for a row the design adds with a new catalog row (§1.2), not yet in code. */
+  /** `planned` for a row the design adds with a new catalog row (§1.2); the final matrix reads the rows v2 holds. */
   status: "reviewed" | "draft" | "rejected" | "planned";
   allocation: "individual" | "shared";
   requiresNoStraps: boolean;
 }
 
-const mappings: readonly VariantMapping[] = forearmHomeContent.mappings;
-const mappingVersion = forearmHomeContent.mappingVersion;
-if (!mappingVersion) throw new Error("The forearm content has no mapping version");
-const MAPPING_VERSION = mappingVersion.key;
-const MAPPING_STATE = mappingVersion.state;
+/**
+ * The package is read against forearm_mappings_v1, the version the design decided against (§1.3,
+ * §1.4), from its frozen rows; v2, written by lane V1 and published at F3, is the code's current
+ * version, and the final matrix below reads every planned row in it.
+ */
+const mappings: readonly VariantMapping[] = forearmMappingsV1;
+const MAPPING_VERSION = forearmMappingVersionV1.key;
+const MAPPING_STATE = forearmMappingVersionV1.state;
+const currentVersion = forearmHomeContent.mappingVersion;
+if (!currentVersion) throw new Error("The forearm content has no mapping version");
+const currentMappings: readonly VariantMapping[] = forearmHomeContent.mappings;
 const rowsByVariant = new Map<string, VariantMapping[]>();
 for (const mapping of mappings) rowsByVariant.set(mapping.variantId, [...(rowsByVariant.get(mapping.variantId) ?? []), mapping]);
 
@@ -418,7 +425,7 @@ function readAgainstFor(design: DesignRecord): ReadAgainst {
     const id = design.readAgainst[0];
     const hold = plannedRows[id].deliberateHold;
     const rows = new Map<NodeId, AppRow>(plannedMappings(id).map((row) => [row.nodeId, { id: `cat-${id}:${row.nodeId}`, relationship: row.relationship, mode: row.mode, category: categoryFor(row.relationship, row.mode, hold), status: "planned", allocation: row.allocation, requiresNoStraps: row.requiresNoStraps }]));
-    return { kind: "planned", version: "forearm_mappings_v2 (planned, design §1.2; not in code)", variants: [`cat-${id}`], deliberateHold: hold, alike: null, rows, outside: [] };
+    return { kind: "planned", version: "forearm_mappings_v2 (as the design planned it, §1.2; the final matrix reads the code)", variants: [`cat-${id}`], deliberateHold: hold, alike: null, rows, outside: [] };
   }
   const per = design.readAgainst.map((catalogId) => {
     const variant = variantFor(catalogId);
@@ -911,8 +918,9 @@ export function buildImportReport(pkg: ForearmResearchPackage = readPackage()) {
   const nameProblems = Object.entries(designRowNames).filter(([id, name]) => normalizeName(catalogById.get(Number(id))?.name ?? "") !== name).map(([id, name]) => `${id}: design "${name}", catalog "${catalogById.get(Number(id))?.name ?? "missing"}"`);
   check("§1.2", "Every catalog row the design names exists under that name", nameProblems.length ? nameProblems.join("; ") : `${Object.keys(designRowNames).length} rows, all as named`, nameProblems.length === 0);
   const maxId = Math.max(...catalog.map((exercise) => exercise.id));
-  const reserved = [417, 418, 419, 420].filter((id) => catalogById.has(id));
-  check("§1.2", "Ids 417–419 are reserved for the new rows and 420 for decision 2's drill; the catalog ends at 416 until lane C1", `catalog ends at ${maxId}; reserved ids present: ${reserved.join(", ") || "none"}`, maxId === 416 && reserved.length === 0);
+  const c1Rows = { ...Object.fromEntries(Object.entries(plannedRows).map(([id, row]) => [id, row.name])), 420: "Band Index and Little Finger Extension" } as Record<string, string>;
+  const c1Problems = Object.entries(c1Rows).filter(([id, name]) => catalogById.get(Number(id))?.name !== name).map(([id, name]) => `${id} (${name}): ${catalogById.get(Number(id))?.name ?? "missing"}`);
+  check("§1.2, §10 decision 2", "Ids 417–419 hold the three new rows and 420 decision 2's drill, added by lane C1 (F3); the catalog ends at 420", `catalog ends at ${maxId}; ${c1Problems.length ? `not as named: ${c1Problems.join("; ")}` : "417–420 as named"}`, maxId === 420 && c1Problems.length === 0);
   for (const id of ["fa-09", "fa-26"]) {
     const record = records.find((entry) => entry.id === id);
     check("§1.2", `${id}: the two catalog rows are mapped alike`, `${record?.readAgainst.variants.join(" and ")}: ${record?.readAgainst.alike ? "alike" : "not alike"}`, record?.readAgainst.alike === true);
@@ -967,6 +975,39 @@ export function buildImportReport(pkg: ForearmResearchPackage = readPackage()) {
   const nulls = pkg.exercises.every((record) => (record as unknown as Record<string, unknown>).measured_activation_percent === null && (record as unknown as Record<string, unknown>).validated_tendon_risk_percent === null);
   check("§2.3", "measured_activation_percent and validated_tendon_risk_percent are null on every record; tissue_force_newtons on every cell", `${nulls ? "null on all 57" : "not all null"}; tissue_force_newtons ${JSON.stringify(constants.tissue_force_newtons)}`, nulls && constants.tissue_force_newtons === null);
 
+  // ------------------------------------------------------------ the final matrix: forearm_mappings_v2 as the code holds it (F3)
+  const current = new Map(currentMappings.map((mapping) => [mapping.id, mapping]));
+  const planned = [...plan.updated.map((change) => ({ ...change, kind: "update" })), ...plan.inserted.map((change) => ({ ...change, kind: "insert" })), ...plan.conditional.map((change) => ({ ...change, kind: "insert, conditional" }))];
+  const plannedIds = new Set(planned.map((change) => change.id));
+  const inCode = (rowId: string) => {
+    const row = current.get(rowId);
+    return row ? (row.reviewStatus === "reviewed" ? "reviewed" : "draft") : "not in v2";
+  };
+  const beyondPlan = currentMappings.filter((mapping) => !v1Ids.has(mapping.id) && !plannedIds.has(mapping.id));
+  const v1SourceChanges = currentMappings.filter((mapping) => v1Ids.has(mapping.id) && !plannedIds.has(mapping.id)).filter((mapping) => {
+    const was = mappings.find((row) => row.id === mapping.id)!;
+    return JSON.stringify(was.sources) !== JSON.stringify(mapping.sources);
+  });
+  const reviewCount = (list: readonly VariantMapping[]) => ({ reviewed: list.filter((mapping) => mapping.reviewStatus === "reviewed").length, draft: list.filter((mapping) => mapping.reviewStatus === "draft").length });
+  const finalMatrix = {
+    version: currentVersion.key,
+    state: currentVersion.state,
+    publishedAt: currentVersion.publishedAt,
+    rows: currentMappings.length,
+    ...reviewCount(currentMappings),
+    blocked: { records: blockedRecords.length, rows: 0, note: "the six blocked records stay blocked: no row (§1.2)" },
+    planned: planned.map((change) => ({ id: change.id, change: change.kind, family: change.family, inV2: inCode(change.id) })),
+    beyondPlan: beyondPlan.map((mapping) => ({ id: mapping.id, relationship: mapping.relationship, mode: mapping.muscleMode, status: mapping.reviewStatus, why: mapping.variantId === "cat-420" ? "§10 decision 2: 420's drill" : "wave A's pulls review: the brachioradialis where the upper arm credits the biceps and brachialis" })),
+    secondSources: v1SourceChanges.map((mapping) => ({ id: mapping.id, added: mapping.sources.slice(mappings.find((row) => row.id === mapping.id)!.sources.length).map((ref) => ref.sourceId) })),
+    carriedUnchanged: currentMappings.filter((mapping) => v1Ids.has(mapping.id) && !plannedIds.has(mapping.id)).length,
+    notCarried: mappings.filter((mapping) => !current.has(mapping.id)).length,
+  };
+  const plannedMissing = finalMatrix.planned.filter((change) => change.change !== "insert, conditional" && change.inV2 !== "reviewed");
+  check("§1.3, §1.4, §1.7 (F3)", "v2 holds every planned insert and update reviewed (Hamrick 1998 confirmed by lane V1, PubMed 9503091)", plannedMissing.length ? `not reviewed in v2: ${plannedMissing.map((change) => `${change.id} (${change.inV2})`).join(", ")}` : `${finalMatrix.planned.filter((change) => change.change !== "insert, conditional").length} rows, all reviewed`, plannedMissing.length === 0);
+  const conditionalIn = finalMatrix.planned.filter((change) => change.change === "insert, conditional" && change.inV2 === "reviewed").length;
+  check("§1.4 (F3)", "The conditional rows, decided by lane V1: S05's excerpt names FCR and FCU (16 adopted); S03's abstract finds PQ's deep head active in supination (1 adopted)", `${conditionalIn} of ${plan.conditional.length} adopted, reviewed`, conditionalIn === plan.conditional.length);
+  check("§1.7 (F3)", "The code's v2: the plan's 394 rows, its 17 conditional rows, decision 2's 3 and the brachioradialis on 7 pulls (421); 361 carried unchanged, 6 of them with a second source; v1's 53 upper-arm rows not carried", `${finalMatrix.rows} rows (${finalMatrix.reviewed} reviewed, ${finalMatrix.draft} draft); ${finalMatrix.carriedUnchanged} carried, ${finalMatrix.secondSources.length} with a second source; ${finalMatrix.beyondPlan.length} beyond the plan; ${finalMatrix.notCarried} not carried`, finalMatrix.rows === 421 && finalMatrix.carriedUnchanged === 361 && finalMatrix.secondSources.length === 6 && finalMatrix.beyondPlan.length === 10 && finalMatrix.notCarried === 53);
+
   return {
     report: "Forearm research package v1: import report",
     generatedBy: "npx tsx scripts/specialization/research/forearm-v1/import.ts",
@@ -990,6 +1031,7 @@ export function buildImportReport(pkg: ForearmResearchPackage = readPackage()) {
       mappingVersion: MAPPING_VERSION,
       mappingState: MAPPING_STATE,
       mappingRows: mappings.length,
+      currentMappingVersion: currentVersion.key,
       catalogEndsAt: maxId,
     },
     headline: {
@@ -1010,6 +1052,7 @@ export function buildImportReport(pkg: ForearmResearchPackage = readPackage()) {
     agreement,
     families: familyEntries,
     v2Plan: { ...plan, unchanged: unchanged.length, notCarried: v1Outside.map((mapping) => mapping.id) },
+    finalMatrix,
     records,
     sources,
     repProfiles,
@@ -1148,9 +1191,22 @@ export function renderReportMarkdown(report: ImportReport): string {
   line(`Carried unchanged: ${report.v2Plan.unchanged} rows. Not carried (rule 12): ${report.v2Plan.notCarried.length} rows on the upper arm's muscles.`);
   line();
 
+  const fm = report.finalMatrix;
+  line(`## Final matrix: ${fm.version} as the code holds it (F3)`);
+  line();
+  line(`${fm.version}, ${fm.state} ${fm.publishedAt}: **${fm.rows} rows, ${fm.reviewed} approved (reviewed), ${fm.draft} draft** (\`cat-317:forearm.br\`, kept draft by §1.3), and ${fm.blocked.records} blocked records with no row (${fm.blocked.note}). Carried from v1 unchanged: ${fm.carriedUnchanged} (${fm.secondSources.length} of them with a second source); not carried (rule 12): ${fm.notCarried}. Every planned row, as v2 holds it:`);
+  line();
+  table(["Row", "Change", "Family", "In v2"], fm.planned.map((change) => [`\`${change.id}\``, change.change, familyById.get(change.family)?.label ?? change.family, change.inV2]));
+  line("Second sources on v1 rows (§1.3: only where the abstract names the credited muscle):");
+  line();
+  table(["Row", "Source added"], fm.secondSources.map((entry) => [`\`${entry.id}\``, entry.added.join(", ")]));
+  line("Rows beyond the design's list, each with its reason:");
+  line();
+  table(["Row", "Relationship · mode", "Status", "Why"], fm.beyondPlan.map((entry) => [`\`${entry.id}\``, `${entry.relationship} · ${entry.mode}`, entry.status, entry.why]));
+
   line("## Cells, record by record");
   line();
-  line("Package's own: grade · index · band · bucket · contraction · confidence, as received and labelled (not imported). Read as: the app's relationship · mode → category on the variant read against. App row: that variant's row (`planned` for a new row's design, not yet in code).");
+  line("Package's own: grade · index · band · bucket · contraction · confidence, as received and labelled (not imported). Read as: the app's relationship · mode → category on the variant read against. App row: that variant's row (`planned` for a new row as the design planned it; the final matrix reads the code).");
   line();
   for (const record of report.records) {
     line(`### ${record.id} · candidate ${record.candidate} · ${record.name}`);
