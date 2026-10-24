@@ -27,17 +27,18 @@ describe("whole-stack muscle analysis", () => {
     const byMuscle = Object.fromEntries(analysis.map((item) => [item.muscle, item]));
     expect(analysis.map((item) => [item.muscle, item.involvement])).toEqual([
       ["triceps", 100],
-      ["frontDelts", 99],
+      // 79 since wave A dropped the pushdown's front-delt tag (docs/specialization-atlas/regions/variants.md); 99 before.
+      ["frontDelts", 79],
       ["chest", 77],
       ["abs", 40],
       ["sideDelts", 39],
     ]);
     // The denominator is the day's highest muscle on the same basis: triceps' role-weighted sum.
     expect(byMuscle.triceps.rawInvolvement).toBeCloseTo(178.2, 1);
-    expect(byMuscle.frontDelts.rawInvolvement).toBeCloseTo(175.6, 1);
-    // The overhead press is listed once for front delts, as a prime mover; three other exercises support it.
+    expect(byMuscle.frontDelts.rawInvolvement).toBeCloseTo(140.5, 1);
+    // The overhead press is listed once for front delts, as a prime mover; two other exercises support it.
     expect(byMuscle.frontDelts.contributions.filter((entry) => entry.exerciseId === 101).map((entry) => entry.role)).toEqual(["Prime mover"]);
     expect(byMuscle.frontDelts.primaryExercises).toBe(1);
-    expect(byMuscle.frontDelts.supportingExercises).toBe(3);
+    expect(byMuscle.frontDelts.supportingExercises).toBe(2);
   });
 });

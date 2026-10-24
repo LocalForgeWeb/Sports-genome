@@ -12,6 +12,7 @@ import type { RegionId, SpecializationRegionData } from "@shared/specialization/
  * holds this table to the production regions of the index, and each loader to the registry's data.
  */
 const loaders: Readonly<Record<RegionId, () => Promise<SpecializationRegionData>>> = {
+  upper_arm: () => import("@shared/specialization/regions/upper_arm").then((module) => module.upperArmRegionData),
   forearm: () => import("@shared/specialization/regions/forearm").then((module) => module.forearmRegionData),
 };
 

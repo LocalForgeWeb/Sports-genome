@@ -8,7 +8,6 @@ import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { currentExposureRule } from "@shared/specialization/rules";
 import { calendarWeekInterval, customInterval, isDateKey, planWeekInterval, rolling7dInterval } from "@shared/specialization/time";
 import type { ExerciseVariant, ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummaryInterval, SummaryMode, SummaryRequest, SummarySide } from "@shared/specialization/types";
-import { variantLibrary } from "@shared/specialization/variants";
 import { boutsFromSessions, excludedRecordsFromSessions } from "./bouts";
 import { boutsFromPlan } from "./planBouts";
 import { planRevision, sourceRevision, stableStringify } from "./revision";
@@ -92,17 +91,19 @@ export function catalogMusclesLookup(catalog: readonly Exercise[]): SummaryReque
 
 const planningLists = new WeakMap<readonly ExerciseVariant[], readonly ExerciseVariant[]>();
 /**
- * The variants a region's page lays the plan out by: the region's own records, then the shared
- * library's (`variantLibrary`) for every exercise the region has none of. Each exercise is read as
+ * The variants a region's page lays the plan out by: the region's own records (its version's and
+ * its homes' for its external members), then the library's records of the exercises tagged with
+ * its keys that none of those maps (`taggedVariants`). Each exercise the page can count is read as
  * the calculator reads it (the region's variant, else the library's), so the page's planned
- * numbers and its add and swap preview are laid out alike, on every region that shares the
- * library. One list per region, so lookups over it are built once.
+ * numbers and its add and swap preview are laid out alike, on every region; an exercise the page
+ * cannot count (no mapping, no tag of the region's) is laid out with no variant, which changes
+ * nothing it shows. One list per region, so lookups over it are built once.
  */
-export function planningVariantsFor(region: Pick<SpecializationRegionData, "variants">): readonly ExerciseVariant[] {
+export function planningVariantsFor(region: Pick<SpecializationRegionData, "variants" | "taggedVariants">): readonly ExerciseVariant[] {
   let list = planningLists.get(region.variants);
   if (!list) {
     const own = new Set(region.variants.map((variant) => variant.catalogExerciseId));
-    list = [...region.variants, ...variantLibrary.filter((variant) => !own.has(variant.catalogExerciseId))];
+    list = [...region.variants, ...(region.taggedVariants ?? []).filter((variant) => !own.has(variant.catalogExerciseId))];
     planningLists.set(region.variants, list);
   }
   return list;

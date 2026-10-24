@@ -148,7 +148,8 @@ describe("Plan's note when a new week is generated and an earlier week holds a s
   });
 
   it("names the region's latest earlier week, in the design's words, for a region with a page only", () => {
-    const stacks = [{ regionId: "forearm", planWeek: 1 }, { regionId: "forearm", planWeek: 2 }, { regionId: "upper_arm", planWeek: 1 }, { regionId: "nowhere", planWeek: 1 }];
+    // A region with no page: from wave A the upper arm has one, so a region not yet registered stands for it.
+    const stacks = [{ regionId: "forearm", planWeek: 1 }, { regionId: "forearm", planWeek: 2 }, { regionId: "lower_leg", planWeek: 1 }, { regionId: "nowhere", planWeek: 1 }];
     expect(stackNotesForNewWeek(stacks, 3)).toEqual([{ regionId: "forearm", fromWeek: 2, sentence: "Your forearm stack from Week 2 is not in it; design one on Specialize." }]);
     expect(stackNotesForNewWeek([{ regionId: "forearm", planWeek: 1 }], 2)).toEqual([{ regionId: "forearm", fromWeek: 1, sentence: "Your forearm stack from Week 1 is not in it; design one on Specialize." }]);
     // A stack in the new week or a later one is not an earlier week's.

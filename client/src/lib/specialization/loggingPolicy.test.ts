@@ -85,7 +85,9 @@ describe("the policy's default data, the generated table", () => {
     expect(loggingPolicyFor(410)).toMatchObject({ sideLimb: "arm" });
     expect(loggingPolicyFor(143)).toMatchObject({ measure: "seconds", askSide: false, oneArm: false });
     expect(loggingPolicyFor(127)).toMatchObject({ askSide: false, sideLimb: "arm", sideDefault: "both" });
-    // An exercise no production region maps: the Barbell Bench Press.
-    expect(loggingPolicyFor(1)).toBe(defaultLoggingPolicy);
+    // An exercise no production region maps: the Back Squat (the Barbell Bench Press was the example until wave A's upper arm mapped it).
+    expect(loggingPolicyFor(166)).toBe(defaultLoggingPolicy);
+    // The Barbell Bench Press, mapped by the upper arm from wave A: still no arm asked.
+    expect(loggingPolicyFor(1)).toMatchObject({ measure: "reps", askSide: false, oneArm: false, strapsSensitive: false, mappedBy: ["upper_arm"] });
   });
 });

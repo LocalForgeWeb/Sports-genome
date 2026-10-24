@@ -46,7 +46,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { claimKeyOf, resolveMembers, sideRelationOf, type ResolvedMember } from "../../shared/specialization/compose";
 import { registeredRegionContents } from "../../shared/specialization/registry";
-import { exposureRuleV1 } from "../../shared/specialization/rules";
+import { publishedExposureRules } from "../../shared/specialization/rules";
 import { countingDimensions, descriptiveDimensions } from "../../shared/specialization/variants/dimensions";
 import type { AnatomyNode, Claim, ExerciseVariant, JointAction, RegionContent, RuleVersion, Source, SpecializationRegion } from "../../shared/specialization/types";
 
@@ -76,7 +76,7 @@ export interface SeedInput {
   rules: readonly RuleVersion[];
 }
 
-export const productionSeedInput = (): SeedInput => ({ regions: registeredRegionContents, rules: [exposureRuleV1] });
+export const productionSeedInput = (): SeedInput => ({ regions: registeredRegionContents, rules: publishedExposureRules });
 
 /**
  * nodes.sort_order and actions.sort_order as seed v1 wrote them. Both columns are legacy since

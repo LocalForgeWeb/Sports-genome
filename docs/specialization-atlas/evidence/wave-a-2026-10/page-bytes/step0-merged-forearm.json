@@ -1,0 +1,41 @@
+{
+ "label": "naive-forearm",
+ "region": "(the tab)",
+ "figureAsked": "drawing (3D APIs off)",
+ "runs": 2,
+ "sameEveryRun": true,
+ "figure": "Drawing",
+ "specialize": [
+  {
+   "file": "index-BhFugoH9.js",
+   "bytes": 109439,
+   "gzip": 31459
+  },
+  {
+   "file": "index-B56fnAMZ.js",
+   "bytes": 46256,
+   "gzip": 10650
+  },
+  {
+   "file": "content-FxZaNGVv.js",
+   "bytes": 215853,
+   "gzip": 53281
+  },
+  {
+   "file": "review-Dk7RjVrc.js",
+   "bytes": 1244,
+   "gzip": 661
+  },
+  {
+   "file": "SpecializationPanel-BtU5dwOo.js",
+   "bytes": 221486,
+   "gzip": 67812
+  }
+ ],
+ "total": 594278,
+ "totalGzip": 163863,
+ "model": 0,
+ "page": 594278,
+ "pageGzip": 163863,
+ "filesBeforeTheTap": 9
+}

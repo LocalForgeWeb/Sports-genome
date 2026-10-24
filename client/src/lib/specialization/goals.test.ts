@@ -191,12 +191,12 @@ describe("targets only on a region's own target muscles (§2.2)", () => {
 
 describe("a target on another region's muscle is re-homed on read (§2.2)", () => {
   const forearmListed = goal({ id: "legacy", nodeId: upperArmMuscleIds.biceps });
-  // The registered index as it is (the upper arm a reference region), and once the upper arm is promoted.
-  const before = regionIndexEntry;
-  const after = (regionId: string): SpecializationRegion | null => {
+  // The registered index before wave A (the upper arm a reference region, as wave 0 shipped it), and as it is (promoted, wave A).
+  const before = (regionId: string): SpecializationRegion | null => {
     const entry = regionIndexEntry(regionId);
-    return entry && regionId === "upper_arm" ? { ...entry, status: "production" } : entry;
+    return entry && regionId === "upper_arm" ? { ...entry, status: "reference" } : entry;
   };
+  const after = regionIndexEntry;
 
   it("reads a node's home from its id", () => {
     expect([nodeHomeRegionId(upperArmMuscleIds.biceps), nodeHomeRegionId(forearmMuscleIds.brachioradialis), nodeHomeRegionId("nodot")]).toEqual(["upper_arm", "forearm", null]);
@@ -225,6 +225,21 @@ describe("a target on another region's muscle is re-homed on read (§2.2)", () =
     // A paired target on the same muscle (saved on a paired page that lists it) moves to the back as before.
     const pairedListed = goal({ id: "paired-ql", regionId: "fx_other", nodeId: fx.ql, side: "left" });
     expect(rehomedGoal(pairedListed, homeOf)).toEqual({ ...pairedListed, regionId: fxBack.region.id });
+  });
+
+  it("moves the biceps' and brachialis' targets saved on the forearm page to the upper arm from wave A, read through its version (§2.2)", () => {
+    // The index as it is: the upper arm is in production.
+    expect(regionIndexEntry("upper_arm")?.status).toBe("production");
+    for (const nodeId of [upperArmMuscleIds.biceps, upperArmMuscleIds.brachialis]) {
+      const saved = goal({ id: `legacy-${nodeId}`, nodeId });
+      const read = rehomedGoal(saved, regionIndexEntry);
+      expect(read).toEqual({ ...saved, regionId: "upper_arm" });
+      // On its home it is a target the upper arm's page offers: its own target muscle, ended and edited there.
+      expect(validateGoal({ ...read, target: read.target + 1 }, [read]).ok, nodeId).toBe(true);
+    }
+    // The anconeus stays on the forearm page, read-only there.
+    const anconeus = goal({ id: "anconeus", nodeId: forearmAdjacentIds.anconeus });
+    expect(rehomedGoal(anconeus, regionIndexEntry)).toBe(anconeus);
   });
 
   it("is the same target as one saved on the home page: they clash, before and after the move", () => {

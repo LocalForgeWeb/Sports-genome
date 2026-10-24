@@ -91,6 +91,24 @@ afterAll(async () => {
   await db?.close();
 });
 
+/**
+ * Runs `body` on a database as production held it before wave A: replayed through seed v2, the
+ * upper arm a reference region with no version. The file's helpers read it while `body` runs. For
+ * the cases that need a region with no page, which the release database (seed v3, the upper arm
+ * promoted) no longer has.
+ */
+async function atSeedV2(body: () => Promise<void>): Promise<void> {
+  const release = db;
+  db = await createSupabaseLikeDb();
+  try {
+    await replayMigrations(db, "seed v2");
+    await body();
+  } finally {
+    await db.close();
+    db = release;
+  }
+}
+
 // ---------------------------------------------------------------- helpers for test rows
 
 /** The refusal a statement (or a script, without parameters) meets, or null; whatever it did is rolled back either way. */
@@ -473,6 +491,11 @@ describe("regions", () => {
     const start = seedV1.indexOf("insert into specialization.regions as t");
     const upsert = seedV1.slice(start, seedV1.indexOf(";\n", start) + 1);
     expect(upsert).not.toMatch(/side_model/);
+    // From seed v3 it is refused whole: it would demote the upper arm, whose published version keeps its status (§1.3: seed v1
+    // is never run again after v2).
+    expect(await as(db, "service_role", () => attempt(upsert))).toMatch(/region upper_arm has mapping version upper_arm_mappings_v1 \(published\); its status, side model, limb, catalog keys and region-only tag scope, which decide what counts there, cannot change/);
+    // Over seed v2, as production held it before wave A, the forearm's row passes.
+    await atSeedV2(async () => {
     const regionRows = () => rows<{ id: string; row: Record<string, unknown>; v: string }>(db, "select id, to_jsonb(r) as row, xmin::text || '@' || ctid::text as v from specialization.regions r where id in ('forearm', 'upper_arm') order by id");
     const [forearm, upperArm] = await regionRows();
     // Seed v2 rewords the forearm's Progress subtitle (both sides as one: no "by arm"), so seed v1's
@@ -483,9 +506,10 @@ describe("regions", () => {
     expect(forearmAfter.v).not.toBe(forearm.v);
     expect(forearmAfter.row).toEqual({ ...forearm.row, progress_subtitle: "Circumference and grip, by arm" });
     expect(upperArmAfter.v).toBe(upperArm.v);
-    // As seed v2 wrote it again, for the cases after this one.
+    // As seed v2 wrote it again.
     await db.query("update specialization.regions set progress_subtitle = $1 where id = 'forearm'", [forearm.row.progress_subtitle]);
     expect((await regionRows())[0].row).toEqual(forearm.row);
+    });
   });
 
   it("a region with a published version keeps its status, side model, limb, catalog keys and tag scope, and stays; its words, order and measures may change", async () => {
@@ -513,7 +537,9 @@ describe("regions", () => {
     }
     expect(await attempt("update specialization.regions set measurement_defaults = '[]' where id = 'forearm'")).toMatch(/regions_measurement_defaults_check/);
     expect(await attempt("update specialization.regions set on_side_template = 'your forearm' where id = 'forearm'")).toMatch(/region forearm \(production\) needs a complete side model/);
-    expect(await attempt("update specialization.regions set region_only_tag_scope = 'secondary' where id = 'upper_arm'")).toMatch(/regions_region_only_tag_scope_check/);
+    // The scope's own check, on a region with no version; the upper arm, published from wave A, keeps its scope.
+    expect(await attempt("insert into specialization.regions (id, label, status, region_only_tag_scope) values ('zz_scope', 'Test', 'reference', 'secondary')")).toMatch(/regions_region_only_tag_scope_check/);
+    expect(await attempt("update specialization.regions set region_only_tag_scope = 'any' where id = 'upper_arm'")).toMatch(/region upper_arm has mapping version upper_arm_mappings_v1 \(published\)/);
   });
 });
 
@@ -673,7 +699,9 @@ describe("publishing: rules 10 to 13", () => {
   });
 
   it("13: refuses a version in a region with no page yet, since publishing freezes the region's status and it could never be promoted after", async () => {
-    await as(db, "service_role", async () => {
+    // From wave A the upper arm has its page and its published version; the rule is read where it applied, over seed v2.
+    expect(await count(db, "select 1 from specialization.mapping_versions where version_key = 'upper_arm_mappings_v1' and state = 'published'")).toBe(1);
+    await atSeedV2(() => as(db, "service_role", async () => {
       // The reference upper arm lists the biceps as a target from seed v2, and cat-121 has sided_by (set up above): rules 1 to 12 pass.
       await draftVersion("upper_arm_mappings_v1", "upper_arm", [{ key: "cat-121:upper_arm.biceps", variant: "cat-121", node: "upper_arm.biceps", action: "elbow.flexion" }]);
       const noPage = "region upper_arm has no page yet (reference): promote it before publishing a version of it";
@@ -689,11 +717,12 @@ describe("publishing: rules 10 to 13", () => {
         await db.exec("rollback");
       }
       await dropDraft("upper_arm_mappings_v1");
-    });
+    }));
   });
 
   it("a publish changes the state alone: a key, region or notes changed in the same statement is refused and the version stays a draft, since the rules read the stored draft", async () => {
-    await as(db, "service_role", async () => {
+    // Over seed v2, where the upper arm had no page yet (case A needs a region with no page).
+    await atSeedV2(() => as(db, "service_role", async () => {
       const published = (key: string, set: string) => failure(db, `update specialization.mapping_versions set state = 'published', ${set} where version_key = $1`, [key]);
       const alone = (key: string) => new RegExp(`mapping version ${key} is published by changing its state alone: change its key, region or notes while it is a draft, then publish it`);
       const held = (key: string) => rows(db, "select region_id, state, method_notes from specialization.mapping_versions where version_key = $1", [key]);
@@ -720,7 +749,7 @@ describe("publishing: rules 10 to 13", () => {
       expect(await held("zz_moved_b")).toEqual([{ region_id: "forearm", state: "draft", method_notes: "Test version." }]);
       expect(await count(db, "select 1 from specialization.variant_attributes where variant_key = 'cat-139' and frozen_at is not null")).toBe(0);
       await dropDraft("zz_moved_b");
-    });
+    }));
   });
 
   it("guard_mapping_version locks the region row first, then the version's memberships and attributes, then v1's rows, and freezes attributes after the check", async () => {
@@ -843,7 +872,11 @@ describe("schema v2 and the current seed applied again", () => {
     const frozenBefore = await frozen();
     expect(frozenBefore.length).toBeGreaterThan(0);
     const before = await rowVersions(db);
-    await applyMigration(db, SCHEMA_V2_MIGRATION_PATH);
+    // From seed v3 schema v2 cannot be applied again: its membership backfill reads every published version and gives a
+    // node's stored role, so it would list the upper arm's own biceps and brachialis (stored role external, §1.3) as external
+    // in the upper arm, which the membership guard refuses; the whole file rolls back. Production never applies a recorded
+    // file again (make-apply-sql.mjs refuses one, §5.3), and schema v2 is history, never edited.
+    expect(await attempt(readMigration(SCHEMA_V2_MIGRATION_PATH))).toMatch(/node upper_arm\.(biceps|brachialis) lives in region upper_arm, so its role in region upper_arm is target, adjacent or group, not external/);
     expect(await rowVersions(db)).toEqual(before);
     expect(await frozen()).toEqual(frozenBefore);
     // A seeded variant's attributes are the content's. The tests above froze two the content does not have (cat-139's grip width
@@ -852,15 +885,19 @@ describe("schema v2 and the current seed applied again", () => {
     expect(await rowVersions(db)).toEqual(before);
     // With those two in the content, the seed applies: it writes its own dimension and attribute rows over the test's, leaves
     // frozen_at alone (it is not among its columns), and drops the unfrozen attributes the content does not have.
-    const kept = await rows<{ variant_key: string; dimension_id: string; value: string }>(
+    // The attributes the content does not have: the ones these tests wrote (from wave A the content's own descriptive
+    // attributes are many, and upper_arm_mappings_v1's publish froze those of its variants).
+    const content = new Set(registeredRegionContents.flatMap((item) => item.variants.flatMap((variant) => ["sided_by", ...(variant.legLaterality ? ["leg_laterality"] : []), ...(variant.sideAnchor ? ["side_anchor"] : []), ...Object.keys(variant.dimensions ?? {})].map((dimension) => `${variant.id} ${dimension}`))));
+    const testMade = <T extends { variant_key: string; dimension_id: string }>(found: T[]) => found.filter((row) => !content.has(`${row.variant_key} ${row.dimension_id}`));
+    const kept = testMade(await rows<{ variant_key: string; dimension_id: string; value: string }>(
       db,
       "select variant_key, dimension_id, value from specialization.variant_attributes where frozen_at is not null and variant_key like 'cat-%' and dimension_id <> 'sided_by' order by 1, 2",
-    );
+    ));
     expect(kept).toEqual([
       { variant_key: "cat-139", dimension_id: "grip_width", value: "narrow" },
       { variant_key: "cat-139", dimension_id: "stance", value: "bilateral" },
     ]);
-    const unfrozen = () => rows(db, "select variant_key, dimension_id from specialization.variant_attributes where frozen_at is null and variant_key like 'cat-%' and dimension_id <> 'sided_by' order by 1, 2");
+    const unfrozen = async () => testMade(await rows<{ variant_key: string; dimension_id: string }>(db, "select variant_key, dimension_id from specialization.variant_attributes where frozen_at is null and variant_key like 'cat-%' and dimension_id <> 'sided_by' order by 1, 2"));
     expect(await unfrozen()).toEqual([
       { variant_key: "cat-124", dimension_id: "grip_width" },
       { variant_key: "cat-140", dimension_id: "grip_width" },
@@ -893,7 +930,8 @@ describe("memberships", () => {
       expect(await attempt("insert into specialization.region_nodes (region_id, node_id, role) values ('upper_arm', 'forearm.br', 'target')")).toMatch(
         /node forearm\.br lives in region forearm, so its role in region upper_arm is external, not target/,
       );
-      expect(await attempt("insert into specialization.region_nodes (region_id, node_id, role) values ('upper_arm', 'forearm.br', 'external')")).toBeNull();
+      // The upper arm lists the brachioradialis from seed v2; another forearm muscle may be listed beside it.
+      expect(await attempt("insert into specialization.region_nodes (region_id, node_id, role) values ('upper_arm', 'forearm.fcu', 'external')")).toBeNull();
       expect(await attempt("insert into specialization.region_nodes (region_id, node_id, role) values ('upper_arm', 'upper_arm.triceps_nowhere', 'target')")).toMatch(/region_nodes_node_id_fkey/);
       expect(await attempt("update specialization.region_nodes set role = 'external' where region_id = 'forearm' and node_id = 'forearm.anconeus'")).toMatch(
         /node forearm\.anconeus lives in region forearm, so its role in region forearm is target, adjacent or group, not external/,
@@ -989,6 +1027,10 @@ describe("goals", () => {
   });
 
   it("a reference region takes no goal, though it lists the muscle and the movement: it has no page (the upper arm before its promotion)", async () => {
+    // From wave A the upper arm has a page and takes a target on its muscles; the rule is read where it applied, over seed v2.
+    expect(await goal(userA, "promoted-muscle", "upper_arm", { node: "upper_arm.biceps" }, "left")).toBeNull();
+    expect(await as(db, userA, () => failure(db, "delete from specialization.goals where id = 'promoted-muscle'"))).toBeNull();
+    await atSeedV2(async () => {
     const noPage = /region upper_arm has no page yet \(it is a reference region\), so it takes no target/;
     expect(await rows(db, "select status from specialization.regions where id = 'upper_arm'")).toEqual([{ status: "reference" }]);
     expect(await count(db, "select 1 from specialization.region_nodes where region_id = 'upper_arm' and node_id = 'upper_arm.biceps' and role = 'target' and listed")).toBe(1);
@@ -1000,6 +1042,7 @@ describe("goals", () => {
     expect(await goal(userA, "to-move", "forearm", { node: "forearm.fcu" }, "left", "2027-03-01")).toBeNull();
     expect(await as(db, userA, () => failure(db, "update specialization.goals set region_id = 'upper_arm', node_id = 'upper_arm.biceps' where id = 'to-move'"))).toMatch(noPage);
     expect(await as(db, userA, () => failure(db, "delete from specialization.goals where id = 'to-move'"))).toBeNull();
+    });
   });
 
   it("a dropped member is unlisted, not deleted, while another user's goal names it; the goal stays and may only be ended or deleted", async () => {
@@ -1074,34 +1117,12 @@ describe("measurements", () => {
  * rolled back like the rest.
  */
 describe("the prototype experiment's cases", () => {
+  // The prototype promoted the upper arm by hand and published a two-row version of it; from wave A seed v3 does both for
+  // real (the upper arm's region row, members and actions, and upper_arm_mappings_v1), so the cases run on what it wrote.
   beforeAll(async () => {
-    await as(db, "service_role", async () => {
-      await db.exec(`
-        update specialization.regions set status = 'production', heading = 'Upper-arm specialization', entry_label = 'Explore upper-arm coverage',
-          external_group = 'Forearm muscles credited here', incidental_work = 'steadying', progress_subtitle = 'Arm circumference',
-          measurement_metrics = array['circumference_cm'], body_map_keys = array['biceps', 'brachialis', 'triceps'], sort_order = 8,
-          side_model = 'paired', side_limb = 'arm', side_word = 'arm', side_word_plural = 'arms', catalog_keys = array['biceps', 'brachialis', 'triceps'],
-          region_only_tag_scope = 'primary', external_heading = 'Upper-arm muscles credited here'
-          where id = 'upper_arm';
-        insert into specialization.region_actions (region_id, action_id, sort_order) values ('upper_arm', 'elbow.flexion', 0), ('upper_arm', 'elbow.extension', 1) on conflict do nothing;
-        insert into specialization.catalog_exercises (catalog_id, name) values (9100, 'Experiment Triceps Pushdown');
-        insert into specialization.exercise_variants (variant_key, catalog_id, organization, forearm_orientation, wrist_position, grip_type, straps, laterality, phase, measure, deliberate_hold)
-          values ('cat-9100', 9100, 'single_joint', 'pronated', 'not_applicable', 'overhand', 'not_applicable', 'bilateral', 'concentric_eccentric', 'reps', false);
-      `);
-      await newMuscle("upper_arm.triceps", "upper_arm", "elbow.extension");
-      await db.exec(`
-        insert into specialization.region_nodes (region_id, node_id, role, sort_order) values
-          ('upper_arm', 'upper_arm.biceps', 'target', 0), ('upper_arm', 'upper_arm.brachialis', 'target', 1), ('upper_arm', 'upper_arm.triceps', 'target', 2), ('upper_arm', 'forearm.br', 'external', 3)
-          on conflict do nothing;
-        insert into specialization.region_nodes (region_id, node_id, role) values ('forearm', 'forearm.anconeus', 'adjacent') on conflict do nothing;
-      `);
-      for (const [variant, dimension, value] of [["cat-9100", "sided_by", "none"], ["cat-121", "grip_width", "shoulder"], ["cat-125", "grip_width", "shoulder"]]) await giveAttribute(variant, dimension, value);
-      await draftVersion("upper_arm_mappings_v1", "upper_arm", [
-        { key: "cat-121:upper_arm.biceps", variant: "cat-121", node: "upper_arm.biceps", action: "elbow.flexion" },
-        { key: "cat-9100:upper_arm.triceps", variant: "cat-9100", node: "upper_arm.triceps", action: "elbow.extension" },
-      ]);
-    });
-    expect(await as(db, "service_role", () => publish("upper_arm_mappings_v1"))).toBeNull();
+    expect(await rows(db, "select status from specialization.regions where id = 'upper_arm'")).toEqual([{ status: "production" }]);
+    expect(await rows(db, "select state from specialization.mapping_versions where version_key = 'upper_arm_mappings_v1'")).toEqual([{ state: "published" }]);
+    await as(db, "service_role", () => db.exec("insert into specialization.region_nodes (region_id, node_id, role) values ('forearm', 'forearm.anconeus', 'adjacent') on conflict do nothing"));
   });
 
   const NOT_HOME = (node: string, home: string, region: string, role: string) => new RegExp(`node ${node.replace(".", "\\.")} lives in region ${home}, so its role in region ${region} is ${role}`);
@@ -1110,17 +1131,17 @@ describe("the prototype experiment's cases", () => {
     ["biceps role in forearm -> target", "update specialization.region_nodes set role = 'target' where region_id = 'forearm' and node_id = 'upper_arm.biceps'", NOT_HOME("upper_arm.biceps", "upper_arm", "forearm", "external")],
     ["biceps unlisted in forearm", "update specialization.region_nodes set listed = false where region_id = 'forearm' and node_id = 'upper_arm.biceps'", /node upper_arm\.biceps is mapped in region forearm by mapping version forearm_mappings_v1 \(published\)/],
     ["remove biceps from forearm", "delete from specialization.region_nodes where region_id = 'forearm' and node_id = 'upper_arm.biceps'", /node upper_arm\.biceps is mapped in region forearm by mapping version forearm_mappings_v1 \(published\); .* cannot leave the region/],
-    ["unlist the triceps the upper arm maps", "update specialization.region_nodes set listed = false where region_id = 'upper_arm' and node_id = 'upper_arm.triceps'", /node upper_arm\.triceps is mapped in region upper_arm by mapping version upper_arm_mappings_v1 \(published\)/],
+    ["unlist the triceps' long head, which the upper arm maps", "update specialization.region_nodes set listed = false where region_id = 'upper_arm' and node_id = 'upper_arm.triceps_long'", /node upper_arm\.triceps_long is mapped in region upper_arm by mapping version upper_arm_mappings_v1 \(published\)/],
     ["reorder biceps in forearm (sort_order only)", "update specialization.region_nodes set sort_order = sort_order + 100 where region_id = 'forearm' and node_id = 'upper_arm.biceps'", null],
     ["anconeus role in forearm (unmapped) -> target", "update specialization.region_nodes set role = 'target' where region_id = 'forearm' and node_id = 'forearm.anconeus'", null],
     ["unlist brachioradialis from the upper arm (listed, not mapped there)", "update specialization.region_nodes set listed = false where region_id = 'upper_arm' and node_id = 'forearm.br'", null],
-    ["cat-121 grip width -> wide (frozen by the upper arm's publish)", "update specialization.variant_attributes set value = 'wide' where variant_key = 'cat-121' and dimension_id = 'grip_width'", /attribute grip_width of variant cat-121 is frozen/],
-    ["delete cat-121 grip width", "delete from specialization.variant_attributes where variant_key = 'cat-121' and dimension_id = 'grip_width'", /attribute grip_width of variant cat-121 is frozen/],
-    ["cat-125 grip width (no version maps it since) -> wide", "update specialization.variant_attributes set value = 'wide' where variant_key = 'cat-125' and dimension_id = 'grip_width'", null],
+    ["cat-121 sided_by -> arm (frozen by the upper arm's publish)", "update specialization.variant_attributes set value = 'arm' where variant_key = 'cat-121' and dimension_id = 'sided_by'", /attribute sided_by of variant cat-121 is frozen/],
+    ["delete cat-121 sided_by", "delete from specialization.variant_attributes where variant_key = 'cat-121' and dimension_id = 'sided_by'", /attribute sided_by of variant cat-121 is frozen/],
+    ["cat-140 sided_by (only forearm_mappings_v1 maps it, published before attributes) -> arm", "update specialization.variant_attributes set value = 'arm' where variant_key = 'cat-140' and dimension_id = 'sided_by'", null],
     ["new attribute on frozen cat-122", "insert into specialization.variant_attributes (variant_key, dimension_id, value) values ('cat-122', 'grip_width', 'narrow')", null],
     ["a value outside the dimension's list", "insert into specialization.variant_attributes (variant_key, dimension_id, value) values ('cat-123', 'grip_width', 'overhead')", /variant_attributes_value_listed/],
     ["frozen v1 node role still frozen", "update specialization.nodes set role = 'target' where id = 'upper_arm.biceps'", /node upper_arm\.biceps is mapped by mapping version .*its region, role and catalog muscle key/],
-    ["triceps (mapped by upper_arm v1) catalog key", "update specialization.nodes set catalog_muscle_key = 'arms' where id = 'upper_arm.triceps'", /node upper_arm\.triceps is mapped by mapping version upper_arm_mappings_v1 \(published\)/],
+    ["the triceps' long head (mapped by upper_arm v1) catalog key", "update specialization.nodes set catalog_muscle_key = 'arms' where id = 'upper_arm.triceps_long'", /node upper_arm\.triceps_long is mapped by mapping version upper_arm_mappings_v1 \(published\)/],
     [
       "upper_arm back to reference (the prototype had no regions guard)",
       "update specialization.regions set status = 'reference', heading = null, entry_label = null, external_group = null, incidental_work = null, progress_subtitle = null, side_model = null, side_limb = null, side_word = null, side_word_plural = null where id = 'upper_arm'",
@@ -1158,9 +1179,12 @@ describe("the prototype experiment's cases", () => {
       write: await failure(db, "insert into specialization.region_nodes (region_id, node_id, role) values ('forearm', 'forearm.fcu', 'target')"),
     }));
     expect(seen).toEqual({
-      upperArm: ["upper_arm.biceps target", "upper_arm.brachialis target", "upper_arm.triceps target", "forearm.br external"],
+      upperArm: [
+        "upper_arm.biceps target", "upper_arm.brachialis target", "upper_arm.triceps group", "upper_arm.triceps_long target", "upper_arm.triceps_lateral target", "upper_arm.triceps_medial target",
+        "upper_arm.coracobrachialis adjacent", "forearm.br external",
+      ],
       biceps: ["forearm external", "upper_arm target"],
-      attributes: 2,
+      attributes: 1,
       write: "permission denied for table region_nodes",
     });
     expect(await as(db, "anon", () => failure(db, "select 1 from specialization.region_nodes"))).toMatch(/permission denied for schema specialization/);

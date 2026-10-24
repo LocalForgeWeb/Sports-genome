@@ -6,7 +6,7 @@ import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { forearmMuscleIds } from "@shared/specialization/regions/forearm/ids";
 import { planWeekInterval } from "@shared/specialization/time";
-import { variantLibrary } from "@shared/specialization/variants";
+import { variantFor, variantLibrary } from "@shared/specialization/variants";
 import { variantLookup } from "./bouts";
 import { boutsFromPlan, holdDefaultPrescription, plannedTarget, prescriptionOf } from "./planBouts";
 import { catalogMusclesLookup, planningVariantsFor } from "./useSpecializationSummary";
@@ -121,15 +121,23 @@ describe("a hold never gets a rep default", () => {
 });
 
 describe("the variants a region's page lays the plan out by (planningVariantsFor)", () => {
-  it("are the region's own, then the shared library's for every exercise the region has none of, one list per region", () => {
+  it("are the region's own, then the library's for the exercises tagged with its keys that it does not map, one list per region", () => {
     const list = planningVariantsFor(fxThigh);
     // The thigh's single-leg RDL is its own record, one leg at a time; the library's (the forearm's, either arm) would win a lookup over both, as a default id.
     expect(variantLookup(list)(188)?.id).toBe("fx-188");
     expect(variantLookup([...fxThigh.variants, ...variantLibrary])(188)?.id).toBe("cat-188");
-    expect(variantLookup(list)(410)?.id).toBe("cat-410");
+    // An exercise the thigh neither maps nor is tagged with is not its work, so its page lays it out with no variant (wave A:
+    // the page no longer loads the whole library; client/src/lib/specialization/loadRegion.test.ts).
+    expect(variantLookup(list)(410)).toBeNull();
     expect(planningVariantsFor(fxThigh)).toBe(list);
-    // The forearm's own are the library's 119 through wave 0: its plan is laid out as it shipped.
-    expect(planningVariantsFor(forearmRegionData).map((variant) => variant.id)).toEqual(forearmRegionData.variants.map((variant) => variant.id));
+    // The forearm's: its version's 119 records, the 9 the upper arm's rows for the biceps and brachialis map (wave A), then the
+    // library's records of the forearm-tagged exercises it does not map, among them 24 Dumbbell Pullover (§11 decision 11(c)).
+    const forearm = planningVariantsFor(forearmRegionData);
+    expect(forearm.map((variant) => variant.id)).toEqual([...forearmRegionData.variants, ...(forearmRegionData.taggedVariants ?? [])].map((variant) => variant.id));
+    expect([forearmRegionData.variants.length, forearmRegionData.taggedVariants?.length]).toEqual([128, 14]);
+    expect(forearm.slice(0, 119)).toEqual(variantLibrary.slice(0, 119));
+    for (const variant of forearm) expect(variant, variant.id).toEqual(variantFor(variant.catalogExerciseId));
+    expect(variantLookup(forearm)(24)?.laterality).toBe("bilateral");
   });
 
   it("so the thigh's page plans a single-leg RDL by its own variant: one bout per planned set, assumed on both legs, as the tracker lays it out", () => {

@@ -1,0 +1,41 @@
+{
+ "label": "slice2-forearm",
+ "region": "(the tab)",
+ "figureAsked": "drawing (3D APIs off)",
+ "runs": 2,
+ "sameEveryRun": true,
+ "figure": "Drawing",
+ "specialize": [
+  {
+   "file": "index-CghM-QlM.js",
+   "bytes": 109958,
+   "gzip": 31874
+  },
+  {
+   "file": "ids-clxKpwMx.js",
+   "bytes": 2861,
+   "gzip": 1244
+  },
+  {
+   "file": "version-Doo3_X6u.js",
+   "bytes": 187016,
+   "gzip": 44557
+  },
+  {
+   "file": "review-hofwP-OJ.js",
+   "bytes": 1244,
+   "gzip": 663
+  },
+  {
+   "file": "SpecializationPanel-C01vrd4x.js",
+   "bytes": 221635,
+   "gzip": 67828
+  }
+ ],
+ "total": 522714,
+ "totalGzip": 146166,
+ "model": 0,
+ "page": 522714,
+ "pageGzip": 146166,
+ "filesBeforeTheTap": 9
+}

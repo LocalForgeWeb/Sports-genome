@@ -7,6 +7,7 @@ import { calendarWeekInterval } from "@shared/specialization/time";
 import type { ArmSide, ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary } from "@shared/specialization/types";
 import { previewPlannedChange, recommendFor, type RecommendationRequest } from "./recommendations";
 import { catalogMusclesLookup } from "./useSpecializationSummary";
+import { forearmRegionData } from "@shared/specialization/regions/forearm";
 import { deltoidIds, deltoidRegionData } from "./__fixtures__/deltoidRegion";
 import { syntheticForearm } from "./__fixtures__/syntheticForearm";
 
@@ -113,6 +114,19 @@ describe("candidates", () => {
     const result = candidatesOf(recommendFor(request({ target: { nodeId: m.extensorCarpiRadialisLongus } })));
     expect(result.candidates.map((candidate) => candidate.name)).toEqual(["Reverse Wrist Curl"]);
     expect(result.candidates[0].why).toContain("The work is shared with extensor carpi radialis brevis; the evidence does not split it between them.");
+  });
+
+  it("does not say 'no target set' for another region's muscle, whose targets are set on its home's page (wave A)", () => {
+    // On the forearm page the biceps and brachialis are the upper arm's: their sheets say where their targets are set.
+    for (const nodeId of [ext.biceps, ext.brachialis]) {
+      const result = candidatesOf(recommendFor({ region: forearmRegionData, target: { nodeId }, side: "left", summary: summary(forearmRegionData, [bout(121), bout(121)]), plannedExercises: [], catalog: exercises, equipmentProfile: null }));
+      const whys = result.candidates.map((candidate) => candidate.why);
+      expect(whys.some((why) => /\d+ direct dynamic and \d+ hold bouts in this window\./.test(why))).toBe(true);
+      expect(whys.join(" ")).not.toContain("no target set");
+    }
+    // A forearm muscle still says it.
+    const own = candidatesOf(recommendFor({ region: forearmRegionData, target: { nodeId: m.flexorCarpiRadialis }, side: "left", summary: summary(forearmRegionData, [bout(139)]), plannedExercises: [], catalog: exercises, equipmentProfile: null }));
+    expect(own.candidates.map((candidate) => candidate.why).join(" ")).toContain("no target set");
   });
 
   it("suggests for a movement only what performs it, not what merely steadies it", () => {

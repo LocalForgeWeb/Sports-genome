@@ -37,6 +37,9 @@ export const descriptiveDimensions = {
   grip_width: { label: "Grip width", values: { narrow: "Narrow", shoulder: "Shoulder width", wide: "Wide" } },
   stance: { label: "Stance", values: { bilateral: "Both feet level", split: "Split stance", single_leg: "One leg", staggered: "Staggered" } },
   range: { label: "Range of motion", values: { full: "Full", lengthened_partial: "Partial, at long muscle length", shortened_partial: "Partial, at short muscle length" } },
+  // Added by wave A (the upper arm): where the upper arm is held at the shoulder, which sets how
+  // long the two-joint heads are (the biceps' and the triceps' long heads cross the shoulder).
+  shoulder: { label: "Upper arm at the shoulder", values: { extended: "Arm behind the body", neutral: "Arm at the side", flexed: "Arm raised in front", overhead: "Arm overhead", changing: "Moves through the set" } },
 } as const;
 
 export type CountingDimension = keyof typeof countingDimensions;

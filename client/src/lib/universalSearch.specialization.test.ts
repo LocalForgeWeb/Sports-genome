@@ -6,7 +6,8 @@ import { searchEverything, type SearchResult } from "./universalSearch";
  * destination per production region, `specialization#<region>`, named by the page's heading and
  * found by the region's label, its body-map keys and those muscles' names; and "Specialize", the
  * page as a place. The test regions reach the index as production regions through the mocked
- * light index; the reference upper arm has no page and no destination.
+ * light index. The upper arm, a production region from wave A, has its page and its destination; a
+ * body region with no page has none.
  */
 
 vi.mock("@shared/specialization/regionIndex", async (importOriginal) => {
@@ -37,8 +38,17 @@ describe("the specialization page in search", () => {
     expect(destination("fixture thighs", "specialization#fx_thigh")).toMatchObject({ label: "Fixture thighs specialization" });
   });
 
+  it("offers the upper arm's page from wave A, by its heading, label, keys and muscles' names", () => {
+    expect(destination("upper-arm specialization", "specialization#upper_arm")).toMatchObject({ label: "Upper-arm specialization", context: "Body Lab · Specialize" });
+    expect(destination("upper arms", "specialization#upper_arm")).not.toBeNull();
+    expect(destination("biceps", "specialization#upper_arm")).not.toBeNull();
+    expect(destination("triceps", "specialization#upper_arm")).not.toBeNull();
+    // The brachioradialis is the forearm's: its page, not the upper arm's.
+    expect(destination("brachioradialis", "specialization#upper_arm")).toBeNull();
+  });
+
   it("offers no page for a region that has none", () => {
-    expect(found("upper arm").some((result) => result.id === "specialization#upper_arm")).toBe(false);
-    expect(found("upper-arm specialization").some((result) => result.id === "specialization#upper_arm")).toBe(false);
+    expect(found("chest specialization").some((result) => result.id.startsWith("specialization#"))).toBe(false);
+    expect(found("calves").some((result) => result.id.startsWith("specialization#"))).toBe(false);
   });
 });

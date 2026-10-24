@@ -427,7 +427,7 @@ export function recommendFor(request: RecommendationRequest): Recommendations {
     const actions = Array.from(new Set(mappings.filter((mapping) => relevanceOf(mapping, variant) === relevance).map((mapping) => actionLabel(mapping.actionId)).filter((label): label is string => Boolean(label)))).map(lowerFirst);
     const shared = Array.from(new Set(Array.from(targetNodes).flatMap((nodeId) => sharedPartnersOf(region, variant, nodeId)))).filter((nodeId) => !targetNodes.has(nodeId));
     const missingActions = missing.filter((actionId) => mappings.some((mapping) => mapping.actionId === actionId && isDirectWork({ relationship: mapping.relationship, category: categoryOf(mapping, variant) })));
-    const gap = gapClause({ request, nodeName, answers, unmet, unfillable, credits });
+    const gap = gapClause({ request, nodeName, external: target.nodeId !== undefined && index.nodeById.get(target.nodeId)?.role === "external", answers, unmet, unfillable, credits });
     candidates.push({
       catalogExerciseId: variant.catalogExerciseId,
       name: catalogEntry?.name ?? variant.catalogName,
@@ -546,10 +546,12 @@ function alsoLoadedBy(region: SpecializationRegionData, variant: ExerciseVariant
 /**
  * What the target is missing, as it bears on THIS exercise: the unmet target it counts
  * toward; else, with targets set, plainly that it counts toward none of them (and why, when
- * the reason is the kind of work); else, with no target, the work the target has.
+ * the reason is the kind of work); else, with no target, the work the target has. Another
+ * region's muscle has its targets on its home's page, as its sheet says (MuscleSheet.tsx), so
+ * its work is said without "no target set".
  */
-function gapClause(input: { request: RecommendationRequest; nodeName: string | null; answers: readonly GoalProgress[]; unmet: readonly GoalProgress[]; unfillable: readonly GoalProgress[]; credits: ReadonlySet<ExposureCategory> }): string {
-  const { request, nodeName, answers, unmet, unfillable, credits } = input;
+function gapClause(input: { request: RecommendationRequest; nodeName: string | null; external: boolean; answers: readonly GoalProgress[]; unmet: readonly GoalProgress[]; unfillable: readonly GoalProgress[]; credits: ReadonlySet<ExposureCategory> }): string {
+  const { request, nodeName, external, answers, unmet, unfillable, credits } = input;
   const { summary, target } = request;
   if (answers.length) return progressPhrase(summary, answers[0]);
   if (unmet.length) {
@@ -566,7 +568,7 @@ function gapClause(input: { request: RecommendationRequest; nodeName: string | n
   const row = nodeRow(summary, target.nodeId);
   const where = whereWords(summary);
   if (!row || row.directDynamicBouts + row.deliberateHoldBouts === 0) return `${nodeName ? "it has" : "there is"} no direct work ${where}`;
-  return `${row.directDynamicBouts} direct dynamic and ${row.deliberateHoldBouts} hold bouts ${where}, no target set`;
+  return `${row.directDynamicBouts} direct dynamic and ${row.deliberateHoldBouts} hold bouts ${where}${external ? "" : ", no target set"}`;
 }
 
 function whySentence(input: { relevance: Relevance; actions: string[]; nodeName: string | null; gap: string; missing: string[]; where: string; shared: string[]; trailing: boolean; side: SummarySide; sideWord: string; alreadyPlanned: boolean; loggedBouts: number; loggedNoSide: number; equipmentAvailable: boolean; equipment: string | null }): string {

@@ -141,6 +141,34 @@ function withF1(id: string, reading: { window: string[]; findings: string[][] })
   return { ...reading, window: [...reading.window.slice(0, -1), "9"], findings: [["9", "1"], ...reading.findings] };
 }
 
+/**
+ * What wave A moves (10-multi-region.md §4.2, §2.2; §11 decision 11(b)), and nothing else:
+ * - the biceps' and brachialis' rows are credited by the upper arm's version, which credits both on
+ *   rows as contributing work (43 Barbell Bent-Over Row and 46 One-Arm Dumbbell Row in the logged
+ *   week, four sets; 45 in the plan, three), where the forearm's own rows did not; their curl credit
+ *   is as it was;
+ * - the biceps' target saved earlier on this page is the upper arm's, read there through its
+ *   version (re-homed on read), so its finding, said last with no number since wave 0, leaves
+ *   this page.
+ */
+const WAVE_A_ROWS: Record<string, Record<string, [was: string, now: string]>> = {
+  week: { Brachialis: ["4 direct", "4 direct · 4 other"], "Biceps brachii": ["4 other", "8 other"] },
+  "7d": { Brachialis: ["4 direct", "4 direct · 4 other"], "Biceps brachii": ["4 other", "8 other"] },
+  custom: { Brachialis: ["4 direct", "4 direct · 4 other"], "Biceps brachii": ["4 other", "8 other"] },
+  planned: { Brachialis: ["3 direct", "3 direct · 3 other"], "Biceps brachii": ["3 other", "6 other"] },
+};
+function withWaveA(id: string, reading: { rows: string[][]; findings: string[][] }) {
+  const rows = reading.rows.map(([name, value]) => {
+    const moved = WAVE_A_ROWS[id][name];
+    if (!moved) return [name, value];
+    expect(value, `${id}: ${name} as main showed it`).toBe(moved[0]);
+    return [name, moved[1]];
+  });
+  // The two targets saved earlier are said last with no number (withWaveZero); the biceps' is no longer here.
+  expect(reading.findings.slice(-2)).toEqual([[], []]);
+  return { ...reading, rows, findings: reading.findings.slice(0, -1) };
+}
+
 describe.skipIf(out)("the forearm page shows main's numbers (4dac1ae), both arms as one", () => {
   const reference = (out ? {} : JSON.parse(readFileSync(join(process.cwd(), "client/src/components/specialization/__fixtures__/pageNumbers.4dac1ae.json"), "utf8"))) as Record<string, { findings: string[][] }>;
 
@@ -154,7 +182,7 @@ describe.skipIf(out)("the forearm page shows main's numbers (4dac1ae), both arms
       // The reading reaches the page's numbers at all: rows with work, and the completeness counts.
       expect(read.rows.length).toBeGreaterThan(20);
       expect(read.completeness.length).toBeGreaterThan(5);
-      expect(read).toEqual(withF1(id, withWaveZero(reference[id] as { window: string[]; findings: string[][] })));
+      expect(read).toEqual(withWaveA(id, withF1(id, withWaveZero(reference[id] as { window: string[]; findings: string[][] })) as { rows: string[][]; window: string[]; findings: string[][] }));
     }, 30000);
   }
 });

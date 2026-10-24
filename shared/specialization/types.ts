@@ -409,6 +409,12 @@ export interface ExposureRuleSpec {
   unmapped: string;
   regionTotal: string;
   notConverted: string[];
+  /** From v2: how a region names the catalog keys that make an exercise its work, and their tag scope. */
+  catalogKeys?: string;
+  /** From v2: a set is classified by the page's own muscles. */
+  classification?: string;
+  /** From v2: a muscle of another region is credited as its home region credits it. */
+  externals?: string;
 }
 
 export interface RuleVersion {
@@ -586,6 +592,13 @@ export interface RegionContent {
   sources: Source[];
   /** The library variants this region's mapping version maps (`variantsMappedBy`). */
   variants: ExerciseVariant[];
+  /**
+   * The library's records of the catalog exercises tagged with this region's catalog keys that its
+   * version does not map (`regions/<region>/libraryVariants.generated.ts`). Its page reads them as
+   * the library would for its region-only sets and plans (their sides, measure and straps; §3, §11
+   * decision 11(c)), never to credit a muscle; so the page needs no other variant of the library.
+   */
+  taggedVariants?: ExerciseVariant[];
   mappings: VariantMapping[];
   mappingVersion: MappingVersion | null;
   unmappedTagged: UnmappedTaggedExercise[];
@@ -703,6 +716,12 @@ export interface SpecializationRegionData {
   claims: Claim[];
   sources: Source[];
   variants: ExerciseVariant[];
+  /**
+   * The library's records of exercises tagged with the region's catalog keys that no version this
+   * page reads maps (`RegionContent.taggedVariants`, less any in `variants`): read for region-only
+   * sets and plans as the library would read them, never credited. Absent when there are none.
+   */
+  taggedVariants?: ExerciseVariant[];
   /** The region's own current version's mappings (`mappingVersion`), including any it holds for external members. */
   mappings: VariantMapping[];
   mappingVersion: MappingVersion;

@@ -1,0 +1,36 @@
+{
+ "label": "main-2a556be",
+ "region": "(the tab)",
+ "figureAsked": "drawing (3D APIs off)",
+ "runs": 2,
+ "sameEveryRun": true,
+ "figure": "Drawing",
+ "specialize": [
+  {
+   "file": "index-gByR6593.js",
+   "bytes": 226007,
+   "gzip": 58556
+  },
+  {
+   "file": "index-SzV5tI8j.js",
+   "bytes": 20875,
+   "gzip": 6002
+  },
+  {
+   "file": "review-CbsMuWwV.js",
+   "bytes": 1244,
+   "gzip": 661
+  },
+  {
+   "file": "SpecializationPanel-BTbSSEgz.js",
+   "bytes": 221486,
+   "gzip": 67806
+  }
+ ],
+ "total": 469612,
+ "totalGzip": 133025,
+ "model": 0,
+ "page": 469612,
+ "pageGzip": 133025,
+ "filesBeforeTheTap": 9
+}

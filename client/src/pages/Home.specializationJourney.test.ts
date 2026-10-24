@@ -128,7 +128,7 @@ describe("A coverage gap, closed in the app", () => {
     await tick();
     const bodyTabs = await screen.findByRole("navigation", { name: "Body Lab workspace pages" }, { timeout: 15000 });
     await act(async () => { fireEvent.click(within(bodyTabs).getByRole("button", { name: "Specialize" })); });
-    await screen.findByRole("heading", { level: 1, name: "Forearm specialization" }, { timeout: 15000 });
+    await screen.findByRole("heading", { level: 1, name: "Forearms" }, { timeout: 15000 });
     await tick();
     expect(brRow().getAttribute("aria-label") ?? brRow().textContent).toMatch(/^Brachioradialis, Surface\. 1 direct dynamic bout/);
     expect(brFills().every((fill) => fill === "bin-1")).toBe(true);

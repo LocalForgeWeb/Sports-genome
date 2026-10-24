@@ -14,11 +14,15 @@ import { SpecializationPanel } from "./SpecializationPanel";
 
 /**
  * Targets saved before targets were limited to a region's target muscles (10-multi-region.md §2.2;
- * critic experiment c7): on the forearm page, one on the anconeus (adjacent) and one on the biceps
- * (the upper arm's, listed here as external). Each is shown read-only, with End and Remove, and
- * CLAUDE.md's "Undo over confirm" holds for both: the Undo offered after End or Remove puts the
- * target back exactly as it was, although a new target on that muscle would be refused. In the
- * muscle sheet the Undo stays, with focus on it, after the muscle's last target is removed.
+ * critic experiment c7): on the forearm page, targets on the anconeus (adjacent) are shown
+ * read-only, with End and Remove, and CLAUDE.md's "Undo over confirm" holds: the Undo offered
+ * after End or Remove puts the target back exactly as it was, although a new target on that muscle
+ * would be refused. In the muscle sheet the Undo stays, with focus on it, after the muscle's last
+ * target is removed.
+ *
+ * From wave A a target saved on the forearm page on the biceps (the upper arm's, listed here as
+ * external) is no longer one of these: the upper arm is in production, so it is read as the upper
+ * arm's target, with the same id, and is edited on the upper-arms page (§2.2, re-homed on read).
  */
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
@@ -44,6 +48,7 @@ const goal = (id: string, nodeId: string, over: Partial<SpecializationGoal> = {}
   startsOn: "2026-10-01", endsOn: null, timezone: "UTC", createdAt: "2026-10-01T08:00:00.000Z", updatedAt: "2026-10-01T08:00:00.000Z", ...over,
 });
 const anconeus = goal("anc", "forearm.anconeus");
+const anconeusHolds = goal("anc-holds", "forearm.anconeus", { metric: "deliberate_hold_bouts", target: 2 });
 const biceps = goal("bic", "upper_arm.biceps");
 const stored = () => loadSpecializationGoals(null);
 const storedOf = (id: string) => stored().find((item) => item.id === id) ?? null;
@@ -73,7 +78,7 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
 describe("a target on a muscle that is not a target here, in its muscle sheet", () => {
-  for (const [label, saved, row] of [["the anconeus (adjacent)", anconeus, /^Anconeus,/], ["the biceps (external)", biceps, /^Biceps brachii,/]] as const) {
+  for (const [label, saved, row] of [["the anconeus (adjacent)", anconeus, /^Anconeus,/]] as const) {
     it(`${label}: End, then Undo, puts it back as it was`, async () => {
       saveSpecializationGoals([saved], null);
       render(createElement(Harness));
@@ -123,29 +128,43 @@ describe("a target on a muscle that is not a target here, in its muscle sheet", 
   });
 
   it("still refuses a new target on that muscle: only what was there comes back", async () => {
+    saveSpecializationGoals([anconeus], null);
+    render(createElement(Harness));
+    const sheet = await sheetOf(/^Anconeus,/);
+    await click(within(sheet).getByRole("button", { name: /^Remove the target/ }));
+    await click(within(sheet).getByRole("button", { name: "Undo" }));
+    expect(stored().map((item) => item.id)).toEqual(["anc"]);
+    expect(within(sheet).queryByRole("button", { name: /Set a target/ })).toBeNull();
+  });
+
+  it("the biceps (external): a target saved here earlier is the upper arm's from wave A, not shown here, and the sheet sends it there", async () => {
     saveSpecializationGoals([biceps], null);
     render(createElement(Harness));
     const sheet = await sheetOf(/^Biceps brachii,/);
-    await click(within(sheet).getByRole("button", { name: /^Remove the target/ }));
-    await click(within(sheet).getByRole("button", { name: "Undo" }));
-    expect(stored().map((item) => item.id)).toEqual(["bic"]);
-    expect(within(sheet).queryByRole("button", { name: /Set a target/ })).toBeNull();
+    expect(within(sheet).queryByText(READ_ONLY)).toBeNull();
+    expect(within(sheet).queryByRole("button", { name: /^End the target/ })).toBeNull();
+    expect(within(sheet).getByText("Targets for this muscle are set on the upper-arms page.")).toBeTruthy();
+    expect(within(sheet).getByRole("button", { name: "Open the upper-arms page" })).toBeTruthy();
+    // Read as the upper arm's, same id; nothing written until the next save.
+    expect(stored()).toEqual([{ ...biceps, regionId: "upper_arm" }]);
   });
 });
 
 describe("a target on a muscle that is not a target here, in the Targets overview", () => {
   for (const action of ["End", "Remove"] as const) {
-    it(`${action} on the biceps and on the anconeus, then one Undo, puts both back`, async () => {
-      saveSpecializationGoals([anconeus, biceps], null);
+    it(`${action} on the anconeus' two targets, then one Undo, puts both back; the biceps' is the upper arm's (wave A)`, async () => {
+      saveSpecializationGoals([anconeus, anconeusHolds, biceps], null);
       render(createElement(Harness));
       const targets = await overview();
-      expect(within(targets).getAllByText(READ_ONLY).length).toBe(2);
-      await click(within(targets).getByRole("button", { name: new RegExp(`^${action} the target of 4 direct dynamic bouts per calendar week for Biceps brachii`) }));
+      // Said once for the muscle, above its two targets.
+      expect(within(targets).getAllByText(READ_ONLY).length).toBe(1);
+      expect(within(targets).queryByRole("button", { name: /for Biceps brachii/ })).toBeNull();
       await click(within(targets).getByRole("button", { name: new RegExp(`^${action} the target of 4 direct dynamic bouts per calendar week for Anconeus`) }));
+      await click(within(targets).getByRole("button", { name: new RegExp(`^${action} the target of 2 .+ for Anconeus`) }));
       expect(within(targets).getByRole("status").textContent).toBe(action === "End" ? "2 targets ended." : "2 targets removed.");
       await click(within(targets).getByRole("button", { name: "Undo" }));
       expect(alerts()).toEqual([]);
-      expect(stored().sort((left, right) => left.id.localeCompare(right.id))).toEqual([anconeus, biceps]);
+      expect(stored().sort((left, right) => left.id.localeCompare(right.id))).toEqual([anconeus, anconeusHolds, { ...biceps, regionId: "upper_arm" }]);
       expect(within(targets).getByRole("status").textContent).toBe("2 targets restored.");
     });
   }
@@ -170,19 +189,19 @@ describe("a target on a muscle that is not a target here, in Coverage to review"
 
   it("is said last, once per muscle, as one to end or remove, never as a target behind with exercises for it", async () => {
     window.localStorage.setItem("sports-genome-device-workout-history-v1", JSON.stringify(week));
-    saveSpecializationGoals([biceps, anconeus, goal("anc-holds", "forearm.anconeus", { metric: "deliberate_hold_bouts", target: 2 }), goal("fcr", "forearm.fcr", { target: 6 })], null);
+    saveSpecializationGoals([biceps, anconeus, anconeusHolds, goal("fcr", "forearm.fcr", { target: 6 })], null);
     render(createElement(Harness));
     await act(async () => {});
     const more = screen.queryByRole("button", { name: /^Show \d+ more$/ });
     if (more) await click(more);
     // A target on a target muscle leads; the records' findings follow; the targets saved earlier come last, once per muscle.
+    // From wave A the biceps' target is the upper arm's (§2.2), so the forearm's page says only the anconeus'.
     expect(findingTitles()).toEqual([
       "Flexor carpi radialis: 4 of your 6",
       "1 set count for the forearms as a whole only",
-      "Biceps brachii: a target saved earlier",
       "Anconeus: a target saved earlier",
     ]);
-    for (const title of ["Biceps brachii: a target saved earlier", "Anconeus: a target saved earlier"]) {
+    for (const title of ["Anconeus: a target saved earlier"]) {
       expect(findingOf(title).querySelector("p")?.textContent).toBe(READ_ONLY);
       expect(within(findingOf(title)).getByRole("button").textContent?.trim()).toBe("End or remove it");
     }
@@ -205,12 +224,12 @@ describe("a target on a muscle that is not a target here, in Coverage to review"
     expect(sheet.textContent).not.toMatch(/0 of your 4/);
     await click(within(sheet).getByRole("button", { name: /^Close/ }));
     expect(document.querySelector(".spz-strip-goal")?.textContent).toBe("Direct bouts: cannot be counted yet");
-    // The biceps is counted here (the forearm's own rows credit it until the upper arm has a version): its target reads as a count.
+    // The biceps' target is the upper arm's from wave A, read there through its version: the forearm's strip and overview hold none.
     await sheetOf(/^Biceps brachii,/);
     await click(within(screen.getByRole("dialog")).getByRole("button", { name: /^Close/ }));
-    expect(document.querySelector(".spz-strip-goal")?.textContent).toMatch(/^Direct bouts: \d+ of your 4$/);
+    expect(document.querySelector(".spz-strip-goal")).toBeNull();
     const targets = await overview();
     expect(within(targets).getByText(/4 per calendar week · cannot be counted yet/)).toBeTruthy();
-    expect(within(targets).getAllByText(/of your 4/)).toHaveLength(1);
+    expect(within(targets).queryAllByText(/of your 4/)).toHaveLength(0);
   });
 });

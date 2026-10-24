@@ -128,13 +128,6 @@ const plural = (count: number, one: string, many = `${one}s`) => `${count} ${cou
  */
 const REVIEW_STATEMENT = "“Reviewed” means an automated agent checked each sentence against web-search excerpts and generated summaries of the cited sources on the date shown. It was not checked against the full texts, and not by a clinician or anatomist. A second automated review, with the same tools and limits, looked for errors; it is not peer review.";
 const DRAWING_STATEMENT = "The drawings are original schematics checked against these notes, not reviewed by an anatomist.";
-/**
- * Both sides are counted as one (owner, 20 Oct 2026), so "How this is counted" says the region
- * total in place of the published rule's per-side sentence (`specification.regionTotal`, which
- * describes a per-side summary). The rule's `sides` clause is replaced the same way, in the
- * region's words (`sideWordsFor(...).countedTogether`).
- */
-const REGION_TOTAL_TOGETHER = "The region total counts distinct bouts that touched any of its muscles. It is not the sum of the muscle rows.";
 
 type SheetState =
   | { kind: "muscle"; section?: "exercises" | "ledger" }
@@ -1072,15 +1065,18 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       <details ref={methodRef} className="spz-disclosure spz-card" id="spz-method">
         <summary><span><b>How this is counted</b><small>{rule.id} · {data.mappingVersion.key}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
         <div className="spz-method">
-          {/* The published rule's own text (rules.ts), the same on every region and never edited once
-              published, but for its two per-side sentences: both sides are counted as one (owner,
-              20 Oct 2026), so the page says that in their place, in the region's words. */}
+          {/* The current published rule's own text (rules.ts, v2 from wave A), the same on every region
+              and never edited once published. Its `sides` clause is said in the region's own words
+              (`countedTogether`: "Both arms count together…"); its straps clause only where a mapping
+              here needs a bare hand; its clause on another region's muscles only where this page
+              credits one (10-multi-region.md §4.3). */}
           <div className="spz-rule-text" data-rule={rule.id}>
             <p>{rule.specification.bout} {rule.specification.dropSet}</p>
             <p>{rule.specification.perNodeBout} {words.countedTogether}</p>
             <dl className="spz-categories">{(Object.keys(categoryLabels) as ExposureCategory[]).map((category) => <div key={category}><dt>{categoryLabels[category]}</dt><dd>{rule.specification.categories[category]}</dd></div>)}</dl>
             <p>{strapsSensitive ? `${rule.specification.straps} ` : ""}{rule.specification.holds}</p>
-            <p>{rule.specification.unmapped} {REGION_TOTAL_TOGETHER}</p>
+            <p>{rule.specification.unmapped} {rule.specification.regionTotal}</p>
+            {data.externalMappingVersions.length > 0 && rule.specification.externals && <p>{rule.specification.externals}</p>}
             <p><b>Not counted:</b> {rule.specification.excludedFromCompleted.join(" ")}</p>
             <ul className="spz-caveats">{rule.specification.notConverted.map((line) => <li key={line}>{line}</li>)}</ul>
           </div>

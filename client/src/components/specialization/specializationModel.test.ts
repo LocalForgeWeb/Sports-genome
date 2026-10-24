@@ -271,7 +271,9 @@ describe("a movement's own ledger (brief §7: targets attach to a muscle or an a
 
 describe("why an exercise counts (brief §2–§3: mapping-level evidence, told apart)", () => {
   it("finds the mappings behind a credit, each once, skipping ids the region does not have", () => {
-    const [first, second] = forearmRegionData.mappings;
+    // Two of the forearm's own muscles' rows (from wave A the upper arm's rows credit the biceps and brachialis, so the forearm's
+    // own rows for them are behind no credit on its page).
+    const [first, second] = forearmRegionData.mappings.filter((item) => item.nodeId.startsWith("forearm."));
     expect(mappingsBehind(forearmRegionData, [first.id, "nope", second.id, first.id]).map((item) => item.id)).toEqual([first.id, second.id]);
   });
   it("labels inference, anatomy reference and measurement differently", () => {

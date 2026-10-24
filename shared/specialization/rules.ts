@@ -44,6 +44,41 @@ export const exposureRuleV1: RuleVersion = {
 };
 
 /**
+ * The second published rule (10-multi-region.md §4.3), published with wave A, the upper arm, on 23 Oct
+ * 2026: v1 in region-neutral words, with both sides counted as one (appendix "Both sides as one"),
+ * and the clauses several regions need: catalog keys and their tag scope named per region, a set
+ * classified by the page's own muscles, and a muscle of another region credited as its home region
+ * credits it. A superset of v1: every count v1 describes is counted the same way; v1 stays published
+ * and unchanged. The straps clause is shown only on a region that has a mapping it applies to.
+ */
+export const exposureRuleV2: RuleVersion = {
+  id: "specialization_exposure_v2",
+  publishedAt: "2026-10-23",
+  notes: "Second published accounting model: the first in words for every region, with both sides counted as one, catalog keys and tag scope named per region, sets classified by a page's own muscles, and another region's muscles credited as their home region credits them. Raw categories only; no fractional set model.",
+  specification: {
+    bout: exposureRuleV1.specification.bout,
+    dropSet: exposureRuleV1.specification.dropSet,
+    excludedFromCompleted: exposureRuleV1.specification.excludedFromCompleted,
+    categories: exposureRuleV1.specification.categories,
+    perNodeBout: exposureRuleV1.specification.perNodeBout,
+    sides: "Both sides count together: a set counts once for each muscle it credits, whichever side or sides did it, and a set with no side recorded counts like any other.",
+    straps: "A grip mapping that needs a bare hand does not credit a set logged with straps. Unknown straps keep the credit and say so.",
+    holds: exposureRuleV1.specification.holds,
+    unmapped: "Work tagged in the exercise catalog with one of the region's catalog keys, within the region's tag scope, but with no reviewed atlas mapping for any of the region's own muscles, counts only at region level, never as work for a specific muscle. Draft mappings are shown as pending review and not counted. Unknown is never shown as zero.",
+    regionTotal: "The region total counts distinct bouts that touched any of its muscles. It is not the sum of the muscle rows.",
+    notConverted: [
+      "Load × reps is external volume-load, not muscle force.",
+      "Effort that was not recorded stays unknown; it never defaults to failure.",
+      "Incidental work (holding or steadying while something else is trained) is never counted as dynamic work.",
+      "No number here predicts growth, recovery or injury.",
+    ],
+    catalogKeys: "Each region names the catalog muscle keys that make an exercise its work, and whether a secondary tag counts as well as a primary one (its tag scope).",
+    classification: "A set is classified by the region's own muscles: it is mapped when one of them has a mapping for the exercise, region work when none has and the catalog tags it for the region, and otherwise not the region's work.",
+    externals: "A muscle of another region is credited as its home region's current mapping version credits it; where that region has no published version, the listing region's own reviewed rows credit it. Crediting it never moves a set into or out of this region's own totals.",
+  },
+};
+
+/**
  * The category a mapping gives a bout (02-design.md §3). Pure, so the database seed,
  * the calculator and the tests read the same table.
  */
@@ -95,7 +130,7 @@ export function exposureCategoryLabelsFor(wording: Pick<RegionWording, "incident
  * whose regions first use its clauses; each is a superset of the one before. A clause no
  * production region rests on yet waits in `ruleClauses` under the version that will publish it.
  */
-export const publishedExposureRules: readonly RuleVersion[] = [exposureRuleV1];
+export const publishedExposureRules: readonly RuleVersion[] = [exposureRuleV1, exposureRuleV2];
 
 /** The rule every page reads: the latest published one. A summary records its id (`ruleVersion`). */
 export const currentExposureRule: RuleVersion = publishedExposureRules[publishedExposureRules.length - 1];
@@ -103,7 +138,7 @@ export const currentExposureRule: RuleVersion = publishedExposureRules[published
 /** The rule versions 10-multi-region.md §4.3 plans, published or not. */
 export const exposureRuleIds = {
   v1: EXPOSURE_RULE_VERSION,
-  v2: "specialization_exposure_v2",
+  v2: exposureRuleV2.id,
   v3: "specialization_exposure_v3",
   v4: "specialization_exposure_v4",
   v5: "specialization_exposure_v5",
@@ -146,12 +181,11 @@ export type RuleBranch =
 export type RuleClause = { rule: string; clause: string };
 
 const v1 = (clause: keyof ExposureRuleSpec): RuleClause => ({ rule: exposureRuleIds.v1, clause });
+const v2 = (clause: keyof ExposureRuleSpec): RuleClause => ({ rule: exposureRuleIds.v2, clause });
 const draft = (rule: string, clause: string): RuleClause => ({ rule, clause });
 const RELATIONS = "side relations: a mapping's muscle is loaded on the recorded side, the opposite side, or both";
 const MIDLINE = "midline: a midline region counts every bout once and has no sides";
 const LIMB = "the leg limb: a leg's side is the anchor leg's; a limb the exercise does not use gives no side; a planned one-sided set counts once, as done with both sides";
-const BY_HOME = "a muscle of another region is credited as its home region's current mapping version credits it";
-const OWN_MUSCLES = "a bout is classified by the page's own muscles";
 
 /**
  * Each branch and the clause that publishes it. A test maps every branch the calculator takes to an
@@ -177,14 +211,14 @@ export const ruleClauses: Record<RuleBranch, RuleClause> = {
   "plan.leg.one_bout": draft(exposureRuleIds.v5, LIMB),
   "version.own": v1("categories"),
   "version.listing_fallback": v1("categories"),
-  "version.home": draft(exposureRuleIds.v2, BY_HOME),
+  "version.home": v2("externals"),
   "class.mapped": v1("categories"),
   "class.region_only": v1("unmapped"),
-  "class.region_only_external": draft(exposureRuleIds.v2, OWN_MUSCLES),
-  "class.external_only": draft(exposureRuleIds.v2, OWN_MUSCLES),
+  "class.region_only_external": v2("classification"),
+  "class.external_only": v2("classification"),
   "class.unrelated": v1("unmapped"),
   "scope.any": v1("unmapped"),
-  "scope.primary": draft(exposureRuleIds.v2, "catalog keys and their tag scope named per region"),
+  "scope.primary": v2("catalogKeys"),
 };
 
 /** Of the branches given, those whose clause no published rule holds, in order. */

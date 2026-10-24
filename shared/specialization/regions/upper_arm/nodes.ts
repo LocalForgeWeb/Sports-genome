@@ -1,33 +1,98 @@
 import type { AnatomyNode } from "../../types";
-import { UPPER_ARM_REGION_ID, upperArmMuscleIds } from "./ids";
+import { upperArmAdjacentIds, upperArmGroupIds, upperArmMuscleIds as m } from "./ids";
+import { NEIGHBOURS, upperArm, upperArmElbowFlexorNodes } from "./elbowFlexorNodes";
 
 /**
- * The upper arm's nodes. The biceps and brachialis shipped with the forearm atlas (seed v1) and
- * are frozen there: their ids, region, catalog key and the stored role `external` stay as they
- * are for good (docs/specialization-atlas/10-multi-region.md §1.3). Here they are what they are
- * in their home region, targets, and `storedRole` keeps the value the database holds.
+ * The upper arm's anatomy nodes (docs/specialization-atlas/10-multi-region.md §1.2): ids, names,
+ * short names, kinds, roles, layers and parents as §1.2 fixes them. The descriptive fields come from
+ * the upper arm's evidence review of 19 Oct 2026 (docs/specialization-atlas/regions/upper_arm/
+ * anatomy-evidence.md), and every claim behind them is in claims.ts.
  *
- * Their text is the forearm review's, moved unchanged. The sentences that speak from the
- * forearm's page ("does not add forearm size", "not a forearm target") become caveats of the
- * forearm's membership of them when the upper arm is promoted, and the nodes keep neutral text.
+ * The biceps and brachialis shipped with the forearm atlas (seed v1) and are frozen there: their
+ * ids, region, catalog key and the stored role `external` stay as they are for good (§1.3). Here
+ * they are what they are in their home region, targets, and `storedRole` keeps the value the
+ * database holds. Their text is neutral anatomy: the sentences that spoke from the forearm's page
+ * ("does not add forearm size", "not a forearm target") are the forearm's membership caveats
+ * (regions/forearm/members.ts), said only there.
+ *
+ * `databaseMuscle` is the `public.muscles.canonical_name` a node refines: the biceps' and
+ * brachialis' as shipped, and the three triceps heads' as the app names them (shared/
+ * capabilityRank.ts). The triceps parent and the coracobrachialis refine none.
+ *
+ * The triceps is a parent (kind `muscle`, role `group`): neither drawn nor selectable, its layer
+ * "—" in §1.2, written `mixed` as the forearm's groups are. Its three heads are the targets.
+ *
+ * How the copy is written (brief §3, §6; 10-multi-region.md §8):
+ * - Directions are anatomical: front and back, inner and outer, toward the shoulder or the elbow.
+ *   Never screen-left or screen-right: the drawing shows one arm.
+ * - `whatItDoes` is the physical action only. `shapeNote` is a separate, qualified inference from
+ *   location and depth ("may contribute to"), never a forecast of growth, and says that visible
+ *   shape also depends on neighbouring muscles, body fat and individual anatomy.
+ * - Deep muscles say plainly that they have little or no contour of their own.
+ * - A node is `reviewed` only when every function claim behind it was reviewed, the forearm's
+ *   shipped claims on the biceps and brachialis included (client/src/lib/specialization/
+ *   regionContent.test.ts).
  */
 export const upperArmNodes: AnatomyNode[] = [
-  {
-    id: upperArmMuscleIds.biceps, regionId: UPPER_ARM_REGION_ID, parentId: null, kind: "muscle", role: "target", storedRole: "external",
-    name: "Biceps brachii", shortName: "Biceps", aliases: ["biceps"],
-    layer: "surface", surfaceVisibility: "clear", status: "reviewed", catalogMuscleKey: "biceps", databaseMuscle: "biceps_brachii", border: null,
-    location: "Front of the upper arm, crossing the elbow to the radius.",
-    whatItDoes: "Bends your elbow and turns your palm up; with the elbow bent it is the strongest palm-up muscle.",
-    shapeNote: "Shapes the front of the upper arm. It is an upper-arm muscle and does not add forearm size.",
-    caveats: ["Shown only as another muscle that curls and palm-up turning load; not a forearm target."],
-  },
-  {
-    id: upperArmMuscleIds.brachialis, regionId: UPPER_ARM_REGION_ID, parentId: null, kind: "muscle", role: "target", storedRole: "external",
-    name: "Brachialis", shortName: "Brachialis", aliases: ["brachialis"],
-    layer: "deep", surfaceVisibility: "partial", status: "reviewed", catalogMuscleKey: "brachialis", databaseMuscle: "brachialis", border: null,
-    location: "Front of the lower upper arm, under the biceps, crossing the elbow to the ulna.",
-    whatItDoes: "Bends your elbow, whichever way the palm faces. It does not turn the forearm.",
-    shapeNote: "Mostly covered by the biceps; may show at the sides of the lower upper arm. It is not a forearm muscle.",
-    caveats: ["Shown only as another muscle that curls load; not a forearm target."],
-  },
+  // The biceps and brachialis (elbowFlexorNodes.ts).
+  ...upperArmElbowFlexorNodes,
+
+  upperArm({
+    id: upperArmGroupIds.triceps, parentId: null, kind: "muscle", role: "group",
+    name: "Triceps brachii", shortName: "Triceps", aliases: ["triceps"],
+    layer: "mixed", surfaceVisibility: "partial", catalogMuscleKey: "triceps", databaseMuscle: null,
+    status: "reviewed",
+    location: "Back of the upper arm, from the shoulder blade and the upper-arm bone to the point of the elbow.",
+    whatItDoes: "Straightens your elbow. Its long head also helps move the arm down and back at the shoulder.",
+    shapeNote: `May make up most of the back-of-arm contour, mostly through its long and lateral heads at the surface. ${NEIGHBOURS}`,
+    caveats: ["A muscle with three heads, not a target itself: work is counted for the heads inside it."],
+  }),
+  upperArm({
+    id: m.tricepsLong, parentId: upperArmGroupIds.triceps, kind: "head", role: "target",
+    name: "Triceps, long head", shortName: "TriLong", aliases: ["long head of triceps", "triceps long head"],
+    layer: "surface", surfaceVisibility: "partial", catalogMuscleKey: "triceps", databaseMuscle: "triceps_brachii_long_head",
+    status: "reviewed",
+    location: "Back of the upper arm, from the shoulder blade just below the shoulder joint to the common tendon at the point of the elbow; one of the two heads at the surface, from below the shoulder toward the elbow.",
+    whatItDoes:
+      "Straightens your elbow with the other two heads. It is the only head that crosses the shoulder, where it helps move the arm down and back (some references add toward the body) and helps hold the top of the upper-arm bone in its socket (references differ on the arm position in which it does).",
+    shapeNote: `May contribute to the back-of-arm contour from below the shoulder toward the elbow, as one of the two surface heads. ${NEIGHBOURS}`,
+    caveats: [
+      "Its actions at the shoulder are small next to its work at the elbow.",
+      "One short-term study found that its share of the work changes with arm position; that is activity and modelled force, not growth, and it is not used to weight credit.",
+    ],
+  }),
+  upperArm({
+    id: m.tricepsLateral, parentId: upperArmGroupIds.triceps, kind: "head", role: "target",
+    name: "Triceps, lateral head", shortName: "TriLat", aliases: ["lateral head of triceps", "triceps lateral head"],
+    layer: "surface", surfaceVisibility: "partial", catalogMuscleKey: "triceps", databaseMuscle: "triceps_brachii_lateral_head",
+    status: "reviewed",
+    location: "Back of the upper arm on the outer side, at the surface, from the upper half of the upper-arm bone to the common tendon at the point of the elbow.",
+    whatItDoes: "Straightens your elbow. It does not cross the shoulder.",
+    shapeNote: `May contribute to the outer part of the back-of-arm contour, as one of the two surface heads. ${NEIGHBOURS}`,
+    caveats: ["It shares every action with the medial head, so their work is counted together and not split between them."],
+  }),
+  upperArm({
+    id: m.tricepsMedial, parentId: upperArmGroupIds.triceps, kind: "head", role: "target",
+    name: "Triceps, medial head", shortName: "TriMed", aliases: ["medial head of triceps", "triceps medial head"],
+    layer: "deep", surfaceVisibility: "partial", catalogMuscleKey: "triceps", databaseMuscle: "triceps_brachii_medial_head",
+    status: "reviewed",
+    location: "Back of the upper arm, deep layer, on the lower half of the upper-arm bone under the long and lateral heads; its lower part reaches closer to the elbow than theirs.",
+    whatItDoes: "Straightens your elbow. It does not cross the shoulder. Some of its deepest fibres attach to the back of the elbow joint's capsule; what they do there is debated.",
+    shapeNote: `Mostly covered by the long and lateral heads, so it has little or no contour of its own. ${NEIGHBOURS}`,
+    caveats: [
+      "It shares every action with the lateral head, so their work is counted together and not split between them.",
+      "Whether any of it shows at the surface just above the elbow was not confirmed; one anatomy reference says it cannot be felt.",
+    ],
+  }),
+
+  upperArm({
+    id: upperArmAdjacentIds.coracobrachialis, parentId: null, kind: "muscle", role: "adjacent",
+    name: "Coracobrachialis", shortName: "CB", aliases: ["coracobrachialis"],
+    layer: "deep", surfaceVisibility: "not_distinct", catalogMuscleKey: null, databaseMuscle: null,
+    status: "reviewed",
+    location: "Inner side of the upper part of the upper arm, from the front of the shoulder blade to about halfway down the upper-arm bone; behind the chest muscle near the shoulder and on the inner side of the biceps below it.",
+    whatItDoes: "Raises your arm forward at the shoulder and helps draw it in toward your body.",
+    shapeNote: `Slender and mostly hidden near the shoulder, so it has little or no contour of its own. It can be felt in the armpit. ${NEIGHBOURS}`,
+    caveats: ["Shown beside the upper-arm muscles because of where it sits; upper-arm specialization does not target it."],
+  }),
 ];

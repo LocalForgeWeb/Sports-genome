@@ -1,5 +1,6 @@
 import type { ExerciseVariant, VariantId, VariantMapping } from "../types";
 import { forearmV1Variants } from "./forearm";
+import { upperArmVariants } from "./upperArm";
 
 /**
  * The shared variant library (docs/specialization-atlas/10-multi-region.md §3): one variant per
@@ -10,7 +11,7 @@ import { forearmV1Variants } from "./forearm";
  * `replaces: "cat-<id>"`) only in a release that also publishes a new mapping version for every
  * region whose current version maps the old key; the old record stays here, behind the link.
  */
-export const variantLibrary: readonly ExerciseVariant[] = [...forearmV1Variants];
+export const variantLibrary: readonly ExerciseVariant[] = [...forearmV1Variants, ...upperArmVariants];
 
 export const variantById: ReadonlyMap<VariantId, ExerciseVariant> = new Map(variantLibrary.map((variant) => [variant.id, variant]));
 

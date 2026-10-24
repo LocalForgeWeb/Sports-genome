@@ -2,9 +2,14 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { exercises } from "@/lib/exerciseCatalog";
+import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { regionDataFor } from "@shared/specialization/registry";
-import type { Contribution, RegionBoutRow, SpecializationSummary } from "@shared/specialization/types";
+import { calendarWeekInterval } from "@shared/specialization/time";
+import type { Contribution, ExposureBout, RegionBoutRow, SpecializationSummary } from "@shared/specialization/types";
+import { catalogMusclesLookup } from "./useSpecializationSummary";
 import { canonicalJson, goldenSummaries, summaryTotals } from "./__fixtures__/releaseGateHistories";
+import { expectOnlyTwoHandedMoves, expectOnlyUpperArmCredit, libraryOnlyInputs, twoHandedNew, waveZeroInputs, type UpperArmCredit } from "./__fixtures__/goldenWaveA";
 
 /**
  * The forearm's golden test (docs/specialization-atlas/10-multi-region.md §4.3): the release-gate
@@ -27,7 +32,20 @@ import { canonicalJson, goldenSummaries, summaryTotals } from "./__fixtures__/re
  *    (`expectListedOnly`). No set tags the forearm as a secondary muscle outside its tag scope,
  *    since the forearm reads every tag;
  * 4. the ledger note "Each side assumed" on a planned row assumed on both arms, which no row says
- *    now (`withAssumedNote`): the day templates plan three one-arm exercises.
+ *    now (`withAssumedNote`): the day templates plan three one-arm exercises;
+ *
+ * and wave A's (23 Oct 2026; §4.3 and §11 decision 11(b), (c)), taken apart in
+ * __fixtures__/goldenWaveA.ts: each case is computed with wave 0's inputs, which must give the
+ * reference exactly (1-4 aside), then with the library records wave A brings, then as the tree
+ * computes it, and each step may differ from the one before only as stated:
+ * 5. the rule version: v2;
+ * 6. the biceps' and brachialis' rows, and the biceps' targets, credited by the upper arm's version,
+ *    each set gained or lost explained by the two versions' rows (pulls and face pulls gained);
+ * 7. 406 Lever Supination: the biceps' row there is the upper arm's individual row, the same
+ *    category; the supinator's shared row is as it was (the lanes expected it to lose the biceps as
+ *    its partner, but the two were never partners: they differ in category);
+ * 8. region-only sets of a forearm-tagged exercise whose new variant is two-handed move from "no
+ *    arm recorded" to both arms (in these histories, 24 Dumbbell Pullover in the edge week).
  *
  * Nothing else may differ: not a count, a row, a note, a side, an order or the rule version.
  * The reference (__fixtures__/goldenSummaries.6738eeb.json) is written by
@@ -141,9 +159,14 @@ function normalised(summary: SpecializationSummary, seen: Seen): SpecializationS
 }
 
 describe("the forearm's golden summaries, against the code it shipped with (6738eeb)", () => {
-  const computed = goldenSummaries();
+  // Wave 0's inputs: the reference must come back exactly (allowed differences 1-4 aside).
+  const computed = goldenSummaries(["left", "right"], waveZeroInputs);
   const byId = new Map(computed.map((item) => [item.id, item.summary] as const));
+  const libraryOnly = new Map(goldenSummaries(["left", "right"], libraryOnlyInputs).map((item) => [item.id, item.summary] as const));
+  const actual = new Map(goldenSummaries().map((item) => [item.id, item.summary] as const));
   const seen = new Map<string, Seen>();
+  const moved = new Map<string, string[]>();
+  const credit: UpperArmCredit = { gained: new Map(), lost: new Map(), partnerDropped: 0 };
 
   it("computes every case the reference holds, in the same order", () => {
     expect(reference.from).toBe("6738eeb");
@@ -159,7 +182,52 @@ describe("the forearm's golden summaries, against the code it shipped with (6738
       else expect(summaryTotals(summary)).toEqual(expected.totals);
       expect(createHash("sha256").update(canonicalJson(summary)).digest("hex")).toBe(expected.sha256);
     });
+    it(`${expected.id}: wave A differs from wave 0 only as allowed (5-8)`, () => {
+      const steps = expectOnlyTwoHandedMoves(byId.get(expected.id)!, libraryOnly.get(expected.id)!);
+      if (steps.length) moved.set(expected.id, steps);
+      expectOnlyUpperArmCredit(libraryOnly.get(expected.id)!, actual.get(expected.id)!, credit);
+    });
   }
+
+  it("found wave A's differences where they belong, and prints the release's generated list (§4.3)", () => {
+    // The release's list: the forearm-tagged exercises whose variant arrives in wave A and is two-handed.
+    const list = twoHandedNew.map((variant) => `${variant.catalogExerciseId} ${variant.catalogName}`);
+    console.log(`Wave A, region-only sets that move from "no arm recorded" to both arms: ${list.join("; ")}`);
+    console.log(`Golden cases where they did: ${Array.from(moved).map(([id, bouts]) => `${id} (${bouts.join(", ")})`).join("; ")}`);
+    const changes = (map: Map<string, Set<number>>) => Array.from(map).map(([node, ids]) => `${node}: ${Array.from(ids).sort((a, b) => a - b).join(", ")}`).join("; ");
+    console.log(`Credited by the upper arm, gained: ${changes(credit.gained)}; lost: ${changes(credit.lost) || "none"}; 406's shared partner dropped on ${credit.partnerDropped} rows`);
+    // 24 Dumbbell Pullover: the edge week's set with no arm recorded (x10a; x10b was logged Right), in each window, on each arm (§11 decision 11(c)).
+    expect(Array.from(moved.keys())).toEqual(["calendar-week", "rolling-7d", "custom-year"].flatMap((window) => ["left", "right"].map((side) => `completed/edge-week/${window}/${side}`)));
+    expect(Array.from(new Set(Array.from(moved.values()).flat()))).toEqual(["x10a"]);
+    expect(twoHandedNew.map((variant) => variant.catalogExerciseId)).toContain(24);
+    // Curl credit is unchanged: nothing is lost; the upper arm adds the rows and pulldowns (43, 45, 46, 66 in these histories).
+    expect(credit.lost.size).toBe(0);
+    expect(Array.from(credit.gained.keys()).sort()).toEqual(["upper_arm.biceps", "upper_arm.brachialis"]);
+    // Allowed difference 6 names the exact sets gained; hold them, not just print them.
+    for (const node of ["upper_arm.biceps", "upper_arm.brachialis"]) {
+      expect(Array.from(credit.gained.get(node)!).sort((a, b) => a - b), node).toEqual([43, 45, 46, 66]);
+    }
+  });
+
+  it("credits the biceps on 406 Lever Supination by the upper arm's individual row, and leaves the supinator's row as it was (allowed difference 7)", () => {
+    // No golden history logs 406, so one set of it, computed both ways. The forearm's v1 rows there were both `shared`, but
+    // never partners: the supinator's is direct, the biceps' contributing, and partners share a category (exposure.ts).
+    const set: ExposureBout = {
+      id: "s406", mode: "completed", performedAt: "2026-10-14T18:00:00.000Z", sessionId: "s", sessionLabel: "Day", planWeek: null, dayKey: null, exerciseEntryId: "e", catalogExerciseId: 406,
+      exerciseName: "Lever Supination", matchedBy: "id", armSide: { side: "right", source: "recorded" }, legSide: null, straps: "unknown", warmup: false, effort: null, kind: "standard", segments: [{ id: "s406", reps: 12, loadKg: null, holdSeconds: null }],
+    };
+    const request = { bouts: [set], interval: calendarWeekInterval("2026-10-16T12:00:00.000Z", "Europe/London"), side: "both" as const, mode: "completed" as const, goals: [], catalogMusclesFor: catalogMusclesLookup(exercises), sourceRevision: "", planRevision: null, now: "2026-10-16T12:00:00.000Z" };
+    const before = getSpecializationSummary({ ...request, region: libraryOnlyInputs.region!, rule: libraryOnlyInputs.rule });
+    const now = getSpecializationSummary({ ...request, region: regionDataFor("forearm")! });
+    const rows = (summary: SpecializationSummary, nodeId: string) => summary.nodes.find((node) => node.nodeId === nodeId)!.contributions.map((item) => [item.parts.map((part) => [part.mappingId, part.category]), item.sharedWith]);
+    expect(rows(before, "forearm.supinator")).toEqual([[[["cat-406:forearm.supinator", "direct_dynamic"]], []]]);
+    expect(rows(now, "forearm.supinator")).toEqual(rows(before, "forearm.supinator"));
+    expect(rows(before, "upper_arm.biceps")).toEqual([[[["cat-406:upper_arm.biceps", "contributing_dynamic"]], []]]);
+    expect(rows(now, "upper_arm.biceps")).toEqual([[[["upper_arm_mappings_v1/cat-406:upper_arm.biceps", "contributing_dynamic"]], []]]);
+    const credit: UpperArmCredit = { gained: new Map(), lost: new Map(), partnerDropped: 0 };
+    expectOnlyUpperArmCredit(before, now, credit);
+    expect(credit.partnerDropped).toBe(0);
+  });
 
   it("found the allowed differences where they belong, and only there", () => {
     const split = Array.from(seen).filter(([, counts]) => counts.splitIds > 0).map(([id]) => id);

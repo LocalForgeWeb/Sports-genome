@@ -72,6 +72,10 @@ export const stubMuscles = [
   { name: "Forearm extensors", canonical_name: "forearm_extensors" },
   { name: "Biceps brachii", canonical_name: "biceps_brachii" },
   { name: "Brachialis", canonical_name: "brachialis" },
+  // The upper arm's triceps heads (wave A), as production holds them (read-only check, 22 Oct 2026).
+  { name: "Triceps brachii — long head", canonical_name: "triceps_brachii_long_head" },
+  { name: "Triceps brachii — lateral head", canonical_name: "triceps_brachii_lateral_head" },
+  { name: "Triceps brachii — medial head", canonical_name: "triceps_brachii_medial_head" },
 ] as const;
 
 /** Rows of public.exercises: matched by catalog id, by the canonical-name suffix only, and not at all. */

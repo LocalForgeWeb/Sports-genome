@@ -121,7 +121,7 @@ describe("Training Day analysis, Sep 30 brief §7", () => {
   it("keeps the overhead press once for anterior deltoid, as a prime mover, in Where this comes from", () => {
     renderPage();
     fireEvent.click(screen.getByRole("button", { name: /^Anterior deltoid, Primary target/ }));
-    expect(summaryText()).toBe("Inspect Anterior deltoid99% of Triceps brachii's involvement, the day's highest");
+    expect(summaryText()).toBe("Inspect Anterior deltoid79% of Triceps brachii's involvement, the day's highest");
     const rows = Array.from(inspect().querySelectorAll(".stack-analysis-contributions article"), (row) => row.textContent);
     expect(rows.filter((text) => text?.includes("Barbell Overhead Press"))).toHaveLength(1);
     expect(rows.find((text) => text?.includes("Barbell Overhead Press"))).toContain("Prime mover");
@@ -134,14 +134,15 @@ describe("Training Day analysis, Sep 30 brief §7", () => {
     const workload = section("Workload");
     const frontDelts = within(workload).getByLabelText(/^Anterior deltoid:/);
     expect(frontDelts.textContent).toContain("3 direct");
-    expect(frontDelts.textContent).toContain("+ 9 supporting sets (counted as 4.5)");
+    // The bench and machine presses' 6; the pushdown no longer tags the front delts (wave A catalog fix).
+    expect(frontDelts.textContent).toContain("+ 6 supporting sets (counted as 3)");
     const chest = within(workload).getByLabelText(/^Pectoralis major:/);
     expect(chest.textContent).toContain("6 direct");
     expect(chest.querySelector(".session-volume-supporting")).toBeNull();
     // One scale: the widest bar is 3 direct + 4.5 counted supporting = 7.5 sets.
     expect(workload.textContent).toContain("Every bar is on one scale, 0 to 7.5 sets.");
     const width = (row: HTMLElement, part: string) => (row.querySelector(`.session-volume-${part}`) as HTMLElement).style.width;
-    expect([width(frontDelts, "direct"), width(frontDelts, "support")]).toEqual(["40%", "60%"]);
+    expect([width(frontDelts, "direct"), width(frontDelts, "support")]).toEqual(["40%", "40%"]);
     expect([width(chest, "direct"), width(chest, "support")]).toEqual(["80%", "0%"]);
   });
 

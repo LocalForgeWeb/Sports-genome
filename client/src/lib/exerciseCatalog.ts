@@ -572,7 +572,7 @@ export const baseExercises: Exercise[] = [
     "name": "Plate-Loaded Chest Press",
     "sourceGroup": "Chest — Free Weights, Machines & Cables",
     "category": "Chest & push",
-    "equipment": "Free weights",
+    "equipment": "Machine",
     "movement": "Horizontal push",
     "primaryMuscles": [
       "chest"
@@ -798,7 +798,6 @@ export const baseExercises: Exercise[] = [
       "chest"
     ],
     "secondaryMuscles": [
-      "triceps",
       "frontDelts"
     ],
     "qualities": [
@@ -841,7 +840,6 @@ export const baseExercises: Exercise[] = [
       "chest"
     ],
     "secondaryMuscles": [
-      "triceps",
       "frontDelts"
     ],
     "qualities": [
@@ -884,7 +882,6 @@ export const baseExercises: Exercise[] = [
       "chest"
     ],
     "secondaryMuscles": [
-      "triceps",
       "frontDelts"
     ],
     "qualities": [
@@ -927,7 +924,6 @@ export const baseExercises: Exercise[] = [
       "chest"
     ],
     "secondaryMuscles": [
-      "triceps",
       "frontDelts"
     ],
     "qualities": [
@@ -970,7 +966,6 @@ export const baseExercises: Exercise[] = [
       "chest"
     ],
     "secondaryMuscles": [
-      "triceps",
       "frontDelts"
     ],
     "qualities": [
@@ -1013,7 +1008,6 @@ export const baseExercises: Exercise[] = [
       "chest"
     ],
     "secondaryMuscles": [
-      "triceps",
       "frontDelts"
     ],
     "qualities": [
@@ -1057,7 +1051,7 @@ export const baseExercises: Exercise[] = [
       "upperBack"
     ],
     "secondaryMuscles": [
-      "biceps",
+      "triceps",
       "rearDelts",
       "forearms"
     ],
@@ -1770,7 +1764,7 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Chest / Triceps Calisthenics",
     "category": "Chest & push",
     "equipment": "Bodyweight",
-    "movement": "Horizontal push",
+    "movement": "Vertical push",
     "primaryMuscles": [
       "chest"
     ],
@@ -2789,7 +2783,7 @@ export const baseExercises: Exercise[] = [
       "upperBack"
     ],
     "secondaryMuscles": [
-      "biceps",
+      "triceps",
       "rearDelts",
       "forearms"
     ],
@@ -2835,7 +2829,7 @@ export const baseExercises: Exercise[] = [
       "upperBack"
     ],
     "secondaryMuscles": [
-      "biceps",
+      "triceps",
       "rearDelts",
       "forearms"
     ],
@@ -2881,7 +2875,7 @@ export const baseExercises: Exercise[] = [
       "upperBack"
     ],
     "secondaryMuscles": [
-      "biceps",
+      "triceps",
       "rearDelts",
       "forearms"
     ],
@@ -2927,7 +2921,7 @@ export const baseExercises: Exercise[] = [
       "upperBack"
     ],
     "secondaryMuscles": [
-      "biceps",
+      "triceps",
       "rearDelts",
       "forearms"
     ],
@@ -3341,7 +3335,8 @@ export const baseExercises: Exercise[] = [
     ],
     "secondaryMuscles": [
       "obliques",
-      "hipFlexors"
+      "hipFlexors",
+      "biceps"
     ],
     "qualities": [
       "strength",
@@ -3569,7 +3564,6 @@ export const baseExercises: Exercise[] = [
       "upperBack"
     ],
     "secondaryMuscles": [
-      "biceps",
       "rearDelts",
       "forearms"
     ],
@@ -3912,7 +3906,7 @@ export const baseExercises: Exercise[] = [
     "name": "Face Pull",
     "sourceGroup": "Rear Delts, Traps & Scapular Muscles",
     "category": "Scapular control",
-    "equipment": "Free weights",
+    "equipment": "Cable",
     "movement": "Scapular control",
     "primaryMuscles": [
       "rearDelts",
@@ -3956,7 +3950,7 @@ export const baseExercises: Exercise[] = [
     "name": "Rope Face Pull with External Rotation",
     "sourceGroup": "Rear Delts, Traps & Scapular Muscles",
     "category": "Scapular control",
-    "equipment": "Free weights",
+    "equipment": "Cable",
     "movement": "Scapular control",
     "primaryMuscles": [
       "rearDelts",
@@ -4708,10 +4702,11 @@ export const baseExercises: Exercise[] = [
     "name": "Arnold Press",
     "sourceGroup": "Shoulders",
     "category": "Shoulders",
-    "equipment": "Free weights",
-    "movement": "Horizontal push",
+    "equipment": "Dumbbells",
+    "movement": "Vertical push",
     "primaryMuscles": [
-      "chest"
+      "frontDelts",
+      "sideDelts"
     ],
     "secondaryMuscles": [
       "triceps",
@@ -4932,10 +4927,11 @@ export const baseExercises: Exercise[] = [
     "name": "Push Press",
     "sourceGroup": "Shoulders",
     "category": "Shoulders",
-    "equipment": "Free weights",
-    "movement": "Horizontal push",
+    "equipment": "Barbell",
+    "movement": "Vertical push",
     "primaryMuscles": [
-      "chest"
+      "frontDelts",
+      "sideDelts"
     ],
     "secondaryMuscles": [
       "triceps",
@@ -6453,7 +6449,7 @@ export const baseExercises: Exercise[] = [
     "name": "Close-Grip Bench Press",
     "sourceGroup": "Triceps",
     "category": "Arms & push",
-    "equipment": "Free weights",
+    "equipment": "Barbell",
     "movement": "Horizontal push",
     "primaryMuscles": [
       "chest"
@@ -6496,13 +6492,13 @@ export const baseExercises: Exercise[] = [
     "name": "JM Press",
     "sourceGroup": "Triceps",
     "category": "Arms & push",
-    "equipment": "Free weights",
+    "equipment": "Barbell",
     "movement": "Horizontal push",
     "primaryMuscles": [
-      "chest"
+      "triceps"
     ],
     "secondaryMuscles": [
-      "triceps",
+      "chest",
       "frontDelts",
       "abs"
     ],
@@ -6626,9 +6622,7 @@ export const baseExercises: Exercise[] = [
     "primaryMuscles": [
       "triceps"
     ],
-    "secondaryMuscles": [
-      "frontDelts"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
       "hypertrophy",
       "strength"
@@ -6662,14 +6656,12 @@ export const baseExercises: Exercise[] = [
     "name": "Rope Triceps Pushdown",
     "sourceGroup": "Triceps",
     "category": "Arms & push",
-    "equipment": "Free weights",
+    "equipment": "Cable",
     "movement": "Elbow extension",
     "primaryMuscles": [
       "triceps"
     ],
-    "secondaryMuscles": [
-      "frontDelts"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
       "hypertrophy",
       "strength"
@@ -6703,14 +6695,12 @@ export const baseExercises: Exercise[] = [
     "name": "Reverse-Grip Pushdown",
     "sourceGroup": "Triceps",
     "category": "Arms & push",
-    "equipment": "Free weights",
+    "equipment": "Cable",
     "movement": "Elbow extension",
     "primaryMuscles": [
       "triceps"
     ],
-    "secondaryMuscles": [
-      "frontDelts"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
       "hypertrophy",
       "strength"
@@ -6749,9 +6739,7 @@ export const baseExercises: Exercise[] = [
     "primaryMuscles": [
       "triceps"
     ],
-    "secondaryMuscles": [
-      "frontDelts"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
       "hypertrophy",
       "strength"
@@ -6950,12 +6938,12 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Triceps",
     "category": "Arms & push",
     "equipment": "Bodyweight",
-    "movement": "Horizontal push",
+    "movement": "Vertical push",
     "primaryMuscles": [
-      "chest"
+      "triceps"
     ],
     "secondaryMuscles": [
-      "triceps",
+      "chest",
       "frontDelts",
       "abs"
     ],
@@ -6993,7 +6981,7 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Triceps",
     "category": "Arms & push",
     "equipment": "Bodyweight",
-    "movement": "Horizontal push",
+    "movement": "Vertical push",
     "primaryMuscles": [
       "chest"
     ],
@@ -7035,7 +7023,7 @@ export const baseExercises: Exercise[] = [
     "name": "Bodyweight Triceps Extension",
     "sourceGroup": "Triceps",
     "category": "Arms & push",
-    "equipment": "Free weights",
+    "equipment": "Bodyweight",
     "movement": "Elbow extension",
     "primaryMuscles": [
       "triceps"
@@ -9884,15 +9872,13 @@ export const baseExercises: Exercise[] = [
     "name": "Leg-Press Calf Raise",
     "sourceGroup": "Calves, Tibialis & Lower Leg",
     "category": "Lower leg",
-    "equipment": "Free weights",
-    "movement": "Horizontal push",
+    "equipment": "Machine",
+    "movement": "Ankle plantarflexion",
     "primaryMuscles": [
-      "chest"
+      "calves"
     ],
     "secondaryMuscles": [
-      "triceps",
-      "frontDelts",
-      "abs"
+      "feet"
     ],
     "qualities": [
       "hypertrophy",
@@ -11016,15 +11002,16 @@ export const baseExercises: Exercise[] = [
     "name": "Pallof Press",
     "sourceGroup": "Abs & Core",
     "category": "Core",
-    "equipment": "Free weights",
+    "equipment": "Cable",
     "movement": "Horizontal push",
     "primaryMuscles": [
-      "chest"
+      "abs",
+      "obliques"
     ],
     "secondaryMuscles": [
+      "chest",
       "triceps",
-      "frontDelts",
-      "abs"
+      "frontDelts"
     ],
     "qualities": [
       "strength",
@@ -11109,13 +11096,13 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Landmine Exercises",
     "category": "Landmine",
     "equipment": "Landmine",
-    "movement": "Horizontal push",
+    "movement": "Diagonal push",
     "primaryMuscles": [
+      "frontDelts",
       "chest"
     ],
     "secondaryMuscles": [
       "triceps",
-      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -11155,13 +11142,13 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Landmine Exercises",
     "category": "Landmine",
     "equipment": "Landmine",
-    "movement": "Horizontal push",
+    "movement": "Diagonal push",
     "primaryMuscles": [
+      "frontDelts",
       "chest"
     ],
     "secondaryMuscles": [
       "triceps",
-      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -11201,13 +11188,13 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Landmine Exercises",
     "category": "Landmine",
     "equipment": "Landmine",
-    "movement": "Horizontal push",
+    "movement": "Diagonal push",
     "primaryMuscles": [
+      "frontDelts",
       "chest"
     ],
     "secondaryMuscles": [
       "triceps",
-      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -11247,13 +11234,13 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Landmine Exercises",
     "category": "Landmine",
     "equipment": "Landmine",
-    "movement": "Horizontal push",
+    "movement": "Diagonal push",
     "primaryMuscles": [
+      "frontDelts",
       "chest"
     ],
     "secondaryMuscles": [
       "triceps",
-      "frontDelts",
       "abs"
     ],
     "qualities": [
@@ -11293,14 +11280,17 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Landmine Exercises",
     "category": "Landmine",
     "equipment": "Landmine",
-    "movement": "Horizontal push",
+    "movement": "Diagonal press, pull, squat or rotation",
     "primaryMuscles": [
-      "chest"
+      "shoulders",
+      "chest",
+      "glutes"
     ],
     "secondaryMuscles": [
       "triceps",
-      "frontDelts",
-      "abs"
+      "upperBack",
+      "obliques",
+      "quads"
     ],
     "qualities": [
       "strength",
@@ -12419,7 +12409,7 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Medicine-Ball Power & Rotation",
     "category": "Medicine ball",
     "equipment": "Medicine ball",
-    "movement": "Horizontal pull",
+    "movement": "Throw, slam or ballistic rotation",
     "primaryMuscles": [
       "lats",
       "upperBack"
@@ -12465,13 +12455,13 @@ export const baseExercises: Exercise[] = [
     "sourceGroup": "Medicine-Ball Power & Rotation",
     "category": "Medicine ball",
     "equipment": "Medicine ball",
-    "movement": "Horizontal pull",
+    "movement": "Throw, slam or ballistic rotation",
     "primaryMuscles": [
       "lats",
       "upperBack"
     ],
     "secondaryMuscles": [
-      "biceps",
+      "triceps",
       "rearDelts",
       "forearms"
     ],

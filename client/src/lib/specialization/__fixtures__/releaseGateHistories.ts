@@ -8,7 +8,7 @@ import { catalogMusclesLookup } from "@/lib/specialization/useSpecializationSumm
 import { getSpecializationSummary } from "@shared/specialization/exposure";
 import { regionDataFor } from "@shared/specialization/registry";
 import { calendarWeekInterval, customInterval, planWeekInterval, rolling7dInterval } from "@shared/specialization/time";
-import type { ExerciseVariant, ExposureBout, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummaryInterval } from "@shared/specialization/types";
+import type { ExerciseVariant, ExposureBout, RuleVersion, SpecializationGoal, SpecializationRegionData, SpecializationSummary, SummaryInterval } from "@shared/specialization/types";
 
 /**
  * The forearm's golden histories (10-multi-region.md §4.3): the workout histories and plans the
@@ -160,6 +160,14 @@ const plans = [
 
 export type GoldenCase = { id: string; summary: SpecializationSummary };
 
+/**
+ * What a golden run reads, where a test asks for other inputs than the tree's (golden.test.ts asks
+ * for wave 0's, to take a release's allowed differences apart): the forearm's page data, the
+ * variants its plan is laid out by, and the rule. Each defaults to the tree's own, as the reference
+ * script runs it.
+ */
+export type GoldenInputs = { region?: SpecializationRegionData; planningVariants?: readonly ExerciseVariant[]; rule?: RuleVersion };
+
 /** JSON with every object's keys sorted, so equal summaries give equal text whatever order their fields were built in. */
 export function canonicalJson(value: unknown): string {
   return JSON.stringify(value, (_key, item) => (item && typeof item === "object" && !Array.isArray(item) ? Object.fromEntries(Object.keys(item).sort().map((key) => [key, item[key]])) : item));
@@ -184,8 +192,10 @@ export function summaryTotals(summary: SpecializationSummary): unknown {
  * capability, dormant on the page) by default, or `both`, the page's summary since both arms are
  * counted as one (owner, 20 Oct 2026). The side is the last part of each case's id.
  */
-export function goldenSummaries(sides: readonly ("left" | "right" | "both")[] = ["left", "right"]): GoldenCase[] {
-  const deps = { catalog, variants: region.variants, fallbackUnit: "kg" as const };
+export function goldenSummaries(sides: readonly ("left" | "right" | "both")[] = ["left", "right"], inputs: GoldenInputs = {}): GoldenCase[] {
+  const data = inputs.region ?? region;
+  const planning = inputs.planningVariants ?? planningVariants;
+  const deps = { catalog, variants: data.variants, fallbackUnit: "kg" as const };
   const completed: [string, DeviceWorkoutSession[]][] = [
     ["one-week-4", history(1, 4)],
     ["year-4", history(52, 4)],
@@ -200,7 +210,7 @@ export function goldenSummaries(sides: readonly ("left" | "right" | "both")[] = 
   ];
   const out: GoldenCase[] = [];
   const summarize = (bouts: readonly ExposureBout[], interval: SummaryInterval, side: (typeof sides)[number], mode: "completed" | "planned") =>
-    getSpecializationSummary({ region, bouts, interval, side, mode, goals: goldenGoals, catalogMusclesFor, sourceRevision: "golden", planRevision: mode === "planned" ? "golden-plan" : null, now: GOLDEN_NOW });
+    getSpecializationSummary({ region: data, bouts, interval, side, mode, goals: goldenGoals, catalogMusclesFor, sourceRevision: "golden", planRevision: mode === "planned" ? "golden-plan" : null, now: GOLDEN_NOW, ...(inputs.rule ? { rule: inputs.rule } : {}) });
   for (const [historyId, sessions] of completed) {
     const bouts = [...boutsFromSessions(sessions, deps), ...excludedRecordsFromSessions(sessions, deps)];
     for (const [intervalId, interval] of intervals) {
@@ -208,7 +218,7 @@ export function goldenSummaries(sides: readonly ("left" | "right" | "both")[] = 
     }
   }
   for (const plan of plans) {
-    const bouts = boutsFromPlan({ week: 1, slots: plan.slots, store: plan.store, variants: planningVariants, goal: plan.goal });
+    const bouts = boutsFromPlan({ week: 1, slots: plan.slots, store: plan.store, variants: planning, goal: plan.goal });
     for (const side of sides) out.push({ id: `planned/${plan.id}/${side}`, summary: summarize(bouts, planWeekInterval(1, TZ), side, "planned") });
   }
   return out;

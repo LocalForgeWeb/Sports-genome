@@ -70,13 +70,18 @@ describe("The specialization page", () => {
     await act(async () => { fireEvent.click(within(tabs).getByRole("button", { name: "Specialize" })); });
     await tick();
     expect(window.location.search).toBe("?workspace=specialization&region=forearm");
-    expect(await screen.findByRole("heading", { level: 1, name: "Forearm specialization" }, { timeout: 15000 })).not.toBeNull();
+    // From wave A two regions have a page, so the heading is the region picker, named by the region's label,
+    // and on a first opening with no region remembered its grid is open once.
+    expect(await screen.findByRole("heading", { level: 1, name: "Forearms" }, { timeout: 15000 })).not.toBeNull();
+    const grid = screen.getByRole("group", { name: "Body region" });
+    expect(within(grid).getAllByRole("button").map((button) => button.textContent)).toEqual(["Upper arms", "Forearms"]);
+    expect(document.title).toBe("Forearm specialization · Sports Genome");
   });
 
   it("keeps what a reload needs and drops what it cannot read", async () => {
     window.history.replaceState({}, "", "/?workspace=specialization&region=forearm&node=forearm.br&limb=left&layer=bogus&window=custom&from=2026-10-01");
     render(createElement(Home));
-    await screen.findByRole("heading", { level: 1, name: "Forearm specialization" }, { timeout: 15000 });
+    await screen.findByRole("heading", { level: 1, name: "Forearms" }, { timeout: 15000 });
     await tick();
     // An old address's arm is dropped too: both arms are counted as one (20 Oct 2026).
     expect(window.location.search).toBe("?workspace=specialization&region=forearm&node=forearm.br");
@@ -182,7 +187,7 @@ describe("The specialization page", () => {
   it("survives an impossible custom date in a hand-edited address, and drops it", async () => {
     window.history.replaceState({}, "", "/?workspace=specialization&region=forearm&window=custom&from=2026-02-30&to=2026-03-02");
     render(createElement(Home));
-    expect(await screen.findByRole("heading", { level: 1, name: "Forearm specialization" }, { timeout: 15000 })).not.toBeNull();
+    expect(await screen.findByRole("heading", { level: 1, name: "Forearms" }, { timeout: 15000 })).not.toBeNull();
     await tick();
     expect(window.location.search).toBe("?workspace=specialization&region=forearm");
   });

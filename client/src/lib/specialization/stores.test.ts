@@ -235,6 +235,17 @@ describe("what a later version writes survives this one (10-multi-region.md §2.
     expect(result.current.goals.map((item) => item.id)).toEqual(["core", "added", "fcu"]);
   });
 
+  it("reads the biceps' and brachialis' targets saved on the forearm page as the upper arm's from wave A, and writes them so on the next save (§2.2)", () => {
+    const biceps = goal({ id: "biceps", nodeId: "upper_arm.biceps" });
+    const anconeus = goal({ id: "anconeus", nodeId: "forearm.anconeus" });
+    localStorage.setItem(`${specializationGoalsKeyBase}::a`, JSON.stringify([biceps, anconeus]));
+    expect(loadSpecializationGoals("a").map((item) => [item.id, item.regionId])).toEqual([["biceps", "upper_arm"], ["anconeus", "forearm"]]);
+    // Nothing is written on read; the next save writes the list as read, the same id, re-homed.
+    expect(stored(specializationGoalsKeyBase)).toEqual([biceps, anconeus]);
+    expect(saveSpecializationGoals(loadSpecializationGoals("a"), "a")).toBe(true);
+    expect(stored(specializationGoalsKeyBase)).toEqual([{ ...biceps, regionId: "upper_arm" }, anconeus]);
+  });
+
   it("holds a new muscle target to the page's targets when the page passes its scope", () => {
     const scope = { region: { id: "forearm", sides: { model: "paired" as const, limb: "arm" as const }, wording: { externalGroup: "", externalHeading: "", incidentalWork: "grip", progressSubtitle: "", sideWord: "arm", sideWordPlural: "arms", onSideTemplate: "your {side} forearm" } }, targetNodeIds: new Set(["forearm.fcr"]) };
     expect(upsertGoal([], goal(), scope).ok).toBe(true);

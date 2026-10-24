@@ -68,9 +68,15 @@ describe("the forearm logs exactly as main does (4dac1ae), through the table", (
   it("asks the same of every catalog exercise: measure, the arm, its default, one arm at a time, straps", () => {
     const ids = new Set([...before.variants.map((variant) => variant.catalogExerciseId), ...loggingTable.keys(), 1, 167, 173, 217, 247]);
     expect(ids.size).toBeGreaterThan(119);
+    // Wave A: the upper arm maps exercises the forearm never did. The logger reads their variants as it reads the forearm's
+    // (no arm asked, no straps question, reps), and an either-arm one starts its row on Both, as the forearm's do.
+    const shipped = new Set(before.variants.map((variant) => variant.catalogExerciseId));
     for (const id of ids) {
       const { measure, askSide, oneArm, sideDefault, strapsSensitive } = loggingPolicyFor(id);
-      expect({ measure, askSide, oneArm, sideDefault, strapsSensitive }, `catalog ${id}`).toEqual(shippedPolicy(id));
+      const row = loggingTable.get(id);
+      const expected = shipped.has(id) || !row ? shippedPolicy(id) : { measure: row.measure, askSide: false, oneArm: false, sideDefault: row.laterality === "either" ? "both" : null, strapsSensitive: false };
+      expect({ measure, askSide, oneArm, sideDefault, strapsSensitive }, `catalog ${id}`).toEqual(expected);
+      if (!shipped.has(id) && row) expect([row.mappedBy, row.strapsBy, row.measure], `catalog ${id}`).toEqual([["upper_arm"], [], "reps"]);
     }
   });
 
