@@ -7,9 +7,9 @@
  "figure": "Drawing: plates (ready)",
  "specialize": [
   {
-   "file": "index-COVj02l8.js",
+   "file": "index-0NjOmq0a.js",
    "bytes": 114646,
-   "gzip": 33473
+   "gzip": 33475
   },
   {
    "file": "ids-CXeVfLVW.js",
@@ -17,25 +17,25 @@
    "gzip": 1256
   },
   {
-   "file": "version-Dw0ppFv2.js",
+   "file": "version-Capnpg4d.js",
    "bytes": 172340,
-   "gzip": 41001
+   "gzip": 41000
   },
   {
-   "file": "review-CWhf68T_.js",
+   "file": "review-B2qseX03.js",
    "bytes": 1244,
-   "gzip": 661
+   "gzip": 660
   },
   {
-   "file": "SpecializationPanel-BjuAuMpr.js",
-   "bytes": 235491,
-   "gzip": 72973
+   "file": "SpecializationPanel-0HLWOQ_L.js",
+   "bytes": 235584,
+   "gzip": 73007
   }
  ],
- "total": 526615,
- "totalGzip": 149364,
+ "total": 526708,
+ "totalGzip": 149398,
  "model": 0,
- "page": 526615,
- "pageGzip": 149364,
+ "page": 526708,
+ "pageGzip": 149398,
  "filesBeforeTheTap": 9
 }

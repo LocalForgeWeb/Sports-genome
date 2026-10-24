@@ -11,27 +11,27 @@ step2-variants-split-forearm         522,714   146,166  and the variant library 
 step3-module-splits-forearm          507,947   142,616  and the upper arm's elbow-flexor nodes, claims, sources and rows in modules of their own [Drawing]
 step3-module-splits-upper_arm        525,018   145,004  the same build: the upper-arm page [Drawing]
 main-fb337a1-forearm                 485,716   139,206  main at fb337a1 (#102, the forearm's rendered plates): the forearm page [Drawing: plates (ready)]
-wave-a-forearm                       526,615   149,364  wave A at its head, merged with fb337a1: the forearm page [Drawing: plates (ready)]
-wave-a-upper_arm                     539,019   150,173  the same build: the upper-arm page (its SVG drawing) [Drawing: SVG]
+wave-a-forearm                       526,708   149,398  wave A at its head, merged with fb337a1: the forearm page [Drawing: plates (ready)]
+wave-a-upper_arm                     539,112   150,203  the same build: the upper-arm page (its SVG drawing) [Drawing: SVG]
 
 The gate (10-multi-region.md §6.1): opening Specialize downloads at most 10 % more than on main.
   Before the splits, against main 2a556be: forearm 594,278 B, +26.5 % raw; 163,863 B gzip, +23.2 %.
   After the splits, against main 2a556be: forearm 507,947 B, +8.2 % raw; 142,616 B gzip, +7.2 %.
-  Wave A's head against main fb337a1: forearm 526,615 B against 485,716 B, +8.4 % raw; 149,364 B against 139,206 B gzip, +7.3 %. Within the gate.
-  The upper-arm page, new in wave A, against main fb337a1's forearm page: 539,019 B, +11.0 % raw; 150,173 B gzip, +7.9 %.
+  Wave A's head against main fb337a1: forearm 526,708 B against 485,716 B, +8.4 % raw; 149,398 B against 139,206 B gzip, +7.3 %. Within the gate.
+  The upper-arm page, new in wave A, against main fb337a1's forearm page: 539,112 B, +11.0 % raw; 150,203 B gzip, +7.9 %.
 
 Read cumulatively, from main at 4dac1ae (428,623 B, the release review's base) with wave 0's +24,807 B (453,430 B at 161b86a):
-  wave 0 and wave A together add 65,706 B, +15.3 % of 428,623 B; the cap there is 42,862 B. Not within the gate on that reading (an owner question).
+  wave 0 and wave A together add 65,799 B, +15.4 % of 428,623 B; the cap there is 42,862 B. Not within the gate on that reading (an owner question).
 
 Files after the tap, wave A's head, forearm:
-  index-COVj02l8.js                          114,646    33,473
+  index-0NjOmq0a.js                          114,646    33,475
   ids-CXeVfLVW.js                              2,894     1,256
-  version-Dw0ppFv2.js                        172,340    41,001
-  review-CWhf68T_.js                           1,244       661
-  SpecializationPanel-BjuAuMpr.js            235,491    72,973
+  version-Capnpg4d.js                        172,340    41,000
+  review-B2qseX03.js                           1,244       660
+  SpecializationPanel-0HLWOQ_L.js            235,584    73,007
 Upper arm:
-  index-lj9QinOA.js                          127,050    34,282
+  index-Z6COtmbs.js                          127,050    34,280
   ids-CXeVfLVW.js                              2,894     1,256
-  version-Dw0ppFv2.js                        172,340    41,001
-  review-CWhf68T_.js                           1,244       661
-  SpecializationPanel-BjuAuMpr.js            235,491    72,973
+  version-Capnpg4d.js                        172,340    41,000
+  review-B2qseX03.js                           1,244       660
+  SpecializationPanel-0HLWOQ_L.js            235,584    73,007

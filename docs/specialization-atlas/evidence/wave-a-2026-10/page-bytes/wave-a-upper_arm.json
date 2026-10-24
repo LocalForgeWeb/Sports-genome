@@ -7,9 +7,9 @@
  "figure": "Drawing: SVG",
  "specialize": [
   {
-   "file": "index-lj9QinOA.js",
+   "file": "index-Z6COtmbs.js",
    "bytes": 127050,
-   "gzip": 34282
+   "gzip": 34280
   },
   {
    "file": "ids-CXeVfLVW.js",
@@ -17,25 +17,25 @@
    "gzip": 1256
   },
   {
-   "file": "version-Dw0ppFv2.js",
+   "file": "version-Capnpg4d.js",
    "bytes": 172340,
-   "gzip": 41001
+   "gzip": 41000
   },
   {
-   "file": "review-CWhf68T_.js",
+   "file": "review-B2qseX03.js",
    "bytes": 1244,
-   "gzip": 661
+   "gzip": 660
   },
   {
-   "file": "SpecializationPanel-BjuAuMpr.js",
-   "bytes": 235491,
-   "gzip": 72973
+   "file": "SpecializationPanel-0HLWOQ_L.js",
+   "bytes": 235584,
+   "gzip": 73007
   }
  ],
- "total": 539019,
- "totalGzip": 150173,
+ "total": 539112,
+ "totalGzip": 150203,
  "model": 0,
- "page": 539019,
- "pageGzip": 150173,
+ "page": 539112,
+ "pageGzip": 150203,
  "filesBeforeTheTap": 9
 }

@@ -1,0 +1,918 @@
+{
+  "note": "Headless Chromium emulating an iPhone (viewport, isMobile, hasTouch, deviceScaleFactor 3, en-US, UTC); emulation, not an iPhone, not Safari. The production build of wave A's head, served here. Device stores seeded: this week, Hammer Curl x3, Wrist Curl x4, Dumbbell Row one per arm, Suitcase Carry in the left hand, Pull-Up x2 and Barbell Curl x3 on Monday; Barbell Bench Press x3, Skull Crusher x2, Cable Triceps Pushdown x2 and Reverse Wrist Curl x3 on Tuesday; a 4-day Upper/Lower plan; targets on the forearm's FCU (right) and the upper arm's long head (right) and biceps (left). Run on 2026-10-24, UTC. Coordinates are CSS px from the top of the screen.",
+  "scenes": [
+    {
+      "scene": "heading-row-and-grid",
+      "viewport": "320x568",
+      "back": null,
+      "head": {
+        "top": 125,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 139,
+        "height": 44,
+        "expanded": "true"
+      },
+      "grid": {
+        "top": 175,
+        "height": 50.4,
+        "rows": 1
+      },
+      "cells": [
+        {
+          "label": "Upper arms",
+          "targets": "2 targets",
+          "pressed": "false",
+          "width": 141,
+          "height": 50.4,
+          "row": 175
+        },
+        {
+          "label": "Forearms",
+          "targets": "1 target",
+          "pressed": "true",
+          "width": 141,
+          "height": 50.4,
+          "row": 175
+        }
+      ],
+      "sweep": {
+        "checked": 3,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-320.png",
+        "region-grid-320.png"
+      ]
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "viewport": "320x568",
+      "back": "Muscles",
+      "head": {
+        "top": 125,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 139,
+        "height": 44,
+        "expanded": "true"
+      },
+      "grid": {
+        "top": 175,
+        "height": 50.4,
+        "rows": 1
+      },
+      "cells": [
+        {
+          "label": "Upper arms",
+          "targets": "2 targets",
+          "pressed": "false",
+          "width": 141,
+          "height": 50.4,
+          "row": 175
+        },
+        {
+          "label": "Forearms",
+          "targets": "1 target",
+          "pressed": "true",
+          "width": 141,
+          "height": 50.4,
+          "row": 175
+        }
+      ],
+      "sweep": {
+        "checked": 4,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-back-320.png",
+        "region-grid-back-320.png"
+      ]
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "viewport": "375x667",
+      "back": null,
+      "head": {
+        "top": 129.6,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 139,
+        "height": 44,
+        "expanded": "true"
+      },
+      "grid": {
+        "top": 179.6,
+        "height": 50.4,
+        "rows": 1
+      },
+      "cells": [
+        {
+          "label": "Upper arms",
+          "targets": "2 targets",
+          "pressed": "false",
+          "width": 109.8,
+          "height": 50.4,
+          "row": 180
+        },
+        {
+          "label": "Forearms",
+          "targets": "1 target",
+          "pressed": "true",
+          "width": 109.8,
+          "height": 50.4,
+          "row": 180
+        }
+      ],
+      "sweep": {
+        "checked": 3,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-375.png",
+        "region-grid-375.png"
+      ]
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "viewport": "375x667",
+      "back": "Muscles",
+      "head": {
+        "top": 129.6,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 139,
+        "height": 44,
+        "expanded": "true"
+      },
+      "grid": {
+        "top": 179.6,
+        "height": 50.4,
+        "rows": 1
+      },
+      "cells": [
+        {
+          "label": "Upper arms",
+          "targets": "2 targets",
+          "pressed": "false",
+          "width": 109.8,
+          "height": 50.4,
+          "row": 180
+        },
+        {
+          "label": "Forearms",
+          "targets": "1 target",
+          "pressed": "true",
+          "width": 109.8,
+          "height": 50.4,
+          "row": 180
+        }
+      ],
+      "sweep": {
+        "checked": 4,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-back-375.png"
+      ]
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "viewport": "390x844",
+      "back": null,
+      "head": {
+        "top": 129.6,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 142.7,
+        "height": 44,
+        "expanded": "true"
+      },
+      "grid": {
+        "top": 179.6,
+        "height": 50.4,
+        "rows": 1
+      },
+      "cells": [
+        {
+          "label": "Upper arms",
+          "targets": "2 targets",
+          "pressed": "false",
+          "width": 114.3,
+          "height": 50.4,
+          "row": 180
+        },
+        {
+          "label": "Forearms",
+          "targets": "1 target",
+          "pressed": "true",
+          "width": 114.3,
+          "height": 50.4,
+          "row": 180
+        }
+      ],
+      "sweep": {
+        "checked": 3,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-390.png",
+        "region-grid-390.png"
+      ]
+    },
+    {
+      "scene": "pick-upper-arms",
+      "viewport": "390x844",
+      "address": "?workspace=specialization&region=upper_arm",
+      "heading": "Upper arms",
+      "gridHidden": true,
+      "said": "Upper arms: 17 distinct bouts touched the upper arms.",
+      "drawing": {
+        "svg": true,
+        "svgShapes": 20,
+        "plates": 0,
+        "model3d": false,
+        "top": 577,
+        "width": 321,
+        "height": 677
+      }
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "viewport": "390x844",
+      "back": "Muscles",
+      "head": {
+        "top": 129.6,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 142.7,
+        "height": 44,
+        "expanded": "true"
+      },
+      "grid": {
+        "top": 179.6,
+        "height": 50.4,
+        "rows": 1
+      },
+      "cells": [
+        {
+          "label": "Upper arms",
+          "targets": "2 targets",
+          "pressed": "false",
+          "width": 114.3,
+          "height": 50.4,
+          "row": 180
+        },
+        {
+          "label": "Forearms",
+          "targets": "1 target",
+          "pressed": "true",
+          "width": 114.3,
+          "height": 50.4,
+          "row": 180
+        }
+      ],
+      "sweep": {
+        "checked": 4,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-back-390.png"
+      ]
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "viewport": "430x932",
+      "back": null,
+      "head": {
+        "top": 129.6,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 152.5,
+        "height": 44,
+        "expanded": "true"
+      },
+      "grid": {
+        "top": 179.6,
+        "height": 50.4,
+        "rows": 1
+      },
+      "cells": [
+        {
+          "label": "Upper arms",
+          "targets": "2 targets",
+          "pressed": "false",
+          "width": 126.4,
+          "height": 50.4,
+          "row": 180
+        },
+        {
+          "label": "Forearms",
+          "targets": "1 target",
+          "pressed": "true",
+          "width": 126.4,
+          "height": 50.4,
+          "row": 180
+        }
+      ],
+      "sweep": {
+        "checked": 3,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-430.png",
+        "region-grid-430.png"
+      ]
+    },
+    {
+      "scene": "heading-row-and-grid",
+      "viewport": "430x932",
+      "back": "Muscles",
+      "head": {
+        "top": 129.6,
+        "height": 44
+      },
+      "toggle": {
+        "label": "Forearms",
+        "width": 152.5,
+        "height": 44,
+        "expanded": "true"
+      },
+      "grid": {
+        "top": 179.6,
+        "height": 50.4,
+        "rows": 1
+      },
+      "cells": [
+        {
+          "label": "Upper arms",
+          "targets": "2 targets",
+          "pressed": "false",
+          "width": 126.4,
+          "height": 50.4,
+          "row": 180
+        },
+        {
+          "label": "Forearms",
+          "targets": "1 target",
+          "pressed": "true",
+          "width": 126.4,
+          "height": 50.4,
+          "row": 180
+        }
+      ],
+      "sweep": {
+        "checked": 4,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "files": [
+        "heading-row-back-430.png"
+      ]
+    },
+    {
+      "scene": "upper-arm-first-screen",
+      "viewport": "390x844",
+      "address": "?workspace=specialization&region=upper_arm",
+      "heading": "Upper arms",
+      "headingIsToggle": true,
+      "back": null,
+      "dockTop": 774,
+      "stripTop": 457,
+      "stripBottom": 571,
+      "stripWhole": true,
+      "drawing": {
+        "svg": true,
+        "svgShapes": 20,
+        "plates": 0,
+        "model3d": false,
+        "top": 577,
+        "width": 321,
+        "height": 677
+      },
+      "rows": [
+        "Brachialis, Deep. 6 direct dynamic bouts · 4 other dynamic. Open details.",
+        "Triceps, long head, Surface. 4 direct dynamic bouts · 3 other dynamic. Open details.",
+        "Triceps, lateral head, Surface. 4 direct dynamic bouts · 3 other dynamic. Open details.",
+        "Triceps, medial head, Deep. 4 direct dynamic bouts · 3 other dynamic. Open details.",
+        "Biceps brachii, Surface. 3 direct dynamic bouts · 7 other dynamic. Open details.",
+        "Coracobrachialis, Deep. No exercise is mapped to this muscle yet, so nothing can be counte",
+        "Brachioradialis, Surface. 3 direct dynamic bouts · 7 other dynamic. Open details."
+      ],
+      "sweep": {
+        "checked": 27,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "files": [
+        "upper-arm-first-screen-390.png",
+        "upper-arm-page-390.png"
+      ]
+    },
+    {
+      "scene": "upper-arm-selected",
+      "viewport": "390x844",
+      "address": "?workspace=specialization&region=upper_arm&node=upper_arm.triceps_long",
+      "sheet": "TRILONG · SURFACE · TRICEPS, LONG HEAD · Back of the upper arm, from the shoulder blade just below the shoulder joint to the common tendon at the point of the elbow; one of the two heads at the surface, from below the shoulder toward the elbow. · WHAT IT DOES · Straightens your elbow with the other two heads. It is the only head that crosses the shoulder, where it helps move the arm down and back ",
+      "sweep": {
+        "checked": 39,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "sheetOverflowPx": 0,
+      "files": [
+        "upper-arm-long-head-sheet-390.png"
+      ]
+    },
+    {
+      "scene": "upper-arm-first-screen",
+      "viewport": "375x667",
+      "address": "?workspace=specialization&region=upper_arm",
+      "heading": "Upper arms",
+      "headingIsToggle": true,
+      "back": null,
+      "dockTop": 597,
+      "stripTop": 443,
+      "stripBottom": 557,
+      "stripWhole": true,
+      "drawing": {
+        "svg": true,
+        "svgShapes": 20,
+        "plates": 0,
+        "model3d": false,
+        "top": 561,
+        "width": 315,
+        "height": 666
+      },
+      "rows": [
+        "Brachialis, Deep. 6 direct dynamic bouts · 4 other dynamic. Open details.",
+        "Triceps, long head, Surface. 4 direct dynamic bouts · 3 other dynamic. Open details.",
+        "Triceps, lateral head, Surface. 4 direct dynamic bouts · 3 other dynamic. Open details.",
+        "Triceps, medial head, Deep. 4 direct dynamic bouts · 3 other dynamic. Open details.",
+        "Biceps brachii, Surface. 3 direct dynamic bouts · 7 other dynamic. Open details.",
+        "Coracobrachialis, Deep. No exercise is mapped to this muscle yet, so nothing can be counte",
+        "Brachioradialis, Surface. 3 direct dynamic bouts · 7 other dynamic. Open details."
+      ],
+      "horizontalOverflowPx": 0,
+      "files": [
+        "upper-arm-first-screen-375.png"
+      ]
+    },
+    {
+      "scene": "upper-arm-selected",
+      "viewport": "375x667",
+      "address": "?workspace=specialization&region=upper_arm&node=upper_arm.triceps_long",
+      "sheet": "TRILONG · SURFACE · TRICEPS, LONG HEAD · Back of the upper arm, from the shoulder blade just below the shoulder joint to the common tendon at the point of the elbow; one of the two heads at the surface, from below the shoulder toward the elbow. · WHAT IT DOES · Straightens your elbow with the other two heads. It is the only head that crosses the shoulder, where it helps move the arm down and back ",
+      "sweep": {
+        "checked": 39,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "sheetOverflowPx": 0,
+      "files": [
+        "upper-arm-long-head-sheet-375.png"
+      ]
+    },
+    {
+      "scene": "upper-arm-first-screen",
+      "viewport": "320x568",
+      "address": "?workspace=specialization&region=upper_arm",
+      "heading": "Upper arms",
+      "headingIsToggle": true,
+      "back": null,
+      "dockTop": 498,
+      "stripTop": 438,
+      "stripBottom": 552,
+      "stripWhole": false,
+      "drawing": {
+        "svg": true,
+        "svgShapes": 20,
+        "plates": 0,
+        "model3d": false,
+        "top": 556,
+        "width": 262,
+        "height": 553
+      },
+      "rows": [
+        "Brachialis, Deep. 6 direct dynamic bouts · 4 other dynamic. Open details.",
+        "Triceps, long head, Surface. 4 direct dynamic bouts · 3 other dynamic. Open details.",
+        "Triceps, lateral head, Surface. 4 direct dynamic bouts · 3 other dynamic. Open details.",
+        "Triceps, medial head, Deep. 4 direct dynamic bouts · 3 other dynamic. Open details.",
+        "Biceps brachii, Surface. 3 direct dynamic bouts · 7 other dynamic. Open details.",
+        "Coracobrachialis, Deep. No exercise is mapped to this muscle yet, so nothing can be counte",
+        "Brachioradialis, Surface. 3 direct dynamic bouts · 7 other dynamic. Open details."
+      ],
+      "horizontalOverflowPx": 0,
+      "files": []
+    },
+    {
+      "scene": "upper-arm-selected",
+      "viewport": "320x568",
+      "address": "?workspace=specialization&region=upper_arm&node=upper_arm.triceps_long",
+      "sheet": "TRILONG · SURFACE · TRICEPS, LONG HEAD · Back of the upper arm, from the shoulder blade just below the shoulder joint to the common tendon at the point of the elbow; one of the two heads at the surface, from below the shoulder toward the elbow. · WHAT IT DOES · Straightens your elbow with the other two heads. It is the only head that crosses the shoulder, where it helps move the arm down and back ",
+      "sweep": {
+        "checked": 39,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "sheetOverflowPx": 0,
+      "files": []
+    },
+    {
+      "scene": "upper-arm-node-in-address",
+      "viewport": "390x844",
+      "address": "?workspace=specialization&region=upper_arm&node=upper_arm.biceps",
+      "heading": "Upper arms",
+      "headingIsToggle": true,
+      "back": null,
+      "dockTop": 774,
+      "stripTop": 457,
+      "stripBottom": 580,
+      "stripWhole": true,
+      "drawing": {
+        "svg": true,
+        "svgShapes": 42,
+        "plates": 0,
+        "model3d": false,
+        "top": 586,
+        "width": 321,
+        "height": 677
+      },
+      "selected": "Biceps brachii. 3 direct dynamic bouts · 7 other dynamic. Selected.",
+      "horizontalOverflowPx": 0,
+      "files": [
+        "upper-arm-biceps-selected-390.png"
+      ]
+    },
+    {
+      "scene": "upper-arm-node-in-address",
+      "viewport": "375x667",
+      "address": "?workspace=specialization&region=upper_arm&node=upper_arm.biceps",
+      "heading": "Upper arms",
+      "headingIsToggle": true,
+      "back": null,
+      "dockTop": 597,
+      "stripTop": 443,
+      "stripBottom": 566,
+      "stripWhole": true,
+      "drawing": {
+        "svg": true,
+        "svgShapes": 42,
+        "plates": 0,
+        "model3d": false,
+        "top": 570,
+        "width": 315,
+        "height": 666
+      },
+      "selected": "Biceps brachii. 3 direct dynamic bouts · 7 other dynamic. Selected.",
+      "horizontalOverflowPx": 0,
+      "files": [
+        "upper-arm-biceps-selected-375.png"
+      ]
+    },
+    {
+      "scene": "forearm-external-sheet",
+      "viewport": "390x844",
+      "muscle": "Biceps brachii",
+      "forearm": {
+        "drawing": {
+          "svg": false,
+          "svgShapes": 0,
+          "plates": 0,
+          "model3d": true,
+          "top": null,
+          "width": null,
+          "height": null
+        },
+        "horizontalOverflowPx": 0
+      },
+      "note": 1,
+      "link": {
+        "width": 352.9,
+        "height": 44,
+        "top": 498.8
+      },
+      "sheet": "BICEPS · SURFACE · BICEPS BRACHII · Front of the upper arm, at the surface: its two heads start on the shoulder blade, and it crosses the elbow to the radius. · WHAT IT DOES · Bends your elbow and turns your palm up; with the elbow bent it is the strongest palm-up muscle. It also crosses the shoulder, where references describe only weak help raising the arm forward. · Elbow flexion · Main action · Bends the elbow, bringing the hand toward the shoulder. · Supination · Main action · Turns the fore",
+      "sweep": {
+        "checked": 30,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "sheetOverflowPx": 0,
+      "afterOpen": {
+        "address": "?workspace=specialization&region=upper_arm&node=upper_arm.biceps",
+        "heading": "Upper arms",
+        "drawing": {
+          "svg": true,
+          "svgShapes": 42,
+          "plates": 0,
+          "model3d": false,
+          "top": 586,
+          "width": 321,
+          "height": 677
+        },
+        "focus": "Upper arms",
+        "said": "Upper arms: 17 distinct bouts touched the upper arms."
+      },
+      "files": [
+        "forearm-biceps-sheet-390.png",
+        "forearm-biceps-sheet-link-390.png"
+      ]
+    },
+    {
+      "scene": "forearm-external-sheet",
+      "viewport": "390x844",
+      "muscle": "Brachialis",
+      "forearm": {
+        "drawing": {
+          "svg": false,
+          "svgShapes": 0,
+          "plates": 0,
+          "model3d": true,
+          "top": null,
+          "width": null,
+          "height": null
+        },
+        "sweep": {
+          "checked": 63,
+          "under44px": []
+        },
+        "horizontalOverflowPx": 0
+      },
+      "note": 1,
+      "link": {
+        "width": 352.9,
+        "height": 44,
+        "top": 498.2
+      },
+      "sheet": "BRACHIALIS · DEEP · BRACHIALIS · Front of the lower half of the upper arm, under the biceps, crossing the elbow to the ulna. · WHAT IT DOES · Bends your elbow, whichever way the palm faces. It does not turn the forearm. · Elbow flexion · Main action · Bends the elbow, bringing the hand toward the shoulder. · HOW IT CONTRIBUTES TO SHAPE · Mostly covered by the biceps, so most of it has little or no contour of its own. Its outer edge and lower end lie close to the surface and may add to the outer ",
+      "sweep": {
+        "checked": 30,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "sheetOverflowPx": 0,
+      "afterOpen": {
+        "address": "?workspace=specialization&region=upper_arm&node=upper_arm.brachialis",
+        "heading": "Upper arms",
+        "drawing": {
+          "svg": true,
+          "svgShapes": 27,
+          "plates": 0,
+          "model3d": false,
+          "top": 561,
+          "width": 321,
+          "height": 677
+        },
+        "focus": "Upper arms",
+        "said": "Upper arms: 17 distinct bouts touched the upper arms."
+      },
+      "files": [
+        "forearm-brachialis-sheet-390.png",
+        "forearm-brachialis-sheet-link-390.png"
+      ]
+    },
+    {
+      "scene": "forearm-external-sheet",
+      "viewport": "375x667",
+      "muscle": "Biceps brachii",
+      "forearm": {
+        "drawing": {
+          "svg": false,
+          "svgShapes": 0,
+          "plates": 0,
+          "model3d": true,
+          "top": null,
+          "width": null,
+          "height": null
+        },
+        "horizontalOverflowPx": 0
+      },
+      "note": 1,
+      "link": {
+        "width": 339.3,
+        "height": 44,
+        "top": 404.2
+      },
+      "sheet": "BICEPS · SURFACE · BICEPS BRACHII · Front of the upper arm, at the surface: its two heads start on the shoulder blade, and it crosses the elbow to the radius. · WHAT IT DOES · Bends your elbow and turns your palm up; with the elbow bent it is the strongest palm-up muscle. It also crosses the shoulder, where references describe only weak help raising the arm forward. · Elbow flexion · Main action · Bends the elbow, bringing the hand toward the shoulder. · Supination · Main action · Turns the fore",
+      "sweep": {
+        "checked": 30,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "sheetOverflowPx": 0,
+      "afterOpen": {
+        "address": "?workspace=specialization&region=upper_arm&node=upper_arm.biceps",
+        "heading": "Upper arms",
+        "drawing": {
+          "svg": true,
+          "svgShapes": 42,
+          "plates": 0,
+          "model3d": false,
+          "top": 570,
+          "width": 315,
+          "height": 666
+        },
+        "focus": "Upper arms",
+        "said": "Upper arms: 17 distinct bouts touched the upper arms."
+      },
+      "files": [
+        "forearm-biceps-sheet-375.png",
+        "forearm-biceps-sheet-link-375.png"
+      ]
+    },
+    {
+      "scene": "forearm-external-sheet",
+      "viewport": "375x667",
+      "muscle": "Brachialis",
+      "forearm": {
+        "drawing": {
+          "svg": false,
+          "svgShapes": 0,
+          "plates": 0,
+          "model3d": true,
+          "top": null,
+          "width": null,
+          "height": null
+        },
+        "horizontalOverflowPx": 0
+      },
+      "note": 1,
+      "link": {
+        "width": 339.3,
+        "height": 44,
+        "top": 404.6
+      },
+      "sheet": "BRACHIALIS · DEEP · BRACHIALIS · Front of the lower half of the upper arm, under the biceps, crossing the elbow to the ulna. · WHAT IT DOES · Bends your elbow, whichever way the palm faces. It does not turn the forearm. · Elbow flexion · Main action · Bends the elbow, bringing the hand toward the shoulder. · HOW IT CONTRIBUTES TO SHAPE · Mostly covered by the biceps, so most of it has little or no contour of its own. Its outer edge and lower end lie close to the surface and may add to the outer ",
+      "sweep": {
+        "checked": 30,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "sheetOverflowPx": 0,
+      "afterOpen": {
+        "address": "?workspace=specialization&region=upper_arm&node=upper_arm.brachialis",
+        "heading": "Upper arms",
+        "drawing": {
+          "svg": true,
+          "svgShapes": 27,
+          "plates": 0,
+          "model3d": false,
+          "top": 545,
+          "width": 315,
+          "height": 666
+        },
+        "focus": "Upper arms",
+        "said": "Upper arms: 17 distinct bouts touched the upper arms."
+      },
+      "files": [
+        "forearm-brachialis-sheet-375.png",
+        "forearm-brachialis-sheet-link-375.png"
+      ]
+    },
+    {
+      "scene": "forearm-external-sheet",
+      "viewport": "320x568",
+      "muscle": "Biceps brachii",
+      "forearm": {
+        "drawing": {
+          "svg": false,
+          "svgShapes": 0,
+          "plates": 0,
+          "model3d": true,
+          "top": null,
+          "width": null,
+          "height": null
+        },
+        "horizontalOverflowPx": 0
+      },
+      "note": 1,
+      "link": {
+        "width": 286,
+        "height": 44,
+        "top": 362.6
+      },
+      "sheet": "BICEPS · SURFACE · BICEPS BRACHII · Front of the upper arm, at the surface: its two heads start on the shoulder blade, and it crosses the elbow to the radius. · WHAT IT DOES · Bends your elbow and turns your palm up; with the elbow bent it is the strongest palm-up muscle. It also crosses the shoulder, where references describe only weak help raising the arm forward. · Elbow flexion · Main action · Bends the elbow, bringing the hand toward the shoulder. · Supination · Main action · Turns the fore",
+      "sweep": {
+        "checked": 30,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "sheetOverflowPx": 0,
+      "afterOpen": {
+        "address": "?workspace=specialization&region=upper_arm&node=upper_arm.biceps",
+        "heading": "Upper arms",
+        "drawing": {
+          "svg": true,
+          "svgShapes": 42,
+          "plates": 0,
+          "model3d": false,
+          "top": 587,
+          "width": 262,
+          "height": 553
+        },
+        "focus": "Upper arms",
+        "said": "Upper arms: 17 distinct bouts touched the upper arms."
+      },
+      "files": []
+    },
+    {
+      "scene": "forearm-external-sheet",
+      "viewport": "320x568",
+      "muscle": "Brachialis",
+      "forearm": {
+        "drawing": {
+          "svg": false,
+          "svgShapes": 0,
+          "plates": 0,
+          "model3d": true,
+          "top": null,
+          "width": null,
+          "height": null
+        },
+        "horizontalOverflowPx": 0
+      },
+      "note": 1,
+      "link": {
+        "width": 286,
+        "height": 44,
+        "top": 352
+      },
+      "sheet": "BRACHIALIS · DEEP · BRACHIALIS · Front of the lower half of the upper arm, under the biceps, crossing the elbow to the ulna. · WHAT IT DOES · Bends your elbow, whichever way the palm faces. It does not turn the forearm. · Elbow flexion · Main action · Bends the elbow, bringing the hand toward the shoulder. · HOW IT CONTRIBUTES TO SHAPE · Mostly covered by the biceps, so most of it has little or no contour of its own. Its outer edge and lower end lie close to the surface and may add to the outer ",
+      "sweep": {
+        "checked": 30,
+        "under44px": []
+      },
+      "horizontalOverflowPx": 0,
+      "sheetOverflowPx": 0,
+      "afterOpen": {
+        "address": "?workspace=specialization&region=upper_arm&node=upper_arm.brachialis",
+        "heading": "Upper arms",
+        "drawing": {
+          "svg": true,
+          "svgShapes": 27,
+          "plates": 0,
+          "model3d": false,
+          "top": 562,
+          "width": 262,
+          "height": 553
+        },
+        "focus": "Upper arms",
+        "said": "Upper arms: 17 distinct bouts touched the upper arms."
+      },
+      "files": []
+    }
+  ],
+  "kept": [
+    "forearm-biceps-sheet-375.png",
+    "forearm-biceps-sheet-390.png",
+    "forearm-biceps-sheet-link-375.png",
+    "forearm-biceps-sheet-link-390.png",
+    "forearm-brachialis-sheet-375.png",
+    "forearm-brachialis-sheet-390.png",
+    "forearm-brachialis-sheet-link-375.png",
+    "forearm-brachialis-sheet-link-390.png",
+    "forearm-page-390.png",
+    "heading-row-320.png",
+    "heading-row-375.png",
+    "heading-row-390.png",
+    "heading-row-430.png",
+    "heading-row-back-320.png",
+    "heading-row-back-375.png",
+    "heading-row-back-390.png",
+    "heading-row-back-430.png",
+    "region-grid-320.png",
+    "region-grid-375.png",
+    "region-grid-390.png",
+    "region-grid-430.png",
+    "region-grid-back-320.png",
+    "upper-arm-biceps-selected-375.png",
+    "upper-arm-biceps-selected-390.png",
+    "upper-arm-first-screen-375.png",
+    "upper-arm-first-screen-390.png",
+    "upper-arm-long-head-sheet-375.png",
+    "upper-arm-long-head-sheet-390.png",
+    "upper-arm-page-390.png"
+  ]
+}
