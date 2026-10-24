@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { claimKeyOf, resolveMembers, sideRelationOf } from "@shared/specialization/compose";
+import { forearmMappingsV1, forearmMappingVersionV1 } from "@shared/specialization/__fixtures__/forearmMappingsV1";
 import { forearmContent, forearmRegionData } from "@shared/specialization/regions/forearm";
 import { upperArmContent } from "@shared/specialization/regions/upper_arm";
 import { registeredRegionContents } from "@shared/specialization/registry";
@@ -88,8 +89,11 @@ const dimensionIds = [...Object.keys(countingDimensions), ...Object.keys(descrip
 const forearm = forearmRegionData;
 const reviewedMappings = forearm.mappings.filter((mapping) => mapping.reviewStatus === "reviewed");
 const draftMappings = forearm.mappings.filter((mapping) => mapping.reviewStatus === "draft");
-/** Every published version's mappings: forearm_mappings_v1 and, from wave A, upper_arm_mappings_v1. */
+/** The content's mappings: forearm_mappings_v2 (F3) and upper_arm_mappings_v1 (wave A), what the current seed writes. */
 const allMappings = contents.flatMap((content) => content.mappings);
+/** forearm_mappings_v1, published by seed v1 and kept in the database beside v2, as its frozen fixture holds it. */
+const v1Reviewed = forearmMappingsV1.filter((mapping) => mapping.reviewStatus === "reviewed");
+const v1Drafts = forearmMappingsV1.filter((mapping) => mapping.reviewStatus === "draft");
 const upperArmReviewed = upperArmContent.mappings.filter((mapping) => mapping.reviewStatus === "reviewed");
 const upperArmDrafts = upperArmContent.mappings.filter((mapping) => mapping.reviewStatus === "draft");
 /** One attribute per counting attribute written and per descriptive dimension. */
@@ -97,6 +101,21 @@ const attributeCount = allVariants.reduce((n, variant) => n + 1 + (variant.legLa
 
 /** A node row read back in the content's shape: the database's role is the stored role where one is kept (storedRole ?? role). */
 const asNodeRow = ({ storedRole, ...node }: AnatomyNode) => ({ ...node, role: storedRole ?? node.role });
+
+/** One mapping version's rows read back in the content's shape, each with its sources in order and its side relation, by id. */
+const readMappings = async (database: Parameters<typeof rows>[0], versionKey: string) =>
+  [
+    ...(await rows<{ id: string }>(
+      database,
+      `select m.mapping_key as id, v.version_key as "versionKey", m.variant_key as "variantId", m.node_id as "nodeId", m.action_id as "actionId", m.relationship,
+              m.muscle_mode as "muscleMode", m.evidence_basis as "evidenceBasis", m.allocation, m.requires_no_straps as "requiresNoStraps", m.rationale, m.review_status as "reviewStatus",
+              m.side_relation as "sideRelation",
+              coalesce((select json_agg(json_build_object('sourceId', s.source_key, 'locator', ms.locator, 'limitation', ms.limitation) order by ms.sort_order)
+                        from specialization.mapping_sources ms join specialization.sources s on s.id = ms.source_id where ms.mapping_id = m.id), '[]') as sources
+       from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where v.version_key = $1`,
+      [versionKey],
+    )),
+  ].sort(byId);
 
 /** Every region row, every column, in the content's own shape (SpecializationRegion); a reference region's holds no page words, sides or measures. */
 const readRegions = () =>
@@ -227,10 +246,11 @@ describe("drift guard", () => {
         `${allNodeActions.length} node actions, ${allClaims.length} claims, ${allSources.length} sources, ${catalogIds.size} catalog exercises, ${allVariants.length} variants, ` +
         `${dimensionIds.length} variant dimensions, ${attributeCount} variant attributes, ${allMappings.length} mappings`,
     );
-    expect(header).toContain(`forearm_mappings_v1 (published): ${reviewedMappings.length} reviewed, ${draftMappings.length} draft (${draftMappings.map((mapping) => mapping.id).sort().join(", ")})`);
+    expect(header).toContain(`forearm_mappings_v2 (published): ${reviewedMappings.length} reviewed, ${draftMappings.length} draft (${draftMappings.map((mapping) => mapping.id).sort().join(", ")})`);
     expect(header).toContain(`upper_arm_mappings_v1 (published): ${upperArmReviewed.length} reviewed, ${upperArmDrafts.length} draft (${upperArmDrafts.map((mapping) => mapping.id).sort().join(", ")})`);
-    // Seed v3's contents, as wave A ships them (10-multi-region.md §9.1).
-    expect([allNodes.length, allMembers.length, allRegionActions.length, allNodeActions.length, allClaims.length, allSources.length, allVariants.length, allMappings.length]).toEqual([29, 32, 25, 44, 79, 110, 232, 900]);
+    // Seed v4's contents, as F3 ships them (11-forearm-research-and-stack.md §1.7): seed v3's, with forearm_mappings_v2 in place of
+    // v1 (421 rows for 418), its four new sources and the four new catalog rows' variants.
+    expect([allNodes.length, allMembers.length, allRegionActions.length, allNodeActions.length, allClaims.length, allSources.length, allVariants.length, allMappings.length]).toEqual([29, 32, 25, 44, 79, 114, 236, 903]);
   });
 
   it("the public.muscles stub holds every canonical name the content refines, as production does", () => {
@@ -470,20 +490,77 @@ describe("over what production holds: seed v1's rows stay as they were", () => {
   }, SETUP);
 
   /**
-   * §5.2 for the current seed: over every file production has recorded (schema v1, seed v1,
-   * schema v2, seed v2, seed v3), what it may change in existing rows. In this release, nothing:
-   * seed v4 carries seed v3's content, so it changes no existing row and adds none.
+   * §5.2 for the current seed, seed v4 (F3, 11-forearm-research-and-stack.md §1.7): over every file
+   * production has recorded (schema v1, seed v1, schema v2, seed v2, seed v3), what it may change in
+   * existing rows, and nothing else: `frozen_at` on the counting attributes of the forearm's variants
+   * that no published version had frozen (v1 was published before attributes existed), which
+   * forearm_mappings_v2's publish freezes. Every other row it writes is new: v2 with its mappings and
+   * mapping sources, its four sources, the four new catalog rows with their variants and sided_by.
+   * forearm_mappings_v1's rows stay exactly as its frozen fixture holds them, field for field, and v1
+   * stays published, passing its publication rule; v2 is published with the content's rows; every
+   * attribute of a variant v2 maps is frozen; 188 and 264 keep sided_by arm; an attribute of a
+   * variant no published version maps stays free. Applied again it touches nothing.
    */
-  it("the current seed, over every applied file, changes no existing row and adds none; both versions still pass their publication rule", async () => {
+  it("seed v4, over seed v3, changes only frozen_at on the attributes v2 freezes and adds v2; v1 stays as its fixture, published; applied again it touches nothing", async () => {
     const fresh = await freshDb("seed v3");
     try {
+      const read = async (sql: string) => Object.fromEntries((await rows<{ k: string; row: Record<string, unknown> }>(fresh, sql)).map(({ k, row }) => [k, row]));
+      const attributesSql = "select variant_key || ' ' || dimension_id as k, to_jsonb(t) as row from specialization.variant_attributes t";
+      // A variant no version maps, with a counting attribute: the publish must leave it free.
+      await fresh.exec(`
+        insert into specialization.catalog_exercises (catalog_id, name) values (9901, 'Unmapped test exercise');
+        insert into specialization.exercise_variants (variant_key, catalog_id, organization, forearm_orientation, wrist_position, grip_type, straps, laterality, phase, measure, deliberate_hold)
+          values ('zz-unmapped', 9901, 'single_joint', 'neutral', 'neutral', 'overhand', 'no', 'unilateral', 'concentric_eccentric', 'reps', false);
+        insert into specialization.variant_attributes (variant_key, dimension_id, value) values ('zz-unmapped', 'sided_by', 'arm');
+      `);
+      const before = await read(attributesSql);
       const prior = await rowVersions(fresh);
       await applyMigration(fresh, SEED_MIGRATION_PATH);
-      expect(await rowVersions(fresh)).toEqual(prior);
+      const after = await rowVersions(fresh);
+      const changed = Object.fromEntries(Object.keys(prior).map((table) => [table, prior[table].filter((version) => !after[table].includes(version)).length]).filter(([, n]) => n));
+      const v2Variants = new Set(forearmContent.mappings.map((mapping) => mapping.variantId));
+      const newlyFrozen = Object.keys(before).filter((key) => (before[key] as { frozen_at: string | null }).frozen_at === null && v2Variants.has(key.split(" ")[0]));
+      // The forearm's sided_by on the 47 variants only v1 mapped (the other 72 the upper arm's publish froze at wave A).
+      expect(newlyFrozen.length).toBe(47);
+      expect(changed).toEqual({ variant_attributes: newlyFrozen.length });
+      const now = await read(attributesSql);
+      for (const key of Object.keys(before)) {
+        const [was, is] = [before[key] as Record<string, unknown>, now[key] as Record<string, unknown>];
+        const columns = Object.keys(is).filter((column) => JSON.stringify(was[column]) !== JSON.stringify(is[column]));
+        expect(columns, key).toEqual(newlyFrozen.includes(key) ? ["frozen_at"] : []);
+      }
+      // What is new: the version, its rows and their sources, four sources, four catalog rows, their variants and sided_by.
+      const added = Object.fromEntries(Object.keys(after).map((table) => [table, after[table].length - prior[table].length]).filter(([, n]) => n));
+      const v2Sources = forearmContent.mappings.reduce((n, mapping) => n + mapping.sources.length, 0);
+      expect(added).toEqual({ sources: 4, catalog_exercises: 4, exercise_variants: 4, variant_attributes: 4, mapping_versions: 1, variant_mappings: forearmContent.mappings.length, mapping_sources: v2Sources });
+
+      // forearm_mappings_v1: still published, still passing its rule, its 418 rows and their sources as the fixture holds them.
+      expect(await rows(fresh, `select version_key as key, state, to_char(published_at at time zone 'UTC', 'YYYY-MM-DD') as "publishedAt", method_notes as "methodNotes" from specialization.mapping_versions where version_key = 'forearm_mappings_v1'`)).toEqual([forearmMappingVersionV1]);
+      expect(await readMappings(fresh, "forearm_mappings_v1")).toEqual(forearmMappingsV1.map((mapping) => ({ ...mapping, sideRelation: "same" })).sort(byId));
+      // forearm_mappings_v2: published, with the content's rows (421).
+      expect(await rows(fresh, `select state, to_char(published_at at time zone 'UTC', 'YYYY-MM-DD') as "publishedAt", (select count(*)::int from specialization.variant_mappings m where m.version_id = v.id) as rows from specialization.mapping_versions v where version_key = 'forearm_mappings_v2'`)).toEqual([
+        { state: "published", publishedAt: "2026-10-24", rows: forearmContent.mappings.length },
+      ]);
+      expect(forearmContent.mappings.length).toBe(421);
       expect(await rows(fresh, "select version_key, specialization.mapping_version_problems(id) as problems from specialization.mapping_versions order by 1")).toEqual([
         { version_key: "forearm_mappings_v1", problems: null },
+        { version_key: "forearm_mappings_v2", problems: null },
         { version_key: "upper_arm_mappings_v1", problems: null },
       ]);
+      // Every attribute of a variant v2 maps is frozen; 188 and 264 keep sided_by arm (§10 decision 4).
+      const unfrozenOfV2 = await rows(fresh, "select a.variant_key, a.dimension_id from specialization.variant_attributes a where a.frozen_at is null and exists (select 1 from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where m.variant_key = a.variant_key and v.version_key = 'forearm_mappings_v2')");
+      expect(unfrozenOfV2).toEqual([]);
+      expect(await rows(fresh, "select variant_key, value, frozen_at is not null as frozen from specialization.variant_attributes where variant_key in ('cat-188', 'cat-264') order by 1")).toEqual([
+        { variant_key: "cat-188", value: "arm", frozen: true },
+        { variant_key: "cat-264", value: "arm", frozen: true },
+      ]);
+      // The attributes of a variant no published version maps stay free.
+      const unmappedFrozen = await rows(fresh, "select a.variant_key, a.dimension_id from specialization.variant_attributes a where a.frozen_at is not null and not exists (select 1 from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where m.variant_key = a.variant_key and v.state <> 'draft')");
+      expect(unmappedFrozen).toEqual([]);
+      expect(await rows(fresh, "select value, frozen_at from specialization.variant_attributes where variant_key = 'zz-unmapped'")).toEqual([{ value: "arm", frozen_at: null }]);
+
+      await applyMigration(fresh, SEED_MIGRATION_PATH);
+      expect(await rowVersions(fresh)).toEqual(after);
     } finally {
       await fresh.close();
     }
@@ -577,42 +654,46 @@ describe("the seeded database", () => {
     expect(dimensions.slice(3).map((dimension) => dimension.values)).toEqual(Object.values(descriptiveDimensions).map((dimension) => Object.keys(dimension.values)));
   });
 
-  it("gives every variant its sided_by, written out; frozen where upper_arm_mappings_v1 maps it (forearm_mappings_v1 was published before attributes existed)", async () => {
+  it("gives every variant its sided_by, written out, and frozen: every seeded variant is mapped by a published version (forearm_mappings_v2 froze the 47 only v1, published before attributes existed, mapped)", async () => {
     const attributes = await rows<{ variant_key: string; dimension_id: string; value: string; frozen: boolean }>(
       db,
       "select variant_key, dimension_id, value, frozen_at is not null as frozen from specialization.variant_attributes where variant_key like 'cat-%' and dimension_id = 'sided_by' order by variant_key, dimension_id",
     );
     expect(attributes).toHaveLength(allVariants.length);
-    const upperArmMapped = new Set(upperArmContent.variants.map((variant) => variant.id));
-    expect(attributes).toEqual(allVariants.map((variant) => ({ variant_key: variant.id, dimension_id: "sided_by", value: variant.sidedBy, frozen: upperArmMapped.has(variant.id) })).sort((a, b) => a.variant_key.localeCompare(b.variant_key)));
+    const publishedMapped = new Set([...upperArmContent.variants, ...forearmContent.variants].map((variant) => variant.id));
+    expect(allVariants.every((variant) => publishedMapped.has(variant.id))).toBe(true);
+    expect(attributes).toEqual(allVariants.map((variant) => ({ variant_key: variant.id, dimension_id: "sided_by", value: variant.sidedBy, frozen: true })).sort((a, b) => a.variant_key.localeCompare(b.variant_key)));
+    // 188 and 264, the single-leg Romanian deadlifts, keep their pinned arm (11-forearm §10 decision 4).
+    expect(attributes.filter((row) => row.variant_key === "cat-188" || row.variant_key === "cat-264").map((row) => row.value)).toEqual(["arm", "arm"]);
     // Today's behaviour, written down: the arm wherever the arms are not bilateral, no side elsewhere, but for the both-limb
     // variants decided one by one (variants.md).
     for (const variant of allVariants.filter((item) => !bothLimbCatalogIds.has(item.catalogExerciseId))) expect(variant.sidedBy, variant.id).toBe(variant.laterality === "bilateral" ? "none" : "arm");
   });
 
-  it("holds the published mapping version with all its rows, its drafts included, each with its sources in order and side relation 'same'", async () => {
+  it("holds forearm_mappings_v2, published by F3, with all its rows, its drafts included, each with its sources in order and side relation 'same'", async () => {
     const [version] = await rows(
       db,
-      `select version_key as key, state, to_char(published_at at time zone 'UTC', 'YYYY-MM-DD') as "publishedAt", method_notes as "methodNotes", region_id from specialization.mapping_versions where version_key = 'forearm_mappings_v1'`,
+      `select version_key as key, state, to_char(published_at at time zone 'UTC', 'YYYY-MM-DD') as "publishedAt", method_notes as "methodNotes", region_id from specialization.mapping_versions where version_key = 'forearm_mappings_v2'`,
     );
     expect(version).toEqual({ ...forearmContent.mappingVersion, region_id: "forearm" });
-
-    const mappings = await rows(
-      db,
-      `select m.mapping_key as id, v.version_key as "versionKey", m.variant_key as "variantId", m.node_id as "nodeId", m.action_id as "actionId", m.relationship,
-              m.muscle_mode as "muscleMode", m.evidence_basis as "evidenceBasis", m.allocation, m.requires_no_straps as "requiresNoStraps", m.rationale, m.review_status as "reviewStatus",
-              m.side_relation as "sideRelation",
-              coalesce((select json_agg(json_build_object('sourceId', s.source_key, 'locator', ms.locator, 'limitation', ms.limitation) order by ms.sort_order)
-                        from specialization.mapping_sources ms join specialization.sources s on s.id = ms.source_id where ms.mapping_id = m.id), '[]') as sources
-       from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where v.version_key = 'forearm_mappings_v1'`,
-    );
+    expect(version).toMatchObject({ state: "published", publishedAt: "2026-10-24" });
+    const mappings = await readMappings(db, "forearm_mappings_v2");
     expect(mappings).toHaveLength(forearm.mappings.length);
-    expect([...mappings].sort(byId)).toEqual(forearmContent.mappings.map((mapping) => ({ ...mapping, sideRelation: sideRelationOf(mapping) })).sort(byId));
+    expect(mappings).toEqual(forearmContent.mappings.map((mapping) => ({ ...mapping, sideRelation: sideRelationOf(mapping) })).sort(byId));
     const drafts = draftMappings.map((mapping) => mapping.id).sort();
-    expect(drafts.length).toBeGreaterThan(0);
-    expect((await rows<{ k: string }>(db, "select m.mapping_key as k from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where m.review_status = 'draft' and v.version_key = 'forearm_mappings_v1'")).map((row) => row.k).sort()).toEqual(drafts);
+    expect(drafts).toEqual(["cat-317:forearm.br"]);
+    expect((await rows<{ k: string }>(db, "select m.mapping_key as k from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where m.review_status = 'draft' and v.version_key = 'forearm_mappings_v2'")).map((row) => row.k).sort()).toEqual(drafts);
     expect(forearmContent.mappings.every((mapping) => sideRelationOf(mapping) === "same")).toBe(true);
-    expect(await rows(db, "select side_relation, count(*)::int as n from specialization.variant_mappings group by 1")).toEqual([{ side_relation: "same", n: allMappings.length }]);
+    // Rule 12: no row on another region's muscle.
+    expect(new Set(forearmContent.mappings.map((mapping) => mapping.nodeId.split(".")[0]))).toEqual(new Set(["forearm"]));
+    expect(await rows(db, "select side_relation, count(*)::int as n from specialization.variant_mappings group by 1")).toEqual([{ side_relation: "same", n: allMappings.length + forearmMappingsV1.length }]);
+  });
+
+  it("keeps forearm_mappings_v1 published beside it, its 418 rows and their sources equal to the frozen fixture field for field", async () => {
+    const [version] = await rows(db, `select version_key as key, state, to_char(published_at at time zone 'UTC', 'YYYY-MM-DD') as "publishedAt", method_notes as "methodNotes" from specialization.mapping_versions where version_key = 'forearm_mappings_v1'`);
+    expect(version).toEqual(forearmMappingVersionV1);
+    expect(await readMappings(db, "forearm_mappings_v1")).toEqual(forearmMappingsV1.map((mapping) => ({ ...mapping, sideRelation: "same" })).sort(byId));
+    expect(await rows(db, "select specialization.mapping_version_problems(id) as problems from specialization.mapping_versions where version_key = 'forearm_mappings_v1'")).toEqual([{ problems: null }]);
   });
 
   it("holds upper_arm_mappings_v1, published by wave A, with all its rows, its drafts included, each with its sources in order", async () => {
@@ -638,9 +719,9 @@ describe("the seeded database", () => {
   });
 
   it("users read the reviewed rows; the drafts stay with the service role", async () => {
-    expect(await as(db, { user: USER_B }, () => count(db, "select 1 from specialization.variant_mappings"))).toBe(reviewedMappings.length + upperArmReviewed.length);
+    expect(await as(db, { user: USER_B }, () => count(db, "select 1 from specialization.variant_mappings"))).toBe(reviewedMappings.length + upperArmReviewed.length + v1Reviewed.length);
     expect(await as(db, { user: USER_B }, () => count(db, "select 1 from specialization.variant_mappings where review_status = 'draft'"))).toBe(0);
-    expect(await as(db, "service_role", () => count(db, "select 1 from specialization.variant_mappings where review_status = 'draft'"))).toBe(draftMappings.length + upperArmDrafts.length);
+    expect(await as(db, "service_role", () => count(db, "select 1 from specialization.variant_mappings where review_status = 'draft'"))).toBe(draftMappings.length + upperArmDrafts.length + v1Drafts.length);
   });
 
   it("holds the published accounting rules as written: v1, and v2 from wave A", async () => {
@@ -716,23 +797,23 @@ describe("changing content", () => {
       nodes: f.nodes.map((node) => (node.id === "forearm.fcu" ? { ...node, name: "Renamed in the same seed" } : node)),
       mappings: f.mappings.map((mapping) => (mapping.id === "cat-139:forearm.fcu" ? { ...mapping, rationale: "Edited after publication." } : mapping)),
     };
-    expect(await seeded(withRegions(edited))).toMatch(/cat-139:forearm\.fcu belongs to published version forearm_mappings_v1; it cannot change/);
+    expect(await seeded(withRegions(edited))).toMatch(/cat-139:forearm\.fcu belongs to published version forearm_mappings_v2; it cannot change/);
     expect(await rows(db, "select name from specialization.nodes where id = 'forearm.fcu'")).toEqual([{ name: "Flexor carpi ulnaris" }]);
   });
 
   it("refuses rewriting what the published version rests on, and applies nothing of that seed", async () => {
-    const decides = /node forearm\.fdp is mapped by mapping version forearm_mappings_v1 \(published\); it must stay reviewed and cannot be deleted, and its region, role and catalog muscle key, which decide what its work counts toward, cannot change/;
+    const decides = /node forearm\.fdp is mapped by mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\); it must stay reviewed and cannot be deleted, and its region, role and catalog muscle key, which decide what its work counts toward, cannot change/;
     const fdp = f.nodes.find((node) => node.id === "forearm.fdp")!;
     const cases: [what: string, edited: RegionContent[], refusal: RegExp][] = [
       // cat-403 maps FDS and FDP as direct isometric work: the flag moves them between deliberate and incidental holds.
-      ["a variant's deliberate hold", [{ ...f, variants: f.variants.map((v) => (v.id === "cat-403" ? { ...v, deliberateHold: !v.deliberateHold } : v)) }], /variant cat-403 is used by mapping version forearm_mappings_v1 \(published\); it cannot change/],
+      ["a variant's deliberate hold", [{ ...f, variants: f.variants.map((v) => (v.id === "cat-403" ? { ...v, deliberateHold: !v.deliberateHold } : v)) }], /variant cat-403 is used by mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\); it cannot change/],
       ["a variant's straps", [{ ...f, variants: f.variants.map((v) => (v.id === "cat-139" ? { ...v, straps: "yes" as const } : v)) }], /variant cat-139 is used by mapping version forearm_mappings_v1 \(published\)/],
-      ["a source's evidence type", withSource("S4", (s) => ({ ...s, evidenceType: "product_assumption" as const })), /source S4 is cited by mapping version forearm_mappings_v1 \(published\); its key, url, title and evidence type cannot change/],
+      ["a source's evidence type", withSource("S4", (s) => ({ ...s, evidenceType: "product_assumption" as const })), /source S4 is cited by mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\); its key, url, title and evidence type cannot change/],
       ["a source's title", withSource("A8", (s) => ({ ...s, title: `${s.title} (2nd edition)` })), /source A8 is cited by mapping version forearm_mappings_v1 \(published\)/],
-      ["a claim's statement", [{ ...f, claims: f.claims.map((c) => (c.id === "fcu.function" ? { ...c, statement: `${c.statement} Edited.` } : c)) }], /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\) maps/],
+      ["a claim's statement", [{ ...f, claims: f.claims.map((c) => (c.id === "fcu.function" ? { ...c, statement: `${c.statement} Edited.` } : c)) }], /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\) maps/],
       ["a claim's review", [{ ...f, claims: f.claims.map((c) => (c.id === "fcu.function" ? { ...c, reviewStatus: "draft" as const, reviewedAt: null } : c)) }], /claim forearm:fcu\.function is a reviewed claim/],
       ["a node action's role", [{ ...f, nodeActions: f.nodeActions.map((n) => (n.nodeId === "forearm.fcu" && n.actionId === "wrist.flexion" ? { ...n, role: "assist" as const } : n)) }], /node action forearm\.fcu wrist\.flexion is named by mapping version forearm_mappings_v1 \(published\)/],
-      ["a mapped muscle's review", [{ ...f, nodes: f.nodes.map((n) => (n.id === "forearm.fcr" ? { ...n, status: "draft" as const } : n)) }], /node forearm\.fcr is mapped by mapping version forearm_mappings_v1 \(published\); it must stay reviewed/],
+      ["a mapped muscle's review", [{ ...f, nodes: f.nodes.map((n) => (n.id === "forearm.fcr" ? { ...n, status: "draft" as const } : n)) }], /node forearm\.fcr is mapped by mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\); it must stay reviewed/],
       // What decides counting on a mapped muscle (final review F-database-2): region and role decide whether its bouts are the forearm's, role and catalog key which tagged work is region work.
       ["a mapped muscle's role", [{ ...f, nodes: f.nodes.map((n) => (n.id === "forearm.fdp" ? { ...n, role: "adjacent" as const } : n)) }], decides],
       ["a mapped muscle's catalog muscle key", [{ ...f, nodes: f.nodes.map((n) => (n.id === "forearm.fdp" ? { ...n, catalogMuscleKey: null } : n)) }], decides],
@@ -754,7 +835,7 @@ describe("changing content", () => {
       [
         "a claim's basis",
         [{ ...f, claims: f.claims.map((c) => (c.id === "fcu.function" ? { ...c, basis: c.basis === "product_assumption" ? ("anatomical_inference" as const) : ("product_assumption" as const) } : c)) }],
-        /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\) maps; its key, node, kind, statement, basis and review status cannot change/,
+        /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\) maps; its key, node, kind, statement, basis and review status cannot change/,
       ],
     ];
     const before = await rowVersions(db);
@@ -763,20 +844,20 @@ describe("changing content", () => {
   });
 
   it("refuses removing a mapping, a mapping source, a node action, a claim or a claim source under the published version", async () => {
-    expect(f.mappings.find((m) => m.id === "cat-121:upper_arm.biceps")!.sources.length).toBeGreaterThan(1);
+    expect(f.mappings.find((m) => m.id === "cat-139:forearm.fcr")!.sources.length).toBeGreaterThan(1);
     expect(f.claims.find((c) => c.id === "fcu.function")!.sources.length).toBeGreaterThan(0);
     // A reviewed claim of a mapped muscle that no node action rests on: removing it from the content is refused, not ignored.
     const selectivity = f.claims.find((c) => c.nodeId === "forearm.fcu" && c.kind === "selectivity" && c.reviewStatus === "reviewed")!;
     expect(allNodeActions.some((n) => n.claimKey === claimKeyOf(selectivity))).toBe(false);
     const cases: [what: string, edited: RegionContent[], refusal: RegExp][] = [
-      ["a mapping", [{ ...f, mappings: f.mappings.filter((m) => m.id !== "cat-139:forearm.fcu") }], /mapping cat-139:forearm\.fcu belongs to published version forearm_mappings_v1; it cannot change/],
-      ["a mapping source", [{ ...f, mappings: f.mappings.map((m) => (m.id === "cat-121:upper_arm.biceps" ? { ...m, sources: m.sources.slice(0, 1) } : m)) }], /the sources of mapping cat-121:upper_arm\.biceps in published version forearm_mappings_v1 cannot change/],
+      ["a mapping", [{ ...f, mappings: f.mappings.filter((m) => m.id !== "cat-139:forearm.fcu") }], /mapping cat-139:forearm\.fcu belongs to published version forearm_mappings_v2; it cannot change/],
+      ["a mapping source", [{ ...f, mappings: f.mappings.map((m) => (m.id === "cat-139:forearm.fcr" ? { ...m, sources: m.sources.slice(0, 1) } : m)) }], /the sources of mapping cat-139:forearm\.fcr in published version forearm_mappings_v2 cannot change/],
       ["a node action", [{ ...f, nodeActions: f.nodeActions.filter((n) => !(n.nodeId === "forearm.fcu" && n.actionId === "wrist.flexion")) }], /node action forearm\.fcu wrist\.flexion is named by mapping version forearm_mappings_v1 \(published\)/],
       ["a claim source", [{ ...f, claims: f.claims.map((c) => (c.id === "fcu.function" ? { ...c, sources: c.sources.slice(1) } : c)) }], /the sources of claim forearm:fcu\.function cannot change/],
       [
         "a claim",
         [{ ...f, claims: f.claims.filter((c) => c.id !== selectivity.id) }],
-        new RegExp(`claim forearm:${selectivity.id.replace(/\./g, "\\.")} is a reviewed claim on forearm\\.fcu, which mapping version forearm_mappings_v1 \\(published\\) maps; .* it cannot be deleted`),
+        new RegExp(`claim forearm:${selectivity.id.replace(/\./g, "\\.")} is a reviewed claim on forearm\\.fcu, which mapping version forearm_mappings_v1 \\(published\\), forearm_mappings_v2 \\(published\\) maps; .* it cannot be deleted`),
       ],
       // Kept with the upper arm, owned by the forearm: dropping the record is removing the forearm's claim.
       [
@@ -799,19 +880,20 @@ describe("changing content", () => {
     expect(await rowVersions(db)).toEqual(before);
   });
 
-  it("seeds changed mappings published under a new key beside the old version: only the forearm's own muscles (rule 12), resting on the seeded sided_by (rule 11)", async () => {
-    const v2 = "forearm_mappings_v2";
-    const own = f.mappings.filter((mapping) => !mapping.nodeId.startsWith("upper_arm."));
-    expect(f.mappings.length - own.length).toBe(53);
+  it("seeds changed mappings published under a new key beside the old versions: only the forearm's own muscles (rule 12), resting on the seeded sided_by (rule 11)", async () => {
+    // A later forearm version, as F3 published v2 beside v1: v2's rows, the upright row's brachioradialis reviewed.
+    const v3 = "forearm_mappings_v3";
     const next: RegionContent = {
       ...f,
-      mappingVersion: { ...f.mappingVersion!, key: v2 },
-      mappings: own.map((mapping) => ({ ...mapping, versionKey: v2, reviewStatus: mapping.id === "cat-317:forearm.br" ? ("reviewed" as const) : mapping.reviewStatus })),
+      mappingVersion: { ...f.mappingVersion!, key: v3 },
+      mappings: f.mappings.map((mapping) => ({ ...mapping, versionKey: v3, reviewStatus: mapping.id === "cat-317:forearm.br" ? ("reviewed" as const) : mapping.reviewStatus })),
     };
-    // With the biceps' and brachialis' rows, rule 12 refuses it, and nothing is written.
-    const all: RegionContent = { ...next, mappings: f.mappings.map((mapping) => ({ ...mapping, versionKey: v2 })) };
-    expect(await seeded(withRegions(all))).toMatch(/mapping version forearm_mappings_v2 cannot be published: mapped muscles whose home is another region: upper_arm\.biceps, upper_arm\.brachialis$/);
-    expect(await count(db, "select 1 from specialization.mapping_versions where version_key = $1", [v2])).toBe(0);
+    // With v1's rows on the biceps and brachialis put back, rule 12 refuses it, and nothing is written.
+    const upperArmRows = forearmMappingsV1.filter((mapping) => mapping.nodeId.startsWith("upper_arm.")).map((mapping) => ({ ...mapping, versionKey: v3 }));
+    expect(upperArmRows).toHaveLength(53);
+    const all: RegionContent = { ...next, mappings: [...next.mappings, ...upperArmRows] };
+    expect(await seeded(withRegions(all))).toMatch(/mapping version forearm_mappings_v3 cannot be published: mapped muscles whose home is another region: upper_arm\.biceps, upper_arm\.brachialis$/);
+    expect(await count(db, "select 1 from specialization.mapping_versions where version_key = $1", [v3])).toBe(0);
 
     const sql = emitSeedSql(withRegions(next));
     expect(await scriptFailure(db, sql)).toBeNull();
@@ -819,13 +901,14 @@ describe("changing content", () => {
     const states = await rows(db, "select v.version_key, v.state, count(*) filter (where m.review_status = 'draft')::int as drafts from specialization.mapping_versions v join specialization.variant_mappings m on m.version_id = v.id where v.version_key like 'forearm_mappings_%' group by 1, 2 order by 1");
     expect(states).toEqual([
       { version_key: "forearm_mappings_v1", state: "published", drafts: 5 },
-      { version_key: v2, state: "published", drafts: 4 },
+      { version_key: "forearm_mappings_v2", state: "published", drafts: 1 },
+      { version_key: v3, state: "published", drafts: 0 },
     ]);
-    // Publishing froze the counting attributes it rests on, and only its variants' (beside those upper_arm_mappings_v1 froze).
-    const mapped = new Set([...own.map((mapping) => mapping.variantId), ...upperArmContent.mappings.map((mapping) => mapping.variantId)]);
+    // Every published version's variants have their counting attributes frozen, and only theirs.
+    const mapped = new Set([...forearmMappingsV1, ...f.mappings, ...upperArmContent.mappings].map((mapping) => mapping.variantId));
     const frozen = await rows<{ variant_key: string }>(db, "select distinct variant_key from specialization.variant_attributes where frozen_at is not null order by 1");
     expect(frozen.map((row) => row.variant_key)).toEqual([...mapped].sort());
-    // The production content after it, which has no v2, leaves both versions and frozen_at alone.
+    // The production content after it, which has no v3, leaves every version and frozen_at alone.
     const before = await rowVersions(db);
     expect(await seeded(productionSeedInput())).toBeNull();
     expect(await rowVersions(db)).toEqual(before);

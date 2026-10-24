@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { SpecializationGoal } from "@shared/specialization/types";
-import { forearmRegionData } from "@shared/specialization/regions/forearm";
+import { forearmMappingsV1 } from "@shared/specialization/__fixtures__/forearmMappingsV1";
 import { registeredRegionContents } from "@shared/specialization/registry";
 import { emitSeedSql, productionSeedInput } from "../scripts/specialization/emit-seed";
 import {
@@ -63,10 +63,13 @@ const userA = { user: USER_A };
 const userB = { user: USER_B };
 
 // Counts from the content itself, so a content change only needs the seed regenerated.
-/** Every published version's rows: forearm_mappings_v1 and, from wave A, upper_arm_mappings_v1. */
-const publishedMappings = registeredRegionContents.flatMap((content) => (content.mappingVersion?.state === "published" ? content.mappings : []));
+/**
+ * Every published version's rows: the content's (forearm_mappings_v2 since F3, upper_arm_mappings_v1 since wave A) and
+ * forearm_mappings_v1's, which stays published in the database and is kept in its frozen fixture.
+ */
+const publishedMappings = [...registeredRegionContents.flatMap((content) => (content.mappingVersion?.state === "published" ? content.mappings : [])), ...forearmMappingsV1];
 const reviewedMappingCount = publishedMappings.filter((mapping) => mapping.reviewStatus === "reviewed").length;
-const draftMappingCount = forearmRegionData.mappings.filter((mapping) => mapping.reviewStatus === "draft").length;
+const draftMappingCount = forearmMappingsV1.filter((mapping) => mapping.reviewStatus === "draft").length;
 /** Records the seed writes once each, however many regions list them. */
 const distinctIn = (ids: (number | string)[]) => new Set(ids).size;
 const sourceCount = distinctIn(registeredRegionContents.flatMap((content) => content.sources.map((source) => source.id)));
@@ -492,7 +495,7 @@ describe("reference content, as a signed-in user", () => {
 
   it("sees the published mapping versions' reviewed rows only: not their drafts, not an unpublished version", async () => {
     const versions = await as(db, userA, () => rows<{ version_key: string }>(db, "select version_key from specialization.mapping_versions order by 1"));
-    expect(versions.map((row) => row.version_key)).toEqual(["forearm_mappings_v1", "upper_arm_mappings_v1"]);
+    expect(versions.map((row) => row.version_key)).toEqual(["forearm_mappings_v1", "forearm_mappings_v2", "upper_arm_mappings_v1"]);
     const seen = await as(db, userA, () => rows<{ review_status: string; n: number }>(db, "select review_status, count(*)::int as n from specialization.variant_mappings group by 1"));
     expect(seen).toEqual([{ review_status: "reviewed", n: reviewedMappingCount }]);
     const drafts = await count(db, "select 1 from specialization.variant_mappings m join specialization.mapping_versions v on v.id = m.version_id where v.version_key = 'forearm_mappings_v1' and m.review_status = 'draft'");
@@ -770,10 +773,12 @@ describe("a published mapping version is immutable", () => {
 
   it("refuses changing its mapping sources", async () => {
     await as(db, "service_role", async () => {
-      const ofMapping = "mapping_id = (select id from specialization.variant_mappings where mapping_key = 'cat-139:forearm.fcu')";
+      // Mapping keys are unique within a version: v1's row (forearm_mappings_v2 has one under the same key since F3).
+      const v1Row = "mapping_key = 'cat-139:forearm.fcu' and version_id = (select id from specialization.mapping_versions where version_key = 'forearm_mappings_v1')";
+      const ofMapping = `mapping_id = (select id from specialization.variant_mappings where ${v1Row})`;
       expect(await failure(db, `update specialization.mapping_sources set locator = 'Elsewhere' where ${ofMapping}`)).toMatch(/cannot change/);
       expect(await failure(db, `delete from specialization.mapping_sources where ${ofMapping}`)).toMatch(/cannot change/);
-      expect(await failure(db, "insert into specialization.mapping_sources (mapping_id, source_id, locator) select m.id, s.id, 'New' from specialization.variant_mappings m, specialization.sources s where m.mapping_key = 'cat-139:forearm.fcu' and s.source_key = 'S1'")).toMatch(/cannot change/);
+      expect(await failure(db, `insert into specialization.mapping_sources (mapping_id, source_id, locator) select m.id, s.id, 'New' from specialization.variant_mappings m, specialization.sources s where m.${v1Row} and s.source_key = 'S1'`)).toMatch(/cannot change/);
     });
   });
 
@@ -795,7 +800,7 @@ describe("what a published mapping version rests on is frozen with it", () => {
       await as(db, who, async () => {
         // cat-403 maps FDS and FDP as direct isometric work: this flag moves them between deliberate and incidental holds.
         expect(await failure(db, "update specialization.exercise_variants set deliberate_hold = not deliberate_hold where variant_key = 'cat-403'"), who).toMatch(
-          /variant cat-403 is used by mapping version forearm_mappings_v1 \(published\); it cannot change or be deleted/,
+          /variant cat-403 is used by mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\); it cannot change or be deleted/,
         );
         expect(await failure(db, "update specialization.exercise_variants set straps = 'yes' where variant_key = 'cat-139'"), who).toMatch(/variant cat-139 is used by mapping version forearm_mappings_v1/);
         expect(await failure(db, "delete from specialization.exercise_variants where variant_key = 'cat-139'"), who).toMatch(/variant cat-139 is used by mapping version forearm_mappings_v1/);
@@ -807,10 +812,10 @@ describe("what a published mapping version rests on is frozen with it", () => {
   it("a node action its mappings name cannot change or be removed; a muscle it maps stays reviewed but may be renamed", async () => {
     for (const who of owners) {
       await as(db, who, async () => {
-        const named = /node action forearm\.fcu wrist\.flexion is named by mapping version forearm_mappings_v1 \(published\); it cannot change or be deleted/;
+        const named = /node action forearm\.fcu wrist\.flexion is named by mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\); it cannot change or be deleted/;
         expect(await failure(db, "update specialization.node_actions set role = case role when 'prime' then 'assist' else 'prime' end where node_id = 'forearm.fcu' and action_id = 'wrist.flexion'"), who).toMatch(named);
         expect(await failure(db, "delete from specialization.node_actions where node_id = 'forearm.fcu' and action_id = 'wrist.flexion'"), who).toMatch(named);
-        const mapped = /node forearm\.fcr is mapped by mapping version forearm_mappings_v1 \(published\); it must stay reviewed and cannot be deleted/;
+        const mapped = /node forearm\.fcr is mapped by mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\); it must stay reviewed and cannot be deleted/;
         expect(await failure(db, "update specialization.nodes set status = 'draft' where id = 'forearm.fcr'"), who).toMatch(mapped);
         expect(await failure(db, "delete from specialization.nodes where id = 'forearm.fcr'"), who).toMatch(mapped);
       });
@@ -824,7 +829,7 @@ describe("what a published mapping version rests on is frozen with it", () => {
   // Final review F-database-2: what decides counting on a mapped muscle is frozen with the version.
   it("a muscle it maps keeps its region, role and catalog muscle key; its kind, parent, words and database muscle may change", async () => {
     // Region and role decide whether FDP's bouts are the forearm's (regionNodeIds); role and catalog key decide which catalog-tagged work is region work.
-    const decides = /node forearm\.fdp is mapped by mapping version forearm_mappings_v1 \(published\); it must stay reviewed and cannot be deleted, and its region, role and catalog muscle key, which decide what its work counts toward, cannot change/;
+    const decides = /node forearm\.fdp is mapped by mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\); it must stay reviewed and cannot be deleted, and its region, role and catalog muscle key, which decide what its work counts toward, cannot change/;
     const before = await rows(db, "select * from specialization.nodes where id = 'forearm.fdp'");
     for (const who of owners) {
       await as(db, who, async () => {
@@ -871,7 +876,7 @@ describe("what a published mapping version rests on is frozen with it", () => {
   });
 
   it("a reviewed claim of a mapped muscle keeps its key, node, kind, statement, basis and review, and stays; its note and review date may change; a draft claim is free", async () => {
-    const frozen = /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\) maps; its key, node, kind, statement, basis and review status cannot change/;
+    const frozen = /claim forearm:fcu\.function is a reviewed claim on forearm\.fcu, which mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\) maps; its key, node, kind, statement, basis and review status cannot change/;
     // The basis is the provenance label users read beside the claim (MuscleSheet): relabelling it rewrites what was published.
     const [{ basis }] = await rows<{ basis: string }>(db, "select basis from specialization.claims where claim_key = 'forearm:fcu.function'");
     const otherBasis = basis === "product_assumption" ? "anatomical_inference" : "product_assumption";
@@ -900,7 +905,7 @@ describe("what a published mapping version rests on is frozen with it", () => {
   it("the sources of such a claim cannot be added, changed or removed; a draft claim's can", async () => {
     await as(db, "service_role", async () => {
       const ofClaim = (key: string) => `claim_id = (select id from specialization.claims where claim_key = '${key}')`;
-      const frozen = /the sources of claim forearm:fcu\.function cannot change: it is a reviewed claim on a muscle that mapping version forearm_mappings_v1 \(published\) maps/;
+      const frozen = /the sources of claim forearm:fcu\.function cannot change: it is a reviewed claim on a muscle that mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\) maps/;
       expect(await failure(db, `update specialization.claim_sources set locator = 'Elsewhere' where ${ofClaim("forearm:fcu.function")}`)).toMatch(frozen);
       expect(await failure(db, `delete from specialization.claim_sources where ${ofClaim("forearm:fcu.function")}`)).toMatch(frozen);
       expect(
@@ -928,7 +933,8 @@ describe("what a published mapping version rests on is frozen with it", () => {
     for (const who of owners) {
       await as(db, who, async () => {
         for (const key of ["S4", claimOnly]) {
-          const cited = new RegExp(`source ${key} is cited by mapping version forearm_mappings_v1 \\(published\\); its key, url, title and evidence type cannot change and it cannot be deleted`);
+          // Cited by both forearm versions since F3 (and, for a claim-only source, by every version mapping its muscle).
+          const cited = new RegExp(`source ${key} is cited by mapping version forearm_mappings_v1 \\(published\\), forearm_mappings_v2 \\(published\\)(, [a-z_0-9]+ \\(published\\))*; its key, url, title and evidence type cannot change and it cannot be deleted`);
           for (const change of ["evidence_type = 'product_assumption'", "url = 'https://example.invalid/moved'", "title = title || ' (2nd edition)'", "source_key = source_key || 'x'"]) {
             expect(await failure(db, `update specialization.sources set ${change} where source_key = '${key}'`), `${who}: ${key} ${change}`).toMatch(cited);
           }
@@ -951,7 +957,7 @@ describe("what a published mapping version rests on is frozen with it", () => {
     expect(problems).toBeNull();
   });
 
-  // Last: it publishes a second version over forearm.fcu and S4, which the messages above name alone.
+  // Last: it publishes another version over forearm.fcu and S4, which the messages above name with the forearm's two alone.
   it("a variant only drafts use may change, until a version using it is published", async () => {
     await as(db, "service_role", async () => {
       await db.exec(`
@@ -1243,7 +1249,8 @@ describe("rollback", () => {
       await applyMigration(fresh, SCHEMA_MIGRATION_PATH);
       await applyMigration(fresh, SEED_V1_MIGRATION_PATH);
       const [after] = (await fresh.query<{ mappings: number; goals: number }>("select (select count(*)::int from specialization.variant_mappings) as mappings, (select count(*)::int from specialization.goals) as goals")).rows;
-      expect(after).toEqual({ mappings: forearmRegionData.mappings.length, goals: 0 });
+      // Seed v1 wrote forearm_mappings_v1's rows, as its frozen fixture keeps them.
+      expect(after).toEqual({ mappings: forearmMappingsV1.length, goals: 0 });
     } finally {
       await fresh.close();
     }
@@ -1331,7 +1338,7 @@ describe("applied as one DO block per file, the way it reaches production", () =
         ...productionSeedInput(),
         regions: registeredRegionContents.map((content) => ({ ...content, variants: content.variants.map((variant) => (variant.id === "cat-403" ? { ...variant, deliberateHold: !variant.deliberateHold } : variant)) })),
       });
-      const refusal = /variant cat-403 is used by mapping version forearm_mappings_v1 \(published\)/;
+      const refusal = /variant cat-403 is used by mapping version forearm_mappings_v1 \(published\), forearm_mappings_v2 \(published\)/;
       expect(await scriptFailure(direct, changed)).toMatch(refusal);
       expect(await scriptFailure(wrapped, asDoBlock(changed))).toMatch(refusal);
       expect(await snapshot(wrapped)).toEqual(expected);
