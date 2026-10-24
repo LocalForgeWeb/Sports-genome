@@ -57,10 +57,10 @@ const here = dirname(fileURLToPath(import.meta.url));
  * server/specializationSeed.test.ts fails on any reference to a file that is not there). The
  * seed's own text names no file by version.
  */
-// The seed this content is written to. Seed v1 (…_seed_v1.sql, applied to production on 18 Oct 2026) and seed v2
-// (…_seed_v2.sql, 22 Oct 2026) are history: never written again (server/specializationHistory.test.ts pins them).
-// Each release gets the next file.
-export const CURRENT_SEED_MIGRATION_PATH = resolve(here, "../../supabase/migrations/20261022120100_specialization_atlas_seed_v3.sql");
+// The seed this content is written to. Seed v1 (…_seed_v1.sql, applied to production on 18 Oct 2026), seed v2
+// (…_seed_v2.sql, 22 Oct 2026) and seed v3 (…_seed_v3.sql, 24 Oct 2026) are history: never written again
+// (server/specializationHistory.test.ts pins them). Each release gets the next file.
+export const CURRENT_SEED_MIGRATION_PATH = resolve(here, "../../supabase/migrations/20261024120100_specialization_atlas_seed_v4.sql");
 
 /** public.exercises rows carry the app catalog's id under this repository name. */
 export const CATALOG_REPOSITORY = "LocalForgeWeb/Sports-genome";

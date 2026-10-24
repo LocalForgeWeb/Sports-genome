@@ -26,7 +26,7 @@
 -- makes a restored check fail, and the undo with it; production holds none.
 --
 -- Tested (server/specializationSchemaV2.test.ts › the undo): schema v1, seed v1, schema v2 and
--- seed v2 (what production holds since 22 Oct 2026), then this, give the database schema v1 and
+-- seed v2 (what production held from 22 to 24 Oct 2026), then this, give the database schema v1 and
 -- seed v1 gave, catalog and rows table by table (goals_no_overlap and the side columns' comments
 -- included), a goal on a forearm muscle and movement kept; schema v2 and seed v2 then apply
 -- again; it refuses after seed v3 (20261022120100_specialization_atlas_seed_v3.sql) is recorded,

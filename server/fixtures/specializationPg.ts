@@ -33,10 +33,12 @@ export const SEED_V1_MIGRATION_PATH = resolve(process.cwd(), "supabase/migration
 // Applied to production on 22 Oct 2026 (wave 0, 10-multi-region.md §5) and history from then: never edited (server/specializationHistory.test.ts pins them).
 export const SCHEMA_V2_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261019120000_specialization_atlas_schema_v2.sql");
 export const SEED_V2_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261019120100_specialization_atlas_seed_v2.sql");
+// Applied to production on 24 Oct 2026 (wave A) and history from then: never edited (server/specializationHistory.test.ts pins it).
+export const SEED_V3_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261022120100_specialization_atlas_seed_v3.sql");
 /** The seed the emitter writes from the current content (scripts/specialization/emit-seed.ts), applied after every applied file. */
-export const SEED_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261022120100_specialization_atlas_seed_v3.sql");
+export const SEED_MIGRATION_PATH = resolve(process.cwd(), "supabase/migrations/20261024120100_specialization_atlas_seed_v4.sql");
 /** Every specialization migration production has recorded, in the order it applied them (04-database.md §9). */
-export const APPLIED_MIGRATION_PATHS = [SCHEMA_MIGRATION_PATH, SEED_V1_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH] as const;
+export const APPLIED_MIGRATION_PATHS = [SCHEMA_MIGRATION_PATH, SEED_V1_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH, SEED_V3_MIGRATION_PATH] as const;
 /** Schema files written since, not yet recorded by production, in the order they will apply, before the current seed. None since wave 0. */
 export const PENDING_MIGRATION_PATHS: readonly string[] = [];
 
@@ -51,6 +53,7 @@ export const MIGRATION_STEPS = [
   { step: "schema v2", path: SCHEMA_V2_MIGRATION_PATH },
   { step: "schema v2 again", path: SCHEMA_V2_MIGRATION_PATH },
   { step: "seed v2", path: SEED_V2_MIGRATION_PATH },
+  { step: "seed v3", path: SEED_V3_MIGRATION_PATH },
   { step: "current seed", path: SEED_MIGRATION_PATH },
 ] as const;
 export type MigrationStep = (typeof MIGRATION_STEPS)[number]["step"];

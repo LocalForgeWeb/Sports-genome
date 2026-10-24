@@ -15,6 +15,7 @@ import {
   SEED_MIGRATION_PATH,
   SEED_V1_MIGRATION_PATH,
   SEED_V2_MIGRATION_PATH,
+  SEED_V3_MIGRATION_PATH,
   USER_B,
   applyMigration,
   as,
@@ -34,11 +35,12 @@ import type { AnatomyNode, DiagramAsset, RegionContent, SpecializationRegion } f
 /**
  * The seed migration is generated from the TypeScript content (scripts/specialization/
  * emit-seed.ts). This holds the committed file to the generator byte for byte, applies it to
- * Postgres (PGlite) in production's order (schema v1, seed v1, schema v2, seed v2, then this
- * seed; server/fixtures/specializationPg.ts) and reads every record back in the content's own
- * shape, so "the database carries the content" is checked, not assumed. It also proves what a
+ * Postgres (PGlite) in production's order (schema v1, seed v1, schema v2, seed v2, seed v3, then
+ * this seed; server/fixtures/specializationPg.ts) and reads every record back in the content's
+ * own shape, so "the database carries the content" is checked, not assumed. It also proves what a
  * seed may change in rows production already holds (10-multi-region.md §5.2): seed v2, at wave
- * 0's release, two region rows; the current seed, in this release, nothing.
+ * 0's release, two region rows; seed v3, at wave A's, the upper arm's promotion, the moved words
+ * and the freeze; the current seed, in this release, nothing.
  */
 
 const SETUP = 120_000;
@@ -414,8 +416,8 @@ describe("over what production holds: seed v1's rows stay as they were", () => {
   }, SETUP);
 
   /**
-   * §5.2 for the current seed, seed v3 (wave A): over every file production has recorded (schema
-   * v1, seed v1, schema v2, seed v2), what it may change in existing rows, and nothing else:
+   * §5.2 for seed v3 (wave A), as production ran it on 24 Oct 2026: over schema v1, seed v1,
+   * schema v2 and seed v2, what it may change in existing rows, and nothing else:
    * - the upper arm's region row at its promotion;
    * - the biceps' and brachialis' node text, whose forearm words moved to the forearm's memberships,
    *   so those two memberships' caveats, and the upper arm's membership of the biceps its new one;
@@ -424,7 +426,7 @@ describe("over what production holds: seed v1's rows stay as they were", () => {
    * Every other row it writes is new; applied again it touches nothing; both versions pass their
    * publication rule. xmin and ctid compared on every table.
    */
-  it("the current seed, over every applied file, changes only what §5.2 allows; applied again it touches nothing; both versions pass their publication rule", async () => {
+  it("seed v3, over seed v2, changes only what §5.2 allows; applied again it touches nothing; both versions pass their publication rule", async () => {
     const fresh = await freshDb("seed v2");
     try {
       const read = async (sql: string) => Object.fromEntries((await rows<{ k: string; row: Record<string, unknown> }>(fresh, sql)).map(({ k, row }) => [k, row]));
@@ -434,7 +436,7 @@ describe("over what production holds: seed v1's rows stay as they were", () => {
       const attributesSql = "select variant_key || ' ' || dimension_id as k, to_jsonb(t) as row from specialization.variant_attributes t";
       const before = { regions: await read(regionsSql), nodes: await read(nodesSql), members: await read(membersSql), attributes: await read(attributesSql) };
       const prior = await rowVersions(fresh);
-      await applyMigration(fresh, SEED_MIGRATION_PATH);
+      await applyMigration(fresh, SEED_V3_MIGRATION_PATH);
       const after = await rowVersions(fresh);
       const changed = Object.fromEntries(Object.keys(prior).map((table) => [table, prior[table].filter((version) => !after[table].includes(version)).length]).filter(([, n]) => n));
       const frozenByUpperArm = new Set(upperArmContent.variants.map((variant) => variant.id).filter((id) => before.attributes[`${id} sided_by`] !== undefined));
@@ -456,8 +458,28 @@ describe("over what production holds: seed v1's rows stay as they were", () => {
       expect(Object.keys(frozen).sort()).toEqual(Array.from(frozenByUpperArm).map((id) => `${id} sided_by`).sort());
       for (const key of Object.keys(frozen)) expect([before.attributes[key].frozen_at, now.attributes[key].frozen_at !== null], key).toEqual([null, true]);
 
-      await applyMigration(fresh, SEED_MIGRATION_PATH);
+      await applyMigration(fresh, SEED_V3_MIGRATION_PATH);
       expect(await rowVersions(fresh)).toEqual(after);
+      expect(await rows(fresh, "select version_key, specialization.mapping_version_problems(id) as problems from specialization.mapping_versions order by 1")).toEqual([
+        { version_key: "forearm_mappings_v1", problems: null },
+        { version_key: "upper_arm_mappings_v1", problems: null },
+      ]);
+    } finally {
+      await fresh.close();
+    }
+  }, SETUP);
+
+  /**
+   * §5.2 for the current seed: over every file production has recorded (schema v1, seed v1,
+   * schema v2, seed v2, seed v3), what it may change in existing rows. In this release, nothing:
+   * seed v4 carries seed v3's content, so it changes no existing row and adds none.
+   */
+  it("the current seed, over every applied file, changes no existing row and adds none; both versions still pass their publication rule", async () => {
+    const fresh = await freshDb("seed v3");
+    try {
+      const prior = await rowVersions(fresh);
+      await applyMigration(fresh, SEED_MIGRATION_PATH);
+      expect(await rowVersions(fresh)).toEqual(prior);
       expect(await rows(fresh, "select version_key, specialization.mapping_version_problems(id) as problems from specialization.mapping_versions order by 1")).toEqual([
         { version_key: "forearm_mappings_v1", problems: null },
         { version_key: "upper_arm_mappings_v1", problems: null },
