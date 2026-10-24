@@ -28,6 +28,11 @@ const curated = {
   // docs/specialization-atlas/05-mappings.md: Dumbbell_Lying_Pronation and _Supination (the source's
   // text describes shoulder rotation and the frames do not show which way the forearm turns).
   401: 'Finger Curls', 410: 'Seated One-Arm Dumbbell Palms-Up Wrist Curl', 411: 'Seated One-Arm Dumbbell Palms-Down Wrist Curl',
+  // October 24 forearm rows (F3): each defined to match its photograph, frames viewed. Cable Wrist Curl: seated facing a low
+  // pulley, a short bar in both hands, palms up, forearms on the thighs (frame 0 wrist down). Behind-the-Back Wrist Curl: standing,
+  // the bar behind the thighs, palms back (frame 0 is the bar curled up: reversed, exercisePhotoOrder.json). The source has no
+  // barbell hold and no single-finger band drill, so 419 and 420 show the placeholder frame.
+  417: 'Cable Wrist Curl', 418: 'Standing Palms-Up Barbell Behind The Back Wrist Curl',
 };
 const byAppName = { 'Pec Deck Fly': 'Butterfly', 'Dumbbell Fly': 'Dumbbell Flyes', 'Reverse Pec Deck': 'Reverse Machine Flyes', 'Pendlay Row': 'Bent Over Barbell Row', 'Chest-Supported Dumbbell Row': 'Dumbbell Incline Row', 'Seal Row': 'Incline Bench Pull', 'Machine Low Row': 'Leverage Iso Row', 'Ring Row': 'Suspended Row', 'Rope Face Pull with External Rotation': 'Face Pull', 'Back Squat': 'Barbell Squat', 'High-Bar Back Squat': 'Barbell Full Squat', 'Forward Lunge': 'Dumbbell Lunges', 'Stiff-Leg Deadlift': 'Stiff-Legged Barbell Deadlift', 'Hip Abduction Machine': 'Thigh Abductor', 'Stability-Ball Hamstring Curl': 'Ball Leg Curl', 'Single-Leg Hip Thrust': 'Single Leg Glute Bridge', 'Captain’s-Chair Leg Raise': 'Knee/Hip Raise On Parallel Bars', 'Farmer’s Carry': "Farmer's Walk", "Farmer's Carry": "Farmer's Walk" };
 // Plausible but incorrect variations (October 1 brief §2): the source photographs the

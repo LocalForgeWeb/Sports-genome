@@ -64,8 +64,9 @@ describe("exercise photographs", () => {
 
   it("lists only two-frame sources the catalog uses, each with the reason it is reversed", () => {
     const used = new Map([...Object.values(entries), ...Object.values(drillEntries)].map(([source, count]) => [source, count]));
-    // 30 when audited; the one-arm kettlebell swing photo was withdrawn on October 6.
-    expect(Object.keys(reversedPhotoSources).length).toBe(29);
+    // 30 when audited; the one-arm kettlebell swing photo was withdrawn on October 6; the behind-the-back wrist curl's pair
+    // (418, October 24) starts with the bar curled up.
+    expect(Object.keys(reversedPhotoSources).length).toBe(30);
     for (const [source, why] of Object.entries(reversedPhotoSources)) {
       expect(used.get(source), source).toBe(2);
       expect(why.length, source).toBeGreaterThan(20);
