@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { forearmMappings } from "@shared/specialization/regions/forearm/mappings";
+import { forearmMappingsV1 } from "@shared/specialization/__fixtures__/forearmMappingsV1";
 import { upperArmContent } from "@shared/specialization/regions/upper_arm";
 import { UPPER_ARM_MAPPING_VERSION, upperArmMuscleIds as m, upperArmTargetIds } from "@shared/specialization/regions/upper_arm/ids";
 import { pullsCurlsCatalogIds, pullsCurlsMappings, pullsCurlsUnmapped, pullsCurlsUntaggedMapped } from "@shared/specialization/regions/upper_arm/mappings/pullsCurls";
@@ -232,7 +233,8 @@ describe("upper-arm pulls and curls: the judgment calls", () => {
   it("reads the biceps and brachialis in every curl as the forearm's frozen rows do, basis and allocation included", () => {
     for (const id of curlIds) {
       for (const nodeId of [m.biceps, m.brachialis]) {
-        const frozen = forearmMappings.find((mapping) => mapping.id === `${variantIdFor(id)}:${nodeId}`);
+        // forearm_mappings_v1's frozen rows (since F3 the forearm's current version, v2, has none on these two muscles: rule 12).
+        const frozen = forearmMappingsV1.find((mapping) => mapping.id === `${variantIdFor(id)}:${nodeId}`);
         expect(frozen, `${id} ${nodeId}`).toBeDefined();
         if (intendedCurlDifferences.includes(frozen!.id)) continue;
         expect(shape(mappingOf(id, nodeId)), `${id} ${nodeId}`).toEqual(shape(frozen));

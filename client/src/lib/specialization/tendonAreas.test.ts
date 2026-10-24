@@ -287,11 +287,11 @@ describe("kept apart: strapped, pending review and region-only sets", () => {
   });
 
   it("lists rows pending review apart, in one list per set", () => {
-    // 299 Farmer's Walk: FDS and FDP holds, FPL a draft mapping, ECRL, ECRB and ECU incidental.
-    // 317 Cable Upright Row: BR a draft mapping, FDS and FDP incidental.
+    // 299 Farmer's Walk: FDS and FDP holds; ECRL, ECRB and ECU incidental; from forearm_mappings_v2 FPL incidental grip (v1's draft,
+    // reviewed) and FCR and FCU incidental too. 317 Cable Upright Row: BR a draft mapping (v2's one draft), FDS and FDP incidental.
     const result = counted([finished("s1", WED, [exercise("e1", "Farmer’s Walk", 299, [workSet({ holdSeconds: "40" })]), exercise("e2", "Cable Upright Row", 317, [workSet()])])]);
-    expect(brief(groupIn(result, "distal", "pollex").counts)).toEqual({ ...none, pending: 1 });
-    expect(groupIn(result, "distal", "pollex").counts.lists.pending.map((row) => row.exerciseName)).toEqual(["Farmer’s Walk"]);
+    expect(brief(groupIn(result, "distal", "pollex").counts)).toEqual({ ...none, sets: 1, other: 1 });
+    expect(groupIn(result, "distal", "pollex").counts.lists.pending).toEqual([]);
     expect(brief(groupIn(result, "distal", "styloid").counts)).toEqual({ ...none, pending: 1 });
     // The walk counted at the back of the wrist, so the area counts it and lists only the upright row as pending.
     expect(brief(area(result, "distal").counts)).toEqual({ ...none, sets: 1, other: 1, pending: 1 });

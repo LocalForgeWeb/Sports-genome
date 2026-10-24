@@ -100,18 +100,18 @@ const assign = (profile: string, catalogIds: readonly number[], options: Partial
 
 /**
  * One assignment per variant whose own work is a movement or a stationary hold of the forearm (a
- * reviewed direct mapping on one of its target muscles). 417 and 418 join the wrist family, and
- * 419 the grip hold, when lane C1 adds them (F3).
+ * reviewed direct mapping on one of its target muscles). From F3 (24 Oct 2026), 417 and 418 join the
+ * wrist family, 419 the grip hold, and 420, a band drill like 404, the finger family's growth range.
  */
 export const forearmRepProfileAssignments: RepProfileAssignment[] = [
   ...assign("forearm.elbow", [132, 133, 134, 135, 136, 337, 342]),
-  ...assign("forearm.wrist", [139, 140, 350, 407, 408, 410, 411, 415, 416]),
+  ...assign("forearm.wrist", [139, 140, 350, 407, 408, 410, 411, 415, 416, 417, 418]),
   ...assign("forearm.rotation", [405, 406]),
   ...assign("forearm.finger", [401, 402]),
-  // A band drill: the finger family's strength range is for loaded finger work.
-  ...assign("forearm.finger", [404], { strengthApplies: false }),
+  // Band drills: the finger family's strength range is for loaded finger work.
+  ...assign("forearm.finger", [404, 420], { strengthApplies: false }),
   ...assign("forearm.thumb", [412, 413, 414], { strengthApplies: false, coverageOnly: true, coverageNote: THUMB_COVERAGE }),
-  ...assign("forearm.grip_hold", [142, 143, 144, 145, 403]),
+  ...assign("forearm.grip_hold", [142, 143, 144, 145, 403, 419]),
 ];
 
 /**

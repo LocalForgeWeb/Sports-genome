@@ -245,22 +245,22 @@ describe("sides", () => {
     }
   });
 
-  it("real forearm data: a one-arm carry with no arm recorded is under review for neither arm, and its credited grip is kept apart", () => {
-    // Suitcase Carry (409): one-handed, timed; FDS and FDP reviewed, FPL still a draft mapping.
+  it("real forearm data: a one-arm carry with no arm recorded is credited to neither arm, the thumb's grip as the fingers' is kept apart", () => {
+    // Suitcase Carry (409): one-handed, timed; FDS and FDP reviewed, and from forearm_mappings_v2 the thumb flexor too, as
+    // incidental grip (it was v1's draft, pending review; 11-forearm-research-and-stack.md §1.3).
     const carries = times(2, () => hold(409, 40, { ...noArm, straps: "no" }));
     for (const side of ["left", "right"] as const) {
       const summary = summarize(carries, { region: forearmRegionData, side });
       const fpl = row(summary, m.flexorPollicisLongus);
-      expect([fpl.pendingReviewBouts, fpl.unknownSide.pendingReviewBouts], side).toEqual([0, 2]);
-      expect(fpl.notCounted!.map((item) => [item.side, item.notes.includes("Mapping pending review")]), side).toEqual([["unknown", true], ["unknown", true]]);
+      expect([fpl.incidentalBouts, fpl.pendingReviewBouts, fpl.unknownSide.bouts, fpl.unknownSide.pendingReviewBouts], side).toEqual([0, 0, 2, 0]);
       const fds = row(summary, m.flexorDigitorumSuperficialis);
       expect([fds.deliberateHoldBouts, fds.unknownSide.deliberateHoldBouts, fds.unknownSide.deliberateHoldSeconds], side).toEqual([0, 2, 80]);
-      expect(summary.nodes.reduce((total, node) => total + node.pendingReviewBouts, 0), side).toBe(0);
+      expect(summary.nodes.reduce((total, node) => total + node.pendingReviewBouts + (node.unknownSide.pendingReviewBouts ?? 0), 0), side).toBe(0);
     }
-    // Logged on the right, the same carries are the right arm's under-review work and not the left's.
+    // Logged on the right, the same carries are the right arm's incidental grip and not the left's.
     const right = times(2, () => hold(409, 40, { ...arm("right"), straps: "no" }));
-    expect(row(summarize(right, { region: forearmRegionData, side: "right" }), m.flexorPollicisLongus).pendingReviewBouts).toBe(2);
-    expect(row(summarize(right, { region: forearmRegionData, side: "left" }), m.flexorPollicisLongus).pendingReviewBouts).toBe(0);
+    expect(row(summarize(right, { region: forearmRegionData, side: "right" }), m.flexorPollicisLongus).incidentalBouts).toBe(2);
+    expect(row(summarize(right, { region: forearmRegionData, side: "left" }), m.flexorPollicisLongus).incidentalBouts).toBe(0);
   });
 });
 

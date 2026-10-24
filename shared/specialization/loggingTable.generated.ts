@@ -188,9 +188,9 @@ export const loggingTable: ReadonlyMap<number, LoggingTableRow> = new Map<number
   // Incline Dumbbell Shrug
   [86, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
   // Face Pull
-  [87, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  [87, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Rope Face Pull with External Rotation
-  [88, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  [88, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Barbell Overhead Press
   [101, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Seated Barbell Overhead Press
@@ -386,7 +386,7 @@ export const loggingTable: ReadonlyMap<number, LoggingTableRow> = new Map<number
   // Cable Upright Row
   [317, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Cable Rear-Delt Row
-  [318, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  [318, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Cable Standing Punch
   [323, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Cable Incline Press-Around
@@ -394,21 +394,21 @@ export const loggingTable: ReadonlyMap<number, LoggingTableRow> = new Map<number
   // Cable Front-Foot-Elevated Press
   [325, { measure: "reps", laterality: "either", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Kneeling Cable Lat Pulldown
-  [326, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  [326, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Wide-Grip Cable Lat Pulldown
   [327, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Cable Straight-Arm Pulldown
   [328, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Cable Single-Arm Bent-Over Row
-  [329, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm"] }],
+  [329, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Chest-Supported Cable Row
-  [330, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  [330, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Low Cable Row
   [331, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Rope Cable Row
   [332, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["upper_arm", "forearm"] }],
   // Cable High Row
-  [333, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
+  [333, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm", "forearm"] }],
   // Cable High Pull
   [335, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["upper_arm"] }],
   // Cable Biceps Curl
@@ -493,4 +493,12 @@ export const loggingTable: ReadonlyMap<number, LoggingTableRow> = new Map<number
   [415, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
   // Wrist Roller, Flexion Wind
   [416, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  // Cable Wrist Curl
+  [417, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  // Behind-the-Back Wrist Curl
+  [418, { measure: "reps", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: [], mappedBy: ["forearm"] }],
+  // Barbell Hold
+  [419, { measure: "seconds", laterality: "bilateral", sidedBy: "none", sideCounted: false, strapsBy: ["forearm"], mappedBy: ["forearm"] }],
+  // Band Index and Little Finger Extension
+  [420, { measure: "reps", laterality: "unilateral", sidedBy: "arm", sideCounted: true, strapsBy: [], mappedBy: ["forearm"] }],
 ]);

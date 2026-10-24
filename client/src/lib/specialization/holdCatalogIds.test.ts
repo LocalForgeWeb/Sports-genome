@@ -18,8 +18,8 @@ describe("the light list of exercises measured in seconds", () => {
   it("names exactly the exercises a production region maps with a variant measured in seconds", () => {
     const seconds = mappedIds.filter((id) => variantFor(id)?.measure === "seconds");
     expect([...holdCatalogIds].sort((a, b) => a - b)).toEqual(seconds);
-    // The forearm's nine, as shipped: no hold is added or taken away in wave 0.
-    expect(seconds).toEqual([142, 143, 144, 145, 299, 300, 400, 403, 409]);
+    // The forearm's nine, as shipped (no hold was added or taken away in wave 0 or wave A), and from F3 419 Barbell Hold.
+    expect(seconds).toEqual([142, 143, 144, 145, 299, 300, 400, 403, 409, 419]);
   });
 
   it("gives every mapped exercise the measure the logger, the page and the planned atlas read", () => {

@@ -24,6 +24,15 @@ import type { Exercise } from "./exerciseCatalog";
  * Sport-fit grades are kept modest. These are small-muscle and grip exercises; the grade says
  * how directly the work serves the sport's grip or forearm demand, not that it moves the needle
  * on the sport's main actions. No row is graded above A.
+ *
+ * Rows 417-420 come from the owner's forearm research package (release F3, 24 Oct 2026;
+ * docs/specialization-atlas/11-forearm-research-and-stack.md §1.2 and §10 decision 2), each mapped
+ * by forearm_mappings_v2 in the release that adds it: 417 Cable Wrist Curl and 418 Behind-the-Back
+ * Wrist Curl (the package's fa-23 and fa-03; each defined to match its photograph), 419 Barbell
+ * Hold (fa-06, a timed hold) and 420 Band Index and Little Finger Extension (decision 2's drill for
+ * the two finger extensors nothing else trains directly). Ids 417-420 were reserved for these by
+ * that note's §1.2; a row a later wave adds starts at 421, and a row is never added in a release
+ * that does not map it or list it in regions/<region>/unmapped.ts.
  */
 export const forearmCatalogExercises: Exercise[] = [
   {
@@ -328,6 +337,82 @@ export const forearmCatalogExercises: Exercise[] = [
       soccer: { grade: "D", movementHelp: "general wrist strength" },
       baseball: { grade: "B", movementHelp: "wrist flexion through ball release and bat control" },
       combat: { grade: "A", movementHelp: "wrist strength for grip fighting" },
+    },
+  },
+  {
+    id: 417,
+    name: "Cable Wrist Curl",
+    sourceGroup: "Forearm Specialization (Oct 2026)",
+    category: "Arms & grip",
+    equipment: "Cable",
+    movement: "Wrist flexion",
+    primaryMuscles: ["forearms"],
+    secondaryMuscles: [],
+    qualities: ["hypertrophy", "grip", "endurance"],
+    muscleGrade: "A",
+    sportFit: {
+      tennis: { grade: "B", movementHelp: "wrist flexion for racket control" },
+      basketball: { grade: "C", movementHelp: "wrist flexion for the shooting release" },
+      soccer: { grade: "D", movementHelp: "general wrist strength" },
+      baseball: { grade: "B", movementHelp: "wrist flexion through ball release and bat control" },
+      combat: { grade: "A", movementHelp: "wrist strength for grip fighting" },
+    },
+  },
+  {
+    id: 418,
+    name: "Behind-the-Back Wrist Curl",
+    sourceGroup: "Forearm Specialization (Oct 2026)",
+    category: "Arms & grip",
+    equipment: "Barbell",
+    movement: "Wrist flexion",
+    primaryMuscles: ["forearms"],
+    secondaryMuscles: [],
+    qualities: ["hypertrophy", "grip", "endurance"],
+    muscleGrade: "A",
+    sportFit: {
+      tennis: { grade: "B", movementHelp: "wrist flexion for racket control" },
+      basketball: { grade: "C", movementHelp: "wrist flexion for the shooting release" },
+      soccer: { grade: "D", movementHelp: "general wrist strength" },
+      baseball: { grade: "B", movementHelp: "wrist flexion through ball release and bat control" },
+      combat: { grade: "A", movementHelp: "wrist strength for grip fighting" },
+    },
+  },
+  {
+    id: 419,
+    name: "Barbell Hold",
+    sourceGroup: "Forearm Specialization (Oct 2026)",
+    category: "Arms & grip",
+    equipment: "Barbell",
+    movement: "Grip isometric",
+    primaryMuscles: ["forearms"],
+    secondaryMuscles: [],
+    qualities: ["strength", "grip", "endurance"],
+    muscleGrade: "A",
+    sportFit: {
+      tennis: { grade: "B", movementHelp: "holding a firm grip through long rallies" },
+      basketball: { grade: "C", movementHelp: "hand strength for ball security" },
+      soccer: { grade: "D", movementHelp: "general hand strength" },
+      baseball: { grade: "B", movementHelp: "holding a firm grip on the bat" },
+      combat: { grade: "A", movementHelp: "holding a closed grip on a sleeve or wrist" },
+    },
+  },
+  {
+    id: 420,
+    name: "Band Index and Little Finger Extension",
+    sourceGroup: "Forearm Specialization (Oct 2026)",
+    category: "Arms & grip",
+    equipment: "Band",
+    movement: "Finger extension",
+    primaryMuscles: ["forearms"],
+    secondaryMuscles: [],
+    qualities: ["endurance", "unilateral"],
+    muscleGrade: "B",
+    sportFit: {
+      tennis: { grade: "C", movementHelp: "opening the hand against resistance, opposite to gripping" },
+      basketball: { grade: "C", movementHelp: "finger extension for releasing the ball" },
+      soccer: { grade: "D", movementHelp: "general hand strength" },
+      baseball: { grade: "C", movementHelp: "opening the hand against resistance, opposite to gripping" },
+      combat: { grade: "C", movementHelp: "opening the hand to break or change grips" },
     },
   },
 ];

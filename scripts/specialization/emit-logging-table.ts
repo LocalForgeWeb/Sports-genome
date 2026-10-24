@@ -17,9 +17,12 @@
  * - `shared/specialization/regions/<region>/libraryVariants.generated.ts`, one per production region
  *   (wave A, 23 Oct 2026): the variant library's records that region's page reads beyond its own
  *   version's: those of the catalog exercises tagged with its keys (within its tag scope) that its
- *   version does not map, which it reads for region-only sets (`taggedVariants`), and those its
- *   homes' published versions map for its external members (`homeVariants`). A region's page reads
- *   these instead of the whole library, so opening the forearm does not download every region's
+ *   version does not map, which it reads for region-only sets (`taggedVariants`), those its
+ *   homes' published versions map for its external members (`homeVariants`), and, for a region
+ *   whose page reads its own lane's records (`regionVariantRecords`, the forearm), those its own
+ *   version maps that another lane wrote (`versionVariants`; F3, 24 Oct 2026: the face pulls and
+ *   cable rows whose brachioradialis `forearm_mappings_v2` credits). A region's page reads these
+ *   instead of the whole library, so opening the forearm does not download every region's
  *   variants (10-multi-region.md §6.1's download gate).
  *
  * All are deterministic (rows in catalog id order, regions in body order, records in library
@@ -31,7 +34,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { exercises as catalog } from "../../client/src/lib/exerciseCatalog";
 import { registeredRegionContents, specializationRegions } from "../../shared/specialization/registry";
-import { variantById, variantFor, variantLibrary } from "../../shared/specialization/variants";
+import { regionVariantRecords, variantById, variantFor, variantLibrary } from "../../shared/specialization/variants";
 import type { ExerciseVariant, LegLaterality, Laterality, RegionContent, RegionId, SetMeasure, SideAnchor, SidedBy, SpecializationRegionData, VariantId } from "../../shared/specialization/types";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -217,13 +220,17 @@ export type CatalogTags = { id: number; primaryMuscles: readonly string[]; secon
  *   calculator always read it from the library (§3; §11 decision 11(c)); it is never credited.
  * - `homeVariants`: the variants its homes' published versions map for its external members that
  *   its version does not map, which those rows credit.
+ * - `versionVariants`: for a region whose page reads its own lane's records (`ownRecords`, from
+ *   `regionVariantRecords`), the variants its own version maps that those records do not hold;
+ *   empty for a region that reads the whole library.
  */
 export function libraryReadsOf(
   content: RegionContent,
   contents: readonly RegionContent[] = registeredRegionContents,
   tags: readonly CatalogTags[] = catalog,
   library: readonly ExerciseVariant[] = variantLibrary,
-): { taggedVariants: ExerciseVariant[]; homeVariants: ExerciseVariant[] } {
+  ownRecords: readonly ExerciseVariant[] | undefined = regionVariantRecords[content.region.id],
+): { taggedVariants: ExerciseVariant[]; homeVariants: ExerciseVariant[]; versionVariants: ExerciseVariant[] } {
   const { region } = content;
   const own = new Set(content.mappings.map((mapping) => mapping.variantId));
   const keys = new Set(region.catalogKeys);
@@ -240,6 +247,7 @@ export function libraryReadsOf(
   return {
     taggedVariants: library.filter((variant) => current(variant) && tagged.has(variant.catalogExerciseId) && !own.has(variant.id) && !homeMapped.has(variant.id)),
     homeVariants: library.filter((variant) => homeMapped.has(variant.id) && !own.has(variant.id)),
+    versionVariants: ownRecords ? library.filter((variant) => own.has(variant.id) && !ownRecords.some((record) => record.id === variant.id)) : [],
   };
 }
 
@@ -268,6 +276,9 @@ export const taggedVariants: ExerciseVariant[] = [${block(reads.taggedVariants)}
 
 /** The variants its homes' published versions map for its external members that its version does not map. */
 export const homeVariants: ExerciseVariant[] = [${block(reads.homeVariants)}];
+
+/** The variants its own version maps whose records another region's lane wrote (empty where the page reads the whole library). */
+export const versionVariants: ExerciseVariant[] = [${block(reads.versionVariants)}];
 `;
 }
 

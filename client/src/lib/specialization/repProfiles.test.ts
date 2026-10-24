@@ -134,12 +134,13 @@ describe("the forearm's rep profiles against the package", () => {
 
   it("assign each family's variants as §5.1 lists them", () => {
     const byFamily = (family: string) => assignments.filter((item) => profiles.find((profile) => profile.id === item.profileId)?.origin.family === family).map((item) => Number(item.variantId.slice(4))).sort((a, b) => a - b);
-    expect(byFamily("wrist")).toEqual([139, 140, 350, 407, 408, 410, 411, 415, 416]);
+    // F3 adds 417 and 418 to the wrist family, 419 to the grip hold and 420, a band drill, to the finger family (§5.1).
+    expect(byFamily("wrist")).toEqual([139, 140, 350, 407, 408, 410, 411, 415, 416, 417, 418]);
     expect(byFamily("rotation")).toEqual([405, 406]);
     expect(byFamily("elbow")).toEqual([132, 133, 134, 135, 136, 337, 342]);
-    expect(byFamily("finger")).toEqual([401, 402, 404]);
+    expect(byFamily("finger")).toEqual([401, 402, 404, 420]);
     expect(byFamily("thumb")).toEqual([412, 413, 414]);
-    expect(byFamily("isometric_grip")).toEqual([142, 143, 144, 145, 403]);
+    expect(byFamily("isometric_grip")).toEqual([142, 143, 144, 145, 403, 419]);
     // The carries keep their whole-exercise prescriptions.
     expect(familyOf(299)).toBeUndefined();
     expect(familyOf(409)).toBeUndefined();

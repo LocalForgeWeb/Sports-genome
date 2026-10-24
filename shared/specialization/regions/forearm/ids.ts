@@ -54,4 +54,9 @@ export const externalContributorIds = {
   brachialis: upperArmMuscleIds.brachialis,
 } as const;
 
-export const FOREARM_MAPPING_VERSION = "forearm_mappings_v1";
+/**
+ * The forearm's current mapping version: `forearm_mappings_v2` from release F3 (24 Oct 2026). v1 stays
+ * published in the database, frozen, and its rows are kept as a fixture (shared/specialization/
+ * __fixtures__/forearmMappingsV1.ts); a region's content holds one version (scripts/specialization/emit-seed.ts).
+ */
+export const FOREARM_MAPPING_VERSION = "forearm_mappings_v2";
