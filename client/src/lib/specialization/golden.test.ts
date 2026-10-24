@@ -203,6 +203,10 @@ describe("the forearm's golden summaries, against the code it shipped with (6738
     // Curl credit is unchanged: nothing is lost; the upper arm adds the rows and pulldowns (43, 45, 46, 66 in these histories).
     expect(credit.lost.size).toBe(0);
     expect(Array.from(credit.gained.keys()).sort()).toEqual(["upper_arm.biceps", "upper_arm.brachialis"]);
+    // Allowed difference 6 names the exact sets gained; hold them, not just print them.
+    for (const node of ["upper_arm.biceps", "upper_arm.brachialis"]) {
+      expect(Array.from(credit.gained.get(node)!).sort((a, b) => a - b), node).toEqual([43, 45, 46, 66]);
+    }
   });
 
   it("credits the biceps on 406 Lever Supination by the upper arm's individual row, and leaves the supinator's row as it was (allowed difference 7)", () => {
