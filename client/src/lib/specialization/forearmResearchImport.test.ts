@@ -148,6 +148,20 @@ describe("forearm research import: the package as received", () => {
     expect(report.importCounts.catalogRows.skipped.count).toBe(48);
   });
 
+  it("reads the package against forearm_mappings_v1, and gives F3's final matrix from the code's v2 (§7.3)", () => {
+    expect([report.app.mappingVersion, report.app.mappingRows, report.app.currentMappingVersion, report.app.catalogEndsAt]).toEqual(["forearm_mappings_v1", 418, "forearm_mappings_v2", 420]);
+    const final = report.finalMatrix;
+    expect([final.version, final.state, final.publishedAt, final.rows, final.reviewed, final.draft, final.carriedUnchanged, final.notCarried]).toEqual(["forearm_mappings_v2", "published", "2026-10-24", 421, 420, 1, 361, 53]);
+    // Every planned row is in v2, reviewed: Hamrick confirmed, both conditional families adopted.
+    expect(final.planned.filter((change) => change.inV2 !== "reviewed")).toEqual([]);
+    expect(final.planned).toHaveLength(4 + 29 + 17);
+    expect(final.secondSources.map((entry) => `${entry.id} ${entry.added.join()}`).sort()).toEqual([
+      "cat-405:forearm.pq pmid.14656682", "cat-405:forearm.pt pmid.14656682", "cat-407:forearm.ecrb pmid.32636008", "cat-407:forearm.ecrl pmid.32636008", "cat-408:forearm.ecu pmid.32636008", "cat-408:forearm.fcu pmid.32636008",
+    ]);
+    expect(final.beyondPlan.map((entry) => entry.id).sort()).toEqual(["cat-318:forearm.br", "cat-326:forearm.br", "cat-329:forearm.br", "cat-330:forearm.br", "cat-333:forearm.br", "cat-420:forearm.ed", "cat-420:forearm.edm", "cat-420:forearm.ei", "cat-87:forearm.br", "cat-88:forearm.br"]);
+    expect(report.designChecks.filter((check) => check.section.includes("F3")).every((check) => check.holds)).toBe(true);
+  });
+
   it("is exactly the committed report (npx tsx scripts/specialization/research/forearm-v1/import.ts --check)", () => {
     const { json, markdown } = renderReport(report);
     expect(readFileSync(REPORT_JSON_PATH, "utf8") === json, "report.json is stale: run npx tsx scripts/specialization/research/forearm-v1/import.ts").toBe(true);
