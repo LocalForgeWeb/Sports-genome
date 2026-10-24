@@ -13,6 +13,7 @@ import {
   SEED_V1_MIGRATION_PATH,
   SEED_V2_MIGRATION_PATH,
   SEED_V3_MIGRATION_PATH,
+  SEED_V4_MIGRATION_PATH,
   USER_A,
   USER_B,
   applyMigration,
@@ -1261,7 +1262,7 @@ describe("rollback", () => {
 
 describe("applied as one DO block per file, the way it reaches production", () => {
   it("wraps a file as exactly one statement, with quote tags the file does not contain", () => {
-    for (const path of [SCHEMA_MIGRATION_PATH, SEED_V1_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH, SEED_V3_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+    for (const path of [SCHEMA_MIGRATION_PATH, SEED_V1_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH, SEED_V3_MIGRATION_PATH, SEED_V4_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
       const text = readMigration(path);
       const block = asDoBlock(text);
       expect(block.startsWith("do $outer$ declare body text := $body$")).toBe(true);
@@ -1307,8 +1308,8 @@ describe("applied as one DO block per file, the way it reaches production", () =
       expect(await held()).toEqual(seedLocks);
       await fresh.exec("commit");
       await applyMigration(fresh, SCHEMA_V2_MIGRATION_PATH);
-      // Seed v2 over schema v2 and seed v3 over seed v2, as production ran them, then the current seed over seed v3.
-      for (const path of [SEED_V2_MIGRATION_PATH, SEED_V3_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+      // Seed v2 over schema v2, seed v3 over seed v2 and seed v4 over seed v3, as production ran them, then the current seed over seed v4.
+      for (const path of [SEED_V2_MIGRATION_PATH, SEED_V3_MIGRATION_PATH, SEED_V4_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
         await fresh.exec("begin");
         await applyMigration(fresh, path);
         const locks = await held();

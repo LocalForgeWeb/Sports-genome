@@ -16,6 +16,7 @@ import {
   SEED_V1_MIGRATION_PATH,
   SEED_V2_MIGRATION_PATH,
   SEED_V3_MIGRATION_PATH,
+  SEED_V4_MIGRATION_PATH,
   USER_A,
   USER_B,
   applyMigration,
@@ -1282,8 +1283,8 @@ describe("applied over what production held (schema v1 and seed v1)", () => {
       expect(await snapshot(wrapped)).toEqual(v1);
       for (const target of [direct, wrapped]) await target.exec("delete from specialization.regions where id = 'zz_fixture'");
 
-      // As production ran them (schema v2, seed v2, seed v3), and the current seed after them.
-      for (const path of [SCHEMA_V2_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH, SEED_V3_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
+      // As production ran them (schema v2, seed v2, seed v3, seed v4), and the current seed after them.
+      for (const path of [SCHEMA_V2_MIGRATION_PATH, SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH, SEED_V3_MIGRATION_PATH, SEED_V4_MIGRATION_PATH, SEED_MIGRATION_PATH]) {
         await applyMigration(direct, path);
         await applyMigrationAsDoBlock(wrapped, path);
       }
@@ -1488,9 +1489,9 @@ describe("the undo (scripts/specialization/release/schema_v2_undo.sql)", () => {
 
 describe("the apply tool (scripts/specialization/release/make-apply-sql.mjs)", () => {
   const sha = "0123456789abcdef0123456789abcdef01234567";
-  // Wave 0's two files, as production applied them on 22 Oct 2026, wave A's seed v3, applied on 24 Oct, and the current seed,
-  // which the next release applies after them.
-  const files = [SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH, SEED_V3_MIGRATION_PATH, SEED_MIGRATION_PATH].map((path) => basename(path));
+  // Wave 0's two files, as production applied them on 22 Oct 2026, wave A's seed v3 and F3's seed v4, both applied on 24 Oct,
+  // and the current seed, which the next release applies after them.
+  const files = [SCHEMA_V2_MIGRATION_PATH, SEED_V2_MIGRATION_PATH, SEED_V3_MIGRATION_PATH, SEED_V4_MIGRATION_PATH, SEED_MIGRATION_PATH].map((path) => basename(path));
   const urlOf = (file: string) => `https://raw.githubusercontent.com/LocalForgeWeb/Sports-genome/${sha}/supabase/migrations/${file}`;
   const run = (args: string[]) => execFileSync(process.execPath, [APPLY_TOOL, ...args], { encoding: "utf8", stdio: "pipe" });
   let out: string;
@@ -1566,7 +1567,7 @@ describe("the apply tool (scripts/specialization/release/make-apply-sql.mjs)", (
       const serve = (file: string, status: number, content: string) =>
         target.query("insert into extensions.http_files (url, status, content) values ($1, $2, $3) on conflict (url) do update set status = excluded.status, content = excluded.content", [urlOf(file), status, content]);
       const apply = (file: string) => scriptFailure(target, applySql(file).replace("  create extension if not exists http with schema extensions;\n", ""));
-      const [schemaV2, seedV2, seedV3, current] = files;
+      const [schemaV2, seedV2, seedV3, seedV4, current] = files;
       const text = (file: string) => readFileSync(resolve(process.cwd(), "supabase/migrations", file), "utf8");
       const recorded = () => rows<{ version: string }>(target, "select version from supabase_migrations.schema_migrations order by 1").then((found) => found.map((row) => row.version));
       const v1 = await snapshot(target);
@@ -1613,16 +1614,23 @@ describe("the apply tool (scripts/specialization/release/make-apply-sql.mjs)", (
       expect(await apply(seedV2)).toBeNull();
       expect(await recorded()).toEqual(["20261016120000", "20261016120100", "20261019120000", "20261019120100"]);
       expect((await snapshot(target)).catalog).toEqual((await snapshot(db)).catalog);
-      // Then seed v3, as production applied it on 24 Oct 2026; the current seed waits for it.
-      await serve(current, 200, text(current));
+      // Then seed v3, as production applied it on 24 Oct 2026; seed v4 waits for it.
+      await serve(seedV4, 200, text(seedV4));
       const afterSeedV2 = await snapshot(target);
-      expect(await apply(current)).toMatch(new RegExp(`${current} applies after 20261022120100 specialization_atlas_seed_v3, which production has not recorded`));
+      expect(await apply(seedV4)).toMatch(new RegExp(`${seedV4} applies after 20261022120100 specialization_atlas_seed_v3, which production has not recorded`));
       expect(await snapshot(target)).toEqual(afterSeedV2);
       expect(await apply(seedV3)).toBeNull();
       expect(await recorded()).toEqual(["20261016120000", "20261016120100", "20261019120000", "20261019120100", "20261022120100"]);
+      // Then seed v4, as production applied it on 24 Oct 2026 (F3); the current seed waits for it.
+      await serve(current, 200, text(current));
+      const afterSeedV3 = await snapshot(target);
+      expect(await apply(current)).toMatch(new RegExp(`${current} applies after 20261024120100 specialization_atlas_seed_v4, which production has not recorded`));
+      expect(await snapshot(target)).toEqual(afterSeedV3);
+      expect(await apply(seedV4)).toBeNull();
+      expect(await recorded()).toEqual(["20261016120000", "20261016120100", "20261019120000", "20261019120100", "20261022120100", "20261024120100"]);
       // Then the current seed applies over what production holds: the release database, history included.
       expect(await apply(current)).toBeNull();
-      expect(await recorded()).toEqual(["20261016120000", "20261016120100", "20261019120000", "20261019120100", "20261022120100", "20261024120100"]);
+      expect(await recorded()).toEqual(["20261016120000", "20261016120100", "20261019120000", "20261019120100", "20261022120100", "20261024120100", "20261025120100"]);
       expect(await snapshot(target)).toEqual(await snapshot(release));
       expect(await recorded()).toEqual((await rows<{ version: string }>(release, "select version from supabase_migrations.schema_migrations order by 1")).map((row) => row.version));
     } finally {
