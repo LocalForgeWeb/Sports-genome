@@ -76,9 +76,9 @@ describe("the stack, from Planned mode through Home and back", () => {
   it("Design a stack → Add → the page's planned direct moving sets are the total → Undo restores the plan exactly", async () => {
     window.history.replaceState({}, "", "/?workspace=specialization&region=forearm&mode=planned");
     render(createElement(Home));
-    await screen.findByRole("heading", { name: "Muscles, most direct work first" }, { timeout: 15000 });
+    await screen.findByRole("heading", { name: "Muscles" }, { timeout: 15000 });
     await tick();
-    await waitFor(() => expect(windowLine()).toBe("Plan Week 1, as written: 21 bouts planned · 3 direct moving sets"), { timeout: 10000 });
+    await waitFor(() => expect(windowLine()).toBe("Plan Week 1, as written: 21 sets planned · 3 direct moving sets"), { timeout: 10000 });
     const before = storedWeek();
     expect(before.weeklyPlanEntries["2-Legs"].map((entry: { catalogExerciseId: number }) => entry.catalogExerciseId)).toEqual([173, 2, 54, 186, 132]);
 
@@ -106,7 +106,7 @@ describe("the stack, from Planned mode through Home and back", () => {
       for (const entry of before.weeklyPlanEntries[key] as { entryId: number }[]) expect(after.weeklyPrescriptions[key]?.[entry.entryId]).toBeUndefined();
     }
     // The page's planned direct moving count is the total chosen.
-    await waitFor(() => expect(windowLine()).toBe("Plan Week 1, as written: 32 bouts planned · 14 direct moving sets"), { timeout: 10000 });
+    await waitFor(() => expect(windowLine()).toBe("Plan Week 1, as written: 32 sets planned · 14 direct moving sets"), { timeout: 10000 });
     expect(card.querySelector(":scope > summary small")!.textContent).toBe("Your stack: 14 direct moving sets in Week 1");
     expect(loadStackStore(null).stacks.map((stack) => [stack.planWeek, stack.total, stack.entries.length])).toEqual([[1, 14, 11]]);
 
@@ -125,6 +125,6 @@ describe("the stack, from Planned mode through Home and back", () => {
       : value]));
     expect(emptyDropped(storedWeek())).toEqual(emptyDropped(before));
     expect(loadStackStore(null).stacks).toEqual([]);
-    await waitFor(() => expect(windowLine()).toBe("Plan Week 1, as written: 21 bouts planned · 3 direct moving sets"), { timeout: 10000 });
+    await waitFor(() => expect(windowLine()).toBe("Plan Week 1, as written: 21 sets planned · 3 direct moving sets"), { timeout: 10000 });
   }, 60000);
 });

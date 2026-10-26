@@ -360,7 +360,7 @@ describe("the window line's pair opens its sets (brief §1: every total opens th
     render(createElement(Harness, { initial: { mode: "planned" } }));
     const button = within(document.querySelector(".spz-window") as HTMLElement).getByRole("button");
     // Planned mode says the plan week's direct moving sets where the logged count stood (11-forearm-research-and-stack.md §3.3); the sheet it opens still sets the logged week beside it.
-    expect(button.textContent).toMatch(/^Plan Week 1, as written: \d+ sets planned · \d+ direct moving$/);
+    expect(button.textContent).toMatch(/^Plan Week 1, as written: \d+ sets planned · \d+ direct moving sets?$/);
     await act(async () => { fireEvent.click(button); });
     const sheet = screen.getByRole("dialog", { name: /^3 logged · \d+ planned$/ });
     expect(within(sheet).getAllByRole("button", { name: /Open this workout/ })).toHaveLength(3);
@@ -567,7 +567,7 @@ describe("planned beside logged, only for the week being trained (design §4)", 
     render(createElement(Harness, { plan, initial: { nodeId: "forearm.br" } }));
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Planned" })); });
     expect(screen.getByRole("button", { name: "Week 1" }).getAttribute("aria-pressed")).toBe("true");
-    expect(windowLine()).toMatch(/sets planned · \d+ direct moving$/);
+    expect(windowLine()).toMatch(/sets planned · \d+ direct moving sets?$/);
     expect(document.querySelector(".spz-window-open")).not.toBeNull();
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Week 2" })); });
     expect(windowLine()).toMatch(/: you train from Week 1, so there is no logged week to compare$/);

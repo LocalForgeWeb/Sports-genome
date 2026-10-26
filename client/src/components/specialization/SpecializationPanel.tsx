@@ -869,7 +869,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       {pairShown
         ? <p className="spz-window"><button type="button" className="spz-window-open" onClick={() => setSheet({ kind: "bouts", list: "pair" })}><span><b>{interval.label}</b>: <span className="spz-pair">{state.mode === "planned"
           // Planned mode says the plan week's direct moving sets where the logged count stood (11 §3.3); the logged week is in the sets the line opens.
-          ? <><b>{plannedBouts}</b> set{plannedBouts === 1 ? "" : "s"} planned · <b>{plannedDirect ?? 0}</b> direct moving</>
+          ? <><b>{plannedBouts}</b> set{plannedBouts === 1 ? "" : "s"} planned · <b>{plannedDirect ?? 0}</b> direct moving set{plannedDirect === 1 ? "" : "s"}</>
           : <><b>{completedBouts}</b> set{completedBouts === 1 ? "" : "s"} logged · <b>{plannedBouts}</b> planned in Plan Week{" "}{trainingWeek}</>}</span></span><ArrowRight className="h-4 w-4" aria-hidden="true" /></button></p>
         : <p className="spz-window"><b>{interval.label}</b>{state.mode === "planned" && !planInput ? (plan.ready ? ` · Week ${planWeek} has nothing planned yet` : " · your plan is loading") : ""}{noPairNote && <span className="spz-pair-note">: you train from Week {trainingWeek}, so there is no logged week to compare</span>}</p>}
     </div>

@@ -159,7 +159,7 @@ describe("the card, closed", () => {
   it("in Planned mode, the window line and the 3D model's Overview say the same number in the same words", async () => {
     render(createElement(Harness, { initial: { mode: "planned" } }));
     await act(async () => {});
-    expect(windowLine()).toBe("Plan Week 1, as written: 21 sets planned · 3 direct moving");
+    expect(windowLine()).toBe("Plan Week 1, as written: 21 sets planned · 3 direct moving sets");
     cleanup();
     // The model's panel with nothing selected is given the page's planned line (jsdom draws no model, so it is rendered on its own here).
     render(createElement(ModelMusclePanel, { data: null, mode: "planned", windowLabel: "Plan Week 1, as written", regionLine: "21 sets planned for the forearms in Plan Week 1; 3 are direct moving sets.", bothSides: "both arms", countedTogether: "", onViewContributions: () => {}, onAddExercise: () => {}, onViewExercise: () => {}, onOpenMethod: () => {}, onSeeRegionSets: () => {}, onDesignStack: () => {}, credits: null }));
@@ -414,7 +414,7 @@ describe("the card, open", () => {
     expect(document.activeElement).toBe(undo);
     expect(within(card()).getByText("The page now shows 14 direct moving sets for Plan Week 1.")).not.toBeNull();
     await waitFor(() => expect(summaryLines()).toEqual(["Design a stack", "Your stack: 14 direct moving sets in Week 1"]));
-    expect(windowLine()).toBe("Plan Week 1, as written: 32 sets planned · 14 direct moving");
+    expect(windowLine()).toBe("Plan Week 1, as written: 32 sets planned · 14 direct moving sets");
     expect(within(card()).getByRole("button", { name: "Change the total" })).not.toBeNull();
     expect(within(card()).getByRole("button", { name: "Take it out" })).not.toBeNull();
     // The device record: the stack, its 11 entries as written, and the region's last total.
