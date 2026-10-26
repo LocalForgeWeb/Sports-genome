@@ -376,7 +376,7 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
 
   // ---------------------------------------------------------------- views
 
-  const completedNote = mode === "completed" ? <p className="spz-note">Built from your plan as written; sets you logged are not counted here.</p> : null;
+  const completedNote = mode === "completed" ? <p className="spz-note">From your plan as written, not your logged sets.</p> : null;
   const doneLine = done && <p className="spz-inline-status spz-stack-done" role="status" ref={done.kind === "undone" ? (element) => { doneRef.current = element; } : undefined} tabIndex={done.kind === "undone" ? -1 : undefined}>
     <span id={`${ids}-done`}>{done.text}</span>
     {done.kind !== "undone" && <button ref={(element) => { doneRef.current = element; }} type="button" className="spz-button" aria-describedby={`${ids}-done`} onClick={undoDone}>Undo</button>}
@@ -420,7 +420,7 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
         <button type="button" className="spz-button" onClick={() => startDesign("stack")}>Change the total</button>
         {asWritten.length > 0 && onApplyPlanChanges && <button type="button" className="spz-button" aria-busy={busy || undefined} onClick={() => { void takeOut(); }}>{busy ? "Taking it out…" : "Take it out"}</button>}
       </div>}
-      {current && !asWritten.length && <p className="spz-note">Every entry of the stack has changed since it was added, so they are your plan's own and stay as they are.</p>}
+      {current && !asWritten.length && <p className="spz-note">You changed every entry of the stack, so they are your plan's own now.</p>}
     </div>;
   }
 
@@ -447,8 +447,8 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
     {completedNote}
     {doneLine}
     {doneDetail}
-    <p className="spz-stack-lede">Pick a weekly number; the app chooses the exercises and puts them on your plan days.</p>
-    {changing && <p className="spz-note">Designing again on Plan Week {week} as it is without your stack. Adding replaces the stack's own entries; anything you changed stays.</p>}
+    <p className="spz-stack-lede">Pick a weekly number; the app picks the exercises and days.</p>
+    {changing && <p className="spz-note">Designing again without your stack. Adding replaces its entries; your changes stay.</p>}
 
     <div className="spz-stack-total" role="group" aria-labelledby={`${ids}-label`}>
       <label id={`${ids}-label`} htmlFor={`${ids}-total`}>Direct {noun} sets a week</label>
@@ -490,7 +490,7 @@ function StackDesignerBody({ data, week, mode, plan, catalog, equipmentProfile, 
     {design.changes.length > 0 && onApplyPlanChanges
       ? <button type="button" className="spz-primary spz-stack-add" aria-busy={busy || undefined} onClick={() => { void add(); }}>{busy ? (changing ? "Replacing…" : "Adding…") : addLabel}</button>
       : <p className="spz-note">{design.changes.length ? "Adding to the plan is not available here." : nothingToAdd}</p>}
-    <p className="spz-note">Your own exercises and their sets stay as they are.</p>
+    <p className="spz-note">Your own exercises stay as they are.</p>
     {changing && <button type="button" className="spz-button" onClick={() => { setView("auto"); setError(null); }}>Keep your stack as it is</button>}
 
     {changedDays.length > 0 && <ul className="spz-stack-daylines" aria-label="The days it changes">
@@ -759,7 +759,7 @@ function MuscleChanges({ data, input, design, baseStore }: { data: Specializatio
   const targets = design.targets.filter((target) => target.status !== "other_region");
   const nodeName = (nodeId: string) => lowerFirst(data.nodes.find((node) => node.id === nodeId)?.name ?? nodeId);
   return <div className="spz-stack-muscles">
-    <p className="spz-note">Planned totals only, as the rest of this page counts them; what you logged stays as it is. Direct, helper, hold and incidental work are counted apart.</p>
+    <p className="spz-note">Planned totals. Direct, helper, hold and incidental work are counted apart.</p>
     <ul className="spz-preview-list">
       {shown.map((node) => {
         const was = describe(beforeOf.get(node.id));
@@ -861,7 +861,7 @@ function HowItIsBuilt({ extras, words, noun }: { extras: RegionExtras | null; wo
     {hold && <p>{holdRangeSentence(rangeText(hold.growth))}</p>}
     <p>{REP_EFFORT_SENTENCE}</p>
     <p>A stack added on another device, or an entry you changed after it was added, counts as your plan's own.</p>
-    <p>A set here is what the rest of this page calls a bout: one set, and a drop set counts once.</p>
+    <p>A drop set counts as one set.</p>
     {sources.length > 0 && <ul className="spz-sources">{sources.map((source) => <li key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a></li>)}</ul>}
   </div>;
 }

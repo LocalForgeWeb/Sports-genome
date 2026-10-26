@@ -18,7 +18,7 @@ import { getGoalPrescription } from "@/lib/workoutPlanner";
 
 /**
  * The specialization page, rendered (design §7): the list and the sheet say the same thing,
- * a muscle without a target is "Not targeted", a target for both arms is two targets, and an
+ * a muscle without a target says "No target.", a target for both arms is two targets, and an
  * add is previewed in planned totals and handed to Home as one exact day.
  */
 
@@ -75,18 +75,18 @@ describe("the specialization page", () => {
     // From wave A there are two production regions, so the heading is the region picker, named by the region's label.
     expect(within(screen.getByRole("heading", { level: 1 })).getByRole("button", { name: /^Forearms/ })).not.toBeNull();
     // Three two-handed hammer curls: three direct bouts, never six (both arms are counted as one).
-    expect(row(/^Brachioradialis, Surface\. 3 direct dynamic bouts/)).not.toBeNull();
-    expect(within(screen.getByRole("group", { name: "Selected muscle" })).getByText(/3 distinct bouts touched the forearms\./)).not.toBeNull();
+    expect(row(/^Brachioradialis, Surface\. 3 direct sets/)).not.toBeNull();
+    expect(within(screen.getByRole("group", { name: "Selected muscle" })).getByText(/3 sets on the forearms\./)).not.toBeNull();
     expect(screen.queryByRole("group", { name: "Arm" })).toBeNull();
   });
 
-  it("opens a muscle's sheet from the list, in the brief's order, and says Not targeted rather than a gap", async () => {
+  it("opens a muscle's sheet from the list, in the brief's order, and says No target rather than a gap", async () => {
     render(createElement(Harness));
     await act(async () => { fireEvent.click(row(/^Brachioradialis,/)); });
     const sheet = screen.getByRole("dialog", { name: "Brachioradialis" });
     const headings = within(sheet).getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent);
     expect(headings).toEqual(["What it does", "How it contributes to shape", "Completed · This week · 12–18 Oct", "Where the numbers come from", "Your target", "Exercises for this muscle", "Sources and method"]);
-    expect(within(sheet).getByText("Not targeted.")).not.toBeNull();
+    expect(within(sheet).getByText("No target.")).not.toBeNull();
     expect(within(sheet).getByText("Hammer Curl")).not.toBeNull();
     await act(async () => { fireEvent.keyDown(window, { key: "Escape" }); });
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -143,7 +143,7 @@ describe("the specialization page", () => {
     expect(screen.queryByRole("button", { name: "Left arm" })).toBeNull();
     // Planned: Hammer Curl's sets as the goal's default prescription writes them for its place in the day.
     const planned = parseSetCount(getGoalPrescription("Athleticism", 1));
-    expect(row(new RegExp(`^Brachioradialis, Surface\\. ${planned} direct dynamic bouts`))).not.toBeNull();
+    expect(row(new RegExp(`^Brachioradialis, Surface\\. ${planned} direct sets`))).not.toBeNull();
   });
   it("starts an add from Add targeted exercise when the muscle has no work", async () => {
     render(createElement(Harness, { initial: { nodeId: "forearm.fcr" } }));
@@ -170,7 +170,7 @@ describe("the specialization page", () => {
     render(createElement(Harness));
     const line = document.querySelector(".spz-window")!.textContent!;
     // "Plan Week" and its number never part across lines (a no-break space).
-    expect(line).toMatch(/^This week · \d+–\d+ Oct: 3 bouts logged · \d+ planned in Plan Week\u00a01$/);
+    expect(line).toMatch(/^This week · \d+–\d+ Oct: 3 sets logged · \d+ planned in Plan Week\u00a01$/);
   });
 
   it("drops a muscle the region does not have from the address", async () => {
@@ -194,7 +194,7 @@ describe("the selected muscle, on the same screen as the drawing (brief §6 mobi
     const card = mapCard();
     const strip = within(card).getByRole("group", { name: "Selected muscle" });
     expect(within(strip).getByText("Brachioradialis")).not.toBeNull();
-    expect(within(strip).getByText(/^3 direct dynamic bouts/)).not.toBeNull();
+    expect(within(strip).getByText(/^3 direct sets/)).not.toBeNull();
     const controls = within(card).getByRole("group", { name: "View" });
     // The forearm's drawing is its rendered plates (the owner's, 23 Oct): the plate's canvas.
     const drawing = card.querySelector(".spz-plate-canvas")!;
@@ -215,7 +215,7 @@ describe("the selected muscle, on the same screen as the drawing (brief §6 mobi
     const lines = strip.querySelectorAll(".spz-strip-goal");
     expect(lines).toHaveLength(1);
     // Right arm: 3 of 4 direct bouts, 0 of 6 holds; the holds are furthest behind. The left arm's target is not this arm's.
-    expect(lines[0].textContent).toMatch(/^Hold bouts: 0 of your 6.* · 1 more target$/);
+    expect(lines[0].textContent).toMatch(/^Holds: 0 of your 6.* · 1 more target$/);
   });
 
   it("follows a tap on the drawing, and offers to add when the muscle has no work", async () => {
@@ -248,10 +248,10 @@ describe("the selected muscle, on the same screen as the drawing (brief §6 mobi
     const onOpenSession = vi.fn();
     render(createElement(Harness, { onOpenSession }));
     const strip = within(mapCard()).getByRole("group", { name: "Selected muscle" });
-    expect(within(strip).getByText(/^3 distinct bouts touched the forearms\./)).not.toBeNull();
+    expect(within(strip).getByText(/^3 sets on the forearms\./)).not.toBeNull();
     await act(async () => { fireEvent.click(within(strip).getByRole("button", { name: /See these sets/ })); });
-    const sheet = screen.getByRole("dialog", { name: "3 distinct bouts" });
-    expect(sheet.textContent).toMatch(/every set that loaded a muscle of the forearms, each counted once/);
+    const sheet = screen.getByRole("dialog", { name: "3 sets" });
+    expect(sheet.textContent).toMatch(/every set on the forearms, each counted once/);
     expect(within(sheet).getByText("Hammer Curl")).not.toBeNull();
     const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
     expect(open).toHaveLength(3);
@@ -273,9 +273,9 @@ describe("totals for the whole region open their sets (brief §1)", () => {
     const onOpenSession = vi.fn();
     logged([...sessions, extra]);
     render(createElement(Harness, { onOpenSession }));
-    const finding = screen.getByText("3 sets count for the forearms as a whole only").closest("li")!;
+    const finding = screen.getByText("3 sets count for the forearms only").closest("li")!;
     await act(async () => { fireEvent.click(within(finding).getByRole("button", { name: /See these sets/ })); });
-    const sheet = screen.getByRole("dialog", { name: "3 sets for the forearms as a whole" });
+    const sheet = screen.getByRole("dialog", { name: "3 sets for the forearms only" });
     expect(within(sheet).getByText("Dumbbell Pullover")).not.toBeNull();
     expect(within(sheet).getByText("3 sets")).not.toBeNull();
     const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
@@ -288,11 +288,11 @@ describe("totals for the whole region open their sets (brief §1)", () => {
     logged([...sessions, extra]);
     render(createElement(Harness));
     expect(screen.queryByText(/sets? with no arm recorded (is|are)|counted for neither arm/)).toBeNull();
-    // Three hammer curls and the one-arm wrist curl: four distinct bouts.
+    // Three hammer curls and the one-arm wrist curl: four sets, each counted once.
     const strip = within(mapCard()).getByRole("group", { name: "Selected muscle" });
-    expect(within(strip).getByText(/^4 distinct bouts touched the forearms\./)).not.toBeNull();
+    expect(within(strip).getByText(/^4 sets on the forearms\./)).not.toBeNull();
     await act(async () => { fireEvent.click(within(strip).getByRole("button", { name: /See these sets/ })); });
-    const sheet = screen.getByRole("dialog", { name: "4 distinct bouts" });
+    const sheet = screen.getByRole("dialog", { name: "4 sets" });
     expect(within(sheet).getByText("One-Arm Dumbbell Wrist Curl")).not.toBeNull();
     expect(within(sheet).queryByText(/Arm not recorded|Left arm|Right arm/)).toBeNull();
   });
@@ -302,7 +302,7 @@ describe("totals for the whole region open their sets (brief §1)", () => {
     const strip = within(mapCard()).getByRole("group", { name: "Selected muscle" });
     await act(async () => { fireEvent.click(within(strip).getByRole("button", { name: /See these sets/ })); });
     const sheet = screen.getByRole("dialog");
-    expect(sheet.textContent).toMatch(/every set planned for a muscle of the forearms, each counted once/);
+    expect(sheet.textContent).toMatch(/every set planned for the forearms, each counted once/);
     expect(sheet.textContent).not.toMatch(/loaded/);
     expect(within(sheet).queryAllByRole("button", { name: /Open this workout/ })).toEqual([]);
   });
@@ -318,15 +318,15 @@ describe("totals for the whole region open their sets (brief §1)", () => {
     const onOpenSession = vi.fn();
     logged([...sessions, extra]);
     render(createElement(Harness, { onOpenSession }));
-    const days = screen.getByRole("list", { name: "Distinct bouts per day in this window" });
+    const days = screen.getByRole("list", { name: "Sets per day" });
     // Thursday's pullovers are mapped to no muscle; its one-arm wrist curl counts (both arms as one).
     // Tuesday's hammer curls and Thursday's wrist curl make the bars with work, and only they are buttons.
     expect(within(days).getAllByRole("listitem")).toHaveLength(7);
     const bars = within(days).getAllByRole("button");
-    expect(bars.map((bar) => bar.getAttribute("aria-label"))).toEqual([expect.stringMatching(/13.*: 3 distinct bouts\. See these sets$/), expect.stringMatching(/15.*: 1 distinct bout\. See these sets$/)]);
+    expect(bars.map((bar) => bar.getAttribute("aria-label"))).toEqual([expect.stringMatching(/13.*: 3 sets\. See them$/), expect.stringMatching(/15.*: 1 set\. See them$/)]);
     await act(async () => { fireEvent.click(bars[0]); });
-    const sheet = screen.getByRole("dialog", { name: bars[0].getAttribute("aria-label")!.replace(/: 3 distinct bouts\. See these sets$/, "") });
-    expect(sheet.textContent).toMatch(/3 distinct bouts that day: every set that loaded a muscle of the forearms, each counted once/);
+    const sheet = screen.getByRole("dialog", { name: bars[0].getAttribute("aria-label")!.replace(/: 3 sets\. See them$/, "") });
+    expect(sheet.textContent).toMatch(/3 sets on the forearms that day, each counted once\./);
     expect(within(sheet).getByText("Hammer Curl")).not.toBeNull();
     const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
     expect(open).toHaveLength(3);
@@ -342,12 +342,12 @@ describe("the window line's pair opens its sets (brief §1: every total opens th
     const line = document.querySelector(".spz-window")!;
     const button = within(line as HTMLElement).getByRole("button");
     expect(button.textContent).toBe(line.textContent);
-    expect(button.textContent).toMatch(/: 3 bouts logged · \d+ planned in Plan Week\u00a01$/);
+    expect(button.textContent).toMatch(/: 3 sets logged · \d+ planned in Plan Week\u00a01$/);
     await act(async () => { fireEvent.click(button); });
     const sheet = screen.getByRole("dialog", { name: /^3 logged · \d+ planned$/ });
     const headings = within(sheet).getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent);
-    // Counted as the line counts them: bouts, each set once however many muscles it loads.
-    expect(headings).toEqual(["Logged: 3 bouts", expect.stringMatching(/^Planned in Plan Week 1: \d+ bouts$/)]);
+    // Counted as the line counts them: sets, each once however many muscles it loads.
+    expect(headings).toEqual(["Logged: 3 sets", expect.stringMatching(/^Planned in Plan Week 1: \d+ sets$/)]);
     expect(sheet.textContent).toMatch(/This week · \d+–\d+ Oct, logged, beside Plan Week 1, as written\./);
     // Only the logged sets have a workout to open.
     const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
@@ -360,7 +360,7 @@ describe("the window line's pair opens its sets (brief §1: every total opens th
     render(createElement(Harness, { initial: { mode: "planned" } }));
     const button = within(document.querySelector(".spz-window") as HTMLElement).getByRole("button");
     // Planned mode says the plan week's direct moving sets where the logged count stood (11-forearm-research-and-stack.md §3.3); the sheet it opens still sets the logged week beside it.
-    expect(button.textContent).toMatch(/^Plan Week 1, as written: \d+ bouts planned · \d+ direct moving sets?$/);
+    expect(button.textContent).toMatch(/^Plan Week 1, as written: \d+ sets planned · \d+ direct moving sets?$/);
     await act(async () => { fireEvent.click(button); });
     const sheet = screen.getByRole("dialog", { name: /^3 logged · \d+ planned$/ });
     expect(within(sheet).getAllByRole("button", { name: /Open this workout/ })).toHaveLength(3);
@@ -411,14 +411,14 @@ describe("the exercises for a muscle, beyond each suggestion (brief §7)", () =>
     render(createElement(Harness));
     await act(async () => { fireEvent.click(row(/^Flexor carpi radialis,/)); });
     const exercisesSection = section(screen.getByRole("dialog", { name: "Flexor carpi radialis" }));
-    const note = "No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week.";
+    const note = "No reviewed exercise for flexor carpi radialis counts toward your target of 3 holds this week.";
     const notes = Array.from(exercisesSection.querySelectorAll(".spz-suggest-note")).map((item) => item.textContent);
     expect(notes).toEqual([note]);
     const list = exercisesSection.querySelector(".spz-candidates")!;
     expect(exercisesSection.querySelector(".spz-suggest-note")!.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     // The exercises that fill the dynamic target name only that one.
     const first = list.querySelector(".spz-candidate small")!.textContent!;
-    expect(first).toMatch(/of your 10 direct dynamic bouts this week/);
+    expect(first).toMatch(/of your 10 direct moving sets this week/);
     expect(first).not.toMatch(/hold/);
   });
 
@@ -444,7 +444,7 @@ describe("the exercises for a muscle, beyond each suggestion (brief §7)", () =>
     await act(async () => { fireEvent.click(row(/^Flexor carpi radialis,/)); });
     const exercisesSection = section(screen.getByRole("dialog", { name: "Flexor carpi radialis" }));
     expect(Array.from(exercisesSection.querySelectorAll(".spz-suggest-note")).map((item) => item.textContent)).toEqual([
-      "No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week.",
+      "No reviewed exercise for flexor carpi radialis counts toward your target of 3 holds this week.",
       "Radial deviation, a main action of this muscle, has no direct work in this window, and the exercises that train it directly answer a target you have already met, so none is suggested.",
     ]);
     const list = exercisesSection.querySelector(".spz-candidates")!;
@@ -470,13 +470,13 @@ describe("a movement target leads somewhere (brief §7: targets attach to a musc
     const onOpenSession = vi.fn();
     render(createElement(Harness, { onOpenSession }));
     const finding = screen.getByText("Elbow flexion: 3 of your 10").closest("li")!;
-    await act(async () => { fireEvent.click(within(finding).getByRole("button", { name: /See its sets and exercises/ })); });
+    await act(async () => { fireEvent.click(within(finding).getByRole("button", { name: /See sets and exercises/ })); });
     const sheet = screen.getByRole("dialog", { name: "Elbow flexion" });
-    const numbers = within(sheet).getByText("Direct dynamic bouts").closest("div")!;
+    const numbers = within(sheet).getByText("Direct moving sets").closest("div")!;
     expect(numbers.querySelector("dd")!.textContent).toBe("3");
-    expect(within(sheet).getByText(/Direct dynamic bouts: 3 of your 10/)).not.toBeNull();
+    expect(within(sheet).getByText(/Direct moving sets: 3 of your 10/)).not.toBeNull();
     const group = within(sheet).getByText("Hammer Curl").closest("details")!;
-    expect(within(group).getByText("3 bouts")).not.toBeNull();
+    expect(within(group).getByText("3 sets")).not.toBeNull();
     expect(within(group).getAllByText(/^By BR/).length).toBe(3);
     const open = within(group).getAllByRole("button", { name: /Open this workout/ });
     expect(open).toHaveLength(3);
@@ -533,10 +533,10 @@ describe("planned mode while the plan loads", () => {
     const strip = within(mapCard()).getByRole("group", { name: "Selected muscle" });
     expect(within(strip).getByText("Loading your plan…")).not.toBeNull();
     expect(screen.queryByText(/of your 20/)).toBeNull();
-    expect(screen.queryByText(/distinct bouts? touched/)).toBeNull();
+    expect(screen.queryByText(/\d+ sets? (on|planned for) the forearms/)).toBeNull();
     expect(screen.getByRole("heading", { name: "Coverage to review" }).closest("section")!.textContent).toMatch(/Loading your plan…$/);
     expect(row(/^Brachioradialis, Surface\. Loading your plan…/)).not.toBeNull();
-    expect(screen.queryAllByRole("button", { name: /No work for it|No exercise is mapped/ })).toEqual([]);
+    expect(screen.queryAllByRole("button", { name: /No work in this window|No exercise is mapped/ })).toEqual([]);
     // The forearm's drawing is its rendered plates: each muscle's chip carries the fill the canvas paints it with.
     const fills = new Set(Array.from(document.querySelectorAll<HTMLElement>(".spz-plate-chip")).map((chip) => chip.dataset.fill));
     expect(Array.from(fills)).toEqual(["none"]);
@@ -549,7 +549,7 @@ describe("planned mode while the plan loads", () => {
     const sheet = screen.getByRole("dialog", { name: "Brachioradialis" });
     expect(within(sheet).queryByText(/of your 20/)).toBeNull();
     const targets = within(sheet).getByRole("heading", { name: "Your target" }).closest("section")!;
-    expect(targets.textContent).toMatch(/once your plan has loaded/);
+    expect(targets.textContent).toMatch(/Loading your plan…/);
   });
 });
 
@@ -567,10 +567,10 @@ describe("planned beside logged, only for the week being trained (design §4)", 
     render(createElement(Harness, { plan, initial: { nodeId: "forearm.br" } }));
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Planned" })); });
     expect(screen.getByRole("button", { name: "Week 1" }).getAttribute("aria-pressed")).toBe("true");
-    expect(windowLine()).toMatch(/bouts planned · \d+ direct moving sets?$/);
+    expect(windowLine()).toMatch(/sets planned · \d+ direct moving sets?$/);
     expect(document.querySelector(".spz-window-open")).not.toBeNull();
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Week 2" })); });
-    expect(windowLine()).toMatch(/not the week you train from \(Week 1\), so there is no logged week to compare$/);
+    expect(windowLine()).toMatch(/: you train from Week 1, so there is no logged week to compare$/);
     expect(windowLine()).not.toMatch(/logged this week|direct moving/);
     expect(document.querySelector(".spz-window-open")).toBeNull();
     await act(async () => { fireEvent.click(row(/^Brachioradialis,/)); });

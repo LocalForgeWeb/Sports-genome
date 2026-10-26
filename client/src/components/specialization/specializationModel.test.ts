@@ -99,19 +99,19 @@ describe("what the page says about a muscle", () => {
   });
   it("lists only the kinds of work that happened, holds in time, and names no arm (both arms as one, 20 Oct 2026)", () => {
     const sentence = exposureSentence(node({ directDynamicBouts: 6, contributingDynamicBouts: 2, deliberateHoldBouts: 2, deliberateHoldSeconds: 60 }), "grip");
-    expect(sentence).toBe("6 direct dynamic bouts · 2 other dynamic · 2 deliberate holds, 1 min.");
+    expect(sentence).toBe("6 direct sets · 2 other · 2 holds, 1 min.");
   });
   it("names sets under review once, with no arm kept apart", () => {
     // The page's summary counts both arms as one, so it keeps nothing apart for want of an arm.
     const sentence = exposureSentence(node({ pendingReviewBouts: 3 }), "grip");
-    expect(sentence).toBe("No work for it in this window. 3 sets matched a mapping still under review and are not counted.");
+    expect(sentence).toBe("No work in this window. 3 sets under review, not counted.");
   });
   it("names incidental work in the region's own word", () => {
-    // The forearm's words as shipped (17 Oct), unchanged in wave 0 (10-multi-region.md §9.1).
-    expect(exposureSentence(node({ incidentalBouts: 4 }), "grip")).toBe("4 incidental grip or steadying.");
-    expect(exposureSentence(node({ incidentalBouts: 4 }), "bracing")).toBe("4 incidental bracing or steadying.");
+    // The region's word alone, as the list's rows say it (the owner's cleanup, 26 Oct 2026: "4 grip").
+    expect(exposureSentence(node({ incidentalBouts: 4 }), "grip")).toBe("4 grip.");
+    expect(exposureSentence(node({ incidentalBouts: 4 }), "bracing")).toBe("4 bracing.");
     // A region whose word is steadying says it once.
-    expect(exposureSentence(node({ incidentalBouts: 4 }), "steadying")).toBe("4 incidental steadying.");
+    expect(exposureSentence(node({ incidentalBouts: 4 }), "steadying")).toBe("4 steadying.");
   });
   it("says a hold's time was not recorded rather than 0 s", () => {
     expect(holdTime(0)).toBe("time not recorded");
@@ -126,7 +126,7 @@ describe("what the page says about a muscle", () => {
     // Every hold timed: the time; none timed: not recorded, never 0 s.
     expect(holdTimeOf(holding([hold("a", 45), hold("b", 30)]))).toBe("1 min 15 s");
     expect(holdTimeOf(holding([hold("a", null)]))).toBe("time not recorded");
-    expect(exposureSentence(holding([hold("a", 45), hold("b", null)]), "grip")).toBe("2 deliberate holds, 45 s recorded; 1 hold with no time recorded.");
+    expect(exposureSentence(holding([hold("a", 45), hold("b", null)]), "grip")).toBe("2 holds, 45 s recorded; 1 hold with no time recorded.");
   });
   it("writes a segment as it was logged, in the athlete's unit", () => {
     expect(formatSegment({ id: "x", reps: 12, loadKg: 13.6, holdSeconds: null }, "lb")).toMatch(/^30(\.\d)? lb × 12$/);
@@ -171,14 +171,15 @@ describe("coverage to review", () => {
       summary: summary({ goals: [progress(3)], regionUnclassified: { bouts: 2, exercises: [{ name: "Cable Deadlift", catalogExerciseId: 354, bouts: 2 }] } }),
     });
     expect(findings[0].title).toBe("Brachioradialis: 3 of your 20");
-    expect(findings[0].detail).toMatch(/The target is yours, not a prescription/);
+    // The metric and the period only: "The target is yours, not a prescription." was cut (owner, 26 Oct 2026).
+    expect(findings[0].detail).toBe("Direct moving sets, this week.");
     expect(findings[1].id).toBe("region-only");
-    expect(findings.find((item) => item.id === "region-only")!.detail).toBe("Cable Deadlift is tagged with the forearms but not mapped to a muscle yet, so it adds to no single muscle.");
+    expect(findings.find((item) => item.id === "region-only")!.detail).toBe("Cable Deadlift is not mapped to a muscle yet.");
   });
   it("counts sets under review once, and names no arm", () => {
     const nodes = forearmRegionData.nodes.map((item) => node({ nodeId: item.id, ...(item.id === "forearm.fpl" ? { pendingReviewBouts: 3, mappingCoverage: "pending_review" as const } : {}) }));
     const finding = findingsFor({ data: forearmRegionData, summary: summary({ nodes }) }).find((item) => item.id === "pending-review")!;
-    expect(finding.detail).toBe("3 sets in this window matched a mapping that is not reviewed yet. They are shown in the ledger and not counted.");
+    expect(finding.detail).toBe("3 sets in this window are not counted until the mapping is reviewed.");
   });
   it("says nothing about a target already met", () => {
     expect(findingsFor({ data: forearmRegionData, summary: summary({ goals: [progress(25)] }) }).some((item) => item.id.startsWith("goal:"))).toBe(false);
@@ -213,7 +214,7 @@ describe("totals that open their sets (brief §1: every total opens the set reco
     const finding = findingsFor({ data: forearmRegionData, summary: summary({ goals: [movementGoal(3)] }) })[0];
     expect(finding.title).toBe("Wrist extension: 3 of your 10");
     expect(finding.action).toEqual({ kind: "movement", actionId: "wrist.extension" });
-    expect(finding.actionLabel).toBe("See its sets and exercises");
+    expect(finding.actionLabel).toBe("See sets and exercises");
   });
   it("opens the work mapped to no muscle, not only the method; no list is kept of sets with no arm", () => {
     const findings = findingsFor({ data: forearmRegionData, summary: summary({ regionUnclassified: { bouts: 1, exercises: [{ name: "Dumbbell Pullover", catalogExerciseId: 24, bouts: 1 }] } }) });
@@ -298,7 +299,7 @@ describe("the plan week being trained", () => {
 describe("a target in planned mode", () => {
   it("names the plan week it was read over, not the calendar period", () => {
     const finding = findingsFor({ data: forearmRegionData, summary: summary({ mode: "planned", interval: { kind: "plan_week", startAt: null, endAtExclusive: null, timezone: "UTC", planWeek: 2, label: "Plan Week 2, as written" }, goals: [progress(3)] }) })[0];
-    expect(finding.detail).toMatch(/^Direct dynamic bouts, Plan Week 2, as written\./);
+    expect(finding.detail).toMatch(/^Direct moving sets, Plan Week 2, as written\./);
     expect(finding.detail).not.toMatch(/calendar week/);
   });
 });

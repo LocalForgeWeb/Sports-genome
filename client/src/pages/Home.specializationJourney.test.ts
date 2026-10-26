@@ -76,7 +76,7 @@ describe("A coverage gap, closed in the app", () => {
 
     // 1. The gap: brachioradialis has no direct work this week, and its drawing rests.
     const add = await screen.findByRole("button", { name: /Add targeted exercise/ }, { timeout: 15000 });
-    expect(brRow().getAttribute("aria-label") ?? brRow().textContent).toBe("Brachioradialis, Surface. No work for it in this window. Open details.");
+    expect(brRow().getAttribute("aria-label") ?? brRow().textContent).toBe("Brachioradialis, Surface. No work in this window. Open details.");
     expect(brFills().length).toBeGreaterThan(0);
     expect(brFills().every((fill) => fill === "zero")).toBe(true);
 
@@ -130,7 +130,7 @@ describe("A coverage gap, closed in the app", () => {
     await act(async () => { fireEvent.click(within(bodyTabs).getByRole("button", { name: "Specialize" })); });
     await screen.findByRole("heading", { level: 1, name: "Forearms" }, { timeout: 15000 });
     await tick();
-    expect(brRow().getAttribute("aria-label") ?? brRow().textContent).toMatch(/^Brachioradialis, Surface\. 1 direct dynamic bout/);
+    expect(brRow().getAttribute("aria-label") ?? brRow().textContent).toMatch(/^Brachioradialis, Surface\. 1 direct set/);
     expect(brFills().every((fill) => fill === "bin-1")).toBe(true);
   }, 60000);
 });

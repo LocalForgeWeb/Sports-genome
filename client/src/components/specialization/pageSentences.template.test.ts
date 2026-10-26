@@ -96,8 +96,8 @@ function Harness({ initial }: { initial: SpecializationViewState }) {
 const regions: SpecializationRegionData[] = [forearmRegionData, pageFixtures.deltoid, pageFixtures.fx_thigh, pageFixtures.fx_back, pageFixtures.fx_core];
 /** The page's one summary of a region: both sides as one on a paired region, the midline on a midline one. */
 const pageSideOf = (data: SpecializationRegionData): SummarySide => (data.region.sides.model === "midline" ? "midline" : "both");
-/** The region's line, as the page says it: "touched the forearms", "planned for the forearms". */
-const regionLineOf = (data: SpecializationRegionData, mode: "completed" | "planned") => `${mode === "planned" ? "planned for" : "touched"} the ${data.region.label.toLowerCase()}`;
+/** The region's line, as the page says it: "on the forearms", "planned for the forearms". */
+const regionLineOf = (data: SpecializationRegionData, mode: "completed" | "planned") => `${mode === "planned" ? "planned for" : "on"} the ${data.region.label.toLowerCase()}`;
 
 const BLOCKS = "p, li, h1, h2, h3, dt, dd, summary, legend, figcaption, label > span, button, option, small, strong, b";
 /** Region content the page shows but does not write: anatomy, claims and sources, rationales, method notes, and the published rule. */
@@ -245,7 +245,7 @@ describe("every page sentence that names a region, for every region shape", () =
     it(`forearm, ${mode}, the 3D model's row and panel for each of its muscles`, async () => {
       const texts = await readModel(forearmRegionData, mode);
       // It reached the panel of a chosen muscle, and the model's credits.
-      expect(texts).toContain("One bout per set, per muscle");
+      expect(texts).toContain("Each set once per muscle");
       expect(texts.some((text) => text.startsWith("It is one model of one arm"))).toBe(true);
       expect(problems(forearmRegionData, texts)).toEqual([]);
     }, 60000);
@@ -253,8 +253,8 @@ describe("every page sentence that names a region, for every region shape", () =
 
   it("finds what it is looking for: each rule catches the sentence it is there for", () => {
     const thigh = pageFixtures.fx_thigh;
-    expect(problems(thigh, ["12 distinct bouts touched the fixture thighs on the right thigh."])).toHaveLength(3);
-    expect(problems(pageFixtures.deltoid, ["Mapping under review for Anterior deltoid and Lateral deltoid and 2 more"])).toEqual([]);
+    expect(problems(thigh, ["12 sets on the fixture thighs on the right thigh."])).toHaveLength(3);
+    expect(problems(pageFixtures.deltoid, ["Under review: Anterior deltoid and Lateral deltoid and 2 more"])).toEqual([]);
     expect(problems(forearmRegionData, ["About Single-Leg Romanian Deadlift"])).toEqual([]);
     expect(problems(pageFixtures.fx_core, ["Nothing left out"])).toEqual([]);
     expect(problems(thigh, ["Kept apart and counted for neither arm."])).toEqual(["limb not the region's: Kept apart and counted for neither arm.", "a side kept apart: Kept apart and counted for neither arm."]);
@@ -263,15 +263,15 @@ describe("every page sentence that names a region, for every region shape", () =
     // The words the page said per arm before 20 Oct are a side named; the words it says now are not.
     expect(problems(forearmRegionData, ["12 distinct bouts touched your right forearm."])).toEqual(["a side named: 12 distinct bouts touched your right forearm."]);
     expect(problems(thigh, ["Right leg"])).toHaveLength(1);
-    expect(problems(forearmRegionData, ["12 distinct bouts touched the forearms."])).toEqual([]);
+    expect(problems(forearmRegionData, ["12 sets on the forearms."])).toEqual([]);
     expect(problems(forearmRegionData, ["Both arms count together: a set counts once, whichever arm or arms did it, and a set with no arm recorded counts like any other."])).toEqual([]);
-    expect(problems(forearmRegionData, ["Plan Week 1, as written: 18 distinct bouts are planned for the forearms in Plan\u00a0Week 1."])).toHaveLength(1);
-    expect(problems(forearmRegionData, ["Plan Week 2, as written: 18 distinct bouts are planned for the forearms in Plan Week 1."])).toEqual([]);
+    expect(problems(forearmRegionData, ["Plan Week 1, as written: 18 sets planned for the forearms in Plan\u00a0Week 1."])).toHaveLength(1);
+    expect(problems(forearmRegionData, ["Plan Week 2, as written: 18 sets planned for the forearms in Plan Week 1."])).toEqual([]);
     // Nothing read, measured or counted by, per or each side (the release review, 22 Oct): main's words, and what the page says now.
     expect(problems(forearmRegionData, ["Circumference and grip, by arm"])).toEqual(["counted per side: Circumference and grip, by arm"]);
-    expect(problems(forearmRegionData, ["One bout per set, per muscle, per arm"])).toEqual(["counted per side: One bout per set, per muscle, per arm"]);
+    expect(problems(forearmRegionData, ["Each set once per muscle, per arm"])).toEqual(["counted per side: Each set once per muscle, per arm"]);
     expect(problems(thigh, ["Each side assumed", "Measured per leg", "Counted by sides"])).toHaveLength(3);
-    expect(problems(forearmRegionData, ["Circumference and grip", "One bout per set, per muscle", "By FCR, FCU, PL.", "Each set counts once per muscle, from your logged workouts."])).toEqual([]);
+    expect(problems(forearmRegionData, ["Circumference and grip", "Each set once per muscle", "By FCR, FCU, PL."])).toEqual([]);
   });
 
   /** What the page's live region says once Planned is chosen. */

@@ -60,19 +60,19 @@ describe("when nothing should be suggested", () => {
       goal({ id: "dynamic", nodeId: m.flexorDigitorumSuperficialis, metric: "direct_dynamic_bouts", target: 5 }),
     ];
     // The fixture has no dynamic finger exercise, so the open dynamic target is said to be unfillable, not claimed.
-    const unfillable = "No reviewed exercise for flexor digitorum superficialis counts toward your target of 5 direct dynamic bouts this week.";
+    const unfillable = "No reviewed exercise for flexor digitorum superficialis counts toward your target of 5 direct moving sets this week.";
     const met = candidatesOf(recommendFor(request({ target: { nodeId: m.flexorDigitorumSuperficialis }, summary: summary(syntheticForearm, [hold()], "left", goals) })));
     expect([met.candidates, met.skippedAtTarget, met.emptyReason, met.targetNote]).toEqual([[], 2, `${unfillable} The exercises that train this answer a target you have already met. Nothing is suggested to add more.`, unfillable]);
     const notMet = candidatesOf(recommendFor(request({ target: { nodeId: m.flexorDigitorumSuperficialis }, summary: summary(syntheticForearm, [], "left", goals) })));
     expect([notMet.candidates.map((candidate) => candidate.name), notMet.skippedAtTarget, notMet.targetNote]).toEqual([["Dead Hang", "Farmer Hold"], 0, unfillable]);
     // Each hold names the hold target it fills, never the dynamic one.
-    expect(notMet.candidates.map((candidate) => candidate.why.split(";")[1].split(".")[0].trim())).toEqual(["0 of your 1 deliberate hold bouts this week", "0 of your 1 deliberate hold bouts this week"]);
+    expect(notMet.candidates.map((candidate) => candidate.why.split(";")[1].split(".")[0].trim())).toEqual(["0 of your 1 holds this week", "0 of your 1 holds this week"]);
   });
 
   it("gives a muscle at or above the athlete's target a neutral note and no exercise", () => {
     const goals = [goal({ target: 2 })];
     const result = recommendFor(request({ target: { nodeId: m.flexorCarpiRadialis }, summary: summary(syntheticForearm, [bout(139), bout(139)], "left", goals) }));
-    expect(result).toMatchObject({ kind: "at_target", note: "Flexor carpi radialis already has 2 of your 2 direct dynamic bouts this week. Nothing is suggested to add more." });
+    expect(result).toMatchObject({ kind: "at_target", note: "Flexor carpi radialis already has 2 of your 2 direct moving sets this week. Nothing is suggested to add more." });
   });
 });
 
@@ -82,7 +82,7 @@ describe("candidates", () => {
     // The curl was logged in this window: it is overlap, so it ranks after the roller.
     expect(result.candidates.map((candidate) => [candidate.name, candidate.relevance])).toEqual([["Wrist Roller", "direct_dynamic"], ["Wrist Curl", "direct_dynamic"]]);
     const curl = result.candidates[1];
-    expect(curl.why).toBe("Direct wrist flexion for flexor carpi radialis; 1 direct dynamic and 0 hold bouts in this window, no target set. Already logged in this window: 1 set.");
+    expect(curl.why).toBe("Direct wrist flexion for flexor carpi radialis; 1 direct set and 0 holds in this window, no target set. Already logged in this window: 1 set.");
     expect(curl.alsoLoads.map((item) => [item.nodeId, item.category])).toEqual([
       [m.flexorCarpiUlnaris, "direct_dynamic"],
       [m.palmarisLongus, "contributing_dynamic"],
@@ -96,9 +96,9 @@ describe("candidates", () => {
   it("names the target gap when there is one, and only for an exercise the calculator counts toward it", () => {
     const result = candidatesOf(recommendFor(request({ target: { nodeId: m.flexorCarpiRadialis }, summary: summary(syntheticForearm, [bout(139)], "left", [goal({ target: 10 })]) })));
     expect(result.candidates.map((candidate) => candidate.name)).toEqual(["Wrist Curl", "Wrist Roller"]);
-    expect(result.candidates[0].why).toBe("Direct wrist flexion for flexor carpi radialis; 1 of your 10 direct dynamic bouts this week. Already logged in this window: 1 set.");
+    expect(result.candidates[0].why).toBe("Direct wrist flexion for flexor carpi radialis; 1 of your 10 direct moving sets this week. Already logged in this window: 1 set.");
     // A roller set moves the wrist and steadies it in one set: the calculator files it as mixed, so it fills no dynamic target.
-    expect(result.candidates[1].why).toBe("Direct wrist flexion for flexor carpi radialis; one set of it loads this muscle two ways, so it counts as mixed work, not toward your target of 10 direct dynamic bouts this week.");
+    expect(result.candidates[1].why).toBe("Direct wrist flexion for flexor carpi radialis; one set of it loads this muscle two ways, so it counts as mixed work, not toward your target of 10 direct moving sets this week.");
     expect(result.candidates.map((candidate) => candidate.targetGap?.goal.id ?? null)).toEqual(["g", null]);
   });
 
@@ -121,7 +121,7 @@ describe("candidates", () => {
     for (const nodeId of [ext.biceps, ext.brachialis]) {
       const result = candidatesOf(recommendFor({ region: forearmRegionData, target: { nodeId }, side: "left", summary: summary(forearmRegionData, [bout(121), bout(121)]), plannedExercises: [], catalog: exercises, equipmentProfile: null }));
       const whys = result.candidates.map((candidate) => candidate.why);
-      expect(whys.some((why) => /\d+ direct dynamic and \d+ hold bouts in this window\./.test(why))).toBe(true);
+      expect(whys.some((why) => /\d+ direct sets? and \d+ holds? in this window\./.test(why))).toBe(true);
       expect(whys.join(" ")).not.toContain("no target set");
     }
     // A forearm muscle still says it.

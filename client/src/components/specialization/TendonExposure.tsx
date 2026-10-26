@@ -116,12 +116,12 @@ const listWords = (items: readonly string[]) => (items.length < 2 ? items.join("
 // ---------------------------------------------------------------- the copy (11 §4.4)
 
 export const TENDON_SUMMARY = "Sets by attachment area";
-export const TENDON_LEDE = "How many sets loaded the muscles that attach at each area. A set counts once per area, however many of its muscles worked. It counts sets. It does not measure what the tendon carries, and the exercise mappings do not cover everything you do.";
-const TENDON_LEDE_PLANNED = "How many planned sets load the muscles that attach at each area. A set counts once per area, however many of its muscles it is planned for. It counts sets. It does not measure what the tendon carries, and the exercise mappings do not cover everything you do.";
+export const TENDON_LEDE = "Sets that loaded the muscles attaching at each area, each set once per area. It counts sets, not what the tendon carries.";
+const TENDON_LEDE_PLANNED = "Planned sets for the muscles attaching at each area, each set once per area. It counts sets, not what the tendon carries.";
 export const TENDON_NOT_ADDED = "A set can count in two areas, so these are not added together.";
 export const TENDON_OTHER_KEY = `Other: ${otherWorkWords} work.`;
-export const TENDON_PROMPT = "More than in any of the 4 weeks before. You can look at the sets behind it, or change a planned exercise below.";
-const TENDON_PROMPT_NO_PLAN = "More than in any of the 4 weeks before. You can look at the sets behind it.";
+export const TENDON_PROMPT = "More than in any of the 4 weeks before. See the sets, or change a planned exercise below.";
+const TENDON_PROMPT_NO_PLAN = "More than in any of the 4 weeks before. See the sets behind it.";
 export const TENDON_LEFT_OUT = "Weeks with no finished workout are left out, not counted as zero.";
 export const TENDON_METHOD_NOTE = "Counts distinct sets per area from the reviewed exercise mappings. Loading can help tendons adapt. Logged weight is not tendon force, and no study found ties a set count to how a tendon will respond, so the page shows no ratio or cut-off. A week counts once one workout in it is finished, so a partly logged week can lower the median. Warm-ups are not marked in the logger, so any you logged are counted here as work.";
 

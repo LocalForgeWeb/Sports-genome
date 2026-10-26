@@ -57,14 +57,15 @@ export const forearmPlates: DiagramPlates = {
     labels: pass.labels,
     nodeIds: pass.muscles.map((muscle) => nodeForSlug(muscle.slug)),
   })),
+  // The licences ask for the source, its licence and that the images were changed; nothing more is said.
   credit: [
-    "Images rendered from the ",
+    "Adapted from the ",
     { text: "Open3Dmodel upper-limb model", href: "https://anatomytool.org/open3dmodel-create" },
-    ", built on BodyParts3D (The Database Center for Life Science, ",
-    { text: "CC BY-SA 2.1 Japan", href: "https://creativecommons.org/licenses/by-sa/2.1/jp/deed.en" },
-    ") and Z-Anatomy (",
+    " (BodyParts3D, DBCLS, ",
+    { text: "CC BY-SA 2.1 JP", href: "https://creativecommons.org/licenses/by-sa/2.1/jp/deed.en" },
+    "; Z-Anatomy, ",
     { text: "CC BY-SA 4.0", href: "https://creativecommons.org/licenses/by-sa/4.0/" },
-    "). They are adapted renders: cropped, tinted by your training and divided by muscle; shared under CC BY-SA 4.0. One arm, never mirrored. For education, not diagnosis.",
+    "): cropped, tinted and split by muscle. Shared under CC BY-SA 4.0. Not for diagnosis.",
   ],
-  drawingStatement: "The drawing is adapted from renders of a third-party anatomy model (credited under it); which muscle each part of a render shows was decided from the model's own muscle renders, and has not been reviewed by an anatomist.",
+  drawingStatement: "Which muscle each part of the drawing shows was taken from the model's own muscle renders, not checked by an anatomist.",
 };

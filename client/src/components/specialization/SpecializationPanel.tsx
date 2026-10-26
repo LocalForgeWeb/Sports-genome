@@ -43,7 +43,7 @@ import { ModelMuscleRail } from "./anatomy3d/ModelMuscleRail";
 import { anatomyModelFor, modelSourceForCanonical } from "./anatomy3d/modelIdentity";
 import { ModelMusclePanel } from "./anatomy3d/ModelMusclePanel";
 import { viewerMuscleData, type ViewerSummaryState } from "./anatomy3d/viewerData";
-import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricShortLabels, holdTimeOf, goalsForNode, latestSessionDayLabel, layerLabels, listedUnmappedReasons, listedUnmappedSentences, movementFocusNodeId, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, targetProgressText, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
+import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricShortLabels, holdTimeOf, goalsForNode, latestSessionDayLabel, layerLabels, listedUnmappedReasons, listedUnmappedSentences, movementFocusNodeId, overlapLines, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, targetProgressText, upperFirst, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
 import { sideWordsFor } from "./sideWords";
 import "@/components/anatomy/anatomy-figure.css";
 import "./specialization.css";
@@ -126,7 +126,7 @@ const plural = (count: number, one: string, many = `${one}s`) => `${count} ${cou
  * Said plainly under "How this is counted" on every region (10-multi-region.md §8): what
  * "reviewed" means for the anatomy, the mappings and the drawing behind the numbers.
  */
-const REVIEW_STATEMENT = "“Reviewed” means an automated agent checked each sentence against web-search excerpts and generated summaries of the cited sources on the date shown. It was not checked against the full texts, and not by a clinician or anatomist. A second automated review, with the same tools and limits, looked for errors; it is not peer review.";
+const REVIEW_STATEMENT = "“Reviewed” means an AI agent checked each sentence against excerpts and summaries of its sources, not their full texts. No clinician or anatomist has checked it, and it is not peer review.";
 const DRAWING_STATEMENT = "The drawings are original schematics checked against these notes, not reviewed by an anatomist.";
 
 type SheetState =
@@ -143,15 +143,15 @@ type SheetState =
 
 /**
  * The region sentence: the region's distinct bouts, both sides as one (owner, 20 Oct 2026), named
- * by the region's label ("12 distinct bouts touched the forearms."). Logged work touched the region;
+ * by the region's label ("12 sets on the forearms."): each set once, however many muscles it loaded. Logged work touched the region;
  * a plan has done nothing yet, so its sets are planned for it, in its plan week ("…planned for the
  * forearms in Plan Week 1"). `planWeek` is null where the words before the sentence already name the
  * plan week ("Plan Week 1, as written: …"), so it is said once.
  */
 function regionSentence(regionWord: string, summary: { mode: SummaryMode; regionDistinctBouts: number }, planWeek: number | null): string {
   return summary.mode === "planned"
-    ? `${plural(summary.regionDistinctBouts, "distinct bout")} ${summary.regionDistinctBouts === 1 ? "is" : "are"} planned for the ${regionWord}${planWeek === null ? "" : ` in Plan Week ${planWeek}`}.`
-    : `${plural(summary.regionDistinctBouts, "distinct bout")} touched the ${regionWord}.`;
+    ? `${plural(summary.regionDistinctBouts, "set")} planned for the ${regionWord}${planWeek === null ? "" : ` in Plan Week ${planWeek}`}.`
+    : `${plural(summary.regionDistinctBouts, "set")} on the ${regionWord}.`;
 }
 
 /**
@@ -522,7 +522,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
     if (Math.abs(shift) >= 1) window.scrollBy({ top: shift, behavior: "instant" });
   }, [state.nodeId]);
   useEffect(() => {
-    if (summary && !announceRegion) announce(`${interval.label}: ${plural(summary.regionDistinctBouts, "distinct bout")} for the ${regionWord}.`);
+    if (summary && !announceRegion) announce(`${interval.label}: ${plural(summary.regionDistinctBouts, "set")} ${state.mode === "planned" ? "planned for" : "on"} the ${regionWord}.`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interval.label, state.mode]);
   // A region just picked from the heading: its label and its count, once there is a count to say.
@@ -587,7 +587,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   // here under that region's own heading ("Upper-arm muscles credited here").
   const externalHomes = Array.from(new Set(nodes.filter((node) => node.role === "external").map((node) => node.regionId)));
   const groups: { id: string; title: string; nodes: AnatomyNode[] }[] = [
-    { id: "target", title: `Muscles of the ${regionWord}`, nodes: nodes.filter((node) => node.role === "target") },
+    { id: "target", title: data.region.label, nodes: nodes.filter((node) => node.role === "target") },
     { id: "adjacent", title: "Nearby", nodes: nodes.filter((node) => node.role === "adjacent") },
     ...externalHomes.map((home) => ({
       id: `external:${home}`,
@@ -643,10 +643,10 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       return {
         eyebrow,
         title: `${logged.regionDistinctBouts} logged · ${asWritten.regionDistinctBouts} planned`,
-        intro: `${logged.interval.label}, logged, beside ${asWritten.interval.label}. Each set is one bout, however many muscles of the ${regionWord} it loads.`,
+        intro: `${logged.interval.label}, logged, beside ${asWritten.interval.label}. Each set counts once.`,
         lists: [
-          { key: "logged", heading: `Logged: ${plural(logged.regionDistinctBouts, "bout")}`, note: null, rows: regionBoutRows(logged, "region"), empty: `Nothing logged for a muscle of the ${regionWord} this week.` },
-          { key: "planned", heading: `Planned in Plan Week ${trainingWeek}: ${plural(asWritten.regionDistinctBouts, "bout")}`, note: null, rows: regionBoutRows(asWritten, "region"), empty: `Nothing planned for a muscle of the ${regionWord} in Plan Week ${trainingWeek}.` },
+          { key: "logged", heading: `Logged: ${plural(logged.regionDistinctBouts, "set")}`, note: null, rows: regionBoutRows(logged, "region"), empty: `Nothing logged for the ${regionWord} this week.` },
+          { key: "planned", heading: `Planned in Plan Week ${trainingWeek}: ${plural(asWritten.regionDistinctBouts, "set")}`, note: null, rows: regionBoutRows(asWritten, "region"), empty: `Nothing planned for the ${regionWord} in this plan week.` },
         ],
       };
     }
@@ -654,20 +654,18 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       // One bar of bouts per day: the same distinct bouts the bar counts, on that local day.
       const rows = regionBoutRowsOnDay(summary, sheet.dayKey, (iso) => localDateKey(iso, timeZone));
       const day = new Date(`${sheet.dayKey}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
-      return { eyebrow, title: day, intro: `${plural(rows.length, "distinct bout")} that day: every set that loaded a muscle of the ${regionWord}, each counted once however many muscles it loaded.`, lists: [{ key: "region", heading: null, note: null, rows }] };
+      return { eyebrow, title: day, intro: `${plural(rows.length, "set")} on the ${regionWord} that day, each counted once.`, lists: [{ key: "region", heading: null, note: null, rows }] };
     }
     if (sheet.list === "region") {
       const regionRows = regionBoutRows(summary, "region");
       if (sheet.exerciseKey) {
         const rows = regionRows.filter((row) => exerciseKeyOf(row) === sheet.exerciseKey);
-        return { eyebrow, title: rows[0]?.exerciseName ?? "Sets", intro: planned ? `${interval.label}: ${plural(rows.length, "set")} of it planned for a muscle of the ${regionWord}.` : `${interval.label}: ${plural(rows.length, "set")} of it loaded a muscle of the ${regionWord}.`, lists: [{ key: "region", heading: null, note: null, rows }] };
+        return { eyebrow, title: rows[0]?.exerciseName ?? "Sets", intro: `${interval.label}: ${plural(rows.length, "set")}${planned ? " planned" : ""}.`, lists: [{ key: "region", heading: null, note: null, rows }] };
       }
       return {
         eyebrow,
-        title: `${plural(summary.regionDistinctBouts, "distinct bout")}`,
-        intro: planned
-          ? `${interval.label}: every set planned for a muscle of the ${regionWord}, each counted once however many muscles it is planned for.`
-          : `${interval.label}: every set that loaded a muscle of the ${regionWord}, each counted once however many muscles it loaded.`,
+        title: `${plural(summary.regionDistinctBouts, "set")}`,
+        intro: `${interval.label}: every set ${planned ? "planned for" : "on"} the ${regionWord}, each counted once.`,
         lists: [{ key: "region", heading: null, note: null, rows: regionRows }],
       };
     }
@@ -676,7 +674,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       return { eyebrow, title: `${plural(rows.length, "set")} not counted here`, intro: listedUnmappedSentences(summary, data).join(" "), lists: [{ key: "listed-unmapped", heading: null, note: null, rows, reasons: listedUnmappedReasons(summary, data) }] };
     }
     const rows = regionBoutRows(summary, "region-only");
-    return { eyebrow, title: `${plural(rows.length, "set")} for the ${regionWord} as a whole`, intro: `Tagged with the ${regionWord} in the exercise catalog, but no reviewed mapping says which muscles they train, so they add to no single muscle.`, lists: [{ key: "region-only", heading: null, note: null, rows }] };
+    return { eyebrow, title: `${plural(rows.length, "set")} for the ${regionWord} only`, intro: `Tagged with the ${regionWord} but not mapped to a muscle yet.`, lists: [{ key: "region-only", heading: null, note: null, rows }] };
   }, [sheet, summary, pairSummary, trainingWeek, timeZone, data, interval.label, regionWord]);
 
   const completeness = summary?.completeness;
@@ -871,9 +869,9 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       {pairShown
         ? <p className="spz-window"><button type="button" className="spz-window-open" onClick={() => setSheet({ kind: "bouts", list: "pair" })}><span><b>{interval.label}</b>: <span className="spz-pair">{state.mode === "planned"
           // Planned mode says the plan week's direct moving sets where the logged count stood (11 §3.3); the logged week is in the sets the line opens.
-          ? <><b>{plannedBouts}</b> bout{plannedBouts === 1 ? "" : "s"} planned · <b>{plannedDirect ?? 0}</b> direct moving set{plannedDirect === 1 ? "" : "s"}</>
-          : <><b>{completedBouts}</b> bout{completedBouts === 1 ? "" : "s"} logged · <b>{plannedBouts}</b> planned in Plan Week{" "}{trainingWeek}</>}</span></span><ArrowRight className="h-4 w-4" aria-hidden="true" /></button></p>
-        : <p className="spz-window"><b>{interval.label}</b>{state.mode === "planned" && !planInput ? (plan.ready ? ` · Week ${planWeek} has nothing planned yet` : " · your plan is loading") : ""}{noPairNote && <span className="spz-pair-note">: not the week you train from (Week {trainingWeek}), so there is no logged week to compare</span>}</p>}
+          ? <><b>{plannedBouts}</b> set{plannedBouts === 1 ? "" : "s"} planned · <b>{plannedDirect ?? 0}</b> direct moving set{plannedDirect === 1 ? "" : "s"}</>
+          : <><b>{completedBouts}</b> set{completedBouts === 1 ? "" : "s"} logged · <b>{plannedBouts}</b> planned in Plan Week{" "}{trainingWeek}</>}</span></span><ArrowRight className="h-4 w-4" aria-hidden="true" /></button></p>
+        : <p className="spz-window"><b>{interval.label}</b>{state.mode === "planned" && !planInput ? (plan.ready ? ` · Week ${planWeek} has nothing planned yet` : " · your plan is loading") : ""}{noPairNote && <span className="spz-pair-note">: you train from Week {trainingWeek}, so there is no logged week to compare</span>}</p>}
     </div>
 
     {here.status === "error" && <p className="spz-error" role="alert">The totals could not be worked out: {here.message}</p>}
@@ -947,7 +945,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
             <button type="button" className="spz-link spz-link-box" onClick={() => select(null)}>Clear</button>
           </div>
         </> : <>
-          <p className="spz-strip-line">{regionLine} Choose a muscle {hasDrawing ? "on the drawing or " : ""}in the list for its numbers.</p>
+          <p className="spz-strip-line">{regionLine} Tap a muscle for its numbers.</p>
           {(regionBoutsBehind > 0 || stackSection) && <div className="spz-actions">
             {regionBoutsBehind > 0 && <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "region" })}>See these sets <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
             {stackSection && <button type="button" className="spz-button" onClick={openStack}>Design a stack</button>}
@@ -972,14 +970,11 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       </Suspense>}
     </details>}
 
-    {/* The counting rule sits under the drawing, so the drawing starts on a phone's first screen (brief §6: the illustration above the fold). */}
-    <p className="spz-lede">Each set counts once per muscle, from your {state.mode === "planned" ? "plan as written" : "logged workouts"}. Holds stay in seconds and never become sets.</p>
-
     <section className="spz-card" aria-labelledby="spz-list-title">
       <div className="spz-section-head">
-        <h2 id="spz-list-title">Muscles, most direct work first</h2>
+        <h2 id="spz-list-title">Muscles</h2>
       </div>
-      <p className="spz-legend-line"><i className="spz-key spz-key-direct" />Direct <i className="spz-key spz-key-other" />Other dynamic <i className="spz-key spz-key-holds" />Holds <i className="spz-key spz-key-incidental" />Incidental {data.region.wording.incidentalWork} · bar full at {BAR_SCALE} bouts</p>
+      <p className="spz-legend-line"><span><i className="spz-key spz-key-direct" />Direct</span> <span><i className="spz-key spz-key-other" />Other</span> <span><i className="spz-key spz-key-holds" />Holds</span> <span><i className="spz-key spz-key-incidental" />{upperFirst(data.region.wording.incidentalWork)}</span> <span>Full bar: {BAR_SCALE} sets</span></p>
       {groups.map((group) => <div key={group.id} className="spz-group">
         {groups.length > 1 && <h3>{group.title}</h3>}
         <ul className="spz-rows">
@@ -1005,7 +1000,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           </li>)}
         </ul>
         {findings.length > SHOWN_FINDINGS && <button type="button" className="spz-link" aria-expanded={allFindings} onClick={() => setAllFindings((open) => !open)}>{allFindings ? "Show fewer" : `Show ${findings.length - SHOWN_FINDINGS} more`}</button>}
-      </> : <p className="spz-note">Nothing to review: every set in this window has a reviewed mapping and a muscle to count for.</p>}
+      </> : <p className="spz-note">Nothing to review.</p>}
     </section>
 
     <div className="spz-disclosures">
@@ -1013,30 +1008,30 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
         <summary><span><b>Exercises in this window</b><small>{!summary ? waiting : windowItems.length ? `${windowItems.length} exercise${windowItems.length === 1 ? "" : "s"}` : "None yet"}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
         {days === "too-long" ? <p className="spz-note">Choose 31 days or fewer to see the work day by day.</p> : days && <>
           {/* Each bar is a total, so a day with work opens its sets (brief §1); a day with none has nothing to open. */}
-          <ol className="spz-days" aria-label="Distinct bouts per day in this window">
+          <ol className="spz-days" aria-label="Sets per day">
             {days.map((day) => {
               const bar = <><span className="spz-day-bar"><i style={{ height: `${Math.min(100, (day.bouts / 12) * 100)}%` }} /></span><b>{day.bouts}</b><small>{day.label}</small></>;
               return <li key={day.key} data-today={day.key === todayKey || undefined}>
                 {day.bouts > 0
-                  ? <button type="button" className="spz-day" onClick={() => setSheet({ kind: "bouts", list: "region", dayKey: day.key })} aria-label={`${day.long}: ${plural(day.bouts, "distinct bout")}. See these sets`}>{bar}</button>
+                  ? <button type="button" className="spz-day" onClick={() => setSheet({ kind: "bouts", list: "region", dayKey: day.key })} aria-label={`${day.long}: ${plural(day.bouts, "set")}. See them`}>{bar}</button>
                   : <span className="spz-day">{bar}</span>}
               </li>;
             })}
           </ol>
-          {days.some((day) => day.bouts > 0) && <p className="spz-note spz-days-note">A day with work opens its sets.</p>}
+          {days.some((day) => day.bouts > 0) && <p className="spz-note spz-days-note">Tap a day for its sets.</p>}
         </>}
         {!summary ? <p className="spz-note">{waiting}</p> : windowItems.length ? <ul className="spz-exercise-list">
           {windowItems.map((item) => <li key={`${item.catalogExerciseId ?? item.name}`}>
-            <span><b>{item.name}</b><small>{item.bouts} bout{item.bouts === 1 ? "" : "s"}{item.directFor.length ? ` · direct for ${item.directFor.join(", ")}` : " · no muscle here is its target"}</small></span>
+            <span><b>{item.name}</b><small>{item.bouts} set{item.bouts === 1 ? "" : "s"}{item.directFor.length ? ` · direct: ${item.directFor.join(", ")}` : " · no direct work"}</small></span>
             <span className="spz-candidate-actions">
               <button type="button" className="spz-link spz-link-box" onClick={() => setSheet({ kind: "bouts", list: "region", exerciseKey: exerciseKeyOf({ catalogExerciseId: item.catalogExerciseId, exerciseName: item.name }) })} aria-label={`The sets of ${item.name}`}>Sets</button>
               {item.catalogExerciseId !== null && <button type="button" className="spz-link" onClick={() => inspect(item.catalogExerciseId, item.name)}>About it</button>}
             </span>
           </li>)}
-        </ul> : <p className="spz-note">No exercise {state.mode === "planned" ? "planned" : "logged"} in this window loads a mapped muscle of the {regionWord}.</p>}
+        </ul> : <p className="spz-note">Nothing {state.mode === "planned" ? "planned" : "logged"} for the {regionWord} in this window.</p>}
         {overlaps.length > 0 && <div className="spz-subsection">
           <h3>Same muscle, same {state.mode === "planned" ? "day" : "workout"}</h3>
-          <ul className="spz-exercise-list">{overlaps.map((item) => <li key={item.key}><span><b>{item.nodeShortName}</b><small>{item.sessionLabel}{item.performedAt ? ` · ${new Date(item.performedAt).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}` : ""}: {item.exercises.join(" and ")} both load it directly.</small></span></li>)}</ul>
+          <ul className="spz-exercise-list">{overlapLines(overlaps).map((item) => <li key={item.key}><span><b>{item.muscles.join(", ")}</b><small>{item.sessionLabel}{item.performedAt ? ` · ${new Date(item.performedAt).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}` : ""}: {item.exercises.join(" and ")}, both direct.</small></span></li>)}</ul>
         </div>}
         {notes.length > 0 && <div className="spz-subsection">
           <h3>Your notes on these workouts</h3>
@@ -1063,7 +1058,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       </details>
 
       <details ref={methodRef} className="spz-disclosure spz-card" id="spz-method">
-        <summary><span><b>How this is counted</b><small>{rule.id} · {data.mappingVersion.key}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+        <summary><span><b>How this is counted</b><small>Rules, sources and limits</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
         <div className="spz-method">
           {/* The current published rule's own text (rules.ts, v2 from wave A), the same on every region
               and never edited once published. Its `sides` clause is said in the region's own words
@@ -1080,7 +1075,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
             <p><b>Not counted:</b> {rule.specification.excludedFromCompleted.join(" ")}</p>
             <ul className="spz-caveats">{rule.specification.notConverted.map((line) => <li key={line}>{line}</li>)}</ul>
           </div>
-          {completeness && <p><b>This window:</b> {completeness.boutsConsidered} sets considered: {completeness.boutsWithReviewedMapping} with a reviewed mapping, {completeness.boutsPendingReview} under review, {completeness.boutsRegionOnly} {regionWord} only. {completeness.boutsNameMatched} matched by name. Left out: {completeness.boutsExcluded.notCompleted} not completed, {completeness.boutsExcluded.warmup} warm-ups.</p>}
+          {completeness && <p><b>This window:</b> {completeness.boutsConsidered} sets: {completeness.boutsWithReviewedMapping} mapped, {completeness.boutsPendingReview} under review, {completeness.boutsRegionOnly} {regionWord} only; {completeness.boutsNameMatched} matched by name. Left out: {completeness.boutsExcluded.notCompleted} not completed, {completeness.boutsExcluded.warmup} warm-up{completeness.boutsExcluded.warmup === 1 ? "" : "s"}.</p>}
           {/* Each count that has its set records opens them (brief §1); the rest say where they are, or that they are not kept as a list. */}
           {completeness && regionOnlyRows.length > 0 && <div className="spz-actions">
             <button type="button" className="spz-link" onClick={() => setSheet({ kind: "bouts", list: "region-only" })}>See the {plural(regionOnlyRows.length, "set")} for the {regionWord} only <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
@@ -1093,6 +1088,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
           </>}
           <p className="spz-note spz-method-notes">{data.mappingVersion.methodNotes}</p>
           <p className="spz-note">{REVIEW_STATEMENT}{plates ? ` ${plates.drawingStatement}` : asset ? ` ${DRAWING_STATEMENT}` : ""}</p>
+          <p className="spz-note">Versions: {rule.id} · {data.mappingVersion.key}</p>
         </div>
       </details>
     </div>
@@ -1190,8 +1186,8 @@ function MuscleRow({ node, exposure, incidentalWork, waiting, selected, onOpen }
     return <i key={kind} className={`spz-bar-${kind}`} style={{ left: width(left), width: width(Math.min(value, BAR_SCALE - left)) }} />;
   };
   const value = waiting ? (waiting.startsWith("Loading") ? "Loading" : waiting.startsWith("Working") ? "Working out" : "Not worked out")
-    : !exposure || exposure.mappingCoverage === "none" ? "Mapping not reviewed"
-    : exposure.mappingCoverage === "pending_review" ? "Mapping under review"
+    : !exposure || exposure.mappingCoverage === "none" ? "Not reviewed"
+    : exposure.mappingCoverage === "pending_review" ? "Under review"
     : [
       parts!.direct ? `${parts!.direct} direct` : "",
       parts!.other ? `${parts!.other} other` : "",
@@ -1202,8 +1198,8 @@ function MuscleRow({ node, exposure, incidentalWork, waiting, selected, onOpen }
   return <li>
     <button type="button" className="spz-row" aria-pressed={selected} data-unmapped={unmapped || undefined} onClick={onOpen} aria-label={`${node.name}, ${layerLabels[node.layer]}. ${waiting ?? exposureSentence(exposure, incidentalWork)} Open details.`}>
       <span className="spz-row-head">
-        <span className="spz-row-name">{node.name}<small>{node.shortName}</small>{node.layer !== "surface" && <span className="spz-badge">{node.layer === "deep" ? "Deep" : "Middle"}</span>}</span>
-        <span className="spz-row-value">{value}{exposure && directWorkBouts(exposure) > BAR_SCALE ? ` (${directWorkBouts(exposure)})` : ""}</span>
+        <span className="spz-row-name">{node.name}{!node.name.startsWith(node.shortName) && <small>{node.shortName}</small>}{node.layer !== "surface" && <span className="spz-badge">{node.layer === "deep" ? "Deep" : "Middle"}</span>}</span>
+        <span className="spz-row-value">{value}{exposure && directWorkBouts(exposure) > BAR_SCALE && directWorkBouts(exposure) !== exposure.directDynamicBouts ? ` (${directWorkBouts(exposure)} direct)` : ""}</span>
       </span>
       <span className="spz-track" aria-hidden="true" data-hatch={unmapped || undefined}>
         {parts && !unmapped && !waiting && [segment(parts.direct, "direct"), segment(parts.other, "other"), segment(parts.holds, "holds"), segment(parts.incidental, "incidental"), segment(parts.rest, "rest")]}
@@ -1219,23 +1215,23 @@ function MuscleRow({ node, exposure, incidentalWork, waiting, selected, onOpen }
  */
 function CompletenessNote({ completeness }: { completeness: SummaryCompleteness }) {
   const lines: string[] = [];
-  if (completeness.boutsNameMatched > 0) lines.push("Sets matched by name are among those above, marked “matched by name” where they are listed.");
-  if (completeness.boutsPendingReview > 0) lines.push("Sets under review are listed under Not counted in each muscle's sheet.");
-  if (completeness.boutsExcluded.notCompleted + completeness.boutsExcluded.warmup > 0) lines.push("Sets not completed and warm-ups are left out of every total and not kept as a list, so they cannot be opened.");
+  if (completeness.boutsNameMatched > 0) lines.push("Sets matched by name say so where they are listed.");
+  if (completeness.boutsPendingReview > 0) lines.push("Sets under review are under Not counted in each muscle's sheet.");
+  if (completeness.boutsExcluded.notCompleted + completeness.boutsExcluded.warmup > 0) lines.push("Sets not completed and warm-ups are not kept as a list.");
   return lines.length ? <p className="spz-note">{lines.join(" ")}</p> : null;
 }
 
 function MapLegend({ map }: { map: "volume" | "target" }) {
   return <div className="spz-legend" aria-label="Map key">
     {map === "volume" ? <>
-      <span><i className="spz-swatch-zero" />Mapped, no direct work</span>
+      <span><i className="spz-swatch-zero" />None</span>
       {volumeBins.map((label, index) => <span key={label}><i style={{ background: `var(--sg-exposure-${index + 1})` }} />{label}</span>)}
-      <span className="spz-legend-unit">direct bouts (dynamic sets and deliberate holds, one each)</span>
+      <span className="spz-legend-unit">direct sets (a hold counts as one)</span>
     </> : <>
       <span><i className="spz-swatch-none" />Not targeted</span>
       {targetBins.map((label, index) => <span key={label}><i style={{ background: `var(--sg-exposure-${index + 1})` }} />{label}</span>)}
-      <span className="spz-legend-unit">of your own target; above it keeps its number</span>
+      <span className="spz-legend-unit">of your target</span>
     </>}
-    <span><i className="spz-swatch-hatch" />Mapping not reviewed</span>
+    <span><i className="spz-swatch-hatch" />Not reviewed</span>
   </div>;
 }

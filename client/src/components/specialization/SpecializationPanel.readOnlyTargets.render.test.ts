@@ -29,7 +29,7 @@ import { SpecializationPanel } from "./SpecializationPanel";
 if (!window.matchMedia) (window as unknown as Record<string, unknown>).matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
 Element.prototype.scrollIntoView = () => {};
 
-const READ_ONLY = "Targets are for this region's target muscles. You can end or remove this one.";
+const READ_ONLY = "Only this page's own muscles take targets. End or remove this one.";
 const slots = buildDaySlots(["Pull"]);
 
 function Harness() {
@@ -159,7 +159,7 @@ describe("a target on a muscle that is not a target here, in the Targets overvie
       // Said once for the muscle, above its two targets.
       expect(within(targets).getAllByText(READ_ONLY).length).toBe(1);
       expect(within(targets).queryByRole("button", { name: /for Biceps brachii/ })).toBeNull();
-      await click(within(targets).getByRole("button", { name: new RegExp(`^${action} the target of 4 direct dynamic bouts per calendar week for Anconeus`) }));
+      await click(within(targets).getByRole("button", { name: new RegExp(`^${action} the target of 4 direct moving sets per week for Anconeus`) }));
       await click(within(targets).getByRole("button", { name: new RegExp(`^${action} the target of 2 .+ for Anconeus`) }));
       expect(within(targets).getByRole("status").textContent).toBe(action === "End" ? "2 targets ended." : "2 targets removed.");
       await click(within(targets).getByRole("button", { name: "Undo" }));
@@ -173,7 +173,7 @@ describe("a target on a muscle that is not a target here, in the Targets overvie
 describe("a target on a muscle that is not a target here, in Coverage to review", () => {
   /**
    * This week: a wrist curl; a one-arm wrist curl logged with no arm, counted like any other set
-   * (both arms as one, 20 Oct 2026); and a pullover, which counts for the forearms as a whole only,
+   * (both arms as one, 20 Oct 2026); and a pullover, which counts for the forearms only,
    * so the page has a finding about the records.
    */
   const week = [{
@@ -198,16 +198,16 @@ describe("a target on a muscle that is not a target here, in Coverage to review"
     // From wave A the biceps' target is the upper arm's (§2.2), so the forearm's page says only the anconeus'.
     expect(findingTitles()).toEqual([
       "Flexor carpi radialis: 4 of your 6",
-      "1 set count for the forearms as a whole only",
-      "Anconeus: a target saved earlier",
+      "1 set count for the forearms only",
+      "Anconeus: target saved earlier",
     ]);
-    for (const title of ["Anconeus: a target saved earlier"]) {
+    for (const title of ["Anconeus: target saved earlier"]) {
       expect(findingOf(title).querySelector("p")?.textContent).toBe(READ_ONLY);
       expect(within(findingOf(title)).getByRole("button").textContent?.trim()).toBe("End or remove it");
     }
-    expect(screen.getAllByRole("button", { name: /^See exercises for it/ })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /^See exercises$/ })).toHaveLength(1);
     // Its action opens the muscle's sheet at its targets, which can be ended or removed there.
-    await click(within(findingOf("Anconeus: a target saved earlier")).getByRole("button"));
+    await click(within(findingOf("Anconeus: target saved earlier")).getByRole("button"));
     const sheet = screen.getByRole("dialog", { name: "Anconeus" });
     expect(within(sheet).getByText(READ_ONLY)).toBeTruthy();
     expect(within(sheet).getAllByRole("button", { name: /^End the target/ })).toHaveLength(2);
@@ -219,17 +219,17 @@ describe("a target on a muscle that is not a target here, in Coverage to review"
     render(createElement(Harness));
     await act(async () => {});
     const sheet = await sheetOf(/^Anconeus,/);
-    expect(within(sheet).getByText("No exercise is mapped to this muscle yet, so there is nothing to count. That is missing mapping, not missing training.")).toBeTruthy();
-    expect(within(sheet).getByText(/4 per calendar week · cannot be counted yet/)).toBeTruthy();
+    expect(within(sheet).getByText("No exercise is mapped to it yet: missing mapping, not missing training.")).toBeTruthy();
+    expect(within(sheet).getByText(/4 per week · cannot be counted yet/)).toBeTruthy();
     expect(sheet.textContent).not.toMatch(/0 of your 4/);
     await click(within(sheet).getByRole("button", { name: /^Close/ }));
-    expect(document.querySelector(".spz-strip-goal")?.textContent).toBe("Direct bouts: cannot be counted yet");
+    expect(document.querySelector(".spz-strip-goal")?.textContent).toBe("Direct sets: cannot be counted yet");
     // The biceps' target is the upper arm's from wave A, read there through its version: the forearm's strip and overview hold none.
     await sheetOf(/^Biceps brachii,/);
     await click(within(screen.getByRole("dialog")).getByRole("button", { name: /^Close/ }));
     expect(document.querySelector(".spz-strip-goal")).toBeNull();
     const targets = await overview();
-    expect(within(targets).getByText(/4 per calendar week · cannot be counted yet/)).toBeTruthy();
+    expect(within(targets).getByText(/4 per week · cannot be counted yet/)).toBeTruthy();
     expect(within(targets).queryAllByText(/of your 4/)).toHaveLength(0);
   });
 });

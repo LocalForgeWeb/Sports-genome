@@ -125,10 +125,11 @@ describe("every muscle on a pass", () => {
   it("credits the source model, its licences, and says the images are adapted renders", () => {
     const words = forearmPlates.credit.map((part) => (typeof part === "string" ? part : part.text)).join("");
     expect(words).toMatch(/Open3Dmodel upper-limb model/);
-    expect(words).toMatch(/BodyParts3D .*CC BY-SA 2\.1 Japan/);
-    expect(words).toMatch(/Z-Anatomy \(CC BY-SA 4\.0\)/);
-    expect(words).toMatch(/adapted renders/);
-    expect(words).toMatch(/never mirrored/);
+    expect(words).toMatch(/BodyParts3D, DBCLS, CC BY-SA 2\.1 JP/);
+    expect(words).toMatch(/Z-Anatomy, CC BY-SA 4\.0/);
+    // Adapted, and how (the owner's cleanup, 26 Oct 2026, keeps what the licences ask: the source, its licence, the changes).
+    expect(words).toMatch(/^Adapted from the /);
+    expect(words).toMatch(/cropped, tinted and split by muscle/);
     for (const part of forearmPlates.credit) if (typeof part !== "string") expect(part.href).toMatch(/^https:\/\//);
   });
 });

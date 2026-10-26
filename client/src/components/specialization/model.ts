@@ -1,6 +1,6 @@
 import { formatDisplayWeight, type DisplayWeightUnit } from "@/lib/weightUnits";
 import { creditedMappingsFor, mappingsByKey } from "@shared/specialization/exposure";
-import { categoryFor, currentExposureRule, exposureCategoryLabelsFor } from "@shared/specialization/rules";
+import { categoryFor, exposureCategoryLabelsFor } from "@shared/specialization/rules";
 import type { AnatomyNode, Contribution, ContributionSegment, ExposureCategory, GoalMetric, GoalProgress, JointAction, MappingEvidenceBasis, MuscleMode, NodeExposure, NodeId, RegionBoutRow, RegionWording, Relationship, SideRelation, SpecializationRegion, SpecializationRegionData, SpecializationSummary, VariantMapping } from "@shared/specialization/types";
 import { drawableNodeIds } from "./diagramGeometry";
 
@@ -85,6 +85,9 @@ export function holdTime(seconds: number): string {
 
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
+/** "Grip" from "grip": a region's word at the start of a label. */
+export const upperFirst = (text: string) => (text ? text.charAt(0).toUpperCase() + text.slice(1) : text);
+
 /**
  * A muscle's hold time, holds with no time recorded said apart (11-forearm-research-and-stack.md
  * §7.1): "45 s recorded; 1 hold with no time recorded", counted from the muscle's own deliberate
@@ -110,10 +113,10 @@ export function holdTimeOf(node: Pick<NodeExposure, "deliberateHoldSeconds" | "c
  * sheet's suggestions and the stack card say them; the sources behind each are the region's
  * (`repGuidanceCitations`).
  */
-export const REP_RANGE_SENTENCE = "Starting ranges the app uses for this kind of movement. They are practical defaults, not measured for this muscle. General training studies found growth across a wide range of reps when sets are hard, and heavier sets suit maximal strength. Change them any time.";
+export const REP_RANGE_SENTENCE = "Starting ranges are practical defaults, not measured for this muscle. Studies found growth across a wide range of reps when sets are hard; heavier sets suit maximal strength.";
 export const REP_EFFORT_SENTENCE = "Stopping 1 to 3 reps short of failure is a common starting point, not a rule.";
 /** Where a hold range appears (§5.3), with the range ("10–30"). */
-export const holdRangeSentence = (range: string) => `Holds of ${range} s are the app's starting range, not a tested one. Results from holds depend on their length, how hard they are and the intent; the plan counts the number written.`;
+export const holdRangeSentence = (range: string) => `Holds of ${range} s are the app's starting range, not a tested one; the plan counts the number written.`;
 /** The add sheet's shorter form (§5.2). */
 export const holdRangeShortSentence = (range: string) => `Holds of ${range} s are the app's starting range, not a tested one; the plan counts the number written.`;
 /** A range beside a suggested exercise (§5.2): "10–25 reps", "10–30 s holds". */
@@ -139,15 +142,15 @@ export const otherWorkWords = `helping or ${holdingWord}`;
 
 /**
  * The parts of a muscle's exposure that are not zero, in the brief's order (§5 "Default muscle
- * totals"). Incidental work is said in the region's word for it (`wording.incidentalWork`):
- * "4 incidental grip or steadying".
+ * totals"), as short as the list's rows say them. Incidental work is said in the region's word for
+ * it (`wording.incidentalWork`): "4 grip".
  */
 export function exposureParts(node: NodeExposure, incidentalWork: string): string[] {
   const parts: string[] = [];
-  if (node.directDynamicBouts) parts.push(`${plural(node.directDynamicBouts, "direct dynamic bout")}`);
-  if (node.contributingDynamicBouts) parts.push(`${node.contributingDynamicBouts} other dynamic`);
-  if (node.deliberateHoldBouts) parts.push(`${plural(node.deliberateHoldBouts, "deliberate hold")}, ${holdTimeOf(node)}`);
-  if (node.incidentalBouts) parts.push(`${node.incidentalBouts} incidental ${incidentalWords(incidentalWork)}`);
+  if (node.directDynamicBouts) parts.push(`${plural(node.directDynamicBouts, "direct set")}`);
+  if (node.contributingDynamicBouts) parts.push(`${node.contributingDynamicBouts} other`);
+  if (node.deliberateHoldBouts) parts.push(`${plural(node.deliberateHoldBouts, "hold")}, ${holdTimeOf(node)}`);
+  if (node.incidentalBouts) parts.push(`${node.incidentalBouts} ${incidentalWork}`);
   if (node.mixedBouts) parts.push(`${node.mixedBouts} mixed`);
   if (node.unknownBouts) parts.push(`${node.unknownBouts} unclassified`);
   return parts;
@@ -159,10 +162,10 @@ export function exposureParts(node: NodeExposure, incidentalWork: string): strin
  * is named.
  */
 export function exposureSentence(node: NodeExposure | null, incidentalWork: string): string {
-  if (!node || node.mappingCoverage === "none") return "No exercise is mapped to this muscle yet, so nothing can be counted for it.";
+  if (!node || node.mappingCoverage === "none") return "No exercise is mapped to it yet.";
   const parts = exposureParts(node, incidentalWork);
-  const pending = node.pendingReviewBouts ? `${plural(node.pendingReviewBouts, "set")} matched a mapping still under review and ${node.pendingReviewBouts === 1 ? "is" : "are"} not counted.` : "";
-  const head = parts.length ? `${parts.join(" · ")}.` : node.mappingCoverage === "pending_review" ? "Its exercise mapping is still under review." : "No work for it in this window.";
+  const pending = node.pendingReviewBouts ? `${plural(node.pendingReviewBouts, "set")} under review, not counted.` : "";
+  const head = parts.length ? `${parts.join(" · ")}.` : node.mappingCoverage === "pending_review" ? "Its mapping is under review." : "No work in this window.";
   return [head, pending].filter(Boolean).join(" ");
 }
 
@@ -209,15 +212,15 @@ export function sortForList(nodes: readonly AnatomyNode[], exposureOf: (id: stri
 }
 
 export const goalMetricLabels: Record<GoalMetric, string> = {
-  direct_dynamic_bouts: "Direct dynamic bouts",
-  deliberate_hold_bouts: "Deliberate hold bouts",
-  deliberate_hold_seconds: "Deliberate hold seconds",
+  direct_dynamic_bouts: "Direct moving sets",
+  deliberate_hold_bouts: "Holds",
+  deliberate_hold_seconds: "Hold seconds",
 };
 
 /** The same, short enough for one line in the selected-muscle strip on a 375 px phone. */
 export const goalMetricShortLabels: Record<GoalMetric, string> = {
-  direct_dynamic_bouts: "Direct bouts",
-  deliberate_hold_bouts: "Hold bouts",
+  direct_dynamic_bouts: "Direct sets",
+  deliberate_hold_bouts: "Holds",
   deliberate_hold_seconds: "Hold seconds",
 };
 
@@ -273,7 +276,7 @@ export type FindingAction =
 export type Finding = { id: string; title: string; detail: string; action: FindingAction | null; actionLabel: string | null };
 
 /** Said beside a target on a muscle that is not a target of the page's region (10-multi-region.md §2.2). */
-export const READ_ONLY_TARGET_NOTE = "Targets are for this region's target muscles. You can end or remove this one.";
+export const READ_ONLY_TARGET_NOTE = "Only this page's own muscles take targets. End or remove this one.";
 /** A muscle target's progress where nothing is counted for the muscle (no reviewed mapping): unknown is never shown as zero. Short, so the selected muscle's target stays one line on a small phone. */
 export const UNCOUNTED_TARGET_PROGRESS = "cannot be counted yet";
 
@@ -326,10 +329,10 @@ export function findingsFor(input: {
       id: `goal:${progress.goal.id}`,
       title: `${subject}: ${progress.label}`,
       // Planned mode reads the plan week on screen; completed mode reads the target's own period.
-      detail: `${goalMetricLabels[progress.goal.metric]}, ${summary.mode === "planned" ? `${summary.interval.label}` : progress.goal.period === "calendar_week" ? "this calendar week" : "the last 7 days"}. The target is yours, not a prescription.`,
+      detail: `${goalMetricLabels[progress.goal.metric]}, ${summary.mode === "planned" ? `${summary.interval.label}` : progress.goal.period === "calendar_week" ? "this week" : "the last 7 days"}.`,
       // A muscle target opens the muscle's exercises; a movement target opens the movement: its sets and its exercises.
       action: progress.goal.nodeId ? { kind: "add", nodeId: progress.goal.nodeId } : progress.goal.actionId ? { kind: "movement", actionId: progress.goal.actionId } : null,
-      actionLabel: progress.goal.nodeId ? "See exercises for it" : progress.goal.actionId ? "See its sets and exercises" : null,
+      actionLabel: progress.goal.nodeId ? "See exercises" : progress.goal.actionId ? "See sets and exercises" : null,
     });
   }
 
@@ -337,8 +340,8 @@ export function findingsFor(input: {
     const names = summary.regionUnclassified.exercises.slice(0, 3).map((item) => item.name);
     findings.push({
       id: "region-only",
-      title: `${plural(summary.regionUnclassified.bouts, "set")} count for the ${region} as a whole only`,
-      detail: `${names.join(", ")}${summary.regionUnclassified.exercises.length > 3 ? " and others" : ""} ${summary.regionUnclassified.exercises.length === 1 ? "is" : "are"} tagged with the ${region} but not mapped to ${summary.regionUnclassified.exercises.length === 1 ? "a muscle" : "muscles"} yet, so ${summary.regionUnclassified.exercises.length === 1 ? "it adds" : "they add"} to no single muscle.`,
+      title: `${plural(summary.regionUnclassified.bouts, "set")} count for the ${region} only`,
+      detail: `${summary.regionUnclassified.exercises.length > 3 ? `${names.join(", ")} and others` : listWords(names)} ${summary.regionUnclassified.exercises.length === 1 ? "is" : "are"} not mapped to a muscle yet.`,
       action: { kind: "bouts", list: "region-only" },
       actionLabel: "See these sets",
     });
@@ -349,8 +352,8 @@ export function findingsFor(input: {
     const sets = pending.reduce((sum, node) => sum + node.pendingReviewBouts, 0);
     findings.push({
       id: "pending-review",
-      title: `Mapping under review for ${pending.slice(0, 2).map((node) => nameOf(node.nodeId)).join(" and ")}${pending.length > 2 ? ` and ${pending.length - 2} more` : ""}`,
-      detail: `${plural(sets, "set")} ${window} matched a mapping that is not reviewed yet. ${sets === 1 ? "It is" : "They are"} shown in the ledger and not counted.`,
+      title: `Under review: ${pending.slice(0, 2).map((node) => nameOf(node.nodeId)).join(" and ")}${pending.length > 2 ? ` and ${pending.length - 2} more` : ""}`,
+      detail: `${plural(sets, "set")} ${window} ${sets === 1 ? "is" : "are"} not counted until the mapping is reviewed.`,
       action: { kind: "inspect", nodeId: pending[0].nodeId },
       actionLabel: "Inspect coverage",
     });
@@ -360,8 +363,8 @@ export function findingsFor(input: {
   if (unmapped.length) {
     findings.push({
       id: "no-mapping",
-      title: `${unmapped.length === 1 ? unmapped[0].name : `${unmapped.length} muscles`} without a reviewed exercise mapping`,
-      detail: `${unmapped.length === 1 ? "It is" : `${unmapped.slice(0, 3).map((node) => node.shortName).join(", ")}${unmapped.length > 3 ? " and others are" : " are"}`} hatched on the drawing. That is missing mapping, not missing training.`,
+      title: `${unmapped.length === 1 ? unmapped[0].name : `${unmapped.length} muscles`}: no exercise mapped yet`,
+      detail: `${unmapped.length === 1 ? "Hatched" : `${unmapped.slice(0, 3).map((node) => node.shortName).join(", ")}${unmapped.length > 3 ? " and others" : ""}: hatched`} on the drawing. That is missing mapping, not missing training.`,
       action: { kind: "inspect", nodeId: unmapped[0].id },
       actionLabel: "Inspect coverage",
     });
@@ -376,7 +379,7 @@ export function findingsFor(input: {
     findings.push({
       id: "straps",
       title: `${plural(strapped.size, "strapped set")}: ${withheld.join("; ")}`,
-      detail: `${currentExposureRule.specification.straps} The rest of each set still counts.`,
+      detail: "The rest of each set still counts.",
       action: { kind: "method" },
       actionLabel: "How this is counted",
     });
@@ -385,7 +388,7 @@ export function findingsFor(input: {
   for (const nodeId of readOnlyNodes) {
     findings.push({
       id: `read-only:${nodeId}`,
-      title: `${nameOf(nodeId)}: a target saved earlier`,
+      title: `${nameOf(nodeId)}: target saved earlier`,
       detail: READ_ONLY_TARGET_NOTE,
       action: { kind: "inspect", nodeId },
       actionLabel: "End or remove it",
@@ -460,6 +463,21 @@ export function overlapsInWindow(summary: SpecializationSummary, data: Specializ
     .filter((entry) => entry.names.size >= 2)
     .map(({ names, ...entry }) => ({ ...entry, exercises: Array.from(names).sort((left, right) => left.localeCompare(right)) }))
     .sort((left, right) => (left.performedAt ?? "").localeCompare(right.performedAt ?? "") || left.sessionLabel.localeCompare(right.sessionLabel) || left.nodeShortName.localeCompare(right.nodeShortName));
+}
+
+/**
+ * The overlaps as the page lists them: one line per workout and pair of exercises, with every muscle
+ * both load directly ("ECRL, ECRB, ECU"), rather than the same line once per muscle.
+ */
+export function overlapLines(overlaps: readonly SessionOverlap[]): { key: string; sessionLabel: string; performedAt: string | null; muscles: string[]; exercises: string[] }[] {
+  const lines = new Map<string, { key: string; sessionLabel: string; performedAt: string | null; muscles: string[]; exercises: string[] }>();
+  for (const item of overlaps) {
+    const key = `${item.sessionLabel}|${item.performedAt ?? ""}|${item.exercises.join("|")}`;
+    const line = lines.get(key) ?? { key, sessionLabel: item.sessionLabel, performedAt: item.performedAt ?? null, muscles: [], exercises: item.exercises };
+    line.muscles.push(item.nodeShortName);
+    lines.set(key, line);
+  }
+  return Array.from(lines.values());
 }
 
 // ---------------------------------------------------------------- region totals, opened

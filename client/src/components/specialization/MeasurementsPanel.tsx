@@ -406,31 +406,31 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
   const tapes = offered.some((item) => measureWords[item].instrument === "Tape");
 
   return <div className="spz-measure">
-    <p className="spz-note">Charts on one time axis, {axis.label}, each with its own scale. {tapes ? `A tape takes in every muscle under it, so ${offersGirth ? "girth" : "circumference"} cannot show which muscle changed, and a` : "A"} change beside your training does not show the training caused it.</p>
+    <p className="spz-note">{axis.label}.{tapes ? ` A tape measures every muscle under it, so ${offersGirth ? "girth" : "circumference"} cannot show which one changed.` : ""}</p>
     <figure className="spz-chart">
-      <figcaption>Distinct bouts per week on the {regionWord}, completed</figcaption>
-      <svg viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`} role="img" aria-label={`Bouts per week for the last ${axis.weeks} weeks: ${weeks.map((week) => week.bouts).join(", ")}`}>
+      <figcaption>Sets per week on the {regionWord}</figcaption>
+      <svg viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`} role="img" aria-label={`Sets per week for the last ${axis.weeks} weeks: ${weeks.map((week) => week.bouts).join(", ")}`}>
         <TimeAxis axis={axis} />
         {weeks.map((week, index) => {
           const height = (week.bouts / maxBouts) * 60;
           return <rect key={week.monday} x={xOfDay(index * 7) + 4} y={BASELINE - height} width={weekWidth - 8} height={height} className="spz-chart-bar" />;
         })}
       </svg>
-      <p className="spz-chart-scale">Scale 0 to {maxBouts} bouts · weeks from {dayLabel(axis.firstMonday)}</p>
+      <p className="spz-chart-scale">Scale 0 to {maxBouts} sets · weeks from {dayLabel(axis.firstMonday)}</p>
       {/* Each bar is a total, so a week with work opens its bouts (brief §1), as a day's bar does on the page.
           Eight 44 px buttons do not fit one row on a phone, so they take two rows of four, oldest first. */}
       {weeks.some((week) => week.bouts > 0) && <>
-        <ol className="spz-weeks" aria-label="Distinct bouts per week">
+        <ol className="spz-weeks" aria-label="Sets per week">
           {weeks.map((week) => {
             const inner = <><small>{dayLabel(week.monday)}</small><b>{week.bouts}</b></>;
             return <li key={week.monday} data-current={week.monday <= todayKey && todayKey <= week.sunday || undefined}>
               {week.bouts > 0
-                ? <button type="button" className="spz-week" onClick={() => setOpenWeek(week.monday)} aria-label={`Week of ${dayLabel(week.monday)}: ${plural(week.bouts, "distinct bout")}. See these sets`}>{inner}</button>
+                ? <button type="button" className="spz-week" onClick={() => setOpenWeek(week.monday)} aria-label={`Week of ${dayLabel(week.monday)}: ${plural(week.bouts, "set")}. See them`}>{inner}</button>
                 : <span className="spz-week">{inner}</span>}
             </li>;
           })}
         </ol>
-        <p className="spz-chart-scale">A week with work opens its sets.</p>
+        <p className="spz-chart-scale">Tap a week for its sets.</p>
       </>}
     </figure>
     {charted.map((item) => {
@@ -455,7 +455,7 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
     {notice?.kind === "saved" && <p className="spz-inline-status" role="status">{notice.text}</p>}
     {listError && <p className="spz-error" role="alert">{listError}</p>}
 
-    {offered.length === 0 ? <p className="spz-note">No body measurement is offered for the {regionWord}. Progress here is the performance of your logged sets, below.</p> : open ? <fieldset ref={formRef} className="spz-target-form">
+    {offered.length === 0 ? <p className="spz-note">No body measurement for the {regionWord}; see exercise performance below.</p> : open ? <fieldset ref={formRef} className="spz-target-form">
       <legend>New reading</legend>
       {offered.length > 1 && <div className="spz-segment" role="group" aria-label="What was measured">
         {offered.map((item) => <button key={item} type="button" aria-pressed={metric === item} onClick={() => chooseMetric(item)}>{measureWords[item].button}</button>)}
@@ -474,21 +474,21 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
       <label className="spz-field"><span>Condition</span><select value={condition} onChange={(event) => editProtocol(setCondition)(event.target.value as MeasurementProtocol["condition"])}>{(Object.keys(conditionLabels) as MeasurementProtocol["condition"][]).map((item) => <option key={item} value={item}>{conditionLabels[item]}</option>)}</select></label>
       <label className="spz-field"><span>{measureWords[metric].instrument} (optional)</span><input type="text" value={device} onChange={(event) => editProtocol(setDevice)(event.target.value)} /></label>
       <label className="spz-field"><span>Note (optional)</span><input type="text" value={notes} onChange={(event) => setNotes(event.target.value)} /></label>
-      <p className="spz-note">The same place, posture, time of day and condition make two readings comparable.</p>
+      <p className="spz-note">Same place, posture, time of day and condition, so readings compare.</p>
       {error && <p className="spz-error" role="alert">{error}</p>}
       <div className="spz-actions"><button type="button" className="spz-primary" onClick={save}>Save reading</button><button type="button" className="spz-button" onClick={() => { focusNext.current = "add"; setOpen(false); setError(null); }}>Cancel</button></div>
     </fieldset> : <button type="button" ref={addRef} className="spz-button" onClick={openForm}>Add a reading</button>}
 
     <section className="spz-subsection spz-progress-section" aria-labelledby={performanceHeading}>
       <h3 id={performanceHeading}>Exercise performance</h3>
-      <p className="spz-note">Same exercise only. A change of hand position, implement or range of motion is a different line.</p>
+      <p className="spz-note">One exact exercise per chart.</p>
       {chosen ? <>
         <label className="spz-field"><span>Exercise</span>
           <select value={chosen.series.key} onChange={(event) => setExerciseKey(event.target.value)}>
             {options.map((option) => <option key={option.series.key} value={option.series.key}>{option.series.name}{option.series.straps ? ", with straps" : ""} · {option.inside.length} sessions</option>)}
           </select>
         </label>
-        <p className="spz-note">{chosen.metric === "seconds" ? "The longest hold of each session" : chosen.metric === "load" ? `The top set of each session: the heaviest load in ${weightUnit}, then the most reps` : "The top set of each session, drawn by its reps"}, from completed sets.</p>
+        <p className="spz-note">{chosen.metric === "seconds" ? "The longest hold of each session" : chosen.metric === "load" ? `The top set of each session (heaviest, then most reps)` : "The top set of each session, drawn by its reps"}, from completed sets.</p>
         <PerformanceChart option={chosen} axis={axis} weightUnit={weightUnit} />
       </> : <p className="spz-note">No exercise that works the {regionWord} directly has two finished sessions in these {axis.weeks} weeks.</p>}
     </section>
@@ -496,7 +496,7 @@ export function MeasurementsPanel({ data, side, catalog, weightUnit, timeZone, t
     {shownWeek && <BoutListSheet
       eyebrow={data.region.label}
       title={`Week of ${dayLabel(shownWeek.monday)}`}
-      intro={`${dateRangeLabel(shownWeek.monday, shownWeek.sunday)}: ${plural(shownWeek.bouts, "distinct bout")}, every set that loaded a muscle of the ${regionWord}, each counted once however many muscles it loaded.`}
+      intro={`${dateRangeLabel(shownWeek.monday, shownWeek.sunday)}: ${plural(shownWeek.bouts, "set")} on the ${regionWord}, each counted once.`}
       lists={[{ key: "week", heading: null, note: null, rows: shownWeek.rows }]}
       weightUnit={weightUnit}
       onOpenSession={(sessionId) => { setOpenWeek(null); onOpenSession(sessionId); }}

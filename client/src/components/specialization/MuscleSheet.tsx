@@ -13,7 +13,7 @@ import type { AnatomyNode, GoalProgress, NodeExposure, RegionId, SpecializationG
 import { ActionGlyph } from "./ActionGlyph";
 import { AttachesAtLine, type AttachesAt } from "./AttachesAt";
 import { BoutItem, boutDay } from "./BoutItem";
-import { REP_RANGE_SENTENCE, categoryLabel, formatSegment, holdRangeSentence, holdTimeOf, incidentalWords, layerLabels, ledgerByExercise, rangeWords } from "./model";
+import { REP_RANGE_SENTENCE, categoryLabel, formatSegment, holdRangeSentence, holdTimeOf, layerLabels, ledgerByExercise, rangeWords, upperFirst } from "./model";
 import { SpecializationSheet } from "./SpecializationSheet";
 import { Suggestions } from "./Suggestions";
 import { TargetsEditor } from "./TargetsEditor";
@@ -153,18 +153,18 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
       <h3 id="spz-exposure">{mode === "planned" ? "Planned" : "Completed"} · {intervalLabel}</h3>
       {loading ? <p className="spz-note">Loading your plan…</p>
         : !exposure || exposure.mappingCoverage === "none"
-        ? <p className="spz-note">No exercise is mapped to this muscle yet, so there is nothing to count. That is missing mapping, not missing training.</p>
+        ? <p className="spz-note">No exercise is mapped to it yet: missing mapping, not missing training.</p>
         : <dl className="spz-numbers">
-          <div><dt>Direct dynamic bouts</dt><dd>{exposure.directDynamicBouts}{exposure.directDynamicReps ? <small> · {exposure.directDynamicReps} reps</small> : null}</dd></div>
-          <div><dt>Other dynamic bouts</dt><dd>{exposure.contributingDynamicBouts}{exposure.contributingDynamicReps ? <small> · {exposure.contributingDynamicReps} reps</small> : null}</dd></div>
-          <div><dt>Deliberate holds</dt><dd>{exposure.deliberateHoldBouts}{exposure.deliberateHoldBouts ? <small> · {holdTimeOf(exposure)}</small> : null}</dd></div>
-          <div><dt>Incidental {incidentalWords(wording.incidentalWork)}</dt><dd>{exposure.incidentalBouts}</dd></div>
-          {exposure.mixedBouts > 0 && <div><dt>Mixed bouts</dt><dd>{exposure.mixedBouts}</dd></div>}
+          <div><dt>Direct sets</dt><dd>{exposure.directDynamicBouts}{exposure.directDynamicReps ? <small> · {exposure.directDynamicReps} reps</small> : null}</dd></div>
+          <div><dt>Other sets</dt><dd>{exposure.contributingDynamicBouts}{exposure.contributingDynamicReps ? <small> · {exposure.contributingDynamicReps} reps</small> : null}</dd></div>
+          <div><dt>Holds</dt><dd>{exposure.deliberateHoldBouts}{exposure.deliberateHoldBouts ? <small> · {holdTimeOf(exposure)}</small> : null}</dd></div>
+          <div><dt>{upperFirst(wording.incidentalWork)}</dt><dd>{exposure.incidentalBouts}</dd></div>
+          {exposure.mixedBouts > 0 && <div><dt>Mixed</dt><dd>{exposure.mixedBouts}</dd></div>}
           {exposure.unknownBouts > 0 && <div><dt>Unclassified</dt><dd>{exposure.unknownBouts}</dd></div>}
-          {exposure.pendingReviewBouts > 0 && <div><dt>Mapping under review</dt><dd>{exposure.pendingReviewBouts}<small> · shown, not counted</small></dd></div>}
+          {exposure.pendingReviewBouts > 0 && <div><dt>Under review</dt><dd>{exposure.pendingReviewBouts}<small> · not counted</small></dd></div>}
         </dl>}
-      {exposure?.mappingCoverage === "pending_review" && <p className="spz-note">Its exercise mapping is still under review, so nothing is counted for it yet.</p>}
-      {!loading && paired && exposure?.mappingCoverage === "reviewed" && <p className="spz-note"><b>{paired.label}:</b> {paired.exposure ? `${paired.exposure.directDynamicBouts} direct dynamic · ${paired.exposure.contributingDynamicBouts} other dynamic · ${paired.exposure.deliberateHoldBouts} holds` : "nothing"}.</p>}
+      {exposure?.mappingCoverage === "pending_review" && <p className="spz-note">Its mapping is under review, so nothing is counted yet.</p>}
+      {!loading && paired && exposure?.mappingCoverage === "reviewed" && <p className="spz-note"><b>{paired.label}:</b> {paired.exposure ? `${paired.exposure.directDynamicBouts} direct · ${paired.exposure.contributingDynamicBouts} other · ${paired.exposure.deliberateHoldBouts} holds` : "nothing"}.</p>}
       {!loading && !paired && pairNote && exposure?.mappingCoverage === "reviewed" && <p className="spz-note">{pairNote}</p>}
     </section>
 
@@ -172,7 +172,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
       <h3 id="spz-ledger">Where the numbers come from</h3>
       {loading ? <p className="spz-note">Loading your plan…</p> : ledger.length || notCounted.length ? <div className="spz-ledger">
         {ledger.map((group) => <details key={group.key} className="spz-disclosure">
-          <summary><span><b>{group.name}</b><small>{group.rows.length} bout{group.rows.length === 1 ? "" : "s"}{group.matchedBy === "name" ? " · matched by name" : ""}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+          <summary><span><b>{group.name}</b><small>{group.rows.length} set{group.rows.length === 1 ? "" : "s"}{group.matchedBy === "name" ? " · matched by name" : ""}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
           <ol className="spz-bouts">
             {group.rows.map((row) => <li key={row.boutId} className="spz-bout">
               <div className="spz-bout-head">
@@ -181,7 +181,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
               </div>
               <ul className="spz-segments">{row.segments.map((segment, index) => <li key={segment.id}>{row.kind === "drop" ? `Drop ${index + 1}: ` : ""}{formatSegment(segment, weightUnit)}</li>)}</ul>
               {row.category === "mixed" && <p className="spz-note">Parts: {row.parts.map((part) => categoryLabel(part.category, wording)).join(" and ")}. Counted once.</p>}
-              {row.sharedWith.length > 0 && <p className="spz-note">Shared with {row.sharedWith.map(nodeName).join(", ")}: the work is real but cannot be split between them.</p>}
+              {row.sharedWith.length > 0 && <p className="spz-note">Shared with {row.sharedWith.map(nodeName).join(", ")}; it cannot be split between them.</p>}
               {row.notes.length > 0 && <p className="spz-note">{row.notes.join(" · ")}</p>}
               {row.sessionId && <button type="button" className="spz-link" onClick={() => onOpenSession(row.sessionId!)}>Open this workout <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
             </li>)}
@@ -190,7 +190,7 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
           <button type="button" className="spz-link" onClick={() => onInspectExercise(group.catalogExerciseId, group.name)}>About {group.name} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
         </details>)}
         {notCounted.length > 0 && <details className="spz-disclosure">
-          <summary><span><b>Not counted</b><small>{notCounted.length} bout{notCounted.length === 1 ? "" : "s"} matched but earned nothing</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+          <summary><span><b>Not counted</b><small>{notCounted.length} set{notCounted.length === 1 ? "" : "s"}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
           {/* The same set records as the ledger above (brief §1): its segments as logged and the workout it was in, with why it earned nothing. */}
           <ol className="spz-bouts">{notCounted.map((row) => <BoutItem key={`${row.boutId}-nc`} row={row} title={row.exerciseName} meta={[row.sessionLabel, boutDay(row.performedAt), row.matchedBy === "name" ? "matched by name" : null].filter(Boolean).join(" · ")} weightUnit={weightUnit} onOpenSession={onOpenSession}>
             <p className="spz-note">{row.notes.join(" · ") || "Not counted."}</p>
@@ -206,10 +206,10 @@ export function MuscleSheet({ data, node, exposure, loading = false, side, mode,
         <p className="spz-note">Targets for this muscle are set on {homePage}{homeHasPage ? "." : ", which is not available yet."}</p>
         {homeHasPage && onOpenRegion && <button type="button" className="spz-link" onClick={() => onOpenRegion(home.id, node.id)}>Open {homePage} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
       </>}
-      {loading ? <p className="spz-note">Your targets and their progress appear once your plan has loaded.</p>
+      {loading ? <p className="spz-note">Loading your plan…</p>
         : showEditor
           ? <TargetsEditor key={node.id} region={data.region} nodeId={node.id} nodeName={node.name} canSet={node.role === "target"} counted={!exposure || exposure.mappingCoverage === "reviewed"} side={side} goals={goals} progress={progress} timeZone={timeZone} todayKey={todayKey} onSave={onSaveGoals} onRestore={onRestoreGoals} onRemove={onRemoveGoal} />
-          : !home && <p className="spz-note">Targets are for this region's target muscles, and this one is not one of them.</p>}
+          : !home && <p className="spz-note">Only this page's own muscles take targets.</p>}
     </section>
 
     <section className="spz-sheet-section" aria-labelledby="spz-exercises">

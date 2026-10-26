@@ -16,12 +16,12 @@ import type { ViewerMuscleData, ViewerTarget } from "./viewerData";
  * "—" beside that reason, never as 0.
  */
 
-const periodWords: Record<GoalPeriod, string> = { calendar_week: "per calendar week", rolling_7d: "per rolling 7 days" };
+const periodWords: Record<GoalPeriod, string> = { calendar_week: "per week", rolling_7d: "per rolling 7 days" };
 
 const unknown = "—";
 
 function TargetLine({ target }: { target: ViewerTarget }) {
-  return <p className="sg-anatomy3d-target">{target.label} {target.metric === "direct_dynamic_bouts" ? "direct dynamic bouts" : target.metric === "deliberate_hold_bouts" ? "hold bouts" : "seconds of holds"} {periodWords[target.period]}</p>;
+  return <p className="sg-anatomy3d-target">{target.label} {target.metric === "direct_dynamic_bouts" ? "direct moving sets" : target.metric === "deliberate_hold_bouts" ? "holds" : "seconds of holds"} {periodWords[target.period]}</p>;
 }
 
 export function ModelMusclePanel({ data, mode, windowLabel, regionLine, bothSides, countedTogether, onViewContributions, onAddExercise, onViewExercise, onOpenMethod, onSeeRegionSets, onDesignStack = null, attachesAt = null, credits }: {
@@ -55,7 +55,7 @@ export function ModelMusclePanel({ data, mode, windowLabel, regionLine, bothSide
 }) {
   if (!data) {
     return <section className="sg-anatomy3d-detail" aria-label="The whole forearm">
-      <p className="sg-anatomy3d-status">{regionLine} Tap a muscle on the model, or in the row above it, for its numbers.</p>
+      <p className="sg-anatomy3d-status">{regionLine} Tap a muscle for its numbers.</p>
       {(onSeeRegionSets || onDesignStack) && <div className="spz-actions">
         {onSeeRegionSets && <button type="button" className="spz-link" onClick={onSeeRegionSets}>See these sets <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
         {onDesignStack && <button type="button" className="spz-button" onClick={onDesignStack}>Design a stack</button>}
@@ -84,7 +84,7 @@ export function ModelMusclePanel({ data, mode, windowLabel, regionLine, bothSide
     <p className="sg-anatomy3d-function">{data.physicalFunction.text}{!data.physicalFunction.reviewed && <small> · not reviewed yet</small>}</p>
 
     <div className="sg-anatomy3d-lead">
-      <p className="sg-anatomy3d-lead-number"><b>{direct ? direct.bouts : unknown}</b><span>direct dynamic bout{direct?.bouts === 1 ? "" : "s"}{direct && direct.reps > 0 ? ` · ${direct.reps} reps` : ""}</span></p>
+      <p className="sg-anatomy3d-lead-number"><b>{direct ? direct.bouts : unknown}</b><span>direct set{direct?.bouts === 1 ? "" : "s"}{direct && direct.reps > 0 ? ` · ${direct.reps} reps` : ""}</span></p>
       <p className="sg-anatomy3d-small">{[planned ? "Planned" : "Completed", windowLabel, bothSides].filter(Boolean).join(" · ")}</p>
       {data.targetSets && <>
         <TargetLine target={data.targetSets} />
@@ -95,10 +95,10 @@ export function ModelMusclePanel({ data, mode, windowLabel, regionLine, bothSide
     {attachesAt && <AttachesAtLine attachesAt={attachesAt} className="sg-anatomy3d-attaches" />}
 
     {numbersKnown && <dl className="sg-anatomy3d-metrics" aria-label="Other work, counted apart">
-      <div><dt>Supporting dynamic work<small>Other dynamic bouts, where this muscle helps</small></dt><dd>{data.supportingExerciseExposure?.value ?? unknown} <small>bouts</small></dd></div>
-      <div><dt>Deliberate holds<small>Isometric bouts, kept in seconds, never sets</small></dt><dd>{hold ?? unknown} <small>bouts{hold ? ` · ${data.isometricHoldSeconds === null ? "time not recorded" : formatSeconds(data.isometricHoldSeconds)}` : ""}</small></dd></div>
-      <div><dt>Incidental grip or steadying<small>Not direct sets</small></dt><dd>{data.incidentalGripExposure?.value ?? unknown} <small>bouts</small></dd></div>
-      {(data.otherBouts ?? 0) > 0 && <div><dt>Mixed or unclassified<small>Counted once each</small></dt><dd>{data.otherBouts} <small>bouts</small></dd></div>}
+      <div><dt>Other sets<small>Where this muscle helps</small></dt><dd>{data.supportingExerciseExposure?.value ?? unknown}</dd></div>
+      <div><dt>Holds</dt><dd>{hold ?? unknown}{hold ? <small> · {data.isometricHoldSeconds === null ? "time not recorded" : formatSeconds(data.isometricHoldSeconds)}</small> : null}</dd></div>
+      <div><dt>Grip or steadying</dt><dd>{data.incidentalGripExposure?.value ?? unknown}</dd></div>
+      {(data.otherBouts ?? 0) > 0 && <div><dt>Mixed or unclassified</dt><dd>{data.otherBouts}</dd></div>}
     </dl>}
 
     {otherTargets.length > 0 && <div className="sg-anatomy3d-targets">
@@ -129,10 +129,10 @@ export function ModelMusclePanel({ data, mode, windowLabel, regionLine, bothSide
       {data.visibleShapeContribution.caveats.length > 0 && <ul className="spz-caveats">{data.visibleShapeContribution.caveats.map((caveat) => <li key={caveat}>{caveat}</li>)}</ul>}
     </details>
     <details className="spz-disclosure">
-      <summary><span><b>What these numbers mean</b><small>One bout per set, per muscle</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+      <summary><span><b>What these numbers mean</b><small>Each set once per muscle</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
       <div className="sg-anatomy3d-credits">
-        <p>A direct dynamic bout is a set in which this muscle is a main mover; a drop set counts once. Supporting work, deliberate holds and incidental grip are counted apart and never added to it. {countedTogether}</p>
-        <p>The numbers are the same ones the list and the muscle's sheet show, from your {planned ? "plan as written" : "logged workouts"}.</p>
+        <p>A direct set is one where this muscle is a main mover; a drop set counts once. Other sets, holds and grip are counted apart. {countedTogether}</p>
+        <p>The same numbers as the list, from your {planned ? "plan as written" : "logged workouts"}.</p>
         <button type="button" className="spz-link" onClick={onOpenMethod}>How this is counted <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
       </div>
     </details>

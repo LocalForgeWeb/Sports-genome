@@ -120,13 +120,13 @@ function exercisesOf(exposure: NodeExposure, wording: SpecializationRegionData["
 
 function partialNote(exposure: NodeExposure): string | null {
   const lines: string[] = [];
-  if (exposure.mappingCoverage === "pending_review") lines.push("Its exercise mapping is still under review, so nothing is counted for it yet.");
-  if (exposure.pendingReviewBouts > 0) lines.push(`${plural(exposure.pendingReviewBouts, "set")} matched a mapping still under review and ${exposure.pendingReviewBouts === 1 ? "is" : "are"} shown, not counted.`);
+  if (exposure.mappingCoverage === "pending_review") lines.push("Its mapping is under review, so nothing is counted yet.");
+  if (exposure.pendingReviewBouts > 0) lines.push(`${plural(exposure.pendingReviewBouts, "set")} under review, not counted.`);
   const noArmPending = exposure.unknownSide.pendingReviewBouts ?? 0;
   if (exposure.unknownSide.bouts + noArmPending > 0) lines.push(`${plural(exposure.unknownSide.bouts + noArmPending, "set")} with no arm recorded ${exposure.unknownSide.bouts + noArmPending === 1 ? "is" : "are"} kept apart and counted for neither arm.`);
-  if (exposure.unknownBouts > 0) lines.push(`${plural(exposure.unknownBouts, "bout")} could not be classified.`);
+  if (exposure.unknownBouts > 0) lines.push(`${plural(exposure.unknownBouts, "set")} could not be classified.`);
   const byName = new Set(exposure.contributions.filter((row) => row.matchedBy === "name").map((row) => row.boutId)).size;
-  if (byName > 0) lines.push(`${plural(byName, "set")} matched by exercise name, not by catalog id.`);
+  if (byName > 0) lines.push(`${plural(byName, "set")} matched by name.`);
   return lines.length ? lines.join(" ") : null;
 }
 

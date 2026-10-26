@@ -111,9 +111,9 @@ describe("a suggestion names only a target gap the calculator would fill with it
     // Eight holds since F3 added 419 Barbell Hold.
     expect(result.candidates.map((candidate) => candidate.relevance)).toEqual([...Array(8).fill("direct_isometric"), "direct_dynamic", "direct_dynamic"]);
     expect(namesOf(result).slice(0, 8)).toEqual(["Barbell Hold", "Dead Hang", "Farmer Hold", "Farmer’s Walk", "Gripper Hold", "Plate Pinch", "Suitcase Carry", "Towel Dead Hang"]);
-    expect(why(result, "Dead Hang")).toBe("Direct middle-joint flexion hold for flexor digitorum superficialis; 0 of your 120 seconds of deliberate holds this week. The work is shared with flexor digitorum profundus; the evidence does not split it between them.");
+    expect(why(result, "Dead Hang")).toBe("Direct middle-joint flexion hold for flexor digitorum superficialis; 0 of your 120 seconds of holds this week. The work is shared with flexor digitorum profundus; the evidence does not split it between them.");
     for (const name of ["Finger Curl", "Gripper Close"]) {
-      expect(why(result, name)).toBe("Direct middle-joint flexion for flexor digitorum superficialis; not a hold, so it does not count toward your target of 120 seconds of deliberate holds this week. The work is shared with flexor digitorum profundus; the evidence does not split it between them.");
+      expect(why(result, name)).toBe("Direct middle-joint flexion for flexor digitorum superficialis; not a hold, so it does not count toward your target of 120 seconds of holds this week. The work is shared with flexor digitorum profundus; the evidence does not split it between them.");
     }
     expect(result.candidates.map((candidate) => candidate.targetGap?.goal.id ?? null)).toEqual([...Array(8).fill("hold-s"), null, null]);
     // So "Add targeted exercise", which opens on the first candidate, opens on a hold.
@@ -124,11 +124,11 @@ describe("a suggestion names only a target gap the calculator would fill with it
     const result = recommend(forearmRegionData, { nodeId: m.flexorDigitorumSuperficialis }, { summary: summary(forearmRegionData, [], "left", [dynamic, holdSeconds]) });
     for (const candidate of result.candidates) {
       if (candidate.relevance === "direct_dynamic") {
-        expect(candidate.why).toContain("0 of your 1 direct dynamic bouts this week");
+        expect(candidate.why).toContain("0 of your 1 direct moving sets this week");
         expect(candidate.why).not.toMatch(/hold/);
       } else {
-        expect(candidate.why).toContain("0 of your 120 seconds of deliberate holds this week");
-        expect(candidate.why).not.toMatch(/direct dynamic/);
+        expect(candidate.why).toContain("0 of your 120 seconds of holds this week");
+        expect(candidate.why).not.toMatch(/direct moving/);
       }
     }
     expect(namesOf(result).slice(0, 2)).toEqual(["Finger Curl", "Gripper Close"]);
@@ -143,7 +143,7 @@ describe("a suggestion names only a target gap the calculator would fill with it
     expect(result.candidates[0].why).toMatch(/^Helps with wrist flexion for flexor carpi radialis; it counts toward none of your targets here\./);
     expect(result.candidates[0].why).not.toMatch(/no reviewed exercise/);
     expect(result.candidates[0].why).not.toMatch(/0 of your 3/);
-    expect(result.targetNote).toBe("No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week.");
+    expect(result.targetNote).toBe("No reviewed exercise for flexor carpi radialis counts toward your target of 3 holds this week.");
   });
 
   /**
@@ -156,7 +156,7 @@ describe("a suggestion names only a target gap the calculator would fill with it
     const base = { side: "right" as const, summary: summary(forearmRegionData, [bout(139), bout(139), bout(139)], "right", goals) };
     const open = recommend(forearmRegionData, { nodeId: m.flexorCarpiRadialis }, base);
     expect([namesOf(open), open.skippedAtTarget, open.excludedCount]).toEqual([["Wrist Roller", "Wrist Roller, Extension Wind"], 6, 0]);
-    const targetNote = "No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week.";
+    const targetNote = "No reviewed exercise for flexor carpi radialis counts toward your target of 3 holds this week.";
     const both = `${targetNote} The exercises that train this either answer a target you have already met or are left out by your choices under What is suggested.`;
     // Left out one by one, or through their equipment: the same two causes either way.
     for (const exclusions of [{ catalogExerciseIds: [141, 415] }, { equipment: ["Free weights"] }]) {
@@ -175,12 +175,12 @@ describe("a suggestion names only a target gap the calculator would fill with it
   it("synthetic: a hold target leads with holds, a dynamic target with the dynamic exercise, and neither claims the other", () => {
     const holds = recommend(extended, { nodeId: m.flexorDigitorumSuperficialis }, { summary: summary(extended, [], "left", [goal({ nodeId: m.flexorDigitorumSuperficialis, metric: "deliberate_hold_bouts", target: 2 })]) });
     expect(namesOf(holds)).toEqual(["Dead Hang", "Farmer Hold", "Finger Curl"]);
-    expect(why(holds, "Dead Hang")).toContain("; 0 of your 2 deliberate hold bouts this week.");
-    expect(why(holds, "Finger Curl")).toContain("; not a hold, so it does not count toward your target of 2 deliberate hold bouts this week.");
+    expect(why(holds, "Dead Hang")).toContain("; 0 of your 2 holds this week.");
+    expect(why(holds, "Finger Curl")).toContain("; not a hold, so it does not count toward your target of 2 holds this week.");
     const moves = recommend(extended, { nodeId: m.flexorDigitorumSuperficialis }, { summary: summary(extended, [], "left", [goal({ nodeId: m.flexorDigitorumSuperficialis, metric: "direct_dynamic_bouts", target: 4 })]) });
     expect(namesOf(moves)).toEqual(["Finger Curl", "Dead Hang", "Farmer Hold"]);
-    expect(why(moves, "Finger Curl")).toContain("; 0 of your 4 direct dynamic bouts this week.");
-    expect(why(moves, "Farmer Hold")).toContain("; a hold, so it does not count toward your target of 4 direct dynamic bouts this week.");
+    expect(why(moves, "Finger Curl")).toContain("; 0 of your 4 direct moving sets this week.");
+    expect(why(moves, "Farmer Hold")).toContain("; a hold, so it does not count toward your target of 4 direct moving sets this week.");
   });
 
   /**
@@ -277,7 +277,7 @@ describe("a main action of the muscle with no direct work in the window comes fi
     expect(result.missingActions).toEqual([a.ulnarDeviation]);
     // Direct work not yet logged, then the logged Wrist Curl (overlap), then work that only contributes.
     expect(namesOf(result)).toEqual(["Lever Ulnar Deviation", "Behind-the-Back Wrist Curl", "Cable Wrist Curl", "One-Arm Dumbbell Wrist Curl", "Wrist Roller, Flexion Wind", "Wrist Curl", "Wrist Roller", "Wrist Roller, Extension Wind"]);
-    expect(result.candidates[0].why).toMatch(/^Ulnar deviation: no direct work in this window\. Direct ulnar deviation for flexor carpi ulnaris; 4 direct dynamic and 0 hold bouts in this window, no target set\./);
+    expect(result.candidates[0].why).toMatch(/^Ulnar deviation: no direct work in this window\. Direct ulnar deviation for flexor carpi ulnaris; 4 direct sets and 0 holds in this window, no target set\./);
     expect(result.candidates[0].missingActions).toEqual([a.ulnarDeviation]);
     // Only the exercise that fills the missing action leads with it.
     expect(result.candidates.slice(1).every((candidate) => !candidate.why.startsWith("Ulnar deviation"))).toBe(true);
@@ -287,14 +287,14 @@ describe("a main action of the muscle with no direct work in the window comes fi
     const goals = [goal({ nodeId: m.flexorCarpiUlnaris, side: "right", metric: "direct_dynamic_bouts", target: 10 })];
     const result = recommend(forearmRegionData, { nodeId: m.flexorCarpiUlnaris }, { side: "right", summary: summary(forearmRegionData, [bout(139, "right")], "right", goals) });
     expect(namesOf(result)[0]).toBe("Lever Ulnar Deviation");
-    expect(result.candidates[0].why).toMatch(/^Ulnar deviation: no direct work in this window\. Direct ulnar deviation for flexor carpi ulnaris; 1 of your 10 direct dynamic bouts this week\./);
+    expect(result.candidates[0].why).toMatch(/^Ulnar deviation: no direct work in this window\. Direct ulnar deviation for flexor carpi ulnaris; 1 of your 10 direct moving sets this week\./);
   });
 
   it("synthetic: after wrist curls, the radial-deviation exercise leads; the roller's steadying does not count as that action", () => {
     const result = recommend(extended, { nodeId: m.flexorCarpiRadialis }, { summary: summary(extended, [bout(139)]) });
     expect(result.missingActions).toEqual([a.radialDeviation]);
     expect(namesOf(result)).toEqual(["Lever Radial Deviation", "One-Arm Dumbbell Wrist Curl", "Wrist Roller", "Wrist Curl"]);
-    expect(result.candidates[0].why).toBe("Radial deviation: no direct work in this window. Direct radial deviation for flexor carpi radialis; 1 direct dynamic and 0 hold bouts in this window, no target set.");
+    expect(result.candidates[0].why).toBe("Radial deviation: no direct work in this window. Direct radial deviation for flexor carpi radialis; 1 direct set and 0 holds in this window, no target set.");
   });
 
   it("names no missing action when the muscle had no direct work at all, or every main action had some", () => {
@@ -339,7 +339,7 @@ describe("a main action of the muscle with no direct work in the window comes fi
 
   it("in the plan, it says what is planned", () => {
     const result = recommend(extended, { nodeId: m.flexorCarpiRadialis }, { summary: plannedSummary(extended, [plannedBout(139), plannedBout(139)]), plannedExercises: [pullDay(139)] });
-    expect(result.candidates[0].why).toBe("Radial deviation: no direct work planned in this week. Direct radial deviation for flexor carpi radialis; 2 direct dynamic and 0 hold bouts planned in this week, no target set.");
+    expect(result.candidates[0].why).toBe("Radial deviation: no direct work planned in this week. Direct radial deviation for flexor carpi radialis; 2 direct sets and 0 holds planned in this week, no target set.");
   });
 });
 

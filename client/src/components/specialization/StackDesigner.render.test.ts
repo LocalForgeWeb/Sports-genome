@@ -103,7 +103,7 @@ const said = () => document.querySelector(".spz-page > [aria-live='polite']")!.t
 const click = async (element: Element) => { await act(async () => { fireEvent.click(element); }); await act(async () => {}); };
 async function openCard() {
   await act(async () => { card().open = true; fireEvent(card(), new Event("toggle")); });
-  await screen.findByText("Pick a weekly number; the app chooses the exercises and puts them on your plan days.", undefined, { timeout: 10000 });
+  await screen.findByText("Pick a weekly number; the app picks the exercises and days.", undefined, { timeout: 10000 });
 }
 const totalField = () => within(card()).getByRole("spinbutton", { name: "Direct forearm sets a week" }) as HTMLInputElement;
 const changes = () => Array.from(card().querySelectorAll(".spz-stack-changes p")).map((item) => item.textContent);
@@ -132,7 +132,7 @@ describe("the card, closed", () => {
       await act(async () => {});
       const map = document.querySelector(".spz-map")!;
       expect(map.nextElementSibling).toBe(card());
-      expect(card().compareDocumentPosition(screen.getByRole("heading", { name: "Muscles, most direct work first" })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(card().compareDocumentPosition(screen.getByRole("heading", { name: "Muscles" })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       expect(card().open).toBe(false);
       expect(summaryLines()).toEqual(["Design a stack", "Plan Week 1 · 3 direct moving sets now"]);
       // Nothing of the designer is on the page until the card opens.
@@ -159,11 +159,11 @@ describe("the card, closed", () => {
   it("in Planned mode, the window line and the 3D model's Overview say the same number in the same words", async () => {
     render(createElement(Harness, { initial: { mode: "planned" } }));
     await act(async () => {});
-    expect(windowLine()).toBe("Plan Week 1, as written: 21 bouts planned · 3 direct moving sets");
+    expect(windowLine()).toBe("Plan Week 1, as written: 21 sets planned · 3 direct moving sets");
     cleanup();
     // The model's panel with nothing selected is given the page's planned line (jsdom draws no model, so it is rendered on its own here).
-    render(createElement(ModelMusclePanel, { data: null, mode: "planned", windowLabel: "Plan Week 1, as written", regionLine: "21 distinct bouts are planned for the forearms in Plan Week 1; 3 are direct moving sets.", bothSides: "both arms", countedTogether: "", onViewContributions: () => {}, onAddExercise: () => {}, onViewExercise: () => {}, onOpenMethod: () => {}, onSeeRegionSets: () => {}, onDesignStack: () => {}, credits: null }));
-    expect(screen.getByText(/^21 distinct bouts are planned for the forearms in Plan Week 1; 3 are direct moving sets\./)).not.toBeNull();
+    render(createElement(ModelMusclePanel, { data: null, mode: "planned", windowLabel: "Plan Week 1, as written", regionLine: "21 sets planned for the forearms in Plan Week 1; 3 are direct moving sets.", bothSides: "both arms", countedTogether: "", onViewContributions: () => {}, onAddExercise: () => {}, onViewExercise: () => {}, onOpenMethod: () => {}, onSeeRegionSets: () => {}, onDesignStack: () => {}, credits: null }));
+    expect(screen.getByText(/^21 sets planned for the forearms in Plan Week 1; 3 are direct moving sets\./)).not.toBeNull();
     const design = screen.getByRole("button", { name: "Design a stack" });
     // Outlined (the page's bordered button, 44 px), beside See these sets.
     expect(design.className).toBe("spz-button");
@@ -192,7 +192,7 @@ describe("the card, open", () => {
       within(body).getByText("It starts at 14: your plan's 3, and one set for 11 of the 12 movements your plan does not train directly yet; one does not fit at 4 forearm exercises a day. No number suits everyone; change it any time."),
       body.querySelector(".spz-stack-changes")!,
       addButton(),
-      within(body).getByText("Your own exercises and their sets stay as they are."),
+      within(body).getByText("Your own exercises stay as they are."),
       body.querySelector(".spz-stack-daylines")!,
       within(body).getByRole("heading", { name: "The stack, by day" }),
     ];
@@ -414,7 +414,7 @@ describe("the card, open", () => {
     expect(document.activeElement).toBe(undo);
     expect(within(card()).getByText("The page now shows 14 direct moving sets for Plan Week 1.")).not.toBeNull();
     await waitFor(() => expect(summaryLines()).toEqual(["Design a stack", "Your stack: 14 direct moving sets in Week 1"]));
-    expect(windowLine()).toBe("Plan Week 1, as written: 32 bouts planned · 14 direct moving sets");
+    expect(windowLine()).toBe("Plan Week 1, as written: 32 sets planned · 14 direct moving sets");
     expect(within(card()).getByRole("button", { name: "Change the total" })).not.toBeNull();
     expect(within(card()).getByRole("button", { name: "Take it out" })).not.toBeNull();
     // The device record: the stack, its 11 entries as written, and the region's last total.
@@ -566,7 +566,7 @@ describe("the card, open", () => {
     render(createElement(Harness, { initial: { mode: "completed" } }));
     await act(async () => {});
     await openCard();
-    expect(within(card()).getByText("Built from your plan as written; sets you logged are not counted here.")).not.toBeNull();
+    expect(within(card()).getByText("From your plan as written, not your logged sets.")).not.toBeNull();
     expect(addButton().textContent).toBe("Add 11 sets (11 exercises, 3 days) to Week\u00a01");
   });
 

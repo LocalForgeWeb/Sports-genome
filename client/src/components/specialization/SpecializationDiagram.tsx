@@ -70,7 +70,7 @@ export function fillKey(fill: DiagramFill): string {
 const clampStep = (step: number) => Math.min(EXPOSURE_STEPS, Math.max(1, Math.round(Number.isFinite(step) ? step : 1)));
 
 /** The paint for a belly. Fallback values are the tokens' own, so a page that has not loaded them still never paints black. */
-const EXPOSURE_FALLBACK = ["#7a6d5c", "#958670", "#b0a088", "#cbbda4", "#e8dfcc"];
+const EXPOSURE_FALLBACK = ["#f7a1a8", "#ee5d6a", "#d1202f", "#970f1c", "#560610"];
 function paintFor(fill: DiagramFill, hatchId: string): string {
   if (fill.kind === "bin") {
     const step = clampStep(fill.step);

@@ -22,7 +22,7 @@ import "./targets.css";
  */
 
 export const targetMetrics: readonly GoalMetric[] = ["direct_dynamic_bouts", "deliberate_hold_bouts", "deliberate_hold_seconds"];
-export const targetPeriodLabels: Record<GoalPeriod, string> = { calendar_week: "Per calendar week", rolling_7d: "Per rolling 7 days" };
+export const targetPeriodLabels: Record<GoalPeriod, string> = { calendar_week: "Per week", rolling_7d: "Per rolling 7 days" };
 /** What a target list needs of its region: its id, its side model (where a target is stored) and its words. */
 export type TargetWords = Pick<SpecializationRegion, "id" | "label" | "sides" | "wording">;
 
@@ -62,17 +62,17 @@ export function formatDateKey(dateKey: string): string {
 }
 
 const isSeconds = (goal: Pick<SpecializationGoal, "metric">) => goal.metric === "deliberate_hold_seconds";
-const amountOf = (goal: Pick<SpecializationGoal, "metric" | "target">) => `${goal.target}${isSeconds(goal) ? " seconds" : ""}`;
+const amountOf = (goal: Pick<SpecializationGoal, "metric" | "target">) => `${goal.target}${isSeconds(goal) ? " s" : ""}`;
 /** "Target for Brachioradialis". */
 const targetFor = (subjectName: string) => `Target for ${subjectName}`;
 
 /**
- * "the target of 20 direct dynamic bouts per calendar week for Brachioradialis", for button names.
+ * "the target of 20 direct moving sets per week for Brachioradialis", for button names.
  * The period (and a later start) is part of it: a muscle can hold the same number per calendar
  * week and per rolling 7 days, and each row's buttons need a name of their own.
  */
 function describeTarget(goal: SpecializationGoal, subjectName: string, todayKey: string): string {
-  const what = isSeconds(goal) ? `${goal.target} seconds of deliberate holds` : `${goal.target} ${goalMetricLabels[goal.metric].toLowerCase()}`;
+  const what = isSeconds(goal) ? `${goal.target} seconds of holds` : `${goal.target} ${goalMetricLabels[goal.metric].toLowerCase()}`;
   const starts = goal.startsOn > todayKey ? ` starting ${formatDateKey(goal.startsOn)}` : "";
   return `the target of ${what} ${targetPeriodLabels[goal.period].toLowerCase()}${starts} for ${subjectName}`;
 }
@@ -228,7 +228,7 @@ function ChangeTarget({ goal, description, onSave, onCancel }: {
   };
   return <form className="spz-tg-change" noValidate onSubmit={submit} aria-label={`Change ${description}`}>
     <label className="spz-field">
-      <span>New target ({isSeconds(goal) ? "seconds" : "bouts"} {targetPeriodLabels[goal.period].toLowerCase()})</span>
+      <span>New target ({isSeconds(goal) ? "seconds" : "sets"} {targetPeriodLabels[goal.period].toLowerCase()})</span>
       <input ref={inputRef} type="number" inputMode="numeric" enterKeyHint="done" min={1} step={1} value={value} onChange={(event) => setValue(event.target.value)} aria-invalid={error ? true : undefined} aria-describedby={error ? errorId : undefined} />
     </label>
     {error && <p id={errorId} className="spz-error" role="alert">{error}</p>}
@@ -333,7 +333,7 @@ export function EndedTargets({ goals, subjectName, showSubject = false }: {
   if (!goals.length) return null;
   const sorted = [...goals].sort((a, b) => (b.endsOn ?? "").localeCompare(a.endsOn ?? "") || a.side.localeCompare(b.side));
   return <details className="spz-disclosure spz-tg-ended">
-    <summary><span><b>Ended targets ({goals.length})</b><small>No longer counted. Kept so you can see what you aimed for.</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+    <summary><span><b>Ended targets ({goals.length})</b><small>No longer counted</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
     <ul className="spz-target-list">
       {sorted.map((goal) => <li key={goal.id} className="spz-target" data-side={goal.side}>
         <span>
@@ -414,7 +414,7 @@ export function TargetForm({ region, timeZone, todayKey, subject, subjectGroups,
         </div>
       </div>
       <label className="spz-field">
-        <span>Target {metric === "deliberate_hold_seconds" ? "(seconds)" : "(bouts)"}</span>
+        <span>Target {metric === "deliberate_hold_seconds" ? "(seconds)" : "(sets)"}</span>
         <input type="number" inputMode="numeric" enterKeyHint="done" min={1} step={1} value={target} onChange={(event) => setTarget(event.target.value)} />
       </label>
       <label className="spz-field">
@@ -423,8 +423,8 @@ export function TargetForm({ region, timeZone, todayKey, subject, subjectGroups,
           {(Object.keys(targetPeriodLabels) as GoalPeriod[]).map((item) => <option key={item} value={item}>{targetPeriodLabels[item]}</option>)}
         </select>
       </label>
-      <p className="spz-note">A target is what you intend to do, not a proven growth threshold. Numbers above 15 are fine.{words.paired ? ` Work with either ${words.one} counts toward it.` : ""}</p>
-      {chosen?.kind === "movement" && <p className="spz-note">A movement target counts each bout once when that movement is direct work for any muscle on this page.</p>}
+      <p className="spz-note">A target is your intent, not a growth threshold.{words.paired ? ` Either ${words.one} counts.` : ""}</p>
+      {chosen?.kind === "movement" && <p className="spz-note">Each set counts once when the movement is direct work for a muscle here.</p>}
       {error && <p className="spz-error" role="alert">{error}</p>}
       <div className="spz-actions">
         <button type="submit" className="spz-primary">Save target</button>
@@ -497,7 +497,7 @@ export function TargetsEditor({ region, nodeId, nodeName, canSet, counted = true
     {!canSet && active.length > 0 && <p className="spz-note">{READ_ONLY_TARGET_NOTE}</p>}
     {active.length ? <>
       <TargetRows goals={active} side={side} progress={progress} edits={edits} subjectName={subjectName} readOnly={() => !canSet} uncounted={() => !counted} todayKey={todayKey} />
-    </> : canSet && <p className="spz-note"><b>Not targeted.</b> Nothing here is behind: a muscle without a target has no gap to show.</p>}
+    </> : canSet && <p className="spz-note">No target.</p>}
     <TargetEditStatus edits={edits} />
     {canSet && (open
       ? <TargetForm region={region} timeZone={timeZone} todayKey={todayKey} subject={{ kind: "muscle", id: nodeId, name: nodeName }} onSave={onSave}

@@ -117,14 +117,14 @@ describe("the specialization page on the deltoid fixture", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Deltoids" })).not.toBeNull();
     expect(viewButtons().map((button) => button.textContent)).toEqual(["Front", "Side", "Rear"]);
     expect(viewButtons().map((button) => button.getAttribute("aria-pressed"))).toEqual(["true", "false", "false"]);
-    // Muscles of the region, then the external contributor under the fixture's own heading.
-    expect(screen.getByRole("heading", { level: 3, name: "Muscles of the deltoids" })).not.toBeNull();
+    // Muscles of the region, under the region's label (owner, 26 Oct 2026), then the external contributor under the fixture's own heading.
+    expect(screen.getByRole("heading", { level: 3, name: "Deltoids" })).not.toBeNull();
     expect(screen.getByRole("heading", { level: 3, name: "Other muscles credited here" })).not.toBeNull();
     expect(screen.getByRole("button", { name: /^Triceps brachii, Surface\. / })).not.toBeNull();
-    expect(document.querySelector(".spz-legend-line")!.textContent).toMatch(/Incidental bracing · bar full at/);
+    expect(document.querySelector(".spz-legend-line")!.textContent).toMatch(/Bracing Full bar: \d+ sets/);
     // Three two-handed lateral raises: three direct bouts on this arm, never six.
-    expect(screen.getByRole("button", { name: /^Lateral deltoid, Surface\. 3 direct dynamic bouts/ })).not.toBeNull();
-    expect(screen.getByRole("button", { name: /^Anterior deltoid, Surface\. 2 direct dynamic bouts/ })).not.toBeNull();
+    expect(screen.getByRole("button", { name: /^Lateral deltoid, Surface\. 3 direct sets/ })).not.toBeNull();
+    expect(screen.getByRole("button", { name: /^Anterior deltoid, Surface\. 2 direct sets/ })).not.toBeNull();
     expect(within(mapCard()).getByRole("group", { name: /^Deltoids, front view, surface layer\. 2 muscles to choose from\.$/ })).not.toBeNull();
   });
 
@@ -182,12 +182,12 @@ describe("the specialization page on the deltoid fixture", () => {
     expect(lastState?.nodeId).toBe(deltoidIds.lateral);
     const strip = within(mapCard()).getByRole("group", { name: "Selected muscle" });
     expect(within(strip).getByText("Lateral deltoid")).not.toBeNull();
-    expect(within(strip).getByText(/^3 direct dynamic bouts/)).not.toBeNull();
+    expect(within(strip).getByText(/^3 direct sets/)).not.toBeNull();
     // The same muscle sheet opens from it, for this region's muscle.
     await act(async () => { fireEvent.click(within(strip).getByRole("button", { name: /Inspect coverage/ })); });
     const sheet = screen.getByRole("dialog", { name: "Lateral deltoid" });
     // The sheet, too, speaks in this region's words: its incidental work is "bracing", never grip.
-    expect(within(sheet).getByText("Incidental bracing or steadying")).not.toBeNull();
+    expect(within(sheet).getByText("Bracing")).not.toBeNull();
     expect(sheet.textContent).not.toMatch(/forearm|grip|palm|thumb side|pinky|upper-arm|wrist|dynamometer/i);
   });
 
@@ -212,7 +212,7 @@ describe("the same page on the forearm, for contrast", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Forearms" })).not.toBeNull();
     expect(viewButtons().map((button) => button.textContent)).toEqual(["Palm", "Back", "Thumb side"]);
     expect(screen.getByRole("heading", { level: 3, name: "Upper-arm muscles credited here" })).not.toBeNull();
-    expect(document.querySelector(".spz-legend-line")!.textContent).toMatch(/Incidental grip · bar full at/);
+    expect(document.querySelector(".spz-legend-line")!.textContent).toMatch(/Grip Full bar: \d+ sets/);
     expect(screen.getByText("Progress").closest("summary")!.textContent).toBe("ProgressCircumference and grip");
     await act(async () => { fireEvent.click(viewButtons()[2]); });
     expect(lastState?.view).toBe("thumb");

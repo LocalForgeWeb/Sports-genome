@@ -112,7 +112,7 @@ describe("a main action with no direct work that no suggestion covers (brief §7
     expect(result.candidates.map((candidate) => candidate.name)).not.toContain("Lever Radial Deviation");
     expect(missingActionNote({ data: forearmRegionData, nodeId: m.flexorCarpiRadialis, result, mode: "completed", exclusions: { catalogExerciseIds: [], equipment: [] }, equipmentOf }))
       .toBe("Radial deviation, a main action of this muscle, has no direct work in this window, and the exercises that train it directly answer a target you have already met, so none is suggested.");
-    expect(result.targetNote).toBe("No reviewed exercise for flexor carpi radialis counts toward your target of 3 deliberate hold bouts this week.");
+    expect(result.targetNote).toBe("No reviewed exercise for flexor carpi radialis counts toward your target of 3 holds this week.");
   });
 
   it("with two actions for two reasons, names each with its own reason in one sentence", () => {

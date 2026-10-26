@@ -63,13 +63,13 @@ describe("validateGoal", () => {
     const existing = [goal({ id: "existing", target: 12 })];
     const result = validateGoal(goal({ id: "new", startsOn: "2026-11-02" }), existing);
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.reason).toBe("You already have a target of 12 direct dynamic bouts per calendar week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts.");
+    if (!result.ok) expect(result.reason).toBe("You already have a target of 12 direct moving sets per week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts.");
   });
 
   it("refuses the same target saved for the other arm: both sides count as one (owner, 20 Oct 2026), so the side is not part of a target", () => {
     const existing = [goal({ id: "existing", side: "left", target: 12 })];
     const result = validateGoal(goal({ id: "new", side: "right", startsOn: "2026-11-02" }), existing);
-    expect(result).toEqual({ ok: false, reason: "You already have a target of 12 direct dynamic bouts per calendar week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts." });
+    expect(result).toEqual({ ok: false, reason: "You already have a target of 12 direct moving sets per week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts." });
     expect(sameGoalTarget(goal({ side: "left" }), goal({ side: "right" }))).toBe(true);
   });
 
@@ -104,7 +104,7 @@ describe("both arms as one, activity, periods and labels", () => {
     expect(validateGoal({ ...left, endsOn: "2026-10-16" }, pair)).toEqual({ ok: true });
     expect(validateGoal({ ...pair[1], endsOn: "2026-10-12" }, pair)).toEqual({ ok: true });
     // Any other change is a new overlap, said as one.
-    expect(validateGoal({ ...left, target: 30 }, pair)).toEqual({ ok: false, reason: "You already have a target of 9 direct dynamic bouts per calendar week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts." });
+    expect(validateGoal({ ...left, target: 30 }, pair)).toEqual({ ok: false, reason: "You already have a target of 9 direct moving sets per week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts." });
     expect(validateGoal({ ...left, endsOn: "2026-10-16", startsOn: "2026-10-13" }, pair).ok).toBe(false);
     expect(validateGoal({ ...left, target: 30 }, [left, { ...pair[1], endsOn: "2026-10-11", startsOn: "2026-10-01" }])).toEqual({ ok: true });
   });
@@ -145,7 +145,7 @@ describe("goals in every region's words and sides (10-multi-region.md §2.2)", (
     // The forearm, from the registered index when no scope is given.
     expect(validateGoal(goal({ side: "midline" }), [])).toEqual({ ok: false, reason: sideless });
     const clash = validateGoal(legGoal({ id: "new", side: "right" }), [legGoal({ id: "old", side: "right", target: 9 })], thigh);
-    expect(clash.ok === false && clash.reason).toBe("You already have a target of 9 direct dynamic bouts per calendar week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts.");
+    expect(clash.ok === false && clash.reason).toBe("You already have a target of 9 direct moving sets per week for this, from 12 Oct 2026 with no end date. Change that one, or end it before this one starts.");
     for (const reason of [sideless, clash.ok === false ? clash.reason : ""]) expect(reason).not.toMatch(/\b(arms?|legs?)\b|right-|left-/);
   });
 
@@ -154,7 +154,7 @@ describe("goals in every region's words and sides (10-multi-region.md §2.2)", (
     expect(validateGoal(coreGoal("midline"), [], core)).toEqual({ ok: true });
     for (const side of ["left", "right"] as const) expect(validateGoal(coreGoal(side), [], core)).toEqual({ ok: false, reason: "This region is counted as a whole, with no left or right. Save the target without a side." });
     const clash = validateGoal({ ...coreGoal("midline"), id: "again" }, [coreGoal("midline")], core);
-    expect(clash.ok === false && clash.reason).toMatch(/^You already have a target of 20 direct dynamic bouts/);
+    expect(clash.ok === false && clash.reason).toMatch(/^You already have a target of 20 direct moving sets/);
   });
 });
 
