@@ -128,9 +128,9 @@ describe("the forearm's Drawing is the owner's plates", () => {
     render(createElement(Harness));
     await act(async () => {});
     const credit = mapCard().querySelector(".spz-plate-credit")!;
-    expect(credit.textContent).toMatch(/^Images rendered from the Open3Dmodel upper-limb model, built on BodyParts3D .* and Z-Anatomy \(CC BY-SA 4\.0\)\. They are adapted renders/);
+    expect(credit.textContent).toMatch(/^Adapted from the Open3Dmodel upper-limb model \(BodyParts3D, .*; Z-Anatomy, CC BY-SA 4\.0\): cropped, tinted and split by muscle\./);
     expect(mapCard().querySelector(".spz-legend")!.compareDocumentPosition(credit) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(document.getElementById("spz-method")!.textContent).toMatch(/The drawing is adapted from renders of a third-party anatomy model/);
+    expect(document.getElementById("spz-method")!.textContent).toMatch(/Which muscle each part of the drawing shows was taken from the model's own muscle renders/);
     expect(document.getElementById("spz-method")!.textContent).not.toMatch(/original schematics/);
   });
 });

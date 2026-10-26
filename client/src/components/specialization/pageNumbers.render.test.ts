@@ -29,6 +29,11 @@ import { NOW, goals, sessions, slots, store } from "./__fixtures__/forearmWeek";
  * read it again, copy this file and __fixtures__/forearmWeek.ts into a tree at 4dac1ae and run it
  * there with READ_PAGE_NUMBERS=<path> and without the region loader (that tree has none). The week
  * and the plan are __fixtures__/forearmWeek.ts.
+ *
+ * The owner's cleanup of 26 Oct 2026 ("cut out unnecessary words") moves no number, only the words
+ * around them, so the reference stands: the lines are found by what they are (the completeness line
+ * by its "This window:"), and the two places the words were a row's value or a line's name are
+ * stated moves (`withCleanup`).
  */
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
@@ -68,7 +73,8 @@ async function readPage(state: SpecializationViewState) {
   const findings = Array.from(document.querySelectorAll(".spz-finding strong")).map((item) => numbers(item.textContent));
   const exercisesShown = Array.from(document.querySelectorAll(".spz-exercise-list li")).map((item) => [item.querySelector("b")?.textContent ?? "", numbers(item.querySelector("small")?.textContent)]);
   const days = Array.from(document.querySelectorAll(".spz-days li b")).map((item) => item.textContent);
-  const completeness = Array.from(document.querySelectorAll("#spz-method p")).map((item) => item.textContent ?? "").find((text) => /sets considered/.test(text));
+  // The completeness counts: "This window: 31 sets: 28 mapped, 0 under review, …" (main: "31 sets considered: 28 with a reviewed mapping, …"), in the same order.
+  const completeness = Array.from(document.querySelectorAll("#spz-method p")).map((item) => item.textContent ?? "").find((text) => /^This window: \d+ sets: /.test(text));
   // Read with nothing selected, before a row is opened (opening one selects its muscle).
   const region = numbers(textOf(".spz-strip-line"));
   const windowLine = numbers(textOf(".spz-window"));
@@ -208,7 +214,31 @@ function withF3(id: string, reading: { rows: string[][]; findings: string[][] })
   return { ...reading, rows, findings: reading.findings.filter((_, index) => index !== pending) };
 }
 
-describe.skipIf(out)("the forearm page shows main's numbers (4dac1ae), both arms as one, apart from wave 0's, F1's, wave A's and F3's stated moves", () => {
+/**
+ * What the owner's cleanup of 26 Oct 2026 moves, and nothing else; no number changes:
+ * - a muscle row with no reviewed mapping says "Not reviewed" where main said "Mapping not reviewed";
+ * - "Same muscle, same workout" says one line per workout and pair of exercises, its muscles joined,
+ *   where main said the same line once per muscle: ECRB, ECRL and ECU, each loaded directly by Cable
+ *   Wrist Extension and Reverse Wrist Curl in Week 1 · Day 02 on 14 Oct, are one line with that
+ *   line's numbers, said once.
+ */
+const SAME_WORKOUT = ["ECRB", "ECRL", "ECU"];
+function withCleanup<T extends { rows: string[][] }>(id: string, reading: T): T {
+  const rows = reading.rows.map(([name, value]) => [name, value === "Mapping not reviewed" ? "Not reviewed" : value]);
+  const listed = (reading as T & { exercises: [string, string[]][] }).exercises;
+  const merged = listed.filter(([name]) => SAME_WORKOUT.includes(name));
+  if (id === "planned") {
+    expect(merged, "planned: no workout to share").toEqual([]);
+    return { ...reading, rows };
+  }
+  expect(merged.map(([name]) => name), `${id}: main's line per muscle`).toEqual(SAME_WORKOUT);
+  expect(new Set(merged.map(([, numbers]) => JSON.stringify(numbers))).size, `${id}: one workout, the same numbers`).toBe(1);
+  const at = listed.findIndex(([name]) => name === SAME_WORKOUT[0]);
+  const exercises = listed.flatMap((item, index) => (index === at ? [[SAME_WORKOUT.join(", "), item[1]] as [string, string[]]] : SAME_WORKOUT.includes(item[0]) ? [] : [item]));
+  return { ...reading, rows, exercises };
+}
+
+describe.skipIf(out)("the forearm page shows main's numbers (4dac1ae), both arms as one, apart from wave 0's, F1's, wave A's and F3's stated moves and the 26 Oct cleanup's words", () => {
   const reference = (out ? {} : JSON.parse(readFileSync(join(process.cwd(), "client/src/components/specialization/__fixtures__/pageNumbers.4dac1ae.json"), "utf8"))) as Record<string, { findings: string[][] }>;
 
   it("reads every state the reference read", () => {
@@ -221,7 +251,7 @@ describe.skipIf(out)("the forearm page shows main's numbers (4dac1ae), both arms
       // The reading reaches the page's numbers at all: rows with work, and the completeness counts.
       expect(read.rows.length).toBeGreaterThan(20);
       expect(read.completeness.length).toBeGreaterThan(5);
-      expect(read).toEqual(withF3(id, withWaveA(id, withF1(id, withWaveZero(reference[id] as { window: string[]; findings: string[][] })) as { rows: string[][]; window: string[]; findings: string[][] })));
+      expect(read).toEqual(withCleanup(id, withF3(id, withWaveA(id, withF1(id, withWaveZero(reference[id] as { window: string[]; findings: string[][] })) as { rows: string[][]; window: string[]; findings: string[][] }))));
     }, 30000);
   }
 });

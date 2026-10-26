@@ -167,8 +167,9 @@ describe("planned work is planned, not done (F-phone-7)", () => {
   it("says the region's planned bouts are planned for it, in that plan week, and never that they touched it", () => {
     render(createElement(Harness, { initial: { mode: "planned" } }));
     const strip = screen.getByRole("group", { name: "Selected muscle" });
-    expect(strip.textContent).toMatch(/^\d+ distinct bouts? (is|are) planned for the forearms in Plan Week 1\./);
-    expect(strip.textContent).not.toMatch(/touched/);
+    expect(strip.textContent).toMatch(/^\d+ sets? planned for the forearms in Plan Week 1\./);
+    // Never the logged words ("3 sets on the forearms."), nor the old "touched".
+    expect(strip.textContent).not.toMatch(/touched|\bsets? on the forearms/);
   });
 
   it("says a movement's planned sets are planned for it, not done by its muscles", async () => {
@@ -185,7 +186,7 @@ describe("planned work is planned, not done (F-phone-7)", () => {
 
   it("still says logged work touched the region in completed mode", () => {
     render(createElement(Harness));
-    expect(screen.getByRole("group", { name: "Selected muscle" }).textContent).toMatch(/^3 distinct bouts touched the forearms\./);
+    expect(screen.getByRole("group", { name: "Selected muscle" }).textContent).toMatch(/^3 sets on the forearms\./);
   });
 });
 
@@ -255,11 +256,11 @@ describe("the completeness counts open what they can (F-completeness-4)", () => 
   it("opens the region-only sets from How this is counted, and says plainly what is not kept as a list", async () => {
     logged([tuesday, thursday]);
     render(createElement(Harness));
-    expect(method().textContent).toMatch(/Left out: 1 not completed, 1 warm-ups\./);
-    expect(method().textContent).toMatch(/Sets not completed and warm-ups are left out of every total and not kept as a list, so they cannot be opened\./);
+    expect(method().textContent).toMatch(/Left out: 1 not completed, 1 warm-up\./);
+    expect(method().textContent).toMatch(/Sets not completed and warm-ups are not kept as a list\./);
     expect(method().textContent).not.toMatch(/count for no muscle|leaves them out/);
     await click(within(method()).getByRole("button", { name: /See the 3 sets for the forearms only/ }));
-    const sheet = screen.getByRole("dialog", { name: "3 sets for the forearms as a whole" });
+    const sheet = screen.getByRole("dialog", { name: "3 sets for the forearms only" });
     expect(within(sheet).getByText("Dumbbell Pullover")).not.toBeNull();
   });
 

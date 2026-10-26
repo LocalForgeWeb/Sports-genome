@@ -176,7 +176,7 @@ describe("the charts' eight weeks", () => {
     const xs = (caption: RegExp) => Array.from(figure(caption).querySelectorAll("circle.spz-chart-dot")).map((dot) => dot.getAttribute("cx"));
     expect(xs(/^Circumference/)).toEqual(xs(/^Hammer Curl/));
     const ticks = (caption: RegExp) => Array.from(figure(caption).querySelectorAll("g line")).map((line) => line.getAttribute("x1")).join(",");
-    expect(ticks(/^Circumference/)).toBe(ticks(/^Distinct/));
+    expect(ticks(/^Circumference/)).toBe(ticks(/^Sets per week/));
   });
 });
 
@@ -256,7 +256,7 @@ describe("the region's own measures", () => {
     await click("Save reading");
     expect(saved).toHaveLength(1);
     expect(saved[0]).toMatchObject({ regionId: "deltoid", metric: "circumference_cm", value: 48, protocol: { landmark: "Around the shoulder", posture: "arm_relaxed_hanging" } });
-    expect(container.textContent).toMatch(/Distinct bouts per week on the deltoids, completed/);
+    expect(container.textContent).toMatch(/Sets per week on the deltoids/);
   });
 
   it("still draws readings of a measure the region no longer lists, rather than hiding them", () => {
@@ -286,7 +286,7 @@ describe("exercise performance", () => {
     render(createElement(Harness));
     const select = screen.getByLabelText("Exercise") as HTMLSelectElement;
     expect(Array.from(select.options).map((option) => option.textContent)).toEqual(["Hammer Curl · 2 sessions"]);
-    expect(screen.getByText("Same exercise only. A change of hand position, implement or range of motion is a different line.")).not.toBeNull();
+    expect(screen.getByText("One exact exercise per chart.")).not.toBeNull();
   });
 
   it("plots the top set of each session in the profile's unit, with a text summary", async () => {
@@ -388,15 +388,15 @@ describe("the weekly bars open their bouts (brief §1: every total opens its set
       workout("w2", "2026-10-14", [logged("a", "Hammer Curl", 132, [set(35, 10)])]),
     ]));
     render(createElement(Harness));
-    const weeks = screen.getByRole("list", { name: "Distinct bouts per week" });
+    const weeks = screen.getByRole("list", { name: "Sets per week" });
     expect(within(weeks).getAllByRole("listitem")).toHaveLength(8);
     const buttons = within(weeks).getAllByRole("button");
-    expect(buttons.map((button) => button.getAttribute("aria-label"))).toEqual(["Week of 28 Sep: 2 distinct bouts. See these sets", "Week of 12 Oct: 1 distinct bout. See these sets"]);
+    expect(buttons.map((button) => button.getAttribute("aria-label"))).toEqual(["Week of 28 Sep: 2 sets. See them", "Week of 12 Oct: 1 set. See them"]);
     // The count a week's button shows is the bar's, and the sheet lists the same bouts.
     expect(buttons[0].textContent).toBe("28 Sep2");
-    await click("Week of 28 Sep: 2 distinct bouts. See these sets");
+    await click("Week of 28 Sep: 2 sets. See them");
     const sheet = screen.getByRole("dialog", { name: "Week of 28 Sep" });
-    expect(sheet.textContent).toMatch(/28 Sep – 4 Oct: 2 distinct bouts, every set that loaded a muscle of the forearms, each counted once however many muscles it loaded\./);
+    expect(sheet.textContent).toMatch(/28 Sep – 4 Oct: 2 sets on the forearms, each counted once\./);
     expect(within(sheet).getByText("Hammer Curl")).not.toBeNull();
     const open = within(sheet).getAllByRole("button", { name: /Open this workout/ });
     expect(open).toHaveLength(2);

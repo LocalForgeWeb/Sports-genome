@@ -166,7 +166,7 @@ describe("the heading row with more than one region", () => {
     expect(toggle().getAttribute("aria-expanded")).toBe("false");
     expect(grid().hidden).toBe(true);
     expect(document.activeElement).toBe(toggle());
-    expect(live()).toMatch(/^Fixture thighs: \d+ distinct bouts? touched the fixture thighs\.$/);
+    expect(live()).toMatch(/^Fixture thighs: \d+ sets? on the fixture thighs\.$/);
     // The page below is the thigh's: its muscles, nothing the forearm's page had open.
     expect(screen.getByRole("button", { name: /^Fixture quadriceps/ })).toBeTruthy();
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -264,7 +264,7 @@ describe("a midline region", () => {
     // The page's own words; the published rule's text under How this is counted is the same on every region.
     const page = document.body.cloneNode(true) as HTMLElement;
     page.querySelector("#spz-method")?.remove();
-    expect(page.textContent).toMatch(/touched the fixture core\./);
+    expect(page.textContent).toMatch(/\d+ sets? on the fixture core\./);
     expect(page.textContent).not.toMatch(/recorded|\bleft\b|\bright\b|\barms?\b|\blegs?\b/i);
     const targets = screen.getByText("Targets").closest("details")!;
     await act(async () => { targets.open = true; fireEvent(targets, new Event("toggle")); });
