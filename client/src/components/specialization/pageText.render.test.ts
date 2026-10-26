@@ -371,7 +371,7 @@ const F3_SHEETS: { key: RegExp; mayGo: RegExp[]; mayCome: RegExp[]; must: (state
     key: /^movement: Wrist flexion$/,
     mayGo: [/^0$/, /^Also loads /, /^Helps /, /^Wrist Roller(, Extension Wind)?$/, /^\[name\] Do not suggest Wrist Roller(, Extension Wind)?$/],
     mayCome: [
-      /^\d+$/, /^\d+ bouts$/, /^\d+ s$/, /^About (Farmer Hold|Suitcase Carry|Dead Hang|Farmer’s Walk)$/, /^(Farmer Hold|Suitcase Carry|Dead Hang|Farmer’s Walk|Behind-the-Back Wrist Curl|Cable Wrist Curl|Cable)$/,
+      /^\d+$/, /^\d+ sets$/, /^\d+ s$/, /^About (Farmer Hold|Suitcase Carry|Dead Hang|Farmer’s Walk)$/, /^(Farmer Hold|Suitcase Carry|Dead Hang|Farmer’s Walk|Behind-the-Back Wrist Curl|Cable Wrist Curl|Cable)$/,
       /^By FCR, FCU\.( Straps not recorded\.)?$/, /^Incidental grip \/ stabilization$/, /^Measured by EMG$/, /^Anatomy reference$/, /^Open this workout$/, /^(Flexor carpi (radialis|ulnaris)|Palmaris longus) · Wrist flexion$/,
       /^Steadies the joint, holds still\. Counted as incidental grip \/ stabilization\.$/, /^Direct target, moves the joint\. Counted as direct dynamic\.$/, /^Direct wrist flexion; \d+ of your 8 direct moving sets in Plan Week 1\.$/,
       /^Suggested$/, /^Week 1 · Day \d+ · .+$/, /^Sources show what the muscle does, not how much it grows\. The kind of work is the app's counting rule \(specialization_exposure_v2\)\.$/, /^Why this counts$/, /^Also loads /, /^\[name\] Do not suggest (Behind-the-Back Wrist Curl|Cable Wrist Curl)$/,
@@ -380,7 +380,7 @@ const F3_SHEETS: { key: RegExp; mayGo: RegExp[]; mayCome: RegExp[]; must: (state
   },
   {
     key: /^model: (Flexor carpi (radialis|ulnaris)|Flexor pollicis longus)$/,
-    mayGo: [/^0$/, /^Muscle details$/, /^None logged in this window\.$/, /^Nothing logged for it in this window\. \d+ sets matched a mapping still under review and are shown, not counted\.$/],
+    mayGo: [/^0$/, /^Muscle details$/, /^None logged in this window\.$/, /^Nothing logged for it in this window\. \d+ sets under review, not counted\.$/],
     mayCome: [/^\d+$/, /^\d+ incidental grip \/ stabilization$/, /^(Farmer Hold|Suitcase Carry)$/, /^View$/, /^View contributions$/, /^\[name\] View (Farmer Hold|Suitcase Carry)$/],
     must: () => ["2 incidental grip / stabilization"],
   },

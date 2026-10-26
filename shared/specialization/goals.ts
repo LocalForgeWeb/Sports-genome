@@ -36,13 +36,13 @@ export function goalScopeOf(data: Pick<SpecializationRegionData, "region" | "nod
 const nonEmpty = (value: unknown): value is string => typeof value === "string" && value.trim() !== "";
 
 const metricWords: Record<GoalMetric, string> = {
-  direct_dynamic_bouts: "direct dynamic bouts",
-  deliberate_hold_bouts: "deliberate hold bouts",
-  deliberate_hold_seconds: "seconds of deliberate holds",
+  direct_dynamic_bouts: "direct moving sets",
+  deliberate_hold_bouts: "holds",
+  deliberate_hold_seconds: "seconds of holds",
 };
 
 const periodWords: Record<GoalPeriod, string> = {
-  calendar_week: "per calendar week",
+  calendar_week: "per week",
   rolling_7d: "per rolling 7 days",
 };
 
@@ -99,7 +99,7 @@ export function validateGoal(goal: SpecializationGoal, existing: readonly Specia
     return { ok: false, reason: "This target's side does not fit the region: a target here is stored as left or right, and work on either side counts toward it." };
   }
   if (!goalMetrics.includes(goal.metric)) return { ok: false, reason: "Choose what the target counts: direct dynamic bouts, deliberate hold bouts or hold seconds." };
-  if (!goalPeriods.includes(goal.period)) return { ok: false, reason: "Choose whether the target is per calendar week or per rolling 7 days." };
+  if (!goalPeriods.includes(goal.period)) return { ok: false, reason: "Choose per week or per rolling 7 days." };
   if (typeof goal.target !== "number" || !Number.isFinite(goal.target) || goal.target <= 0) return { ok: false, reason: "Enter a target above zero." };
   if (goal.target > GOAL_TARGET_SANITY_MAX) return { ok: false, reason: `Enter a target of ${GOAL_TARGET_SANITY_MAX.toLocaleString("en-US")} or less. A larger number is almost always a typo.` };
   if (!isValidTimeZone(goal.timezone)) return { ok: false, reason: "The target's time zone is not one this device recognises." };

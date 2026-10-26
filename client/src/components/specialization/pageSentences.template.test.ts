@@ -245,7 +245,7 @@ describe("every page sentence that names a region, for every region shape", () =
     it(`forearm, ${mode}, the 3D model's row and panel for each of its muscles`, async () => {
       const texts = await readModel(forearmRegionData, mode);
       // It reached the panel of a chosen muscle, and the model's credits.
-      expect(texts).toContain("One bout per set, per muscle");
+      expect(texts).toContain("Each set once per muscle");
       expect(texts.some((text) => text.startsWith("It is one model of one arm"))).toBe(true);
       expect(problems(forearmRegionData, texts)).toEqual([]);
     }, 60000);
@@ -269,9 +269,9 @@ describe("every page sentence that names a region, for every region shape", () =
     expect(problems(forearmRegionData, ["Plan Week 2, as written: 18 sets planned for the forearms in Plan Week 1."])).toEqual([]);
     // Nothing read, measured or counted by, per or each side (the release review, 22 Oct): main's words, and what the page says now.
     expect(problems(forearmRegionData, ["Circumference and grip, by arm"])).toEqual(["counted per side: Circumference and grip, by arm"]);
-    expect(problems(forearmRegionData, ["One bout per set, per muscle, per arm"])).toEqual(["counted per side: One bout per set, per muscle, per arm"]);
+    expect(problems(forearmRegionData, ["Each set once per muscle, per arm"])).toEqual(["counted per side: Each set once per muscle, per arm"]);
     expect(problems(thigh, ["Each side assumed", "Measured per leg", "Counted by sides"])).toHaveLength(3);
-    expect(problems(forearmRegionData, ["Circumference and grip", "One bout per set, per muscle", "By FCR, FCU, PL."])).toEqual([]);
+    expect(problems(forearmRegionData, ["Circumference and grip", "Each set once per muscle", "By FCR, FCU, PL."])).toEqual([]);
   });
 
   /** What the page's live region says once Planned is chosen. */

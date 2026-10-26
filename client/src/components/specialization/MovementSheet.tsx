@@ -69,7 +69,7 @@ export function MovementSheet({ data, actionId, summary, loading, side, mode, in
       <h3 id="spz-move-numbers">{mode === "planned" ? "Planned" : "Completed"} · {intervalLabel}</h3>
       {!ledger ? <p className="spz-note">{waiting}</p> : <>
         <dl className="spz-numbers">
-          <div><dt>Direct dynamic bouts</dt><dd>{ledger.totals.directDynamicBouts}</dd></div>
+          <div><dt>Direct moving sets</dt><dd>{ledger.totals.directDynamicBouts}</dd></div>
           <div><dt>Deliberate holds</dt><dd>{ledger.totals.deliberateHoldBouts}{ledger.totals.deliberateHoldBouts ? <small> · {holdTime(ledger.totals.deliberateHoldSeconds)}</small> : null}</dd></div>
           <div><dt>Other work for it</dt><dd>{ledger.totals.otherBouts}<small> · {otherWorkWords}</small></dd></div>
         </dl>
@@ -83,7 +83,7 @@ export function MovementSheet({ data, actionId, summary, loading, side, mode, in
       <h3 id="spz-move-ledger">Where the numbers come from</h3>
       {!ledger ? <p className="spz-note">{waiting}</p> : groups.length ? <div className="spz-ledger">
         {groups.map((group) => <details key={group.key} className="spz-disclosure">
-          <summary><span><b>{group.name}</b><small>{group.rows.length} bout{group.rows.length === 1 ? "" : "s"}{group.matchedBy === "name" ? " · matched by name" : ""}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+          <summary><span><b>{group.name}</b><small>{group.rows.length} set{group.rows.length === 1 ? "" : "s"}{group.matchedBy === "name" ? " · matched by name" : ""}</small></span><ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
           <ol className="spz-bouts">
             {group.rows.map((row) => <BoutItem key={row.boutId} row={row} title={row.categories.map((category, index) => (index ? categoryLabel(category, data.region.wording).toLowerCase() : categoryLabel(category, data.region.wording))).join(" and ")} weightUnit={weightUnit} onOpenSession={onOpenSession}>
               <p className="spz-note">By {row.nodeIds.map(shortName).join(", ")}.{row.notes.length ? ` ${row.notes.join(" · ")}.` : ""}</p>

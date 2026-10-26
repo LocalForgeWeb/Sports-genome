@@ -974,7 +974,7 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
       <div className="spz-section-head">
         <h2 id="spz-list-title">Muscles</h2>
       </div>
-      <p className="spz-legend-line"><span><i className="spz-key spz-key-direct" />Direct</span> <span><i className="spz-key spz-key-other" />Other</span> <span><i className="spz-key spz-key-holds" />Holds</span> <span><i className="spz-key spz-key-incidental" />{upperFirst(data.region.wording.incidentalWork)}</span> <span>· full bar: {BAR_SCALE} sets</span></p>
+      <p className="spz-legend-line"><span><i className="spz-key spz-key-direct" />Direct</span> <span><i className="spz-key spz-key-other" />Other</span> <span><i className="spz-key spz-key-holds" />Holds</span> <span><i className="spz-key spz-key-incidental" />{upperFirst(data.region.wording.incidentalWork)}</span> <span>Full bar: {BAR_SCALE} sets</span></p>
       {groups.map((group) => <div key={group.id} className="spz-group">
         {groups.length > 1 && <h3>{group.title}</h3>}
         <ul className="spz-rows">
@@ -1199,7 +1199,7 @@ function MuscleRow({ node, exposure, incidentalWork, waiting, selected, onOpen }
     <button type="button" className="spz-row" aria-pressed={selected} data-unmapped={unmapped || undefined} onClick={onOpen} aria-label={`${node.name}, ${layerLabels[node.layer]}. ${waiting ?? exposureSentence(exposure, incidentalWork)} Open details.`}>
       <span className="spz-row-head">
         <span className="spz-row-name">{node.name}{!node.name.startsWith(node.shortName) && <small>{node.shortName}</small>}{node.layer !== "surface" && <span className="spz-badge">{node.layer === "deep" ? "Deep" : "Middle"}</span>}</span>
-        <span className="spz-row-value">{value}{exposure && directWorkBouts(exposure) > BAR_SCALE ? ` (${directWorkBouts(exposure)})` : ""}</span>
+        <span className="spz-row-value">{value}{exposure && directWorkBouts(exposure) > BAR_SCALE && directWorkBouts(exposure) !== exposure.directDynamicBouts ? ` (${directWorkBouts(exposure)} direct)` : ""}</span>
       </span>
       <span className="spz-track" aria-hidden="true" data-hatch={unmapped || undefined}>
         {parts && !unmapped && !waiting && [segment(parts.direct, "direct"), segment(parts.other, "other"), segment(parts.holds, "holds"), segment(parts.incidental, "incidental"), segment(parts.rest, "rest")]}

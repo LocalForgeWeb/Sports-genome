@@ -121,7 +121,7 @@ describe("the specialization page on the deltoid fixture", () => {
     expect(screen.getByRole("heading", { level: 3, name: "Deltoids" })).not.toBeNull();
     expect(screen.getByRole("heading", { level: 3, name: "Other muscles credited here" })).not.toBeNull();
     expect(screen.getByRole("button", { name: /^Triceps brachii, Surface\. / })).not.toBeNull();
-    expect(document.querySelector(".spz-legend-line")!.textContent).toMatch(/Bracing · full bar: \d+ sets/);
+    expect(document.querySelector(".spz-legend-line")!.textContent).toMatch(/Bracing Full bar: \d+ sets/);
     // Three two-handed lateral raises: three direct bouts on this arm, never six.
     expect(screen.getByRole("button", { name: /^Lateral deltoid, Surface\. 3 direct sets/ })).not.toBeNull();
     expect(screen.getByRole("button", { name: /^Anterior deltoid, Surface\. 2 direct sets/ })).not.toBeNull();
@@ -212,7 +212,7 @@ describe("the same page on the forearm, for contrast", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Forearms" })).not.toBeNull();
     expect(viewButtons().map((button) => button.textContent)).toEqual(["Palm", "Back", "Thumb side"]);
     expect(screen.getByRole("heading", { level: 3, name: "Upper-arm muscles credited here" })).not.toBeNull();
-    expect(document.querySelector(".spz-legend-line")!.textContent).toMatch(/Grip · full bar: \d+ sets/);
+    expect(document.querySelector(".spz-legend-line")!.textContent).toMatch(/Grip Full bar: \d+ sets/);
     expect(screen.getByText("Progress").closest("summary")!.textContent).toBe("ProgressCircumference and grip");
     await act(async () => { fireEvent.click(viewButtons()[2]); });
     expect(lastState?.view).toBe("thumb");

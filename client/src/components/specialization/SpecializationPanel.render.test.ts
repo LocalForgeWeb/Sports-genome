@@ -472,11 +472,11 @@ describe("a movement target leads somewhere (brief §7: targets attach to a musc
     const finding = screen.getByText("Elbow flexion: 3 of your 10").closest("li")!;
     await act(async () => { fireEvent.click(within(finding).getByRole("button", { name: /See sets and exercises/ })); });
     const sheet = screen.getByRole("dialog", { name: "Elbow flexion" });
-    const numbers = within(sheet).getByText("Direct dynamic bouts").closest("div")!;
+    const numbers = within(sheet).getByText("Direct moving sets").closest("div")!;
     expect(numbers.querySelector("dd")!.textContent).toBe("3");
     expect(within(sheet).getByText(/Direct moving sets: 3 of your 10/)).not.toBeNull();
     const group = within(sheet).getByText("Hammer Curl").closest("details")!;
-    expect(within(group).getByText("3 bouts")).not.toBeNull();
+    expect(within(group).getByText("3 sets")).not.toBeNull();
     expect(within(group).getAllByText(/^By BR/).length).toBe(3);
     const open = within(group).getAllByRole("button", { name: /Open this workout/ });
     expect(open).toHaveLength(3);

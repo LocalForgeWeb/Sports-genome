@@ -251,7 +251,7 @@ describe("the muscle sheet's targets", () => {
     await type(screen.getByRole("spinbutton", { name: /Target/ }), "15");
     await click(screen.getByRole("button", { name: "Save target" }));
     const alert = screen.getByRole("alert");
-    expect(alert.textContent).toContain("You already have a target of 20 direct dynamic bouts per calendar week for this");
+    expect(alert.textContent).toContain("You already have a target of 20 direct moving sets per week for this");
     expect(alert.textContent).toContain("Change that one, or end it before this one starts.");
     expect(alert.closest("form")).not.toBeNull();
     expect(stored()).toEqual([goal({ startsOn: "2026-10-12" })]);
