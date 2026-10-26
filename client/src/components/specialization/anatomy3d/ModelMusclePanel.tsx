@@ -55,7 +55,7 @@ export function ModelMusclePanel({ data, mode, windowLabel, regionLine, bothSide
 }) {
   if (!data) {
     return <section className="sg-anatomy3d-detail" aria-label="The whole forearm">
-      <p className="sg-anatomy3d-status">{regionLine} Tap a muscle on the model, or in the row above it, for its numbers.</p>
+      <p className="sg-anatomy3d-status">{regionLine} Tap a muscle for its numbers.</p>
       {(onSeeRegionSets || onDesignStack) && <div className="spz-actions">
         {onSeeRegionSets && <button type="button" className="spz-link" onClick={onSeeRegionSets}>See these sets <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
         {onDesignStack && <button type="button" className="spz-button" onClick={onDesignStack}>Design a stack</button>}

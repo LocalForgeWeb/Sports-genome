@@ -213,18 +213,18 @@ function periodWords(summary: SpecializationSummary, progress: GoalProgress): st
 }
 
 const metricWords: Record<GoalMetric, string> = {
-  direct_dynamic_bouts: "direct dynamic bouts",
-  deliberate_hold_bouts: "deliberate hold bouts",
+  direct_dynamic_bouts: "direct moving sets",
+  deliberate_hold_bouts: "holds",
   // The label already ends in "seconds".
-  deliberate_hold_seconds: "of deliberate holds",
+  deliberate_hold_seconds: "of holds",
 };
 
-/** "2 of your 10 direct dynamic bouts this week", "90 of your 120 seconds of deliberate holds this week". */
+/** "2 of your 10 direct moving sets this week", "90 of your 120 seconds of holds this week". */
 function progressPhrase(summary: SpecializationSummary, progress: GoalProgress): string {
   return `${progress.label} ${metricWords[progress.goal.metric]} ${periodWords(summary, progress)}`;
 }
 
-/** "your target of 3 deliberate hold bouts this week", "your target of 120 seconds of deliberate holds this week". */
+/** "your target of 3 holds this week", "your target of 120 seconds of holds this week". */
 function targetPhrase(summary: SpecializationSummary, progress: GoalProgress): string {
   const unit = progress.goal.metric === "deliberate_hold_seconds" ? " seconds" : "";
   return `your target of ${amount(progress.goal.target)}${unit} ${metricWords[progress.goal.metric]} ${periodWords(summary, progress)}`;
@@ -568,7 +568,7 @@ function gapClause(input: { request: RecommendationRequest; nodeName: string | n
   const row = nodeRow(summary, target.nodeId);
   const where = whereWords(summary);
   if (!row || row.directDynamicBouts + row.deliberateHoldBouts === 0) return `${nodeName ? "it has" : "there is"} no direct work ${where}`;
-  return `${row.directDynamicBouts} direct dynamic and ${row.deliberateHoldBouts} hold bouts ${where}${external ? "" : ", no target set"}`;
+  return `${plural(row.directDynamicBouts, "direct set")} and ${plural(row.deliberateHoldBouts, "hold")} ${where}${external ? "" : ", no target set"}`;
 }
 
 function whySentence(input: { relevance: Relevance; actions: string[]; nodeName: string | null; gap: string; missing: string[]; where: string; shared: string[]; trailing: boolean; side: SummarySide; sideWord: string; alreadyPlanned: boolean; loggedBouts: number; loggedNoSide: number; equipmentAvailable: boolean; equipment: string | null }): string {

@@ -106,7 +106,7 @@ export function TargetsOverview({ data, summary, goals, side, timeZone, todayKey
         {group.goals.some(readOnly) && <p className="spz-note">{READ_ONLY_TARGET_NOTE}</p>}
         <TargetRows goals={group.goals} side={side} progress={progress} edits={edits} subjectName={subjectName} readOnly={readOnly} uncounted={uncounted} todayKey={todayKey} progressReady={summaryHere !== null} />
       </li>)}
-    </ul> : <p className="spz-note"><b>No targets.</b> A muscle or movement without a target is not behind on anything.</p>}
+    </ul> : <p className="spz-note">No targets yet.</p>}
     <TargetEditStatus edits={edits} />
     {open
       ? <TargetForm region={data.region} timeZone={timeZone} todayKey={todayKey} subjectGroups={subjectGroups} onSave={onSave}

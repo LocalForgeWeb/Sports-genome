@@ -45,6 +45,6 @@ export function WhyThisCounts({ data, mappingIds }: { data: SpecializationRegion
         </li>;
       })}
     </ul>
-    <p className="spz-note">Which kind of work a mapping counts as is set by the counting rule ({currentExposureRule.id}), a Sports Genome choice; the sources speak to what the muscle does, not to how much it grows.</p>
+    <p className="spz-note">Sources show what the muscle does, not how much it grows. The kind of work is the app's counting rule ({currentExposureRule.id}).</p>
   </details>;
 }

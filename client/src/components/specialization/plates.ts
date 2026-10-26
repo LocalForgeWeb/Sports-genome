@@ -113,7 +113,7 @@ export type PlateColours = {
 
 /** The tokens' own values, for a page that has not loaded them (the SVG drawing's fallbacks). */
 export const PLATE_FALLBACK_COLOURS: PlateColours = {
-  exposure: ["#7a6d5c", "#958670", "#b0a088", "#cbbda4", "#e8dfcc"].map(hexToRgb),
+  exposure: ["#f7a1a8", "#ee5d6a", "#d1202f", "#970f1c", "#560610"].map(hexToRgb),
   neutral: hexToRgb("#34465a"),
   zeroEdge: hexToRgb("#9fb3c8"),
   hatch: hexToRgb("#2e3a49"),

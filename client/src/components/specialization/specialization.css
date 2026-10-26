@@ -12,7 +12,16 @@
    bars name a kind of work; the map's ramp is the exposure ramp; neither is a rank
    or a role colour. Opacity encodes nothing. */
 
+/* The map's ramp on this page (owner, 26 Oct 2026: "use the red scale … the really high amount of
+   sets is a very dark red"): five steps of one red, light rose for a little work to a very dark red
+   for the most, each step about 1.65:1 darker than the one before. Train → Review keeps the sand
+   ramp of anatomy-figure.css. */
 .spz-page {
+  --sg-exposure-1: #f7a1a8;
+  --sg-exposure-2: #ee5d6a;
+  --sg-exposure-3: #d1202f;
+  --sg-exposure-4: #970f1c;
+  --sg-exposure-5: #560610;
   --spz-direct: var(--sg-action-fill);
   --spz-other: #6fa3d9;
   --spz-holds: #c9b7f0;
@@ -158,6 +167,8 @@
 
 /* -- Muscle list: name, layer, one stacked bar on a fixed scale ------------------ */
 .spz-legend-line { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+/* Each key keeps its swatch and its word on one line when the row wraps. */
+.spz-legend-line > span { display: inline-flex; align-items: center; gap: .3rem; white-space: nowrap; }
 .spz-key { display: inline-block; width: .8rem; height: .55rem; }
 .spz-key-direct, .spz-bar-direct { background: var(--spz-direct); }
 .spz-key-other, .spz-bar-other { background: var(--spz-other); }
