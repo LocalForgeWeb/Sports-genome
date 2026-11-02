@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { Check, Search, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { rankExerciseMatches } from "@/lib/exerciseSearch";
+import { catalogSublabelOf } from "@/lib/exerciseExecution";
+import { pickerRequirementNote } from "@/lib/pickerRowFacts";
 import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 import { trapTabWithin } from "@/lib/modalBackground";
 import { ExerciseMedia } from "@/components/ExerciseMedia";
@@ -168,7 +170,7 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
     return <li key={item.id}>
       <button type="button" className="swap-option" aria-pressed={on} onClick={() => { setSelectedId(item.id); setAlsoPlan(false); }}>
         <ExerciseMedia exerciseId={item.id} exerciseName={item.name} equipment={item.equipment} variant="thumb" />
-        <span className="swap-option-name"><strong>{item.name}</strong><small>{item.equipment} · {item.movement}{inWorkout.has(item.name) ? " · already in this workout" : ""}</small></span>
+        <span className="swap-option-name"><strong>{item.name}</strong><small>{catalogSublabelOf(item.id) ?? `${item.equipment} · ${item.movement}`}{inWorkout.has(item.name) ? " · already in this workout" : ""}</small>{pickerRequirementNote(item) && <small>{pickerRequirementNote(item)}</small>}</span>
         <span className="swap-option-mark" aria-hidden="true">{on ? <Check /> : null}</span>
       </button>
     </li>;

@@ -1,7 +1,8 @@
 /** Kinetic Field Manual: transparent, movement-led recommendation logic for athlete and coach decision support. */
 import { exercises, type Exercise, type Grade } from "@/lib/exerciseCatalog";
 import { sportMovementProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
-import { equipmentMatchesProfile, type AthleteEquipmentProfile } from "@/lib/equipmentProfile";
+import { exerciseFitsProfile, type AthleteEquipmentProfile } from "@/lib/equipmentProfile";
+import { isProvisionalCatalogId } from "@/lib/exerciseExecution";
 import { buildMovementReasoning, getSportDemandModel } from "./hierarchicalSportModel";
 import { getSprintPowerEvidenceContext } from "./sprintPowerEvidence";
 import { logicCalibration } from "./evidenceTraceability";
@@ -303,7 +304,10 @@ export function getMovementRecommendations(profile: SportMovementProfile, limit 
   const hierarchy = buildMovementReasoning(profile, modifierId);
   // The saved equipment is a hard constraint on anything recommended, applied before ranking
   // and the cut - not after it, which could leave fewer picks than the gym can support (EN-12).
-  const available = equipmentProfile ? exercises.filter((exercise) => equipmentMatchesProfile(exercise.equipment, equipmentProfile.availableEquipment)) : exercises;
+  // An accessory the broad equipment word does not imply (a head harness, a neck machine) is part
+  // of it. Provisional rows (exerciseExecution.ts) are never recommended: the athlete adds them.
+  const recommendable = exercises.filter((exercise) => !isProvisionalCatalogId(exercise.id));
+  const available = equipmentProfile ? recommendable.filter((exercise) => exerciseFitsProfile(exercise, equipmentProfile)) : recommendable;
   return available.map((exercise) => {
     const exerciseMuscles = [...exercise.primaryMuscles, ...exercise.secondaryMuscles];
     const matchedSignals = signals.filter((signal) => exerciseMatchesSignal(exercise, signal));
@@ -330,7 +334,7 @@ export function getSportSession(sportId: string, goal: string, limit = 6, equipm
     if (!existing || candidate.score > existing.score) pooled.set(result.exercise.id, candidate);
   }));
   const allCandidates = Array.from(pooled.values());
-  const candidates = equipmentProfile ? allCandidates.filter((candidate) => equipmentMatchesProfile(candidate.exercise.equipment, equipmentProfile.availableEquipment)) : allCandidates;
+  const candidates = equipmentProfile ? allCandidates.filter((candidate) => exerciseFitsProfile(candidate.exercise, equipmentProfile)) : allCandidates;
   candidates.sort((a, b) => b.score - a.score || a.exercise.id - b.exercise.id);
   const selected: MovementRecommendation[] = [];
   const muscleOverlap = (first: MovementRecommendation, second: MovementRecommendation) => {

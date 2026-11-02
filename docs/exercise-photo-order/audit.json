@@ -469,7 +469,7 @@
  },
  "Leverage_Incline_Chest_Press": {
   "verdict": "in order",
-  "why": "frame 0 handles at the chest"
+  "why": "frame 0 the handles at the chest; frame 1 pressed out"
  },
  "Leverage_Iso_Row": {
   "verdict": "in order",
@@ -942,5 +942,21 @@
  "Standing_Palms-Up_Barbell_Behind_The_Back_Wrist_Curl": {
   "verdict": "reversed",
   "why": "frame 0 is the bar curled up; frame 1 the bar at arm's length, where the source starts"
+ },
+ "Seated_Head_Harness_Neck_Resistance": {
+  "verdict": "in order",
+  "why": "frame 0 the head flexed down under the harness; frame 1 extended, where the extension finishes"
+ },
+ "Leverage_Decline_Chest_Press": {
+  "verdict": "in order",
+  "why": "frame 0 the handles at the chest; frame 1 pressed out and down"
+ },
+ "Smith_Machine_Decline_Press": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bar on the chest; frame 1 the arms extended, where the press starts"
+ },
+ "Floor_Press": {
+  "verdict": "in order",
+  "why": "frame 0 the bar pressed up over the chest; frame 1 lowered, upper arms on the floor"
  }
 }

@@ -9,6 +9,7 @@ import { forearmV1Variants } from "@shared/specialization/variants/forearm";
 import { forearmResearchVariants } from "@shared/specialization/variants/forearmResearch";
 import { forearmDescriptiveAttributes } from "@shared/specialization/variants/forearmAttributes";
 import { upperArmVariants } from "@shared/specialization/variants/upperArm";
+import { upperArmUnmapped } from "@shared/specialization/regions/upper_arm/mappings";
 import type { ExerciseVariant } from "@shared/specialization/types";
 
 /**
@@ -27,15 +28,30 @@ const UPPER_ARM_KEYS = ["biceps", "brachialis", "triceps"];
  * them; each with its reason in variants.md.
  */
 const UNTAGGED_THAT_LOAD_THE_UPPER_ARM = [87, 88, 117, 118, 119, 164, 237, 238, 283, 335, 388];
+/**
+ * Rows the catalog added on 2 Nov 2026 (exerciseCatalogZercherNeckBench.ts), after wave A: the Zercher
+ * lifts tag the biceps and brachialis, the presses the triceps, all as secondary. Wave A did not decide
+ * them; they have no record until a later upper-arm mapping version, since a new record is a seed
+ * change (a production database apply), and the upper arm lists them unmapped meanwhile, as the
+ * forearm lists its tagged rows with no record (190, 191, 200, 201, 319, 387).
+ */
+const ADDED_AFTER_WAVE_A = [421, 422, 423, 424, 437, 438, 439, 440, 441, 442, 443];
 const forearmIds = new Set(forearmV1Variants.map((variant) => variant.catalogExerciseId));
 const tagsUpperArm = (exercise: Exercise) => [...exercise.primaryMuscles, ...exercise.secondaryMuscles].some((key) => UPPER_ARM_KEYS.includes(key));
 const oneSided = (laterality: ExerciseVariant["laterality"] | undefined) => laterality === "unilateral" || laterality === "either";
 
 describe("wave A's new variants: which exercises", () => {
   it("are every upper-arm-tagged catalog row without a forearm variant, and the untagged rows that load the upper arm", () => {
-    const tagged = exercises.filter(tagsUpperArm);
+    const tagged = exercises.filter(tagsUpperArm).filter((exercise) => !ADDED_AFTER_WAVE_A.includes(exercise.id));
     // 187 decisions after the catalog fixes below: 50 rows tag an upper-arm key as primary, 137 as secondary only.
     expect(tagged).toHaveLength(187);
+    for (const id of ADDED_AFTER_WAVE_A) {
+      const exercise = catalogById.get(id)!;
+      expect(tagsUpperArm(exercise), String(id)).toBe(true);
+      expect(exercise.primaryMuscles.some((key) => UPPER_ARM_KEYS.includes(key)), String(id)).toBe(false);
+      expect(variantFor(id), String(id)).toBeNull();
+      expect(upperArmUnmapped.some((entry) => entry.catalogId === id), String(id)).toBe(true);
+    }
     expect(tagged.filter((exercise) => exercise.primaryMuscles.some((key) => UPPER_ARM_KEYS.includes(key)))).toHaveLength(50);
     const needed = tagged.filter((exercise) => !forearmIds.has(exercise.id)).map((exercise) => exercise.id);
     expect(needed).toHaveLength(114);

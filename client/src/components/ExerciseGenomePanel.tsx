@@ -24,6 +24,8 @@ import { getExerciseActionConnection, lookupEnrichedMovement } from "@/lib/movem
 import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 import { movementDisplayLabel } from "@/lib/movementLabel";
 import { ExerciseAnalysisTabs, genomePanelId, genomeTabId, type GenomeTab } from "@/components/ExerciseAnalysisTabs";
+import { ExerciseExecutionDetail } from "@/components/ExerciseExecutionDetail";
+import { exerciseExecutionOf } from "@/lib/exerciseExecution";
 import type { SupabaseExerciseEvidence } from "../../../shared/supabaseEvidence";
 import "../exercise-intelligence.css";
 
@@ -300,29 +302,40 @@ export function ExerciseGenomePanel({ exercise, context, supabaseEvidence, compa
   const laterNames = dimensionOrder.filter((key) => laterDimensions.has(key)).map((key) => labels[key].toLowerCase());
 
   const panelProps = (id: GenomeTab) => ({ id: genomePanelId(id), role: "tabpanel", "aria-labelledby": genomeTabId(id), className: `ei-view ei-view-${id}` });
+  // A row with an execution record (exerciseExecution.ts) opens on how it is done and logged, its
+  // media inside that, before the catalog model's profile.
+  const execution = exerciseExecutionOf(catalogIdOf(exercise));
+  /**
+   * A provisional row's model scores would be the model reading its equipment and qualities alone
+   * (its name is not read: muscleTargetingModel, exerciseGenome), so they are not shown as numbers:
+   * no profile scores, no involvement out of 100, no contextual-fit grade. Its roles are in words.
+   */
+  const provisional = execution?.provisional === true;
+  const provisionalNote = "Not scored: this exercise is new and its grades are provisional, so the catalog model's 0-100 scores would be guesses from its equipment alone. What it trains is in words above.";
 
   return <section className="ei-panel" aria-label={compactHead ? "Exercise analysis" : undefined}>
     {!compactHead && <div className="ei-panel-head"><p className="ei-eyebrow">Exercise analysis</p><h3>{exercise.name}</h3></div>}
     {controlledTab === undefined && <ExerciseAnalysisTabs tab={tab} onChange={setTab} />}
 
     {tab === "fingerprint" && <div {...panelProps("fingerprint")}>
+      {execution && <ExerciseExecutionDetail exercise={exercise} execution={execution} media={slots.media} />}
       <section className="ei-glance" aria-labelledby="ei-glance-title">
         <h2 id="ei-glance-title" className="ei-section-title">At a glance</h2>
-        <p className="ei-glance-lead">{profileSummary(genome)}</p>
+        <p className="ei-glance-lead">{provisional ? "A provisional exercise: no profile scores yet." : profileSummary(genome)}</p>
         <dl className="ei-glance-lines">
-          <div><dt>Workout fit</dt><dd>{workoutFit}{goalScore !== null && <> For your goal, {context.goal.toLowerCase()}, the profile reads {labels[goalKey].toLowerCase()}: {goalScore}.</>}</dd></div>
+          <div><dt>Workout fit</dt><dd>{workoutFit}{goalScore !== null && !provisional && <> For your goal, {context.goal.toLowerCase()}, the profile reads {labels[goalKey].toLowerCase()}: {goalScore}.</>}</dd></div>
           <div><dt>Movement link{movementName && <span className="ei-glance-movement"> · {movementName}</span>}</dt><dd>{movementLink.tier && <span className="ei-tier-tag">{movementLink.tier}</span>}{movementLink.text} <button type="button" className="ei-link" onClick={() => { setTab("context"); /* The link leaves with this view; focus goes to the tab it opened. */ requestAnimationFrame(() => document.getElementById(genomeTabId("context"))?.focus({ preventScroll: true })); }}>Sport context</button></dd></div>
         </dl>
       </section>
-      {slots.media && <div className="ei-media">{slots.media}</div>}
+      {!execution && slots.media && <div className="ei-media">{slots.media}</div>}
       {/* The athlete's own past with this exercise (H07), right under what it looks like. */}
       {slots.history && <section className="ei-section ei-history" aria-labelledby="ei-history-title"><h2 id="ei-history-title" className="ei-section-title">Your history</h2>{slots.history}</section>}
       <section className="ei-profile" aria-labelledby="ei-profile-title">
         <div className="ei-section-head">
           <h2 id="ei-profile-title" className="ei-section-title">Profile</h2>
-          <p className="ei-scale">Each score is out of 100 and compares this exercise with the others in the catalog. They are not percentages.</p>
+          {!provisional && <p className="ei-scale">Each score is out of 100 and compares this exercise with the others in the catalog. They are not percentages.</p>}
         </div>
-        {!scores ? <p className="ei-empty">No profile scores are recorded for this exercise.</p> : <div className="ei-profile-body" data-all={showAllDimensions || undefined} data-chart={showChart || undefined}>
+        {provisional ? <p className="ei-empty">{provisionalNote}</p> : !scores ? <p className="ei-empty">No profile scores are recorded for this exercise.</p> : <div className="ei-profile-body" data-all={showAllDimensions || undefined} data-chart={showChart || undefined}>
           <div className="ei-dimensions">
             {dimensionGroups.map((group) => <div key={group.id} className="ei-group" data-later={group.dimensions.every((key) => laterDimensions.has(key)) || undefined}>
               <h3 className="ei-group-title">{group.title}</h3>
@@ -356,7 +369,7 @@ export function ExerciseGenomePanel({ exercise, context, supabaseEvidence, compa
       <section className="ei-section" aria-labelledby="ei-muscles-title">
         <h2 id="ei-muscles-title" className="ei-section-title">Muscle by muscle</h2>
         <p className="ei-section-note">Each muscle the catalog lists for this exercise, with the model's involvement and loading estimates out of 100.</p>
-        {!genome || genome.muscleProfile.length === 0 ? <p className="ei-empty">No muscles are recorded for this exercise.</p> : <div className="ei-muscles">{genome.muscleProfile.map((entry) => <article className="ei-muscle" key={entry.muscle}>
+        {provisional ? <p className="ei-empty">{provisionalNote.replace("What it trains is in words above.", "What each muscle does is in words under Fingerprint.")}</p> : !genome || genome.muscleProfile.length === 0 ? <p className="ei-empty">No muscles are recorded for this exercise.</p> : <div className="ei-muscles">{genome.muscleProfile.map((entry) => <article className="ei-muscle" key={entry.muscle}>
           <div className="ei-muscle-head"><GradeStamp grade={entry.tier} label="Muscle involvement tier" compact /><div className="min-w-0"><h3>{entry.anatomicalLabel}</h3><p className="ei-muscle-role"><span>{entry.role}</span><HelpButton label={entry.role} onClick={learn(muscleRoleTerms[entry.role])} /><span aria-hidden="true">·</span><span>{`Estimated ${entry.contribution}/100 involvement`}</span><HelpButton label="Muscle-targeting rank" onClick={learn("contribution")} /></p></div></div>
           <p className="ei-muscle-why">{entry.why}</p>
           <div className="ei-muscle-meters"><ScoreRow label="Mechanical loading" value={entry.mechanicalLoading} onLearn={learn("mechanicalLoading")} /><ScoreRow label="Long-length challenge" value={entry.longLengthLoading} onLearn={learn("longLengthLoading")} /><ScoreRow label="Peak contraction" value={entry.peakContraction} onLearn={learn("peakContraction")} /><ScoreRow label="Stabilization demand" value={entry.stabilizationDemand} onLearn={learn("stabilizationDemand")} /></div>
@@ -376,7 +389,8 @@ export function ExerciseGenomePanel({ exercise, context, supabaseEvidence, compa
             <div><dt>Stance<HelpButton label="Stance" onClick={learn("stance")} /></dt><dd>{genome.stance}</dd></div>
           </dl>
         </section>
-        <section className="ei-section" aria-labelledby="ei-resistance-title">
+        {provisional && <section className="ei-section" aria-labelledby="ei-resistance-title"><h2 id="ei-resistance-title" className="ei-section-title">Resistance and fatigue</h2><p className="ei-empty">{provisionalNote.replace(" What it trains is in words above.", "")}</p></section>}
+        {!provisional && <><section className="ei-section" aria-labelledby="ei-resistance-title">
           <h2 id="ei-resistance-title" className="ei-section-title">Resistance profile<HelpButton label="Resistance curve" onClick={learn("resistanceCurve")} /></h2>
           <p className="ei-section-note">Relative challenge across one repetition, start to finish.</p>
           <div className="ei-curve" role="img" aria-label={`Relative challenge from the start to the end of the repetition: ${genome.resistanceProfile.curve.join(", ")}`}>{genome.resistanceProfile.curve.map((value, index) => <span key={index} style={{ height: `${profileScore(value) ?? 0}%` }} />)}</div>
@@ -393,14 +407,15 @@ export function ExerciseGenomePanel({ exercise, context, supabaseEvidence, compa
           <ScoreRow label="Systemic fatigue" value={genome.fatigue.systemic} onLearn={learn("systemicFatigue")} />
           <ScoreRow label="Axial fatigue" value={genome.fatigue.axial} onLearn={learn("axialFatigue")} />
           <ScoreRow label="Grip fatigue" value={genome.fatigue.grip} onLearn={learn("gripFatigue")} />
-        </section>
+        </section></>}
       </>}
       <details className="ei-disclosure"><summary>Mechanics evidence scope<ChevronDown className="h-4 w-4" aria-hidden="true" /></summary><div><p>These sources explain how the movement generally works and where the estimates are uncertain. They do not measure your own muscle force, tendons, activation, injury risk, or performance.</p><ul>{mechanicsEvidenceSources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></li>)}</ul></div></details>
     </div>}
 
     {tab === "context" && <div {...panelProps("context")}>
       {slots.sport ?? <section className="ei-section ei-sport" aria-label="Sport action in view"><p className="ei-eyebrow">Sport action in view</p><p className="ei-sport-name">{movementName ?? "No selected action"}</p><span className="ei-tier-tag">{selectedActionConnection.label}</span><p className="ei-section-note">{selectedActionConnection.detail} {actionBoundary}</p></section>}
-      {analysis && <section className="ei-section" aria-labelledby="ei-fit-title">
+      {provisional && <section className="ei-section" aria-labelledby="ei-fit-title"><h2 id="ei-fit-title" className="ei-section-title">Contextual fit</h2><p className="ei-empty">{provisionalNote.replace(" What it trains is in words above.", "")}</p></section>}
+      {analysis && !provisional && <section className="ei-section" aria-labelledby="ei-fit-title">
         <div className="ei-section-head-row"><h2 id="ei-fit-title" className="ei-section-title">Contextual fit<HelpButton label="Contextual fit" onClick={learn("contextualFit")} /></h2><GradeStamp grade={analysis.grade} label="Contextual fit" compact /></div>
         <p className="ei-section-note">How this exercise fits your goal ({context.goal}) and what it adds to {workoutLabel}. A planning comparison, not a direct performance measurement.</p>
         <dl className="ei-stats">

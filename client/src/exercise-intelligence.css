@@ -187,3 +187,13 @@
 .exercise-intelligence-evidence { border-top: 1px solid var(--ei-rule); border-bottom: 1px solid var(--ei-rule); }
 
 @media (prefers-reduced-motion: reduce) { .ei-disclosure > summary svg { transition: none; } }
+
+/* ── How it is done and logged (the Zercher, neck and bench rows, 2 Nov 2026) ───── */
+.ei-steps { display: grid; gap: .6rem; margin: 0; padding-left: 1.4rem; color: var(--ei-text); font-size: var(--sg-text-lg); line-height: var(--sg-leading-body); }
+.ei-steps li::marker { color: var(--ei-text-2); font-weight: 700; }
+.ei-role-note { color: var(--ei-text-2); font-size: var(--sg-text-base); }
+.ei-sources { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.ei-sources li { display: grid; gap: .15rem; border-top: 1px solid var(--ei-rule-faint); padding: .6rem 0; }
+.ei-source-kind { color: var(--ei-text-2); font-size: var(--sg-text-base); font-weight: 600; }
+.ei-sources a { display: inline-block; min-height: 2.75rem; padding: .35rem 0; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.ei-sources a:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }

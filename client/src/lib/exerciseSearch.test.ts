@@ -116,8 +116,11 @@ describe("every exercise search box uses the same matcher", () => {
   });
 
   it("and the universal search shares its aliases rather than keeping a second list", () => {
+    // Through exerciseAliasesOf since 2 Nov 2026, which adds the aliases kept by catalog id
+    // (exerciseExecution.ts) to the ones kept by name.
     const source = read("./universalSearch.ts");
-    expect(source).toContain('import { EXERCISE_ALIASES, normalizeSearchText, withinEditDistance } from "./exerciseSearch";');
+    expect(source).toContain('import { exerciseAliasesOf, normalizeSearchText, withinEditDistance } from "./exerciseSearch";');
+    expect(source).toContain("...exerciseAliasesOf(exercise).map(normalize)");
     expect(source).not.toContain("const EXERCISE_ALIASES");
   });
 });

@@ -2,6 +2,7 @@
 import { exercises, type Exercise, type Grade } from "@/lib/exerciseCatalog";
 import { getExerciseStudyCalibration, type ExerciseStudyCalibration } from "@/lib/exerciseStudyCalibration";
 import { buildMuscleTargetingEstimate, type MuscleTargetingEstimate } from "@/lib/muscleTargetingModel";
+import { executionCreditOf, isProvisionalCatalogId } from "@/lib/exerciseExecution";
 import type { SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { logicCalibration } from "@/lib/evidenceTraceability";
 
@@ -67,10 +68,19 @@ const anatomicalLabels: Record<string, string> = {
   triceps: "Triceps brachii", biceps: "Biceps brachii", brachialis: "Brachialis", forearms: "Forearm flexors / extensors", abs: "Rectus abdominis", obliques: "Internal / external obliques",
   lats: "Latissimus dorsi", upperBack: "Rhomboids / middle trapezius", traps: "Trapezius", lowerBack: "Spinal erectors", rotatorCuff: "Rotator cuff",
   glutes: "Gluteus maximus", quads: "Quadriceps", hamstrings: "Hamstrings", calves: "Gastrocnemius / soleus", tibialis: "Tibialis anterior", adductors: "Hip adductors", abductors: "Gluteus medius / abductors",
+  neck: "Neck (flexors, extensors, side benders, rotators)",
 };
 
 const qualityValue = (exercise: Exercise, quality: string, present: number, absent: number) => exercise.qualities.includes(quality) ? present : absent;
-const lower = (exercise: Exercise) => `${exercise.name} ${exercise.category} ${exercise.movement} ${exercise.equipment}`.toLowerCase();
+/**
+ * The words the genome's patterns read. A provisional row (exerciseExecution.ts) is read by its
+ * equipment alone, as the targeting model reads it: its name and movement words ("good morning",
+ * "press", "hold", "Neck extension") would trigger readings written for other exercises - a
+ * lengthened hinge, a shortened triceps extension. Its catalog movement still names its pattern.
+ */
+const lower = (exercise: Exercise) => isProvisionalCatalogId(exercise.id)
+  ? exercise.equipment.toLowerCase()
+  : `${exercise.name} ${exercise.category} ${exercise.movement} ${exercise.equipment}`.toLowerCase();
 const includes = (exercise: Exercise, expression: RegExp) => expression.test(lower(exercise));
 
 function getMovementPatterns(exercise: Exercise) {
@@ -158,7 +168,13 @@ function getMuscleProfile(exercise: Exercise, fingerprint: Record<GenomeDimensio
   // overhead press for front delts, the grip moves for forearms), and the second entry
   // added a synergist share on top of the prime mover's (Sep 30 brief §7).
   const primary = new Set(exercise.primaryMuscles);
-  const profile = [...Array.from(primary, (muscle) => ({ muscle, role: "Prime mover" as const })), ...Array.from(new Set(exercise.secondaryMuscles.filter((muscle) => !primary.has(muscle))), (muscle) => ({ muscle, role: exercise.qualities.includes("bracing") && ["abs", "obliques", "lowerBack"].includes(muscle) ? "Stabilizer" as const : "Synergist" as const }))];
+  // A row with execution roles (exerciseExecution.ts) is read from them, not from its tags: what
+  // moves the load is the prime mover, what helps a synergist, what holds still a stabilizer - the
+  // Zercher cradle's elbow flexors steady, they do not curl - and neck directions are the neck.
+  const credit = executionCreditOf(exercise.id);
+  const profile = credit
+    ? [...credit.direct.map((muscle) => ({ muscle, role: "Prime mover" as const })), ...credit.supporting.map((muscle) => ({ muscle, role: "Synergist" as const })), ...credit.steadying.map((muscle) => ({ muscle, role: "Stabilizer" as const }))]
+    : [...Array.from(primary, (muscle) => ({ muscle, role: "Prime mover" as const })), ...Array.from(new Set(exercise.secondaryMuscles.filter((muscle) => !primary.has(muscle))), (muscle) => ({ muscle, role: exercise.qualities.includes("bracing") && ["abs", "obliques", "lowerBack"].includes(muscle) ? "Stabilizer" as const : "Synergist" as const }))];
   return profile.map(({ muscle, role }) => {
     const targeting = buildMuscleTargetingEstimate(exercise, muscle, role);
     const contribution = targeting.score;

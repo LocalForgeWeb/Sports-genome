@@ -4,6 +4,7 @@ import type { Limb } from "@shared/specialization/types";
 import { renderableSetCount } from "./setPrescription";
 import { setEntryFieldsFor, type SetDoseMeasure } from "./setEntryFields";
 import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
+import { exerciseExecutionOf, isProvisionalCatalogId } from "@/lib/exerciseExecution";
 
 /**
  * Swapping an exercise during a workout (Oct 6 brief §3): Sissy Squat out, Barbell Squat in,
@@ -380,8 +381,13 @@ export function swapMeasurementNotes(
 export function swapSuggestions(from: Exercise | undefined, catalog: readonly Exercise[], excludeNames: ReadonlySet<string>, limit = 6): Exercise[] {
   if (!from) return [];
   const primary = new Set(from.primaryMuscles);
+  // A provisional row (exerciseExecution.ts) is suggested only in place of one of its own family -
+  // a neck exercise for a neck exercise - since the athlete chose that family; otherwise it is
+  // found by search, never put forward by the app.
+  const fromGroup = exerciseExecutionOf(from.id)?.group ?? null;
   return catalog
     .filter((item) => item.id !== from.id && !excludeNames.has(item.name))
+    .filter((item) => !isProvisionalCatalogId(item.id) || exerciseExecutionOf(item.id)?.group === fromGroup)
     .map((item) => ({ item, movement: item.movement === from.movement ? 1 : 0, shared: item.primaryMuscles.filter((muscle) => primary.has(muscle)).length, equipment: item.equipment === from.equipment ? 1 : 0 }))
     .filter((entry) => entry.movement || entry.shared > 0)
     .sort((a, b) => b.movement - a.movement || b.shared - a.shared || b.equipment - a.equipment || a.item.name.localeCompare(b.item.name))

@@ -250,7 +250,12 @@ describe("forearm rows added to the catalog (ids 401+)", () => {
 
   it("appear once each, after every older row, with the ids written down", () => {
     expect(forearmCatalogExercises.map((exercise) => [exercise.id, exercise.name])).toEqual(expected);
-    expect(exercises.slice(-expected.length).map((exercise) => exercise.id)).toEqual(expected.map(([id]) => id));
+    // Together, straight after the base and expansion rows (1-400). Rows added later (the Zercher,
+    // neck and bench rows from 421, 2 Nov 2026) follow them and are not the forearm's.
+    const start = exercises.findIndex((exercise) => exercise.id === expected[0][0]);
+    expect(exercises.slice(start, start + expected.length).map((exercise) => exercise.id)).toEqual(expected.map(([id]) => id));
+    expect(exercises.slice(0, start).every((exercise) => exercise.id <= 400)).toBe(true);
+    expect(exercises.slice(start + expected.length).every((exercise) => exercise.id > 420)).toBe(true);
     for (const [id, name] of expected) {
       expect(exercises.filter((exercise) => exercise.id === id), String(id)).toHaveLength(1);
       expect(exercises.filter((exercise) => exercise.name.toLowerCase() === name.toLowerCase()), name).toHaveLength(1);

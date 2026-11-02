@@ -149,7 +149,7 @@ describe("forearm research import: the package as received", () => {
   });
 
   it("reads the package against forearm_mappings_v1, and gives F3's final matrix from the code's v2 (§7.3)", () => {
-    expect([report.app.mappingVersion, report.app.mappingRows, report.app.currentMappingVersion, report.app.catalogEndsAt]).toEqual(["forearm_mappings_v1", 418, "forearm_mappings_v2", 420]);
+    expect([report.app.mappingVersion, report.app.mappingRows, report.app.currentMappingVersion, report.app.forearmRowsEndAt]).toEqual(["forearm_mappings_v1", 418, "forearm_mappings_v2", 420]);
     const final = report.finalMatrix;
     expect([final.version, final.state, final.publishedAt, final.rows, final.reviewed, final.draft, final.carriedUnchanged, final.notCarried]).toEqual(["forearm_mappings_v2", "published", "2026-10-24", 421, 420, 1, 361, 53]);
     // Every planned row is in v2, reviewed: Hamrick confirmed, both conditional families adopted.

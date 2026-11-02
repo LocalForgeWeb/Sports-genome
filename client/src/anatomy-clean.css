@@ -284,6 +284,8 @@
 .atlas-role-tag-stabilizer,.atlas-role-tag-synergist{color:var(--sg-text-muted-on-light)}
 .atlas-role-tag-unrecorded{color:var(--sg-text-subtle-on-light)}
 .atlas-role-row-unrecorded{opacity:.82}
+/* A region with no shape on the figure (the neck): listed at full strength, since its row is the only way to choose it. */
+.atlas-role-rows-listed{margin-top:.25rem}
 .atlas-ranking .atlas-ranking-toggle{gap:.3rem;min-height:44px;font-size:var(--sg-text-lg);font-weight:600;letter-spacing:0;text-transform:none}
 .atlas-foot{display:grid;gap:.75rem;margin-top:.9rem}
 .atlas-pro-grid>.atlas-foot{grid-column:1}

@@ -22,7 +22,8 @@
  * whole answer. Matching is by exercise name to the record, which is what the
  * reasons say; nothing here has been reviewed by a person exercise by exercise.
  */
-import { exercises as catalogExercises, type Exercise } from "@/lib/exerciseCatalog";
+import { exercises as allCatalogExercises, type Exercise } from "@/lib/exerciseCatalog";
+import { isProvisionalCatalogId } from "@/lib/exerciseExecution";
 import { getEnrichedMovement, type EnrichedSportMovement } from "@/lib/enrichedSportMovementDatabase";
 import { sportMovementProfiles, sportProfiles } from "@/lib/sportMovementDatabase";
 import { movementDisplayLabel } from "@/lib/movementLabel";
@@ -147,8 +148,9 @@ export function isNotTheSameExercise(phrase: string, exerciseId: number): boolea
 /**
  * Catalog `movement` patterns too broad to relate two exercises on their own.
  *
- * Rule: a pattern is broad when it labels more than 15 catalog exercises (more than
- * one in 25 of the 400 the catalog held when the rule was set; 416 since 16 Oct). Every pattern above that size names a direction of force
+ * Rule: a pattern is broad when it labels more than 15 of the exercises movement support
+ * ranks (more than one in 25 of the 400 the catalog held when the rule was set; 420 since
+ * 24 Oct, the provisional rows of 2 Nov left out). Every pattern above that size names a direction of force
  * or a single joint action rather than one exercise family: "Horizontal push" holds
  * bench presses, flys, push-ups, dips, the landmine presses and the mis-tagged
  * Pallof Press and Leg-Press Calf Raise; "Squat / knee dominant" holds squats, the
@@ -170,6 +172,15 @@ export const BROAD_PATTERNS: readonly string[] = [
   "Squat / knee dominant",
   "Elbow extension",
 ];
+
+/**
+ * The rows movement support ranks: every catalog row but the provisional ones (exerciseExecution.ts),
+ * which no sport movement's list puts forward until they are reviewed - the athlete finds them by
+ * name or by muscle. BROAD_PATTERNS' rule counts these rows too, so three provisional Zercher
+ * hinges do not turn "Hip hinge" broad.
+ */
+export const movementSupportExercises: readonly Exercise[] = allCatalogExercises.filter((exercise) => !isProvisionalCatalogId(exercise.id));
+const catalogExercises = movementSupportExercises;
 
 type NamedPhrase = { text: string; matchers: string[]; synonym?: string; notTheSame: ReadonlySet<number> };
 type PrimeMover = { name: string; keys: string[] };
@@ -256,6 +267,7 @@ const joinNames = (names: string[]) => (names.length <= 1 ? names.join("") : `${
  * from this, and getExerciseActionConnection reads it, so every surface agrees.
  */
 export function classifyExerciseForMovement(exercise: Exercise, record: EnrichedSportMovement): SupportRow | null {
+  if (isProvisionalCatalogId(exercise.id)) return null;
   const context = contextFor(record);
   const sharedPrimeMovers = context.primeMovers
     .filter((mover) => mover.keys.some((key) => exercise.primaryMuscles.includes(key)))
@@ -283,6 +295,7 @@ export function classifyExerciseForMovement(exercise: Exercise, record: Enriched
  */
 export function unmappedSupportDetail(exercise: Exercise, record: EnrichedSportMovement): string {
   const context = contextFor(record);
+  if (isProvisionalCatalogId(exercise.id)) return `Added to the catalog with provisional grades; it is not matched to ${context.movementLabel} or any sport movement until it is reviewed.`;
   const supportingOnly = context.primeMovers
     .filter((mover) => mover.keys.some((key) => exercise.secondaryMuscles.includes(key) && !exercise.primaryMuscles.includes(key)))
     .map((mover) => mover.name);

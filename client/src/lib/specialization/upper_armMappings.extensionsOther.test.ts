@@ -35,10 +35,18 @@ const PULL_MOVEMENTS = ["Horizontal pull", "Vertical pull", "Elbow flexion"];
 // 74 L-Sit Pull-Up reads "Trunk flexion / anti-extension" but is a pull-up; the variants lane's catalog fix tags it biceps.
 const PULL_IDS = [74, 379];
 const THIS_FAMILY_MOVEMENTS = ["Elbow extension", "Throw, slam or ballistic rotation", "Wrist extension", "Forearm supination", "Anti-rotation", "Loaded transition", "Overhead slam", "Alternating arm drive"];
+/**
+ * The Zercher rows the catalog added on 2 Nov 2026 (exerciseCatalogZercherNeckBench.ts), after the
+ * version was published. They read "Hip hinge" and "Loaded hold" and tag the biceps and brachialis
+ * (secondary) for the cradle; they are this family's, as the Zercher squat and carry are. Routed by
+ * id, so a future tag on another hinge is not silently given to this family. Listed unmapped, with
+ * no library record until a later upper-arm mapping version (a record is a seed change).
+ */
+const ZERCHER_ADDED_2_NOV = [421, 422, 423, 424];
 const familiesOf = (exercise: Exercise) => [
   PRESS_MOVEMENTS.includes(exercise.movement),
   PULL_MOVEMENTS.includes(exercise.movement) || PULL_IDS.includes(exercise.id),
-  THIS_FAMILY_MOVEMENTS.includes(exercise.movement),
+  THIS_FAMILY_MOVEMENTS.includes(exercise.movement) || ZERCHER_ADDED_2_NOV.includes(exercise.id),
 ].filter(Boolean).length;
 
 /** This family's tagged rows (31), as the movement rule gives them. */
@@ -56,12 +64,17 @@ describe("extensionsOther: the family's rows", () => {
   });
 
   it("map or list every row of the family, and nothing outside it", () => {
-    for (const id of [...TAGGED, ...UNTAGGED_WITH_VARIANT, ...UNTAGGED_NO_VARIANT]) expect(mappedIds.has(id) || listedIds.has(id), `${id} ${byId.get(id)?.name}`).toBe(true);
-    const family = new Set([...TAGGED, ...UNTAGGED_WITH_VARIANT, ...UNTAGGED_NO_VARIANT]);
+    for (const id of [...TAGGED, ...UNTAGGED_WITH_VARIANT, ...UNTAGGED_NO_VARIANT, ...ZERCHER_ADDED_2_NOV]) expect(mappedIds.has(id) || listedIds.has(id), `${id} ${byId.get(id)?.name}`).toBe(true);
+    const family = new Set([...TAGGED, ...UNTAGGED_WITH_VARIANT, ...UNTAGGED_NO_VARIANT, ...ZERCHER_ADDED_2_NOV]);
     for (const id of [...mappedIds, ...listedIds]) expect(family.has(id), String(id)).toBe(true);
     for (const id of UNTAGGED_WITH_VARIANT) expect(tagsUpperArm(byId.get(id)!), String(id)).toBe(false);
     for (const id of UNTAGGED_NO_VARIANT) {
       expect(tagsUpperArm(byId.get(id)!), String(id)).toBe(false);
+      expect(variantFor(id), String(id)).toBeNull();
+    }
+    for (const id of ZERCHER_ADDED_2_NOV) {
+      expect(tagsUpperArm(byId.get(id)!), String(id)).toBe(true);
+      expect(listedIds.has(id), String(id)).toBe(true);
       expect(variantFor(id), String(id)).toBeNull();
     }
   });
@@ -69,7 +82,7 @@ describe("extensionsOther: the family's rows", () => {
   it("map 30 exercises in 86 rows and list 18, none twice, none both", () => {
     expect(mappedIds.size).toBe(31);
     expect(rows).toHaveLength(89);
-    expect(unmapped).toHaveLength(17);
+    expect(unmapped).toHaveLength(17 + ZERCHER_ADDED_2_NOV.length);
     expect(listedIds.size).toBe(unmapped.length);
     for (const id of listedIds) expect(mappedIds.has(id), `${id} is both mapped and listed`).toBe(false);
     for (const entry of unmapped) {

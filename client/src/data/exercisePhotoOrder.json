@@ -28,5 +28,6 @@
  "Suspended_Push-Up": "frame 0 is the bottom of the push-up; the source starts with the arms extended",
  "Upright_Cable_Row": "frame 0 is the bar at the chin; the row starts with the bar at the thighs",
  "V-Bar_Pulldown": "frame 0 is the bar pulled to the chest; the pulldown starts with the arms extended",
- "Standing_Palms-Up_Barbell_Behind_The_Back_Wrist_Curl": "frame 0 is the bar curled up; the source starts with the bar hanging at arm's length"
+ "Standing_Palms-Up_Barbell_Behind_The_Back_Wrist_Curl": "frame 0 is the bar curled up; the source starts with the bar hanging at arm's length",
+ "Smith_Machine_Decline_Press": "frame 0 is the bar on the chest; the press starts with the arms extended"
 }

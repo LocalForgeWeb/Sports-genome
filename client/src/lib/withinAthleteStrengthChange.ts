@@ -1,5 +1,6 @@
 import { estimateOneRepMaxKg, maxValidEstimationReps, oneRepMaxEstimationMethod } from "@shared/oneRepMaxEstimation";
 import { exercises as catalog } from "@/lib/exerciseCatalog";
+import { isProvisionalCatalogId } from "@/lib/exerciseExecution";
 
 export type ComparableStrengthObservation = {
   id: number | string;
@@ -86,6 +87,8 @@ export function strengthSeriesKey(observation: ComparableStrengthObservation) {
 const groupKey = strengthSeriesKey;
 
 function toEstimatedPoint(observation: ComparableStrengthObservation): EstimatedOneRepMaxPoint | null {
+  // A provisional row (exerciseExecution.ts) gets no estimated max, so no trend of one either.
+  if (isProvisionalCatalogId(observation.catalogExerciseId ?? unambiguousIdByName.get(normalized(observation.exerciseName)))) return null;
   const loadKg = validLoad(observation.loadKg);
   if (!loadKg) return null;
   if (observation.measurementType === "MEASURED_1RM") {

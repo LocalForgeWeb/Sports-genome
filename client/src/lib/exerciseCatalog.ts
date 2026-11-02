@@ -7214,10 +7214,11 @@ export const baseExercises: Exercise[] = [
       "calves",
       "abs"
     ],
+    // No "unilateral" (removed 2 Nov 2026, the Zercher handoff's audit): it is a two-legged squat
+    // with the bar in both elbow crooks, so nothing is done one side at a time.
     "qualities": [
       "strength",
       "hypertrophy",
-      "unilateral",
       "deceleration"
     ],
     "muscleGrade": "S",
@@ -13396,10 +13397,12 @@ export const baseExercises: Exercise[] = [
       "quads",
       "calves"
     ],
+    // No "grip" (removed 2 Nov 2026, the Zercher handoff's audit): the bar rests in the elbow crooks
+    // and the hands do not hold it, so it is not grip work. The atlas already credits it without the
+    // finger flexors.
     "qualities": [
       "conditioning",
       "locomotion",
-      "grip",
       "bracing",
       "sprintSupport"
     ],
