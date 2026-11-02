@@ -10,6 +10,7 @@ import { SharedWorkoutView } from "@/components/SharedWorkoutView";
 import { parseShareSnapshot } from "@shared/workoutShare";
 import { shareSnapshotText } from "@shared/workoutShareFormat";
 import "../shared-page.css";
+import { platform } from "@/lib/platform";
 
 /**
  * A shared workout at /s/<token>: readable by anyone with the link, no account needed.
@@ -122,7 +123,7 @@ export default function SharedWorkoutPage({ params }: { params: { token: string 
     <p className="sp-explain">You choose the week and day next. Exercises are added after what's there — nothing in your plan is replaced unless you choose that.</p>
     <div className="sp-more">
       <button type="button" className="sp-secondary" onClick={() => void copyAsText()}>{copied ? <Check className="h-5 w-5" aria-hidden="true" /> : <Copy className="h-5 w-5" aria-hidden="true" />}{copied ? "Copied as text" : "Copy as text"}</button>
-      <button type="button" className="sp-secondary" onClick={() => window.print()}><Printer className="h-5 w-5" aria-hidden="true" />Print or save PDF</button>
+      <button type="button" className="sp-secondary" onClick={() => platform().print()}><Printer className="h-5 w-5" aria-hidden="true" />Print or save PDF</button>
     </div>
     <p className="sp-status" role="status" aria-live="polite">{status}</p>
   </div>;

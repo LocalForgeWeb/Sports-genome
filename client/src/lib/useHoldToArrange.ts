@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { flushSync } from "react-dom";
+import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 
 /**
  * Hold a row, then drag it: the iPhone home screen's way of moving things (owner, 21 Oct 2026).
@@ -136,7 +137,8 @@ export function useHoldToArrange({ ids, onMove, enabled = true, resetKey }: {
       suppressClick.current = true;
       listRef.current?.setAttribute("data-dragging", "");
       measured[from].el.setAttribute("data-lifted", "");
-      try { navigator.vibrate?.(10); } catch { /* Not every browser lets a page buzz. */ }
+      // Not every browser lets a page buzz; the native shell uses real haptics (lib/platform.ts).
+      emitInteractionFeedback(10);
       setArranging(true);
       paint();
       drag.current.frame = window.requestAnimationFrame(autoScroll);

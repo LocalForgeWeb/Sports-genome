@@ -21,6 +21,7 @@ import {
   type SportContextMode,
 } from "@shared/resilienceContext";
 import "@/athlete-baseline-quiz.css";
+import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 
 export type AthleteExperience = "Beginner" | "Intermediate" | "Advanced";
 export type WeightUnit = "lb" | "kg";
@@ -118,7 +119,7 @@ export function quizStepRange(mode: SportContextMode | null, hasFocus: boolean, 
 export function quizProgressLabel(step: number, range: { min: number; max: number }) {
   return `Step ${step + 1} of ${range.min === range.max ? range.min : `${range.min}–${range.max}`}`;
 }
-function haptic(pattern: number | number[]) { if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(pattern); }
+function haptic(pattern: number | number[]) { emitInteractionFeedback(pattern); }
 function sportLabel(profile: SportProfile) { return profile.label === "American football" ? "Football" : profile.label === "Brazilian jiu-jitsu" ? "BJJ" : profile.label === "Olympic weightlifting" ? "Weightlifting" : profile.label; }
 
 export function AthleteBaselineQuiz({ sports, targetCatalog, onComplete }: { sports: SportProfile[]; targetCatalog?: ResilienceTargetCatalog; onComplete: (selection: AthleteQuizSelection) => void }) {
