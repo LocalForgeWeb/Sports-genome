@@ -29,7 +29,11 @@ Source: *Sports Genome — iOS readiness audit and Claude implementation checkli
 | 2 Nov, after A12+A07 | `0ee7bdbc` | `TZ=America/Chicago npx vitest run` | 503 files passed, 4 skipped; 5313 tests passed, 8 skipped |
 | 2 Nov, after A09+A03+A04 | `e728b60c` | `npx vitest run` | 1 failed (`typeScale.test.ts`: literal font sizes in the new stylesheet, then fixed with tokens); 508 files passed, 4 skipped; 5359 tests passed, 8 skipped |
 
-The final run is recorded in the release report that accompanies this ledger.
+| 2 Nov, final | `8ef00628` | `npx vitest run` | **511 files passed, 4 skipped; 5369 tests passed, 8 skipped; exit 0** |
+| 2 Nov, final | `8ef00628` | `TZ=America/Chicago npx vitest run` | **511 files passed, 4 skipped; 5369 tests passed, 8 skipped; exit 0** |
+| 2 Nov, final | `8ef00628` | `npx tsc --noEmit -p tsconfig.json` | no errors |
+| 2 Nov, final | `8ef00628` | `pnpm build` | built; only the existing chunk-size warnings (the CSS selector warning is gone) |
+| 2 Nov, final | `8ef00628` | `node scripts/ci/smoke-serverless.mjs` | all checks passed |
 
 **Skips:** 8 tests, the same set before and after this pass. None was added, and none was newly skipped by this work.
 
