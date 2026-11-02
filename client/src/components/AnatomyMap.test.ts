@@ -117,7 +117,12 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(markup).not.toContain("Primary movers");
     // Four rows first; the rest of the involved muscles and then the rest of
     // the body are the same list one tap longer.
-    expect(markup.match(/class="atlas-role-row /g)).toHaveLength(4);
+    const roleList = markup.slice(markup.indexOf('<ol class="atlas-role-rows">'), markup.indexOf("</ol>", markup.indexOf('<ol class="atlas-role-rows">')));
+    expect(roleList.match(/class="atlas-role-row /g)).toHaveLength(4);
+    // Beside them, at rest, the one region the figure does not draw: the neck (2 Nov 2026), chosen by name.
+    const listed = markup.slice(markup.indexOf('class="atlas-role-rows atlas-role-rows-listed"'));
+    expect(listed.slice(0, listed.indexOf("</ul>")).match(/class="atlas-role-row /g)).toHaveLength(1);
+    expect(listed).toContain("<strong>Neck</strong><small>Not drawn on the figure</small>");
     expect(markup).toContain("View all ");
     expect(markup).toContain(" muscle roles");
     expect(markup).toContain("How muscle roles are classified");

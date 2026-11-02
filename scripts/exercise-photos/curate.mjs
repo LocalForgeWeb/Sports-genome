@@ -33,6 +33,13 @@ const curated = {
   // the bar behind the thighs, palms back (frame 0 is the bar curled up: reversed, exercisePhotoOrder.json). The source has no
   // barbell hold and no single-finger band drill, so 419 and 420 show the placeholder frame.
   417: 'Cable Wrist Curl', 418: 'Standing Palms-Up Barbell Behind The Back Wrist Curl',
+  // November 2 Zercher, neck and bench rows (421-443): the handoff's nine candidates, both frames viewed at the pinned commit
+  // (docs/exercise-additions/media-review-2026-11-02.json). Taken where equipment, angle, direction and body position all match
+  // the row's protocol: seated, torso inclined, plates hanging from a head harness, head flexed then extended (428); a seated
+  // plate-loaded lever incline press (437) and decline press (439); a Smith bar pressed from the chest on a decline bench (440;
+  // frame 0 is the bar on the chest: reversed, exercisePhotoOrder.json); a barbell pressed from the floor, upper arms down (441).
+  428: 'Seated Head Harness Neck Resistance', 437: 'Leverage Incline Chest Press', 439: 'Leverage Decline Chest Press',
+  440: 'Smith Machine Decline Press', 441: 'Floor Press',
 };
 const byAppName = { 'Pec Deck Fly': 'Butterfly', 'Dumbbell Fly': 'Dumbbell Flyes', 'Reverse Pec Deck': 'Reverse Machine Flyes', 'Pendlay Row': 'Bent Over Barbell Row', 'Chest-Supported Dumbbell Row': 'Dumbbell Incline Row', 'Seal Row': 'Incline Bench Pull', 'Machine Low Row': 'Leverage Iso Row', 'Ring Row': 'Suspended Row', 'Rope Face Pull with External Rotation': 'Face Pull', 'Back Squat': 'Barbell Squat', 'High-Bar Back Squat': 'Barbell Full Squat', 'Forward Lunge': 'Dumbbell Lunges', 'Stiff-Leg Deadlift': 'Stiff-Legged Barbell Deadlift', 'Hip Abduction Machine': 'Thigh Abductor', 'Stability-Ball Hamstring Curl': 'Ball Leg Curl', 'Single-Leg Hip Thrust': 'Single Leg Glute Bridge', 'Captain’s-Chair Leg Raise': 'Knee/Hip Raise On Parallel Bars', 'Farmer’s Carry': "Farmer's Walk", "Farmer's Carry": "Farmer's Walk" };
 // Plausible but incorrect variations (October 1 brief §2): the source photographs the
@@ -55,6 +62,17 @@ const rejected = {
   203: 'kettlebell swing is two-handed; the photo is the one-arm swing',
   // Bulgarian Split Squat (173) and High Cable Curl (339), withdrawn the same day, came back on Oct 7
   // with the right photos (rear foot on a bench; standing between two high pulleys): docs/drill-photos/.
+  // Nov 2 rows (421-443) the source does not show exactly: listed so a name match can never give one a photo
+  // (docs/exercise-additions/media-review-2026-11-02.json has each decision).
+  433: 'isometric neck flexion is seated with the torso supported; the source stands, and its one record shows flexion and extension together',
+  434: 'isometric neck extension is seated with the torso supported; the source stands, and its one record shows flexion and extension together',
+  435: 'isometric neck side bend is seated with the torso supported; the source stands, one hand on the head',
+  421: 'no source photograph of a Zercher pull from the floor', 422: 'no source photograph of a Zercher pull from blocks or pins',
+  423: 'no source photograph of a Zercher good morning', 424: 'no source photograph of a standing Zercher hold',
+  425: 'no source photograph of a neck machine', 426: 'no source photograph of a neck machine', 427: 'no source photograph of a neck machine',
+  429: 'no source photograph of a cable head harness', 430: 'no source photograph of a cable head harness', 431: 'no source photograph of a cable head harness', 432: 'no source photograph of a cable head harness',
+  436: 'no source photograph of a manually resisted neck rotation hold', 438: 'no source photograph of a selectorized decline press',
+  442: 'no source photograph of a paused bench press; the bench press photo shows no pause', 443: 'no source photograph of a Spoto press; the bench press photo touches the chest',
 };
 const normName = (s) => s.toLowerCase().replace(/[’']/g, '').replace(/[()\-\/,.:]/g, ' ').replace(/\s+/g, ' ').trim();
 const byNorm = new Map(db.map((e) => [normName(e.name), e]));

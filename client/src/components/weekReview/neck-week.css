@@ -1,0 +1,27 @@
+/* The neck's week on the Review board (components/weekReview/NeckWeekCard.tsx): three columns on a
+   phone, the direction, sets and reps, holds and time; a row with work is one button the width of
+   the card, 44 px at least, that opens to the sets behind it. Tokens only, on-dark ink. */
+.wr-neck-columns, .wr-neck-toggle, .wr-neck-line[data-empty] {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr) 1rem;
+  align-items: center;
+  gap: .5rem;
+}
+.wr-neck-columns { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.wr-neck-lines { display: grid; margin: 0; padding: 0; list-style: none; }
+.wr-neck-line { border-top: 1px solid rgb(164 200 232 / .14); }
+.wr-neck-line[data-empty] { min-height: 2.75rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.wr-neck-toggle { width: 100%; min-height: 2.75rem; padding: .35rem 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 600; text-align: left; font-variant-numeric: tabular-nums; }
+.wr-neck-toggle:hover { background: rgb(255 255 255 / .04); }
+.wr-neck-toggle:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.wr-neck-toggle > svg { color: var(--sg-text-muted-on-dark); transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.wr-neck-toggle[aria-expanded="true"] > svg { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .wr-neck-toggle > svg { transition: none; } }
+.wr-neck-name { color: var(--sg-text-on-dark); font-weight: 700; overflow-wrap: anywhere; }
+.wr-neck-line[data-empty] .wr-neck-name { color: var(--sg-text-muted-on-dark); font-weight: 600; }
+.wr-neck-empty { grid-column: 2 / -1; }
+.wr-neck-line[data-unknown] .wr-neck-name { color: var(--sg-text-muted-on-dark); font-style: italic; }
+.wr-neck-sets { display: grid; gap: .1rem; margin: 0; padding: 0 0 .6rem .75rem; list-style: none; }
+.wr-neck-sets li { display: grid; gap: .05rem; border-left: 2px solid rgb(164 200 232 / .24); padding: .3rem 0 .3rem .6rem; }
+.wr-neck-sets b { color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; overflow-wrap: anywhere; }
+.wr-neck-sets small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }

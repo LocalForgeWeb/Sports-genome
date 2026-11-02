@@ -1,7 +1,10 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { emitHoldCatalogIds, emitLoggingFiles, emitLoggingTable, loggingTableRows, type LoggingRegionInput, type VariantLookup } from "../../../../scripts/specialization/emit-logging-table";
+import { catalogMeasureRows, emitExerciseLoggingFacts, emitHoldCatalogIds, emitLoggingFiles, emitLoggingTable, loggingTableRows, measuredRows, type ExecutionLookup, type LoggingRegionInput, type VariantLookup } from "../../../../scripts/specialization/emit-logging-table";
+import { catalogMeasureOf, holdCatalogIds } from "@shared/specialization/holdCatalogIds";
+import { exerciseExecutionById } from "@/lib/exerciseExecution";
+import { exerciseLoggingFacts } from "@/lib/exerciseLoggingFacts.generated";
 import { loggingTable } from "@shared/specialization/loggingTable.generated";
 import { loggingPolicyFor } from "@shared/specialization/loggingPolicy";
 import { specializationRegions } from "@shared/specialization/registry";
@@ -44,6 +47,35 @@ describe("the generated files", () => {
         sideCounted: [...mapped.get(catalogId)!].some((id) => specializationRegions.some(({ region }) => region.id === id && region.sides.model === "paired" && region.sides.limb === variant.sidedBy)),
         strapsBy: [...(straps.get(catalogId) ?? [])],
         mappedBy: [...mapped.get(catalogId)!],
+      });
+    }
+  });
+});
+
+describe("the catalog's own measures (Zercher, neck and bench handoff §3.3)", () => {
+  it("time Zercher Hold and the four manual neck isometrics, keep Zercher Carry timed, and leave every other new row in reps", () => {
+    for (const id of [300, 424, 433, 434, 435, 436]) expect(catalogMeasureOf(id), `catalog ${id}`).toBe("seconds");
+    for (const id of [421, 422, 423, 425, 426, 427, 428, 429, 430, 431, 432, 437, 438, 439, 440, 441, 442, 443]) expect(catalogMeasureOf(id), `catalog ${id}`).toBe("reps");
+    // The atlas's holds are all still there.
+    for (const id of [142, 143, 144, 145, 299, 400, 403, 409, 419]) expect(holdCatalogIds.has(id), `catalog ${id}`).toBe(true);
+  });
+
+  it("are what the logger asks, though no region maps those rows: seconds, no side, no straps", () => {
+    for (const id of [424, 433, 434, 435, 436]) {
+      expect(loggingTable.has(id), `catalog ${id}`).toBe(false);
+      expect(loggingPolicyFor(id), `catalog ${id}`).toMatchObject({ measure: "seconds", askSide: false, sideLimb: null, strapsSensitive: false, mappedBy: [] });
+    }
+    expect(loggingPolicyFor(425).measure).toBe("reps");
+  });
+
+  it("give the light facts exactly each execution record's load, neck action, head direction and setup fields", () => {
+    expect([...exerciseLoggingFacts.keys()]).toEqual([...exerciseExecutionById.keys()].sort((a, b) => a - b));
+    for (const [id, record] of exerciseExecutionById) {
+      expect(exerciseLoggingFacts.get(id), `catalog ${id}`).toEqual({
+        load: record.load,
+        ...(record.neckAction ? { neckAction: record.neckAction } : {}),
+        ...(record.headDirection ? { headDirection: record.headDirection } : {}),
+        setupFields: record.setupFields,
       });
     }
   });
@@ -126,10 +158,33 @@ describe("the emitter", () => {
 
   it("writes the hold list from the same rows, and both files deterministically", () => {
     const rows = loggingTableRows(regions, library(split, plank, carry));
-    expect(emitHoldCatalogIds(rows)).toContain("new Set([247, 409])");
-    expect(emitHoldCatalogIds(rows)).toContain(" * 247 Side Plank, 409 Suitcase Carry.\n");
+    expect(emitHoldCatalogIds(rows, [])).toContain("new Set([247, 409])");
+    expect(emitHoldCatalogIds(rows, [])).toContain(" * 247 Side Plank, 409 Suitcase Carry.\n");
     expect(emitLoggingTable(rows)).toContain(`  // Bulgarian Split Squat\n  [173, { measure: "reps", laterality: "either", legLaterality: "unilateral", sidedBy: "leg", sideAnchor: "front_leg", sideCounted: true, strapsBy: [], mappedBy: ["thigh"] }],`);
     expect(emitLoggingTable(loggingTableRows([...regions].reverse(), library(carry, plank, split)))).toBe(emitLoggingTable(rows));
+  });
+
+  // The Zercher, neck and bench handoff (§3.3): a hold no production region maps is timed by its
+  // own execution record, never by pretending an atlas region maps it.
+  it("adds the catalog's own timed rows to the hold list, once per id, and refuses a row the two sources measure differently", () => {
+    const rows = loggingTableRows(regions, library(split, plank, carry));
+    const own = [
+      { catalogExerciseId: 424, catalogName: "Zercher Hold", measure: "seconds" as const },
+      { catalogExerciseId: 409, catalogName: "Suitcase Carry", measure: "seconds" as const },
+      { catalogExerciseId: 421, catalogName: "Zercher Deadlift — Floor", measure: "reps" as const },
+    ];
+    expect(measuredRows(rows, own).map((row) => [row.catalogExerciseId, row.measure])).toEqual([[173, "reps"], [247, "seconds"], [409, "seconds"], [421, "reps"], [424, "seconds"]]);
+    expect(emitHoldCatalogIds(rows, own)).toContain("new Set([247, 409, 424])");
+    expect(emitHoldCatalogIds(rows, own)).toContain(" * 247 Side Plank, 409 Suitcase Carry, 424 Zercher Hold.\n");
+    expect(() => measuredRows(rows, [{ catalogExerciseId: 247, catalogName: "Side Plank", measure: "reps" }])).toThrow(/catalog 247 \(Side Plank\): the atlas measures it in seconds, its execution record in reps/);
+    expect(() => emitHoldCatalogIds(rows, [{ catalogExerciseId: 173, catalogName: "Bulgarian Split Squat", measure: "seconds" }])).toThrow(/catalog 173/);
+  });
+
+  it("names the catalog's own rows as the catalog does, and refuses a record for a row the catalog does not hold", () => {
+    const records: ExecutionLookup = new Map([[424, { measure: "seconds", load: "total_bar_mass", neckAction: null, headDirection: null, setupFields: ["bar_type"] }]]);
+    expect(catalogMeasureRows(records, [{ id: 424, name: "Zercher Hold" }])).toEqual([{ catalogExerciseId: 424, catalogName: "Zercher Hold", measure: "seconds" }]);
+    expect(() => catalogMeasureRows(records, [{ id: 1, name: "Barbell Bench Press" }])).toThrow(/execution record 424 names no catalog row/);
+    expect(emitExerciseLoggingFacts(records, [{ id: 424, name: "Zercher Hold" }])).toContain(`  // Zercher Hold\n  [424, { load: "total_bar_mass", setupFields: ["bar_type"] }],`);
   });
 
   it("refuses a leg-sided variant that does not say which leg a side names", () => {
@@ -157,6 +212,8 @@ describe("what the logger imports", () => {
     "shared/specialization/loggingPolicy.ts",
     "shared/specialization/loggingTable.generated.ts",
     "shared/specialization/holdCatalogIds.ts",
+    "client/src/lib/exerciseLoggingFacts.generated.ts",
+    "client/src/lib/exerciseLogging.ts",
     "client/src/lib/specialization/loggerGates.ts",
     "client/src/lib/deviceWorkoutLog.ts",
     "client/src/lib/setEntryFields.ts",
@@ -174,6 +231,13 @@ describe("what the logger imports", () => {
     for (const file of loggerModules) {
       const imports = readFileSync(join(root, file), "utf8").split("\n").filter((line) => /^\s*import\b/.test(line) && !/^\s*import type\b/.test(line));
       expect(imports.filter((line) => heavy.test(line)), file).toEqual([]);
+    }
+  });
+
+  it("reads the execution records' logging facts, never the records themselves: their steps, roles and sources stay out of the logger and the first screens", () => {
+    for (const file of ["client/src/lib/exerciseLoggingFacts.generated.ts", "client/src/lib/exerciseLogging.ts", "client/src/lib/deviceWorkoutLog.ts", "client/src/lib/setEntryFields.ts", "client/src/lib/sessionRecap.ts", "client/src/lib/neckWeek.ts", "client/src/lib/workoutPlanner.ts", "client/src/components/DeviceWorkoutTracker.tsx", "client/src/components/ExerciseSetupDisclosure.tsx"]) {
+      const imports = readFileSync(join(root, file), "utf8").split("\n").filter((line) => /^\s*import\b/.test(line) && !/^\s*import type\b/.test(line));
+      expect(imports.filter((line) => /exerciseExecution"/.test(line)), file).toEqual([]);
     }
   });
 

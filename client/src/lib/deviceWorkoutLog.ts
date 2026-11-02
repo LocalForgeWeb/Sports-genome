@@ -1,6 +1,7 @@
 import { displayWeightToKilograms, kilogramsToDisplayWeight, type DisplayWeightUnit } from "./weightUnits";
 import { isSetEffort, type SetEffort } from "@shared/setEffort";
 import type { Limb } from "@shared/specialization/types";
+import { headDirectionActionOf, isHeadDirection, normalizeSetup, type ExerciseSetup, type HeadDirection } from "./exerciseLogging";
 import { deviceStorageOwner, isOwnedKey, readOwnedList, writeOwnedList } from "./deviceRecordStore";
 
 export type DeviceSetLog = {
@@ -66,6 +67,22 @@ export type DeviceSetLog = {
    * counted as work. Only `true` is stored: false is the same as absent.
    */
   warmup?: boolean;
+  /**
+   * Which way the head went on a lateral flexion or rotation exercise (the Zercher, neck and bench
+   * handoff, §3.2): the direction this one set was done to, chosen on the set card. It is never
+   * `side`, which is an arm's, and one set is never written as a left and a right set. Kept only on
+   * an exercise whose execution record says its sets have a direction; absent means not recorded
+   * (a set from before it was asked), and it stays unknown, never guessed.
+   */
+  headDirection?: HeadDirection;
+  /**
+   * The plates on each arm of a plate-loaded machine, when the athlete loaded the arms differently
+   * ("Arms loaded differently" on the set card), in the set's unit. Both are kept as typed and never
+   * added into one number: `weight` stays empty on such a set, so a reader that knows nothing of
+   * them reads a set with no single load rather than a made-up total or a made-up equal pair.
+   */
+  leftLoad?: string;
+  rightLoad?: string;
 };
 
 /** Which arm (`side`) or which leg (`legSide`) a set was done with. */
@@ -133,6 +150,14 @@ export type DeviceWorkoutExercise = {
    * is "not recorded", which is not the same as "no".
    */
   straps?: StrapsUsed;
+  /**
+   * The setup this exercise was done with in this workout, as the athlete typed it (lib/
+   * exerciseLogging.ts): a block's start height, a pause, the machine and its seat, a Smith
+   * machine's load basis. Optional and never asked before a set; kept on save and reload, reused
+   * only when the athlete asks ("Same as last time"), and not carried to the exercise a swap brings
+   * in. Two sets are the same protocol only when the setup they compare on is the same.
+   */
+  setup?: ExerciseSetup;
 };
 
 /**
@@ -192,7 +217,7 @@ export type DeviceWorkoutSession = {
 const isWeightUnit = (value: unknown): value is DisplayWeightUnit => value === "lb" || value === "kg";
 
 /** The set fields this code reads and validates; `normalizeSet` keeps every other field as stored. */
-const knownSetFields: ReadonlySet<string> = new Set(["weight", "reps", "unit", "height", "completed", "skipped", "id", "type", "stages", "effort", "side", "legSide", "holdSeconds", "warmup"]);
+const knownSetFields: ReadonlySet<string> = new Set(["weight", "reps", "unit", "height", "completed", "skipped", "id", "type", "stages", "effort", "side", "legSide", "holdSeconds", "warmup", "headDirection", "leftLoad", "rightLoad"]);
 
 /**
  * A set type a later release added: a name other than "standard" and "drop". Every reader here
@@ -217,14 +242,16 @@ export function unknownSetFields(set: DeviceSetLog): Record<string, unknown> {
  * are stages: anything else stored there is dropped rather than read as load. The atlas's set
  * fields are kept the same way: a side (the arm's in `side`, the leg's in `legSide`) only when it
  * is one of the three, hold seconds only when they are a whole number, and a warm-up mark only
- * when it is `true`.
+ * when it is `true`. A head direction is kept only when it is left or right and the set's exercise
+ * is done to a side (`directed`): a flexion row never holds one, whatever a payload says. Per-arm
+ * loads only when each is a number.
  *
  * What this code does not understand is kept exactly as stored (`unknownSetFields`), and so is a
  * drop stage's field it does not know. Every save rewrites the whole history through here, so a
  * field a later release adds to a set survives a save by this one; before 20 Oct such fields
  * were dropped on the next save.
  */
-function normalizeSet(set: DeviceSetLog): DeviceSetLog {
+function normalizeSet(set: DeviceSetLog, directed = false): DeviceSetLog {
   const normalized: DeviceSetLog = { weight: String(set.weight || ""), reps: String(set.reps || ""), height: String(set.height || ""), completed: Boolean(set.completed), skipped: Boolean(set.skipped), ...unknownSetFields(set) };
   if (isWeightUnit(set.unit)) normalized.unit = set.unit;
   if (typeof set.id === "string" && set.id) normalized.id = set.id;
@@ -234,6 +261,11 @@ function normalizeSet(set: DeviceSetLog): DeviceSetLog {
   const seconds = holdSecondsText(set.holdSeconds);
   if (seconds) normalized.holdSeconds = seconds;
   if (set.warmup === true) normalized.warmup = true;
+  if (directed && isHeadDirection(set.headDirection)) normalized.headDirection = set.headDirection;
+  const left = loadText(set.leftLoad);
+  const right = loadText(set.rightLoad);
+  if (left !== null) normalized.leftLoad = left;
+  if (right !== null) normalized.rightLoad = right;
   if (set.type === "drop") {
     normalized.type = "drop";
     normalized.stages = (Array.isArray(set.stages) ? set.stages : [])
@@ -258,13 +290,26 @@ function holdSecondsText(value: unknown): string | null {
   return /^\d{1,5}$/.test(text) ? String(Number(text)) : null;
 }
 
-/** An exercise's own fields as stored: straps only when it is "yes" or "no". */
-function normalizeExercise<T extends object>(exercise: T): T {
-  const straps = (exercise as { straps?: unknown }).straps;
-  if (straps === undefined || isStrapsUsed(straps)) return exercise;
-  const { straps: _dropped, ...rest } = exercise as T & { straps?: unknown };
-  return rest as T;
+/** A per-arm load as stored: a number typed as text ("40", "42.5"), or empty while not typed yet; anything else is dropped. */
+function loadText(value: unknown): string | null {
+  const text = typeof value === "number" && Number.isFinite(value) && value >= 0 ? String(value) : typeof value === "string" ? value.trim() : null;
+  return text !== null && /^(\d+(\.\d*)?)?$/.test(text) ? text : null;
 }
+
+/**
+ * An exercise's own fields as stored: straps only when it is "yes" or "no", and a setup only as
+ * text values (`normalizeSetup`), dropped when nothing is left of it.
+ */
+function normalizeExercise<T extends object>(exercise: T): T {
+  const { straps, setup } = exercise as { straps?: unknown; setup?: unknown };
+  if ((straps === undefined || isStrapsUsed(straps)) && setup === undefined) return exercise;
+  const { straps: _straps, setup: _setup, ...rest } = exercise as T & { straps?: unknown; setup?: unknown };
+  const kept = normalizeSetup(setup);
+  return { ...rest, ...(isStrapsUsed(straps) ? { straps } : {}), ...(kept ? { setup: kept } : {}) } as T;
+}
+
+/** Whether the sets of a stored exercise each record a head direction: read from its catalog id, never guessed from a name. */
+const isDirected = (exercise: { catalogId?: unknown }) => typeof exercise.catalogId === "number" && headDirectionActionOf(exercise.catalogId) !== null;
 
 /**
  * A hold: a set whose dose is seconds, not reps. Readers of reps, load and volume use this to
@@ -342,7 +387,7 @@ export function loadDeviceWorkoutSessions(owner: string | null = deviceStorageOw
       ...session,
       exercises: Array.isArray(session.exercises) ? session.exercises.filter(isRecord).map((exercise) => ({
         ...normalizeExercise(exercise),
-        sets: Array.isArray(exercise.sets) ? exercise.sets.filter(isRecord).map((set) => normalizeSet(set as DeviceSetLog)) : [],
+        sets: Array.isArray(exercise.sets) ? exercise.sets.filter(isRecord).map((set) => normalizeSet(set as DeviceSetLog, isDirected(exercise))) : [],
       })) : [],
       weightUnit: isWeightUnit(session.weightUnit) ? session.weightUnit : undefined,
     })) as DeviceWorkoutSession[] : [];
@@ -361,7 +406,7 @@ export function loadDeviceWorkoutSessions(owner: string | null = deviceStorageOw
  */
 export function saveDeviceWorkoutSessions(sessions: DeviceWorkoutSession[], owner: string | null = deviceStorageOwner()): boolean {
   if (typeof window === "undefined") return false;
-  const normalized = sessions.map((session) => ({ ...session, exercises: session.exercises.map((exercise) => ({ ...normalizeExercise(exercise), sets: exercise.sets.map(normalizeSet) })) }));
+  const normalized = sessions.map((session) => ({ ...session, exercises: session.exercises.map((exercise) => ({ ...normalizeExercise(exercise), sets: exercise.sets.map((set) => normalizeSet(set, isDirected(exercise))) })) }));
   // An owner captured when a screen mounted is written to, never whoever is signed in by the
   // time a late write lands.
   if (!writeOwnedList(deviceWorkoutHistoryKey, normalized, owner)) return false;
@@ -407,7 +452,7 @@ export function removeDeviceWorkoutSession(sessions: DeviceWorkoutSession[], ses
 
 /** A set the athlete typed into but never completed. Never an observation. */
 export function isDraftSet(set: DeviceSetLog): boolean {
-  return !set.completed && !set.skipped && Boolean(set.weight.trim() || set.reps.trim() || (set.height || "").trim() || (set.holdSeconds || "").trim());
+  return !set.completed && !set.skipped && Boolean(set.weight.trim() || set.reps.trim() || (set.height || "").trim() || (set.holdSeconds || "").trim() || (set.leftLoad || "").trim() || (set.rightLoad || "").trim());
 }
 
 /**
@@ -542,11 +587,17 @@ export function lastCompletedSetFor(target: string | { exerciseName: string; cat
   for (const session of finished) {
     const exercise = session.exercises.find(sameExercise);
     // A hold has seconds where other sets have reps, with or without a load (a bodyweight hang).
-    const last = exercise?.sets.filter((set) => set.completed && (((set.weight.trim() || (set.height || "").trim()) && set.reps.trim()) || isHoldSet(set))).pop();
+    // A set with its arms loaded differently has a load on each arm and none in `weight`.
+    const last = exercise?.sets.filter((set) => set.completed && (((set.weight.trim() || (set.height || "").trim() || hasArmLoads(set)) && set.reps.trim()) || isHoldSet(set))).pop();
     // The unit travels with the set, so whoever shows it can convert rather than guess.
     if (last) return { ...last, unit: setWeightUnit(last, session, fallbackUnit) };
   }
   return null;
+}
+
+/** A set whose arms were loaded differently: it holds a load per arm (either may still be empty while being typed). */
+export function hasArmLoads(set: Pick<DeviceSetLog, "leftLoad" | "rightLoad">): boolean {
+  return set.leftLoad !== undefined || set.rightLoad !== undefined;
 }
 
 /** A weight typed in one unit, written as it would be typed in another: exact conversion, rounded to 0.01 only for the box. */
@@ -572,20 +623,31 @@ export function carriedEntryFor(
   setIndex: number,
   history: DeviceWorkoutSession[],
   entryUnit: DisplayWeightUnit = "lb",
-): { weight: string; reps: string; height: string; /** A hold's seconds, present only when the set carried from was a hold. */ seconds?: string; source: "session" | "history"; logged?: { weight: string; unit: DisplayWeightUnit } } | null {
+): {
+  weight: string; reps: string; height: string;
+  /** A hold's seconds, present only when the set carried from was a hold. */
+  seconds?: string;
+  /** Each arm's load, present only when the set carried from had its arms loaded differently; in this workout's unit. */
+  leftLoad?: string; rightLoad?: string;
+  /** The head direction of the last set logged in this workout: remembered for the next set, never carried from another workout. */
+  headDirection?: HeadDirection;
+  source: "session" | "history"; logged?: { weight: string; unit: DisplayWeightUnit };
+} | null {
+  // Each arm's load, converted as the weight is (kg and lb only).
+  const armLoads = (set: DeviceSetLog, unit: DisplayWeightUnit) => (hasArmLoads(set) ? { leftLoad: weightInUnit(set.leftLoad ?? "", unit, entryUnit), rightLoad: weightInUnit(set.rightLoad ?? "", unit, entryUnit) } : {});
   for (let index = setIndex - 1; index >= 0; index--) {
     const set = exercise.sets[index];
     if (set.completed && (set.weight.trim() || set.reps.trim() || (set.height || "").trim() || isHoldSet(set))) {
       const unit = set.unit ?? entryUnit;
       // Offered in this workout's unit; what was actually typed travels with it, so the line can say so (H08).
-      return { weight: weightInUnit(set.weight, unit, entryUnit), reps: set.reps, height: set.height || "", ...(isHoldSet(set) ? { seconds: set.holdSeconds } : {}), source: "session", ...(unit !== entryUnit && set.weight.trim() ? { logged: { weight: set.weight, unit } } : {}) };
+      return { weight: weightInUnit(set.weight, unit, entryUnit), reps: set.reps, height: set.height || "", ...(isHoldSet(set) ? { seconds: set.holdSeconds } : {}), ...armLoads(set, unit), ...(set.headDirection ? { headDirection: set.headDirection } : {}), source: "session", ...(unit !== entryUnit && set.weight.trim() ? { logged: { weight: set.weight, unit } } : {}) };
     }
   }
   // A set from a session logged in the other unit is offered in this session's unit.
   const previous = lastCompletedSetFor(exercise, history, entryUnit);
   if (!previous) return null;
   const unit = previous.unit ?? entryUnit;
-  return { weight: weightInUnit(previous.weight, unit, entryUnit), reps: previous.reps, height: previous.height || "", ...(isHoldSet(previous) ? { seconds: previous.holdSeconds } : {}), source: "history", ...(unit !== entryUnit && previous.weight.trim() ? { logged: { weight: previous.weight, unit } } : {}) };
+  return { weight: weightInUnit(previous.weight, unit, entryUnit), reps: previous.reps, height: previous.height || "", ...(isHoldSet(previous) ? { seconds: previous.holdSeconds } : {}), ...armLoads(previous, unit), source: "history", ...(unit !== entryUnit && previous.weight.trim() ? { logged: { weight: previous.weight, unit } } : {}) };
 }
 
 

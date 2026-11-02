@@ -10,8 +10,10 @@ import { UPPER_ARM_MAPPING_VERSION, upperArmMuscleIds as m } from "../ids";
  * whose catalog movement names a push or press, or scapular protraction. That is 77 rows, exactly
  * the variants lane's presses and pushes (docs/specialization-atlas/regions/variants.md §1); none has
  * a forearm variant, so every variant is the library's wave A record, used as it is. 72 are mapped
- * (216 rows) and five are listed unmapped with their reasons. The seven medicine-ball throws and
- * slams in scope are at the end of the file, kept apart and not wired (see there).
+ * (216 rows) and five are listed unmapped with their reasons. The seven presses the catalog added
+ * on 2 Nov 2026 (437-443) came after this version was published: they are in the family by the same
+ * rule, listed unmapped, and have no library record yet. The seven medicine-ball throws and slams
+ * in scope are at the end of the file, kept apart and not wired (see there).
  * client/src/lib/specialization/upper_armMappings.pressesPushes.test.ts derives both sets from the
  * catalog and holds every rule below.
  *
@@ -255,10 +257,20 @@ export const pressesPushesMappings: VariantMapping[] = [
 ];
 
 /**
+ * The presses added to the catalog on 2 Nov 2026 (437-443, exerciseCatalogZercherNeckBench.ts), after
+ * this version was published and frozen. They tag the triceps as secondary. A reviewed mapping, and
+ * the library record it rests on, come with a later upper-arm mapping version (a new record is a
+ * seed change, applied to production); until then they are listed and the page does not count them.
+ */
+const ADDED_2_NOV = "A press: the chest leads and the triceps help straighten the elbows. Added to the catalog on 2 Nov 2026; its reviewed upper-arm mapping comes with a later mapping version, and until then this page leaves its sets out.";
+
+/**
  * Rows of the family in the upper arm's scope left unmapped on purpose, each with its reason (all
- * are secondary-tagged; no primary-tagged row of the family is here).
+ * are secondary-tagged; no primary-tagged row of the family is here). The first seven are the rows
+ * added on 2 Nov 2026; the rest were decided in this version.
  */
 export const pressesPushesUnmapped: UnmappedTaggedExercise[] = [
+  ...[437, 438, 439, 440, 441, 442, 443].map((catalogId) => ({ catalogId, reason: ADDED_2_NOV })),
   { catalogId: 25, reason: "Plate squeeze press: standing, the plates are pressed straight forward while their weight pulls down, across that line, so the elbows straighten against little load along it; what the elbow muscles do then depends on how the arms are held, which is not defined, and the squeeze is the chest's work." },
   { catalogId: 249, reason: "Pallof press: the cable pulls sideways, across the line of the press, and the trunk resists turning; the elbows straighten against little load along the press, and what they do against the sideways pull depends on how the arms are held, which is not defined. The work is the trunk's." },
   { catalogId: 267, reason: "Landmine anti-rotation press: no set-up is defined beyond the name, and an anti-rotation press is usually pressed out and held against a pull to turn, as the Pallof press is, so the elbows straighten against little load along the press. The work is the trunk's." },

@@ -2,9 +2,9 @@
 // run npx tsx scripts/specialization/emit-logging-table.ts
 
 /**
- * The catalog exercises the atlas measures in seconds held, by catalog id: the one fact about an
- * exercise that the app's first screens need from the atlas (07-logger.md, "One reading of a
- * hold's prescription").
+ * The catalog exercises measured in seconds held, by catalog id: the one fact about an exercise
+ * that the app's first screens need from the atlas (07-logger.md, "One reading of a hold's
+ * prescription") or from the catalog's execution records.
  *
  * Home's Plan editor, its picker, print and share, and the workout history load with the first
  * screen, so they must not import the atlas's logging table (every mapped exercise's row,
@@ -12,15 +12,21 @@
  * and sources too). This list is that measure and nothing else, a few bytes in the main bundle.
  * It imports nothing.
  *
- * It is written with the logging table from the same rows: exactly the exercises a production
- * region maps with a variant measured in seconds (10-multi-region.md §3, "Holds"). The emitter's
- * `--check` and client/src/lib/specialization/loggingTable.test.ts fail when it drifts.
+ * It is written with the logging table, from two sources: the exercises a production region maps
+ * with a variant measured in seconds (10-multi-region.md §3, "Holds"), and the catalog rows whose
+ * own execution record (client/src/lib/exerciseExecution.ts) is measured in seconds, which no
+ * region needs to map (the Zercher, neck and bench handoff, §3.3). One entry per id; the emitter
+ * refuses a row the two sources measure differently. Its `--check` and
+ * client/src/lib/specialization/loggingTable.test.ts fail when the list drifts.
  *
  * 142 Plate Pinch, 143 Dead Hang, 144 Towel Dead Hang, 145 Farmer Hold, 299 Farmer’s Walk,
  * 300 Zercher Carry, 400 Battle Rope Alternating Waves, 403 Gripper Hold, 409 Suitcase Carry,
- * 419 Barbell Hold.
+ * 419 Barbell Hold, 424 Zercher Hold, 433 Isometric Neck Flexion — Manual Resistance,
+ * 434 Isometric Neck Extension — Manual Resistance,
+ * 435 Isometric Neck Lateral Flexion — Manual Resistance,
+ * 436 Isometric Neck Rotation — Manual Resistance.
  */
-export const holdCatalogIds: ReadonlySet<number> = new Set([142, 143, 144, 145, 299, 300, 400, 403, 409, 419]);
+export const holdCatalogIds: ReadonlySet<number> = new Set([142, 143, 144, 145, 299, 300, 400, 403, 409, 419, 424, 433, 434, 435, 436]);
 
 /** What a catalog exercise's sets are measured in: seconds for a hold, else reps (also for no id). */
 export function catalogMeasureOf(catalogExerciseId: number | null | undefined): "reps" | "seconds" {

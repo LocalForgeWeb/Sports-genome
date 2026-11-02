@@ -16,7 +16,9 @@ import { action, leverSupination, mapping, type Spec, zercherCarry, zercherSquat
  * slam or an alternating arm drive (31 rows); the untagged rows with a library variant that load
  * the upper arm and are not pulls (front raises, the Zercher squat, rollouts, the sit-up throw, the
  * kettlebell snatch); the Zercher carry, whose biceps and brachialis the forearm's version credited;
- * and a few untagged exercises with no variant that a reader might expect to count here.
+ * a few untagged exercises with no variant that a reader might expect to count here; and the four
+ * Zercher rows the catalog added on 2 Nov 2026 (421-424), after this version was published, listed
+ * with no library record yet.
  *
  * Each mapping names ONE muscle, ONE joint action, a relationship and a mode, as the forearm's do
  * (05-mappings.md): `direct` (the exercise is built on this muscle's action), `contributing` (it
@@ -246,6 +248,15 @@ const NOT_COUNTED = "The app does not count this exercise for the upper arm yet.
 const FRONT_RAISE = "The biceps' help in raising the arm forward is weak and disputed; one study found none with the elbow kept straight.";
 const GOBLET = "is held at the chest with the forearms nearly upright, so the elbow flexors steady it rather than hold it out; holding by the elbow flexors is credited only where the load sits on the elbows, as in the Zercher lifts.";
 const SLED_PUSH = `The hands push on the sled's posts while the legs drive; the elbows brace, and how much depends on how the arms are set. ${NOT_COUNTED}`;
+/**
+ * The Zercher rows added to the catalog on 2 Nov 2026 (exerciseCatalogZercherNeckBench.ts), after
+ * upper_arm_mappings_v1 was published and frozen. They tag the biceps and brachialis as secondary
+ * for the cradle the elbows hold. A reviewed mapping, and the library record it rests on, come with
+ * a later upper-arm mapping version (a new record is a seed change, applied to production); until
+ * then they are listed here and the page does not count them. None tags an upper-arm key as primary.
+ */
+const ADDED_2_NOV = "Added to the catalog on 2 Nov 2026. Its reviewed upper-arm mapping comes with a later mapping version; until then this page leaves its sets out.";
+const CRADLE = "The bar rests in the crooks of the bent elbows, so the elbow flexors hold it still while";
 
 /**
  * Exercises this family leaves without an upper-arm mapping, each with its reason, shown to the
@@ -276,4 +287,10 @@ export const extensionsOtherUnmapped: UnmappedTaggedExercise[] = [
   { catalogId: 250, reason: `A high-to-low chop, as shown: straight arms pull the handle down across the body. The triceps' long head helps draw the arms down from overhead, but the trunk's turn moves the load, so the load on it is not defined. ${NOT_COUNTED}` },
   { catalogId: 296, reason: SLED_PUSH },
   { catalogId: 298, reason: SLED_PUSH },
+
+  // Tagged (secondary), added to the catalog after this version: no record yet.
+  { catalogId: 421, reason: `${CRADLE} the hips and legs lift it from the floor. ${ADDED_2_NOV}` },
+  { catalogId: 422, reason: `${CRADLE} the hips and legs lift it from blocks or pins. ${ADDED_2_NOV}` },
+  { catalogId: 423, reason: `${CRADLE} the hips hinge and stand. ${ADDED_2_NOV}` },
+  { catalogId: 424, reason: `${CRADLE} the trunk holds the body upright for time. ${ADDED_2_NOV}` },
 ];

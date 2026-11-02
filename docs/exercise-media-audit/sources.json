@@ -206,7 +206,8 @@
   },
   "Leverage_Incline_Chest_Press": {
    "exerciseIds": [
-    12
+    12,
+    437
    ],
    "licence": "Unlicense (public domain dedication)",
    "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leverage_Incline_Chest_Press/0.jpg",
@@ -4532,6 +4533,86 @@
     176
    ],
    "thumbnailBytes": 8774
+  },
+  "Seated_Head_Harness_Neck_Resistance": {
+   "exerciseIds": [
+    428
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Head_Harness_Neck_Resistance/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e0ee9ed69076b50c96b94133faa4854f04b747cd018579264f6dfd0a521741e4",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Seated_Head_Harness_Neck_Resistance.jpg",
+   "thumbnailSha256": "268a3d3fda1dd5f52d63f385e83191678331025042e8c005427b3adac335799d",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9285
+  },
+  "Leverage_Decline_Chest_Press": {
+   "exerciseIds": [
+    439
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leverage_Decline_Chest_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "aa9119b067b55cadc4b3e5b502e296eaa3de3abbb05a9be926b5102897c51156",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Leverage_Decline_Chest_Press.jpg",
+   "thumbnailSha256": "255a39bd750705b41d74506286016f14c3e48a72b075d90e35bda4f2cf7e0cfd",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9593
+  },
+  "Smith_Machine_Decline_Press": {
+   "exerciseIds": [
+    440
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Smith_Machine_Decline_Press/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "ac891759da8010051c343a371ab60d5575815cccf8dbfa77319942ec9c454a87",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Smith_Machine_Decline_Press.jpg",
+   "thumbnailSha256": "ba5878d866af631b337b3e7dd88cad0d800542d8af5125d69e151b960b0a8a75",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9789
+  },
+  "Floor_Press": {
+   "exerciseIds": [
+    441
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Floor_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "9156e46da48d6ecd2e51b16bd4cdfb52bc84e0b52943d84e8e422fa3ddd8b589",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Floor_Press.jpg",
+   "thumbnailSha256": "680a5dded4f7077d0d52f52ca006291640a54acca61d176f7aab076413c69626",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9591
   },
   "Ankle_Circles": {
    "exerciseIds": [],

@@ -4,8 +4,8 @@ import { parsePrescription } from "@/lib/setPrescription";
 
 export type PrintableWorkoutRow = { order: number; name: string; prescription: string; rpe: string; rest: string; notes: string; muscleSummary: string; trackingLines: string[] };
 
-/** Whether one set's target is a duration rather than a count of repetitions. */
-const isTimedTarget = (target: string) => /\b(?:s|sec|secs|second|seconds|min|mins|minute|minutes)\b/i.test(target);
+/** Whether one set's target is a duration rather than a count of repetitions ("your time" on a neck hold the athlete sets). */
+const isTimedTarget = (target: string) => /\b(?:s|sec|secs|second|seconds|min|mins|minute|minutes|time)\b/i.test(target);
 
 /** One line to fill in at the gym: which set or round, what it asks for when the sets differ, and whether it is timed. */
 export type TrackingSet = { label: string; target: string | null; timed: boolean };

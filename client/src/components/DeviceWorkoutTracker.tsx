@@ -7,11 +7,16 @@ import { WarmupPanel } from "@/components/WarmupPanel";
 import { ExerciseMedia } from "@/components/ExerciseMedia";
 import { exercisePhotoSet } from "@/lib/exercisePhotos";
 import {
-  activePosition, carriedEntryFor, countCompletedSets, countPlannedSets, finalizeSession, freshId, newSetId,
+  activePosition, carriedEntryFor, countCompletedSets, countPlannedSets, finalizeSession, freshId, hasArmLoads, newSetId,
   isDeviceWorkoutHistoryStorageKey, isCompletedSet, isCompletedWorkout, isDraftSet, isDropInProgress, isExerciseSkipped, lastCompletedSetFor, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, skipExercise,
   unknownSetFields, unskipExercise, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession, type StrapsUsed,
 } from "@/lib/deviceWorkoutLog";
 import { deviceStorageOwner } from "@/lib/deviceRecordStore";
+import {
+  declaresLoadBasis, headDirectionActionOf, headDirectionPrompt, headDirectionWords, isLoadUnmeasured, isPlatesPerArm, MANUAL_RESISTANCE_LINE, normalizeSetup,
+  setupFieldSpecs, setupNumberText, smithLoadBasisOf, type ExerciseSetup, type HeadDirection,
+} from "@/lib/exerciseLogging";
+import type { SetupField } from "@/lib/exerciseExecution";
 import { loggingPolicyFor } from "@shared/specialization/loggingPolicy";
 import type { Limb } from "@shared/specialization/types";
 import { noLoggerGates, type LoggerGates } from "@/lib/specialization/loggerGates";
@@ -21,6 +26,7 @@ import { loadConventionFor } from "@shared/loadConventions";
 import { SetEffortChoice } from "@/components/SetEffortChoice";
 import { ExerciseSwapSheet, type ExerciseSwapChoice, type SwapPlanOption } from "@/components/ExerciseSwapSheet";
 import { ExerciseHistoryList } from "@/components/ExerciseHistoryList";
+import { ExerciseSetupDisclosure } from "@/components/ExerciseSetupDisclosure";
 import { exerciseHistoryCount, legSideLabel, sideLabel } from "@/lib/sessionRecap";
 import { WorkoutSessionDetail } from "@/components/WorkoutSessionDetail";
 import { startOfTrainingWeek } from "@/lib/trainingWeekSummary";
@@ -33,6 +39,7 @@ import { toast } from "sonner";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 import { decimalEntryText } from "@/lib/numericEntry";
 import "../set-side.css";
+import "../exercise-setup.css";
 
 /**
  * The live execution surface, governed by four adopted philosophy contracts:
@@ -106,6 +113,9 @@ function sideWordsOf(set: DeviceSetLog, limb: Limb): string | null {
   return limb === "arm" ? sideLabel(set.side) : legSideLabel(set.legSide);
 }
 
+/** The two directions a set of a lateral flexion or rotation exercise can be done to, in reading order. */
+const HEAD_DIRECTIONS: readonly HeadDirection[] = ["left", "right"];
+
 function makeSession(workout: Exercise[], plannedFor: (exercise: Exercise, index: number) => PlannedEntry, dayLabel: string, restSeconds: number, weightUnit: DisplayWeightUnit): DeviceWorkoutSession {
   return {
     id: `device-${Date.now()}`,
@@ -143,12 +153,13 @@ const holdSecondsReady = (value: string | undefined) => /^\d+$/.test((value ?? "
  * typed. A controlled type="number" reports value="" for anything not yet a
  * valid number — "2." while reaching for 2.5 — which wipes the keystroke on the
  * next render. Filtering the characters ourselves keeps the decimal keypad and
- * the half-typed value.
+ * the half-typed value. A set card's boxes are the load, the height and the dose,
+ * and, on a plate-loaded press with its arms loaded differently, each arm's plates.
  */
-type EntryField = SetEntryMeasure | "reps";
+type EntryField = SetEntryMeasure | "reps" | "leftLoad" | "rightLoad";
 
 /** Where a box's value is stored on the set: the Seconds box writes `holdSeconds`. */
-const setKeyOf = (field: EntryField): "weight" | "height" | "reps" | "holdSeconds" => (field === "seconds" ? "holdSeconds" : field);
+const setKeyOf = (field: EntryField): "weight" | "height" | "reps" | "holdSeconds" | "leftLoad" | "rightLoad" => (field === "seconds" ? "holdSeconds" : field);
 
 function sanitiseEntry(field: EntryField, value: string) {
   // Reps and hold seconds are whole numbers; a load may be a decimal.
@@ -302,13 +313,15 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    * reps, which arm, straps. An exercise the atlas does not map asks nothing new.
    */
   const policyFor = (exercise: Pick<DeviceWorkoutExercise, "catalogId" | "exerciseName">) => loggingPolicyFor(exercise.catalogId ?? catalogFor(exercise)?.id);
+  /** The catalog id a session exercise is read by: the one it kept, else its name's. */
+  const catalogIdIn = (exercise: Pick<DeviceWorkoutExercise, "catalogId" | "exerciseName">) => exercise.catalogId ?? catalogFor(exercise)?.id;
   /**
    * The prescription as this release reads it. A workout started before the release keeps the
    * goal's rep default it was built with ("3 × 6–10") on a hold; read through the same
    * `prescriptionOf` a new session is built with, that is "3 × 30 sec", and athlete text stays as
    * typed. Nothing stored is rewritten.
    */
-  const shownPrescription = (exercise: DeviceWorkoutExercise) => (exercise.plannedPrescription ? prescriptionOf(exercise.plannedPrescription, 0, goal, policyFor(exercise).measure) : exercise.plannedPrescription);
+  const shownPrescription = (exercise: DeviceWorkoutExercise) => (exercise.plannedPrescription ? prescriptionOf(exercise.plannedPrescription, 0, goal, policyFor(exercise).measure, catalogIdIn(exercise)) : exercise.plannedPrescription);
   /**
    * A set typed in but not logged. On an exercise measured in seconds there is no Reps box, so
    * reps typed before it was (a workout left open across the release) are not a draft the
@@ -324,7 +337,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    */
   const plannedFor = (exercise: Exercise, index: number): PlannedEntry => {
     const policy = policyFor({ catalogId: catalogIdOf(exercise), exerciseName: exercise.name });
-    return { prescription: prescriptionOf(prescriptions[exercise.id], index, goal, policy.measure) };
+    return { prescription: prescriptionOf(prescriptions[exercise.id], index, goal, policy.measure, catalogIdOf(exercise)) };
   };
   /** The limb a session exercise's sides are recorded on: the arm when it records none. */
   const limbOf = (exercise: Pick<DeviceWorkoutExercise, "catalogId" | "exerciseName">): Limb => policyFor(exercise).sideLimb ?? "arm";
@@ -360,8 +373,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const policy = policyFor({ catalogId: target.id, exerciseName: target.name });
     const slot = planSlotOf(from);
     const saved = slot >= 0 ? prescriptions[workout[slot].id] : undefined;
-    const fromPlan = slot >= 0 && prescriptionOf(saved, slot, goal, policyFor(from).measure) === from.plannedPrescription;
-    return { prescription: fromPlan ? prescriptionOf(saved, slot, goal, policy.measure) : prescriptionOf(from.plannedPrescription, 0, goal, policy.measure) };
+    const fromPlan = slot >= 0 && prescriptionOf(saved, slot, goal, policyFor(from).measure, catalogIdIn(from)) === from.plannedPrescription;
+    return { prescription: fromPlan ? prescriptionOf(saved, slot, goal, policy.measure, target.id) : prescriptionOf(from.plannedPrescription, 0, goal, policy.measure, target.id) };
   };
   const completed = useMemo(() => (activeSession ? countCompletedSets(activeSession) : 0), [activeSession]);
   const planned = useMemo(() => (activeSession ? countPlannedSets(activeSession) : 0), [activeSession]);
@@ -394,6 +407,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     height: shownEntry("height"),
     reps: shownEntry("reps"),
     seconds: shownEntry("seconds"),
+    leftLoad: shownEntry("leftLoad"),
+    rightLoad: shownEntry("rightLoad"),
   };
   /** True while a field shows the carried value rather than something typed or stored for this set. */
   const isCarried = (field: EntryField) => {
@@ -407,7 +422,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    * The boxes on screen come from the catalog entry behind the session, so each
    * one names exactly what it records.
    */
-  const entryFieldsFor = (exercise: DeviceWorkoutExercise) => setEntryFieldsFor(catalogFor(exercise), sessionUnit, policyFor(exercise).measure);
+  const entryFieldsFor = (exercise: DeviceWorkoutExercise) => setEntryFieldsFor(catalogFor(exercise), sessionUnit, policyFor(exercise).measure, exercise.setup);
   const activeEntryFields = activeSession && position
     ? entryFieldsFor(activeSession.exercises[position.exerciseIndex])
     : setEntryFieldsFor(undefined, sessionUnit);
@@ -415,6 +430,20 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   const activeHold = isHoldEntry(activeEntryFields);
   /** The boxes before the dose box: the load and, on a box jump, the height. */
   const activeLoadFields = activeEntryFields.filter((field) => field.measure !== "seconds");
+  const activeEntryExercise = activeSession && position ? activeSession.exercises[position.exerciseIndex] : null;
+  const activeEntrySet = activeEntryExercise && position ? activeEntryExercise.sets[position.setIndex] : null;
+  /**
+   * The way the head goes on this set, on a lateral flexion or rotation exercise (handoff §3.2):
+   * the one chosen on this set, else the one the last set of this exercise in this workout was
+   * logged with, shown chosen, so the choice carries to the next set and is always in view on the
+   * current one. None before the first set: the athlete picks Left or Right, and the set logs only
+   * then. Never an arm, never both: one set is one direction.
+   */
+  const activeDirected = Boolean(activeEntryExercise && headDirectionActionOf(catalogIdIn(activeEntryExercise)));
+  const shownDirection: HeadDirection | null = !activeDirected || !activeEntrySet ? null : activeEntrySet.headDirection ?? (carried?.source === "session" ? carried.headDirection ?? null : null);
+  const directionMissing = activeDirected && !shownDirection;
+  /** A plate-loaded press with each arm's plates typed apart ("Arms loaded differently"). */
+  const activeArmLoads = Boolean(activeEntrySet && hasArmLoads(activeEntrySet));
 
   const editEntry = (field: EntryField, value: string) => {
     if (!activeSession || !position) return;
@@ -514,8 +543,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
 
   const updateSet = (exerciseId: string, setIndex: number, patch: Partial<DeviceWorkoutSession["exercises"][number]["sets"][number]>) => {
     commit((session) => {
-      // Writing a weight writes the unit it was typed in with it.
-      const stamp = "weight" in patch ? { unit: session.weightUnit ?? weightUnit } : {};
+      // Writing a weight, or an arm's load, writes the unit it was typed in with it.
+      const stamp = "weight" in patch || "leftLoad" in patch || "rightLoad" in patch ? { unit: session.weightUnit ?? weightUnit } : {};
       return {
         ...session,
         exercises: session.exercises.map((exercise) => exercise.id !== exerciseId
@@ -535,12 +564,20 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     // A hold is its seconds: without whole seconds of at least 1 there is nothing to log yet, and
     // the card says so beside the button (02-design.md §6, "a set completes with seconds").
     if (hold && !holdSecondsReady(shownEntries.seconds)) return;
+    // A set of a lateral flexion or rotation exercise is logged with the way the head went, or not yet.
+    if (directionMissing) return;
+    const direction = shownDirection;
+    const armLoads = activeArmLoads;
     commit((session) => ({
       ...session,
       restEndsAt: new Date(Date.now() + (session.restSeconds || DEFAULT_REST_SECONDS) * 1000).toISOString(),
       exercises: session.exercises.map((item, exerciseIndex) => {
         if (exerciseIndex !== position.exerciseIndex) return item;
-        return { ...item, sets: item.sets.map((set, setIndex) => {
+        // A Smith machine's number is the plates alone unless the athlete said otherwise: said once, explicitly.
+        const setup = declaresLoadBasis(catalogIdIn(item)) && !smithLoadBasisOf(item.setup) ? { ...item.setup, load_convention: "plates_only" } : item.setup;
+        return { ...item, ...(setup ? { setup } : {}), sets: item.sets.map((set, setIndex) => {
+          // The next set starts with its arms apart too, when this one had them apart: the boxes offer this set's plates.
+          if (armLoads && setIndex === position.setIndex + 1 && !set.completed && !set.skipped && !set.weight.trim() && !hasArmLoads(set)) return { ...set, leftLoad: "", rightLoad: "" };
           if (setIndex !== position.setIndex) return set;
           return {
             // What this release does not understand stays as stored (a later release's field).
@@ -548,8 +585,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             // The set keeps the id it was created with.
             ...(set.id ? { id: set.id } : {}),
             // What you see in the box is what gets logged, including a field
-            // the athlete deliberately emptied.
-            weight: shownEntries.weight,
+            // the athlete deliberately emptied. Arms loaded differently keep a load each, and no total.
+            weight: armLoads ? "" : shownEntries.weight,
+            ...(armLoads ? { leftLoad: shownEntries.leftLoad, rightLoad: shownEntries.rightLoad } : {}),
             unit: sessionUnit,
             height: shownEntries.height,
             // A hold is logged in seconds and has no reps box, so it records no reps.
@@ -562,6 +600,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             ...(set.side ? { side: set.side } : {}),
             ...(set.legSide ? { legSide: set.legSide } : {}),
             ...(set.warmup ? { warmup: true } : {}),
+            // The way the head went, shown on the card when the set was logged.
+            ...(direction ? { headDirection: direction } : {}),
           };
         }) };
       }),
@@ -584,6 +624,75 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     }));
   };
 
+  /** The way the head goes on the active set: chosen on the card, kept until another is chosen. */
+  const chooseDirection = (direction: HeadDirection) => {
+    if (!activeSession || !position) return;
+    updateSet(activeSession.exercises[position.exerciseIndex].id, position.setIndex, { headDirection: direction });
+  };
+
+  /** The way the head went on a set in the full workout list: to log it there, or to correct a logged one. */
+  const chooseRowDirection = (exerciseId: string, setIndex: number, direction: HeadDirection) => updateSet(exerciseId, setIndex, { headDirection: direction });
+
+  /**
+   * "Arms loaded differently" on a plate-loaded press: the set takes a load per arm, typed apart and
+   * kept apart. Turned on, both arms start empty, never copied from one number; turned off, the
+   * single per-arm box is back with what was in it.
+   */
+  const setArmLoads = (on: boolean) => {
+    if (!activeSession || !position) return;
+    updateSet(activeSession.exercises[position.exerciseIndex].id, position.setIndex, on ? { leftLoad: "", rightLoad: "" } : { leftLoad: undefined, rightLoad: undefined });
+  };
+
+  /** One setup value of a session exercise, as typed; an emptied one is removed, and so is a setup left empty. */
+  const updateSetup = (exerciseId: string, field: SetupField, raw: string) => {
+    const value = setupFieldSpecs[field].kind === "number" ? setupNumberText(raw) : raw.slice(0, 80);
+    commit((session) => ({
+      ...session,
+      exercises: session.exercises.map((item) => {
+        if (item.id !== exerciseId) return item;
+        const setup: ExerciseSetup = { ...item.setup, [field]: value };
+        if (!value) delete setup[field];
+        if (Object.keys(setup).length) return { ...item, setup };
+        const { setup: _cleared, ...rest } = item;
+        return rest;
+      }),
+    }));
+  };
+
+  /**
+   * The setup this exercise was last done with in a finished workout on this device, when it is
+   * not already this workout's: offered as "Same as last time", reused only when tapped.
+   */
+  const lastSetupFor = (exercise: DeviceWorkoutExercise): ExerciseSetup | null => {
+    const id = catalogIdIn(exercise);
+    if (id === undefined) return null;
+    const finished = history
+      .filter((session) => session.status === "completed" && session.id !== activeSession?.id)
+      .sort((a, b) => String(b.completedAt || b.startedAt).localeCompare(String(a.completedAt || a.startedAt)));
+    for (const session of finished) {
+      const match = session.exercises.find((item) => catalogIdIn(item) === id && item.setup && item.sets.some(isCompletedSet));
+      const last = normalizeSetup(match?.setup);
+      if (last) return JSON.stringify(last) === JSON.stringify(normalizeSetup(exercise.setup)) ? null : last;
+    }
+    return null;
+  };
+
+  /** "Same as last time": the last workout's setup becomes this exercise's, every field of it. */
+  const repeatSetup = (exerciseId: string, setup: ExerciseSetup) => {
+    commit((session) => ({ ...session, exercises: session.exercises.map((item) => (item.id === exerciseId ? { ...item, setup: { ...setup } } : item)) }));
+    toast("Setup copied from last time", { id: `setup-repeat-${exerciseId}`, description: "Change any value in Setup if this workout's differs." });
+  };
+
+  /**
+   * One logged set as the records show it, with what these rows add: the head's direction first
+   * ("Right · 20 s"), and the plates on one arm said as such ("40 kg per arm × 8").
+   */
+  const setLineOf = (exercise: Pick<DeviceWorkoutExercise, "catalogId" | "exerciseName">, set: DeviceSetLog, unit: DisplayWeightUnit) => {
+    const id = catalogIdIn(exercise);
+    const line = performedSetLine(set, unit, loadConventionFor(id), { perArm: isPlatesPerArm(id) });
+    return headDirectionActionOf(id) && set.headDirection ? `${headDirectionWords[set.headDirection]} · ${line}` : line;
+  };
+
   /** The keyboard's return key does what its label says: Next moves to the following box, Done on the last box logs the set. */
   const onEntryKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
     if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
@@ -594,8 +703,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     if (event.repeat) return; // a held key must not log several sets
     // In a drop set, Done adds the stage and goes back to the first box for the next one.
     if (activeSession && position && activeSession.exercises[position.exerciseIndex].sets[position.setIndex].type === "drop") { addDropStage(false); inputs[0]?.focus(); return; }
-    // A hold with no seconds yet stays open, keyboard up, on the box the card asks to fill.
+    // A hold with no seconds yet stays open, keyboard up, on the box the card asks to fill; so does a set with no direction yet.
     if (activeHold && !holdSecondsReady(shownEntries.seconds)) return;
+    if (directionMissing) return;
     event.currentTarget.blur(); // close the keyboard so the rest row is visible
     completeActiveSet();
   };
@@ -655,7 +765,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   /** The candidate's own last logged set on this device - never the exercise it replaces. */
   const lastLoggedText = (exercise: Exercise) => {
     const last = lastCompletedSetFor({ exerciseName: exercise.name, catalogId: exercise.id }, history, sessionUnit);
-    return last ? performedSetLine(last, last.unit ?? sessionUnit, loadConventionFor(exercise.id)) : null;
+    return last ? setLineOf({ exerciseName: exercise.name, catalogId: exercise.id }, last, last.unit ?? sessionUnit) : null;
   };
 
   /** Whether the plan's open day can take the same swap, and exactly which slot it changes. */
@@ -668,7 +778,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     if (workout.some((item) => catalogIdOf(item) === target.id)) return { available: false, reason: `${target.name} is already in this day of your plan.` };
     // What the slot's sets and reps will read as for the exercise coming in: a hold's pinned rep
     // default is a hold default only while a hold holds the slot, and back to reps for a rep exercise.
-    const prescription = prescriptionOf(prescriptions[workout[slot].id], slot, goal, policyFor({ catalogId: target.id, exerciseName: target.name }).measure);
+    const prescription = prescriptionOf(prescriptions[workout[slot].id], slot, goal, policyFor({ catalogId: target.id, exerciseName: target.name }).measure, target.id);
     return { available: true, slot: `${dayNameOf(dayLabel)}, exercise ${slot + 1} of ${workout.length}: ${from.exerciseName} becomes ${target.name}. Its sets and reps (${prescription}) stay.` };
   };
 
@@ -798,12 +908,13 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     setDropProblem(null);
     setDropNote(null);
     // A drop set starts from its own stages, never from those of a set type a later release added.
-    updateSet(exercise.id, position.setIndex, type === "drop" ? { type: "drop", id: set.id ?? freshId("set"), stages: set.type === "drop" ? set.stages ?? [] : [] } : { type: undefined, stages: undefined });
+    // A drop set's stages hold one load each, so a set with its arms apart becomes one per-arm load again.
+    updateSet(exercise.id, position.setIndex, type === "drop" ? { type: "drop", id: set.id ?? freshId("set"), stages: set.type === "drop" ? set.stages ?? [] : [], leftLoad: undefined, rightLoad: undefined } : { type: undefined, stages: undefined });
   };
 
   const forgetTouched = () => setTouchedEntries((current) => {
     const next = { ...current };
-    for (const field of ["weight", "reps", "height", "seconds"] as const) delete next[entryKey(field)];
+    for (const field of ["weight", "reps", "height", "seconds", "leftLoad", "rightLoad"] as const) delete next[entryKey(field)];
     return next;
   });
 
@@ -813,6 +924,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const set = exercise.sets[position.setIndex];
     const stages = set.stages ?? [];
     const setId = set.id ?? freshId("set");
+    // A drop set on a lateral flexion or rotation exercise is one set, done to one side.
+    if (directionMissing) { setDropProblem("Choose Left or Right for this set first."); return; }
+    const direction = shownDirection ? { headDirection: shownDirection } : {};
     const typed = { weight: shownEntries.weight, reps: shownEntries.reps };
     const weightField = activeEntryFields.find((field) => field.measure === "weight");
     let next = stages;
@@ -836,9 +950,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
           ...item,
           sets: item.sets.map((entry, index): DeviceSetLog => {
             if (index !== position.setIndex) return entry;
-            if (!finish) return { ...entry, id: setId, type: "drop", stages: next, weight: "", reps: "", unit: sessionUnit };
+            if (!finish) return { ...entry, ...direction, id: setId, type: "drop", stages: next, weight: "", reps: "", unit: sessionUnit };
             // A side the row already holds is kept with it, as on a standard set.
-            return { ...entry, id: setId, type: "drop", stages: next, weight: next[0].weight, reps: next[0].reps, unit: next[0].unit ?? sessionUnit, height: entry.height || "", completed: true };
+            return { ...entry, ...direction, id: setId, type: "drop", stages: next, weight: next[0].weight, reps: next[0].reps, unit: next[0].unit ?? sessionUnit, height: entry.height || "", completed: true };
           }),
         };
       }),
@@ -914,8 +1028,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    * Un-logging a drop set reopens it with its stages, and empty boxes for another drop. A hold's
    * row logs only with its seconds in: the row says "Add the seconds" until then.
    */
-  const toggleSetLogged = (exerciseId: string, setIndex: number, set: DeviceSetLog, hold = false) => {
+  const toggleSetLogged = (exerciseId: string, setIndex: number, set: DeviceSetLog, hold = false, directed = false) => {
     if (!set.completed && hold && !holdSecondsReady(set.holdSeconds)) return;
+    if (!set.completed && directed && !set.headDirection) return;
     if (set.type === "drop" && set.completed) updateSet(exerciseId, setIndex, { completed: false, weight: "", reps: "" });
     else updateSet(exerciseId, setIndex, { completed: !set.completed });
   };
@@ -1019,6 +1134,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
           const catalogEntry = catalogFor(exercise);
           const convention = loadConventionFor(catalogEntry?.id);
           const note = swapNote(exercise);
+          // A lateral flexion or rotation exercise: each row names the way the head went, and logs only with one.
+          const directionPrompt = headDirectionPrompt(catalogIdIn(exercise));
+          const perArm = isPlatesPerArm(catalogIdIn(exercise));
           // Drop sets are about load and reps; a hold has no reps to drop.
           const canDrop = !queueHold && queueFields.some((field) => field.measure === "weight") && !exercise.replacedBy;
           return <article key={exercise.id} className={`session-exercise ${exerciseSkipped ? "session-exercise-skipped" : ""} ${exercise.replacedBy ? "session-exercise-replaced" : ""}`}>
@@ -1047,11 +1165,11 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             // A drop set is one row: its stages in order, collapsed, with the set's totals under them.
             if (set.type === "drop" && (set.stages?.length ?? 0) > 0) {
               const unit = setWeightUnit(set, activeSession, sessionUnit);
-              const volume = setVolume(set, unit, convention, sessionUnit);
+              const volume = setVolume(set, unit, convention, sessionUnit, { perArm });
               const inProgress = isDropInProgress(set);
               return <div key={set.id ?? setIndex} className={`session-set-row session-set-drop ${set.completed ? "session-set-complete" : ""}`}>
                 <strong>Set {setIndex + 1}{inProgress ? " · drop set, in progress" : ""}</strong>
-                <p className="session-drop-line">{dropSetLine(set, unit, convention)}</p>
+                <p className="session-drop-line">{set.headDirection && directionPrompt ? `${headDirectionWords[set.headDirection]} · ` : ""}{dropSetLine(set, unit, convention, { perArm })}</p>
                 <small className="session-drop-detail">{dropSetSummary(set)}{volume ? ` · ${volumeText(volume)}` : ""}</small>
                 {set.completed && <button type="button" onClick={() => toggleSetLogged(exercise.id, setIndex, set)} aria-pressed={true} aria-label={`Undo set ${setIndex + 1}, drop set of ${exercise.exerciseName}`}>
                   <Undo2 className="h-3.5 w-3.5" /><span>Undo</span>
@@ -1062,12 +1180,22 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             const side = set.completed || exercise.perArm ? sideWordsOf(set, rowLimbOf(exercise)) : null;
             // A hold's row logs only with its seconds in, and says so in the row.
             const secondsMissing = queueHold && !set.completed && !holdSecondsReady(set.holdSeconds);
+            const directionMissingHere = Boolean(directionPrompt) && !set.completed && !set.headDirection;
             const hintId = `${exercise.id}-${setIndex}-seconds-hint`;
+            const directionHintId = `${exercise.id}-${setIndex}-direction-hint`;
+            // Arms loaded differently: each arm's plates in a box of its own, never one total.
+            const rowLoadFields = hasArmLoads(set)
+              ? [{ key: "leftLoad" as const, label: "Left arm", unit: sessionUnit }, { key: "rightLoad" as const, label: "Right arm", unit: sessionUnit }, ...queueLoadFields.filter((field) => field.measure !== "weight").map((field) => ({ key: field.measure, label: field.label, unit: field.unit }))]
+              : queueLoadFields.map((field) => ({ key: field.measure as EntryField, label: field.label, unit: field.unit }));
             return <div key={set.id ?? setIndex} className={`session-set-row ${set.completed ? "session-set-complete" : ""} ${isTypedDraft(exercise, set) ? "session-set-draft" : ""} ${set.skipped ? "session-set-skipped" : ""}`}>
             <strong>Set {setIndex + 1}{side ? ` · ${side}` : ""}{isTypedDraft(exercise, set) ? " · typed, not logged" : ""}{set.skipped ? " · skipped" : ""}</strong>
-            {queueLoadFields.map((field) => <label key={field.measure}>
+            {directionPrompt && <div className="session-set-direction" role="group" aria-label={`${directionPrompt}, set ${setIndex + 1} of ${exercise.exerciseName}`}>
+              <span aria-hidden="true">{directionPrompt}</span>
+              {HEAD_DIRECTIONS.map((direction) => <button key={direction} type="button" aria-pressed={set.headDirection === direction} onClick={() => chooseRowDirection(exercise.id, setIndex, direction)}>{headDirectionWords[direction]}</button>)}
+            </div>}
+            {rowLoadFields.map((field) => <label key={field.key}>
               <span>{field.label}</span>
-              <input value={set[setKeyOf(field.measure)] || ""} inputMode="decimal" type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { [setKeyOf(field.measure)]: sanitiseEntry(field.measure, event.target.value) })} placeholder="—" />
+              <input value={set[setKeyOf(field.key)] || ""} inputMode="decimal" type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { [setKeyOf(field.key)]: sanitiseEntry(field.key, event.target.value) })} placeholder="—" />
               <em>{field.unit}</em>
             </label>)}
             {queueHold
@@ -1079,10 +1207,11 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
                 <span>Reps</span>
                 <input value={set.reps} inputMode="numeric" type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { reps: sanitiseEntry("reps", event.target.value) })} placeholder="—" />
               </label>}
-            <button className="session-set-log" onClick={() => toggleSetLogged(exercise.id, setIndex, set, queueHold)} aria-pressed={set.completed} disabled={secondsMissing} aria-describedby={secondsMissing ? hintId : undefined}>
+            <button className="session-set-log" onClick={() => toggleSetLogged(exercise.id, setIndex, set, queueHold, Boolean(directionPrompt))} aria-pressed={set.completed} disabled={secondsMissing || directionMissingHere} aria-describedby={[secondsMissing ? hintId : "", directionMissingHere ? directionHintId : ""].filter(Boolean).join(" ") || undefined}>
               {set.completed ? <Undo2 className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
               <span>{set.completed ? "Undo" : "Log set"}</span>
             </button>
+            {directionMissingHere && <small className="session-set-dose-hint" id={directionHintId}>Choose Left or Right</small>}
             {secondsMissing && <small className="session-set-dose-hint" id={hintId}>Add the seconds</small>}
             {set.completed && canDrop && <button type="button" className="session-set-to-drop" onClick={() => convertToDropSet(exercise.id, setIndex)} aria-label={`Make set ${setIndex + 1} of ${exercise.exerciseName} a drop set`}>
               <Layers className="h-3.5 w-3.5" /><span>Make drop set</span>
@@ -1304,15 +1433,18 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       </p>
       {/* Once a drop set has a stage, the last set's numbers are exactly what the next stage is not. */}
       {carried && activeStages.length === 0 && <p className="live-set-last">
-        {carried.source === "session" ? "Last set" : "Last logged"}: {activeHold
+        {carried.source === "session" ? "Last set" : "Last logged"}: {activeDirected && carried.headDirection ? `${headDirectionWords[carried.headDirection]} · ` : ""}{activeHold
           // A hold's last time: the load where there was one, then the seconds. A set logged in reps
           // before this exercise was measured in seconds says reps: they are never read as seconds.
           ? (carried.logged
             ? <>{carried.logged.weight} {carried.logged.unit} · {carriedDose} <small>({carried.weight} {sessionUnit} in this workout's unit)</small></>
             : <>{[...activeLoadFields.filter((field) => carried[field.measure]).map((field) => `${carried[field.measure]} ${field.unit}`), carriedDose].join(" · ")}</>)
-          : carried.logged
-            ? <>{carried.logged.weight} {carried.logged.unit} × {carried.reps} <small>({carried.weight} {sessionUnit} in this workout's unit)</small></>
-            : <>{activeEntryFields.map((field) => `${carried[field.measure] || "—"} ${field.unit}`).join(" · ")} × {carried.reps}</>}
+          : carried.leftLoad !== undefined || carried.rightLoad !== undefined
+            // Arms loaded differently: each arm as it was, never one number.
+            ? <>Left {carried.leftLoad || "—"} {sessionUnit} · Right {carried.rightLoad || "—"} {sessionUnit} × {carried.reps}</>
+            : carried.logged
+              ? <>{carried.logged.weight} {carried.logged.unit} × {carried.reps} <small>({carried.weight} {sessionUnit} in this workout's unit)</small></>
+              : <>{activeEntryFields.map((field) => `${carried[field.measure] || "—"} ${field.unit}`).join(" · ")} × {carried.reps}</>}
       </p>}
       {/* "Last time" in full (H07): this exercise's earlier workouts, read-only, between sets. */}
       {(() => { const entry = catalogFor(activeExercise); const pastCount = exerciseHistoryCount({ exerciseName: activeExercise.exerciseName, catalogId: activeExercise.catalogId ?? entry?.id }, history, activeSession.id); return pastCount > 0 ? <details className="live-set-history">
@@ -1326,6 +1458,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         <summary>Show {activeExercise.exerciseName} photos <ChevronRight className="h-4 w-4" aria-hidden /></summary>
         <ExerciseMedia exerciseId={catalogEntry.id} exerciseName={catalogEntry.name} equipment={catalogEntry.equipment} variant="detail" />
       </details> : null; })()}
+      {/* The setup it is done with, closed and optional: never a step before Log set. */}
+      {(() => { const last = lastSetupFor(activeExercise); return <ExerciseSetupDisclosure key={activeExercise.id} catalogId={catalogIdIn(activeExercise)} exerciseName={activeExercise.exerciseName} setup={activeExercise.setup} lastSetup={last}
+        onChange={(field, value) => updateSetup(activeExercise.id, field, value)} onRepeat={() => { if (last) repeatSetup(activeExercise.id, last); }} />; })()}
       {canDropActive && <div className="live-set-type" role="group" aria-label="Set type">
         <button type="button" aria-pressed={!dropMode} onClick={() => setActiveSetType("standard")} disabled={dropMode && activeStages.length > 0}>Standard</button>
         <button type="button" aria-pressed={dropMode} onClick={() => setActiveSetType("drop")}><Layers className="h-4 w-4" aria-hidden /> Drop set</button>
@@ -1343,13 +1478,25 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         </ol>}
         <p className="live-drop-next">Stage {activeStages.length + 1}{activeStages.length ? ` · lighter than ${stageLoadText(activeStages[activeStages.length - 1], sessionUnit, activeConvention)}` : ""} · no rest between stages</p>
       </div>}
-      <div className="live-set-entry" data-fields={activeLoadFields.length + 1}>
+      {/* Left or Right before the set, always in view: the head's direction, never an arm. */}
+      {activeDirected && <div className="live-set-direction" role="group" aria-label={`${headDirectionPrompt(catalogIdIn(activeExercise))}, set ${position.setIndex + 1}`}>
+        <span className="live-set-direction-label" aria-hidden="true">{headDirectionPrompt(catalogIdIn(activeExercise))}</span>
+        <span className="live-set-direction-choices">{HEAD_DIRECTIONS.map((direction) => <button key={direction} type="button" aria-pressed={shownDirection === direction} onClick={() => chooseDirection(direction)}>{headDirectionWords[direction]}</button>)}</span>
+      </div>}
+      {/* The athlete's own hand is the resistance: there is no load to type, and none is invented. */}
+      {isLoadUnmeasured(catalogIdIn(activeExercise)) && <p className="live-set-load-note">{MANUAL_RESISTANCE_LINE}</p>}
+      {(() => {
+        // Arms loaded differently: a box per arm in place of the one per-arm box.
+        const cardLoadFields: { key: EntryField; label: string; unit: string }[] = activeArmLoads
+          ? [{ key: "leftLoad", label: "Left arm", unit: sessionUnit }, { key: "rightLoad", label: "Right arm", unit: sessionUnit }, ...activeLoadFields.filter((field) => field.measure !== "weight").map((field) => ({ key: field.measure, label: field.label, unit: field.unit }))]
+          : activeLoadFields.map((field) => ({ key: field.measure, label: field.label, unit: field.unit }));
+        return <div className="live-set-entry" data-fields={cardLoadFields.length + 1}>
         {/* A value carried from the last set is an offer until the athlete touches
             the field: it is marked so it never passes for something already typed. */}
-        {activeLoadFields.map((field) => <label key={field.measure}>
+        {cardLoadFields.map((field) => <label key={field.key}>
           <span>{field.label}</span>
-          <input value={shownEntries[field.measure]} inputMode="decimal" type="text" autoComplete="off" enterKeyHint="next" data-carried={isCarried(field.measure) ? "" : undefined}
-            onChange={(event) => editEntry(field.measure, event.target.value)} onKeyDown={onEntryKeyDown} placeholder="—" />
+          <input value={shownEntries[field.key]} inputMode="decimal" type="text" autoComplete="off" enterKeyHint="next" data-carried={isCarried(field.key) ? "" : undefined}
+            onChange={(event) => editEntry(field.key, event.target.value)} onKeyDown={onEntryKeyDown} placeholder="—" />
           <em>{field.unit}</em>
         </label>)}
         {/* The last box is the set's dose: seconds on a hold, reps on everything else. Done logs the set. */}
@@ -1365,7 +1512,11 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             <input value={shownEntries.reps} inputMode="numeric" type="text" autoComplete="off" enterKeyHint="done" data-carried={isCarried("reps") ? "" : undefined}
               onChange={(event) => editEntry("reps", event.target.value)} onKeyDown={onEntryKeyDown} placeholder="—" />
           </label>}
-      </div>
+      </div>; })()}
+      {/* A plate-loaded press may carry different plates on each arm: both are kept, never added up. */}
+      {isPlatesPerArm(catalogIdIn(activeExercise)) && !dropMode && <button type="button" className="live-set-arms" aria-pressed={activeArmLoads} onClick={() => setArmLoads(!activeArmLoads)}>
+        Arms loaded differently
+      </button>}
       {/* How hard the set was taken, said in place: asked only of a usually-light exercise, a quiet toggle otherwise. */}
       {!dropMode && <SetEffortChoice exerciseName={activeExercise.exerciseName} catalogExerciseId={catalogFor(activeExercise)?.id} effort={activeSet.effort}
         onChange={(effort) => updateSet(activeExercise.id, position.setIndex, { effort })} />}
@@ -1382,8 +1533,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         </div>
         : <>
           {/* Said in place, at rest, beside the button it explains: no popup, no error after a tap. */}
+          {directionMissing && <p className="live-set-dose-hint" id="live-set-direction-hint">Choose Left or Right</p>}
           {secondsMissing && <p className="live-set-dose-hint" id="live-set-dose-hint">{shownEntries.seconds.trim() ? "Add the seconds: at least 1" : "Add the seconds"}</p>}
-          <button type="button" className="live-set-commit" onClick={completeActiveSet} disabled={secondsMissing} aria-describedby={secondsMissing ? "live-set-dose-hint" : undefined}>
+          <button type="button" className="live-set-commit" onClick={completeActiveSet} disabled={secondsMissing || directionMissing} aria-describedby={[directionMissing ? "live-set-direction-hint" : "", secondsMissing ? "live-set-dose-hint" : ""].filter(Boolean).join(" ") || undefined}>
             <Check className="h-4 w-4" /> Log set {position.setIndex + 1}
           </button>
         </>}
@@ -1420,9 +1572,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             {note && <small>{note}</small>}
             <ol>{exercise.sets.filter(isCompletedSet).map((set, index) => {
               const unit = setWeightUnit(set, activeSession, sessionUnit);
-              const volume = set.type === "drop" && (set.stages?.length ?? 0) >= 2 ? setVolume(set, unit, convention, sessionUnit) : null;
+              const volume = set.type === "drop" && (set.stages?.length ?? 0) >= 2 ? setVolume(set, unit, convention, sessionUnit, { perArm: isPlatesPerArm(catalogIdIn(exercise)) }) : null;
               const side = sideWordsOf(set, rowLimbOf(exercise));
-              return <li key={set.id ?? index}>{performedSetLine(set, unit, convention)}{side ? ` · ${side}` : ""}{set.type === "drop" && (set.stages?.length ?? 0) >= 2 && <small>{dropSetSummary(set)}{volume ? ` · ${volumeText(volume)}` : ""}</small>}</li>;
+              return <li key={set.id ?? index}>{setLineOf(exercise, set, unit)}{side ? ` · ${side}` : ""}{set.type === "drop" && (set.stages?.length ?? 0) >= 2 && <small>{dropSetSummary(set)}{volume ? ` · ${volumeText(volume)}` : ""}</small>}</li>;
             })}</ol>
           </li>;
         })}

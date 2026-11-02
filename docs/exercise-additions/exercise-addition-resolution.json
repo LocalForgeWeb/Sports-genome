@@ -1,0 +1,295 @@
+{
+  "handoff": "2026-10-23-zercher-neck-bench-handoff.md",
+  "resolvedOn": "2026-11-02",
+  "catalogMaxBefore": 420,
+  "rows": [
+    {
+      "key": "zercher_deadlift_floor",
+      "catalogId": 421,
+      "decision": "new",
+      "name": "Zercher Deadlift — Floor",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "zercher deadlift",
+        "zercher floor pull",
+        "floor zercher deadlift"
+      ]
+    },
+    {
+      "key": "zercher_block_pull",
+      "catalogId": 422,
+      "decision": "new",
+      "name": "Zercher Block Pull",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "zercher rack pull",
+        "elevated zercher deadlift",
+        "zercher pin pull"
+      ]
+    },
+    {
+      "key": "zercher_good_morning",
+      "catalogId": 423,
+      "decision": "new",
+      "name": "Zercher Good Morning",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "zercher hip hinge",
+        "zercher Romanian deadlift",
+        "zercher RDL"
+      ]
+    },
+    {
+      "key": "zercher_hold",
+      "catalogId": 424,
+      "decision": "new",
+      "name": "Zercher Hold",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "zercher static hold",
+        "zercher isometric hold"
+      ]
+    },
+    {
+      "key": "machine_neck_flexion",
+      "catalogId": 425,
+      "decision": "new",
+      "name": "Machine Neck Flexion",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "machine neck flexion",
+        "neck curl"
+      ]
+    },
+    {
+      "key": "machine_neck_extension",
+      "catalogId": 426,
+      "decision": "new",
+      "name": "Machine Neck Extension",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "machine neck extension",
+        "neck extension"
+      ]
+    },
+    {
+      "key": "machine_neck_lateral_flexion",
+      "catalogId": 427,
+      "decision": "new",
+      "name": "Machine Neck Lateral Flexion",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "machine neck lateral flexion",
+        "side neck bend"
+      ]
+    },
+    {
+      "key": "harness_neck_extension",
+      "catalogId": 428,
+      "decision": "new",
+      "name": "Seated Harness Neck Extension",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "seated harness neck extension",
+        "neck extension"
+      ]
+    },
+    {
+      "key": "cable_neck_flexion",
+      "catalogId": 429,
+      "decision": "new",
+      "name": "Cable Harness Neck Flexion",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "cable harness neck flexion",
+        "neck curl"
+      ]
+    },
+    {
+      "key": "cable_neck_extension",
+      "catalogId": 430,
+      "decision": "new",
+      "name": "Cable Harness Neck Extension",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "cable harness neck extension",
+        "neck extension"
+      ]
+    },
+    {
+      "key": "cable_neck_lateral_flexion",
+      "catalogId": 431,
+      "decision": "new",
+      "name": "Cable Harness Neck Lateral Flexion",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "cable harness neck lateral flexion",
+        "side neck bend"
+      ]
+    },
+    {
+      "key": "cable_neck_rotation",
+      "catalogId": 432,
+      "decision": "new",
+      "name": "Cable Harness Neck Rotation",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "cable harness neck rotation",
+        "neck rotation"
+      ]
+    },
+    {
+      "key": "isometric_neck_flexion",
+      "catalogId": 433,
+      "decision": "new",
+      "name": "Isometric Neck Flexion — Manual Resistance",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "isometric neck flexion",
+        "neck curl",
+        "manual neck flexion hold"
+      ]
+    },
+    {
+      "key": "isometric_neck_extension",
+      "catalogId": 434,
+      "decision": "new",
+      "name": "Isometric Neck Extension — Manual Resistance",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "isometric neck extension",
+        "neck extension",
+        "manual neck extension hold"
+      ]
+    },
+    {
+      "key": "isometric_neck_lateral_flexion",
+      "catalogId": 435,
+      "decision": "new",
+      "name": "Isometric Neck Lateral Flexion — Manual Resistance",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "isometric neck lateral flexion",
+        "side neck bend",
+        "manual neck lateral flexion hold"
+      ]
+    },
+    {
+      "key": "isometric_neck_rotation",
+      "catalogId": 436,
+      "decision": "new",
+      "name": "Isometric Neck Rotation — Manual Resistance",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "isometric neck rotation",
+        "neck rotation",
+        "manual neck rotation hold"
+      ]
+    },
+    {
+      "key": "plate_loaded_incline_press",
+      "catalogId": 437,
+      "decision": "new",
+      "name": "Plate-Loaded Incline Chest Press",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "incline plate loaded chest press",
+        "incline lever press"
+      ]
+    },
+    {
+      "key": "selectorized_decline_press",
+      "catalogId": 438,
+      "decision": "new",
+      "name": "Selectorized Decline Chest Press",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "decline stack chest press"
+      ]
+    },
+    {
+      "key": "plate_loaded_decline_press",
+      "catalogId": 439,
+      "decision": "new",
+      "name": "Plate-Loaded Decline Chest Press",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "decline lever press"
+      ]
+    },
+    {
+      "key": "smith_incline_bench",
+      "catalogId": 15,
+      "decision": "reuse",
+      "name": "Smith Machine Incline Press",
+      "reason": "Catalog 15, Smith Machine Incline Press, is this exercise; its aliases are added instead of a duplicate row.",
+      "aliases": [
+        "incline smith press"
+      ]
+    },
+    {
+      "key": "smith_decline_bench",
+      "catalogId": 440,
+      "decision": "new",
+      "name": "Smith Machine Decline Bench Press",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "decline smith press"
+      ]
+    },
+    {
+      "key": "barbell_floor_press",
+      "catalogId": 441,
+      "decision": "new",
+      "name": "Barbell Floor Press",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "floor press barbell"
+      ]
+    },
+    {
+      "key": "paused_barbell_bench",
+      "catalogId": 442,
+      "decision": "new",
+      "name": "Paused Barbell Bench Press",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "pause bench",
+        "competition style paused bench"
+      ]
+    },
+    {
+      "key": "spoto_press",
+      "catalogId": 443,
+      "decision": "new",
+      "name": "Spoto Press",
+      "reason": "No existing row has this protocol.",
+      "aliases": [
+        "hover pause bench",
+        "spoto bench"
+      ]
+    }
+  ],
+  "reused": [
+    {
+      "catalogId": 164,
+      "name": "Zercher Squat",
+      "action": "reuse_and_audit_role_mapping"
+    },
+    {
+      "catalogId": 300,
+      "name": "Zercher Carry",
+      "action": "reuse_and_audit_role_mapping"
+    },
+    {
+      "catalogId": 12,
+      "name": "Incline Machine Chest Press",
+      "action": "reuse_and_improve_discovery"
+    },
+    {
+      "catalogId": 15,
+      "name": "Smith Machine Incline Press",
+      "action": "reuse_and_improve_discovery"
+    }
+  ]
+}

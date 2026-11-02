@@ -14,7 +14,8 @@ import { movementMatchCount, supportTierLabel, type MovementSupport, type Suppor
 import { movementDisplayLabel } from "@/lib/movementLabel";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 import { catalogMuscleKeyFor } from "@/lib/recordMuscleKeys";
-import { labelTellsRowsApart } from "@/lib/pickerRowFacts";
+import { labelTellsRowsApart, pickerRequirementNote } from "@/lib/pickerRowFacts";
+import { catalogSublabelOf } from "@/lib/exerciseExecution";
 import "@/catalog-discovery.css";
 
 type CatalogDiscoveryPanelProps = {
@@ -189,7 +190,8 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
         <span className="catalog-discovery-identity">
           <strong>{exercise.name}</strong>
           {reason ? <span className="catalog-row-reason" id={reasonId}>{reason}</span> : null}
-          <small>{exercise.movement}{exercise.equipment && !exercise.name.toLowerCase().includes(exercise.equipment.toLowerCase()) ? ` · ${exercise.equipment}` : ""}</small>
+          <small>{catalogSublabelOf(exercise.id) ?? `${exercise.movement}${exercise.equipment && !exercise.name.toLowerCase().includes(exercise.equipment.toLowerCase()) ? ` · ${exercise.equipment}` : ""}`}</small>
+          {pickerRequirementNote(exercise) && <small>{pickerRequirementNote(exercise)}</small>}
           {!reason ? <em>{exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</em> : null}
           {connectionTellsCardsApart && connection && connection.label !== "Not mapped" ? <b className={`catalog-action-link catalog-action-link-${connection.label.toLowerCase().replace(/\s+/g, "-")}`} title={connection.detail}>{connection.label}</b> : null}
         </span>

@@ -1406,7 +1406,7 @@ What the design states about the package and the app, recomputed from the data.
 | §1.2 | fa-22 is an alias of fa-12, resolving to 411; no second row, no second dose | fa-22 → fa-12 → cat-411; cells identical to fa-12's | yes |
 | §1.2 totals | 28 existing (18 the same task, 9 set-up not recorded, the alias), 3 new rows, 4 referred, 16 deferred, 6 blocked: 57 | 28 existing (18, 9, 1), 3 new rows, 4 referred, 16 deferred, 6 blocked | yes |
 | §1.2 | Every catalog row the design names exists under that name | 28 rows, all as named | yes |
-| §1.2, §10 decision 2 | Ids 417–419 hold the three new rows and 420 decision 2's drill, added by lane C1 (F3); the catalog ends at 420 | catalog ends at 420; 417–420 as named | yes |
+| §1.2, §10 decision 2 | Ids 417–419 hold the three new rows and 420 decision 2's drill, added by lane C1 (F3); the forearm rows end at 420 | forearm rows end at 420; 417–420 as named | yes |
 | §1.2 | fa-09: the two catalog rows are mapped alike | cat-42 and cat-186: alike | yes |
 | §1.2 | fa-26: the two catalog rows are mapped alike | cat-337 and cat-134: alike | yes |
 | §1.1 | The package's direct roles equal v1's reviewed direct rows on every matched record except fa-08 | differ on fa-08 (package BR; v1 none) | yes |

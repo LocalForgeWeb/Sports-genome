@@ -10,6 +10,7 @@ import {
   getMovementSupport,
   isNotTheSameExercise,
   movementMatchCount,
+  movementSupportExercises,
   nameContainsPhrase,
   normalizeExercisePhrase,
   supportMatchMethod,
@@ -86,9 +87,12 @@ describe("NOT_THE_SAME_EXERCISE", () => {
 });
 
 describe("BROAD_PATTERNS", () => {
-  it("is exactly the catalog patterns that label more than 15 exercises", () => {
+  it("is exactly the catalog patterns that label more than 15 of the exercises movement support ranks", () => {
+    // Movement support leaves out the provisional rows of 2 Nov 2026 (421-443), so the rule counts
+    // the same rows: their three Zercher hinges would otherwise make "Hip hinge" (15) broad.
+    expect(exercises.filter((exercise) => !movementSupportExercises.includes(exercise)).map((exercise) => exercise.id)).toEqual(Array.from({ length: 23 }, (_, index) => 421 + index));
     const counts = new Map<string, number>();
-    exercises.forEach((exercise) => counts.set(exercise.movement, (counts.get(exercise.movement) ?? 0) + 1));
+    movementSupportExercises.forEach((exercise) => counts.set(exercise.movement, (counts.get(exercise.movement) ?? 0) + 1));
     const byRule = Array.from(counts).filter(([, count]) => count >= BROAD_PATTERN_MIN_EXERCISES).map(([pattern]) => pattern);
     expect([...BROAD_PATTERNS].sort()).toEqual(byRule.sort());
     expect(BROAD_PATTERNS).toContain("Horizontal push");

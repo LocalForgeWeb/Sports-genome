@@ -1,5 +1,6 @@
 import type { Exercise } from "./exerciseCatalog";
 import { getExerciseStudyCalibration } from "./exerciseStudyCalibration";
+import { isProvisionalCatalogId } from "./exerciseExecution";
 import { logicCalibration } from "./evidenceTraceability";
 
 export type MuscleTargetingRole = "Prime mover" | "Synergist" | "Stabilizer";
@@ -23,7 +24,14 @@ export interface MuscleTargetingEstimate {
 }
 
 const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
-const textFor = (exercise: Exercise) => `${exercise.name} ${exercise.movement} ${exercise.equipment} ${exercise.qualities.join(" ")}`.toLowerCase();
+/**
+ * The words the mechanics reading looks for. A provisional row (exerciseExecution.ts) is read by its
+ * equipment alone: its name would trigger readings it has not earned ("good morning" as a
+ * lengthened hinge, "press", "hold", "extension"), so every name-based factor stays at its default.
+ */
+const textFor = (exercise: Exercise) => isProvisionalCatalogId(exercise.id)
+  ? exercise.equipment.toLowerCase()
+  : `${exercise.name} ${exercise.movement} ${exercise.equipment} ${exercise.qualities.join(" ")}`.toLowerCase();
 const isBiarticular = (muscle: string) => ["hamstrings", "calves", "biceps", "triceps", "rectusFemoris"].includes(muscle);
 const pubmed = (pmid: string) => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`;
 
@@ -61,8 +69,9 @@ export function buildMuscleTargetingEstimate(exercise: Exercise, muscle: string,
   const text = textFor(exercise);
   const setup = resistanceContext(text);
   const directNote = directEvidenceNote(exercise, muscle);
-  const unilateral = /single|one.arm|split|lunge|step.up|bulgarian/.test(text) || exercise.qualities.includes("unilateral");
-  const ballistic = /jump|throw|clean|snatch|plyometric|explosive|sprint/.test(text) || exercise.qualities.includes("power");
+  const provisional = isProvisionalCatalogId(exercise.id);
+  const unilateral = /single|one.arm|split|lunge|step.up|bulgarian/.test(text) || (!provisional && exercise.qualities.includes("unilateral"));
+  const ballistic = /jump|throw|clean|snatch|plyometric|explosive|sprint/.test(text) || (!provisional && exercise.qualities.includes("power"));
   const eccentric = /nordic|eccentric|depth|landing/.test(text);
   const lengthened = /romanian|\brdl\b|good morning|nordic|fly|pullover|deep squat/.test(text);
   const calibration = getExerciseStudyCalibration(exercise);
@@ -98,6 +107,6 @@ export function buildMuscleTargetingEstimate(exercise: Exercise, muscle: string,
     evidenceTier: directNote ? "Direct longitudinal exercise evidence" : "Conditional mechanics ranking",
     directEvidenceNote: directNote,
     mechanicsFactors,
-    uncertainty: directNote ? "Direct adaptation evidence is prioritized above the mechanics ranking for this exercise–muscle pair. The displayed score remains a comparative planning rank, not a measured force or guaranteed outcome." : "This is a conditional mechanics ranking. Its inputs are transparent heuristic influences, not scientific constants; joint angles, load vector, moment arms, architecture, activation, and co-contraction are not individually measured here.",
+    uncertainty: directNote ? "Direct adaptation evidence is prioritized above the mechanics ranking for this exercise–muscle pair. The displayed score remains a comparative planning rank, not a measured force or guaranteed outcome." : provisional ? "A provisional exercise: this rank reads only the muscle's role and the equipment, not the exercise's name or set-up, and nothing in it is measured or calibrated." : "This is a conditional mechanics ranking. Its inputs are transparent heuristic influences, not scientific constants; joint angles, load vector, moment arms, architecture, activation, and co-contraction are not individually measured here.",
   };
 }

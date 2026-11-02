@@ -2,6 +2,7 @@
 
 import { expandedExercises } from "./exerciseCatalogExpansion";
 import { forearmCatalogExercises } from "./exerciseCatalogForearm";
+import { zercherNeckBenchExercises } from "./exerciseCatalogZercherNeckBench";
 import { getExerciseStudyCalibration, type StudyRangeOfMotion } from "./exerciseStudyCalibration";
 
 export type Sport = 'tennis' | 'basketball' | 'soccer' | 'baseball' | 'combat';
@@ -7213,10 +7214,11 @@ export const baseExercises: Exercise[] = [
       "calves",
       "abs"
     ],
+    // No "unilateral" (removed 2 Nov 2026, the Zercher handoff's audit): it is a two-legged squat
+    // with the bar in both elbow crooks, so nothing is done one side at a time.
     "qualities": [
       "strength",
       "hypertrophy",
-      "unilateral",
       "deceleration"
     ],
     "muscleGrade": "S",
@@ -13395,10 +13397,12 @@ export const baseExercises: Exercise[] = [
       "quads",
       "calves"
     ],
+    // No "grip" (removed 2 Nov 2026, the Zercher handoff's audit): the bar rests in the elbow crooks
+    // and the hands do not hold it, so it is not grip work. The atlas already credits it without the
+    // finger flexors.
     "qualities": [
       "conditioning",
       "locomotion",
-      "grip",
       "bracing",
       "sprintSupport"
     ],
@@ -13428,10 +13432,11 @@ export const baseExercises: Exercise[] = [
   }
 ] as const;
 
-// Ids: base rows 1-300 are literal, the expansion's 301-400 are positional and closed, and the
-// forearm rows of 16 Oct 2026 are literal from 401 (exerciseCatalogForearm.ts). Logged workouts
-// and plans store these ids, so a new row goes after the last one and nothing is renumbered.
-export const exercises: Exercise[] = [...baseExercises, ...expandedExercises, ...forearmCatalogExercises].map((exercise) => {
+// Ids: base rows 1-300 are literal, the expansion's 301-400 are positional and closed, the
+// forearm rows of 16 Oct 2026 are literal from 401 (exerciseCatalogForearm.ts), and the Zercher,
+// neck and bench rows of 2 Nov 2026 literal from 421 (exerciseCatalogZercherNeckBench.ts). Logged
+// workouts and plans store these ids, so a new row goes after the last one and nothing is renumbered.
+export const exercises: Exercise[] = [...baseExercises, ...expandedExercises, ...forearmCatalogExercises, ...zercherNeckBenchExercises].map((exercise) => {
   const calibration = getExerciseStudyCalibration(exercise);
   return calibration ? {
     ...exercise,

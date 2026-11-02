@@ -20,6 +20,7 @@
 
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { logicCalibration } from "@/lib/evidenceTraceability";
+import { setCreditMusclesOf } from "@/lib/exerciseExecution";
 
 export type VolumeReading = "none" | "indirect-only" | "light" | "solid" | "heavy";
 
@@ -76,10 +77,10 @@ export function getSessionMuscleVolume(
 
   workout.forEach((exercise, index) => {
     const sets = setsFor(exercise, index);
-    const primary = new Set(exercise.primaryMuscles);
-    primary.forEach((muscle) => direct.set(muscle, (direct.get(muscle) || 0) + sets));
-    exercise.secondaryMuscles
-      .filter((muscle) => !primary.has(muscle))
+    // By tag, or by execution role where the row has them (exerciseExecution.ts setCreditMusclesOf).
+    const credited = setCreditMusclesOf(exercise);
+    credited.direct.forEach((muscle) => direct.set(muscle, (direct.get(muscle) || 0) + sets));
+    credited.support
       .forEach((muscle) => {
         support.set(muscle, (support.get(muscle) || 0) + sets * logicCalibration.exposure.secondarySetConvention);
         performed.set(muscle, (performed.get(muscle) || 0) + sets);

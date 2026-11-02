@@ -4,6 +4,7 @@ import { getGymTimeBudget, timeAdjustedSetBand } from "@/lib/gymTimeBudget";
 import { evidenceBoundary, trainingEvidence } from "@/lib/trainingEvidence";
 import { logicCalibration } from "@/lib/evidenceTraceability";
 import { parseSetCount } from "@/lib/sessionVolume";
+import { setsOwnTarget } from "@/lib/exerciseLogging";
 
 export type ExerciseSettings = {
   rpe?: string;
@@ -92,6 +93,13 @@ function defaultPrescriptionOf(index: number, goal: TrainingGoal | undefined, me
   return goalDefault ? `${parseSetCount(goalDefault)} × ${holdDefaultTarget}` : holdDefaultPrescription;
 }
 
+/**
+ * The target of a neck row with nothing the athlete wrote: the set count stands, the reps or the
+ * time are theirs to set (the Zercher, neck and bench handoff §3.3, "automatic generic strength
+ * prescriptions remain off for neck"). "3 × your reps", "3 × your time".
+ */
+export const ownTargetFor = (measure: PrescriptionMeasure | undefined) => (measure === "seconds" ? "your time" : "your reps");
+
 /** Every goal's default for every place in a day: the texts the planner pins on an entry it builds. */
 const trainingGoals = ["Athleticism", "Muscle growth", "Max strength", "Capacity"] as const satisfies readonly TrainingGoal[];
 // Every goal is listed: a goal added to TrainingGoal and not here fails to compile.
@@ -111,10 +119,18 @@ const pinnedGoalDefaults: ReadonlySet<string> = new Set(trainingGoals.flatMap((g
  * after the week was built, keeps the text it was pinned with. Any other saved text is the
  * athlete's and is kept. The stored text is not rewritten: a rep exercise put in the hold's place
  * reads the goal's reps again.
+ *
+ * A neck row (`catalogId`, read from the light logging facts) gets no automatic target at all: with
+ * nothing of its own, or a goal default the planner pinned on it, it keeps the set count and leaves
+ * the reps or the time to the athlete (`ownTargetFor`). Text the athlete wrote ("3 × 20 s",
+ * "2 × 12") is kept exactly, as on every other row.
  */
-export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal, measure?: PrescriptionMeasure): string;
-export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal | undefined, measure?: PrescriptionMeasure): string | undefined;
-export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal | undefined, measure?: PrescriptionMeasure): string | undefined {
+export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal, measure?: PrescriptionMeasure, catalogId?: number): string;
+export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal | undefined, measure?: PrescriptionMeasure, catalogId?: number): string | undefined;
+export function prescriptionOf(saved: string | undefined, index: number, goal: TrainingGoal | undefined, measure?: PrescriptionMeasure, catalogId?: number): string | undefined {
+  if (setsOwnTarget(catalogId) && (!saved || pinnedGoalDefaults.has(saved.trim()))) {
+    return `${parseSetCount(saved ?? (goal ? getGoalPrescription(goal, index) : undefined))} × ${ownTargetFor(measure)}`;
+  }
   if (saved && measure === "seconds" && pinnedGoalDefaults.has(saved.trim())) return `${parseSetCount(saved)} × ${holdDefaultTarget}`;
   if (saved) return saved;
   return defaultPrescriptionOf(index, goal, measure);

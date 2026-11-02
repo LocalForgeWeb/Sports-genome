@@ -1,4 +1,5 @@
 import type { Exercise } from "./exerciseCatalog";
+import { isProvisionalCatalogId } from "./exerciseExecution";
 
 export type TrainingSplit = "Push" | "Pull" | "Legs" | "Upper" | "Lower" | "Full Body" | "Sport Transfer";
 
@@ -28,7 +29,8 @@ export function matchesTrainingSplit(exercise: Exercise, split: TrainingSplit) {
 }
 
 export function getSplitExercisePool(exercises: Exercise[], split: TrainingSplit, sportSeed: Exercise[] = []) {
-  const strictPool = exercises.filter((exercise) => matchesTrainingSplit(exercise, split));
+  // A generated day never draws a provisional row (exerciseExecution.ts); the athlete adds one by choosing it.
+  const strictPool = exercises.filter((exercise) => !isProvisionalCatalogId(exercise.id) && matchesTrainingSplit(exercise, split));
   if (split !== "Sport Transfer") return strictPool;
 
   const sportMatches = sportSeed.filter((exercise) => matchesTrainingSplit(exercise, split));

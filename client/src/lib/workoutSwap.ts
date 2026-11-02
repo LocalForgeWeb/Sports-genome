@@ -4,6 +4,7 @@ import type { Limb } from "@shared/specialization/types";
 import { renderableSetCount } from "./setPrescription";
 import { setEntryFieldsFor, type SetDoseMeasure } from "./setEntryFields";
 import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
+import { exerciseExecutionOf, isProvisionalCatalogId } from "@/lib/exerciseExecution";
 
 /**
  * Swapping an exercise during a workout (Oct 6 brief §3): Sissy Squat out, Barbell Squat in,
@@ -27,7 +28,9 @@ import { loadConventionFor, type LoadConvention } from "@shared/loadConventions"
  *   their sides, moved to the new exercise's limb when it is split on the other one.
  *
  * Load never crosses exercises - 40 lb on a sissy squat says nothing about a barbell squat - and
- * the rest timer is not touched. The new exercise's "last logged" comes from its own history,
+ * the rest timer is not touched. Nor does anything the new exercise would read differently: a
+ * head direction, each arm's plates or the exercise's setup (a block's height, a machine's seat)
+ * stay with the exercise they were recorded on, and the new exercise starts with none of them. The new exercise's "last logged" comes from its own history,
  * because carry-forward reads by the session exercise's name.
  */
 
@@ -301,7 +304,7 @@ export function addAfter(session: DeviceWorkoutSession, exerciseId: string, targ
  * What an exercise holds, as work: storage fills in defaults (an empty height, skipped: false),
  * so the comparison is of what was typed, logged or skipped - never of how the record is laid out.
  */
-const workOf = (exercise: DeviceWorkoutExercise) => JSON.stringify([exercise.exerciseName, exercise.sets.map((set) => [Boolean(set.completed), Boolean(set.skipped), set.weight || "", set.reps || "", set.height || "", set.holdSeconds || "", set.type ?? "", (set.stages ?? []).map((stage) => [stage.weight, stage.reps])])]);
+const workOf = (exercise: DeviceWorkoutExercise) => JSON.stringify([exercise.exerciseName, exercise.setup ?? null, exercise.sets.map((set) => [Boolean(set.completed), Boolean(set.skipped), set.weight || "", set.reps || "", set.height || "", set.holdSeconds || "", set.type ?? "", (set.stages ?? []).map((stage) => [stage.weight, stage.reps]), set.headDirection ?? "", set.leftLoad ?? "", set.rightLoad ?? ""])]);
 const same = (a: DeviceWorkoutExercise, b: DeviceWorkoutExercise) => workOf(a) === workOf(b);
 
 /** A swap can be taken back until anything is logged or typed on either side of it. */
@@ -378,8 +381,13 @@ export function swapMeasurementNotes(
 export function swapSuggestions(from: Exercise | undefined, catalog: readonly Exercise[], excludeNames: ReadonlySet<string>, limit = 6): Exercise[] {
   if (!from) return [];
   const primary = new Set(from.primaryMuscles);
+  // A provisional row (exerciseExecution.ts) is suggested only in place of one of its own family -
+  // a neck exercise for a neck exercise - since the athlete chose that family; otherwise it is
+  // found by search, never put forward by the app.
+  const fromGroup = exerciseExecutionOf(from.id)?.group ?? null;
   return catalog
     .filter((item) => item.id !== from.id && !excludeNames.has(item.name))
+    .filter((item) => !isProvisionalCatalogId(item.id) || exerciseExecutionOf(item.id)?.group === fromGroup)
     .map((item) => ({ item, movement: item.movement === from.movement ? 1 : 0, shared: item.primaryMuscles.filter((muscle) => primary.has(muscle)).length, equipment: item.equipment === from.equipment ? 1 : 0 }))
     .filter((entry) => entry.movement || entry.shared > 0)
     .sort((a, b) => b.movement - a.movement || b.shared - a.shared || b.equipment - a.equipment || a.item.name.localeCompare(b.item.name))

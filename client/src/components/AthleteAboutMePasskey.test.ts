@@ -124,7 +124,8 @@ describe("AthleteAboutMePanel passkey management", () => {
     expect(source).toContain('emitInteractionFeedback(); onDays(days);');
     expect(source).toContain('emitInteractionFeedback(); onSportContextMode(mode.value);');
     expect(source).toContain('emitInteractionFeedback(); onBaseline({ ...baseline, sportModifierId: event.target.value || undefined });');
-    expect(source).toContain('emitInteractionFeedback(); onBaseline({ ...baseline, equipment: { gymAccess, availableEquipment: gymAccessProfiles[gymAccess] } });');
+    // Since 2 Nov 2026 a change of gym keeps the accessories the athlete set (a head harness, a neck machine).
+    expect(source).toContain('emitInteractionFeedback(); onBaseline({ ...baseline, equipment: { ...equipment, gymAccess, availableEquipment: gymAccessProfiles[gymAccess] } });');
     expect(source).not.toContain('Your current workout was retained for review');
   });
 

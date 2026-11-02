@@ -1,4 +1,5 @@
 import type { MuscleSegmentSignal } from "./progressiveTraining";
+import { isProvisionalCatalogId } from "./exerciseExecution";
 
 export type SegmentPriorityExerciseCandidate = {
   id: number;
@@ -39,6 +40,8 @@ export function getSegmentPrioritySuggestions(
   const permittedEquipment = new Set(availableEquipment.map(normalizedEquipment));
   return catalog
     .filter((exercise) => !active.has(exercise.id))
+    // Provisional rows (exerciseExecution.ts) are never suggested; the athlete adds them by choosing them.
+    .filter((exercise) => !isProvisionalCatalogId(exercise.id))
     .filter((exercise) => exercise.primaryMuscles.map(normalizedSegment).includes(target))
     .filter((exercise) => !permittedEquipment.size || permittedEquipment.has(normalizedEquipment(exercise.equipment)))
     .sort((left, right) => left.name.localeCompare(right.name))

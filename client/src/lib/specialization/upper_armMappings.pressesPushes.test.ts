@@ -44,6 +44,12 @@ const lanesPressesAndPushes = [
   301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 322, 323, 324, 325, 381, 382, 386, 389,
 ];
 const medicineBall = [271, 273, 279, 280, 281, 284, 285];
+/**
+ * The presses the catalog added on 2 Nov 2026 (exerciseCatalogZercherNeckBench.ts), after the version
+ * was published: in the family by its rule (they tag the triceps, secondary), listed unmapped, and
+ * with no library record until a later upper-arm mapping version (a record is a seed change).
+ */
+const added2Nov = [437, 438, 439, 440, 441, 442, 443];
 
 const catalogIdOf = (variantId: string) => variantById.get(variantId)!.catalogExerciseId;
 const mappedIds = new Set(rows.map((row) => catalogIdOf(row.variantId)));
@@ -54,9 +60,13 @@ const actionsOf = new Map<string, Set<string>>();
 for (const row of upperArmContent.nodeActions) actionsOf.set(row.nodeId, (actionsOf.get(row.nodeId) ?? new Set()).add(row.actionId));
 
 describe("the presses-and-pushes family", () => {
-  it("is derived from the catalog: the variants lane's 77 presses and pushes, and apart from them the seven medicine-ball throws and slams", () => {
-    expect(Array.from(familyIds).sort((x, y) => x - y)).toEqual(lanesPressesAndPushes);
-    expect(familyIds.size).toBe(77);
+  it("is derived from the catalog: the variants lane's 77 presses and pushes, the seven presses added on 2 Nov 2026, and apart from them the seven medicine-ball throws and slams", () => {
+    expect(Array.from(familyIds).sort((x, y) => x - y)).toEqual([...lanesPressesAndPushes, ...added2Nov]);
+    expect(familyIds.size).toBe(77 + 7);
+    for (const id of added2Nov) {
+      expect(variantFor(id), String(id)).toBeNull();
+      expect(primaryInScope(family.find((exercise) => exercise.id === id)!), String(id)).toBe(false);
+    }
     expect(Array.from(ballFamilyIds).sort((x, y) => x - y)).toEqual(medicineBall);
     for (const exercise of ballFamily) expect(exercise.equipment, String(exercise.id)).toBe("Medicine ball");
   });
@@ -69,7 +79,7 @@ describe("the presses-and-pushes family", () => {
       if (primaryInScope(exercise)) expect(mapped, `${exercise.id} ${exercise.name} is tagged primary`).toBe(true);
     }
     expect(mappedIds.size).toBe(72);
-    expect(Array.from(listedIds.keys()).sort((x, y) => x - y)).toEqual([25, 249, 267, 310, 322]);
+    expect(Array.from(listedIds.keys()).sort((x, y) => x - y)).toEqual([25, 249, 267, 310, 322, ...added2Nov]);
     expect(listedIds.size).toBe(unmapped.length);
     for (const entry of unmapped) expect(entry.reason.length, String(entry.catalogId)).toBeGreaterThan(20);
   });

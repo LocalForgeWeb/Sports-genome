@@ -36,6 +36,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSy
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { exercises as catalog } from "../../../../client/src/lib/exerciseCatalog";
+import { forearmCatalogExercises } from "../../../../client/src/lib/exerciseCatalogForearm";
 import { trainingEvidence } from "../../../../client/src/lib/trainingEvidence";
 import { forearmModelSourceToCanonical } from "../../../../client/src/components/specialization/anatomy3d/modelIdentity";
 import { forearmMappingsV1, forearmMappingVersionV1 } from "../../../../shared/specialization/__fixtures__/forearmMappingsV1";
@@ -917,10 +918,12 @@ export function buildImportReport(pkg: ForearmResearchPackage = readPackage()) {
   check("§1.2 totals", "28 existing (18 the same task, 9 set-up not recorded, the alias), 3 new rows, 4 referred, 16 deferred, 6 blocked: 57", `${groupCounts.existing} existing (${sub.existing}, ${sub.setup}, ${sub.alias}), ${groupCounts["new row"]} new rows, ${groupCounts.referred} referred, ${groupCounts.deferred} deferred, ${groupCounts.blocked} blocked`, groupCounts.existing === 28 && sub.existing === 18 && sub.setup === 9 && sub.alias === 1 && groupCounts["new row"] === 3 && groupCounts.referred === 4 && groupCounts.deferred === 16 && groupCounts.blocked === 6);
   const nameProblems = Object.entries(designRowNames).filter(([id, name]) => normalizeName(catalogById.get(Number(id))?.name ?? "") !== name).map(([id, name]) => `${id}: design "${name}", catalog "${catalogById.get(Number(id))?.name ?? "missing"}"`);
   check("§1.2", "Every catalog row the design names exists under that name", nameProblems.length ? nameProblems.join("; ") : `${Object.keys(designRowNames).length} rows, all as named`, nameProblems.length === 0);
-  const maxId = Math.max(...catalog.map((exercise) => exercise.id));
+  // The forearm's own rows (exerciseCatalogForearm.ts), not the whole catalog: later additions
+  // (the Zercher, neck and bench rows from 421, 2 Nov 2026) are not F3's and do not change this check.
+  const maxId = Math.max(...forearmCatalogExercises.map((exercise) => exercise.id));
   const c1Rows = { ...Object.fromEntries(Object.entries(plannedRows).map(([id, row]) => [id, row.name])), 420: "Band Index and Little Finger Extension" } as Record<string, string>;
   const c1Problems = Object.entries(c1Rows).filter(([id, name]) => catalogById.get(Number(id))?.name !== name).map(([id, name]) => `${id} (${name}): ${catalogById.get(Number(id))?.name ?? "missing"}`);
-  check("§1.2, §10 decision 2", "Ids 417–419 hold the three new rows and 420 decision 2's drill, added by lane C1 (F3); the catalog ends at 420", `catalog ends at ${maxId}; ${c1Problems.length ? `not as named: ${c1Problems.join("; ")}` : "417–420 as named"}`, maxId === 420 && c1Problems.length === 0);
+  check("§1.2, §10 decision 2", "Ids 417–419 hold the three new rows and 420 decision 2's drill, added by lane C1 (F3); the forearm rows end at 420", `forearm rows end at ${maxId}; ${c1Problems.length ? `not as named: ${c1Problems.join("; ")}` : "417–420 as named"}`, maxId === 420 && c1Problems.length === 0);
   for (const id of ["fa-09", "fa-26"]) {
     const record = records.find((entry) => entry.id === id);
     check("§1.2", `${id}: the two catalog rows are mapped alike`, `${record?.readAgainst.variants.join(" and ")}: ${record?.readAgainst.alike ? "alike" : "not alike"}`, record?.readAgainst.alike === true);
@@ -1032,7 +1035,7 @@ export function buildImportReport(pkg: ForearmResearchPackage = readPackage()) {
       mappingState: MAPPING_STATE,
       mappingRows: mappings.length,
       currentMappingVersion: currentVersion.key,
-      catalogEndsAt: maxId,
+      forearmRowsEndAt: maxId,
     },
     headline: {
       records: records.length,

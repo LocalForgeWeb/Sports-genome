@@ -264,3 +264,6 @@
 .destination-secondary .about-me-capacity-signals legend { color: var(--sg-text-subtle-on-dark); }
 .destination-secondary .about-me-capacity-fields select { border-color: rgb(164 200 232 / .4); background: var(--sg-surface-deep); color: var(--sg-text-on-dark); }
 .destination-secondary .about-me-capacity-signal { color: var(--sg-text-muted-on-dark); }
+/* Accessories the equipment categories do not imply (a head harness, a neck machine): their own row, under a plain line saying why. */
+.about-me-equipment p.about-me-accessories-note { margin: 18px 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.about-me-accessories { margin-top: 10px; }

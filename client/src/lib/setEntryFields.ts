@@ -2,6 +2,7 @@ import type { Exercise } from "./exerciseCatalog";
 import type { DisplayWeightUnit } from "./weightUnits";
 import { loadConventionFor } from "@shared/loadConventions";
 import type { LoggingPolicy } from "@shared/specialization/loggingPolicy";
+import { loggingFactsOf, smithLoadBasisOf, type ExerciseSetup } from "./exerciseLogging";
 
 /** Reps or the seconds of a hold: what a set's last box records. */
 export type SetDoseMeasure = LoggingPolicy["measure"];
@@ -29,6 +30,15 @@ export type SetDoseMeasure = LoggingPolicy["measure"];
  * the atlas itself: it is imported by screens that load with the app (through
  * sessionRecap and workoutSwap), and the atlas's logging table should load only
  * with the screens that use it.
+ *
+ * The rows with an execution record (the Zercher, neck and bench handoff) name their
+ * load box by their own convention (exerciseLogging.ts, read from the light facts):
+ * the bar and its plates, the machine's displayed load, the plates on one arm, a
+ * Smith machine's plates (with or without a bar weight the athlete knows, as they
+ * declared it in the exercise's setup, never adding a bar on their behalf), or the
+ * load hanging from a head harness. A manually resisted exercise has no load box at
+ * all: its force is not measured, so there is no number to ask for, and a hold of it
+ * is complete with its seconds alone.
  */
 export type SetEntryMeasure = "weight" | "height" | "seconds";
 
@@ -51,6 +61,13 @@ const BOX_HEIGHT: SetEntryField = { measure: "height", label: "Box height", unit
 /** How long the hold lasted. It takes the reps box's place: a hold is never also counted in reps. */
 const SECONDS: SetEntryField = { measure: "seconds", label: "Seconds", unit: "sec", optional: false };
 
+/** The rows of the handoff, by their own load convention; the bar and its plates are the plain Weight box. */
+const MACHINE_LOAD: SetEntryField = { measure: "weight", label: "Machine load", unit: "lb", optional: false };
+const PLATES_PER_ARM: SetEntryField = { measure: "weight", label: "Plates per arm", unit: "lb", optional: false };
+const SMITH_PLATES: SetEntryField = { measure: "weight", label: "Plates only", unit: "lb", optional: false };
+const SMITH_TOTAL: SetEntryField = { measure: "weight", label: "Plates + bar", unit: "lb", optional: false };
+const HARNESS_LOAD: SetEntryField = { measure: "weight", label: "Harness load", unit: "lb", optional: false };
+
 /** Jumps onto or off a box: the box's height is the progression variable. */
 const BOX_EXERCISES = /\b(box jump|depth jump|step-up)\b/i;
 
@@ -70,10 +87,12 @@ export function setEntryFieldsFor(
   weightUnit: DisplayWeightUnit = "lb",
   /** What the set's dose is entered in: the atlas's logging policy for the exercise, passed by the caller. */
   measure: SetDoseMeasure = "reps",
+  /** The exercise's setup in this workout: a Smith machine's declared load basis names its box. */
+  setup?: ExerciseSetup,
 ): SetEntryField[] {
   // The box used to say "lb" whatever the profile said, while every screen read the
   // number in the profile's unit: a kg athlete typed next to "lb" and was scored in kg.
-  const fields = fieldsFor(exercise).map((field) => field.measure === "weight" ? { ...field, unit: weightUnit } : field);
+  const fields = fieldsFor(exercise, setup).map((field) => field.measure === "weight" ? { ...field, unit: weightUnit } : field);
   return measure === "seconds" ? [...fields, SECONDS] : fields;
 }
 
@@ -82,8 +101,20 @@ export function isHoldEntry(fields: readonly SetEntryField[]): boolean {
   return fields.some((field) => field.measure === "seconds");
 }
 
-function fieldsFor(exercise: (Pick<Exercise, "name" | "category" | "equipment"> & { id?: number }) | undefined): SetEntryField[] {
+function fieldsFor(exercise: (Pick<Exercise, "name" | "category" | "equipment"> & { id?: number }) | undefined, setup?: ExerciseSetup): SetEntryField[] {
   if (!exercise) return [WEIGHT];
+  // A row with an execution record says what its one load number means, and nothing else decides.
+  const facts = loggingFactsOf(exercise.id);
+  if (facts) {
+    switch (facts.load) {
+      case "manual_unmeasured": return [];
+      case "machine_display": return [MACHINE_LOAD];
+      case "plates_per_arm": return [PLATES_PER_ARM];
+      case "smith_declared": return [smithLoadBasisOf(setup) === "total_known_bar" ? SMITH_TOTAL : SMITH_PLATES];
+      case "suspended_external_mass": return [HARNESS_LOAD];
+      case "total_bar_mass": return [WEIGHT];
+    }
+  }
   const name = exercise.name.trim();
   const carriesAddedLoad = /\bweighted\b/i.test(name);
   // The scoring policy's convention decides first, where it names one: a chin-up is scored

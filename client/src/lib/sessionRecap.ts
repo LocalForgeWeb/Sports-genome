@@ -1,11 +1,12 @@
 import { loadConventionFor } from "@shared/loadConventions";
 import { catalogMeasureOf } from "@shared/specialization/holdCatalogIds";
 import { exercises as catalog } from "./exerciseCatalog";
-import { isCompletedSet, isHoldSet, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, type DeviceSetLog, type DeviceWorkoutSession, type SetSide, type StrapsUsed } from "./deviceWorkoutLog";
+import { hasArmLoads, isCompletedSet, isHoldSet, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, type DeviceSetLog, type DeviceWorkoutSession, type SetSide, type StrapsUsed } from "./deviceWorkoutLog";
 import { loadSyncedKeys, loadSyncQueue, removeQueuedLiftsForSession, saveSyncQueue } from "./strengthSyncQueue";
 import { workoutObservationId } from "./workoutStrengthRecord";
 import { dropSetSummary, isDropSet, performedSetLine, setVolume, stageLoadText, volumeText } from "./dropSets";
 import { swapNote } from "./workoutSwapRecord";
+import { declaresLoadBasis, headDirectionActionOf, headDirectionWords, isLoadUnmeasured, isPlatesPerArm, loadBasisText, protocolKeyOf, setupSummaryOf } from "./exerciseLogging";
 import type { SetDoseMeasure } from "./setEntryFields";
 import type { LoadConvention } from "@shared/loadConventions";
 import type { DisplayWeightUnit } from "./weightUnits";
@@ -32,6 +33,11 @@ export type RecapSet = {
   hold: boolean;
   /** "Left", "Right" or "Both arms", only where the side was recorded. */
   side: string | null;
+  /**
+   * "Left" or "Right": the head's direction on a lateral flexion or rotation exercise, or
+   * "Direction not recorded" on such a set logged without one; null on every other exercise.
+   */
+  direction: string | null;
 };
 
 export type RecapExercise = {
@@ -48,6 +54,14 @@ export type RecapExercise = {
   unrecorded: number;
   /** "Straps used" / "Straps not used", only where the athlete said. */
   straps: string | null;
+  /**
+   * How the load was counted and the setup it was done with, in one line, on a row with an
+   * execution record ("Plates per arm · Machine: Hammer Strength · Seat or bench not recorded",
+   * "Manual resistance · force not measured", "Start height 45 cm"); null on every other row.
+   */
+  setup: string | null;
+  /** Which sets of this exercise compare with which (exerciseLogging `protocolKeyOf`), without a set's head direction; null on rows without one. */
+  protocolKey: string | null;
   sets: RecapSet[];
 };
 
@@ -141,6 +155,12 @@ export function sessionRecap(session: DeviceWorkoutSession, fallbackUnit: Displa
     const catalogEntry = (exercise.catalogId !== undefined ? byId.get(exercise.catalogId) : undefined) ?? byName.get(exercise.exerciseName);
     const convention = loadConventionFor(catalogEntry?.id);
     const measure = measureOf(catalogEntry?.id ?? exercise.catalogId);
+    const catalogId = catalogEntry?.id ?? exercise.catalogId;
+    // The plates on one arm are said as such, so a per-arm number never reads as the total.
+    const wording = { perArm: isPlatesPerArm(catalogId) };
+    const directed = headDirectionActionOf(catalogId) !== null;
+    // A Smith machine's declared basis is one of its setup values, said once in the summary.
+    const setupLine = [declaresLoadBasis(catalogId) ? null : loadBasisText(catalogId, exercise.setup), setupSummaryOf(catalogId, exercise.setup)].filter(Boolean).join(" · ");
     const done = exercise.sets.map((set, index) => ({ set, index })).filter(({ set }) => isCompletedSet(set));
     // A record from before planned counts were kept still holds any set it left open: those are
     // evidence of the plan, so they count; with none left open the plan is simply unknown.
@@ -157,18 +177,23 @@ export function sessionRecap(session: DeviceWorkoutSession, fallbackUnit: Displa
       skipped,
       unrecorded: planned === null ? 0 : Math.max(0, planned - done.length - skipped),
       straps: strapsLabel(exercise.straps),
+      setup: setupLine || null,
+      protocolKey: protocolKeyOf(catalogId, exercise.setup),
       sets: done.map(({ set, index }) => {
         const unit = setWeightUnit(set, session, fallbackUnit);
         const drop = isDropSet(set);
-        const volume = drop ? setVolume(set, unit, convention, fallbackUnit) : null;
+        const volume = drop ? setVolume(set, unit, convention, fallbackUnit, wording) : null;
         const side = setSideLabel(set);
         const hold = isHoldOn(set, measure);
         // A hold logged with no seconds says so, rather than "— lb × —"; Correct a set adds them.
         // Reps logged before the exercise was measured in seconds say "reps".
         const performed = hold && !isHoldSet(set) ? holdWithoutSecondsLine(set, unit, convention)
           : !hold && !drop && measure === "seconds" ? repsOnHoldLine(set, unit, convention)
-          : performedSetLine(set, unit, convention);
-        return { index, set, line: `${performed}${side ? ` · ${side}` : ""}`, detail: drop ? `${dropSetSummary(set)}${volume ? ` · ${volumeText(volume)}` : ""}` : null, drop, hold, side };
+          : performedSetLine(set, unit, convention, wording);
+        // The head's direction leads the line ("Right · 20 s"); a set of such a row logged without
+        // one says so rather than passing for either side.
+        const direction = directed ? (set.headDirection ? headDirectionWords[set.headDirection] : "Direction not recorded") : null;
+        return { index, set, line: `${direction ? `${direction} · ` : ""}${performed}${side ? ` · ${side}` : ""}`, detail: drop ? `${dropSetSummary(set)}${volume ? ` · ${volumeText(volume)}` : ""}` : null, drop, hold, side, direction };
       }),
     };
   });
@@ -231,16 +256,19 @@ export function correctSet(session: DeviceWorkoutSession, exerciseId: string, se
       if (index !== setIndex || !isCompletedSet(set) || set.type === "drop") return set;
       // The exercise as the recap reads it: by the id it kept, else by its name.
       const entry = (exercise.catalogId !== undefined ? byId.get(exercise.catalogId) : undefined) ?? byName.get(exercise.exerciseName);
+      // A set with its arms loaded differently keeps its two loads and no single weight; a
+      // manually resisted exercise has no load to correct.
+      const weight = hasArmLoads(set) || isLoadUnmeasured(entry?.id ?? exercise.catalogId) ? set.weight : patch.weight.trim();
       if (isHoldOn(set, measureOf(entry?.id ?? exercise.catalogId))) {
         const seconds = wholeIn(patch.holdSeconds, 86_400);
         if (seconds === null) return set;
         changed = true;
-        return { ...set, weight: patch.weight.trim(), reps: "", holdSeconds: String(seconds) };
+        return { ...set, weight, reps: "", holdSeconds: String(seconds) };
       }
       const reps = wholeIn(patch.reps, 1000);
       if (reps === null) return set;
       changed = true;
-      return { ...set, weight: patch.weight.trim(), reps: String(reps) };
+      return { ...set, weight, reps: String(reps) };
     }),
   });
   return changed ? { ...session, exercises, correctedAt: at } : session;
@@ -312,7 +340,13 @@ export function repeatDayFrom(session: DeviceWorkoutSession): { day: IncomingDra
   return { day: { label, items, unresolved: [] }, leftOut };
 }
 
-export type ExerciseHistoryEntry = { sessionId: string; completedAt: Date; dayName: string; sets: { line: string; detail: string | null }[] };
+export type ExerciseHistoryEntry = {
+  sessionId: string; completedAt: Date; dayName: string; sets: { line: string; detail: string | null }[];
+  /** The setup line of that workout's exercise (`RecapExercise.setup`), on rows with an execution record. */
+  setup: string | null;
+  /** Which workouts compare with which: equal keys are the same protocol (exerciseLogging `protocolKeyOf`); null on other rows. */
+  protocolKey: string | null;
+};
 
 /**
  * One exercise's past (H07, H08): each finished workout that did it, newest first, with its sets
@@ -322,6 +356,23 @@ export type ExerciseHistoryEntry = { sessionId: string; completedAt: Date; dayNa
  */
 const sameExercise = (target: { exerciseName: string; catalogId?: number }) => (exercise: DeviceWorkoutSession["exercises"][number]) =>
   target.catalogId !== undefined && exercise.catalogId !== undefined ? exercise.catalogId === target.catalogId : exercise.exerciseName === target.exerciseName;
+
+/**
+ * An exercise's history split by protocol (exerciseLogging `protocolKeyOf`): the workouts done with
+ * the same setup together, the newest group first, each in the history's own order. One group for
+ * an exercise without execution facts, or one always done the same way. A block pull from 30 cm and
+ * one from 45 cm are two groups: they are listed apart and never read as one record.
+ */
+export function historyByProtocol(entries: readonly ExerciseHistoryEntry[]): { protocolKey: string | null; setup: string | null; entries: ExerciseHistoryEntry[] }[] {
+  const groups = new Map<string, { protocolKey: string | null; setup: string | null; entries: ExerciseHistoryEntry[] }>();
+  for (const entry of entries) {
+    const key = entry.protocolKey ?? "";
+    const group = groups.get(key) ?? { protocolKey: entry.protocolKey, setup: entry.setup, entries: [] };
+    group.entries.push(entry);
+    groups.set(key, group);
+  }
+  return Array.from(groups.values());
+}
 
 /** How many finished workouts did this exercise: the cheap count, for a screen that redraws every second. */
 export function exerciseHistoryCount(target: { exerciseName: string; catalogId?: number }, sessions: readonly DeviceWorkoutSession[], excludeSessionId?: string): number {
@@ -343,9 +394,10 @@ export function exerciseHistory(target: { exerciseName: string; catalogId?: numb
       if (!done.length) return [];
       const recap = sessionRecap(session, fallbackUnit, measureOf);
       const ids = new Set(done.map((exercise) => exercise.id));
-      const sets = recap.exercises.filter((exercise) => ids.has(exercise.id)).flatMap((exercise) => exercise.sets.map((set) => ({ line: set.line, detail: set.detail })));
+      const matched = recap.exercises.filter((exercise) => ids.has(exercise.id));
+      const sets = matched.flatMap((exercise) => exercise.sets.map((set) => ({ line: set.line, detail: set.detail })));
       const dayName = session.dayLabel.split(" · ").map((part) => part.trim()).filter(Boolean).pop() || session.title;
-      return [{ sessionId: session.id, completedAt: recap.completedAt, dayName, sets }];
+      return [{ sessionId: session.id, completedAt: recap.completedAt, dayName, sets, setup: matched[0]?.setup ?? null, protocolKey: matched[0]?.protocolKey ?? null }];
     })
     .sort((a, b) => b.completedAt.getTime() - a.completedAt.getTime());
   return { entries: all.slice(0, limit), total: all.length };
