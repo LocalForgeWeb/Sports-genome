@@ -163,16 +163,14 @@ describe("a finished workout through save, reload, a second save and two syncs (
     expect(finished.exercises[1].sets[0]).toMatchObject({ leftLoad: "40", rightLoad: "50", weight: "" });
   });
 
-  it("queues each exercise's top set once, under its stable id, however often it syncs; a hold sends nothing", () => {
+  it("sends none of these sets to the strength record, however often it syncs: the rows are provisional (no norm, rank or estimated max)", () => {
     saveDeviceWorkoutSessions([workout()]);
     const queued = (sessions: DeviceWorkoutSession[]): QueuedLift[] => workoutStrengthObservations(sessions, "kg").map((observation) => ({ key: observation.id, lift: { catalogExerciseId: observation.catalogExerciseId!, observedAt: observation.observedAt, measurementType: observation.measurementType, reportedLoad: observation.reportedLoad, reportedUnit: observation.reportedUnit, repetitions: observation.repetitions, source: "device" as const } as QueuedLift["lift"], athlete: {} as QueuedLift["athlete"], queuedAt: "2026-11-02T11:05:00.000Z" }));
+    // The press with its arms apart and the paused bench are logged and kept on the device (above),
+    // but nothing of them becomes a strength observation, so a first, second and third sync queue nothing.
     const once = enqueueLifts([], [], queued(reload()));
-    const twice = enqueueLifts(once, [], queued(reload()));
-    expect(twice).toEqual(once);
-    expect(once.map((item) => item.key)).toEqual(["workout-s1-437-0", "workout-s1-442-0"]);
-    // The press's top set is its single-load set: the one with its arms apart has no one load to send.
-    expect(once.map((item) => [item.lift.reportedLoad, item.lift.repetitions])).toEqual([[45, 8], [100, 5]]);
-    // Sent already: a third sync sends nothing new.
-    expect(enqueueLifts([], once.map((item) => item.key), queued(reload()))).toEqual([]);
+    expect(once).toEqual([]);
+    expect(enqueueLifts(once, [], queued(reload()))).toEqual([]);
+    expect(reload()[0].exercises.map((exercise) => exercise.sets.length)).toEqual(workout().exercises.map((exercise) => exercise.sets.length));
   });
 });
