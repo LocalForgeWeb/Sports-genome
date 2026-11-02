@@ -8,9 +8,10 @@ import { ExerciseMedia } from "@/components/ExerciseMedia";
 import { exercisePhotoSet } from "@/lib/exercisePhotos";
 import {
   activePosition, carriedEntryFor, countCompletedSets, countPlannedSets, finalizeSession, freshId, newSetId,
-  deviceWorkoutHistoryKey, isCompletedSet, isCompletedWorkout, isDraftSet, isDropInProgress, isExerciseSkipped, lastCompletedSetFor, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, skipExercise,
+  isDeviceWorkoutHistoryStorageKey, isCompletedSet, isCompletedWorkout, isDraftSet, isDropInProgress, isExerciseSkipped, lastCompletedSetFor, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, skipExercise,
   unknownSetFields, unskipExercise, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession, type StrapsUsed,
 } from "@/lib/deviceWorkoutLog";
+import { deviceStorageOwner } from "@/lib/deviceRecordStore";
 import { loggingPolicyFor } from "@shared/specialization/loggingPolicy";
 import type { Limb } from "@shared/specialization/types";
 import { noLoggerGates, type LoggerGates } from "@/lib/specialization/loggerGates";
@@ -237,6 +238,12 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    * Read by handlers that outlive a render - a toast's Undo, a storage event - so they
    * act on the session as it is now, not as it was when they were created.
    */
+  /**
+   * Whose workouts this logger reads and writes, fixed when it mounts (iOS readiness audit, A03).
+   * The workspace remounts the logger when the account changes, and a write that lands late
+   * (a rest timer, a retried checkpoint) still goes to the athlete who made it.
+   */
+  const ownerRef = useRef(deviceStorageOwner());
   const activeSessionRef = useRef<DeviceWorkoutSession | null>(null);
   activeSessionRef.current = activeSession;
   const weightUnitRef = useRef(weightUnit);
@@ -246,7 +253,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     session.weightUnit ? session : { ...session, weightUnit: weightUnitRef.current, weightUnitInferred: true };
 
   useEffect(() => {
-    const stored = loadDeviceWorkoutSessions();
+    const stored = loadDeviceWorkoutSessions(ownerRef.current);
     setHistory(stored);
     const found = stored.find((session) => session.status === "active") || null;
     const running = found ? withUnit(found) : null;
@@ -264,8 +271,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    */
   useEffect(() => {
     const onStorage = (event: StorageEvent) => {
-      if (event.key !== null && event.key !== deviceWorkoutHistoryKey) return;
-      const stored = loadDeviceWorkoutSessions();
+      if (!isDeviceWorkoutHistoryStorageKey(event.key, ownerRef.current)) return;
+      const stored = loadDeviceWorkoutSessions(ownerRef.current);
       setHistory(stored);
       const current = activeSessionRef.current;
       if (current) {
@@ -454,8 +461,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    * surface stops claiming durability it does not have.
    */
   const persist = (next: DeviceWorkoutSession) => {
-    const prior = loadDeviceWorkoutSessions().filter((session) => session.id !== next.id);
-    const written = saveDeviceWorkoutSessions([next, ...prior]);
+    const prior = loadDeviceWorkoutSessions(ownerRef.current).filter((session) => session.id !== next.id);
+    const written = saveDeviceWorkoutSessions([next, ...prior], ownerRef.current);
     setDurable(written);
     activeSessionRef.current = next;
     setActiveSession(next);
@@ -472,9 +479,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   const commit = (change: (session: DeviceWorkoutSession) => DeviceWorkoutSession) => {
     const current = activeSessionRef.current;
     if (!current) return;
-    const latest = loadDeviceWorkoutSessions().find((session) => session.id === current.id);
+    const latest = loadDeviceWorkoutSessions(ownerRef.current).find((session) => session.id === current.id);
     if (latest && latest.status !== "active") {
-      setHistory(loadDeviceWorkoutSessions());
+      setHistory(loadDeviceWorkoutSessions(ownerRef.current));
       setActiveSession(null);
       setResumed(false);
       toast("This workout was closed in another tab", { id: "session-closed-elsewhere", description: "It was finished there, and its record is saved." });
@@ -489,9 +496,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     try {
       // One workout at a time on a device. A session already running - started in
       // another tab, or before a reload - is picked up rather than joined by a second.
-      const running = loadDeviceWorkoutSessions().find((session) => session.status === "active");
+      const running = loadDeviceWorkoutSessions(ownerRef.current).find((session) => session.status === "active");
       if (running) {
-        setHistory(loadDeviceWorkoutSessions());
+        setHistory(loadDeviceWorkoutSessions(ownerRef.current));
         activeSessionRef.current = withUnit(running);
         setActiveSession(withUnit(running));
         setResumed(true);
@@ -917,9 +924,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const current = activeSessionRef.current;
     if (!current) return;
     // Finish what is stored now, which includes sets logged in another tab.
-    const latest = loadDeviceWorkoutSessions().find((item) => item.id === current.id);
+    const latest = loadDeviceWorkoutSessions(ownerRef.current).find((item) => item.id === current.id);
     if (latest && latest.status !== "active") {
-      setHistory(loadDeviceWorkoutSessions());
+      setHistory(loadDeviceWorkoutSessions(ownerRef.current));
       setActiveSession(null);
       setResumed(false);
       toast("This workout was already finished", { id: "session-closed-elsewhere", description: "It was finished in another tab, and its record is saved." });
@@ -932,14 +939,14 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       undefined,
       currentBodyWeightKg(loadBodyWeightLog()),
     );
-    const prior = loadDeviceWorkoutSessions().filter((item) => item.id !== session.id);
+    const prior = loadDeviceWorkoutSessions(ownerRef.current).filter((item) => item.id !== session.id);
     /*
      * Nothing logged is not a workout (B155, B156). A finish with no completed set used to
      * be stored as a completed session and counted on Home and Progress as a workout done.
      * It now ends the session and records nothing.
      */
     if (completedSets === 0) {
-      const cleared = saveDeviceWorkoutSessions(prior);
+      const cleared = saveDeviceWorkoutSessions(prior, ownerRef.current);
       setDurable(cleared);
       if (!cleared) {
         toast.error("This workout could not be closed yet", { id: "finish-not-saved", description: "The device refused the save, so the workout is still open here. Free up storage, then try again.", action: { label: "Try again", onClick: () => finish() } });
@@ -952,7 +959,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       toast("Workout ended, nothing recorded", { id: "finish-empty", description: "No set was logged, so it does not count as a workout." });
       return;
     }
-    const written = saveDeviceWorkoutSessions([session, ...prior]);
+    const written = saveDeviceWorkoutSessions([session, ...prior], ownerRef.current);
     setDurable(written);
     /*
      * A finish the device refused is not a finished workout. It used to close the live

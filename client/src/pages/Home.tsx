@@ -31,6 +31,7 @@ import type { TrainingLoadout as LoadoutMode } from "@/lib/loadoutTemplates";
 import { FeatureTour } from "@/components/FeatureTour";
 import { WorkspaceTabs } from "@/components/WorkspaceTabs";
 import { readScopedRecord, scopedKey } from "@/lib/deviceStorageScope";
+import { setDeviceStorageOwner } from "@/lib/deviceRecordStore";
 import { loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, stampLegacyWeightUnits, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { repeatDayFrom } from "@/lib/sessionRecap";
 import { ExerciseHistoryList } from "@/components/ExerciseHistoryList";
@@ -435,6 +436,11 @@ export default function Home() {
   /** Which account's plan is currently in memory, so the writer cannot cross accounts. */
   const hydratedPlanKeyRef = useRef<string | null>(null);
   const accountId = user?.id ?? null;
+  // The device's workout history, observations, body weight and outbox follow the account
+  // (lib/deviceRecordStore.ts; iOS readiness audit, A03). Set during render, so the first read
+  // of a newly mounted workspace already uses it; it changes only when the account does, and
+  // the shell below is keyed by it so the old account's screens unmount first.
+  setDeviceStorageOwner(accountId);
   // Set from a refused call while signed in until auth.me answers with a user again.
   const sessionLapsed = useSessionLapsed();
   const [accountFocusRequest, setAccountFocusRequest] = useState(0);
@@ -2534,7 +2540,7 @@ export default function Home() {
    */
   if (!onboardingComplete) return <Suspense fallback={null}><AthleteBaselineQuiz sports={sportProfiles} targetCatalog={resilienceCatalogQuery.data} onComplete={completeOnboarding} /></Suspense>;
 
-  return <div className={`apex-shell shell-${activePrimaryDestination} ${directWorkspaceAccess ? "direct-workspace-mode" : ""}`}>
+  return <div key={accountId ?? "device"} className={`apex-shell shell-${activePrimaryDestination} ${directWorkspaceAccess ? "direct-workspace-mode" : ""}`}>
     <div className="apex-main">
       {/*
         * Who you are and what you are looking at, back above the tab row.

@@ -1,4 +1,5 @@
 import { isSetEffort, type SetEffort } from "@shared/setEffort";
+import { deviceStorageOwner, readOwnedList, writeOwnedList } from "./deviceRecordStore";
 
 export type DeviceStrengthObservation = {
   id: string;
@@ -53,10 +54,11 @@ function readDeviceStrengthObservation(entry: unknown): DeviceStrengthObservatio
   return record as DeviceStrengthObservation;
 }
 
-export function loadDeviceStrengthObservations(): DeviceStrengthObservation[] {
+export function loadDeviceStrengthObservations(owner: string | null = deviceStorageOwner()): DeviceStrengthObservation[] {
   if (typeof window === "undefined") return [];
   try {
-    const parsed = JSON.parse(window.localStorage.getItem(deviceStrengthObservationKey) || "[]");
+    // Owner-scoped; unreadable text is kept aside, not read as "none" (iOS readiness audit, A03).
+    const parsed = readOwnedList(deviceStrengthObservationKey, owner);
     return Array.isArray(parsed) ? parsed.map(readDeviceStrengthObservation).filter((o): o is DeviceStrengthObservation => o !== null) : [];
   } catch {
     return [];
@@ -68,13 +70,9 @@ export function loadDeviceStrengthObservations(): DeviceStrengthObservation[] {
  * private mode, storage disabled) is reported rather than swallowed, so the
  * screen can keep the athlete's entry and say it was not saved.
  */
-export function saveDeviceStrengthObservations(observations: DeviceStrengthObservation[]): boolean {
+export function saveDeviceStrengthObservations(observations: DeviceStrengthObservation[], owner: string | null = deviceStorageOwner()): boolean {
   if (typeof window === "undefined") return false;
-  try {
-    window.localStorage.setItem(deviceStrengthObservationKey, JSON.stringify(observations));
-  } catch {
-    return false;
-  }
+  if (!writeOwnedList(deviceStrengthObservationKey, observations, owner)) return false;
   window.dispatchEvent(new Event(deviceStrengthObservationEvent));
   return true;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { deviceWorkoutHistoryEvent, deviceWorkoutHistoryKey, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
+import { deviceWorkoutHistoryEvent, isDeviceWorkoutHistoryStorageKey, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { exercises as exerciseCatalog, type Exercise } from "@/lib/exerciseCatalog";
 import type { DaySlot, WeeklyDayStore } from "@/lib/trainingDayPlan";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
@@ -175,7 +175,7 @@ export function useDeviceWorkoutSessions(): DeviceWorkoutSession[] {
   const [sessions, setSessions] = useState<DeviceWorkoutSession[]>(() => loadDeviceWorkoutSessions());
   useEffect(() => {
     const refresh = () => setSessions(loadDeviceWorkoutSessions());
-    const onStorage = (event: StorageEvent) => { if (event.key === null || event.key === deviceWorkoutHistoryKey) refresh(); };
+    const onStorage = (event: StorageEvent) => { if (isDeviceWorkoutHistoryStorageKey(event.key)) refresh(); };
     refresh();
     window.addEventListener(deviceWorkoutHistoryEvent, refresh);
     window.addEventListener("storage", onStorage);

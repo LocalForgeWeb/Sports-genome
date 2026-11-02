@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { ArrowLeft, Check, ChevronRight, Pencil, Trash2 } from "lucide-react";
-import { deviceWorkoutHistoryEvent, deviceWorkoutHistoryKey, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
+import { deviceWorkoutHistoryEvent, isDeviceWorkoutHistoryStorageKey, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { correctSet, elapsedText, exerciseOutcomeLine, removeSet, sessionRecap, updateFinishedSession, withNote, type MeasureOf } from "@/lib/sessionRecap";
 import { catalogMeasureOf } from "@shared/specialization/holdCatalogIds";
 import { decimalEntryText } from "@/lib/numericEntry";
@@ -61,7 +61,7 @@ export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, o
 
   useEffect(() => {
     const refresh = () => setSession(findSession(sessionId));
-    const onStorage = (event: StorageEvent) => { if (event.key === null || event.key === deviceWorkoutHistoryKey) refresh(); };
+    const onStorage = (event: StorageEvent) => { if (isDeviceWorkoutHistoryStorageKey(event.key)) refresh(); };
     refresh();
     window.addEventListener(deviceWorkoutHistoryEvent, refresh);
     window.addEventListener("storage", onStorage);

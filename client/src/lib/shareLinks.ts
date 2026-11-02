@@ -1,4 +1,5 @@
 import type { ShareSnapshot } from "@shared/workoutShare";
+import { claimLegacyRecord, deviceStorageOwner, ownedKey } from "@/lib/deviceRecordStore";
 
 /**
  * What this device remembers about sharing.
@@ -14,6 +15,16 @@ import type { ShareSnapshot } from "@shared/workoutShare";
  */
 const OWNED_KEY = "sg-shared-by-me-v1";
 const SAVED_KEY = "sg-saved-shares-v1";
+/**
+ * The links an athlete made hold their manage secrets, so they belong to that athlete like the
+ * workouts they share (iOS readiness audit, A03): kept per device owner, with a pre-owner list
+ * claimed by the first owner to read it.
+ */
+const forOwner = (base: string) => {
+  const who = deviceStorageOwner();
+  if (typeof window !== "undefined") claimLegacyRecord(base, who);
+  return ownedKey(base, who);
+};
 const PENDING_KEY = "sg-pending-shared-save-v1";
 
 export type OwnedShareRecord = {
@@ -60,26 +71,26 @@ const local = () => (typeof window === "undefined" ? undefined : window.localSto
 const session = () => (typeof window === "undefined" ? undefined : window.sessionStorage);
 
 export function ownedShares(): OwnedShareRecord[] {
-  const list = read<OwnedShareRecord[]>(local(), OWNED_KEY, []);
+  const list = read<OwnedShareRecord[]>(local(), forOwner(OWNED_KEY), []);
   return Array.isArray(list) ? list.filter((item) => item && typeof item.token === "string" && typeof item.manageSecret === "string") : [];
 }
 export function rememberOwnedShare(record: OwnedShareRecord) {
-  write(local(), OWNED_KEY, [record, ...ownedShares().filter((item) => item.token !== record.token)].slice(0, 50));
+  write(local(), forOwner(OWNED_KEY), [record, ...ownedShares().filter((item) => item.token !== record.token)].slice(0, 50));
 }
 export function markOwnedShareDisabled(token: string, at = new Date().toISOString()) {
-  write(local(), OWNED_KEY, ownedShares().map((item) => (item.token === token ? { ...item, disabledAt: at } : item)));
+  write(local(), forOwner(OWNED_KEY), ownedShares().map((item) => (item.token === token ? { ...item, disabledAt: at } : item)));
 }
 export function forgetOwnedShare(token: string) {
-  write(local(), OWNED_KEY, ownedShares().filter((item) => item.token !== token));
+  write(local(), forOwner(OWNED_KEY), ownedShares().filter((item) => item.token !== token));
 }
 
 export function savedShare(token: string): SavedShareRecord | null {
-  const saved = read<Record<string, SavedShareRecord>>(local(), SAVED_KEY, {});
+  const saved = read<Record<string, SavedShareRecord>>(local(), forOwner(SAVED_KEY), {});
   return saved && typeof saved === "object" ? saved[token] ?? null : null;
 }
 export function rememberSavedShare(record: SavedShareRecord) {
-  const saved = read<Record<string, SavedShareRecord>>(local(), SAVED_KEY, {});
-  write(local(), SAVED_KEY, { ...(saved && typeof saved === "object" ? saved : {}), [record.token]: record });
+  const saved = read<Record<string, SavedShareRecord>>(local(), forOwner(SAVED_KEY), {});
+  write(local(), forOwner(SAVED_KEY), { ...(saved && typeof saved === "object" ? saved : {}), [record.token]: record });
 }
 
 export function pendingSharedSave(): PendingSharedSave | null {
