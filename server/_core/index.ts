@@ -3,6 +3,7 @@ import express from "express";
 import { createServer } from "http";
 import net from "net";
 import { requireJsonMutations, trpcHandler } from "./apiHandler";
+import { nativeOriginAccess } from "./nativeOrigins";
 import { serveStatic, setupVite } from "./vite";
 import { serveSharePage } from "../sharePage";
 import { BODY_LIMIT, apiErrorHandler, apiNotFound, mountHealth, noStore, requestContext } from "./http";
@@ -35,7 +36,8 @@ async function startServer() {
   app.use(express.json({ limit: BODY_LIMIT }));
   app.use(express.urlencoded({ limit: BODY_LIMIT, extended: true }));
   mountHealth(app);
-  app.use("/api/trpc", noStore, requireJsonMutations, trpcHandler());
+  // Exact native-shell origins only, and only when NATIVE_APP_ORIGINS lists them (nativeOrigins.ts).
+  app.use("/api/trpc", nativeOriginAccess(), noStore, requireJsonMutations, trpcHandler());
   app.use("/api", apiNotFound);
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {

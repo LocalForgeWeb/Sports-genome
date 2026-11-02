@@ -4,6 +4,7 @@ import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@ta
 import { installSessionNotice, sessionNotice } from "@/lib/sessionNotice";
 import { shouldRetryQuery } from "@/lib/queryRetry";
 import { httpBatchLink } from "@trpc/client";
+import { apiUrl } from "@/lib/apiOrigin";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import "./index.css";
@@ -24,10 +25,25 @@ const queryClient = new QueryClient({
 });
 installSessionNotice(queryClient);
 
+/**
+ * The API address comes from one place (lib/apiOrigin.ts): relative on the website, the
+ * configured HTTPS origin in a native build. A native build without one cannot reach its
+ * server, so it says so at start-up instead of opening an app that silently fails.
+ */
+let apiConfigError: unknown = null;
+const trpcUrl = (() => {
+  try {
+    return apiUrl("/api/trpc");
+  } catch (error) {
+    apiConfigError = error;
+    return "/api/trpc";
+  }
+})();
+
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
-      url: "/api/trpc",
+      url: trpcUrl,
       // The server refuses a batch of more than 10 (server/_core/apiHandler.ts); split instead.
       maxItems: 10,
       transformer: superjson,
@@ -101,6 +117,11 @@ async function loadApp() {
 async function mountWorkspace() {
   const root = document.getElementById("root");
   if (!root) return;
+  if (apiConfigError) {
+    console.error("[Startup] API address not configured", apiConfigError);
+    renderStartupFailure(root, apiConfigError);
+    return;
+  }
 
   let App: Awaited<ReturnType<typeof loadApp>>;
   try {
