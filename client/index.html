@@ -134,7 +134,9 @@
         // A broken asset must not hold the other one hostage.
         img.addEventListener("error", settleOne, { once: true });
       });
-      window.setTimeout(begin, 2500);
+      // A returning athlete has seen the sequence; on a slow connection they are
+      // waiting for their workspace, not for the mark (iOS readiness audit, A07).
+      window.setTimeout(begin, root.dataset.sportsGenomeBootReturn === "yes" ? 1200 : 2500);
     })()}catch(e){var r=document.documentElement;r.dataset.sportsGenomeBootArtAt=String(Date.now());r.classList.add("sports-genome-boot-art-ready");try{window.dispatchEvent(new Event("sports-genome-boot-art-ready"))}catch(e2){}}</script>
     <!-- Last resort for a React that never arrives. It reveals the app with no cross-fade,
          so it must not fire while the intro is still running - but a flat extension would
@@ -192,6 +194,7 @@
           // means the sequence has not begun, so nothing has been told and the
           // intro is not late. A replay is exempt: watching it is the reason
           // the athlete asked.
+          canplayAt = Date.now();
           var artAt = Number(root.dataset.sportsGenomeBootArtAt);
           var storyStartedAt = (artAt > 0) ? artAt : 0;
           if (!replay && storyStartedAt && Date.now() - storyStartedAt > 1100) { settle("skipped"); return; }
@@ -209,6 +212,7 @@
          * advancing - which is to say, while it is genuinely still playing.
          */
         var playing = false;
+        var canplayAt = 0;
         var lastTime = -1;
         var lastProgressAt = Date.now();
         // When the first frame actually played. The download begins at document
@@ -225,6 +229,11 @@
           if (!playing) {
             // This one is about the download, so the document's clock is right.
             if (sinceStart > (replay ? 8000 : 4000)) { window.clearInterval(watch); settle("skipped"); }
+            // Past the "too late to start" gate with nothing to play, the gate will refuse
+            // the video whenever it arrives, so waiting out the 4 seconds holds the
+            // workspace for nothing (iOS readiness audit, A07).
+            var artStartedAt = Number(root.dataset.sportsGenomeBootArtAt);
+            if (!settled && !replay && !canplayAt && artStartedAt > 0 && now - artStartedAt > 1100) { window.clearInterval(watch); settle("skipped"); }
             return;
           }
           var playedMs = playbackStartedAt ? now - playbackStartedAt : sinceStart;

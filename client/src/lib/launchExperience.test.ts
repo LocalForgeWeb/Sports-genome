@@ -103,6 +103,15 @@ describe("launch experience preference", () => {
     expect(bootLifecycleSource).toContain("bootPresentationMs(hasLaunchedBefore() && !isIntroReplay())");
   });
 
+  it("stops waiting for a video the late-start gate would refuse anyway", () => {
+    // Without this, a video that never arrived held every launch to the 4-second start ceiling,
+    // though once the sequence is 1.1s old the gate refuses it whenever it does arrive.
+    expect(bootDocumentSource).toContain('if (!settled && !replay && !canplayAt && artStartedAt > 0 && now - artStartedAt > 1100) { window.clearInterval(watch); settle("skipped"); }');
+    expect(bootDocumentSource).toContain("canplayAt = Date.now();");
+    // The 4-second ceiling and the replay's 8 seconds still stand behind it.
+    expect(bootDocumentSource).toContain('if (sinceStart > (replay ? 8000 : 4000)) { window.clearInterval(watch); settle("skipped"); }');
+  });
+
   it("makes the hold a floor rather than a deadline", () => {
     // The lifecycle used to fire dismissBootSplash directly on that timer.
     expect(bootLifecycleSource).toContain("whenBootVideoSettles(finish)");
@@ -147,8 +156,10 @@ describe("the launch sequence waits for something to show", () => {
     // the first frame of a scale-up is exactly where that gap shows.
     expect(bootDocumentSource).toContain('typeof img.decode === "function"');
     // A dead asset must not hold the screen, so the gate opens regardless.
-    expect(bootDocumentSource).toContain("window.setTimeout(begin, 2500);");
+    // A returning visit waits less for it: that athlete is waiting for the workspace.
+    expect(bootDocumentSource).toContain('window.setTimeout(begin, root.dataset.sportsGenomeBootReturn === "yes" ? 1200 : 2500);');
     expect(bootExperienceSource).toContain("export const bootArtCeilingMs = 2_500");
+    expect(bootExperienceSource).toContain("export const bootArtReturningCeilingMs = 1_200");
   });
 
   it("measures the hold from when the sequence began, and waits to find out when that was", () => {

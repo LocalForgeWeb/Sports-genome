@@ -484,7 +484,6 @@
 .command-signal-card::after { color: #aac6fa; }
 .text-\[\#e4512e\], .hover\:text-\[\#e4512e\]:hover { color: var(--sg-info-strong) !important; }
 .bg-\[\#e4512e\], .hover\:bg-\[\#e4512e\]:hover { background-color: var(--sg-info-strong) !important; }
-.border-\[\var(--sg-action)\], .hover\:border-\[\var(--sg-action)\]:hover { border-color: var(--sg-info-strong) !important; }
 .metric-card:first-child { border-top-color: var(--sg-info-strong); }
 .sport-chip-active { background: var(--sg-surface-panel); box-shadow: inset 0 -3px var(--sg-info-strong); }
 .movement-list-active { border-left-color: var(--sg-info-strong); background: rgb(45 108 223 / .16); }
@@ -2780,6 +2779,8 @@ details:not([open]) > *:not(summary) {
    the cascade without specificity games, and it can be lifted out whole. */
 :root { --sg-topbar-height: 72px; }
 .apex-topbar { position: sticky; top: 0; z-index: 30; display: flex; min-height: var(--sg-topbar-height); align-items: center; gap: 16px; border-bottom: 1px solid var(--sg-divider-on-light); background: rgb(250 253 255); padding: 12px 18px; padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+/* The drawn stand-in when the brand image fails (BrandMark): it takes the image's place and size. */
+.brand-mark-fallback { display: block; flex: 0 0 auto; border-radius: 999px; }
 .topbar-brand-logo { width: 56px; height: 56px; border-radius: 999px; background: var(--sg-surface-deep); box-shadow: 0 0 0 1px rgb(11 34 64 / .18), 0 7px 16px rgb(10 29 54 / .15); object-fit: cover; }
 /* Three fixed facts about the athlete, not a list to browse: they wrap rather
    than scroll behind a hidden scrollbar, which is what cut "5 days" mid-word. */

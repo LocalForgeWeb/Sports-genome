@@ -5,7 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { dismissBootSplash } from "@/lib/bootSplash";
 import { copyText } from "@/lib/workoutShare";
 import { savedShare, setPendingSharedSave, shareUrl } from "@/lib/shareLinks";
-import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
+import { BrandMark } from "@/components/BrandMark";
 import { SharedWorkoutView } from "@/components/SharedWorkoutView";
 import { parseShareSnapshot } from "@shared/workoutShare";
 import { shareSnapshotText } from "@shared/workoutShareFormat";
@@ -39,7 +39,7 @@ function setHead(title: string) {
 function PageFrame({ children, busy }: { children: React.ReactNode; busy?: boolean }) {
   return <div className="sp-shell">
     <header className="sp-bar">
-      <a className="sp-brand" href="/" aria-label="Sports Genome"><img src={sportsGenomeAssets.officialLogo} alt="" width={36} height={36} /><span>Sports Genome</span></a>
+      <a className="sp-brand" href="/" aria-label="Sports Genome"><BrandMark variant="logo" size={36} /><span>Sports Genome</span></a>
       <a className="sp-open" href="/" aria-label="Open Sports Genome"><span className="sp-open-long">Open Sports Genome</span><span className="sp-open-short">Open app</span></a>
     </header>
     <main className="sp-main" aria-busy={busy || undefined}>{children}</main>
