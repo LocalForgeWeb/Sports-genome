@@ -33,8 +33,8 @@ describe("Every Training Day surface is handed the same prescriptions", () => {
   it("passes the resolved map to the picker and the review panels, and the saved map to the tracker, which reads it the same way", () => {
     const home = readFileSync(`${process.cwd()}/client/src/pages/Home.tsx`, "utf8");
     expect(home).toContain("[exercise.id, prescriptionFor(exercise, index, goal, prescriptions[exercise.id])])),");
-    // Home's reading is the planner's one reading, with the exercise's measure.
-    expect(home).toContain("return prescriptionOf(saved, index, goal, catalogMeasureOf(catalogIdOf(exercise)));");
+    // Home's reading is the planner's one reading, with the exercise's measure and its catalog id (a neck row sets its own target).
+    expect(home).toContain("return prescriptionOf(saved, index, goal, catalogMeasureOf(catalogIdOf(exercise)), catalogIdOf(exercise));");
     expect(home.match(/prescriptions=\{dayPrescriptions\}/g)).toHaveLength(4);
     const tracker = home.split("\n").filter((line) => line.includes("<DeviceWorkoutTracker "));
     expect(tracker).toHaveLength(1);
@@ -42,7 +42,7 @@ describe("Every Training Day surface is handed the same prescriptions", () => {
     expect(home.match(/prescriptions=\{prescriptions\}/g)).toHaveLength(1);
     // The tracker resolves every entry through that same function.
     const source = readFileSync(`${process.cwd()}/client/src/components/DeviceWorkoutTracker.tsx`, "utf8");
-    expect(source).toContain("prescription: prescriptionOf(prescriptions[exercise.id], index, goal, policy.measure)");
+    expect(source).toContain("prescription: prescriptionOf(prescriptions[exercise.id], index, goal, policy.measure, catalogIdOf(exercise))");
   });
 
   it("gives the tracker the very sets the resolved map gives every other surface", () => {

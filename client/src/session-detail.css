@@ -59,3 +59,4 @@
 .session-detail-actions .session-detail-primary:hover { background: var(--sg-action-strong); }
 .session-detail-actions .session-detail-remove { border-color: rgb(255 155 133 / .5); color: #ffc9b8; }
 @media (prefers-reduced-motion: reduce) { .session-detail-exercises summary > svg { transition: none; } }
+.session-detail-exercise-name .session-detail-setup { overflow-wrap: anywhere; }

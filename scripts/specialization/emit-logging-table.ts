@@ -12,7 +12,16 @@
  *   mapping. The tracker and the swap sheet read this table instead of every region's variants
  *   and mappings, so the workout logger downloads a few kilobytes, not the regions' mapping text.
  * - `shared/specialization/holdCatalogIds.ts`: the catalog ids measured in seconds, which the
- *   first screens read. It imports nothing, so it adds only its own bytes to them.
+ *   first screens read. It imports nothing, so it adds only its own bytes to them. It reads two
+ *   sources: the atlas's rows above, and the catalog's own execution records
+ *   (client/src/lib/exerciseExecution.ts), so a hold no production region maps (Zercher Hold, the
+ *   manual neck isometrics) is timed without pretending an atlas region maps it (Zercher, neck
+ *   and bench handoff §3.3). One row per catalog id; a row both sources measure must be measured
+ *   the same way by both, or the emitter refuses to write either file.
+ * - `client/src/lib/exerciseLoggingFacts.generated.ts`: what the logger and the screens that read
+ *   a workout back need of those execution records (the load convention, the neck action, the
+ *   head direction, the setup fields), and nothing else: no steps, roles or sources, so the first
+ *   screens can read it for about two kilobytes.
  *
  * - `shared/specialization/regions/<region>/libraryVariants.generated.ts`, one per production region
  *   (wave A, 23 Oct 2026): the variant library's records that region's page reads beyond its own
@@ -33,6 +42,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { exercises as catalog } from "../../client/src/lib/exerciseCatalog";
+import { exerciseExecutionById, type ExerciseExecution } from "../../client/src/lib/exerciseExecution";
 import { registeredRegionContents, specializationRegions } from "../../shared/specialization/registry";
 import { regionVariantRecords, variantById, variantFor, variantLibrary } from "../../shared/specialization/variants";
 import type { ExerciseVariant, LegLaterality, Laterality, RegionContent, RegionId, SetMeasure, SideAnchor, SidedBy, SpecializationRegionData, VariantId } from "../../shared/specialization/types";
@@ -40,6 +50,7 @@ import type { ExerciseVariant, LegLaterality, Laterality, RegionContent, RegionI
 const here = dirname(fileURLToPath(import.meta.url));
 export const LOGGING_TABLE_PATH = resolve(here, "../../shared/specialization/loggingTable.generated.ts");
 export const HOLD_CATALOG_IDS_PATH = resolve(here, "../../shared/specialization/holdCatalogIds.ts");
+export const LOGGING_FACTS_PATH = resolve(here, "../../client/src/lib/exerciseLoggingFacts.generated.ts");
 export const libraryVariantsPath = (regionId: RegionId) => resolve(here, `../../shared/specialization/regions/${regionId}/libraryVariants.generated.ts`);
 const COMMAND = "npx tsx scripts/specialization/emit-logging-table.ts";
 
@@ -103,6 +114,39 @@ export function loggingTableRows(regions: readonly LoggingRegionInput[] = specia
   return Array.from(rows.values()).sort((a, b) => a.catalogExerciseId - b.catalogExerciseId);
 }
 
+/** A catalog row's measure, as one source states it: the atlas (a production region's variant) or the catalog's own execution record. */
+export type MeasuredRow = { catalogExerciseId: number; catalogName: string; measure: SetMeasure };
+
+/** The execution records as the emitter reads them, by catalog id. */
+export type ExecutionLookup = ReadonlyMap<number, Pick<ExerciseExecution, "measure" | "load" | "neckAction" | "headDirection" | "setupFields">>;
+
+/**
+ * The catalog's own measures: every execution record's, named as the catalog names its row. A
+ * record whose id the catalog does not hold is refused, rather than timed under no name.
+ */
+export function catalogMeasureRows(records: ExecutionLookup = exerciseExecutionById, tags: readonly { id: number; name: string }[] = catalog): MeasuredRow[] {
+  return Array.from(records, ([catalogExerciseId, record]) => {
+    const catalogName = tags.find((row) => row.id === catalogExerciseId)?.name;
+    if (catalogName === undefined) throw new Error(`execution record ${catalogExerciseId} names no catalog row`);
+    return { catalogExerciseId, catalogName, measure: record.measure };
+  }).sort((a, b) => a.catalogExerciseId - b.catalogExerciseId);
+}
+
+/**
+ * Every catalog row either source measures, once each, in catalog id order. The atlas's row
+ * stands for its id; the catalog's own record adds the ids the atlas does not map. A row both
+ * measure must be measured the same way by both: one reading of a set's dose, or none.
+ */
+export function measuredRows(atlas: readonly MeasuredRow[], own: readonly MeasuredRow[]): MeasuredRow[] {
+  const rows = new Map<number, MeasuredRow>(atlas.map((row) => [row.catalogExerciseId, { catalogExerciseId: row.catalogExerciseId, catalogName: row.catalogName, measure: row.measure }]));
+  for (const row of own) {
+    const mapped = rows.get(row.catalogExerciseId);
+    if (mapped && mapped.measure !== row.measure) throw new Error(`catalog ${row.catalogExerciseId} (${row.catalogName}): the atlas measures it in ${mapped.measure}, its execution record in ${row.measure}`);
+    if (!mapped) rows.set(row.catalogExerciseId, { ...row });
+  }
+  return Array.from(rows.values()).sort((a, b) => a.catalogExerciseId - b.catalogExerciseId);
+}
+
 const quoted = (value: string) => JSON.stringify(value);
 const list = (values: readonly string[]) => `[${values.map(quoted).join(", ")}]`;
 
@@ -158,18 +202,21 @@ ${rows.map(rowLine).join("\n")}
 `;
 }
 
-/** The light hold list's module text: the rows measured in seconds. */
-export function emitHoldCatalogIds(rows: readonly LoggingTableRowInput[] = loggingTableRows()): string {
-  const holds = rows.filter((row) => row.measure === "seconds");
+/**
+ * The light hold list's module text: the rows measured in seconds, from the atlas's rows and the
+ * catalog's own execution records together (`measuredRows`).
+ */
+export function emitHoldCatalogIds(rows: readonly LoggingTableRowInput[] = loggingTableRows(), own: readonly MeasuredRow[] = catalogMeasureRows()): string {
+  const holds = measuredRows(rows, own).filter((row) => row.measure === "seconds");
   const names = holds.map((row, index) => `${row.catalogExerciseId} ${row.catalogName}${index === holds.length - 1 ? "." : ","}`);
   const wrapped = wrap(names, 96).map((line) => ` * ${line}`).join("\n");
   return `// Generated by scripts/specialization/emit-logging-table.ts with the logging table. Do not edit:
 // run ${COMMAND}
 
 /**
- * The catalog exercises the atlas measures in seconds held, by catalog id: the one fact about an
- * exercise that the app's first screens need from the atlas (07-logger.md, "One reading of a
- * hold's prescription").
+ * The catalog exercises measured in seconds held, by catalog id: the one fact about an exercise
+ * that the app's first screens need from the atlas (07-logger.md, "One reading of a hold's
+ * prescription") or from the catalog's execution records.
  *
  * Home's Plan editor, its picker, print and share, and the workout history load with the first
  * screen, so they must not import the atlas's logging table (every mapped exercise's row,
@@ -177,9 +224,12 @@ export function emitHoldCatalogIds(rows: readonly LoggingTableRowInput[] = loggi
  * and sources too). This list is that measure and nothing else, a few bytes in the main bundle.
  * It imports nothing.
  *
- * It is written with the logging table from the same rows: exactly the exercises a production
- * region maps with a variant measured in seconds (10-multi-region.md §3, "Holds"). The emitter's
- * \`--check\` and client/src/lib/specialization/loggingTable.test.ts fail when it drifts.
+ * It is written with the logging table, from two sources: the exercises a production region maps
+ * with a variant measured in seconds (10-multi-region.md §3, "Holds"), and the catalog rows whose
+ * own execution record (client/src/lib/exerciseExecution.ts) is measured in seconds, which no
+ * region needs to map (the Zercher, neck and bench handoff, §3.3). One entry per id; the emitter
+ * refuses a row the two sources measure differently. Its \`--check\` and
+ * client/src/lib/specialization/loggingTable.test.ts fail when the list drifts.
  *
 ${wrapped}
  */
@@ -189,6 +239,51 @@ export const holdCatalogIds: ReadonlySet<number> = new Set([${holds.map((row) =>
 export function catalogMeasureOf(catalogExerciseId: number | null | undefined): "reps" | "seconds" {
   return catalogExerciseId !== null && catalogExerciseId !== undefined && holdCatalogIds.has(catalogExerciseId) ? "seconds" : "reps";
 }
+`;
+}
+
+/**
+ * The light logging facts' module text: per execution record, what a set of it records and how two
+ * sets of it compare (its load convention, neck action, head direction and setup fields), in
+ * catalog id order. Steps, roles, aliases and sources stay in exerciseExecution.ts.
+ */
+export function emitExerciseLoggingFacts(records: ExecutionLookup = exerciseExecutionById, tags: readonly { id: number; name: string }[] = catalog): string {
+  const lines = catalogMeasureRows(records, tags).map(({ catalogExerciseId, catalogName }) => {
+    const record = records.get(catalogExerciseId)!;
+    const fields = [
+      `load: ${quoted(record.load)}`,
+      ...(record.neckAction ? [`neckAction: ${quoted(record.neckAction)}`] : []),
+      ...(record.headDirection ? [`headDirection: ${quoted(record.headDirection)}`] : []),
+      `setupFields: ${list(record.setupFields)}`,
+    ];
+    return `  // ${catalogName}\n  [${catalogExerciseId}, { ${fields.join(", ")} }],`;
+  });
+  return `// Generated by scripts/specialization/emit-logging-table.ts from client/src/lib/exerciseExecution.ts.
+// Do not edit: run ${COMMAND}
+import type { HeadDirectionAction, LoadConvention, NeckAction, SetupField } from "./exerciseExecution";
+
+/**
+ * What the workout logger and every screen that reads a workout back need of an exercise's
+ * execution record (exerciseExecution.ts), and nothing more: what one number of load means, the
+ * neck action, whether each set is done to the left or the right of the head, and the setup values
+ * recorded with the exercise. The history, the session detail and the recap load with the app's
+ * first screens, so they read this, about two kilobytes before compression, instead of the
+ * records' steps, roles and sources. Its measure is in the light hold list (shared/specialization/holdCatalogIds.ts).
+ * client/src/lib/specialization/loggingTable.test.ts fails when it drifts from the records.
+ */
+export type ExerciseLoggingFacts = {
+  load: LoadConvention;
+  /** The neck action, on neck rows. */
+  neckAction?: NeckAction;
+  /** Each set is done to the left or the right, recorded as the head's direction (never an arm). */
+  headDirection?: HeadDirectionAction;
+  setupFields: readonly SetupField[];
+};
+
+/** Every catalog row with an execution record, by catalog id. */
+export const exerciseLoggingFacts: ReadonlyMap<number, ExerciseLoggingFacts> = new Map<number, ExerciseLoggingFacts>([
+${lines.join("\n")}
+]);
 `;
 }
 
@@ -290,6 +385,7 @@ export function emitLoggingFiles(): { path: string; text: string }[] {
   return [
     { path: LOGGING_TABLE_PATH, text: emitLoggingTable(rows) },
     { path: HOLD_CATALOG_IDS_PATH, text: emitHoldCatalogIds(rows) },
+    { path: LOGGING_FACTS_PATH, text: emitExerciseLoggingFacts() },
     ...registeredRegionContents.filter((content) => content.region.status === "production").map((content) => ({ path: libraryVariantsPath(content.region.id), text: emitLibraryVariants(content) })),
   ];
 }
@@ -311,7 +407,7 @@ if (isMain) {
       for (const { path } of stale) console.error(`${path} is stale: run ${COMMAND}`);
       process.exit(1);
     }
-    console.log("Logging table, hold list and the regions' library records are current.");
+    console.log("Logging table, hold list, logging facts and the regions' library records are current.");
   } else {
     for (const { path, text } of files) {
       writeFileSync(path, text);

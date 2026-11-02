@@ -48,20 +48,35 @@ export function formatLoad(value: number): string {
 }
 
 /**
+ * How a load number is worded beyond its convention: `perArm` on a plate-loaded machine with an arm
+ * each side, where the number is the plates on one arm ("40 kg per arm"), never a total.
+ */
+export type LoadWording = { perArm?: boolean };
+
+/**
  * What a stage's load means for the exercise, in words short enough for a set row. A bodyweight
  * movement's weight is load added to the body, and an empty one is the body alone.
  */
-export function stageLoadText(stage: Pick<DropStage, "weight" | "unit">, unit: DisplayWeightUnit, convention: LoadConvention = "total_external_load"): string {
+export function stageLoadText(stage: Pick<DropStage, "weight" | "unit">, unit: DisplayWeightUnit, convention: LoadConvention = "total_external_load", wording: LoadWording = {}): string {
   const value = number(stage.weight);
   const has = stage.weight.trim() !== "" && Number.isFinite(value) && value > 0;
   const shown = has ? formatLoad(stage.unit && stage.unit !== unit ? kilogramsToDisplayWeight(displayWeightToKilograms(value, stage.unit), unit) : value) : "";
   if (convention === "bodyweight_reps") return has ? `+${shown} ${unit}` : "bodyweight";
-  return has ? `${shown} ${unit}` : `— ${unit}`;
+  return has ? `${shown} ${unit}${wording.perArm ? " per arm" : ""}` : `— ${unit}`;
 }
 
 /** "Drop set · 100 lb × 5 → 70 lb × 6 → 50 lb × 10": the collapsed row, the same in every place it is shown. */
-export function dropSetLine(set: DeviceSetLog, unit: DisplayWeightUnit, convention: LoadConvention = "total_external_load"): string {
-  return `Drop set · ${stagesOf(set).map((stage) => `${stageLoadText(stage, unit, convention)} × ${stage.reps.trim() || "—"}`).join(" → ")}`;
+export function dropSetLine(set: DeviceSetLog, unit: DisplayWeightUnit, convention: LoadConvention = "total_external_load", wording: LoadWording = {}): string {
+  return `Drop set · ${stagesOf(set).map((stage) => `${stageLoadText(stage, unit, convention, wording)} × ${stage.reps.trim() || "—"}`).join(" → ")}`;
+}
+
+/**
+ * "Left 40 kg · Right 50 kg": a set whose arms were loaded differently, each arm as typed, in the
+ * unit asked for. Never added together, and an arm left empty says so rather than reading as zero.
+ */
+export function armLoadsText(set: Pick<DeviceSetLog, "leftLoad" | "rightLoad" | "unit">, unit: DisplayWeightUnit): string {
+  const arm = (value: string | undefined) => (value?.trim() && number(value) > 0 ? stageLoadText({ weight: value, unit: set.unit }, unit) : `— ${unit}`);
+  return `Left ${arm(set.leftLoad)} · Right ${arm(set.rightLoad)}`;
 }
 
 /**
@@ -72,12 +87,14 @@ export function dropSetLine(set: DeviceSetLog, unit: DisplayWeightUnit, conventi
  *   and says so rather than doubling a number nobody typed;
  * - a bodyweight movement's typed weight is only what was added, so it has no external volume.
  */
-export type SetVolume = { value: number; unit: DisplayWeightUnit; basis: "total" | "per_implement" | "per_hand" };
+export type SetVolume = { value: number; unit: DisplayWeightUnit; basis: "total" | "per_implement" | "per_hand" | "per_arm" };
 
-export function setVolume(set: DeviceSetLog, unit: DisplayWeightUnit, convention: LoadConvention = "total_external_load", fallbackUnit: DisplayWeightUnit = unit): SetVolume | null {
+export function setVolume(set: DeviceSetLog, unit: DisplayWeightUnit, convention: LoadConvention = "total_external_load", fallbackUnit: DisplayWeightUnit = unit, wording: LoadWording = {}): SetVolume | null {
   if (convention === "bodyweight_reps") return null;
   // A hold's seconds are not reps: load x seconds is not volume-load, and no conversion is invented.
   if (isHoldSet(set)) return null;
+  // Arms loaded differently have no one load to multiply: neither arm stands for the set.
+  if (set.leftLoad !== undefined || set.rightLoad !== undefined) return null;
   let value = 0;
   let counted = false;
   for (const stage of stagesOf(set)) {
@@ -89,13 +106,13 @@ export function setVolume(set: DeviceSetLog, unit: DisplayWeightUnit, convention
     counted = true;
   }
   if (!counted) return null;
-  return { value: Math.round(value * 100) / 100, unit, basis: convention === "per_implement" ? "per_implement" : convention === "per_hand" ? "per_hand" : "total" };
+  return { value: Math.round(value * 100) / 100, unit, basis: wording.perArm ? "per_arm" : convention === "per_implement" ? "per_implement" : convention === "per_hand" ? "per_hand" : "total" };
 }
 
-/** "1,420 lb·reps", with "per dumbbell" or "per hand" where the load was. */
+/** "1,420 lb·reps", with "per dumbbell", "per hand" or "per arm" where the load was. */
 export function volumeText(volume: SetVolume): string {
   const amount = volume.value.toLocaleString("en-US", { maximumFractionDigits: 2 });
-  return `${amount} ${volume.unit}·reps${volume.basis === "per_implement" ? " per dumbbell" : volume.basis === "per_hand" ? " per hand" : ""}`;
+  return `${amount} ${volume.unit}·reps${volume.basis === "per_implement" ? " per dumbbell" : volume.basis === "per_hand" ? " per hand" : volume.basis === "per_arm" ? " per arm" : ""}`;
 }
 
 /** "30 s": a hold's duration as every record shows it. */
@@ -105,19 +122,21 @@ export function holdText(seconds: number): string {
 
 /**
  * One performed set as every record shows it: "185 lb × 5", "bodyweight × 12", "+20 lb × 5",
- * "24 in box × 8", a drop set's collapsed row, or a hold: "30 s", "70 lb × 30 s", "+20 lb × 30 s".
+ * "24 in box × 8", a drop set's collapsed row, a hold: "30 s", "70 lb × 30 s", "+20 lb × 30 s",
+ * or a plate-loaded press with its arms loaded differently: "Left 40 kg · Right 50 kg × 8".
  */
-export function performedSetLine(set: DeviceSetLog, unit: DisplayWeightUnit, convention: LoadConvention = "total_external_load"): string {
-  if (set.type === "drop" && (set.stages?.length ?? 0) >= 2) return dropSetLine(set, unit, convention);
+export function performedSetLine(set: DeviceSetLog, unit: DisplayWeightUnit, convention: LoadConvention = "total_external_load", wording: LoadWording = {}): string {
+  if (set.type === "drop" && (set.stages?.length ?? 0) >= 2) return dropSetLine(set, unit, convention, wording);
   const seconds = holdSecondsOf(set);
   if (seconds !== null) {
     // A hold with no load is the body alone: just the time, never "— lb" or "bodyweight × 30 s".
     const loaded = set.weight.trim() !== "" && number(set.weight) > 0;
-    return loaded ? `${stageLoadText({ weight: set.weight, unit: set.unit }, unit, convention)} × ${holdText(seconds)}` : holdText(seconds);
+    return loaded ? `${stageLoadText({ weight: set.weight, unit: set.unit }, unit, convention, wording)} × ${holdText(seconds)}` : holdText(seconds);
   }
   const reps = set.reps.trim() || "—";
+  if (set.leftLoad !== undefined || set.rightLoad !== undefined) return `${armLoadsText(set, unit)} × ${reps}`;
   if ((set.height || "").trim() && !set.weight.trim()) return `${set.height} in box × ${reps}`;
-  const load = stageLoadText({ weight: set.weight, unit: set.unit }, unit, convention);
+  const load = stageLoadText({ weight: set.weight, unit: set.unit }, unit, convention, wording);
   return `${load}${(set.height || "").trim() ? ` · ${set.height} in box` : ""} × ${reps}`;
 }
 

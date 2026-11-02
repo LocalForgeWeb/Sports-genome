@@ -18,3 +18,10 @@
 .live-set-history[open] > summary svg { transform: rotate(90deg); }
 @media (prefers-reduced-motion: reduce) { .live-set-history > summary svg { transition: none; } }
 .ei-history { display: grid; gap: .4rem; }
+
+/* A row with setup values (lib/exerciseLogging.ts): each workout's setup under its date, and workouts
+   done with different setups listed apart, under the setup they share. */
+.exercise-history-setup { grid-column: 1; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); overflow-wrap: anywhere; }
+.exercise-history-protocols { margin: 0 0 .35rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.exercise-history-protocol + .exercise-history-protocol { margin-top: .5rem; border-top: 1px solid var(--sg-divider-on-dark); padding-top: .5rem; }
+.exercise-history-protocol > h4 { margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; overflow-wrap: anywhere; }
