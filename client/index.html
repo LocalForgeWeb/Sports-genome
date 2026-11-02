@@ -48,7 +48,7 @@
          would show the default chrome for a beat and then repaint it, which is
          the flash every theme switch is judged by. Mirrors resolveTheme(). -->
     <script>try{var t=localStorage.getItem("sports-genome-theme-v1");if(t!=="dark"&&t!=="light")t=(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";document.documentElement.dataset.theme=t;if(t==="dark")document.documentElement.classList.add("dark")}catch(e){document.documentElement.dataset.theme="light"}</script>
-    <script>try{var r=document.documentElement;var replay=localStorage.getItem("sports-genome-replay-intro-v1")==="yes";if(replay)localStorage.removeItem("sports-genome-replay-intro-v1");r.dataset.sportsGenomeBootReplay=replay?"yes":"no";r.dataset.sportsGenomeBoot=(localStorage.getItem("sports-genome-launch-experience-enabled-v1")==="off"||/^\/s\//.test(location.pathname))?"off":"on";r.dataset.sportsGenomeBootReturn=(!replay&&localStorage.getItem("sports-genome-launched-before-v1")==="yes")?"yes":"no";if(r.dataset.sportsGenomeBoot==="on")r.dataset.sportsGenomeBootStartedAt=String(Date.now())}catch(e){document.documentElement.dataset.sportsGenomeBoot="on";document.documentElement.dataset.sportsGenomeBootReplay="no";document.documentElement.dataset.sportsGenomeBootStartedAt=String(Date.now())}</script>
+    <script>try{var r=document.documentElement;var replay=localStorage.getItem("sports-genome-replay-intro-v1")==="yes";if(replay)localStorage.removeItem("sports-genome-replay-intro-v1");r.dataset.sportsGenomeBootReplay=replay?"yes":"no";r.dataset.sportsGenomeBoot=(localStorage.getItem("sports-genome-launch-experience-enabled-v1")==="off"||/^\/(s\/|privacy$|support$)/.test(location.pathname))?"off":"on";r.dataset.sportsGenomeBootReturn=(!replay&&localStorage.getItem("sports-genome-launched-before-v1")==="yes")?"yes":"no";if(r.dataset.sportsGenomeBoot==="on")r.dataset.sportsGenomeBootStartedAt=String(Date.now())}catch(e){document.documentElement.dataset.sportsGenomeBoot="on";document.documentElement.dataset.sportsGenomeBootReplay="no";document.documentElement.dataset.sportsGenomeBootStartedAt=String(Date.now())}</script>
     <style>
       html,body{margin:0;min-height:100%;background:#0b2240}
       #sports-genome-boot-splash{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;overflow:hidden;background:#07182e;color:#f7f4ec;isolation:isolate;contain:layout paint style;will-change:opacity;transition:opacity 420ms cubic-bezier(.4,0,.2,1),visibility 420ms}
@@ -134,7 +134,9 @@
         // A broken asset must not hold the other one hostage.
         img.addEventListener("error", settleOne, { once: true });
       });
-      window.setTimeout(begin, 2500);
+      // A returning athlete has seen the sequence; on a slow connection they are
+      // waiting for their workspace, not for the mark (iOS readiness audit, A07).
+      window.setTimeout(begin, root.dataset.sportsGenomeBootReturn === "yes" ? 1200 : 2500);
     })()}catch(e){var r=document.documentElement;r.dataset.sportsGenomeBootArtAt=String(Date.now());r.classList.add("sports-genome-boot-art-ready");try{window.dispatchEvent(new Event("sports-genome-boot-art-ready"))}catch(e2){}}</script>
     <!-- Last resort for a React that never arrives. It reveals the app with no cross-fade,
          so it must not fire while the intro is still running - but a flat extension would
@@ -192,6 +194,7 @@
           // means the sequence has not begun, so nothing has been told and the
           // intro is not late. A replay is exempt: watching it is the reason
           // the athlete asked.
+          canplayAt = Date.now();
           var artAt = Number(root.dataset.sportsGenomeBootArtAt);
           var storyStartedAt = (artAt > 0) ? artAt : 0;
           if (!replay && storyStartedAt && Date.now() - storyStartedAt > 1100) { settle("skipped"); return; }
@@ -209,6 +212,7 @@
          * advancing - which is to say, while it is genuinely still playing.
          */
         var playing = false;
+        var canplayAt = 0;
         var lastTime = -1;
         var lastProgressAt = Date.now();
         // When the first frame actually played. The download begins at document
@@ -225,6 +229,11 @@
           if (!playing) {
             // This one is about the download, so the document's clock is right.
             if (sinceStart > (replay ? 8000 : 4000)) { window.clearInterval(watch); settle("skipped"); }
+            // Past the "too late to start" gate with nothing to play, the gate will refuse
+            // the video whenever it arrives, so waiting out the 4 seconds holds the
+            // workspace for nothing (iOS readiness audit, A07).
+            var artStartedAt = Number(root.dataset.sportsGenomeBootArtAt);
+            if (!settled && !replay && !canplayAt && artStartedAt > 0 && now - artStartedAt > 1100) { window.clearInterval(watch); settle("skipped"); }
             return;
           }
           var playedMs = playbackStartedAt ? now - playbackStartedAt : sinceStart;

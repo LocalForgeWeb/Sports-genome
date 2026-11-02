@@ -5,10 +5,27 @@ export function sportsGenomeAsset(name: string) {
   return `${publicAssetBaseUrl}/${encodeURIComponent(name)}`;
 }
 
+/**
+ * The brand images the app cannot look right without, served from the app itself when they are
+ * in the build (iOS readiness audit, A07): a native shell opened offline, or a storage outage,
+ * must not leave the header with a broken image. `scripts/assets/vendor-brand-assets.mjs` copies
+ * the official files from the storage bucket into client/src/assets/brand/, byte for byte, under
+ * the same names; once they are committed the build bundles them and this picks them up. Until
+ * then the remote address is used, and <BrandMark> draws a designed mark if it fails.
+ */
+const bundledBrand = import.meta.glob<string>("../assets/brand/*.{png,jpg}", { eager: true, query: "?url", import: "default" });
+
+export function brandAsset(name: string): string {
+  return bundledBrand[`../assets/brand/${name}`] ?? sportsGenomeAsset(name);
+}
+
+/** The files the vendoring script copies: the header badge and the official logo. */
+export const essentialBrandFiles = ["sports-genome-circular-header-badge_8450998e.jpg", "sports-genome-official-logo-180_8085dfd8.png"] as const;
+
 export const sportsGenomeAssets = {
-  circularBadge: sportsGenomeAsset("sports-genome-circular-header-badge_8450998e.jpg"),
+  circularBadge: brandAsset("sports-genome-circular-header-badge_8450998e.jpg"),
   heroLab: sportsGenomeAsset("gym-optimizer-performance-lab_fc8df71f.jpg"),
-  officialLogo: sportsGenomeAsset("sports-genome-official-logo-180_8085dfd8.png"),
+  officialLogo: brandAsset("sports-genome-official-logo-180_8085dfd8.png"),
   introVideo: sportsGenomeAsset("sports-genome-intro-source_07000a26.mp4"),
   introSilhouette: sportsGenomeAsset("sports-genome-upright-s-silhouette-exact_349405db.png"),
   introDnaDetail: sportsGenomeAsset("sports-genome-upright-dna-detail-exact_8e94e37f.png"),

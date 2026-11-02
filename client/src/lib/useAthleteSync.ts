@@ -279,6 +279,9 @@ export function useAthleteSync(options: {
       return [{
         key: observation.id,
         queuedAt: new Date().toISOString(),
+        // Tied to its identity when queued, when that is known; otherwise claimed by the first
+        // identity that flushes it (strengthSyncQueue.ts claimQueueFor).
+        ...(identity.userId ? { ownerId: identity.userId } : {}),
         athlete: snapshot,
         lift: {
           catalogExerciseId,

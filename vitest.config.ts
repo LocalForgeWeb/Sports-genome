@@ -3,6 +3,16 @@ import path from "path";
 
 const templateRoot = path.resolve(import.meta.dirname);
 
+/**
+ * One clock zone for every run, whatever the machine's (iOS readiness audit, A12). Fixture tests
+ * pin the date with fake timers; the zone has to be pinned too, or a render that reads the
+ * runtime zone (the specialization page does) reads differently in Chicago than in CI. Set
+ * here, before any worker starts, so every forked worker inherits it. Tests of real zone
+ * behaviour pass their zones explicitly (shared/specialization/time.ts takes one everywhere),
+ * and a test that needs a runtime zone of its own still sets process.env.TZ itself.
+ */
+process.env.TZ = "UTC";
+
 export default defineConfig({
   root: templateRoot,
   resolve: {

@@ -13,6 +13,7 @@ import { shareLimits, type ShareSnapshot } from "@shared/workoutShare";
 import { SharedWorkoutView } from "@/components/SharedWorkoutView";
 import { SharedLinksManager } from "@/components/SharedLinksManager";
 import "../workout-share.css";
+import { platform } from "@/lib/platform";
 
 /**
  * Share: choose what goes, see it as others will, then send a link.
@@ -28,7 +29,7 @@ import "../workout-share.css";
  * safe to retry - the same request key returns the same link - and one tap cannot
  * make two.
  */
-const nativeShare = () => typeof navigator !== "undefined" && typeof navigator.share === "function";
+const nativeShare = () => platform().canShare();
 
 export function WorkoutShareSheet({ plan, source, weightUnit, onClose }: { plan: WorkoutExport; source: ShareSource | null; weightUnit: "lb" | "kg"; onClose: () => void }) {
   const weekDays = source ? shareableDays(source) : [];
@@ -121,11 +122,10 @@ export function WorkoutShareSheet({ plan, source, weightUnit, onClose }: { plan:
     if (!link || sharing.current) return;
     sharing.current = true;
     try {
-      await navigator.share({ title: snapshot?.title, text: shareMessage, url: link.url });
-      setStatus("Passed to the app you chose.");
-    } catch (error) {
-      // Closing the share sheet is a choice, not an error.
-      if (!(error instanceof DOMException && error.name === "AbortError")) setStatus("Sharing didn't open. Copy the link instead.");
+      // Closing the share sheet is a choice, not an error (lib/platform.ts reports it as "cancelled").
+      const outcome = await platform().share({ title: snapshot?.title, text: shareMessage, url: link.url });
+      if (outcome === "shared") setStatus("Passed to the app you chose.");
+      else if (outcome === "failed") setStatus("Sharing didn't open. Copy the link instead.");
     } finally { sharing.current = false; }
   };
   const copyLink = async () => {

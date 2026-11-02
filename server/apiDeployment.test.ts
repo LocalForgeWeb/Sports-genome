@@ -77,7 +77,7 @@ describe("the API is actually deployed", () => {
     expect(read("server/_core/index.ts")).toContain('from "./apiHandler"');
     expect(handler).toContain('from "../routers"');
     expect(handler).toContain('from "./context"');
-    expect(source).toContain('app.use("/api/trpc", noStore, requireJsonMutations, trpcHandler());');
+    expect(source).toContain('app.use("/api/trpc", nativeOriginAccess(), noStore, requireJsonMutations, trpcHandler());');
     expect(source).not.toContain("listen(");
   });
 

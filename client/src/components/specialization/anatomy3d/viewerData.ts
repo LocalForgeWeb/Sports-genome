@@ -83,10 +83,26 @@ export type ViewerWindow = { mode: SummaryMode; window: SpecializationWindow; si
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
 /** A target's value and the window's numbers describe the same days only when the periods are the same. */
+/**
+ * A zone's canonical name, so two names for one zone ("UTC" and "Etc/UTC", "US/Central" and
+ * "America/Chicago") are one zone. Two different zones stay different, even when their clocks
+ * agree today: their weeks part at the next daylight-saving change. A name the runtime does
+ * not know is compared as written.
+ */
+export function canonicalTimeZone(timeZone: string): string {
+  try {
+    return new Intl.DateTimeFormat("en-US", { timeZone }).resolvedOptions().timeZone;
+  } catch {
+    return timeZone;
+  }
+}
+
 export function targetMatchesWindow(goal: { period: GoalPeriod; timezone: string }, view: Pick<ViewerWindow, "mode" | "window" | "timeZone">): boolean {
   // A planned summary reads every target over the plan week on screen.
   if (view.mode === "planned") return true;
-  if (view.window === "week") return goal.period === "calendar_week" && goal.timezone === view.timeZone;
+  // A calendar week is the same span of time only in the same zone: Monday starts at a different
+  // instant in Chicago than in UTC, so a target set in one is not read over the other's week.
+  if (view.window === "week") return goal.period === "calendar_week" && canonicalTimeZone(goal.timezone) === canonicalTimeZone(view.timeZone);
   if (view.window === "7d") return goal.period === "rolling_7d";
   return false;
 }

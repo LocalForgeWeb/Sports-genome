@@ -1,5 +1,6 @@
 import express from "express";
 import { requireJsonMutations, trpcHandler } from "./apiHandler";
+import { nativeOriginAccess } from "./nativeOrigins";
 import { serveSharePage } from "../sharePage";
 import { BODY_LIMIT, apiErrorHandler, apiNotFound, mountHealth, noStore, requestContext } from "./http";
 import { warnOnMissingConfig } from "./config";
@@ -79,7 +80,8 @@ app.get("*", (req, res, next) => {
 });
 
 mountHealth(app);
-app.use("/api/trpc", noStore, requireJsonMutations, trpcHandler());
+// Exact native-shell origins only, and only when NATIVE_APP_ORIGINS lists them (nativeOrigins.ts).
+app.use("/api/trpc", nativeOriginAccess(), noStore, requireJsonMutations, trpcHandler());
 
 // Anything else under /api is a genuine 404. Answering in JSON stops a client from
 // parsing an HTML error page as if it were a tRPC response.

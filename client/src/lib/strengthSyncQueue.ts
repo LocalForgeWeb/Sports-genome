@@ -2,6 +2,7 @@ import { getSupabaseClient } from "@/lib/supabaseClient";
 import { forInsert, toAthleteStrengthEntry, type AthleteSnapshot, type RecordedLift } from "@/lib/athleteStrengthEntry";
 import { workoutObservationId } from "@/lib/workoutStrengthRecord";
 import type { DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
+import { deviceStorageOwner, readOwnedList, writeOwnedList } from "@/lib/deviceRecordStore";
 
 /**
  * The outbox between a logged lift and `public.athlete_strength_entries`.
@@ -24,30 +25,30 @@ export type QueuedLift = {
   lift: RecordedLift;
   athlete: AthleteSnapshot;
   queuedAt: string;
+  /**
+   * The cloud identity this lift belongs to, fixed when it is queued (iOS readiness audit, A03).
+   * A flush sends only the lifts of the identity flushing; it never sends one account's lifts as
+   * whoever happens to be signed in later. Lifts queued before this existed carry none and are
+   * claimed, once and in storage, by the first identity to flush them on this device, the same
+   * rule the plan and profile follow.
+   */
+  ownerId?: string;
 };
 
 export const strengthSyncQueueKey = "sports-genome-strength-sync-queue-v1";
 export const strengthSyncedKey = "sports-genome-strength-synced-v1";
 export const strengthSyncEvent = "sports-genome:strength-sync";
 
-function readJson<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-  try {
-    const parsed = JSON.parse(window.localStorage.getItem(key) || "null");
-    return parsed == null ? fallback : parsed as T;
-  } catch {
-    return fallback;
-  }
+// Both lists are kept per device owner, like the workout history they are derived from, and an
+// unreadable list is copied aside rather than read as empty and saved over (deviceRecordStore.ts).
+function readList(key: string): unknown[] {
+  if (typeof window === "undefined") return [];
+  return readOwnedList(key, deviceStorageOwner());
 }
 
-function writeJson(key: string, value: unknown): boolean {
+function writeList(key: string, value: readonly unknown[]): boolean {
   if (typeof window === "undefined") return false;
-  try {
-    window.localStorage.setItem(key, JSON.stringify(value));
-    return true;
-  } catch {
-    return false;
-  }
+  return writeOwnedList(key, value, deviceStorageOwner());
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
@@ -57,7 +58,7 @@ const isObject = (value: unknown): value is Record<string, unknown> => typeof va
 // A queued entry needs its lift and the athlete it was read against: a flush reads
 // both, and one that throws stops every other lift in the queue from being sent.
 export function loadSyncQueue(): QueuedLift[] {
-  const parsed = readJson<unknown>(strengthSyncQueueKey, []);
+  const parsed = readList(strengthSyncQueueKey);
   return Array.isArray(parsed)
     ? parsed.filter((item): item is QueuedLift =>
       isObject(item) && typeof item.key === "string" && item.key.length > 0 && isObject(item.lift) && isObject(item.athlete))
@@ -65,7 +66,7 @@ export function loadSyncQueue(): QueuedLift[] {
 }
 
 export function loadSyncedKeys(): string[] {
-  const parsed = readJson<unknown>(strengthSyncedKey, []);
+  const parsed = readList(strengthSyncedKey);
   return Array.isArray(parsed) ? parsed.filter((key): key is string => typeof key === "string") : [];
 }
 
@@ -97,12 +98,34 @@ export function removeQueuedLiftsForSession(
 }
 
 export function saveSyncQueue(queue: readonly QueuedLift[]): boolean {
-  const ok = writeJson(strengthSyncQueueKey, queue);
+  const ok = writeList(strengthSyncQueueKey, queue);
   if (ok && typeof window !== "undefined") window.dispatchEvent(new Event(strengthSyncEvent));
   return ok;
 }
 
-export type FlushResult = { sent: number; remaining: number; skipped: number; reason?: "no_session" | "not_configured" | "offline" | "rejected" };
+export type FlushResult = {
+  sent: number;
+  remaining: number;
+  skipped: number;
+  /** Lifts left queued because they belong to another identity; never sent by this one. */
+  heldForOtherOwner?: number;
+  reason?: "no_session" | "not_configured" | "offline" | "rejected";
+};
+
+/**
+ * Splits a queue into the lifts this identity may send and the ones it may not, claiming the
+ * lifts queued before owners were recorded. Pure, so the rule is tested without a browser.
+ */
+export function claimQueueFor(queue: readonly QueuedLift[], userId: string): { queue: QueuedLift[]; mine: QueuedLift[]; others: number; claimed: number } {
+  let claimed = 0;
+  const next = queue.map((item) => {
+    if (item.ownerId) return item;
+    claimed += 1;
+    return { ...item, ownerId: userId };
+  });
+  const mine = next.filter((item) => item.ownerId === userId);
+  return { queue: next, mine, others: next.length - mine.length, claimed };
+}
 
 /**
  * Whether sending the rows one at a time can get past a batch PostgREST turned down with this
@@ -128,12 +151,21 @@ export async function flushSyncQueue(
   userId: string | null,
   resolveExerciseUuid: (catalogExerciseId: number) => string | undefined,
 ): Promise<FlushResult> {
-  const queue = loadSyncQueue();
-  if (!queue.length) return { sent: 0, remaining: 0, skipped: 0 };
+  const stored = loadSyncQueue();
+  if (!stored.length) return { sent: 0, remaining: 0, skipped: 0 };
 
   const supabase = getSupabaseClient();
-  if (!supabase) return { sent: 0, remaining: queue.length, skipped: 0, reason: "not_configured" };
-  if (!userId) return { sent: 0, remaining: queue.length, skipped: 0, reason: "no_session" };
+  if (!supabase) return { sent: 0, remaining: stored.length, skipped: 0, reason: "not_configured" };
+  if (!userId) return { sent: 0, remaining: stored.length, skipped: 0, reason: "no_session" };
+
+  // Only this identity's lifts go, and an unowned (pre-owner) lift is claimed in storage before it
+  // is sent, so a retry or a second identity cannot claim it again.
+  const claim = claimQueueFor(stored, userId);
+  if (claim.claimed && !saveSyncQueue(claim.queue)) return { sent: 0, remaining: stored.length, skipped: 0, reason: "rejected" };
+  const queue = claim.mine;
+  // Reported only when there is something held, so a single-owner device reads as before.
+  const held = claim.others ? { heldForOtherOwner: claim.others } : {};
+  if (!queue.length) return { sent: 0, remaining: stored.length, skipped: 0, ...held };
 
   const rows: { key: string; payload: Record<string, unknown> }[] = [];
   const unmappable: string[] = [];
@@ -150,8 +182,8 @@ export async function flushSyncQueue(
   }
 
   if (!rows.length) {
-    if (unsendable.length) saveSyncQueue(queue.filter((item) => !unsendable.includes(item.key)));
-    return { sent: 0, remaining: queue.length - unsendable.length, skipped: unmappable.length + unsendable.length };
+    if (unsendable.length) saveSyncQueue(loadSyncQueue().filter((item) => !unsendable.includes(item.key)));
+    return { sent: 0, remaining: stored.length - unsendable.length, skipped: unmappable.length + unsendable.length, ...held };
   }
 
   // postgrest-js hands back a dropped connection as status 0 rather than throwing, so that is
@@ -161,12 +193,12 @@ export async function flushSyncQueue(
   let batchStatus = 0;
   try {
     const { error, status } = await supabase.from("athlete_strength_entries").insert(rows.map((row) => row.payload));
-    if (error && status === 0) return { sent: 0, remaining: queue.length, skipped: 0, reason: "offline" };
+    if (error && status === 0) return { sent: 0, remaining: stored.length, skipped: 0, ...held, reason: "offline" };
     batchStatus = status;
     if (error) batchRejected = true;
     else rows.forEach((row) => landed.add(row.key));
   } catch {
-    return { sent: 0, remaining: queue.length, skipped: 0, reason: "offline" };
+    return { sent: 0, remaining: stored.length, skipped: 0, ...held, reason: "offline" };
   }
 
   // One row the database turns down fails the whole batch, and it used to hold back every lift
@@ -195,12 +227,12 @@ export async function flushSyncQueue(
   }
 
   const alreadySent = loadSyncedKeys().concat(Array.from(landed), unsendable);
-  writeJson(strengthSyncedKey, Array.from(new Set(alreadySent)).slice(-5000));
+  writeList(strengthSyncedKey, Array.from(new Set(alreadySent)).slice(-5000));
   // The queue is read again rather than filtered from the copy taken before the insert. The
   // insert can take seconds on a gym network, and a workout removed in that time prunes its
   // lifts from storage; writing the old copy back would restore them and send them later.
   const remaining = loadSyncQueue().filter((item) => !landed.has(item.key) && !unsendable.includes(item.key));
   saveSyncQueue(remaining);
   const reason = landed.size + withdrawn < rows.length ? (dropped ? "offline" : "rejected") : undefined;
-  return { sent: landed.size, remaining: remaining.length, skipped: unmappable.length + unsendable.length, reason };
+  return { sent: landed.size, remaining: remaining.length, skipped: unmappable.length + unsendable.length, ...held, reason };
 }

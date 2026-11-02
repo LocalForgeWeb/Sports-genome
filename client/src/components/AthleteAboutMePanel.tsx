@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowRight, BookOpen, CalendarDays, ChevronDown, ChevronRight, Check, CloudUpload, Dumbbell, Fingerprint, Link2, Lock, Medal, Palette, PlayCircle, Scale, Sparkles, Target, Trash2, Trophy, UserRound } from "lucide-react";
+import { ArrowRight, BookOpen, CalendarDays, ChevronDown, ChevronRight, Check, CloudUpload, Database, Dumbbell, ShieldCheck, Fingerprint, Link2, Lock, Medal, Palette, PlayCircle, Scale, Sparkles, Target, Trash2, Trophy, UserRound } from "lucide-react";
 import { SharedLinksManager } from "@/components/SharedLinksManager";
+import { YourDataPanel } from "@/components/YourDataPanel";
 import { ownedShares } from "@/lib/shareLinks";
 import "../workout-share.css";
+import "@/your-data.css";
 import { useTheme } from "@/contexts/ThemeContext";
 import { themeOptionCopy, themePreferences, type ThemePreference } from "@/lib/theme";
 import { startRegistration } from "@simplewebauthn/browser";
@@ -150,6 +152,7 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   const [editing, setEditing] = useState(false);
   // The links this device shared: listed (and checked with the server) only once the group is opened.
   const [sharedOpen, setSharedOpen] = useState(false);
+  const [dataOpen, setDataOpen] = useState(false);
   const sharedCount = ownedShares().length;
 
   /**
@@ -235,6 +238,13 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
       </details>
       <details className="about-me-group" onToggle={(event) => setSharedOpen((event.currentTarget as HTMLDetailsElement).open)}><summary><Link2 className="h-6 w-6" aria-hidden="true" /><span><strong>Shared links</strong><small>{sharedCount ? `${sharedCount} link${sharedCount === 1 ? "" : "s"} shared from this device` : "Workouts you share by link appear here"}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
         {sharedOpen && <div className="about-me-shared-links"><SharedLinksManager /></div>}
+      </details>
+      {/* Backup, restore, recovery and deletion (iOS readiness audit, A03 and A04). */}
+      <details className="about-me-group" onToggle={(event) => setDataOpen((event.currentTarget as HTMLDetailsElement).open)}><summary><Database className="h-6 w-6" aria-hidden="true" /><span><strong>Your data</strong><small>Back up, restore, or delete what this device holds</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
+        {dataOpen && <YourDataPanel cloudUserId={identity?.userId ?? null} />}
+      </details>
+      <details className="about-me-group"><summary><ShieldCheck className="h-6 w-6" aria-hidden="true" /><span><strong>Privacy &amp; support</strong><small>What is stored where, and how to get help</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
+        <div className="about-me-info-links"><a href="/privacy">Privacy</a><a href="/support">Support</a></div>
       </details>
       <details className="about-me-group"><summary><Palette className="h-6 w-6" aria-hidden="true" /><span><strong>Appearance</strong><small>{themeOptionCopy[preference].label}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
         <section className="about-me-card"><label><span>Theme</span><select value={preference} onChange={(event) => { emitInteractionFeedback(); setPreference(event.target.value as ThemePreference); }}>{themePreferences.map((option) => <option key={option} value={option}>{themeOptionCopy[option].label}</option>)}</select></label><p className="about-me-theme-note">{themeOptionCopy[preference].detail}{preference === "system" ? ` Right now that is ${theme === "dark" ? "dark" : "light chrome"}.` : ""}</p></section>

@@ -1,6 +1,7 @@
 import { buildWorkoutPdf } from "@/lib/workoutPdf";
 import { loadPdfLogo } from "@/lib/pdfBrandLogo";
 import { exportFileName, exportTitle, shareMessage, type WorkoutExport } from "@/lib/workoutExport";
+import { platform } from "@/lib/platform";
 
 export type ShareOutcome = "shared" | "cancelled" | "saved" | "copied" | "failed";
 
@@ -38,18 +39,8 @@ export async function shareWorkoutPdf(plan: WorkoutExport, file: File, nav: Shar
 
 /** Downloads the PDF under its own name (on iOS, Safari offers it to Files). */
 export function savePdf(file: File): ShareOutcome {
-  if (typeof document === "undefined" || typeof URL.createObjectURL !== "function") return "failed";
-  const url = URL.createObjectURL(file);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = file.name;
-  link.rel = "noopener";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  // Long enough for the download to start everywhere; the bytes are small.
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  return "saved";
+  // A download in a browser; the Files app or share sheet in the native shell (lib/platform.ts).
+  return platform().saveFile(file);
 }
 
 export async function copyText(text: string): Promise<ShareOutcome> {

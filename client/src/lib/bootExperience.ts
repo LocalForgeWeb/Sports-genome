@@ -66,6 +66,13 @@ export const bootArtReadyEvent = "sports-genome-boot-art-ready";
 export const bootArtCeilingMs = 2_500;
 
 /**
+ * The same ceiling on a returning visit, which is shorter: the athlete has seen the sequence
+ * and is waiting for the workspace (iOS readiness audit, A07). The React backstop keeps the
+ * longer ceiling; it only runs if the document script never did.
+ */
+export const bootArtReturningCeilingMs = 1_200;
+
+/**
  * Runs `onReady` when the choreography may begin, or at once if it already has.
  *
  * Sampling `bootChoreographyStartedAt` once at mount was not enough. React can

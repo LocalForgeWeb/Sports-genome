@@ -2,6 +2,7 @@ import { displayWeightToKilograms, kilogramsToDisplayWeight, type DisplayWeightU
 import { isSetEffort, type SetEffort } from "@shared/setEffort";
 import type { Limb } from "@shared/specialization/types";
 import { headDirectionActionOf, isHeadDirection, normalizeSetup, type ExerciseSetup, type HeadDirection } from "./exerciseLogging";
+import { deviceStorageOwner, isOwnedKey, readOwnedList, writeOwnedList } from "./deviceRecordStore";
 
 export type DeviceSetLog = {
   weight: string;
@@ -376,10 +377,12 @@ const isRecord = (value: unknown): value is Record<string, unknown> => typeof va
  * object. Entries that are not objects are now skipped at each level. Anything that is an
  * object is kept as it is, whatever its status: dropping it here would erase it on the next save.
  */
-export function loadDeviceWorkoutSessions(): DeviceWorkoutSession[] {
+export function loadDeviceWorkoutSessions(owner: string | null = deviceStorageOwner()): DeviceWorkoutSession[] {
   if (typeof window === "undefined") return [];
   try {
-    const parsed = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey) || "[]");
+    // Owner-scoped, and text that does not parse is copied aside rather than read as "no
+    // workouts" and then saved over (deviceRecordStore.ts; iOS readiness audit, A03).
+    const parsed = readOwnedList(deviceWorkoutHistoryKey, owner);
     return Array.isArray(parsed) ? parsed.filter(isRecord).map((session) => ({
       ...session,
       exercises: Array.isArray(session.exercises) ? session.exercises.filter(isRecord).map((exercise) => ({
@@ -401,17 +404,18 @@ export function loadDeviceWorkoutSessions(): DeviceWorkoutSession[] {
  * reportable rather than swallowed — the surface tells the athlete instead of
  * claiming a durability it does not have.
  */
-export function saveDeviceWorkoutSessions(sessions: DeviceWorkoutSession[]): boolean {
+export function saveDeviceWorkoutSessions(sessions: DeviceWorkoutSession[], owner: string | null = deviceStorageOwner()): boolean {
   if (typeof window === "undefined") return false;
   const normalized = sessions.map((session) => ({ ...session, exercises: session.exercises.map((exercise) => ({ ...normalizeExercise(exercise), sets: exercise.sets.map((set) => normalizeSet(set, isDirected(exercise))) })) }));
-  try {
-    window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify(normalized));
-  } catch {
-    return false;
-  }
+  // An owner captured when a screen mounted is written to, never whoever is signed in by the
+  // time a late write lands.
+  if (!writeOwnedList(deviceWorkoutHistoryKey, normalized, owner)) return false;
   window.dispatchEvent(new Event(deviceWorkoutHistoryEvent));
   return true;
 }
+
+/** Whether a storage event concerns the current owner's workout history. */
+export const isDeviceWorkoutHistoryStorageKey = (key: string | null, owner: string | null = deviceStorageOwner()) => isOwnedKey(deviceWorkoutHistoryKey, key, owner);
 
 /**
  * Takes back a finished workout recorded on this device, the way a typed lift can be

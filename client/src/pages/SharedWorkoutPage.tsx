@@ -5,11 +5,12 @@ import { trpc } from "@/lib/trpc";
 import { dismissBootSplash } from "@/lib/bootSplash";
 import { copyText } from "@/lib/workoutShare";
 import { savedShare, setPendingSharedSave, shareUrl } from "@/lib/shareLinks";
-import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
+import { BrandMark } from "@/components/BrandMark";
 import { SharedWorkoutView } from "@/components/SharedWorkoutView";
 import { parseShareSnapshot } from "@shared/workoutShare";
 import { shareSnapshotText } from "@shared/workoutShareFormat";
 import "../shared-page.css";
+import { platform } from "@/lib/platform";
 
 /**
  * A shared workout at /s/<token>: readable by anyone with the link, no account needed.
@@ -39,7 +40,7 @@ function setHead(title: string) {
 function PageFrame({ children, busy }: { children: React.ReactNode; busy?: boolean }) {
   return <div className="sp-shell">
     <header className="sp-bar">
-      <a className="sp-brand" href="/" aria-label="Sports Genome"><img src={sportsGenomeAssets.officialLogo} alt="" width={36} height={36} /><span>Sports Genome</span></a>
+      <a className="sp-brand" href="/" aria-label="Sports Genome"><BrandMark variant="logo" size={36} /><span>Sports Genome</span></a>
       <a className="sp-open" href="/" aria-label="Open Sports Genome"><span className="sp-open-long">Open Sports Genome</span><span className="sp-open-short">Open app</span></a>
     </header>
     <main className="sp-main" aria-busy={busy || undefined}>{children}</main>
@@ -122,7 +123,7 @@ export default function SharedWorkoutPage({ params }: { params: { token: string 
     <p className="sp-explain">You choose the week and day next. Exercises are added after what's there — nothing in your plan is replaced unless you choose that.</p>
     <div className="sp-more">
       <button type="button" className="sp-secondary" onClick={() => void copyAsText()}>{copied ? <Check className="h-5 w-5" aria-hidden="true" /> : <Copy className="h-5 w-5" aria-hidden="true" />}{copied ? "Copied as text" : "Copy as text"}</button>
-      <button type="button" className="sp-secondary" onClick={() => window.print()}><Printer className="h-5 w-5" aria-hidden="true" />Print or save PDF</button>
+      <button type="button" className="sp-secondary" onClick={() => platform().print()}><Printer className="h-5 w-5" aria-hidden="true" />Print or save PDF</button>
     </div>
     <p className="sp-status" role="status" aria-live="polite">{status}</p>
   </div>;

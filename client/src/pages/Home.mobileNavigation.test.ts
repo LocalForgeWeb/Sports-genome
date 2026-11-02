@@ -128,7 +128,8 @@ describe("workspace side navigation", () => {
   it("uses the supplied circular badge in the active eleven-step onboarding header at a natural readable scale", () => {
     // The mark is decorative here: the brand name sits beside it as real text,
     // so an alt would make a screen reader announce the name twice.
-    expect(athleteQuizSource).toContain('src={sportsGenomeAssets.circularBadge} alt=""');
+    // <BrandMark> with no label renders alt="" (and an aria-hidden drawn mark if the image fails).
+    expect(athleteQuizSource).toContain('<BrandMark size={38} />');
     expect(athleteQuizSource).toContain('<span>Sports Genome</span>');
     expect(athleteQuizStyles).toContain('.athlete-quiz-brand img { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 999px;');
     // Progress is one segment per step now, so the header only carries the count.

@@ -31,6 +31,7 @@ import type { TrainingLoadout as LoadoutMode } from "@/lib/loadoutTemplates";
 import { FeatureTour } from "@/components/FeatureTour";
 import { WorkspaceTabs } from "@/components/WorkspaceTabs";
 import { readScopedRecord, scopedKey } from "@/lib/deviceStorageScope";
+import { setDeviceStorageOwner } from "@/lib/deviceRecordStore";
 import { loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, stampLegacyWeightUnits, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { repeatDayFrom } from "@/lib/sessionRecap";
 import { ExerciseHistoryList } from "@/components/ExerciseHistoryList";
@@ -104,7 +105,7 @@ import { holdPageBehind, trapTabWithin } from "@/lib/modalBackground";
 import { ExerciseAnalysisTabs, type GenomeTab } from "@/components/ExerciseAnalysisTabs";
 import { isLaunchExperienceEnabled, launchExperiencePreferenceKey } from "@/lib/launchExperience";
 import { buildStampLabel } from "@/lib/buildStamp";
-import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
+import { BrandMark } from "@/components/BrandMark";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 import { preloadRegionData, regionLoadsSettled } from "@/lib/specialization/loadRegion";
 import { areaReportForRegion, clearSpecializationParams, defaultSpecializationState, readRememberedRegion, specializationStateFromParams, stackNotesForNewWeek, withRegion, writeSpecializationParams, type SpecializationPlanBatch, type SpecializationPlanBatchResult, type SpecializationPlanChange, type SpecializationPlanChangeResult, type SpecializationStackProps, type SpecializationViewState } from "@/lib/specialization/viewState";
@@ -437,6 +438,11 @@ export default function Home() {
   /** Which account's plan is currently in memory, so the writer cannot cross accounts. */
   const hydratedPlanKeyRef = useRef<string | null>(null);
   const accountId = user?.id ?? null;
+  // The device's workout history, observations, body weight and outbox follow the account
+  // (lib/deviceRecordStore.ts; iOS readiness audit, A03). Set during render, so the first read
+  // of a newly mounted workspace already uses it; it changes only when the account does, and
+  // the shell below is keyed by it so the old account's screens unmount first.
+  setDeviceStorageOwner(accountId);
   // Set from a refused call while signed in until auth.me answers with a user again.
   const sessionLapsed = useSessionLapsed();
   const [accountFocusRequest, setAccountFocusRequest] = useState(0);
@@ -2542,7 +2548,7 @@ export default function Home() {
    */
   if (!onboardingComplete) return <Suspense fallback={null}><AthleteBaselineQuiz sports={sportProfiles} targetCatalog={resilienceCatalogQuery.data} onComplete={completeOnboarding} /></Suspense>;
 
-  return <div className={`apex-shell shell-${activePrimaryDestination} ${directWorkspaceAccess ? "direct-workspace-mode" : ""}`}>
+  return <div key={accountId ?? "device"} className={`apex-shell shell-${activePrimaryDestination} ${directWorkspaceAccess ? "direct-workspace-mode" : ""}`}>
     <div className="apex-main">
       {/*
         * Who you are and what you are looking at, back above the tab row.
@@ -2557,7 +2563,7 @@ export default function Home() {
       <div className={`status-backdrop${chromeScrolled ? " is-solid" : ""}`} aria-hidden="true" />
       <header className="apex-topbar">
         <div className="topbar-brand">
-          <img src={sportsGenomeAssets.circularBadge} alt="Sports Genome" className="topbar-brand-logo shrink-0 object-cover" />
+          <BrandMark size={44} label="Sports Genome" className="topbar-brand-logo shrink-0 object-cover" />
           <div className="min-w-0">
             <p className="topbar-wordmark">Sports Genome</p>
             {/* The plan's three facts, and the one way to change them. A button,
@@ -2879,7 +2885,7 @@ export default function Home() {
         {/* The exercise is the title, on every view and at every scroll position; the
             product's mark and label are secondary to it. */}
         <header className="exercise-intelligence-bar">
-          <img src={sportsGenomeAssets.circularBadge} alt="" className="exercise-intelligence-logo" />
+          <BrandMark size={28} className="exercise-intelligence-logo" />
           <div className="exercise-intelligence-identity">
             <p className="exercise-intelligence-eyebrow">Exercise intelligence</p>
             <h1 id="exercise-intelligence-title">{inspectedExercise.name}</h1>

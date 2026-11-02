@@ -4,7 +4,7 @@ import type { SportProfile } from "@/lib/sportMovementDatabase";
 import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { catalogEquipment, defaultEquipmentProfile, gymAccessProfiles, type AthleteEquipmentProfile, type CatalogEquipment, type GymAccess } from "@/lib/equipmentProfile";
 import { getSportModifiers } from "@/lib/hierarchicalSportModel";
-import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
+import { BrandMark } from "@/components/BrandMark";
 import { SportSelect } from "@/components/SportSelect";
 import { decimalEntryText } from "@/lib/numericEntry";
 import { birthYearHint, parseBirthYear } from "@/lib/birthYear";
@@ -21,6 +21,7 @@ import {
   type SportContextMode,
 } from "@shared/resilienceContext";
 import "@/athlete-baseline-quiz.css";
+import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 
 export type AthleteExperience = "Beginner" | "Intermediate" | "Advanced";
 export type WeightUnit = "lb" | "kg";
@@ -118,7 +119,7 @@ export function quizStepRange(mode: SportContextMode | null, hasFocus: boolean, 
 export function quizProgressLabel(step: number, range: { min: number; max: number }) {
   return `Step ${step + 1} of ${range.min === range.max ? range.min : `${range.min}–${range.max}`}`;
 }
-function haptic(pattern: number | number[]) { if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(pattern); }
+function haptic(pattern: number | number[]) { emitInteractionFeedback(pattern); }
 function sportLabel(profile: SportProfile) { return profile.label === "American football" ? "Football" : profile.label === "Brazilian jiu-jitsu" ? "BJJ" : profile.label === "Olympic weightlifting" ? "Weightlifting" : profile.label; }
 
 export function AthleteBaselineQuiz({ sports, targetCatalog, onComplete }: { sports: SportProfile[]; targetCatalog?: ResilienceTargetCatalog; onComplete: (selection: AthleteQuizSelection) => void }) {
@@ -291,7 +292,7 @@ export function AthleteBaselineQuiz({ sports, targetCatalog, onComplete }: { spo
   return <div className="athlete-quiz-shell">
     <div className="athlete-quiz-glow" aria-hidden="true" />
     <header className="athlete-quiz-header">
-      <div className="athlete-quiz-brand"><img src={sportsGenomeAssets.circularBadge} alt="" /><span>Sports Genome</span></div>
+      <div className="athlete-quiz-brand"><BrandMark size={38} /><span>Sports Genome</span></div>
       <p className="athlete-quiz-count">{progressLabel}</p>
     </header>
     {/* A segment per step rather than one percentage bar: the questions feel finite when

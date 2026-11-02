@@ -1,4 +1,5 @@
 import { displayWeightToKilograms, kilogramsToDisplayWeight, type DisplayWeightUnit } from "@/lib/weightUnits";
+import { deviceStorageOwner, readOwnedList, writeOwnedList } from "./deviceRecordStore";
 
 /**
  * Body weight is not a setting. It is a measurement with a date.
@@ -37,13 +38,14 @@ function sortedByDate(entries: readonly BodyWeightEntry[]): BodyWeightEntry[] {
   return [...entries].sort((a, b) => new Date(a.observedAt).getTime() - new Date(b.observedAt).getTime());
 }
 
-export function loadBodyWeightLog(): BodyWeightEntry[] {
+export function loadBodyWeightLog(owner: string | null = deviceStorageOwner()): BodyWeightEntry[] {
   if (typeof window === "undefined") return [];
   try {
-    const parsed = JSON.parse(window.localStorage.getItem(bodyWeightLogKey) || "[]");
+    // Owner-scoped; unreadable text is kept aside, not read as "none" (iOS readiness audit, A03).
+    const parsed = readOwnedList(bodyWeightLogKey, owner) as Array<Partial<BodyWeightEntry> | null>;
     if (!Array.isArray(parsed)) return [];
     return sortedByDate(parsed.filter((entry): entry is BodyWeightEntry =>
-      Boolean(entry) && Number.isFinite(Number(entry.bodyMassKg)) && Number(entry.bodyMassKg) > 0 && typeof entry.observedAt === "string"
+      entry !== null && typeof entry === "object" && Number.isFinite(Number(entry.bodyMassKg)) && Number(entry.bodyMassKg) > 0 && typeof entry.observedAt === "string"
     ).map((entry) => ({
       bodyMassKg: Number(entry.bodyMassKg),
       enteredUnit: entry.enteredUnit === "kg" ? "kg" : "lb",
@@ -56,15 +58,11 @@ export function loadBodyWeightLog(): BodyWeightEntry[] {
 }
 
 /** Returns whether the write reached the device, the way the workout log does. */
-export function saveBodyWeightLog(entries: readonly BodyWeightEntry[]): boolean {
+export function saveBodyWeightLog(entries: readonly BodyWeightEntry[], owner: string | null = deviceStorageOwner()): boolean {
   if (typeof window === "undefined") return false;
-  try {
-    window.localStorage.setItem(bodyWeightLogKey, JSON.stringify(sortedByDate(entries)));
-    window.dispatchEvent(new Event(bodyWeightLogEvent));
-    return true;
-  } catch {
-    return false;
-  }
+  if (!writeOwnedList(bodyWeightLogKey, sortedByDate(entries), owner)) return false;
+  window.dispatchEvent(new Event(bodyWeightLogEvent));
+  return true;
 }
 
 /**
