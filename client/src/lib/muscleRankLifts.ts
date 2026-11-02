@@ -6,6 +6,7 @@ import { strengthLevelAgeFactor } from "@shared/strengthPercentile";
 import { loadConventionFor } from "@shared/loadConventions";
 import type { MuscleEvidence } from "@shared/capabilityRank";
 import { isNotToFailure, type SetEffort } from "@shared/setEffort";
+import { isProvisionalCatalogId } from "@/lib/exerciseExecution";
 
 export type RankableObservation = {
   /** The record the lift was read from, so a rank can name the lift behind it. */
@@ -121,6 +122,8 @@ export function muscleRankLiftSelection(observations: readonly RankableObservati
   const byExercise = new Map<string, Candidate[]>();
   for (const observation of observations) {
     const catalogExerciseId = catalogExerciseIdForName(observation.exerciseName) ?? null;
+    // A provisional row (exerciseExecution.ts) is never ranked, nor sent to be.
+    if (isProvisionalCatalogId(catalogExerciseId)) continue;
     const scoredOnReps = loadConventionFor(catalogExerciseId) === "bodyweight_reps";
     const loadKg = observation.loadKg == null || observation.loadKg === "" ? 0 : Number(observation.loadKg);
     if (!Number.isFinite(loadKg) || loadKg < 0 || loadKg > 1000) continue;

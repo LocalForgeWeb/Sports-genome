@@ -32,6 +32,7 @@ import { deviceWorkoutHistoryEvent, loadDeviceWorkoutSessions, type DeviceWorkou
 import { strengthRegionIdsForExerciseName, workoutStrengthObservations, compareRegionRecordRelevance } from "@/lib/workoutStrengthRecord";
 import { bodyWeightEntryAt, bodyWeightKgAt, bodyWeightLogEvent, loadBodyWeightLog, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { catalogExerciseIdForName, isRepCountLift, ordinal, strengthPercentileCard, strengthPercentileGapCopy } from "@/lib/strengthPercentileCard";
+import { isProvisionalCatalogId } from "@/lib/exerciseExecution";
 import { regionRanksFromMuscles, type RegionRank } from "@shared/capabilityRank";
 import { PendingRankCard, RankCard, UnscoredRankCard, rankOrdinal } from "@/components/CapabilityRank";
 import { RankingLiftSuggestions } from "@/components/RankingLiftSuggestions";
@@ -274,8 +275,11 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
     setBodyMassEntry(offeredBodyMass === undefined ? "" : String(Number(kilogramsToDisplayWeight(offeredBodyMass, weightUnit).toFixed(1))));
     setBodyMassSaveError(null);
   }
-  const piperReference = latestRecord ? getPiperReferenceForObservation(latestRecord) : null;
-  const powerliftingReference = latestRecord ? getPowerliftingReferenceForObservation(latestRecord, powerliftingNorms) : null;
+  // A provisional row (exerciseExecution.ts) has no comparison data and borrows none - no study, no
+  // competitor norms, no community curve, even where its name contains "bench press": nothing is asked.
+  const provisionalLift = latestRecord ? isProvisionalCatalogId(catalogExerciseIdForName(latestRecord.exerciseName)) : false;
+  const piperReference = latestRecord && !provisionalLift ? getPiperReferenceForObservation(latestRecord) : null;
+  const powerliftingReference = latestRecord && !provisionalLift ? getPowerliftingReferenceForObservation(latestRecord, powerliftingNorms) : null;
   /*
    * No competitor rank for gym logs. A squat, bench or deadlift logged in the gym was
    * ranked against drug-tested, unequipped powerlifting competitors (van den Hoek 2024),
@@ -287,8 +291,8 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   // The registry resolves every approved source, so it leads. The two hand-written
   // routes stay as the offline fallback for the sources they already cover.
   const registryReference = useMemo(
-    () => latestRecord ? getRegistryReferenceForObservation(latestRecord, referenceRows, athleteProfile, new Date(latestRecord.observedAt)) : null,
-    [latestRecord, referenceRows, athleteProfile]
+    () => latestRecord && !provisionalLift ? getRegistryReferenceForObservation(latestRecord, referenceRows, athleteProfile, new Date(latestRecord.observedAt)) : null,
+    [latestRecord, referenceRows, athleteProfile, provisionalLift]
   );
   const registryMatch = registryReference?.status === "matched" ? registryReference : null;
   const hasOutsideComparison = registryMatch != null || powerliftingReference?.status === "matched" || piperReference?.status === "matched";
@@ -315,7 +319,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   const loaded = loggedLoadKg != null && Number.isFinite(loggedLoadKg) && loggedLoadKg > 0;
   // A pull-up or a push-up with no added load is placed on its rep count, as the ranks score it.
   const repCountLift = Boolean(latestRecord) && !measuredOneRm && isRepCountLift(latestRecord!.exerciseName, latestRecord!.loadKg, latestRecord!.repetitions);
-  const percentileAsked = loaded || repCountLift;
+  const percentileAsked = (loaded || repCountLift) && !provisionalLift;
   const betaPercentile = trpc.strengthPercentile.forLift.useQuery(
     {
       catalogExerciseId: latestRecord ? catalogExerciseIdForName(latestRecord.exerciseName) ?? null : null,
@@ -369,10 +373,11 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
     const logCount = records.filter((record) => normalizedName(record.exerciseName) === normalizedName(latestRecord.exerciseName) && (record.laterality || "BILATERAL") === (latestRecord.laterality || "BILATERAL")).length;
     const loadKg = latestRecord.loadKg == null ? null : Number(latestRecord.loadKg);
     const reps = latestRecord.measurementType === "MEASURED_1RM" ? 1 : latestRecord.repetitions == null ? null : Number(latestRecord.repetitions);
-    const singleEstimateKg = loadKg != null && loadKg > 0 && reps != null && ["MEASURED_1RM", "MULTI_REP"].includes(latestRecord.measurementType)
+    const singleEstimateKg = !provisionalLift && loadKg != null && loadKg > 0 && reps != null && ["MEASURED_1RM", "MULTI_REP"].includes(latestRecord.measurementType)
       ? (latestRecord.measurementType === "MEASURED_1RM" ? loadKg : estimateOneRepMaxKg(loadKg, reps))
       : null;
-    const noEstimateReason = loadKg == null || !(loadKg > 0) ? "No weight was logged with this lift, so there is no estimated 1RM to follow."
+    const noEstimateReason = provisionalLift ? `${latestRecord.exerciseName} is new to the catalog and not yet reviewed, so it gets no estimated 1RM.`
+      : loadKg == null || !(loadKg > 0) ? "No weight was logged with this lift, so there is no estimated 1RM to follow."
       : !["MEASURED_1RM", "MULTI_REP"].includes(latestRecord.measurementType) ? "This kind of test is not turned into an estimated 1RM, so it has no progress line."
       : reps == null || !(reps >= 1) ? "No reps were logged with this lift, so there is no estimated 1RM to follow."
       : `Sets of more than ${maxValidEstimationReps} reps are not turned into an estimated 1RM, so this one has no progress line.`;
@@ -382,7 +387,8 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
       : bodyMassSource === "recorded" ? `${formatDisplayWeight(effectiveBodyMassKg, weightUnit)}, recorded with this lift.`
       : bodyMassSource === "dated" ? `${formatDisplayWeight(effectiveBodyMassKg, weightUnit)}, from your weight log${weightLoggedOn ? ` on ${shortDate(weightLoggedOn)}` : ""}.`
       : `${formatDisplayWeight(effectiveBodyMassKg, weightUnit)}, your current profile weight. This ratio moves if you change it.`;
-    const betaReason = !percentileAsked ? "No weight was logged with this lift, so there is nothing to compare."
+    const betaReason = provisionalLift ? `No comparison available: ${latestRecord.exerciseName} is new to the catalog, and no other lift's comparison data stands in for it.`
+      : !percentileAsked ? "No weight was logged with this lift, so there is nothing to compare."
       : betaPercentile.isError === true && betaPercentile.data === undefined ? "The comparison could not be checked just now."
       : betaPercentile.data?.status === "unavailable" && betaPercentile.data.reason !== "sex_required" ? liftComparisonGapReason(betaPercentile.data, latestRecord.exerciseName)
       : null;

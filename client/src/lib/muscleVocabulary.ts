@@ -28,9 +28,22 @@
  * offering both would be two rows returning the same exercises.
  */
 
-/** Catalog keys that train a muscle the rest of the app can name. */
+/**
+ * Catalog keys that train a muscle the rest of the app can name.
+ *
+ * The neck (2 Nov 2026) is one catalog key, `neck`, a midline region rather than one muscle:
+ * which neck muscles a direction loads is in exerciseExecution.ts, qualitatively. So every name
+ * an athlete may use for it - cervical, the sternocleidomastoid (SCM), the neck flexors or
+ * extensors - finds the neck exercises, and none of them reaches `traps`, which is the shoulder
+ * girdle's trapezius and not neck work.
+ */
 export const catalogKeysByMuscle: Record<string, readonly string[]> = {
   rhomboids: ["upperBack"],
+  cervical: ["neck"],
+  sternocleidomastoid: ["neck"],
+  SCM: ["neck"],
+  "neck flexors": ["neck"],
+  "neck extensors": ["neck"],
 };
 
 /** The catalog keys to search for a muscle - itself, unless it has a synonym. */

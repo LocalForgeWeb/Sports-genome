@@ -1,0 +1,225 @@
+{
+ "_about": "Media decisions for the Zercher, neck and bench rows of 2 Nov 2026: the handoff's nine Free Exercise DB candidates (docs/exercise-additions/2026-10-23-zercher-neck-bench-handoff.md, manifest `media`), both frames fetched at the pinned commit from raw.githubusercontent.com and viewed at full size. Approved only where equipment, bench angle, direction and body position all match the row's protocol; every other new row shows the equipment placeholder and the written steps. The source declares the Unlicense (public domain dedication) and names no per-image author. scripts/exercise-photos/curate.mjs carries each decision (curated or rejected), so a name match cannot change it.",
+ "sourceRepo": "yuhonas/free-exercise-db",
+ "sourceRef": "f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5",
+ "licence": "Unlicense (public domain dedication)",
+ "reviewedOn": "2026-11-02",
+ "decisions": {
+  "428": {
+   "exercise": "Seated Harness Neck Extension",
+   "source": "Seated_Head_Harness_Neck_Resistance",
+   "decision": "approved",
+   "why": "Seated on a flat bench, torso inclined forward, hands on the knees, plates hanging on a chain from a head harness; frame 0 the head flexed down, frame 1 extended. Equipment, body position and direction match the row's protocol.",
+   "frames": [
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Head_Harness_Neck_Resistance/0.jpg",
+     "sha256": "e0ee9ed69076b50c96b94133faa4854f04b747cd018579264f6dfd0a521741e4",
+     "size": [
+      850,
+      567
+     ]
+    },
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Head_Harness_Neck_Resistance/1.jpg",
+     "sha256": "8768c7f903e2d6e56215aede6a5bb4d7b2793d54dfb963ac104c9feac5e23e53",
+     "size": [
+      850,
+      567
+     ]
+    }
+   ]
+  },
+  "433": {
+   "exercise": "Isometric Neck Flexion — Manual Resistance",
+   "source": "Isometric_Neck_Exercise_-_Front_And_Back",
+   "decision": "rejected",
+   "why": "Standing; the row is seated with the torso supported. The record shows both directions (frame 0 hands on the forehead, frame 1 hands behind the head), so it is one record for two exercises.",
+   "frames": [
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Isometric_Neck_Exercise_-_Front_And_Back/0.jpg",
+     "sha256": "0935e0e76267bf93fbf819ec122e6c6ef0b0cda910e5e31b47a08ca47a128176",
+     "size": [
+      850,
+      567
+     ]
+    },
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Isometric_Neck_Exercise_-_Front_And_Back/1.jpg",
+     "sha256": "9218c5b5c77aba01c8eeff636e74df9df20ff7b0f97c0fb1365af6c0bcf58fe4",
+     "size": [
+      850,
+      567
+     ]
+    }
+   ]
+  },
+  "434": {
+   "exercise": "Isometric Neck Extension — Manual Resistance",
+   "source": "Isometric_Neck_Exercise_-_Front_And_Back",
+   "decision": "rejected",
+   "why": "Standing; the row is seated with the torso supported. Frame 1 (hands behind the head) is the extension, but the body position does not match.",
+   "frames": [
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Isometric_Neck_Exercise_-_Front_And_Back/0.jpg",
+     "sha256": "0935e0e76267bf93fbf819ec122e6c6ef0b0cda910e5e31b47a08ca47a128176",
+     "size": [
+      850,
+      567
+     ]
+    },
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Isometric_Neck_Exercise_-_Front_And_Back/1.jpg",
+     "sha256": "9218c5b5c77aba01c8eeff636e74df9df20ff7b0f97c0fb1365af6c0bcf58fe4",
+     "size": [
+      850,
+      567
+     ]
+    }
+   ]
+  },
+  "435": {
+   "exercise": "Isometric Neck Lateral Flexion — Manual Resistance",
+   "source": "Isometric_Neck_Exercise_-_Sides",
+   "decision": "rejected",
+   "why": "Standing, one hand on the side of the head; the row is seated with the torso supported.",
+   "frames": [
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Isometric_Neck_Exercise_-_Sides/0.jpg",
+     "sha256": "c263326c62b860fc255749c824b10ec9052e7bf1b0723df25ebbf3909477d087",
+     "size": [
+      850,
+      567
+     ]
+    },
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Isometric_Neck_Exercise_-_Sides/1.jpg",
+     "sha256": "ff27206714818d31566e8519ba620691c15cb356120190cefcffda263f92b7e2",
+     "size": [
+      850,
+      567
+     ]
+    }
+   ]
+  },
+  "437": {
+   "exercise": "Plate-Loaded Incline Chest Press",
+   "source": "Leverage_Incline_Chest_Press",
+   "decision": "approved",
+   "why": "A seated plate-loaded lever incline press (plates on the machine's horns, the frame labelled Incline Press); frame 0 the handles at the chest, frame 1 pressed out. The same photograph catalog 12 Incline Machine Chest Press already shows.",
+   "frames": [
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leverage_Incline_Chest_Press/0.jpg",
+     "sha256": "aa5eb7b47f10eb379ce661d08ce0d93b8e35ea54bb4dfd31d90262f0e57e5b48",
+     "size": [
+      850,
+      567
+     ]
+    },
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leverage_Incline_Chest_Press/1.jpg",
+     "sha256": "a00069cf0fc067c52e8332732e0c37bec762108c073ff755a338132652e82359",
+     "size": [
+      850,
+      567
+     ]
+    }
+   ]
+  },
+  "439": {
+   "exercise": "Plate-Loaded Decline Chest Press",
+   "source": "Leverage_Decline_Chest_Press",
+   "decision": "approved",
+   "why": "A seated plate-loaded lever decline press, plates on the horn; frame 0 the handles at the chest, frame 1 pressed out and down.",
+   "frames": [
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leverage_Decline_Chest_Press/0.jpg",
+     "sha256": "aa9119b067b55cadc4b3e5b502e296eaa3de3abbb05a9be926b5102897c51156",
+     "size": [
+      850,
+      567
+     ]
+    },
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leverage_Decline_Chest_Press/1.jpg",
+     "sha256": "fab0c0a0f45a55658fb0c132d365cebe804ebf4904cf8e931d2e030f4dc8f8b1",
+     "size": [
+      850,
+      567
+     ]
+    }
+   ]
+  },
+  "15": {
+   "exercise": "Smith Machine Incline Press",
+   "source": "Smith_Machine_Incline_Bench_Press",
+   "decision": "unchanged",
+   "why": "Already shown for catalog 15 since before this release (reversed frame order recorded then); reused, not a new row.",
+   "frames": [
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Smith_Machine_Incline_Bench_Press/0.jpg",
+     "sha256": "f395110a0b7c2f8319591805f14d6d04d89c90ab45923524249026ff5441db6c",
+     "size": [
+      850,
+      567
+     ]
+    },
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Smith_Machine_Incline_Bench_Press/1.jpg",
+     "sha256": "fbf2193e918bd4ab4615756b2e03e0dd733bcf21f262f81b1e80ccfbb75e8aa2",
+     "size": [
+      850,
+      567
+     ]
+    }
+   ]
+  },
+  "440": {
+   "exercise": "Smith Machine Decline Bench Press",
+   "source": "Smith_Machine_Decline_Press",
+   "decision": "approved",
+   "why": "A Smith bar on a decline bench, head lower than the hips; frame 0 the bar on the chest, frame 1 the arms extended (shown reversed, start first).",
+   "frames": [
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Smith_Machine_Decline_Press/0.jpg",
+     "sha256": "a9b8d86c47a826298f6c9afe410ed9f2b0181131a1b98c826708acf5677c46f9",
+     "size": [
+      850,
+      567
+     ]
+    },
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Smith_Machine_Decline_Press/1.jpg",
+     "sha256": "ac891759da8010051c343a371ab60d5575815cccf8dbfa77319942ec9c454a87",
+     "size": [
+      850,
+      567
+     ]
+    }
+   ]
+  },
+  "441": {
+   "exercise": "Barbell Floor Press",
+   "source": "Floor_Press",
+   "decision": "approved",
+   "why": "Lying on the floor inside a rack, knees bent; frame 0 the bar pressed up, frame 1 lowered with the upper arms on the floor.",
+   "frames": [
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Floor_Press/0.jpg",
+     "sha256": "9156e46da48d6ecd2e51b16bd4cdfb52bc84e0b52943d84e8e422fa3ddd8b589",
+     "size": [
+      850,
+      567
+     ]
+    },
+    {
+     "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Floor_Press/1.jpg",
+     "sha256": "94e7c71506e1c65873b76d4dbf501edf2e63dbe897a27a82a8d0a5e008c29e71",
+     "size": [
+      850,
+      567
+     ]
+    }
+   ]
+  }
+ }
+}

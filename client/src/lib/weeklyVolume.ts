@@ -2,6 +2,7 @@
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
 import { logicCalibration } from "@/lib/evidenceTraceability";
+import { setCreditMusclesOf } from "@/lib/exerciseExecution";
 
 export type WeeklyPlan = Record<string, Exercise[]>;
 export type WeeklyPrescriptionStore = Record<string, Record<number, string>>;
@@ -24,6 +25,8 @@ export const displayNames: Record<string, string> = {
   // Three catalog keys rendered as raw identifiers ("hipFlexors" for Cable Standing Knee Drive)
   // because this list predated them (5 October 2026 weekly-review inventory).
   feet: "Foot muscles", hipFlexors: "Hip flexors", serratusAnterior: "Serratus anterior",
+  // The neck rows of 2 Nov 2026: one midline region, never folded into the trapezius.
+  neck: "Neck",
 };
 
 function parseSets(value: string, fallback: number) {
@@ -35,8 +38,9 @@ export function getWeeklyMuscleVolume(plan: WeeklyPlan, weeklyPrescriptions: Wee
   Object.entries(plan).forEach(([dayKey, workout]) => {
     workout.forEach((exercise, index) => {
       const sets = parseSets(weeklyPrescriptions[dayKey]?.[exercise.id] || getGoalPrescription(goal, index), 3);
-      const direct = new Set(exercise.primaryMuscles);
-      const support = new Set(exercise.secondaryMuscles.filter((muscle) => !direct.has(muscle)));
+      const credited = setCreditMusclesOf(exercise);
+      const direct = new Set(credited.direct);
+      const support = new Set(credited.support);
       direct.forEach((muscle) => {
         const current = volumes.get(muscle) || { muscle, label: displayNames[muscle] || muscle, directSets: 0, supportSets: 0, equivalentSets: 0, daySets: {} };
         current.directSets += sets;

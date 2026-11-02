@@ -37,7 +37,7 @@
     "mappingState": "published",
     "mappingRows": 418,
     "currentMappingVersion": "forearm_mappings_v2",
-    "catalogEndsAt": 420
+    "forearmRowsEndAt": 420
   },
   "headline": {
     "records": 57,
@@ -3377,7 +3377,7 @@
     {"section":"§1.2","claim":"fa-22 is an alias of fa-12, resolving to 411; no second row, no second dose","found":"fa-22 → fa-12 → cat-411; cells identical to fa-12's","holds":true},
     {"section":"§1.2 totals","claim":"28 existing (18 the same task, 9 set-up not recorded, the alias), 3 new rows, 4 referred, 16 deferred, 6 blocked: 57","found":"28 existing (18, 9, 1), 3 new rows, 4 referred, 16 deferred, 6 blocked","holds":true},
     {"section":"§1.2","claim":"Every catalog row the design names exists under that name","found":"28 rows, all as named","holds":true},
-    {"section":"§1.2, §10 decision 2","claim":"Ids 417–419 hold the three new rows and 420 decision 2's drill, added by lane C1 (F3); the catalog ends at 420","found":"catalog ends at 420; 417–420 as named","holds":true},
+    {"section":"§1.2, §10 decision 2","claim":"Ids 417–419 hold the three new rows and 420 decision 2's drill, added by lane C1 (F3); the forearm rows end at 420","found":"forearm rows end at 420; 417–420 as named","holds":true},
     {"section":"§1.2","claim":"fa-09: the two catalog rows are mapped alike","found":"cat-42 and cat-186: alike","holds":true},
     {"section":"§1.2","claim":"fa-26: the two catalog rows are mapped alike","found":"cat-337 and cat-134: alike","holds":true},
     {"section":"§1.1","claim":"The package's direct roles equal v1's reviewed direct rows on every matched record except fa-08","found":"differ on fa-08 (package BR; v1 none)","holds":true},

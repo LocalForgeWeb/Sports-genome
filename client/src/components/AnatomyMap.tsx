@@ -55,10 +55,19 @@ const labels: Record<string, string> = {
   hamstrings: "Hamstrings", calves: "Gastrocnemius", soleus: "Soleus",
   tibialis: "Tibialis anterior", peroneals: "Peroneus longus/brevis", lats: "Latissimus dorsi",
   traps: "Trapezius", rhomboids: "Rhomboids", lowerBack: "Spinal erectors",
-  rotatorCuff: "Rotator cuff muscles"
+  rotatorCuff: "Rotator cuff muscles",
+  // A midline region, not one muscle, and not drawn on this figure (listedNotDrawn below).
+  neck: "Neck"
 };
 
 const viewLabel = (view: "front" | "back") => (view === "front" ? "anterior" : "posterior");
+
+/**
+ * Regions the app names that this figure does not draw. The neck (catalog key `neck`, 2 Nov 2026)
+ * is a midline region with no geometry here, so it is a row of its own: chosen by name, its role
+ * said in words when an exercise records one, and never painted on a shoulder or trapezius shape.
+ */
+export const listedNotDrawnKeys: readonly string[] = ["neck"];
 
 export function AnatomyMap({ primary, secondary, onSelect, selectedKey: externalKey, muscleScores, roleDetails, roleMethodology, roleSource = "action", showInspector = true, nextStep, subjectLabel, onBrowseMuscle, figureTitle }: AnatomyMapProps) {
   const trainingDay = roleSource === "training-day";
@@ -136,13 +145,24 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
     return map;
   }, [listRoles, displayRole]);
 
+  /** A region the figure does not draw, in the role the lists give it, or none: it is listed, never painted. */
+  const notDrawnRoles = useMemo(() => {
+    const map: Record<string, Role> = {};
+    listedNotDrawnKeys.forEach((key) => {
+      if (primary.includes(key)) map[key] = "Primary";
+      else if (secondary.includes(key)) map[key] = "Synergist";
+    });
+    return map;
+  }, [primary, secondary]);
+
   /* Ranked muscles for the strip */
   const ranked = useMemo(() => {
-    const entries: { key: string; label: string; role: Role; roles?: string[]; confidence?: string }[] = [];
+    const entries: { key: string; label: string; role: Role; roles?: string[]; confidence?: string; notDrawn?: boolean }[] = [];
     Object.keys(roles).forEach(key => {
       const detail = detailFor(key);
       entries.push({ key, label: labels[key] || key, role: displayRole(key), roles: detail?.roles, confidence: detail?.confidence || "Movement model" });
     });
+    Object.entries(notDrawnRoles).forEach(([key, role]) => entries.push({ key, label: labels[key] || key, role, notDrawn: true }));
     const fallbackOrder: Record<Role, number> = { Primary: 0, Stabilizer: 1, Synergist: 2 };
     const orderFor = (entry: typeof entries[number]) => {
       const detail = detailFor(entry.key);
@@ -152,7 +172,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
     // Every region the action's record gives a role, so the count is the count.
     // It was capped at eight, which Home's "N muscles involved" then disagreed with.
     return entries.sort((a, b) => orderFor(a) - orderFor(b));
-  }, [roles, detailFor, displayRole]);
+  }, [roles, notDrawnRoles, detailFor, displayRole]);
   /**
    * Every region the figure draws, in words.
    *
@@ -188,9 +208,12 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
    * function list, so none is invented here.
    */
   const rowNote = (region: (typeof ranked)[number]) => {
+    if (region.notDrawn) return "Not drawn on the figure";
     const others = detailFor(region.key)?.roles.slice(1) ?? [];
     return others.length ? `Also ${others.map((role) => role.toLowerCase()).join(" · ")}` : "";
   };
+  /** Regions with no role here that the figure cannot show: always a row, so they are reachable by name. */
+  const notDrawnUnrecorded = roleSource === "exercise" ? [] : listedNotDrawnKeys.filter((key) => !notDrawnRoles[key]);
   const pickRow = (key: string) => { setSelectedKey(key); setSelectedId(""); setSelectedPart(""); onSelect(key); };
 
   const chooseRegion = useCallback((key: string, pathId?: string) => {
@@ -287,6 +310,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
             {selectedViews.length > 0 && <span className="atlas-selected-where">
               {selectedViews.length === 2 ? "On both views" : `On the ${viewLabel(selectedViews[0])} view`}
             </span>}
+            {listedNotDrawnKeys.includes(selectedKey) && <span className="atlas-selected-where">Not drawn on the figure</span>}
             {/* The strip is the whole inspector on a phone — the panel beside
                 the body is hidden under 901px — so the heads have to be here
                 too or they are pointer-only on the device that has no pointer. */}
@@ -395,6 +419,11 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
                 without hitting a 12px shape. */}
             {showAllRanked && filteredUninvolved.map((region) => <li key={region.key} className="atlas-role-row-unrecorded"><button type="button" onClick={() => pickRow(region.key)} className={`atlas-role-row ${selectedKey === region.key ? "is-selected" : ""}`} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: "#c2ccd9" }} /><span className="atlas-role-row-copy"><strong>{region.label}</strong></span><em className="atlas-role-tag atlas-role-tag-unrecorded">No role recorded</em><ChevronRight className="h-4 w-4" /></button></li>)}
           </ol>
+          {/* The neck has no shape on this figure. It is a row at rest, not one behind "View all":
+              the only way to choose it is by name, and choosing it opens its exercises. */}
+          {notDrawnUnrecorded.length > 0 && <ul className="atlas-role-rows atlas-role-rows-listed" aria-label="Regions not drawn on the figure">
+            {notDrawnUnrecorded.map((key) => <li key={key} className="atlas-role-row-listed"><button type="button" onClick={() => pickRow(key)} className={`atlas-role-row ${selectedKey === key ? "is-selected" : ""}`} aria-pressed={selectedKey === key}><i className="atlas-rank-dot" style={{ background: "#c2ccd9" }} /><span className="atlas-role-row-copy"><strong>{labels[key] || key}</strong><small>Not drawn on the figure</small></span><em className="atlas-role-tag atlas-role-tag-unrecorded">No role recorded</em><ChevronRight className="h-4 w-4" /></button></li>)}
+          </ul>}
           {/* Two counts, two grains: "13 muscles involved" is the action's record; the figure
               draws 26 regions, the other 13 with no role recorded. The toggle says both. */}
           {(showAllRanked || hiddenRankedCount > 0) && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer" : `View all ${filteredRanked.length + filteredUninvolved.length} muscles on the map${filteredUninvolved.length ? ` · ${filteredUninvolved.length} with no role recorded` : ""}`} <ChevronRight className="h-4 w-4" aria-hidden="true" /></button>}

@@ -11,7 +11,8 @@ import { trpc } from "@/lib/trpc";
 import { accountSignInAvailable } from "@/lib/accountAccess";
 import { expiryNotice, isExpiryError } from "@/lib/sessionExpiryNotice";
 import { trainingGoalChoices, convertBodyWeight, type AthleteBaseline, type AthleteExperience, type SexForReference, type WeightUnit } from "@/components/AthleteBaselineQuiz";
-import { catalogEquipment, gymAccessProfiles, type CatalogEquipment, type GymAccess } from "@/lib/equipmentProfile";
+import { catalogEquipment, equipmentAccessories, equipmentAccessoryLabels, gymAccessProfiles, type CatalogEquipment, type GymAccess } from "@/lib/equipmentProfile";
+import type { RequiredAccessory } from "@/lib/exerciseExecution";
 import { gymTimeOptions } from "@/lib/gymTimeBudget";
 import type { SportProfile } from "@/lib/sportMovementDatabase";
 import type { TrainingGoal } from "@/lib/workoutPlanner";
@@ -118,7 +119,13 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
     onConfirm: () => removePasskey.mutate({ passkeyId }),
   });
   const passkeySupported = typeof window !== "undefined" && "PublicKeyCredential" in window;
-  const setGymAccess = (gymAccess: GymAccess) => { emitInteractionFeedback(); onBaseline({ ...baseline, equipment: { gymAccess, availableEquipment: gymAccessProfiles[gymAccess] } }); };
+  // Where you train sets the categories; the accessories are the athlete's own answer and stay as they are.
+  const setGymAccess = (gymAccess: GymAccess) => { emitInteractionFeedback(); onBaseline({ ...baseline, equipment: { ...equipment, gymAccess, availableEquipment: gymAccessProfiles[gymAccess] } }); };
+  const toggleAccessory = (item: RequiredAccessory) => {
+    const owned = equipment.accessories ?? [];
+    emitInteractionFeedback();
+    onBaseline({ ...baseline, equipment: { ...equipment, accessories: owned.includes(item) ? owned.filter((have) => have !== item) : [...owned, item] } });
+  };
   const toggleEquipment = (item: CatalogEquipment) => {
     if (item === "Bodyweight") return;
     const availableEquipment = equipment.availableEquipment.includes(item) ? equipment.availableEquipment.filter((available) => available !== item) : [...equipment.availableEquipment, item];
@@ -217,7 +224,7 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
         control that existed still exists, inside the group that owns it. */}
     <div className="about-me-groups">
       <details className="about-me-group"><summary><Dumbbell className="h-6 w-6" aria-hidden="true" /><span><strong>Equipment</strong><small>{equipmentSummary}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
-        <section className="about-me-equipment"><div className="about-me-equipment-head"><div><p>Recommended stacks use the selected equipment below. The catalog remains complete, so you can inspect or manually add any exercise.</p></div></div><div className="about-me-access-row" role="group" aria-label="Where you train">{(Object.keys(gymAccessProfiles) as GymAccess[]).map((access) => <button key={access} type="button" aria-pressed={equipment.gymAccess === access} onClick={() => setGymAccess(access)} className={equipment.gymAccess === access ? "about-me-access-active" : ""}>{access}</button>)}</div><div className="about-me-equipment-grid" role="group" aria-label="Equipment you can use">{catalogEquipment.map((item) => { const selected = equipment.availableEquipment.includes(item); const locked = item === "Bodyweight"; return <button key={item} type="button" aria-pressed={selected} aria-disabled={locked || undefined} title={locked ? "Always available" : undefined} onClick={() => toggleEquipment(item)} className={selected ? "about-me-equipment-active" : ""}><Scale className="h-4 w-4" aria-hidden="true" /><span>{item}</span>{selected && <Check className="ml-auto h-4 w-4" aria-hidden="true" />}</button>; })}</div></section>
+        <section className="about-me-equipment"><div className="about-me-equipment-head"><div><p>Recommended stacks use the selected equipment below. The catalog remains complete, so you can inspect or manually add any exercise.</p></div></div><div className="about-me-access-row" role="group" aria-label="Where you train">{(Object.keys(gymAccessProfiles) as GymAccess[]).map((access) => <button key={access} type="button" aria-pressed={equipment.gymAccess === access} onClick={() => setGymAccess(access)} className={equipment.gymAccess === access ? "about-me-access-active" : ""}>{access}</button>)}</div><div className="about-me-equipment-grid" role="group" aria-label="Equipment you can use">{catalogEquipment.map((item) => { const selected = equipment.availableEquipment.includes(item); const locked = item === "Bodyweight"; return <button key={item} type="button" aria-pressed={selected} aria-disabled={locked || undefined} title={locked ? "Always available" : undefined} onClick={() => toggleEquipment(item)} className={selected ? "about-me-equipment-active" : ""}><Scale className="h-4 w-4" aria-hidden="true" /><span>{item}</span>{selected && <Check className="ml-auto h-4 w-4" aria-hidden="true" />}</button>; })}</div><p className="about-me-accessories-note">Neck exercises on a cable or a machine need one of these as well. Recommended stacks use them only once you say you have them.</p><div className="about-me-equipment-grid about-me-accessories" role="group" aria-label="Accessories you can use">{equipmentAccessories.map((item) => { const selected = (equipment.accessories ?? []).includes(item); return <button key={item} type="button" aria-pressed={selected} onClick={() => toggleAccessory(item)} className={selected ? "about-me-equipment-active" : ""}><Scale className="h-4 w-4" aria-hidden="true" /><span>{equipmentAccessoryLabels[item]}</span>{selected && <Check className="ml-auto h-4 w-4" aria-hidden="true" />}</button>; })}</div></section>
       </details>
       <details className="about-me-group"><summary><Target className="h-6 w-6" aria-hidden="true" /><span><strong>Training priorities</strong><small>{prioritiesSummary}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
         <CapacityFocusCard catalog={targetCatalog} value={capacityFocus} onChange={onCapacityFocus} />

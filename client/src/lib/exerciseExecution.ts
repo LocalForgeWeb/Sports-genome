@@ -62,8 +62,12 @@ export type ExerciseExecution = {
   sources: readonly ExerciseSource[];
   /** Grades are provisional product judgements: no rank, percentile, estimated max or automatic recommendation. */
   provisional: true;
-  /** No exact, approved photograph: the detail shows the equipment fallback and the written steps. */
-  media: "fallback";
+  /**
+   * `photo`: an exact photograph, viewed and approved through scripts/exercise-photos/curate.mjs
+   * (docs/exercise-additions/media-review-2026-11-02.json). `fallback`: none matches the protocol
+   * exactly, so the detail shows the equipment placeholder and the written steps, never a cousin.
+   */
+  media: "photo" | "fallback";
 };
 
 const SOURCES = {
@@ -81,11 +85,16 @@ const SOURCES = {
   D1: { id: "D1", url: "https://supabase.com/docs/guides/database/postgres/row-level-security", kind: "official technical documentation", supports: "Grants and row policies both matter for exposed data; ownership tests required for user records." },
 } as const satisfies Record<string, ExerciseSource>;
 
+/**
+ * The rows by catalog id. "zercher" alone names the whole family, so each Zercher row answers it,
+ * as the reused Squat (164) and Carry (300) do (existingRowAliases): every picker then returns all
+ * six protocols, each with its sublabel, and never picks one for the athlete (T01).
+ */
 export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new Map<number, ExerciseExecution>([
   [421, {
     key: "zercher_deadlift_floor",
     group: "zercher",
-    aliases: ["zercher deadlift", "zercher floor pull", "floor zercher deadlift"],
+    aliases: ["zercher", "zercher deadlift", "zercher floor pull", "floor zercher deadlift"],
     distinction: "Starts in the elbow crooks on the floor; not a rack-start squat or a conventional deadlift.",
     steps: [
       "Start with a straight bar resting on the floor; position both elbow crooks under it before the working repetition.",
@@ -107,7 +116,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
   [422, {
     key: "zercher_block_pull",
     group: "zercher",
-    aliases: ["zercher rack pull", "elevated zercher deadlift", "zercher pin pull"],
+    aliases: ["zercher", "zercher rack pull", "elevated zercher deadlift", "zercher pin pull"],
     distinction: "Starting height changes the protocol and PR comparison; never merge with floor pulls.",
     steps: [
       "Support the bar on stable blocks or pins and record bar-center starting height.",
@@ -129,7 +138,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
   [423, {
     key: "zercher_good_morning",
     group: "zercher",
-    aliases: ["zercher hip hinge", "zercher Romanian deadlift", "zercher RDL"],
+    aliases: ["zercher", "zercher hip hinge", "zercher Romanian deadlift", "zercher RDL"],
     distinction: "RDL alias applies only to this top-down, no-floor-reset protocol. Keep floor and block pulls distinct.",
     steps: [
       "Unrack the bar into both elbow crooks and begin standing.",
@@ -151,7 +160,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
   [424, {
     key: "zercher_hold",
     group: "zercher",
-    aliases: ["zercher static hold", "zercher isometric hold"],
+    aliases: ["zercher", "zercher static hold", "zercher isometric hold"],
     distinction: "Timed trunk and elbow-flexor isometrics; not dynamic curl sets or a hand-grip hold.",
     steps: [
       "Unrack a bar into both elbow crooks and stand in a stable stance.",
@@ -256,7 +265,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     roles: [{ target: "neck.extensors", relationship: "direct", mode: "dynamic" }],
     sources: [SOURCES.N1, SOURCES.N2, SOURCES.N3],
     provisional: true,
-    media: "fallback",
+    media: "photo",
   }],
   [429, {
     key: "cable_neck_flexion",
@@ -437,7 +446,9 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
   [437, {
     key: "plate_loaded_incline_press",
     group: "bench",
-    aliases: ["incline plate loaded chest press", "incline lever press"],
+    // The last alias is the app's (2 Nov 2026), not the handoff's: "incline bench machine" is how
+    // athletes ask for either incline machine, so this row answers it beside 12 (T02).
+    aliases: ["incline plate loaded chest press", "incline lever press", "plate loaded incline bench machine"],
     distinction: "Protocol-specific history; no inherited barbell-bench percentile or automatic machine conversion.",
     steps: [
       "Use the named incline or decline press and adjust the seat so the handles match its intended pressing path. Record the machine and settings.",
@@ -454,7 +465,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     roles: [{ target: "chest", relationship: "direct", mode: "dynamic" }, { target: "triceps", relationship: "contributing", mode: "dynamic" }, { target: "frontDelts", relationship: "contributing", mode: "dynamic" }],
     sources: [SOURCES.B1, SOURCES.B2, SOURCES.B3, SOURCES.M1],
     provisional: true,
-    media: "fallback",
+    media: "photo",
   }],
   [438, {
     key: "selectorized_decline_press",
@@ -498,7 +509,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     roles: [{ target: "chest", relationship: "direct", mode: "dynamic" }, { target: "triceps", relationship: "contributing", mode: "dynamic" }, { target: "frontDelts", relationship: "contributing", mode: "dynamic" }],
     sources: [SOURCES.B1, SOURCES.M1],
     provisional: true,
-    media: "fallback",
+    media: "photo",
   }],
   [440, {
     key: "smith_decline_bench",
@@ -520,7 +531,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     roles: [{ target: "chest", relationship: "direct", mode: "dynamic" }, { target: "triceps", relationship: "contributing", mode: "dynamic" }, { target: "frontDelts", relationship: "contributing", mode: "dynamic" }],
     sources: [SOURCES.B1, SOURCES.M1],
     provisional: true,
-    media: "fallback",
+    media: "photo",
   }],
   [441, {
     key: "barbell_floor_press",
@@ -542,7 +553,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     roles: [{ target: "chest", relationship: "direct", mode: "dynamic" }, { target: "triceps", relationship: "contributing", mode: "dynamic" }, { target: "frontDelts", relationship: "contributing", mode: "dynamic" }],
     sources: [SOURCES.B1, SOURCES.M1],
     provisional: true,
-    media: "fallback",
+    media: "photo",
   }],
   [442, {
     key: "paused_barbell_bench",
@@ -605,4 +616,124 @@ export const existingRowAliases: ReadonlyMap<number, readonly string[]> = new Ma
 /** The execution record for a catalog id, or null when the catalog row says all there is. */
 export function exerciseExecutionOf(catalogId: number | null | undefined): ExerciseExecution | null {
   return catalogId === null || catalogId === undefined ? null : exerciseExecutionById.get(catalogId) ?? null;
+}
+
+/**
+ * True for a catalog row whose grades are provisional product judgements, not measured effects:
+ * the one gate every engine reads. Such a row gets no estimated 1RM, rank, percentile or strength
+ * norm (not even one borrowed by a name that contains "bench press"), no name-based study
+ * calibration or mechanics reading, and is never put into a plan, a sport movement's exercises or a
+ * suggestion by the app on its own; the athlete adds it by choosing it.
+ */
+export function isProvisionalCatalogId(catalogId: number | null | undefined): boolean {
+  return exerciseExecutionOf(catalogId)?.provisional === true;
+}
+
+/** Equipment a row needs beyond its broad catalog equipment word, or none. */
+export function requiredAccessoriesOf(catalogId: number | null | undefined): readonly RequiredAccessory[] {
+  return exerciseExecutionOf(catalogId)?.requires ?? [];
+}
+
+/** The accessories in words, as a picker row and the detail name them. */
+export const requiredAccessoryLabels: Record<RequiredAccessory, string> = { neck_machine: "Neck machine", head_harness: "Head harness" };
+
+/**
+ * The words every picker finds a row by besides its name: its execution aliases, or, for an
+ * existing row the handoff resolved to instead of duplicating, the aliases it gained.
+ */
+export function catalogAliasesOf(catalogId: number | null | undefined): readonly string[] {
+  if (catalogId === null || catalogId === undefined) return [];
+  return exerciseExecutionById.get(catalogId)?.aliases ?? existingRowAliases.get(catalogId) ?? [];
+}
+
+/**
+ * One short line under a row's name that tells it apart from the rows a search returns with it:
+ * "zercher" finds six protocols and "incline bench machine" two machines, and the names alone do
+ * not say which is the floor pull or which machine is loaded by the arm. Set-up words only; the
+ * detail has the rest.
+ */
+export const catalogSublabelById: ReadonlyMap<number, string> = new Map<number, string>([
+  [164, "Squat · bar in the elbows"],
+  [300, "Carry · walk with the bar in the elbows"],
+  [421, "Floor pull · from the floor"],
+  [422, "Elevated pull · from blocks or pins"],
+  [423, "Hip hinge · top-down, no floor reset"],
+  [424, "Hold · timed, standing still"],
+  [425, "Neck machine · flexion"],
+  [426, "Neck machine · extension"],
+  [427, "Neck machine · side bend, left or right"],
+  [428, "Head harness, plates · extension"],
+  [429, "Cable and head harness · flexion"],
+  [430, "Cable and head harness · extension"],
+  [431, "Cable and head harness · side bend, left or right"],
+  [432, "Cable and head harness · rotation, left or right"],
+  [433, "Own hand · flexion hold, timed"],
+  [434, "Own hand · extension hold, timed"],
+  [435, "Own hand · side-bend hold, left or right"],
+  [436, "Own hand · rotation hold, left or right"],
+  [12, "Machine, type not specified · incline"],
+  [15, "Smith machine · incline bench"],
+  [437, "Plate-loaded machine · incline, plates per arm"],
+  [438, "Selectorized stack · decline"],
+  [439, "Plate-loaded machine · decline, plates per arm"],
+  [440, "Smith machine · decline bench"],
+  [441, "Barbell · on the floor, no bench"],
+  [442, "Barbell · pause on the chest"],
+  [443, "Barbell · pause just above the chest"],
+]);
+
+export function catalogSublabelOf(catalogId: number | null | undefined): string | null {
+  return catalogId === null || catalogId === undefined ? null : catalogSublabelById.get(catalogId) ?? null;
+}
+
+/** The catalog muscle key a role names: the key itself, or `neck` for a neck direction group (`neck.flexors`). */
+export function roleMuscleKey(target: string): string {
+  return target.startsWith("neck.") ? "neck" : target;
+}
+
+/**
+ * How analysis credits a row with execution roles, by catalog muscle key: `direct` where a muscle
+ * is what the exercise is built on (moving the load, or holding it on a timed hold), `supporting`
+ * where it helps move the load, `steadying` where it holds a joint still while others move the
+ * load (the Zercher cradle's elbow flexors, the trunk). Steadying is never set credit; neck
+ * directions all credit `neck`. Null for a row with no execution record, whose catalog tags are
+ * read as before.
+ */
+export type ExecutionCredit = { direct: string[]; supporting: string[]; steadying: string[] };
+export function executionCreditOf(catalogId: number | null | undefined): ExecutionCredit | null {
+  const execution = exerciseExecutionOf(catalogId);
+  if (!execution) return null;
+  const keysFor = (relationship: ExerciseRole["relationship"]) => Array.from(new Set(execution.roles.filter((role) => role.relationship === relationship).map((role) => roleMuscleKey(role.target))));
+  const direct = keysFor("direct");
+  const supporting = keysFor("contributing").filter((key) => !direct.includes(key));
+  const steadying = keysFor("stabilizer").filter((key) => !direct.includes(key) && !supporting.includes(key));
+  return { direct, supporting, steadying };
+}
+
+/**
+ * Which muscles one exercise's sets count for, as weekly and session volume read them: direct (its
+ * primary tags) and supporting (its other tags). A row with execution roles is read from them
+ * instead (executionCreditOf): a muscle that
+ * moves the load, or is the target of a timed hold, is direct; one that helps is supporting; one
+ * that only holds still while others move the load (the Zercher cradle's elbow flexors, the trunk)
+ * gets no set credit; and every neck direction counts for the neck alone. Sets stay sets: a hold's
+ * seconds never become reps here.
+ */
+export function setCreditMusclesOf(exercise: { id: number; catalogExerciseId?: number; primaryMuscles: readonly string[]; secondaryMuscles: readonly string[] }): { direct: string[]; support: string[] } {
+  const credit = executionCreditOf(exercise.catalogExerciseId ?? exercise.id);
+  if (credit) return { direct: credit.direct, support: credit.supporting };
+  const direct = Array.from(new Set(exercise.primaryMuscles));
+  return { direct, support: Array.from(new Set(exercise.secondaryMuscles.filter((muscle) => !direct.includes(muscle)))) };
+}
+
+/** What kind of reference a source is, in the words the detail labels it with. */
+export type SourceKindLabel = "Scientific study" | "Manufacturer" | "Coaching reference" | "Image dataset" | "Licence" | "Technical documentation";
+export function sourceKindLabel(source: Pick<ExerciseSource, "kind">): SourceKindLabel {
+  const kind = source.kind.toLowerCase();
+  if (kind.includes("study")) return "Scientific study";
+  if (kind.startsWith("manufacturer")) return "Manufacturer";
+  if (kind.startsWith("practitioner")) return "Coaching reference";
+  if (kind.includes("dataset")) return "Image dataset";
+  if (kind === "license") return "Licence";
+  return "Technical documentation";
 }

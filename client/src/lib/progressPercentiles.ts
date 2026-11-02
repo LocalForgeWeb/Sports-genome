@@ -3,6 +3,7 @@ import type { StrengthPercentileResult } from "@shared/strengthPercentile";
 import { catalogExerciseIdForName, strengthPercentileCard, strengthPercentileGapCopy, type StrengthPercentileCard } from "@/lib/strengthPercentileCard";
 import { ageAtLift } from "@/lib/normsCohort";
 import { effectiveEffort } from "@shared/setEffort";
+import { isProvisionalCatalogId } from "@/lib/exerciseExecution";
 
 /**
  * The Progress section's side of the beta percentile route.
@@ -79,6 +80,8 @@ export function liftsToPlace(
     const bodyMassKg = bodyMassSource === "recorded" ? recorded! : bodyMassSource === "profile" ? fallback! : null;
 
     const catalogExerciseId = catalogExerciseIdForName(change.exerciseName) ?? null;
+    // A provisional row (exerciseExecution.ts) is never placed against a population.
+    if (isProvisionalCatalogId(catalogExerciseId)) continue;
     lifts.push({
       key: trendKey(change),
       exerciseName: change.exerciseName,

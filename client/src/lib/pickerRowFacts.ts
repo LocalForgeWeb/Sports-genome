@@ -21,6 +21,7 @@
 
 import type { Exercise } from "./exerciseCatalog";
 import type { GapTarget } from "./pickerRanking";
+import { catalogSublabelOf, requiredAccessoriesOf, requiredAccessoryLabels } from "./exerciseExecution";
 
 export type PickerRowFact = {
   exercise: Exercise;
@@ -146,4 +147,24 @@ export function muscleLineIsInformative(exercises: readonly Exercise[], sortedBy
   const rendered = exercises.map((exercise) => distinguishingMuscles(exercise, sortedBy).join("|"));
   if (rendered.every((entry) => entry === "")) return false;
   return new Set(rendered).size > 1;
+}
+
+/**
+ * A picker row's set-up line. Most rows say their pattern and equipment; a row the catalog needs a
+ * sublabel to tell apart from its neighbours (the six Zercher protocols, the neck directions, the
+ * incline machines: exerciseExecution.ts) says that instead, so "zercher" returns six rows that read
+ * as six different exercises, in every picker alike.
+ */
+export function pickerSetupLine(exercise: Pick<Exercise, "id" | "movement" | "equipment">): string {
+  return catalogSublabelOf(exercise.id) ?? `${exercise.movement} · ${exercise.equipment}`;
+}
+
+/**
+ * What a row needs that its broad equipment word does not say: "Cable" is not a head harness and
+ * "Machine" is not a neck machine (equipmentProfile.ts). Shown on the row in a manual picker, where
+ * the athlete may still add it; automatic stacks leave it out unless the profile has the accessory.
+ */
+export function pickerRequirementNote(exercise: Pick<Exercise, "id">): string | null {
+  const needs = requiredAccessoriesOf(exercise.id);
+  return needs.length ? `Needs a ${needs.map((accessory) => requiredAccessoryLabels[accessory].toLowerCase()).join(" and a ")}` : null;
 }

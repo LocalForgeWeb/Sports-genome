@@ -2,7 +2,8 @@ import { exercises, type Exercise } from "./exerciseCatalog";
 import { sportProfiles, sportMovementProfiles } from "./sportMovementDatabase";
 import { muscleLabels } from "@/components/AnatomyMap";
 import { strengthRegionDefinitions } from "../../../shared/strengthGenomeDefinitions";
-import { EXERCISE_ALIASES, normalizeSearchText, withinEditDistance } from "./exerciseSearch";
+import { exerciseAliasesOf, normalizeSearchText, withinEditDistance } from "./exerciseSearch";
+import { catalogSublabelOf } from "./exerciseExecution";
 import { capacityTargetSearchTerms } from "./capacityTargets";
 import { specializationRegionIndex } from "@shared/specialization/regionIndex";
 
@@ -71,6 +72,8 @@ const ALIASES: Record<string, string[]> = {
   triceps: ["triceps", "tris", "arms"],
   forearms: ["forearms", "grip"],
   rotatorCuff: ["rotator cuff", "cuff"],
+  // A midline region of its own, never the trapezius (muscleVocabulary.ts).
+  neck: ["neck", "cervical", "sternocleidomastoid", "scm", "neck flexors", "neck extensors"],
 };
 
 // The exercise aliases, the normaliser and the edit-distance live with the
@@ -140,8 +143,9 @@ function exerciseCandidates(): Candidate[] {
     type: "exercise" as const,
     id: String(exercise.id),
     label: exercise.name,
-    context: [exercise.movement, exercise.equipment].filter(Boolean).join(" · "),
-    terms: [normalize(exercise.name), ...(EXERCISE_ALIASES[exercise.name] || []).map(normalize)],
+    // A row that shares its name's words with others ("zercher") says what sets it apart.
+    context: catalogSublabelOf(exercise.id) ?? [exercise.movement, exercise.equipment].filter(Boolean).join(" · "),
+    terms: [normalize(exercise.name), ...exerciseAliasesOf(exercise).map(normalize)],
   }));
 }
 

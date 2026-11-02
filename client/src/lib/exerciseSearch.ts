@@ -1,7 +1,7 @@
 /**
  * Finding an exercise by whatever the athlete calls it.
  *
- * Four places in the app search the same 400 names - the day picker, the Plan
+ * Four places in the app search the same catalog names - the day picker, the Plan
  * page's finder, the lift log and the Catalog - and every one of them asked for
  * an exact substring of the canonical spelling. "reardelt fly" found nothing
  * because the catalog writes "Rear-Delt Fly". "trap bar" found nothing because
@@ -20,6 +20,8 @@
  */
 import type { Exercise } from "./exerciseCatalog";
 import { muscleLabels } from "@/components/AnatomyMap";
+import { catalogAliasesOf } from "./exerciseExecution";
+import { searchAliasesFor } from "./muscleVocabulary";
 
 export type ExerciseMatchKind = "exact" | "alias" | "prefix" | "compact" | "word" | "contains" | "fuzzy";
 
@@ -93,6 +95,16 @@ export const EXERCISE_ALIASES: Record<string, string[]> = {
   "Goblet Squat": ["goblet"],
 };
 
+/**
+ * Every curated name for one exercise: the names above, keyed by the catalog's name, and the ones
+ * keyed by its id (exerciseExecution.ts: the Zercher, neck and bench rows' aliases, and the words
+ * the existing rows 12, 15, 164 and 300 gained when the handoff resolved to them). By id, so a
+ * row added under an existing row's name never inherits the other's words.
+ */
+export function exerciseAliasesOf(exercise: Pick<Exercise, "id" | "name">): string[] {
+  return Array.from(new Set([...(EXERCISE_ALIASES[exercise.name] || []), ...catalogAliasesOf(exercise.id)]));
+}
+
 /** Single words athletes abbreviate or misspell, expanded before matching. */
 const TOKEN_SYNONYMS: Record<string, string> = {
   db: "dumbbell", dbs: "dumbbell", dumbell: "dumbbell", dumbel: "dumbbell", dumbbel: "dumbbell",
@@ -123,12 +135,13 @@ const indexCache = new WeakMap<Exercise, Indexed>();
 function indexOf(exercise: Exercise): Indexed {
   const cached = indexCache.get(exercise);
   if (cached) return cached;
-  const names = [normalizeSearchText(exercise.name), ...(EXERCISE_ALIASES[exercise.name] || []).map(normalizeSearchText)];
+  const names = [normalizeSearchText(exercise.name), ...exerciseAliasesOf(exercise).map(normalizeSearchText)];
   const nameWords = Array.from(new Set(names.flatMap((name) => name.split(" "))));
   const muscles = [...exercise.primaryMuscles, ...exercise.secondaryMuscles];
+  // A muscle's other names count as context too ("cervical" and "SCM" for the neck rows).
   const context = normalizeSearchText([
     exercise.movement, exercise.equipment, exercise.category,
-    ...muscles.flatMap((muscle) => [humanizeMuscleKey(muscle), muscleLabels[muscle] || ""]),
+    ...muscles.flatMap((muscle) => [humanizeMuscleKey(muscle), muscleLabels[muscle] || "", ...searchAliasesFor(muscle)]),
     ...exercise.qualities,
   ].join(" "));
   const indexed: Indexed = {

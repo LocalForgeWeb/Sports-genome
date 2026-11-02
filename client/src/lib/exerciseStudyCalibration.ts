@@ -1,4 +1,5 @@
 import type { Exercise } from "./exerciseCatalog";
+import { isProvisionalCatalogId } from "./exerciseExecution";
 
 export type ExerciseEvidenceKind = "Direct longitudinal adaptation" | "Biomechanics or transfer" | "Acute mechanics context";
 export type StudyRangeOfMotion = "Full" | "Long-length partial" | "Short-length partial" | "Individualized" | "Setup-dependent" | "Not study-tagged";
@@ -158,6 +159,10 @@ const calibrationRecords: ExerciseStudyCalibration[] = [
 ];
 
 export function getExerciseStudyCalibration(exercise: Exercise): ExerciseStudyCalibration | null {
+  // A provisional row (exerciseExecution.ts) borrows no study by its name or equipment: "Paused
+  // Barbell Bench Press" is not the studied bench protocol, and a Zercher good morning is not the
+  // studied RDL. It has no calibration until one is reviewed for it.
+  if (isProvisionalCatalogId(exercise.id)) return null;
   const text = `${exercise.name} ${exercise.movement} ${exercise.equipment}`.toLowerCase();
   if (/seated.*leg curl/.test(text)) return calibrationRecords.find((record) => record.key === "seated-leg-curl") || null;
   if (/nordic/.test(text)) return calibrationRecords.find((record) => record.key === "nordic-hamstring") || null;
