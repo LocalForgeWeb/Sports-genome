@@ -1,7 +1,8 @@
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { matchesTrainingSplit, type TrainingSplit } from "@/lib/splitAssignment";
 import { logicCalibration } from "@/lib/evidenceTraceability";
-import { trainsMuscle } from "@/lib/muscleVocabulary";
+import { catalogKeysFor, trainsMuscle } from "@/lib/muscleVocabulary";
+import { executionCreditOf, isProvisionalCatalogId } from "@/lib/exerciseExecution";
 
 export type SplitMuscleRequirement = { muscle: string; role: "primary" | "support"; target: number };
 export type StackMuscleScore = SplitMuscleRequirement & {
@@ -48,8 +49,22 @@ const requirements: Record<TrainingSplit, SplitMuscleRequirement[]> = {
 export const coveragePoints = (exercise: Exercise, muscle: string) => involvement(exercise, muscle);
 
 function involvement(exercise: Exercise, muscle: string) {
-  const role = trainsMuscle(exercise, muscle);
+  const role = roleFor(exercise, muscle);
   return role === "primary" ? logicCalibration.exposure.splitPrimaryTagWeight : role === "secondary" ? logicCalibration.exposure.splitSupportTagWeight : 0;
+}
+
+/**
+ * The catalog tags' answer, or, for a row with execution roles (exerciseExecution.ts), theirs:
+ * what moves the load is primary, what helps secondary, and what only holds still is no coverage -
+ * a Zercher pull does not close a biceps gap, and a neck row closes no trapezius one.
+ */
+function roleFor(exercise: Exercise, muscle: string): "primary" | "secondary" | null {
+  const credit = executionCreditOf((exercise as Exercise & { catalogExerciseId?: number }).catalogExerciseId || exercise.id);
+  if (!credit) return trainsMuscle(exercise, muscle);
+  const keys = catalogKeysFor(muscle);
+  if (keys.some((key) => credit.direct.includes(key))) return "primary";
+  if (keys.some((key) => credit.supporting.includes(key))) return "secondary";
+  return null;
 }
 
 export function getSplitRequirements(split: TrainingSplit) { return requirements[split]; }
@@ -64,8 +79,9 @@ export function analyzeSplitStack(workout: Exercise[], catalog: Exercise[], spli
   const high = ratings.find((rating) => rating.state === "high");
   const existingCatalogIds = new Set(workout.map((exercise) => (exercise as Exercise & { catalogExerciseId?: number }).catalogExerciseId || exercise.id));
   const suggestions: StackSuggestion[] = gaps.slice(0, 2).flatMap((gap) => {
+    // A provisional row (exerciseExecution.ts) is never the app's suggestion; the athlete adds it by choosing it.
     const candidate = catalog
-      .filter((exercise) => matchesTrainingSplit(exercise, split) && !existingCatalogIds.has(exercise.id) && involvement(exercise, gap.muscle) > 0)
+      .filter((exercise) => !isProvisionalCatalogId(exercise.id) && matchesTrainingSplit(exercise, split) && !existingCatalogIds.has(exercise.id) && involvement(exercise, gap.muscle) > 0)
       .sort((left, right) => involvement(right, gap.muscle) - involvement(left, gap.muscle) || left.name.localeCompare(right.name))[0];
     const replaceExercise = high ? workout.find((exercise) => involvement(exercise, high.muscle) > 0) : undefined;
     return candidate ? [{ muscle: gap.muscle, candidate, replaceExercise, swapCue: replaceExercise ? `Replace ${replaceExercise.name} if total volume is fixed.` : undefined }] : [];

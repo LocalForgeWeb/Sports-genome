@@ -19,6 +19,7 @@ import { strengthRegionDefinitions } from "../../../shared/strengthGenomeDefinit
 import { getExerciseStudyCalibration } from "@/lib/exerciseStudyCalibration";
 import { buildMuscleTargetingEstimate } from "@/lib/muscleTargetingModel";
 import { getExerciseGenome } from "@/lib/exerciseGenome";
+import { analyzeSplitStack, coveragePoints } from "@/lib/splitStackAnalysis";
 import { muscleRankLiftSelection } from "@/lib/muscleRankLifts";
 import { summarizeWithinAthleteStrengthComparisons } from "@/lib/withinAthleteStrengthChange";
 import { workoutStrengthObservations } from "@/lib/workoutStrengthRecord";
@@ -169,6 +170,10 @@ describe("nothing the app puts forward on its own holds a provisional row", () =
     expect(swapSuggestions(ex(425), exercises, new Set()).every((exercise) => NECK.includes(exercise.id))).toBe(true);
     expect(getSegmentPrioritySuggestions({ status: "review", muscle: "neck" } as never, [], exercises, [])).toEqual([]);
     for (const region of strengthRegionDefinitions) expect(rankingLiftsForRegion(region.id).filter((lift) => isProvisionalCatalogId(lift.exercise.id)), region.id).toEqual([]);
+    // The day's coverage suggestions: an empty Push day is short of chest, and "Barbell Floor Press" sorts first by name - it is not offered.
+    for (const split of ["Push", "Pull", "Legs", "Upper", "Lower", "Full Body", "Sport Transfer"] as const) {
+      expect(analyzeSplitStack([], exercises, split).suggestions.filter((suggestion) => isProvisionalCatalogId(suggestion.candidate.id)), split).toEqual([]);
+    }
   });
 });
 
@@ -234,6 +239,10 @@ describe("role-aware credit (weekly, session and stack analysis)", () => {
     const stack = analyzeWholeStackMuscles([ex(421)]);
     expect(stack.find((entry) => entry.muscle === "biceps")?.contributions.map((contribution) => contribution.role)).toEqual(["Stabilizer"]);
     expect(getExerciseGenome(ex(421))!.muscleProfile.filter((entry) => entry.role === "Prime mover").map((entry) => entry.muscle)).toEqual(["glutes", "quads"]);
+    // The day's coverage reads the same roles: a Zercher pull closes no biceps or trunk gap.
+    expect(coveragePoints(ex(421), "biceps")).toBe(0);
+    expect(coveragePoints(ex(421), "abs")).toBe(0);
+    expect(coveragePoints(ex(421), "glutes")).toBe(coveragePoints(ex(164), "glutes"));
   });
 
   it("counts a neck row toward the neck alone, and a press as before", () => {
