@@ -95,7 +95,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "zercher_deadlift_floor",
     group: "zercher",
     aliases: ["zercher", "zercher deadlift", "zercher floor pull", "floor zercher deadlift"],
-    distinction: "Starts in the elbow crooks on the floor; not a rack-start squat or a conventional deadlift.",
+    distinction: "Pulled from the floor with the bar in the crook of your elbows. Not a squat from the rack, and not a deadlift with your hands on the bar.",
     steps: [
       "Start with a straight bar resting on the floor; position both elbow crooks under it before the working repetition.",
       "Brace the trunk and stand by extending hips and knees while keeping the load cradled.",
@@ -117,7 +117,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "zercher_block_pull",
     group: "zercher",
     aliases: ["zercher", "zercher rack pull", "elevated zercher deadlift", "zercher pin pull"],
-    distinction: "Starting height changes the protocol and PR comparison; never merge with floor pulls.",
+    distinction: "Pulled from blocks or pins with the bar in your elbows. Note the starting height: a different height is a different exercise.",
     steps: [
       "Support the bar on stable blocks or pins and record bar-center starting height.",
       "Place the bar in both elbow crooks, brace and stand.",
@@ -139,7 +139,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "zercher_good_morning",
     group: "zercher",
     aliases: ["zercher", "zercher hip hinge", "zercher Romanian deadlift", "zercher RDL"],
-    distinction: "RDL alias applies only to this top-down, no-floor-reset protocol. Keep floor and block pulls distinct.",
+    distinction: "A hip hinge from standing with the bar in your elbows; the bar never touches the floor between reps. Also called a Zercher RDL.",
     steps: [
       "Unrack the bar into both elbow crooks and begin standing.",
       "Maintain a modest knee bend; hinge the hips backward with the bar cradled close.",
@@ -161,7 +161,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "zercher_hold",
     group: "zercher",
     aliases: ["zercher", "zercher static hold", "zercher isometric hold"],
-    distinction: "Timed trunk and elbow-flexor isometrics; not dynamic curl sets or a hand-grip hold.",
+    distinction: "Standing still with the bar in your elbows, for time. Walking with it is Zercher Carry.",
     steps: [
       "Unrack a bar into both elbow crooks and stand in a stable stance.",
       "Keep the load and trunk position steady; start the timer once positioned.",
@@ -183,7 +183,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "machine_neck_flexion",
     group: "neck",
     aliases: ["machine neck flexion", "neck curl"],
-    distinction: "Equipment and resistance direction define this variant. Do not treat all neck exercises as interchangeable.",
+    distinction: "On a neck machine, bending your head forward against the pad.",
     steps: [
       "Use a neck machine configured for this direction according to its own setup instructions; record model and seat/pad settings.",
       "Bring the chin and head forward through a controlled comfortable flexion range without moving the torso.",
@@ -205,7 +205,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "machine_neck_extension",
     group: "neck",
     aliases: ["machine neck extension", "neck extension"],
-    distinction: "Equipment and resistance direction define this variant. Do not treat all neck exercises as interchangeable.",
+    distinction: "On a neck machine, pressing your head back against the pad.",
     steps: [
       "Use a neck machine configured for this direction according to its own setup instructions; record model and seat/pad settings.",
       "Extend the neck against resistance while keeping the torso supported; return under control without swinging.",
@@ -227,7 +227,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "machine_neck_lateral_flexion",
     group: "neck",
     aliases: ["machine neck lateral flexion", "side neck bend"],
-    distinction: "Equipment and resistance direction define this variant. Do not treat all neck exercises as interchangeable.",
+    distinction: "On a neck machine, bending your head to one side. Each set records which side.",
     steps: [
       "Use a neck machine configured for this direction according to its own setup instructions; record model and seat/pad settings.",
       "Move the ear toward the shoulder on the selected side without turning the face or leaning the torso.",
@@ -249,7 +249,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "harness_neck_extension",
     group: "neck",
     aliases: ["seated harness neck extension", "neck extension"],
-    distinction: "Equipment and resistance direction define this variant. Do not treat all neck exercises as interchangeable.",
+    distinction: "Seated and leaning forward, raising your head against plates hung from a head harness.",
     steps: [
       "Sit with a secure head harness and suspended plates; incline the torso forward so gravity opposes neck extension.",
       "Extend the neck against resistance while keeping the torso supported; return under control without swinging.",
@@ -271,7 +271,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "cable_neck_flexion",
     group: "neck",
     aliases: ["cable harness neck flexion", "neck curl"],
-    distinction: "Equipment and resistance direction define this variant. Do not treat all neck exercises as interchangeable.",
+    distinction: "A cable on a head harness, bending your head forward.",
     steps: [
       "Use a purpose-designed, secure head harness attached to the pulley so the cable opposes the selected motion. Do not loop the cable around the throat.",
       "Bring the chin and head forward through a controlled comfortable flexion range without moving the torso.",
@@ -293,7 +293,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "cable_neck_extension",
     group: "neck",
     aliases: ["cable harness neck extension", "neck extension"],
-    distinction: "Equipment and resistance direction define this variant. Do not treat all neck exercises as interchangeable.",
+    distinction: "A cable on a head harness, pressing your head back.",
     steps: [
       "Use a purpose-designed, secure head harness attached to the pulley so the cable opposes the selected motion. Do not loop the cable around the throat.",
       "Extend the neck against resistance while keeping the torso supported; return under control without swinging.",
@@ -315,7 +315,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "cable_neck_lateral_flexion",
     group: "neck",
     aliases: ["cable harness neck lateral flexion", "side neck bend"],
-    distinction: "Equipment and resistance direction define this variant. Do not treat all neck exercises as interchangeable.",
+    distinction: "A cable on a head harness, bending your head to one side. Each set records which side.",
     steps: [
       "Use a purpose-designed, secure head harness attached to the pulley so the cable opposes the selected motion. Do not loop the cable around the throat.",
       "Move the ear toward the shoulder on the selected side without turning the face or leaning the torso.",
@@ -337,7 +337,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "cable_neck_rotation",
     group: "neck",
     aliases: ["cable harness neck rotation", "neck rotation"],
-    distinction: "Equipment and resistance direction define this variant. Do not treat all neck exercises as interchangeable.",
+    distinction: "A cable on a head harness, turning your head to one side. Each set records which side.",
     steps: [
       "Use a purpose-designed, secure head harness attached to the pulley so the cable opposes the selected motion. Do not loop the cable around the throat.",
       "Turn the face toward the selected side against the opposing resistance; keep the torso still.",
@@ -359,7 +359,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "isometric_neck_flexion",
     group: "neck",
     aliases: ["isometric neck flexion", "neck curl", "manual neck flexion hold"],
-    distinction: "Left/right describes attempted head motion, not the arm applying resistance. Never infer numeric force from self-resistance.",
+    distinction: "Your own hand against your forehead: you push forward and hold still. The force is not measured.",
     steps: [
       "Sit with the head near neutral and the torso supported.",
       "Apply hand resistance at the forehead, opposing an attempt to flex forward; hold without actual head movement.",
@@ -381,7 +381,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "isometric_neck_extension",
     group: "neck",
     aliases: ["isometric neck extension", "neck extension", "manual neck extension hold"],
-    distinction: "Left/right describes attempted head motion, not the arm applying resistance. Never infer numeric force from self-resistance.",
+    distinction: "Your own hand against the back of your head: you push back and hold still. The force is not measured.",
     steps: [
       "Sit with the head near neutral and the torso supported.",
       "Apply hand resistance at the back of the skull, opposing an attempt to extend backward; hold without actual head movement.",
@@ -403,7 +403,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "isometric_neck_lateral_flexion",
     group: "neck",
     aliases: ["isometric neck lateral flexion", "side neck bend", "manual neck lateral flexion hold"],
-    distinction: "Left/right describes attempted head motion, not the arm applying resistance. Never infer numeric force from self-resistance.",
+    distinction: "Your own hand against the side of your head: you push toward that side and hold still. Each set records which side; the force is not measured.",
     steps: [
       "Sit with the head near neutral and the torso supported.",
       "Apply hand resistance at the side of the head, opposing an attempt to bend toward the selected side; hold without actual head movement.",
@@ -425,7 +425,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "isometric_neck_rotation",
     group: "neck",
     aliases: ["isometric neck rotation", "neck rotation", "manual neck rotation hold"],
-    distinction: "Left/right describes attempted head motion, not the arm applying resistance. Never infer numeric force from self-resistance.",
+    distinction: "Your own hand against your temple: you try to turn toward that side and hold still. Each set records which side; the force is not measured.",
     steps: [
       "Sit with the head near neutral and the torso supported.",
       "Apply hand resistance at the side of the forehead/temple, opposing an attempt to turn the face toward the selected side; hold without actual head movement.",
@@ -449,7 +449,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     // The last alias is the app's (2 Nov 2026), not the handoff's: "incline bench machine" is how
     // athletes ask for either incline machine, so this row answers it beside 12 (T02).
     aliases: ["incline plate loaded chest press", "incline lever press", "plate loaded incline bench machine"],
-    distinction: "Protocol-specific history; no inherited barbell-bench percentile or automatic machine conversion.",
+    distinction: "An incline press on a plate-loaded machine, often with arms that move separately. You log the plates on each arm.",
     steps: [
       "Use the named incline or decline press and adjust the seat so the handles match its intended pressing path. Record the machine and settings.",
       "Press the handles away and return under control without bouncing the stop.",
@@ -471,7 +471,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "selectorized_decline_press",
     group: "bench",
     aliases: ["decline stack chest press"],
-    distinction: "Protocol-specific history; no inherited barbell-bench percentile or automatic machine conversion.",
+    distinction: "A decline press on a machine with a weight stack. You log the number on the stack.",
     steps: [
       "Use the named incline or decline press and adjust the seat so the handles match its intended pressing path. Record the machine and settings.",
       "Press the handles away and return under control without bouncing the stop.",
@@ -493,7 +493,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "plate_loaded_decline_press",
     group: "bench",
     aliases: ["decline lever press"],
-    distinction: "Protocol-specific history; no inherited barbell-bench percentile or automatic machine conversion.",
+    distinction: "A decline press on a plate-loaded machine. You log the plates on each arm.",
     steps: [
       "Use the named incline or decline press and adjust the seat so the handles match its intended pressing path. Record the machine and settings.",
       "Press the handles away and return under control without bouncing the stop.",
@@ -515,7 +515,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "smith_decline_bench",
     group: "bench",
     aliases: ["decline smith press"],
-    distinction: "Protocol-specific history; no inherited barbell-bench percentile or automatic machine conversion.",
+    distinction: "A decline bench press on a Smith machine. You log the plates, and the bar only if you know what it weighs.",
     steps: [
       "Place the appropriate incline or decline bench under the Smith bar and set the safety stops. Record bench setting and machine.",
       "Lower the bar in a controlled path toward the chest, then press upward while keeping the torso supported.",
@@ -537,7 +537,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "barbell_floor_press",
     group: "bench",
     aliases: ["floor press barbell"],
-    distinction: "Protocol-specific history; no inherited barbell-bench percentile or automatic machine conversion.",
+    distinction: "A barbell bench press lying on the floor, so your elbows stop at the floor.",
     steps: [
       "Lie on the floor under a racked bar and establish a stable grip and shoulder position.",
       "Lower until the upper arms contact the floor gently, pause without bouncing, then press.",
@@ -559,7 +559,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "paused_barbell_bench",
     group: "bench",
     aliases: ["pause bench", "competition style paused bench"],
-    distinction: "Protocol-specific history; no inherited barbell-bench percentile or automatic machine conversion.",
+    distinction: "A barbell bench press with a still pause on your chest each rep. Note how long the pause is.",
     steps: [
       "Set up on a flat bench and unrack the bar.",
       "Lower to chest contact and hold a deliberate motionless pause without bouncing.",
@@ -581,7 +581,7 @@ export const exerciseExecutionById: ReadonlyMap<number, ExerciseExecution> = new
     key: "spoto_press",
     group: "bench",
     aliases: ["hover pause bench", "spoto bench"],
-    distinction: "Protocol-specific history; no inherited barbell-bench percentile or automatic machine conversion.",
+    distinction: "A barbell bench press that pauses just above your chest without touching it.",
     steps: [
       "Set up on a flat bench and unrack the bar.",
       "Lower to a small consistent hover above the chest; pause without touching the chest.",
