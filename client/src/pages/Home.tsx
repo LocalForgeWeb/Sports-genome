@@ -42,6 +42,7 @@ import { ProgrammingGuidePanel } from "@/components/ProgrammingGuidePanel";
 import { ReviewHead, ReviewWeekPills, type ReviewScope } from "@/components/weekReview/ReviewHead";
 import { WeekReviewBoard } from "@/components/weekReview/WeekReviewBoard";
 import { analyzeWeek } from "@/lib/weekReview";
+import { neckWeekSummary } from "@/lib/neckWeek";
 import { ExercisePrescriptionRow } from "@/components/ExercisePrescriptionRow";
 const DeviceWorkoutTracker = lazy(() => import("@/components/DeviceWorkoutTracker").then((module) => ({ default: module.DeviceWorkoutTracker })));
 const DayExercisePicker = lazy(() => import("@/components/DayExercisePicker").then((module) => ({ default: module.DayExercisePicker })));
@@ -384,13 +385,14 @@ export function reviewScopeFromLocation(value: string | null): ReviewScope {
 /**
  * A plan entry's prescription as every screen shows it: the saved one, else the goal's default for
  * its place in the day; on an exercise measured in seconds, a hold's ("4 × 30 sec", with the
- * goal's set count), and a goal default pinned on a hold read as that (`prescriptionOf`). Train
+ * goal's set count), and a goal default pinned on a hold read as that (`prescriptionOf`); on a
+ * neck row, the set count with the reps or time left to the athlete ("3 × your reps"). Train
  * and the atlas read the plan through the same function, so the Plan editor, the picker, print,
  * share and the review panels show what the workout will hold. The measure comes from the light
  * list of holds, not the atlas's region data, which this first screen must not load.
  */
 function prescriptionFor(exercise: Exercise, index: number, goal: Goal, saved: string | undefined) {
-  return prescriptionOf(saved, index, goal, catalogMeasureOf(catalogIdOf(exercise)));
+  return prescriptionOf(saved, index, goal, catalogMeasureOf(catalogIdOf(exercise)), catalogIdOf(exercise));
 }
 
 export function shouldRenderMetric(detail: string) {
@@ -794,6 +796,12 @@ export default function Home() {
     const week = visibleDayPlan(homePlan.weeks[activeWeek] || emptyDayStore(), splitDays);
     return analyzeWeek({ slots: daySlots, plan: week.plan, prescriptions: week.prescriptions, goal, catalog: exercises });
   }, [homePlan, activeWeek, splitDays, daySlots, goal]);
+  /**
+   * The neck's logged week for Review's week board (lib/neckWeek): read from the device's finished
+   * workouts while Review is open, and again whenever the log is written.
+   */
+  const reviewLogWrites = useWorkoutLogWrites(workspace === "review");
+  const neckWeek = useMemo(() => (reviewLogWrites === null ? null : neckWeekSummary(loadDeviceWorkoutSessions())), [reviewLogWrites]);
   /** Review has something true to show only once the plan and the profile (the frequency, the goal) are read. */
   const reviewReady = planHydrated && profileHydrated;
   /*
@@ -2807,6 +2815,7 @@ export default function Home() {
               onFindExercises={(muscleId) => openDiscovery({ mode: "muscle", muscleId })}
               // Review reads a plan week, so the page opens on the same week, as planned (design §7).
               specializationEntryFor={(key) => specializationEntryFor(key, { mode: "planned", planWeek: activeWeek })}
+              neckWeek={neckWeek}
             />
             : <>
               {/* The same strip as the Week board, as day tabs: a tap moves the inspected day. */}

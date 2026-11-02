@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { ArrowLeft, Check, ChevronRight, Pencil, Trash2 } from "lucide-react";
-import { deviceWorkoutHistoryEvent, deviceWorkoutHistoryKey, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
+import { deviceWorkoutHistoryEvent, deviceWorkoutHistoryKey, hasArmLoads, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
+import { isLoadUnmeasured } from "@/lib/exerciseLogging";
 import { correctSet, elapsedText, exerciseOutcomeLine, removeSet, sessionRecap, updateFinishedSession, withNote, type MeasureOf } from "@/lib/sessionRecap";
 import { catalogMeasureOf } from "@shared/specialization/holdCatalogIds";
 import { decimalEntryText } from "@/lib/numericEntry";
@@ -121,7 +122,7 @@ export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, o
       {recap.exercises.map((exercise) => <li key={exercise.id}>
         <details open={correcting || undefined}>
           <summary>
-            <span className="session-detail-exercise-name"><strong>{exercise.name}</strong><small>{exerciseOutcomeLine(exercise)}{exercise.straps ? ` · ${exercise.straps}` : ""}</small>{exercise.note && <small className="session-detail-swap">{exercise.note}</small>}</span>
+            <span className="session-detail-exercise-name"><strong>{exercise.name}</strong><small>{exerciseOutcomeLine(exercise)}{exercise.straps ? ` · ${exercise.straps}` : ""}</small>{exercise.setup && <small className="session-detail-setup">{exercise.setup}</small>}{exercise.note && <small className="session-detail-swap">{exercise.note}</small>}</span>
             <ChevronRight aria-hidden="true" />
           </summary>
           <ol className="session-detail-sets">
@@ -135,7 +136,8 @@ export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, o
                   const patch = editing.hold ? { weight: editing.weight, holdSeconds: editing.reps } : { weight: editing.weight, reps: editing.reps };
                   if (apply((current) => correctSet(current, exercise.id, row.index, patch, undefined, measureOf), `Set ${position + 1} of ${exercise.name} corrected.`)) setEditing(null);
                 }}>
-                  <label><span>Weight</span><input inputMode="decimal" value={editing.weight} onChange={(event) => setEditing({ ...editing, weight: decimalEntryText(event.target.value) })} aria-invalid={!weightValid || undefined} /></label>
+                  {/* No single weight to correct: a manually resisted exercise has no load, and arms loaded differently keep one each. */}
+                  {!isLoadUnmeasured(exercise.catalogId) && !hasArmLoads(row.set) && <label><span>Weight</span><input inputMode="decimal" value={editing.weight} onChange={(event) => setEditing({ ...editing, weight: decimalEntryText(event.target.value) })} aria-invalid={!weightValid || undefined} /></label>}
                   <label><span>{editing.hold ? "Seconds" : "Reps"}</span><input inputMode="numeric" value={editing.reps} onChange={(event) => setEditing({ ...editing, reps: event.target.value.replace(/[^0-9]/g, "").slice(0, 4) })} aria-invalid={!repsValid || undefined} /></label>
                   <button type="submit" disabled={!repsValid || !weightValid}><Check aria-hidden="true" /> Save set</button>
                   <button type="button" onClick={() => setEditing(null)}>Cancel</button>

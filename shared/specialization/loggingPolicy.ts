@@ -1,5 +1,6 @@
 import type { Limb, RegionId } from "./types";
 import { loggingTable, type LoggingTableRow } from "./loggingTable.generated";
+import { catalogMeasureOf } from "./holdCatalogIds";
 
 /**
  * What the workout logger asks of one exercise, read from the atlas's logging table
@@ -11,7 +12,9 @@ import { loggingTable, type LoggingTableRow } from "./loggingTable.generated";
  * Seconds box only where the variant is measured in seconds, and a straps question only
  * where a grip mapping depends on a bare hand. No side is asked, of an arm or a leg: both
  * sides are counted as one (owner, 20 Oct 2026). An exercise no production region maps gets
- * the default policy, which is exactly the logger as it was before the atlas existed.
+ * the default policy, which is exactly the logger as it was before the atlas existed, measured
+ * as the light hold list measures it: a catalog row whose own execution record is timed (Zercher
+ * Hold, the manual neck isometrics) is logged in seconds without any region mapping it.
  *
  * Region-agnostic on purpose: the table (`loggingTable.generated.ts`) is written from every
  * production region by scripts/specialization/emit-logging-table.ts, so a region added to the
@@ -80,7 +83,8 @@ export function loggingEntryFor(catalogExerciseId: number | null | undefined, ta
  */
 export function loggingPolicyFor(catalogExerciseId: number | null | undefined, table: ReadonlyMap<number, LoggingTableRow> = loggingTable): LoggingPolicy {
   const row = loggingEntryFor(catalogExerciseId, table);
-  if (!row) return defaultLoggingPolicy;
+  // No region maps it: nothing is asked, and its sets are measured as the catalog measures it.
+  if (!row) return catalogMeasureOf(catalogExerciseId) === "seconds" ? { ...defaultLoggingPolicy, measure: "seconds" } : defaultLoggingPolicy;
   const sideLimb = row.sidedBy === "none" ? null : row.sidedBy;
   // How the limb the side is recorded on works: the arms' laterality, or the legs'.
   const laterality = sideLimb === "arm" ? row.laterality : sideLimb === "leg" ? row.legLaterality : undefined;

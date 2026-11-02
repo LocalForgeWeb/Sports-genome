@@ -27,7 +27,9 @@ import { loadConventionFor, type LoadConvention } from "@shared/loadConventions"
  *   their sides, moved to the new exercise's limb when it is split on the other one.
  *
  * Load never crosses exercises - 40 lb on a sissy squat says nothing about a barbell squat - and
- * the rest timer is not touched. The new exercise's "last logged" comes from its own history,
+ * the rest timer is not touched. Nor does anything the new exercise would read differently: a
+ * head direction, each arm's plates or the exercise's setup (a block's height, a machine's seat)
+ * stay with the exercise they were recorded on, and the new exercise starts with none of them. The new exercise's "last logged" comes from its own history,
  * because carry-forward reads by the session exercise's name.
  */
 
@@ -301,7 +303,7 @@ export function addAfter(session: DeviceWorkoutSession, exerciseId: string, targ
  * What an exercise holds, as work: storage fills in defaults (an empty height, skipped: false),
  * so the comparison is of what was typed, logged or skipped - never of how the record is laid out.
  */
-const workOf = (exercise: DeviceWorkoutExercise) => JSON.stringify([exercise.exerciseName, exercise.sets.map((set) => [Boolean(set.completed), Boolean(set.skipped), set.weight || "", set.reps || "", set.height || "", set.holdSeconds || "", set.type ?? "", (set.stages ?? []).map((stage) => [stage.weight, stage.reps])])]);
+const workOf = (exercise: DeviceWorkoutExercise) => JSON.stringify([exercise.exerciseName, exercise.setup ?? null, exercise.sets.map((set) => [Boolean(set.completed), Boolean(set.skipped), set.weight || "", set.reps || "", set.height || "", set.holdSeconds || "", set.type ?? "", (set.stages ?? []).map((stage) => [stage.weight, stage.reps]), set.headDirection ?? "", set.leftLoad ?? "", set.rightLoad ?? ""])]);
 const same = (a: DeviceWorkoutExercise, b: DeviceWorkoutExercise) => workOf(a) === workOf(b);
 
 /** A swap can be taken back until anything is logged or typed on either side of it. */

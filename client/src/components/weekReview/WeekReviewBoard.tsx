@@ -6,6 +6,8 @@ import { muscleLabels } from "@/components/AnatomyMap";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { logicCalibration } from "@/lib/evidenceTraceability";
 import { COMMON_MOVEMENT_COUNT, figureExposure, setsFigure, type ExposureMetric, type WeekAnalysis, type WeekFinding, type WeekFindingAction, type WeekMuscle, type WeekOverlapPair, type WeekReviewSession } from "@/lib/weekReview";
+import type { NeckWeekSummary } from "@/lib/neckWeek";
+import { NeckWeekCard } from "./NeckWeekCard";
 import "./week-review.css";
 
 /**
@@ -33,6 +35,11 @@ export type WeekReviewBoardProps = {
    * Absent for every other muscle.
    */
   specializationEntryFor?: (muscleKey: string) => { label: string; open: () => void } | null;
+  /**
+   * The neck's week as logged on this device (lib/neckWeek.ts), shown as its own card only when
+   * the week holds neck work. It reads finished workouts, not the plan the rest of the board reads.
+   */
+  neckWeek?: NeckWeekSummary | null;
 };
 
 type Selection = { kind: "muscle"; key: string } | { kind: "pair"; id: string } | null;
@@ -57,7 +64,7 @@ const SHOWN_FINDINGS = 3;
 const regionLabel = (key: string) => muscleLabels[key] || key;
 const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
 
-export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInspectExercise, onFindExercises, specializationEntryFor }: WeekReviewBoardProps) {
+export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInspectExercise, onFindExercises, specializationEntryFor, neckWeek }: WeekReviewBoardProps) {
   const [metric, setMetric] = useState<ExposureMetric>("direct");
   const [side, setSide] = useState<"front" | "back">("front");
   const [selection, setSelection] = useState<Selection>(null);
@@ -144,6 +151,7 @@ export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInsp
       <p>Nothing is built in this week yet. The review begins when a day has exercises in it.</p>
       <button type="button" className="wr-primary" onClick={onEditWeek}><Plus className="h-4 w-4" aria-hidden="true" /> Add a workout</button>
     </div>
+    {neckWeek?.hasWork && <NeckWeekCard summary={neckWeek} />}
   </div>;
 
   const sessionOf = (key: string | null) => built.find((session) => session.key === key) ?? null;
@@ -203,6 +211,8 @@ export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInsp
         <p>A set counts 1.0 to each muscle the catalog tags as primary and {logicCalibration.exposure.secondarySetConvention} to each tagged as secondary, applied once. The set count is the leading number of the saved prescription, otherwise the goal's default (which gives the first two exercises of a day 4 sets on three of the four goals), otherwise {logicCalibration.workoutReview.defaultPrescriptionSets}. Summed over every muscle, the week attributes {setsFigure(analysis.attributedTotal)} sets against {analysis.workSets} planned: one performed set counts toward every muscle it is tagged with, which is why that total is not on the board. The catalog's "Deltoids" tag is its own row in the chart; on the figure it is painted on all three deltoid heads on top of each head's own sets, so a head can read more than its own row (its name says what it adds up) and the figure's top step is its own largest region. "Upper back" means the rhomboids and mid trapezius. No chart row is a sum of other rows. Two drawn muscles, the soleus and the brachioradialis, are tagged by no catalog exercise and are hatched as not counted rather than shown as zero. The register's planning landmarks, {logicCalibration.exposure.lowDirectSetBand} and {logicCalibration.exposure.highDirectSetBand} direct sets a week, have no recorded source and are not shown as badges. Per-side prescriptions, warm-ups, circuits and supersets are not represented in the plan, so a prescription's leading number is its set count. This is a planning estimate from the plan as written, not a measure of recovery, growth or readiness.</p>
       </details>
     </section>
+
+    {neckWeek?.hasWork && <NeckWeekCard summary={neckWeek} />}
 
     <section className="wr-section" aria-labelledby="wr-coverage-heading">
       <div className="wr-section-head"><div><h2 id="wr-coverage-heading">Movement coverage</h2><p>Each exercise's movement value from the catalog; a marker where a session contains it.</p></div></div>
