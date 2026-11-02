@@ -11,6 +11,10 @@ import Home from "./pages/Home";
 
 // A shared workout's page is its own chunk, loaded only when a link is opened.
 const SharedWorkoutPage = lazy(() => import("./pages/SharedWorkoutPage"));
+// Privacy and Support open without the workspace or a sign-in (iOS readiness audit, A04).
+const PrivacyPage = lazy(() => import("./pages/InfoPages").then((module) => ({ default: module.PrivacyPage })));
+const SupportPage = lazy(() => import("./pages/InfoPages").then((module) => ({ default: module.SupportPage })));
+const infoFallback = <div className="info-page" style={{ minHeight: "100dvh", background: "#07182e" }} />;
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -18,6 +22,8 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/s/:token"}>{(params) => <Suspense fallback={<div className="sp-loading-shell" style={{ minHeight: "100dvh", background: "#07182e" }} />}><SharedWorkoutPage params={params as { token: string }} /></Suspense>}</Route>
+      <Route path={"/privacy"}><Suspense fallback={infoFallback}><PrivacyPage /></Suspense></Route>
+      <Route path={"/support"}><Suspense fallback={infoFallback}><SupportPage /></Suspense></Route>
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
