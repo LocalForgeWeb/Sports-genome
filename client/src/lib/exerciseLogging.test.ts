@@ -53,11 +53,11 @@ describe("what the load box means", () => {
     expect([424, 425, 428, 437, 440].some(isLoadUnmeasured)).toBe(false);
     expect(loadBasisText(435, undefined)).toBe("Manual resistance · force not measured");
     expect(loadBasisText(437, undefined)).toBe("Plates per arm");
-    expect(loadBasisText(438, undefined)).toBe("Machine load as displayed");
+    expect(loadBasisText(438, undefined)).toBe("Machine load");
     expect(loadBasisText(428, undefined)).toBe("Harness load");
     expect(loadBasisText(440, undefined)).toBe("Load basis not recorded");
     expect(loadBasisText(440, { load_convention: "plates_only" })).toBe("Plates only");
-    expect(loadBasisText(440, { load_convention: "total_known_bar" })).toBe("Plates + known bar");
+    expect(loadBasisText(440, { load_convention: "total_known_bar" })).toBe("Plates + bar");
     expect(loadBasisText(421, undefined)).toBeNull();
     expect(loadBasisText(1, undefined)).toBeNull();
   });

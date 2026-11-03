@@ -18,7 +18,7 @@ export function NeckWeekCard({ summary }: { summary: NeckWeekSummary }) {
   return <section className="wr-section wr-neck" aria-labelledby="wr-neck-heading">
     <div className="wr-section-head"><div>
       <h2 id="wr-neck-heading">Neck work logged this week</h2>
-      <p>{day(summary.from)} – {day(last)}, from finished workouts on this device. Sets and reps are counted apart from holds and seconds.</p>
+      <p>{day(summary.from)} – {day(last)} · finished workouts on this device.</p>
     </div></div>
     <div className="wr-neck-columns" aria-hidden="true"><span>Direction</span><span>Sets · reps</span><span>Holds · time</span></div>
     <ol className="wr-neck-lines" aria-label="Neck work by direction">

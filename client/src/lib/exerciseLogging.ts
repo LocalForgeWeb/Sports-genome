@@ -21,7 +21,8 @@ export type ExerciseSetup = Partial<Record<SetupField, string>>;
 
 /** What a Smith machine's load number is: the plates alone (the default), or the plates and a bar weight the athlete knows. */
 export type SmithLoadBasis = "plates_only" | "total_known_bar";
-export const smithLoadBasisWords: Record<SmithLoadBasis, string> = { plates_only: "Plates only", total_known_bar: "Plates + known bar" };
+/** The two Smith choices, in the load box's own words (setEntryFields.ts): "Plates only", "Plates + bar". */
+export const smithLoadBasisWords: Record<SmithLoadBasis, string> = { plates_only: "Plates only", total_known_bar: "Plates + bar" };
 const isSmithLoadBasis = (value: unknown): value is SmithLoadBasis => value === "plates_only" || value === "total_known_bar";
 
 export function loggingFactsOf(catalogId: number | null | undefined): ExerciseLoggingFacts | null {
@@ -163,7 +164,7 @@ export function loadBasisText(catalogId: number | null | undefined, setup: Exerc
   if (!facts) return null;
   switch (facts.load) {
     case "plates_per_arm": return "Plates per arm";
-    case "machine_display": return "Machine load as displayed";
+    case "machine_display": return "Machine load";
     case "suspended_external_mass": return "Harness load";
     case "manual_unmeasured": return MANUAL_RESISTANCE_LINE;
     case "smith_declared": { const basis = smithLoadBasisOf(setup); return basis ? smithLoadBasisWords[basis] : "Load basis not recorded"; }

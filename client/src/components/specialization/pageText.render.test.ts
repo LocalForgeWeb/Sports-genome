@@ -20,7 +20,9 @@ import { NOW, goals, sessions, slots, store, storeWithOneArm } from "./__fixture
 /**
  * The forearm page is held to its reading of 26 Oct 2026: the owner's cleanup ("clean up the forearm
  * page and cut out unnecessary words"), which absorbed wave 0's, wave A's and F1–F3's stated changes
- * (their history, and main's reading at 4dac1ae they were stated against, are in git). Both arms are
+ * (their history, and main's reading at 4dac1ae they were stated against, are in git), read again on
+ * 3 Nov 2026 for the owner's consistency pass ("make sure everything is consistent and cohesive": the
+ * ledger's kinds of work in the list rows' words, "direct sets and holds" in the key). Both arms are
  * counted as one (owner, 20 Oct 2026). The week of __fixtures__/forearmWeek.ts is rendered, both arms
  * as one, for three windows and the plan week; the page is read with every disclosure open and
  * every finding shown, and so are five muscles' sheets with their ledgers open (one target muscle
@@ -372,17 +374,17 @@ const F3_SHEETS: { key: RegExp; mayGo: RegExp[]; mayCome: RegExp[]; must: (state
     mayGo: [/^0$/, /^Also loads /, /^Helps /, /^Wrist Roller(, Extension Wind)?$/, /^\[name\] Do not suggest Wrist Roller(, Extension Wind)?$/],
     mayCome: [
       /^\d+$/, /^\d+ sets$/, /^\d+ s$/, /^About (Farmer Hold|Suitcase Carry|Dead Hang|Farmer’s Walk)$/, /^(Farmer Hold|Suitcase Carry|Dead Hang|Farmer’s Walk|Behind-the-Back Wrist Curl|Cable Wrist Curl|Cable)$/,
-      /^By FCR, FCU\.( Straps not recorded\.)?$/, /^Incidental grip \/ stabilization$/, /^Measured by EMG$/, /^Anatomy reference$/, /^Open this workout$/, /^(Flexor carpi (radialis|ulnaris)|Palmaris longus) · Wrist flexion$/,
-      /^Steadies the joint, holds still\. Counted as incidental grip \/ stabilization\.$/, /^Direct target, moves the joint\. Counted as direct dynamic\.$/, /^Direct wrist flexion; \d+ of your 8 direct moving sets in Plan Week 1\.$/,
+      /^By FCR, FCU\.( Straps not recorded\.)?$/, /^Grip$/, /^Measured by EMG$/, /^Anatomy reference$/, /^Open this workout$/, /^(Flexor carpi (radialis|ulnaris)|Palmaris longus) · Wrist flexion$/,
+      /^Steadies the joint, holds still\. Counted as grip\.$/, /^Direct target, moves the joint\. Counted as a direct set\.$/, /^Direct wrist flexion; \d+ of your 8 direct moving sets in Plan Week 1\.$/,
       /^Suggested$/, /^Week 1 · Day \d+ · .+$/, /^Sources show what the muscle does, not how much it grows\. The kind of work is the app's counting rule \(specialization_exposure_v2\)\.$/, /^Why this counts$/, /^Also loads /, /^\[name\] Do not suggest (Behind-the-Back Wrist Curl|Cable Wrist Curl)$/,
     ],
-    must: (state) => (state.startsWith("planned") ? ["Cable Wrist Curl", "Behind-the-Back Wrist Curl"] : ["By FCR, FCU.", "Incidental grip / stabilization"]),
+    must: (state) => (state.startsWith("planned") ? ["Cable Wrist Curl", "Behind-the-Back Wrist Curl"] : ["By FCR, FCU.", "Grip"]),
   },
   {
     key: /^model: (Flexor carpi (radialis|ulnaris)|Flexor pollicis longus)$/,
     mayGo: [/^0$/, /^Muscle details$/, /^None logged in this window\.$/, /^Nothing logged for it in this window\. \d+ sets under review, not counted\.$/],
-    mayCome: [/^\d+$/, /^\d+ incidental grip \/ stabilization$/, /^(Farmer Hold|Suitcase Carry)$/, /^View$/, /^View contributions$/, /^\[name\] View (Farmer Hold|Suitcase Carry)$/],
-    must: () => ["2 incidental grip / stabilization"],
+    mayCome: [/^\d+$/, /^\d+ grip$/, /^(Farmer Hold|Suitcase Carry)$/, /^View$/, /^View contributions$/, /^\[name\] View (Farmer Hold|Suitcase Carry)$/],
+    must: () => ["2 grip"],
   },
 ];
 

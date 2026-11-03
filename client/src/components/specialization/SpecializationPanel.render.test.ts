@@ -509,7 +509,7 @@ describe("why an exercise counts (brief §2–§3: the mapping and its evidence)
     const sheet = screen.getByRole("dialog", { name: "Brachioradialis" });
     const ledger = within(sheet).getByRole("heading", { name: "Where the numbers come from" }).closest("section")!;
     const why = within(ledger).getByText("Why this counts").closest("details")!;
-    expect(within(why).getByText("Direct target, moves the joint. Counted as direct dynamic.")).not.toBeNull();
+    expect(within(why).getByText("Direct target, moves the joint. Counted as a direct set.")).not.toBeNull();
     expect(within(why).getAllByText("Inferred from anatomy").length).toBeGreaterThan(0);
     expect(within(why).getByText(/^Hammer-style curls keep the forearm in neutral/)).not.toBeNull();
     expect(within(why).getAllByRole("link").length).toBeGreaterThan(0);

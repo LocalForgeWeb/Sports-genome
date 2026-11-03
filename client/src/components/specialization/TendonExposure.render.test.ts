@@ -209,10 +209,10 @@ describe("the section, open, in §4.3's order", () => {
     render(createElement(Harness));
     await openSection();
     const rows = Array.from(section().querySelectorAll(".spz-tendon-groups > li")).map((item) => item.textContent);
-    expect(rows).toEqual(["Common flexor origin · 3 sets3 target · 0 holds · 0 other"]);
+    expect(rows).toEqual(["Common flexor origin · 3 sets3 direct · 0 holds · 0 other"]);
     await click(section().querySelector("button.spz-tendon-group")!);
     expect(dialog().querySelector("h2")!.textContent).toBe("Common flexor origin");
-    expect(within(dialog()).getByRole("region", { name: "Target: 3 sets" })).not.toBeNull();
+    expect(within(dialog()).getByRole("region", { name: "Direct: 3 sets" })).not.toBeNull();
   });
 
   it("draws a column per day of the week, a day still to come as –, and a day with sets opens them by list", async () => {
@@ -225,12 +225,12 @@ describe("the section, open, in §4.3's order", () => {
     expect(days[4].querySelector(".spz-day")!.getAttribute("aria-label")).toMatch(/: still to come$/);
     const tuesday = days[1].querySelector("button.spz-day")!;
     const long = new Date("2026-10-20T12:00:00Z").toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
-    expect(tuesday.getAttribute("aria-label")).toBe(`${long}: 3 sets (3 target, 0 holds, 0 other). See these sets`);
+    expect(tuesday.getAttribute("aria-label")).toBe(`${long}: 3 sets (3 direct, 0 holds, 0 other). See these sets`);
     // The stacked bar: target only, three of twelve.
     expect((tuesday.querySelector(".spz-bar-direct") as HTMLElement).style.height).toBe("25%");
     await click(tuesday);
     expect(dialog().querySelector("h2")!.textContent).toBe(`Inner elbow · ${long}`);
-    expect(within(dialog()).getAllByRole("region").map((part) => part.getAttribute("aria-label"))).toEqual(["Target: 3 sets"]);
+    expect(within(dialog()).getAllByRole("region").map((part) => part.getAttribute("aria-label"))).toEqual(["Direct: 3 sets"]);
   });
 
   it("marks the first day of a rolling window as part of a day, in eight columns", async () => {
@@ -303,7 +303,7 @@ describe("the change line", () => {
       [{ state: "change", last: 25, median: 16, change: 9, ...base, aboveEveryKnownWeek: true, baseline: [week(4, 16), week(3, 18), week(1, 14), week(4, 12)] }, "sets", "Last week: 25 sets · median of the 4 weeks before: 16 (weeks with 4, 3, 1 and 4 finished workouts) · +9 sets · more than in any of those weeks."],
       // A median of 0 beside a known week above 0 is a change, never "none in the 4 weeks before".
       [{ state: "change", last: 3, median: 0, change: 3, ...base, knownWeeks: 3, aboveEveryKnownWeek: false, baseline: [week(2, 0), week(2, 0), week(0, null), week(1, 5)] }, "sets", "Last week: 3 sets · median of the 4 weeks before: 0 (weeks with 2, 2 and 1 finished workouts) · +3 sets."],
-      [{ state: "change", last: 2, median: 2.5, change: -0.5, ...base, aboveEveryKnownWeek: false, baseline: [week(1, 2), week(1, 3), week(1, 2), week(1, 3)] }, "target", "Last week: 2 target sets · median of the 4 weeks before: 2.5 (weeks with 1, 1, 1 and 1 finished workouts) · −0.5 target sets."],
+      [{ state: "change", last: 2, median: 2.5, change: -0.5, ...base, aboveEveryKnownWeek: false, baseline: [week(1, 2), week(1, 3), week(1, 2), week(1, 3)] }, "target", "Last week: 2 direct sets · median of the 4 weeks before: 2.5 (weeks with 1, 1, 1 and 1 finished workouts) · −0.5 direct sets."],
       [{ state: "change", last: 4, median: 4, change: 0, ...base, aboveEveryKnownWeek: false, baseline: [week(1, 4), week(1, 4), week(1, 4), week(1, 4)] }, "other", "Last week: 4 other sets · median of the 4 weeks before: 4 (weeks with 1, 1, 1 and 1 finished workouts) · no change."],
       [{ state: "change", last: 190, median: 90, change: 100, ...base, aboveEveryKnownWeek: true, baseline: [week(1, 90), week(1, 80), week(1, 100), week(1, 90)] }, "holdSeconds", "Last week: 3 min 10 s of holds · median of the 4 weeks before: 1 min 30 s (weeks with 1, 1, 1 and 1 finished workouts) · +1 min 40 s · more than in any of those weeks."],
       [{ state: "some_untimed", last: 120, ...base, lastHoldsWithoutTime: 1, baseline: [week(1, 40), week(0, null), week(1, 30, 1), week(1, 0)] }, "holdSeconds", "Hold time is not compared, because some holds in these weeks have no time recorded. Last week: 2 min recorded, 1 hold with no time recorded. The 4 weeks before: 40 s · no finished workout · 30 s and 1 hold with no time · 0 s."],
@@ -331,13 +331,13 @@ describe("the change line", () => {
     expect(section().querySelector(".spz-tendon-change h4")!.textContent).toBe("Last week (12–18 Oct) beside the 4 weeks before");
     expect(changeLines()).toEqual([
       "Last week: 6 sets · median of the 4 weeks before: 2 (weeks with 1, 1, 1 and 1 finished workouts) · +4 sets · more than in any of those weeks.",
-      "Last week: 6 target sets · median of the 4 weeks before: 2 · +4 target sets · more than in any of those weeks.",
+      "Last week: 6 direct sets · median of the 4 weeks before: 2 · +4 direct sets · more than in any of those weeks.",
     ]);
     const prompt = section().querySelector(".spz-tendon-prompt")!;
     expect(prompt.querySelector("p")!.textContent).toBe(TENDON_PROMPT);
     await click(within(prompt as HTMLElement).getByRole("button", { name: /See these sets/ }));
     expect(dialog().querySelector("h2")!.textContent).toBe("Outer elbow · last week");
-    expect(within(dialog()).getByRole("region", { name: "Target: 6 sets" })).not.toBeNull();
+    expect(within(dialog()).getByRole("region", { name: "Direct: 6 sets" })).not.toBeNull();
     await closeDialog();
     expect(section().querySelector(".spz-tendon-planned h4")!.textContent).toBe("Planned in Week 1 at the outer elbow");
     expect(entries().map((entry) => entry.querySelector("p")!.textContent)).toEqual(["Reverse Wrist CurlDay 01 · 3 × 10–25 · 3 sets counted here", "Hammer CurlDay 02 · 1 × 10 · 1 set counted here"]);

@@ -1,6 +1,6 @@
 import { formatDisplayWeight, type DisplayWeightUnit } from "@/lib/weightUnits";
 import { creditedMappingsFor, mappingsByKey } from "@shared/specialization/exposure";
-import { categoryFor, exposureCategoryLabelsFor } from "@shared/specialization/rules";
+import { categoryFor } from "@shared/specialization/rules";
 import type { AnatomyNode, Contribution, ContributionSegment, ExposureCategory, GoalMetric, GoalProgress, JointAction, MappingEvidenceBasis, MuscleMode, NodeExposure, NodeId, RegionBoutRow, RegionWording, Relationship, SideRelation, SpecializationRegion, SpecializationRegionData, SpecializationSummary, VariantMapping } from "@shared/specialization/types";
 import { drawableNodeIds } from "./diagramGeometry";
 
@@ -224,9 +224,25 @@ export const goalMetricShortLabels: Record<GoalMetric, string> = {
   deliberate_hold_seconds: "Hold seconds",
 };
 
-/** A kind of work as the ledger names it, incidental work in the region's word ("Incidental grip / stabilization"). */
+/**
+ * A kind of work as the page names it, in the list rows' own words (owner, 3 Nov 2026: "consistent
+ * and cohesive"): a row reads "8 direct · 4 other · 2 holds · 5 grip", so a set in the ledger is a
+ * "Direct set", an "Other set", a "Hold" or, in the region's word, "Grip". The published rule keeps
+ * its formal names (`exposureCategoryLabels`); these are the page's.
+ */
 export function categoryLabel(category: ExposureCategory, wording: Pick<RegionWording, "incidentalWork">): string {
-  return exposureCategoryLabelsFor(wording)[category];
+  return { direct_dynamic: "Direct set", contributing_dynamic: "Other set", deliberate_isometric: "Hold", incidental_isometric: upperFirst(wording.incidentalWork), mixed: "Mixed", unknown: "Unclassified" }[category];
+}
+
+/** "Counted as a direct set": one set of a kind, in a sentence. */
+export function categoryPhrase(category: ExposureCategory, wording: Pick<RegionWording, "incidentalWork">): string {
+  return { direct_dynamic: "a direct set", contributing_dynamic: "other work", deliberate_isometric: "a hold", incidental_isometric: wording.incidentalWork, mixed: "mixed work", unknown: "unclassified work" }[category];
+}
+
+/** A count of one kind, as a list row says it: "3 direct", "4 other", "2 holds", "5 grip". */
+export function categoryCount(category: ExposureCategory, count: number, wording: Pick<RegionWording, "incidentalWork">): string {
+  return category === "deliberate_isometric" ? plural(count, "hold")
+    : `${count} ${{ direct_dynamic: "direct", contributing_dynamic: "other", incidental_isometric: wording.incidentalWork, mixed: "mixed", unknown: "unclassified" }[category]}`;
 }
 
 /** One segment of a bout, as the athlete logged it: "20 kg × 12", "30 s", "× 10". */

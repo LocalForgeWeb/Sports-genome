@@ -141,17 +141,17 @@ export function aboutMeSentence(area: SpecializationAreaReport, regionWord: stri
 type MetricNoun = { one: string; many: string };
 const metricNouns: Record<Exclude<TendonMetric, "holdSeconds">, MetricNoun> = {
   sets: { one: "set", many: "sets" },
-  target: { one: "target set", many: "target sets" },
+  target: { one: "direct set", many: "direct sets" },
   holds: { one: "hold", many: "holds" },
   other: { one: "other set", many: "other sets" },
 };
-/** One value of a metric in words: "25 sets", "2.5 target sets", "3 min 10 s of holds". */
+/** One value of a metric in words: "25 sets", "2.5 direct sets", "3 min 10 s of holds". */
 function amountWords(metric: TendonMetric, value: number): string {
   if (metric === "holdSeconds") return `${timeWords(value)} of holds`;
   const noun = metricNouns[metric];
   return `${numberWords(value)} ${value === 1 ? noun.one : noun.many}`;
 }
-/** A signed change: "+9 sets", "−3 target sets", "+1 min 40 s"; none is "no change". */
+/** A signed change: "+9 sets", "−3 direct sets", "+1 min 40 s"; none is "no change". */
 function changeWords(metric: TendonMetric, change: number): string {
   if (change === 0) return "no change";
   const sign = change > 0 ? "+" : "−";
@@ -308,9 +308,9 @@ function TendonBody(props: TendonExposureProps & { summary: SpecializationSummar
   const area = counted.areas.find((item) => item.id === areaId) ?? counted.areas[0];
   const nameOf = (nodeId: string) => data.nodes.find((node) => node.id === nodeId)?.name ?? nodeId;
 
-  /** A set list for the sheet, the non-empty ones only, in the order Target · Holds · Other · Strapped · Pending. */
+  /** A set list for the sheet, the non-empty ones only, in the order Direct · Holds · Other · Strapped · Pending. */
   const listsOf = (lists: TendonSetLists): BoutList[] => [
-    { key: "target", heading: `Target: ${plural(lists.target.length, "set")}`, note: null, rows: lists.target },
+    { key: "target", heading: `Direct: ${plural(lists.target.length, "set")}`, note: null, rows: lists.target },
     { key: "holds", heading: `Holds: ${plural(lists.holds.length, "set")}`, note: null, rows: lists.holds },
     { key: "other", heading: `Other: ${plural(lists.other.length, "set")}`, note: `${otherWorkWords.charAt(0).toUpperCase()}${otherWorkWords.slice(1)} work.`, rows: lists.other },
     { key: "strapped", heading: `Done with straps, not counted here: ${plural(lists.strapped.length, "set")}`, note: null, rows: lists.strapped },
@@ -432,7 +432,7 @@ function GroupRows({ area, nameOf, onOpen }: { area: TendonAreaView; nameOf: (no
     {area.groups.map((group) => {
       const counts = group.counts;
       const opens = counts.sets + counts.strapped + counts.pending > 0;
-      const kinds = group.members.length ? `${counts.target} target · ${plural(counts.holds.sets, "hold")} · ${counts.other} other` : "No reviewed muscle here yet";
+      const kinds = group.members.length ? `${counts.target} direct · ${plural(counts.holds.sets, "hold")} · ${counts.other} other` : "No reviewed muscle here yet";
       const notYet = group.notPlacedYet.length ? `Not placed here yet: ${listWords(group.notPlacedYet.map(nameOf))}` : null;
       const body = <>
         <span><b>{group.label} · {plural(counts.sets, "set")}</b><small>{kinds}</small>{notYet && <small>{notYet}</small>}</span>
@@ -443,7 +443,7 @@ function GroupRows({ area, nameOf, onOpen }: { area: TendonAreaView; nameOf: (no
   </ul>;
 }
 
-/** The area's day columns (the page's `.spz-days`): a stacked target · holds · other bar, full at 12; a day still to come is "–". */
+/** The area's day columns (the page's `.spz-days`): a stacked direct · holds · other bar, full at 12; a day still to come is "–". */
 function DayColumns({ area, days, todayKey, onOpen }: { area: TendonAreaView; days: TendonAreaView["days"]; todayKey: string; onOpen: (dayKey: string, long: string, lists: TendonSetLists) => void }) {
   if (days === null) return null;
   if (days === "too_long") return <p className="spz-note">Choose 31 days or fewer to see the work day by day.</p>;
@@ -451,7 +451,7 @@ function DayColumns({ area, days, todayKey, onOpen }: { area: TendonAreaView; da
   const wide = days.length > 7;
   const height = (value: number) => `${(Math.min(value, BAR_FULL) / BAR_FULL) * 100}%`;
   return <>
-    <p className="spz-legend-line"><span><i className="spz-key spz-key-direct" /> Target</span><span><i className="spz-key spz-key-holds" /> Holds</span><span><i className="spz-key spz-key-other" /> Other</span><span>· bar full at {BAR_FULL} sets</span></p>
+    <p className="spz-legend-line"><span><i className="spz-key spz-key-direct" /> Direct</span><span><i className="spz-key spz-key-holds" /> Holds</span><span><i className="spz-key spz-key-other" /> Other</span><span>· bar full at {BAR_FULL} sets</span></p>
     <p className="spz-note">{TENDON_OTHER_KEY}</p>
     <ol className="spz-days spz-tendon-days" aria-label={`Sets per day at the ${lowerFirst(area.label)}`}>
       {days.map((day) => {
@@ -471,7 +471,7 @@ function DayColumns({ area, days, todayKey, onOpen }: { area: TendonAreaView; da
           <small>{label}</small>
           {day.partial && <small className="spz-tendon-partial">part</small>}
         </>;
-        const said = `${long}${day.partial ? ", part of the day" : ""}: ${plural(day.sets, "set")} (${day.target} target, ${plural(day.holds.sets, "hold")}, ${day.other} other)`;
+        const said = `${long}${day.partial ? ", part of the day" : ""}: ${plural(day.sets, "set")} (${day.target} direct, ${plural(day.holds.sets, "hold")}, ${day.other} other)`;
         const opens = day.sets + day.strapped + day.pending > 0;
         return <li key={day.dayKey} data-today={day.dayKey === todayKey || undefined}>
           {opens

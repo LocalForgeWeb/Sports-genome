@@ -57,12 +57,13 @@ describe("exposure encoding", () => {
     expect(Array.from(container.querySelectorAll("pattern rect")).map((rect) => rect.getAttribute("fill"))).toEqual(["var(--sg-rank-unavailable-fill, #2e3a49)", "var(--sg-rank-unavailable-hatch, #6f7d90)"]);
   });
 
-  it("keeps the ramp as five distinct tokens of one hue, none of them a role or rank colour", () => {
+  it("keeps the ramp as five distinct tokens of one red, darker for more work, none of them a role or rank colour", () => {
     const tokens = [1, 2, 3, 4, 5].map((step) => css.match(new RegExp(`--sg-exposure-${step}: (#[0-9a-f]{6});`))?.[1]);
     expect(tokens.every(Boolean)).toBe(true);
     expect(new Set(tokens).size).toBe(5);
     const lightness = tokens.map((hex) => { const n = Number.parseInt(hex!.slice(1), 16); return ((n >> 16) & 255) * 0.2126 + ((n >> 8) & 255) * 0.7152 + (n & 255) * 0.0722; });
-    expect(lightness).toEqual([...lightness].sort((a, b) => a - b));
+    // More work is darker: the owner's red scale, light rose to very dark red (26 Oct 2026).
+    expect(lightness).toEqual([...lightness].sort((a, b) => b - a));
     // Step 1 is a clear lightness step above the resting muscle, not a change of hue alone.
     const linear = (hex: string) => { const n = Number.parseInt(hex.slice(1), 16); return [16, 8, 0].map((shift) => { const c = ((n >> shift) & 255) / 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }); };
     const luminance = (hex: string) => { const [r, g, b] = linear(hex); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
