@@ -57,7 +57,7 @@ describe("what the load box means", () => {
     expect(loadBasisText(428, undefined)).toBe("Harness load");
     expect(loadBasisText(440, undefined)).toBe("Load basis not recorded");
     expect(loadBasisText(440, { load_convention: "plates_only" })).toBe("Plates only");
-    expect(loadBasisText(440, { load_convention: "total_known_bar" })).toBe("Plates + known bar");
+    expect(loadBasisText(440, { load_convention: "total_known_bar" })).toBe("Plates + bar");
     expect(loadBasisText(421, undefined)).toBeNull();
     expect(loadBasisText(1, undefined)).toBeNull();
   });

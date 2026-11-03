@@ -1,6 +1,6 @@
-import type { AnatomyNode, ArmSide, GoalMetric, GoalPeriod, GoalProgress, NodeExposure, SpecializationRegionData, SpecializationSummary, SummaryMode, SummarySide } from "@shared/specialization/types";
+import type { AnatomyNode, ArmSide, ExposureCategory, GoalMetric, GoalPeriod, GoalProgress, NodeExposure, SpecializationRegionData, SpecializationSummary, SummaryMode, SummarySide } from "@shared/specialization/types";
 import type { SpecializationWindow } from "@/lib/specialization/viewState";
-import { categoryLabel, layerLabels, ledgerByExercise } from "../model";
+import { categoryCount, layerLabels, ledgerByExercise } from "../model";
 import { modelSourceForCanonical } from "./modelIdentity";
 
 /**
@@ -121,14 +121,14 @@ function targetOf(progress: GoalProgress, view: ViewerWindow): ViewerTarget {
 
 function exercisesOf(exposure: NodeExposure, wording: SpecializationRegionData["region"]["wording"]): ViewerExercise[] {
   return ledgerByExercise(exposure.contributions).map((group) => {
-    const counts = new Map<string, number>();
-    for (const row of group.rows) counts.set(categoryLabel(row.category, wording), (counts.get(categoryLabel(row.category, wording)) ?? 0) + 1);
+    const counts = new Map<ExposureCategory, number>();
+    for (const row of group.rows) counts.set(row.category, (counts.get(row.category) ?? 0) + 1);
     return {
       key: group.key,
       catalogExerciseId: group.catalogExerciseId,
       name: group.name,
       bouts: group.rows.length,
-      breakdown: Array.from(counts, ([label, count]) => `${count} ${label.toLowerCase()}`).join(" · "),
+      breakdown: Array.from(counts, ([category, count]) => categoryCount(category, count, wording)).join(" · "),
       matchedBy: group.matchedBy,
     };
   });

@@ -28,17 +28,18 @@
   --sg-role-supporting: #cd6570;
   --sg-role-stabilizing: #956570;
   --sg-role-neutral-on-dark: #34465a;
-  /* Exposure (Train → Review's week board): five steps of one muted sand hue, from a tone just
-     above the resting muscle to a pale warm grey. One hue, so the figure reads as more or less
-     of one thing; muted and warm grey, so no step is read as a role (the reds) or a rank. A
-     region with nothing planned keeps the resting tone and is not a step. */
-  /* Step 1 sits a clear lightness step (about 1.8:1) above the resting muscle, so a little planned
-     work never differs from none by hue alone. */
-  --sg-exposure-1: #7a6d5c;
-  --sg-exposure-2: #958670;
-  --sg-exposure-3: #b0a088;
-  --sg-exposure-4: #cbbda4;
-  --sg-exposure-5: #e8dfcc;
+  /* Exposure, wherever the app paints how much work a muscle got (Train → Review's week board, the
+     Specialize drawing): five steps of one red, light rose for a little work to a very dark red for
+     the most (owner, 26 Oct 2026: "the really high amount of sets is a very dark red"; one scale
+     everywhere, 3 Nov 2026). Each step is about 1.65:1 darker than the one before, and step 1 sits a
+     clear lightness step (about 4.9:1) above the resting slate, so a little work never differs from
+     none by hue alone. No step is a role colour; every screen that paints them labels them. A muscle
+     with nothing logged or planned keeps the resting tone and is not a step. */
+  --sg-exposure-1: #f7a1a8;
+  --sg-exposure-2: #ee5d6a;
+  --sg-exposure-3: #d1202f;
+  --sg-exposure-4: #970f1c;
+  --sg-exposure-5: #560610;
 }
 
 /* Defaults suit a light surface, because this figure renders on one: the

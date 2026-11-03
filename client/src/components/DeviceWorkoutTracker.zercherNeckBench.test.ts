@@ -235,7 +235,7 @@ describe("a Smith machine's load basis (T15)", () => {
     fireEvent.click(setup.querySelector("summary")!);
     const basis = within(setup).getByRole("group", { name: /Load counted as/ });
     expect(pressed(basis)).toEqual(["Plates only"]);
-    fireEvent.click(within(basis).getByRole("button", { name: "Plates + known bar" }));
+    fireEvent.click(within(basis).getByRole("button", { name: "Plates + bar" }));
     expect(within(card()).getByLabelText(/^Plates \+ bar/)).toBeTruthy();
     type(/^Plates \+ bar/, "55");
     type("Reps", "5");

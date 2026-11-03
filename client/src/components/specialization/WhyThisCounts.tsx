@@ -1,7 +1,7 @@
 import { ChevronDown } from "lucide-react";
 import { categoryFor, currentExposureRule } from "@shared/specialization/rules";
 import type { SpecializationRegionData } from "@shared/specialization/types";
-import { categoryLabel, evidenceBasisLabels, mappingAction, mappingsBehind, muscleModeLabels, relationshipLabels } from "./model";
+import { categoryPhrase, evidenceBasisLabels, mappingAction, mappingsBehind, muscleModeLabels, relationshipLabels } from "./model";
 
 /**
  * "Why this counts": the reviewed mapping(s) behind an exercise's credit, said plainly (brief
@@ -26,10 +26,10 @@ export function WhyThisCounts({ data, mappingIds }: { data: SpecializationRegion
       {mappings.map((mapping) => {
         const action = mappingAction(data, mapping)?.label ?? null;
         const variant = variantById.get(mapping.variantId);
-        const counted = variant ? categoryLabel(categoryFor(mapping.relationship, mapping.muscleMode, variant.deliberateHold), data.region.wording) : null;
+        const counted = variant ? categoryPhrase(categoryFor(mapping.relationship, mapping.muscleMode, variant.deliberateHold), data.region.wording) : null;
         return <li key={`${mapping.versionKey}/${mapping.id}`}>
           <p className="spz-why-head"><b>{nodeName(mapping.nodeId)}{action ? ` · ${action}` : ""}</b></p>
-          <p className="spz-why-line">{relationshipLabels[mapping.relationship]}, {muscleModeLabels[mapping.muscleMode]}{counted ? `. Counted as ${counted.toLowerCase()}.` : "."}</p>
+          <p className="spz-why-line">{relationshipLabels[mapping.relationship]}, {muscleModeLabels[mapping.muscleMode]}{counted ? `. Counted as ${counted}.` : "."}</p>
           <p className="spz-why-basis"><span className="spz-badge">{evidenceBasisLabels[mapping.evidenceBasis]}</span>{mapping.reviewStatus !== "reviewed" ? <small>Not reviewed yet</small> : null}</p>
           <p className="spz-why-rationale">{mapping.rationale}</p>
           {mapping.sources.length ? <ul className="spz-sources">

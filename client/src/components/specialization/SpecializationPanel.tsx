@@ -19,7 +19,7 @@ import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { directWorkCount } from "@shared/specialization/directWork";
 import { goalScopeOf } from "@shared/specialization/goals";
 import { regionIndexEntry, specializationRegionIndex } from "@shared/specialization/regionIndex";
-import { currentExposureRule, exposureCategoryLabelsFor } from "@shared/specialization/rules";
+import { currentExposureRule } from "@shared/specialization/rules";
 import { tendonPlacesOf } from "@shared/specialization/tendonPlaces";
 import { addDaysToDateKey, calendarWeekInterval, isDateKey, localDateKey, planWeekInterval } from "@shared/specialization/time";
 import type { AnatomyNode, DiagramLayerId, ExposureCategory, NodeExposure, RegionId, SpecializationGoal, SpecializationRegion, SpecializationRegionData, SummaryCompleteness, SummaryMode, SummarySide } from "@shared/specialization/types";
@@ -43,7 +43,7 @@ import { ModelMuscleRail } from "./anatomy3d/ModelMuscleRail";
 import { anatomyModelFor, modelSourceForCanonical } from "./anatomy3d/modelIdentity";
 import { ModelMusclePanel } from "./anatomy3d/ModelMusclePanel";
 import { viewerMuscleData, type ViewerSummaryState } from "./anatomy3d/viewerData";
-import { BAR_SCALE, barParts, boutsByDay, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricShortLabels, holdTimeOf, goalsForNode, latestSessionDayLabel, layerLabels, listedUnmappedReasons, listedUnmappedSentences, movementFocusNodeId, overlapLines, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, targetProgressText, upperFirst, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
+import { BAR_SCALE, barParts, boutsByDay, categoryLabel, directWorkBouts, exerciseKeyOf, exercisesInWindow, exposureSentence, fillForNode, findingsFor, goalMetricShortLabels, holdTimeOf, goalsForNode, latestSessionDayLabel, layerLabels, listedUnmappedReasons, listedUnmappedSentences, movementFocusNodeId, overlapLines, overlapsInWindow, regionBoutRows, regionBoutRowsOnDay, selectableNodes, sortForList, targetBins, targetProgressText, upperFirst, volumeBins, type DiagramFill, type Finding, type RegionBoutList } from "./model";
 import { sideWordsFor } from "./sideWords";
 import "@/components/anatomy/anatomy-figure.css";
 import "./specialization.css";
@@ -361,7 +361,8 @@ function SpecializationPage({ data, state, onStateChange, plan, catalog, equipme
   const words = useMemo(() => sideWordsFor(data.region), [data.region]);
   const side: SummarySide = words.paired ? "both" : "midline";
   const regionWord = data.region.label.toLowerCase();
-  const categoryLabels = useMemo(() => exposureCategoryLabelsFor(data.region.wording), [data.region.wording]);
+  // The rule's categories in the page's words ("Direct set", "Hold", "Grip"), beside the rule's own definitions.
+  const categoryLabels = useMemo(() => Object.fromEntries((Object.keys(currentExposureRule.specification.categories) as ExposureCategory[]).map((category) => [category, categoryLabel(category, data.region.wording)])) as Record<ExposureCategory, string>, [data.region.wording]);
 
   const sessions = useDeviceWorkoutSessions();
   const builtWeeks = useMemo(() => Object.keys(plan.weeks).map(Number).filter((week) => week > 0).sort((left, right) => left - right), [plan.weeks]);
@@ -1226,7 +1227,7 @@ function MapLegend({ map }: { map: "volume" | "target" }) {
     {map === "volume" ? <>
       <span><i className="spz-swatch-zero" />None</span>
       {volumeBins.map((label, index) => <span key={label}><i style={{ background: `var(--sg-exposure-${index + 1})` }} />{label}</span>)}
-      <span className="spz-legend-unit">direct sets (a hold counts as one)</span>
+      <span className="spz-legend-unit">direct sets and holds</span>
     </> : <>
       <span><i className="spz-swatch-none" />Not targeted</span>
       {targetBins.map((label, index) => <span key={label}><i style={{ background: `var(--sg-exposure-${index + 1})` }} />{label}</span>)}

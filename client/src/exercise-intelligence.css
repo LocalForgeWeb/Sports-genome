@@ -197,3 +197,5 @@
 .ei-source-kind { color: var(--ei-text-2); font-size: var(--sg-text-base); font-weight: 600; }
 .ei-sources a { display: inline-block; min-height: 2.75rem; padding: .35rem 0; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
 .ei-sources a:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+/* What the source is cited for, and its limit, under its link. */
+.ei-source-use { color: var(--ei-text-2); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }

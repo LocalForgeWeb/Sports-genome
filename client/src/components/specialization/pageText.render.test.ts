@@ -20,7 +20,9 @@ import { NOW, goals, sessions, slots, store, storeWithOneArm } from "./__fixture
 /**
  * The forearm page is held to its reading of 26 Oct 2026: the owner's cleanup ("clean up the forearm
  * page and cut out unnecessary words"), which absorbed wave 0's, wave A's and F1–F3's stated changes
- * (their history, and main's reading at 4dac1ae they were stated against, are in git). Both arms are
+ * (their history, and main's reading at 4dac1ae they were stated against, are in git), read again on
+ * 3 Nov 2026 for the owner's consistency pass ("make sure everything is consistent and cohesive": the
+ * ledger's kinds of work in the list rows' words, "direct sets and holds" in the key). Both arms are
  * counted as one (owner, 20 Oct 2026). The week of __fixtures__/forearmWeek.ts is rendered, both arms
  * as one, for three windows and the plan week; the page is read with every disclosure open and
  * every finding shown, and so are five muscles' sheets with their ledgers open (one target muscle
