@@ -30,3 +30,12 @@ One row per proposal of the owner's handoff (`2026-10-23-zercher-neck-bench-hand
 | `spoto_press` | 443 | Spoto Press | new | Reps | Catalog-level roles; listed as not counted on the upper-arm page until a later upper-arm mapping version | Placeholder (no exact candidate) |
 
 Reused without a new row: 12 Incline Machine Chest Press (aliases "incline bench machine", "machine incline press"; its machine stays unspecified), 15 Smith Machine Incline Press (the handoff's Smith Machine Incline Bench Press), 164 Zercher Squat ("unilateral" removed from its qualities: it is a two-legged squat), 300 Zercher Carry ("grip" removed: the hands do not hold the bar; the atlas already credits no finger flexor).
+
+**3 Nov 2026, the owner: "make sure everything is consistent and cohesive".** The detail now uses the logger's words, with a test that holds the two together (`ExerciseExecutionDetail.words.test.ts`):
+- Each load line opens with the logger's load label ("Plates per arm", "Machine load", "Harness load", "Manual resistance · force not measured"). The history uses the same labels: "Machine load as displayed" is now "Machine load".
+- The Smith choices read "Plates only" and "Plates + bar".
+- The direction is "Head direction", or "Push / turn toward" on a hold.
+- Setup lists only the values the logger asks for.
+- "Setup" replaces "Set-up" throughout.
+
+The steps are rewritten as plain technique for each row. Sources show their titles as links, with what each supports underneath. Train → Review's week board paints the Specialize drawing's red scale. Phone evidence is in `docs/specialization-atlas/evidence/consistency-2026-11-03/`.

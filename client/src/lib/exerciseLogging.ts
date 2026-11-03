@@ -164,7 +164,7 @@ export function loadBasisText(catalogId: number | null | undefined, setup: Exerc
   if (!facts) return null;
   switch (facts.load) {
     case "plates_per_arm": return "Plates per arm";
-    case "machine_display": return "Machine load as displayed";
+    case "machine_display": return "Machine load";
     case "suspended_external_mass": return "Harness load";
     case "manual_unmeasured": return MANUAL_RESISTANCE_LINE;
     case "smith_declared": { const basis = smithLoadBasisOf(setup); return basis ? smithLoadBasisWords[basis] : "Load basis not recorded"; }

@@ -283,6 +283,16 @@ The owner: "focus on cleaning up the forearm page and cutting out unnecessary wo
 - **How this is counted** has the subtitle "Rules, sources and limits"; the rule and mapping versions are a note at its end. The published rule's text, the mappings' rationales and sources, the claims and the method notes are unchanged: they are published content.
 - **The drawing's ramp is red** (above, Bins), and since 3 Nov 2026 so is the week board's on Train → Review: one scale for how much work a muscle got. Checked in headless Chromium with iPhone emulation (390 × 844 and 375 × 667, scale 3): the scale on the palm and back views with a week reaching 15+ sets, where FCR and FCU are very dark red against the navy stage and still clear of it.
 
+## One word per thing (3 Nov 2026)
+
+The owner: "make sure everything is consistent and cohesive". The page and the screens around it now name each thing once, in the list's words:
+
+- **Kinds of work.** The ledger's rows, Why this counts and the 3D model's panel say "Direct set", "Other set", "Hold" and "Grip" (or the region's own word for incidental work), as the list rows and the bar key do, in place of "Direct dynamic", "Contributing dynamic" and "Incidental grip / stabilization" ("Counted as a direct set.", "2 grip"). The rule's published category names are unchanged; only the labels on screen moved (`categoryLabel`, `categoryPhrase` and `categoryCount` in `model.ts`).
+- **Tendon exposure** says "direct" where it said "target" ("Direct: 4 sets", "5 direct · 1 hold · 2 other"), as the list does.
+- **The map key** reads "direct sets and holds": the map paints both, and a hold is not a set.
+- **One red scale** for how much work a muscle got, on this drawing and on Train → Review's week board (above, Bins).
+- **Re-read.** `pageText.render.test.ts` compares against the same reading of 26 Oct, re-read on 3 Nov for these words; no number changed (`pageNumbers.render.test.ts`). Phone evidence: `evidence/consistency-2026-11-03/`.
+
 ## Tests
 
 - `client/src/components/specialization/TendonExposure.render.test.ts` (F2, T3): the card's place and summary in both modes, nothing of it before it opens; the open section in §4.3's order; the areas, groups and day columns and the sets each opens; a rolling window's eight columns, the first marked part; past 31 days; Planned mode per area only; holds as text and the sets kept apart (the forearm week); each change state's words, halves kept, and the prompt's gate; the prompt, See these sets and the planned rows; −1 set, Move and Take out acting at once with Undo, a one-set entry's reason in place, Swap's sheet on that entry, the stack's link; "Attaches at" on the muscle sheet and the 3D panel; and §4.4's never-list over every string the section can render, sheets and states included. `TendonExposure.deltoid.render.test.ts`: the fixture's two areas with no deltoid code, its draft pair and its muscle not placed, nothing of the forearm's. `TendonExposure.lazy.render.test.ts`: no code and no areas fetched before the first open, once after it, kept mounted.

@@ -104,9 +104,9 @@ describe("tendon exposure on the deltoid fixture", () => {
     // Three raises (lateral head) and two presses (anterior head): five at the front; the raises only on the outside, where the anterior head is a draft.
     expect(areaButtons().map((button) => (button.textContent ?? "").replace(/\u00a0/g, " "))).toEqual(["Front of the shoulder · 5", "Outer shoulder · 3"]);
     const groups = () => Array.from(section().querySelectorAll(".spz-tendon-groups > li")).map((item) => item.textContent);
-    expect(groups()).toEqual(["Front and side heads · 5 sets5 target · 0 holds · 0 other"]);
+    expect(groups()).toEqual(["Front and side heads · 5 sets5 direct · 0 holds · 0 other"]);
     await click(areaButtons()[1]);
-    expect(groups()).toEqual(["Side and front heads · 3 sets3 target · 0 holds · 0 otherNot placed here yet: Anterior deltoid"]);
+    expect(groups()).toEqual(["Side and front heads · 3 sets3 direct · 0 holds · 0 otherNot placed here yet: Anterior deltoid"]);
     // The posterior head is in no group: said once, with its reason.
     expect(section().querySelector(".spz-tendon-not-placed")!.textContent).toBe("Posterior deltoid Test fixture: a head in no group, so the not-placed line runs on a second region.");
     // A group's caveat is said with its sets.

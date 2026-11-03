@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
 import { exerciseExecutionById } from "@/lib/exerciseExecution";
-import { headDirectionPrompt, MANUAL_RESISTANCE_LINE, smithLoadBasisWords } from "@/lib/exerciseLogging";
+import { editableSetupFieldsOf, headDirectionPrompt, MANUAL_RESISTANCE_LINE, setupFieldSpecs, smithLoadBasisWords } from "@/lib/exerciseLogging";
 import { setEntryFieldsFor } from "@/lib/setEntryFields";
 import { loadConventionWords, loggingLines } from "./ExerciseExecutionDetail";
 
@@ -33,6 +33,17 @@ describe("the detail says what the logger says", () => {
       const terms = loggingLines(exercise, execution).map((line) => line.term);
       if (execution.headDirection) expect(terms, exercise.name).toContain(headDirectionPrompt(id));
       expect(terms.some((term) => /set-up/i.test(term))).toBe(false);
+    }
+  });
+
+  it("lists in Setup exactly the values the logger asks for, in its order: the load basis only on a Smith machine", () => {
+    for (const [id, execution] of exerciseExecutionById) {
+      const exercise = exercises.find((row) => row.id === id)!;
+      const setup = loggingLines(exercise, execution).find((line) => line.term === "Setup");
+      const asked = editableSetupFieldsOf(id).map((field) => setupFieldSpecs[field].label);
+      if (!asked.length) { expect(setup, exercise.name).toBeUndefined(); continue; }
+      const listed = setup!.detail.replace(/\. A different setup is compared apart\.$/, "").split(" · ").map((words) => words.replace(/ \(.+\)$/, ""));
+      expect(listed, exercise.name).toEqual(asked);
     }
   });
 });

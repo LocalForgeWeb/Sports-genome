@@ -60,7 +60,9 @@ export function loggingLines(exercise: Pick<Exercise, "id" | "name">, execution:
   ];
   // The logger's own label for the choice: "Head direction", or "Push / turn toward" on a hold.
   if (execution.headDirection) lines.push({ term: headDirectionPrompt(exercise.id) ?? "Head direction", detail: "Left or Right, on every set. Each side is its own set." });
-  if (execution.setupFields.length) lines.push({ term: "Setup", detail: `${execution.setupFields.map(setupFieldWords).join(" · ")}. A different setup is compared apart.` });
+  // What the logger asks for, in its order: the load basis is asked only on a Smith machine; elsewhere the Load line states it.
+  const asked = execution.setupFields.filter((field) => field !== "load_convention" || execution.load === "smith_declared");
+  if (asked.length) lines.push({ term: "Setup", detail: `${asked.map(setupFieldWords).join(" · ")}. A different setup is compared apart.` });
   return lines;
 }
 

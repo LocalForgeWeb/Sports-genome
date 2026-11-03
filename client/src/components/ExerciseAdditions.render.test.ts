@@ -71,7 +71,7 @@ describe("the exercise detail of a row with an execution record", () => {
     const logged = screen.getByRole("heading", { name: "How a set is logged" }).parentElement!;
     expect(logged.textContent).toContain("Reps.");
     expect(logged.textContent).toContain("Plates per arm, entered arm by arm. The arms can differ.");
-    expect(logged.textContent).toContain("Machine · Seat or bench · Load counted as.");
+    expect(logged.textContent).toContain("Machine · Seat or bench. A different setup is compared apart.");
     expect(logged.textContent).not.toContain("Head direction");
     const roles = screen.getByRole("heading", { name: "What the muscles do" }).parentElement!;
     expect(roles.textContent).toContain("Moves the load");
